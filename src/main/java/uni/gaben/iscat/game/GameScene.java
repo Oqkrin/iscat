@@ -12,6 +12,6 @@ public class GameScene extends Scene {
     public GameScene() {
         super(new StackPane());
         StackPane root = (StackPane) getRoot();
-        //root.getChildren().add(new GamePanel());
+        root.getChildren().add(new GamePanel());
     }
 }
