@@ -8,15 +8,20 @@ import uni.gaben.iscat.login.model.LoginState;
 public class LoginController {
 
     private final LoginModel model;
-    private final LoginData login;
+    private final LoginData loginData;
     private final StringBuilder usernameBuffer = new StringBuilder();
     private final StringBuilder passwordBuffer = new StringBuilder();
-    private LoginState currentLoginState = LoginState.USERNAME;
-    private Runnable onLoginSuccess; // La nostra callback
 
-    public LoginController(LoginModel model, LoginData login) {
+    private LoginState currentLoginState = LoginState.USERNAME;
+    private Runnable onLoginSuccess;
+
+    public LoginController(LoginModel model, LoginData loginData) {
         this.model = model;
-        this.login = login;
+        this.loginData = loginData;
+
+        // Sincronizziamo lo stato interno se l'utente clicca sulla Scene
+        model.loginStateProperty().addListener((obs, old, isTypingPass) ->
+                this.currentLoginState = isTypingPass ? LoginState.PASSWORD : LoginState.USERNAME);
     }
 
     public void onKeyPressed(KeyEvent e) {
@@ -29,82 +34,101 @@ public class LoginController {
 
     public void onKeyTyped(KeyEvent e) {
         String ch = e.getCharacter();
-        if (ch.isEmpty() || ch.charAt(0) < 32) return;
+        // Filtriamo caratteri non stampabili (es. Enter/Backspace che gestiamo sopra)
+        if (ch.isEmpty() || ch.charAt(0) < 32 || e.isControlDown()) return;
 
-        switch (currentLoginState) {
-            case USERNAME -> {
-                usernameBuffer.append(ch.charAt(0));
-                model.setStatus(login.exists(usernameBuffer.toString().trim()) ? "nome utente trovato" : "registrati" );
-            }
-            case PASSWORD -> passwordBuffer.append(ch.charAt(0));
+        char character = ch.charAt(0);
+
+        if (currentLoginState == LoginState.USERNAME) {
+            usernameBuffer.append(character);
+        } else {
+            passwordBuffer.append(character);
         }
+
         updateDisplay();
+        checkUserExistence(); // Verifica real-time per il colore dell'icona
     }
 
     private void onBackspace() {
-
-        switch (currentLoginState) {
-            case USERNAME -> { if(!usernameBuffer.isEmpty()) usernameBuffer.deleteCharAt(usernameBuffer.length()-1); }
-            case PASSWORD -> {
-                if (!passwordBuffer.isEmpty()) passwordBuffer.deleteCharAt(passwordBuffer.length()-1);
-                else currentLoginState = LoginState.USERNAME;
+        if (currentLoginState == LoginState.USERNAME) {
+            if (!usernameBuffer.isEmpty()) usernameBuffer.deleteCharAt(usernameBuffer.length() - 1);
+        } else {
+            if (!passwordBuffer.isEmpty()) {
+                passwordBuffer.deleteCharAt(passwordBuffer.length() - 1);
+            } else {
+                // Se la password è vuota e premo backspace, torno allo username
+                switchToUsername();
             }
         }
-
         updateDisplay();
+        checkUserExistence();
     }
 
     private void onEnter() {
-        switch (currentLoginState) {
-            case USERNAME -> {
-                String u = usernameBuffer.toString().trim();
-                if (!u.isEmpty()) enterPasswordPhase(u);
-            }
-            case PASSWORD -> submitPassword();
+        if (currentLoginState == LoginState.USERNAME) {
+            String u = usernameBuffer.toString().trim();
+            if (!u.isEmpty()) switchToPassword();
+        } else {
+            submitLogin();
         }
     }
 
-    private void enterPasswordPhase(String username) {
+    private void checkUserExistence() {
+        String u = usernameBuffer.toString().trim();
+        boolean exists = loginData.exists(u);
+        model.setUserExists(exists);
+
+        if (currentLoginState == LoginState.USERNAME) {
+            model.setStatus(u.isEmpty() ? "" : (exists ? "giocatore esistente (accedi) " : "nuovo giocatore (registrati)"));
+        }
+    }
+
+    private void switchToUsername() {
+        currentLoginState = LoginState.USERNAME;
+        model.setLoginState(false);
+        checkUserExistence();
+    }
+
+    private void switchToPassword() {
         currentLoginState = LoginState.PASSWORD;
-        passwordBuffer.setLength(0);
         model.setLoginState(true);
-        model.setStatus(login.exists(username) ? "type password" : "set password");
+        model.setStatus(model.userExistsProperty().get() ? "inserisci password" : "imposta una nuova password");
+    }
+
+    private void submitLogin() {
+        String u = usernameBuffer.toString().trim();
+        String p = passwordBuffer.toString();
+
+        if (p.isEmpty()) return;
+
+        if (loginData.exists(u)) {
+            if (loginData.checkPassword(u, p)) {
+                model.setStatus("ACCESSO IN CORSO...");
+                if (onLoginSuccess != null) onLoginSuccess.run();
+            } else {
+                handleError("password errata");
+            }
+        } else {
+            // Registrazione automatica
+            loginData.register(u, p);
+            model.setStatus("registrazione completata!");
+            if (onLoginSuccess != null) onLoginSuccess.run();
+        }
+    }
+
+    private void handleError(String message) {
+        model.setStatus(message);
+        model.triggerError(); // Fa partire il blink rosso nella Scene
+        passwordBuffer.setLength(0); // Pulisce la password per riprovare
         updateDisplay();
     }
 
-    private void submitPassword() {
-        String username = usernameBuffer.toString().trim();
-        String password = passwordBuffer.toString();
-        if (password.isEmpty()) return;
-
-        if (login.exists(username)) {
-            if (login.checkPassword(username, password)) {
-                model.setStatus("INIZIALIZZANDO ISCAT");
-                onLoginSuccess.run();
-            } else {
-                model.setStatus("password errata");
-                passwordBuffer.setLength(0);
-                updateDisplay();
-            }
-        } else {
-            login.register(username, password);
-            model.setStatus("benvenuto, " + username);
-            onLoginSuccess.run();
-        }
-    }
-
     private void updateDisplay() {
-        switch (currentLoginState) {
-            case USERNAME -> model.setUsername(usernameBuffer.toString());
-            case PASSWORD -> {
-                model.setUsername(usernameBuffer.toString());
-                model.setPassword("*".repeat(passwordBuffer.length()));
-            }
-        }
+        model.setUsername(usernameBuffer.toString());
+        model.setPassword("*".repeat(passwordBuffer.length()));
     }
 
     public void setOnLoginSuccess(Runnable onLoginSuccess) {
         this.onLoginSuccess = onLoginSuccess;
     }
-
 }

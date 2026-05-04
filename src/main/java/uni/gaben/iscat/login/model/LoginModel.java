@@ -2,13 +2,8 @@ package uni.gaben.iscat.login.model;
 
 import javafx.beans.property.*;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /** Stato osservabile della schermata di login. JavaBean + JavaFX properties. */
-public class LoginModel implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 0;
+public class LoginModel {
 
     private final StringProperty  username      = new SimpleStringProperty("");
     private final StringProperty  password      = new SimpleStringProperty("");
@@ -17,7 +12,10 @@ public class LoginModel implements Serializable {
     /** False when typing username True when Typing Password */
     private final BooleanProperty loginState   = new SimpleBooleanProperty(false);
 
-    public LoginModel() {}
+    private final BooleanProperty userExists = new SimpleBooleanProperty(false);
+    private final BooleanProperty wrongCredentials = new SimpleBooleanProperty(false);
+
+    public LoginModel() {/*gestiti da controller*/}
 
     // --- JavaFX property accessors ---
     public StringProperty  usernameProperty()     { return username; }
@@ -30,10 +28,25 @@ public class LoginModel implements Serializable {
     public String  getPassword()      { return password.get(); }
     public String  getStatus()        { return status.get(); }
     public boolean getLoginState()   { return loginState.get(); }
+    public boolean getUserExists() { return userExists.get(); }
+    public boolean getWrongCredentials() { return wrongCredentials.get(); }
 
     // --- JavaBeans setters ---
     public void setUsername(String v)      { username.set(v); }
     public void setPassword(String v)      { password.set(v); }
     public void setStatus(String v)        { status.set(v); }
     public void setLoginState(boolean v)  { loginState.set(v); }
+    public void setUserExists(boolean v) { userExists.set(v); }
+    public void setWrongCredentials(boolean v) { wrongCredentials.set(v); }
+
+    public BooleanProperty userExistsProperty() {
+        return userExists;
+    }
+    public BooleanProperty wrongCredentialsProperty() {
+        return wrongCredentials;
+    }
+    public void triggerError() {
+        wrongCredentials.set(true);
+        wrongCredentials.set(false); // Reset immediato per permettere trigger successivi
+    }
 }

@@ -16,7 +16,6 @@ import uni.gaben.iscat.utils.IscatUtils;
 import javafx.scene.text.Font;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 public class IscatApplication extends Application {
@@ -30,42 +29,40 @@ public class IscatApplication extends Application {
     private LoginModel      loginModel;
     private LoginController loginController;
     private MenuController menuController;
-    private GamePanel gamePanel;
+    private GamePanel gamePanel = new GamePanel();
 
 
-    private EnumMap<IscatScenes, Scene> iscatScenes;
+    private EnumMap<IscatScenes, Scene> iscatScenes = new EnumMap<>(IscatScenes.class);
     private Stage stage;
 
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
+
         loginData       = new LoginData(UTENTI);
         loginModel      = new LoginModel();
         loginController = new LoginController(loginModel, loginData);
+        loginController.setOnLoginSuccess(() -> setScene(IscatScenes.MENU));
+
         menuController = new MenuController();
+        menuController.setOnMenuStartGame(() -> setScene(IscatScenes.GAME));
     }
 
     @Override
     public void start(Stage stage) {
         this.stage = stage;
 
-        loginController.setOnLoginSuccess(() -> setScene(IscatScenes.MENU));
-        menuController.setOnMenuStartGame(() -> setScene(IscatScenes.GAME));
-
-        iscatScenes = new EnumMap<>(IscatScenes.class);
         iscatScenes.put(IscatScenes.LOGIN, new LoginScene(loginModel, loginController));
         iscatScenes.put(IscatScenes.MENU, new MenuScene(menuController));
-        gamePanel = new GamePanel();
         iscatScenes.put(IscatScenes.GAME, new GameScene(gamePanel));
 
         stage.setTitle("ISCAT");
-        setScene(IscatScenes.LOGIN); // Usa il tuo metodo
+        setScene(IscatScenes.LOGIN);
         stage.show();
-
         IscatUtils.scalaCentraRispettoParent(stage, IscatUtils.getSchermiCorrenti(stage).get(0).getBounds());
     }
 
-    public void setScene(IscatScenes scene) {
+    private void setScene(IscatScenes scene) {
         stage.setScene(iscatScenes.get(scene));
         if(scene == IscatScenes.GAME){
             gamePanel.startGameThread();
