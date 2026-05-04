@@ -1,23 +1,40 @@
 package uni.gaben.iscat;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-import static uni.gaben.iscat.utils.RapportoAureo.*;
+import uni.gaben.iscat.login.controller.LoginController;
+import uni.gaben.iscat.login.model.LoginData;
+import uni.gaben.iscat.login.model.LoginModel;
+import uni.gaben.iscat.login.view.LoginScene;
+import uni.gaben.iscat.utils.IscatUtils;
 
-import java.io.IOException;
+import javafx.scene.text.Font;
+
+import java.util.Map;
 
 public class IscatApplication extends Application {
+
+    private static final Map<String, String> UTENTI = Map.of(
+        "gaben", "iscat"
+    );
+
+    private LoginData       loginData;
+    private LoginModel      loginModel;
+    private LoginController loginController;
+
     @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(IscatApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(),
-                phiMinore(stage.getMaxWidth()),
-                phiMinore(stage.getMaxHeight())
-                );
+    public void init() {
+        Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
+        loginData       = new LoginData(UTENTI);
+        loginModel      = new LoginModel();
+        loginController = new LoginController(loginModel, loginData);
+    }
+
+    @Override
+    public void start(Stage stage) {
         stage.setTitle("ISCAT");
-        stage.setScene(scene);
+        stage.setScene(new LoginScene(loginModel, loginController));
         stage.show();
+        IscatUtils.scalaCentraRispettoParent(stage, IscatUtils.getSchermiCorrenti(stage).get(0).getBounds());
     }
 }

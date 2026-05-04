@@ -1,0 +1,14 @@
+.root {
+    -fx-background-color: #010203;
+    -fx-font-family: "Miracode";
+}
+
+.login-text {
+    -fx-text-fill: #dcdcdc;
+}
+
+.login-text-status {
+    -fx-text-fill: #dcdcdc;
+    -fx-opacity: 0.55;
+}
+
