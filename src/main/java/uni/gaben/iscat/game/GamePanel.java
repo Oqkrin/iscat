@@ -1,11 +1,13 @@
 package uni.gaben.iscat.game;
 
 import uni.gaben.iscat.game.entities.Player;
+import javafx.animation.AnimationTimer;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
-import javax.swing.JPanel;
-import java.awt.*;
-
-public class GamePanel extends JPanel implements Runnable{
+public class GamePanel extends Pane {
     // Impostazioni dello schermo
     final int scale = 3;
     public final int tileSize = 32 * scale;
@@ -13,79 +15,86 @@ public class GamePanel extends JPanel implements Runnable{
     final int screenHeight = 500;
 
     int FPS = 60;
-    boolean FPS_visible = true; // cambia a false per non vederli nella console
+    boolean FPS_visible = true;
 
-    // oggetto keylistener
     KeyHandler keyHandler = new KeyHandler();
-    Thread gameThread;
-    Player player = new Player(this,keyHandler);
+    Player player = new Player(this, keyHandler);
 
-    public GamePanel(){
-        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
-        this.setBackground(Color.black);
-        this.setDoubleBuffered(true); // serve per migliorare le performance del rendering
-        this.addKeyListener(keyHandler);
-        this.setFocusable(true);
+    Canvas canvas;
+    GameLoop gameLoop;
+
+    public GamePanel() {
+        canvas = new Canvas(screenWidth, screenHeight);
+        this.getChildren().add(canvas);
+
+        this.setBackground(new javafx.scene.layout.Background(
+                new javafx.scene.layout.BackgroundFill(Color.BLACK, null, null)
+        ));
+
+        // Listener per i tasti
+        this.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.setOnKeyPressed(keyHandler::keyPressed);
+                newScene.setOnKeyReleased(keyHandler::keyReleased);
+            }
+        });
+
+        this.setFocusTraversable(true);
+        this.requestFocus();
     }
 
     public void startGameThread() {
-        gameThread = new Thread(this);
-        gameThread.start();
+        // Istanziamo e avviamo il loop
+        gameLoop = new GameLoop();
+        gameLoop.start();
     }
 
-    // qui dentro run() nasce il game loop, quindi il core del gioco
-    // in base agli FPS diciamo al gioco di update() e repaint()
-    @Override
-    public void run() {
-        // 1.000.000.000 in nanosencondi è un secondo
-        double drawInterval = 1000000000/FPS; // 0.01666 secondi quindi disegna FPS volte al secondo
-        double delta = 0;
-        long lastTime = System.nanoTime();
-        long currentTime;
-        long timer = 0;
-        int drawCount = 0;
+    // il core del gioco
+    private class GameLoop extends AnimationTimer {
+        private double drawInterval = 1000000000.0 / FPS;
+        private long lastTime = System.nanoTime();
+        private double delta = 0;
+        private long timer = 0;
+        private int drawCount = 0;
 
-        while (gameThread != null) {
-            currentTime = System.nanoTime();
+        @Override
+        public void handle(long currentTime) {
+            // Logica del Delta
             delta += (currentTime - lastTime) / drawInterval;
             timer += (currentTime - lastTime);
             lastTime = currentTime;
 
-            if(delta >= 1) {
-                update(); // aggiorna pos player
-                repaint(); // disegna il player
+            if (delta >= 1) {
+                update();
+                render();
                 delta--;
                 drawCount++;
             }
 
-            if(timer >= 1000000000 && FPS_visible){
-                System.out.print("FPS:"+drawCount);
-
-                // >>>[--- DA ELIMINARE ---]<<<
-                if(drawCount == 60){
-                    System.out.print(" YUPPI!!! :D");
-                    System.out.println(" ");
-                } else {
-                    System.out.print(" NOOOOOOOO AGHAJGDHSGJADHK!!!");
-                    System.out.println(" ");
+            // Controllo FPS
+            if (timer >= 1000000000) {
+                if (FPS_visible) {
+                    System.out.print("FPS: " + drawCount);
+                    if (drawCount >= 60) {
+                        System.out.println(" - YUPPI!!! :D");
+                    } else {
+                        System.out.println(" - LAG...");
+                    }
                 }
-                // una volta eliminata questa porzione di codice bisogna mettere println nel primo syso degli FPS
-                // >>>[--- DA ELIMINARE ---]<<<
                 drawCount = 0;
                 timer = 0;
             }
         }
     }
 
-    public void update(){
+    public void update() {
         player.update();
     }
 
-
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D)g;
-        player.draw(g2);
-        g2.dispose();
+    public void render() {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setImageSmoothing(false);
+        gc.clearRect(0, 0, screenWidth, screenHeight);
+        player.draw(gc);
     }
 }

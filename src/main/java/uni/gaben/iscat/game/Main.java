@@ -1,23 +1,26 @@
 package uni.gaben.iscat.game;
 
-import javax.swing.JFrame;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class Main {
-    public static void main(String[] args){
-        // creiamo la finestra del gioco
-        JFrame window = new JFrame();
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
-        window.setTitle("ISCAT");
-
+public class Main extends Application {
+    @Override
+    public void start(Stage window) {
         GamePanel gamePanel = new GamePanel();
-        window.add(gamePanel);
 
-        window.pack(); // fa in modo che window abbia la giusta size per i sotto componenti (in questo caso gamePanel)
+        Scene scene = new Scene(gamePanel);
 
-        window.setLocationRelativeTo(null); // con null la location viene messa al centro dello schermo
-        window.setVisible(true);
+        window.setTitle("ISCAT");
+        window.setResizable(false);
+        window.setScene(scene);
+        window.centerOnScreen();
+        window.show();
 
         gamePanel.startGameThread();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
