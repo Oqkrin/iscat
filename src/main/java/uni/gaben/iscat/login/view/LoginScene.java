@@ -4,14 +4,13 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
+import javafx.geometry.Bounds;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.geometry.Pos;
 import javafx.util.Duration;
 import uni.gaben.iscat.login.controller.LoginController;
 import uni.gaben.iscat.login.model.LoginModel;
@@ -27,88 +26,120 @@ public class LoginScene extends Scene {
     private static final String CSS_TEXT_CLASS = "login-text";
     private static final String CSS_TEXT_STATUS_CLASS = "login-text-status";
 
-    public LoginScene(LoginModel loginModel, LoginController loginController) {
-        // 1. Usiamo StackPane direttamente come Root
-        super(new StackPane());
-        StackPane root = (StackPane) getRoot();
+    private final LoginModel model;
+    private final LoginController controller;
 
+    private StackPane root;
+    private VBox loginContent;
+    private AutoFittingLabel usernameLabel;
+    private AutoFittingLabel passwordLabel;
+    private AutoFittingLabel statusLabel;
+    private Label blinkLabel;
+
+    public LoginScene(LoginModel loginModel, LoginController loginController) {
+        super(new StackPane());
+        this.model = loginModel;
+        this.controller = loginController;
+
+        initStyles();
+        initNodes();
+        initLayout();
+        initBindings();
+        initCursorLogic();
+        initEventFilters();
+
+        // Trigger iniziale
+        Platform.runLater(() -> model.setLoginState(false));
+    }
+
+    private void initStyles() {
+        this.root = (StackPane) getRoot();
         String css = Objects.requireNonNull(getClass().getResource("/uni/gaben/iscat/styles/login.css")).toExternalForm();
         getStylesheets().add(css);
+    }
 
-        // 2. Cursore (Blinking Caret)
-        Label blinkLabel = new Label("|");
+    private void initNodes() {
+        // Cursore
+        blinkLabel = new Label("|");
         blinkLabel.getStyleClass().add(CSS_TEXT_CLASS);
-        blinkLabel.setManaged(false); // <--- Esclude il cursore dalle logiche del layout automatico
+        blinkLabel.setManaged(false);
         blinkLabel.setMouseTransparent(true);
 
-        Timeline blink = new Timeline(new KeyFrame(Duration.millis(530), e -> blinkLabel.setVisible(!blinkLabel.isVisible())));
-        blink.setCycleCount(Animation.INDEFINITE);
-        blink.play();
+        Timeline blinkAnim = new Timeline(new KeyFrame(Duration.millis(530), e -> blinkLabel.setVisible(!blinkLabel.isVisible())));
+        blinkAnim.setCycleCount(Animation.INDEFINITE);
+        blinkAnim.play();
 
-        // 3. Componenti
-        AutoFittingLabel usernameLabel = new AutoFittingLabel(TipografiaAurea.DISPLAY[TipografiaAurea.MEDIUM], CSS_TEXT_CLASS);
-        AutoFittingLabel passwordLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.MEDIUM], CSS_TEXT_CLASS);
-        AutoFittingLabel statusLabel   = new AutoFittingLabel(TipografiaAurea.LABEL[TipografiaAurea.MEDIUM], CSS_TEXT_STATUS_CLASS);
+        // Labels
+        usernameLabel = new AutoFittingLabel(TipografiaAurea.DISPLAY[TipografiaAurea.MEDIUM], CSS_TEXT_CLASS);
+        passwordLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.MEDIUM], CSS_TEXT_CLASS);
+        statusLabel   = new AutoFittingLabel(TipografiaAurea.LABEL[TipografiaAurea.MEDIUM], CSS_TEXT_STATUS_CLASS);
+    }
 
-        // 4. Layout VBox
-        VBox loginContent = new VBox(usernameLabel, passwordLabel, statusLabel);
+    private void initLayout() {
+        loginContent = new VBox(usernameLabel, passwordLabel, statusLabel);
         loginContent.setAlignment(Pos.CENTER);
-        loginContent.setFillWidth(true); // <--- Forza le label a seguire la larghezza della VBox
+        loginContent.setFillWidth(true);
 
-        // Spaziatura aurea
+        // Spaziatura aurea: $\phi^{-4}$
         loginContent.spacingProperty().bind(root.heightProperty().multiply(Math.pow(ScalareAureo.IPHI_D, 4)));
 
-        // Vincoli della VBox (Rapporto Aureo)
+        // Vincoli aurei per la VBox
         loginContent.maxWidthProperty().bind(root.widthProperty().multiply(ScalareAureo.IPHI_D));
         loginContent.maxHeightProperty().bind(root.heightProperty().multiply(ScalareAureo.IPHI_D));
 
         Stream.of(usernameLabel, passwordLabel, statusLabel).forEach(l -> {
-            l.setEllipsisString("");
-            l.setMinWidth(0); // <--- Permette alla label di rimpicciolirsi sotto la dimensione del testo
+            l.setMinWidth(0);
             l.setMaxWidth(Double.MAX_VALUE);
-            l.setAlignment(Pos.CENTER); // Mantiene il testo centrato se la label si espande
-            // Il limite è la larghezza della VBox
+            l.setAlignment(Pos.CENTER);
             l.setLimit(loginContent.maxWidthProperty());
         });
 
-        // Aggiungiamo al root: prima il contenuto, poi il cursore sopra
         root.getChildren().addAll(loginContent, blinkLabel);
+    }
 
-        // 5. Logica del Cursore (Coordinate Assolute)
-        // Usiamo un trucco: invece di bindare layoutX, osserviamo i bounds reali della label
-        loginModel.loginStateProperty().addListener((o, old, isTypingPassword) -> {
+    private void initBindings() {
+        usernameLabel.textProperty().bind(model.usernameProperty());
+        passwordLabel.textProperty().bind(model.passwordProperty());
+        statusLabel.textProperty().bind(model.statusProperty());
+    }
+
+    private void initCursorLogic() {
+        model.loginStateProperty().addListener((obs, oldState, isTypingPassword) -> {
             AutoFittingLabel target = isTypingPassword ? passwordLabel : usernameLabel;
 
-            // Ogni volta che la finestra cambia, la label cambia testo o il font scala, riposizioniamo
-            Runnable updateCursor = () -> {
-                // Calcoliamo la fine del testo visualizzato
-                // getMaxX() del testo rispetto alla scena
-                double x = target.localToScene(target.getBoundsInLocal()).getMaxX();
-                double y = target.localToScene(target.getBoundsInLocal()).getMinY();
+            // Definiamo come aggiornare il cursore per il target attuale
+            Runnable updater = () -> syncCursor(target);
 
-                blinkLabel.setLayoutX(x);
-                blinkLabel.setLayoutY(y);
-                blinkLabel.setStyle(target.getStyle()); // Sincronizza la dimensione font
-            };
+            // Rilega i trigger del cursore al nuovo target
+            target.widthProperty().addListener(e -> Platform.runLater(updater));
+            target.textProperty().addListener(e -> Platform.runLater(updater));
+            root.widthProperty().addListener(e -> Platform.runLater(updater));
 
-            // Bindiamo il movimento a qualsiasi cosa possa spostare il testo
-            target.widthProperty().addListener(e -> updateCursor.run());
-            target.textProperty().addListener(e -> updateCursor.run());
-            root.widthProperty().addListener(e -> updateCursor.run());
-            root.heightProperty().addListener(e -> updateCursor.run());
-
-            updateCursor.run();
+            updater.run();
         });
+    }
 
-        // 6. Binding Dati
-        usernameLabel.textProperty().bind(loginModel.usernameProperty());
-        passwordLabel.textProperty().bind(loginModel.passwordProperty());
-        statusLabel.textProperty().bind(loginModel.statusProperty());
+    private void syncCursor(AutoFittingLabel target) {
+        if (target.getScene() == null) return;
 
-        // Inizializzazione posizione cursore
-        Platform.runLater(() -> loginModel.setLoginState(false));
+        // Convertiamo le coordinate locali della label in coordinate del root (StackPane)
+        Bounds boundsInScene = target.localToScene(target.getBoundsInLocal());
+        Bounds b = root.sceneToLocal(boundsInScene);
 
-        addEventFilter(KeyEvent.KEY_PRESSED, loginController::onKeyPressed);
-        addEventFilter(KeyEvent.KEY_TYPED, loginController::onKeyTyped);
+        // Poiché la label è centrata, il testo finisce a: CentroLabel + (MetàLarghezzaTesto)
+        double textW = target.getEffectiveTextWidth();
+        double centerX = b.getMinX() + (b.getWidth() / 2.0);
+        double cursorX = centerX + (textW / 2.0);
+
+        blinkLabel.setLayoutX(cursorX);
+        blinkLabel.setLayoutY(b.getMinY());
+
+        // Sincronizza font-size e stile con il target attuale
+        blinkLabel.setStyle(target.getStyle());
+    }
+
+    private void initEventFilters() {
+        addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
+        addEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
     }
 }

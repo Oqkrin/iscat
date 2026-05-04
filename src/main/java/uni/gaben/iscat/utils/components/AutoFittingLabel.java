@@ -5,7 +5,6 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableNumberValue;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
@@ -15,18 +14,20 @@ import java.util.Locale;
 
 public class AutoFittingLabel extends Label {
 
-    private final DoubleProperty baseFontSize = new SimpleDoubleProperty(12.0);
-    private final DoubleProperty manualLimit = new SimpleDoubleProperty(-1.0);
+    private final DoubleProperty baseFontSizeProperty = new SimpleDoubleProperty(12.0);
+    private final DoubleProperty manualLimitProperty = new SimpleDoubleProperty(-1.0);
     private final BooleanProperty autoFitToParent = new SimpleBooleanProperty(true);
 
-    // We don't need a binding for the effective size, we just need a standard property
-    // that we update when necessary.
     private final DoubleProperty parentWidthTracker = new SimpleDoubleProperty(-1.0);
+    private DoubleBinding effectiveLimit;
     private final Text helper = new Text();
 
     public AutoFittingLabel(double baseSize, String cssClass) {
-        this.baseFontSize.set(baseSize);
+        this.baseFontSizeProperty.set(baseSize);
         if (cssClass != null) getStyleClass().add(cssClass);
+
+        // Importante per permettere alla label di contrarsi
+        setMinWidth(0);
 
         setupParentTracking();
         setupAutoFittingLogic();
@@ -46,25 +47,19 @@ public class AutoFittingLabel extends Label {
     }
 
     private void setupAutoFittingLogic() {
-        DoubleBinding effectiveLimit = Bindings.createDoubleBinding(() -> {
-            if (manualLimit.get() > 0) return manualLimit.get();
+        effectiveLimit = Bindings.createDoubleBinding(() -> {
+            if (manualLimitProperty.get() > 0) return manualLimitProperty.get();
             if (autoFitToParent.get()) return parentWidthTracker.get();
             return -1.0;
-        }, manualLimit, autoFitToParent, parentWidthTracker);
+        }, manualLimitProperty, autoFitToParent, parentWidthTracker);
 
-        // We use a listener instead of a binding to have strict control over when the font updates
-        // We do NOT listen to fontProperty() here to avoid loops.
         effectiveLimit.addListener((obs, oldVal, newVal) -> recalculateFontSize(newVal.doubleValue()));
         textProperty().addListener((obs, oldVal, newVal) -> recalculateFontSize(effectiveLimit.get()));
-        baseFontSize.addListener((obs, oldVal, newVal) -> recalculateFontSize(effectiveLimit.get()));
+        baseFontSizeProperty.addListener((obs, oldVal, newVal) -> recalculateFontSize(effectiveLimit.get()));
         paddingProperty().addListener((obs, oldVal, newVal) -> recalculateFontSize(effectiveLimit.get()));
 
-        // Listen to scene property. When the label is added to a scene, we wait for layout
         sceneProperty().addListener((obs, oldScene, newScene) -> {
             if(newScene != null) {
-                // applyCss() forces the CSS engine to resolve styles immediately
-                // This ensures getFont() returns the CSS-defined font (family/weight)
-                // BEFORE we do our first calculation.
                 applyCss();
                 recalculateFontSize(effectiveLimit.get());
             }
@@ -72,7 +67,7 @@ public class AutoFittingLabel extends Label {
     }
 
     private void recalculateFontSize(double limit) {
-        double base = baseFontSize.get();
+        double base = baseFontSizeProperty.get();
         String text = getText();
 
         if (text == null || text.isEmpty() || limit <= 0) {
@@ -86,11 +81,9 @@ public class AutoFittingLabel extends Label {
             return;
         }
 
-        // 2% safety margin prevents ellipsis due to anti-aliasing / rounding
-        available *= 0.98;
+        available *= 0.98; // Safety margin
 
         Font currentFont = getFont();
-        // Fallback in case font is somehow null
         if(currentFont == null) currentFont = Font.getDefault();
 
         helper.setFont(new Font(currentFont.getName(), base));
@@ -114,13 +107,6 @@ public class AutoFittingLabel extends Label {
             safety++;
         }
 
-        // Final proportional correction if still slightly over
-        double finalWidth = helper.getLayoutBounds().getWidth();
-        if (finalWidth > available && targetSize > 2) {
-            targetSize = targetSize * (available / finalWidth);
-            targetSize = Math.max(targetSize, 2.0);
-        }
-
         applyFontSize(targetSize);
     }
 
@@ -130,11 +116,20 @@ public class AutoFittingLabel extends Label {
         }
     }
 
-    public void setLimit(ObservableNumberValue limit) {
-        this.manualLimit.bind(limit);
+    /**
+     * Calcola la larghezza reale del testo renderizzato con il font size attuale.
+     */
+    public double getEffectiveTextWidth() {
+        if (getText() == null || getText().isEmpty()) return 0;
+        helper.setText(getText());
+        // Usiamo la dimensione attuale del font (quella applicata via CSS/Style)
+        helper.setFont(getFont());
+        return helper.getLayoutBounds().getWidth();
     }
 
-    public BooleanProperty autoFitToParentProperty() {
-        return autoFitToParent;
-    }
+    public DoubleProperty limitProperty() { return manualLimitProperty; }
+    public void setLimit(ObservableNumberValue limit) { this.manualLimitProperty.bind(limit); }
+    public BooleanProperty autoFitToParentProperty() { return autoFitToParent; }
+    public DoubleProperty baseFontSizeProperty() { return baseFontSizeProperty; }
+    public void setBaseFontSize(double size) { this.baseFontSizeProperty.set(size); }
 }
