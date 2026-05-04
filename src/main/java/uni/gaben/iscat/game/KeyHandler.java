@@ -1,49 +1,27 @@
 package uni.gaben.iscat.game;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
-public class KeyHandler implements KeyListener {
+public class KeyHandler {
 
     public boolean upPressed, leftPressed, downPressed, rightPressed;
-    @Override
-    public void keyTyped(KeyEvent e) {
 
-    }
-
-    @Override
     public void keyPressed(KeyEvent e) {
-        int code = e.getKeyCode();
+        KeyCode code = e.getCode();
 
-        if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP){
-            upPressed = true;
-        }
-        if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT){
-            leftPressed = true;
-        }
-        if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN){
-            downPressed = true;
-        }
-        if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT){
-            rightPressed = true;
-        }
+        if (code == KeyCode.W || code == KeyCode.UP)    upPressed = true;
+        if (code == KeyCode.A || code == KeyCode.LEFT)  leftPressed = true;
+        if (code == KeyCode.S || code == KeyCode.DOWN)  downPressed = true;
+        if (code == KeyCode.D || code == KeyCode.RIGHT) rightPressed = true;
     }
 
-    @Override
     public void keyReleased(KeyEvent e) {
-        int code = e.getKeyCode();
+        KeyCode code = e.getCode();
 
-        if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP){
-            upPressed = false;
-        }
-        if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT){
-            leftPressed = false;
-        }
-        if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN){
-            downPressed = false;
-        }
-        if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT){
-            rightPressed = false;
-        }
+        if (code == KeyCode.W || code == KeyCode.UP)    upPressed = false;
+        if (code == KeyCode.A || code == KeyCode.LEFT)  leftPressed = false;
+        if (code == KeyCode.S || code == KeyCode.DOWN)  downPressed = false;
+        if (code == KeyCode.D || code == KeyCode.RIGHT) rightPressed = false;
     }
 }
