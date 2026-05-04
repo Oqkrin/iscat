@@ -12,6 +12,7 @@ public class LoginController {
     private final StringBuilder usernameBuffer = new StringBuilder();
     private final StringBuilder passwordBuffer = new StringBuilder();
     private LoginState currentLoginState = LoginState.USERNAME;
+    private Runnable onLoginSuccess; // La nostra callback
 
     public LoginController(LoginModel model, LoginData login) {
         this.model = model;
@@ -79,6 +80,7 @@ public class LoginController {
         if (login.exists(username)) {
             if (login.checkPassword(username, password)) {
                 model.setStatus("INIZIALIZZANDO ISCAT");
+                onLoginSuccess.run();
             } else {
                 model.setStatus("password errata");
                 passwordBuffer.setLength(0);
@@ -87,6 +89,7 @@ public class LoginController {
         } else {
             login.register(username, password);
             model.setStatus("benvenuto, " + username);
+            onLoginSuccess.run();
         }
     }
 
@@ -99,4 +102,9 @@ public class LoginController {
             }
         }
     }
+
+    public void setOnLoginSuccess(Runnable onLoginSuccess) {
+        this.onLoginSuccess = onLoginSuccess;
+    }
+
 }
