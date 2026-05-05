@@ -11,7 +11,7 @@ public class GamePanel extends StackPane {
     // Impostazioni dello schermo
     final int scale = 3;
     public final int tileSize = 32 * scale;
-    int FPS = 120;
+    int FPS = 60;
     boolean FPS_visible = true;
 
     KeyHandler keyHandler = new KeyHandler();
@@ -93,7 +93,7 @@ public class GamePanel extends StackPane {
     public void render() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setImageSmoothing(false);
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getWidth());
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         player.draw(gc);
     }
 }
