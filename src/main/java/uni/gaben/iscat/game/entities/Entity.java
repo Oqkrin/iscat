@@ -2,11 +2,19 @@ package uni.gaben.iscat.game.entities;
 
 import javafx.scene.image.Image;
 
-public class Entity {
+abstract class Entity {
 
     public int x,y;
     public int speed;
+    public int hp;
+    public String name;
 
+    // Sprite dell'entità
     public Image entitySprite;
+    // Direzione di default
     public String direction;
+
+    public void die(){
+        System.out.println("Entity died");
+    }
 }
