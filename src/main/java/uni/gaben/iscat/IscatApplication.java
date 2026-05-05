@@ -3,7 +3,6 @@ package uni.gaben.iscat;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import uni.gaben.iscat.game.view.GamePanel;
 import uni.gaben.iscat.game.view.GameScene;
 import uni.gaben.iscat.login.controller.LoginController;
 import uni.gaben.iscat.login.model.LoginData;
@@ -29,7 +28,6 @@ public class IscatApplication extends Application {
     private LoginModel      loginModel;
     private LoginController loginController;
     private MenuController menuController;
-    private GamePanel gamePanel = new GamePanel();
 
 
     private EnumMap<IscatScenes, Scene> iscatScenes = new EnumMap<>(IscatScenes.class);
@@ -54,7 +52,7 @@ public class IscatApplication extends Application {
 
         iscatScenes.put(IscatScenes.LOGIN, new LoginScene(loginModel, loginController));
         iscatScenes.put(IscatScenes.MENU, new MenuScene(menuController));
-        iscatScenes.put(IscatScenes.GAME, new GameScene(gamePanel));
+        iscatScenes.put(IscatScenes.GAME, new GameScene());
 
         stage.setTitle("ISCAT");
         setScene(IscatScenes.LOGIN);
@@ -65,7 +63,7 @@ public class IscatApplication extends Application {
     private void setScene(IscatScenes scene) {
         stage.setScene(iscatScenes.get(scene));
         if(scene == IscatScenes.GAME){
-            gamePanel.startGameThread();
+           //
         }
     }
 }

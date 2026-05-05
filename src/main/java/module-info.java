@@ -3,7 +3,7 @@ module uni.gaben.iscat {
     requires javafx.fxml;
 
     requires org.kordamp.ikonli.javafx;
-    requires org.kordamp.ikonli.fontawesome;
+    requires org.kordamp.ikonli.fontawesome5;
     requires java.desktop;
 
     opens uni.gaben.iscat to javafx.fxml;
@@ -14,7 +14,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.login.controller;
     exports uni.gaben.iscat.login.model;
     exports uni.gaben.iscat.login.view;
-    exports uni.gaben.iscat.game;
     exports uni.gaben.iscat.game.model.entities;
     exports uni.gaben.iscat.game.view;
     exports uni.gaben.iscat.game.controller;
