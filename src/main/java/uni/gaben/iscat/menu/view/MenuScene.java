@@ -3,6 +3,7 @@ package uni.gaben.iscat.menu.view;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -18,6 +19,8 @@ public class MenuScene extends Scene {
         super(new StackPane(), Color.BLACK);
         StackPane root = (StackPane) getRoot();
 
+        Label title = new Label("ISCAT");
+
         FontIcon playIcon = new FontIcon("fas-play");
         playIcon.setIconSize(40);
 
@@ -27,7 +30,7 @@ public class MenuScene extends Scene {
         // Azione del controller
         playButton.setOnAction(e -> menuController.play());
 
-        VBox layout = new VBox(playButton);
+        VBox layout = new VBox(title, playButton);
         layout.setAlignment(Pos.CENTER);
 
         layout.setSpacing(20);

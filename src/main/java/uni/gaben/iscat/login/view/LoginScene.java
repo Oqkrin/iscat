@@ -88,7 +88,7 @@ public class LoginScene extends Scene {
 
         usernameLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE], FONT, CSS_TEXT_CLASS);
         passwordLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.MEDIUM], FONT, CSS_TEXT_CLASS);
-        statusLabel   = new AutoFittingLabel(TipografiaAurea.LABEL[TipografiaAurea.MEDIUM], FONT, CSS_TEXT_STATUS_CLASS);
+        statusLabel   = new AutoFittingLabel(TipografiaAurea.LABEL[TipografiaAurea.LARGE], FONT, CSS_TEXT_STATUS_CLASS);
 
         loginIcon = new FontIcon("fas-id-card-alt");
         loginIcon.iconSizeProperty().bind(usernameLabel.baseFontSizeProperty());
