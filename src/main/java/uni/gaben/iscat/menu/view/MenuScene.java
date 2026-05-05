@@ -14,12 +14,14 @@ import uni.gaben.iscat.utils.rapporto_aureo.ScalareAureo;
 public class MenuScene extends Scene {
 
     private static final String CSS_MENU_BUTTON = "menu-button";
+    private static final String CSS_TITLE = "menu-title";
 
     public MenuScene(MenuController menuController) {
         super(new StackPane(), Color.BLACK);
         StackPane root = (StackPane) getRoot();
 
         Label title = new Label("ISCAT");
+        title.getStyleClass().add(CSS_TITLE);
 
         // PlayButton
         FontIcon playIcon = new FontIcon("fas-play");
@@ -56,8 +58,7 @@ public class MenuScene extends Scene {
 
         root.getChildren().add(layout);
 
-        // css in futuro
-        // String css = getClass().getResource("/uni/gaben/iscat/styles/menu.css").toExternalForm();
-        // getStylesheets().add(css);
+        String css = getClass().getResource("/uni/gaben/iscat/styles/menu.css").toExternalForm();
+        getStylesheets().add(css);
     }
 }
