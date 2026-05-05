@@ -21,16 +21,35 @@ public class MenuScene extends Scene {
 
         Label title = new Label("ISCAT");
 
+        // PlayButton
         FontIcon playIcon = new FontIcon("fas-play");
         playIcon.setIconSize(40);
-
         Button playButton = new Button("PLAY", playIcon);
         playButton.getStyleClass().add(CSS_MENU_BUTTON);
 
+        // OptionButton
+        FontIcon optionIcon = new FontIcon("fas-cog");
+        optionIcon.setIconSize(40);
+        Button optionsButton = new Button("OPTIONS", optionIcon);
+        optionsButton.getStyleClass().add(CSS_MENU_BUTTON);
+
+        // ScoreButton
+        FontIcon scoreIcon = new FontIcon("fas-eye");
+        scoreIcon.setIconSize(40);
+        Button scoreButton = new Button("VIEW SCORE", scoreIcon);
+        scoreButton.getStyleClass().add(CSS_MENU_BUTTON);
+
+        // QuitButton
+        FontIcon quitIcon = new FontIcon("fas-door-open");
+        quitIcon.setIconSize(40);
+        Button  quitButton = new Button("QUIT", quitIcon);
+        quitButton.getStyleClass().add(CSS_MENU_BUTTON);
+
         // Azione del controller
         playButton.setOnAction(e -> menuController.play());
+        quitButton.setOnAction(e -> menuController.quit());
 
-        VBox layout = new VBox(title, playButton);
+        VBox layout = new VBox(title, playButton,optionsButton,scoreButton,quitButton);
         layout.setAlignment(Pos.CENTER);
 
         layout.setSpacing(20);
