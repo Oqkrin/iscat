@@ -1,4 +1,4 @@
-package uni.gaben.iscat.game;
+package uni.gaben.iscat.game.view;
 
 import javafx.scene.Scene;
 

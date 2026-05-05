@@ -1,4 +1,4 @@
-package uni.gaben.iscat.game;
+package uni.gaben.iscat.game.controller;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;

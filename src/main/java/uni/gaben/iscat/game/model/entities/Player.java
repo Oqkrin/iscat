@@ -1,11 +1,11 @@
-package uni.gaben.iscat.game.entities;
+package uni.gaben.iscat.game.model.entities;
 
-import uni.gaben.iscat.game.GamePanel;
-import uni.gaben.iscat.game.KeyHandler;
+import uni.gaben.iscat.game.view.GamePanel;
+import uni.gaben.iscat.game.controller.KeyHandler;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import uni.gaben.iscat.game.MouseHandler;
+import uni.gaben.iscat.game.controller.MouseHandler;
 
 import java.util.Objects;
 

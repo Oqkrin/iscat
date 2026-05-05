@@ -3,6 +3,7 @@ package uni.gaben.iscat.game;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import uni.gaben.iscat.game.view.GamePanel;
 
 public class Main extends Application {
     @Override

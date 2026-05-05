@@ -1,4 +1,4 @@
-package uni.gaben.iscat.game.entities;
+package uni.gaben.iscat.game.model.entities;
 
 import javafx.scene.image.Image;
 

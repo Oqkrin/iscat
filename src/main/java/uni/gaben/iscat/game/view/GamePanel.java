@@ -1,7 +1,9 @@
-package uni.gaben.iscat.game;
+package uni.gaben.iscat.game.view;
 
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.game.entities.Player;
+import uni.gaben.iscat.game.controller.KeyHandler;
+import uni.gaben.iscat.game.controller.MouseHandler;
+import uni.gaben.iscat.game.model.entities.Player;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
