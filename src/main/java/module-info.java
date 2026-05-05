@@ -3,7 +3,7 @@ module uni.gaben.iscat {
     requires javafx.fxml;
 
     requires org.kordamp.ikonli.javafx;
-    requires org.kordamp.ikonli.fontawesome5;
+    requires org.kordamp.ikonli.fontawesome;
     requires java.desktop;
 
     opens uni.gaben.iscat to javafx.fxml;

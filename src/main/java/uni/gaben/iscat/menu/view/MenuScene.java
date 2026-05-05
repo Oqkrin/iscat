@@ -9,7 +9,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.menu.controller.MenuController;
-import uni.gaben.iscat.utils.rapporto_aureo.ScalareAureo;
 
 public class MenuScene extends Scene {
 
