@@ -1,20 +1,17 @@
 package uni.gaben.iscat.game;
 
+import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.game.entities.Player;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-public class GamePanel extends Pane {
+public class GamePanel extends StackPane {
     // Impostazioni dello schermo
     final int scale = 3;
     public final int tileSize = 32 * scale;
-    final int screenWidth = 500;
-    final int screenHeight = 500;
-
-    int FPS = 60;
+    int FPS = 120;
     boolean FPS_visible = true;
 
     KeyHandler keyHandler = new KeyHandler();
@@ -24,7 +21,9 @@ public class GamePanel extends Pane {
     GameLoop gameLoop;
 
     public GamePanel() {
-        canvas = new Canvas(screenWidth, screenHeight);
+        canvas = new Canvas(getWidth(), getHeight());
+        widthProperty().addListener(observable -> canvas.setWidth(getWidth()));
+        heightProperty().addListener(observable -> canvas.setHeight(getHeight()));
         this.getChildren().add(canvas);
 
         this.setBackground(new javafx.scene.layout.Background(
@@ -94,7 +93,7 @@ public class GamePanel extends Pane {
     public void render() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setImageSmoothing(false);
-        gc.clearRect(0, 0, screenWidth, screenHeight);
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getWidth());
         player.draw(gc);
     }
 }
