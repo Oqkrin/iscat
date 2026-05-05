@@ -63,6 +63,7 @@ public class GameCanvas extends Canvas {
         // Pulisce l'intera area
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, getWidth(), getHeight());
+        gc.setImageSmoothing(false);
 
         // Disegna il giocatore
         drawPlayer(gc);
