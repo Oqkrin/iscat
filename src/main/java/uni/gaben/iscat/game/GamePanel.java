@@ -16,7 +16,7 @@ public class GamePanel extends StackPane {
 
     KeyHandler keyHandler = new KeyHandler();
     MouseHandler mouseHandler = new MouseHandler();
-    Player player = new Player(this, keyHandler);
+    Player player = new Player(this, keyHandler, mouseHandler);
 
     Canvas canvas;
     GameLoop gameLoop;

@@ -5,16 +5,19 @@ import uni.gaben.iscat.game.KeyHandler;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import uni.gaben.iscat.game.MouseHandler;
 
 import java.util.Objects;
 
 public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyHandler;
+    MouseHandler mouseHandler;
 
-    public Player(GamePanel gp, KeyHandler keyHandler) {
+    public Player(GamePanel gp, KeyHandler keyHandler, MouseHandler mouseHandler) {
         this.gp = gp;
         this.keyHandler = keyHandler;
+        this.mouseHandler = mouseHandler;
 
         setDefaultValues();
         getPlayerSprites();
@@ -48,7 +51,23 @@ public class Player extends Entity {
 
     public void draw(GraphicsContext gc) {
         if (entitySprite != null) {
-            gc.drawImage(entitySprite, x, y, gp.tileSize, gp.tileSize);
+            double centerX = x + (double) gp.tileSize / 2;
+            double centerY = y + (double) gp.tileSize / 2;
+
+            // Vettore dal centro del player al mouse
+            double dx = mouseHandler.x - centerX;
+            double dy = mouseHandler.y - centerY;
+
+            double angle = Math.toDegrees(Math.atan2(dy, dx));
+
+            gc.save();
+            gc.translate(centerX, centerY);
+            gc.rotate(angle + 90);
+            gc.drawImage(entitySprite,
+                    -(double) gp.tileSize / 2,
+                    -(double) gp.tileSize / 2,
+                    gp.tileSize, gp.tileSize);
+            gc.restore();
         }
     }
 }
