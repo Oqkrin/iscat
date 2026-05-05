@@ -20,6 +20,6 @@ public class MouseHandler {
     public void mouseMoved(MouseEvent e) {
         x = e.getX();
         y = e.getY();
-        System.out.println("MouseMoved true");
+        System.out.println("MouseMoved true: [X:"+x+"] [Y:"+y+"]");
     }
 }
