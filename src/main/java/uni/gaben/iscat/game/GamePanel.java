@@ -18,6 +18,7 @@ public class GamePanel extends Pane {
     boolean FPS_visible = true;
 
     KeyHandler keyHandler = new KeyHandler();
+    MouseHandler mouseHandler = new MouseHandler();
     Player player = new Player(this, keyHandler);
 
     Canvas canvas;
@@ -36,8 +37,12 @@ public class GamePanel extends Pane {
             if (newScene != null) {
                 newScene.setOnKeyPressed(keyHandler::keyPressed);
                 newScene.setOnKeyReleased(keyHandler::keyReleased);
+                newScene.setOnMousePressed(mouseHandler::mousePressed);
+                newScene.setOnMouseReleased(mouseHandler::mouseReleased);
+                newScene.setOnMouseMoved(mouseHandler::mouseMoved);
             }
         });
+
 
         this.setFocusTraversable(true);
         this.requestFocus();
