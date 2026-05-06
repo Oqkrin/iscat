@@ -16,8 +16,8 @@ import uni.gaben.iscat.utils.settings.GameSettings;
  */
 public class GameCanvas extends Canvas {
 
-    public static final double TILE_SIZE           = GameSettings.TILE_SIZE;
-    public static final double SPRITE_NORTH_OFFSET = GameSettings.SPRITE_NORTH_OFFSET;
+    public static final double TILE_SIZE           = GameSettings.DIMENSIONE_TILE;
+    public static final double SPRITE_NORTH_OFFSET = GameSettings.OFFSET_NORD_SPRITE;
 
     private static final Image PLAYER_SPRITE = new Image(
             GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/battle_ship_1.png"));
@@ -60,7 +60,7 @@ public class GameCanvas extends Canvas {
     private void disegnaStelle(GraphicsContext gc) {
         gc.setFill(Color.WHITE);
         for (Star star : space.stars) {
-            gc.fillOval(star.getX(), star.getY(), GameSettings.STAR_SIZE, GameSettings.STAR_SIZE);
+            gc.fillOval(star.getX(), star.getY(), GameSettings.DIMENSIONE_STELLA, GameSettings.DIMENSIONE_STELLA);
         }
     }
 

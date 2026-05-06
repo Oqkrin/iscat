@@ -13,66 +13,72 @@ public final class GameSettings {
     // --- Fisica giocatore ---
 
     /** Forza spinta per tick mentre si tiene un tasto direzionale. */
-    public static final double PLAYER_THRUST_FORCE = 3.5;
+    public static final double FORZA_SPINTA = 3.5;
 
-    /** Drag applicato alla velocità ogni tick (0=stop istantaneo, 1=no attrito). */
-    public static final double PLAYER_DRAG = 0.92;
+    /** Attrito applicato alla velocità ogni tick (0=stop istantaneo, 1=no attrito). */
+    public static final double ATTRITO = 0.92;
 
     /** Velocità massima in pixel/tick. */
-    public static final double PLAYER_MAX_SPEED = 7.0;
+    public static final double VELOCITA_MAX = 7.0;
 
     /** Massa del giocatore in kg (unità di gioco). */
-    public static final double PLAYER_MASS = 10.0;
+    public static final double MASSA_GIOCATORE = 10.0;
 
     /** Raggio collisione giocatore in pixel. */
-    public static final double PLAYER_COLLISION_RADIUS = 20.0;
+    public static final double RAGGIO_COLLISIONE = 20.0;
 
     // --- Dodge ---
 
-    /** Impulso applicato al dodge (pixel/tick). */
-    public static final double DODGE_IMPULSE = 18.0;
+    /** Impulso scatto in pixel/tick. */
+    public static final double IMPULSO_SCATTO = 14.0;
 
-    /** Durata del cooldown dodge in tick. */
-    public static final int DODGE_COOLDOWN_TICKS = 45;
+    /** Velocità massima durante lo scatto (sovrascrive VELOCITA_MAX). */
+    public static final double VELOCITA_MAX_SCATTO = 14.0;
+
+    /** Drag ridotto durante lo scatto (più alto = scivola più lontano). */
+    public static final double ATTRITO_SCATTO = 0.98;
+
+    /** Tick di cooldown prima del prossimo scatto. */
+    public static final int COOLDOWN_SCATTO_TICK = 67;
+
+    /** Tick di durata della fase scatto (drag ridotto attivo). */
+    public static final int DURATA_SCATTO_TICK = 14;
 
     // --- Stelle di sfondo ---
 
     /** Numero di stelle generate nello spazio. */
-    public static final int STAR_COUNT = 300;
+    public static final int NUMERO_STELLE = 300;
 
     /** Fattore lerp scorrimento stelle. Più basso = più morbido. */
-    public static final double STAR_SCROLL_LERP = 0.12;
+    public static final double LERP_STELLE = 0.12;
 
     /** Dimensione in pixel del punto stella. */
-    public static final double STAR_SIZE = 2.0;
+    public static final double DIMENSIONE_STELLA = 2.0;
 
-    /** Impulso visivo applicato alle stelle al dodge (frazione di DODGE_IMPULSE). */
-    public static final double DODGE_STAR_IMPULSE_FACTOR = 0.4;
+    /** Impulso visivo alle stelle al dodge (frazione di IMPULSO_SCATTO). */
+    public static final double FATTORE_IMPULSO_STELLE = 0.4;
 
     // --- Rendering ---
 
     /** Dimensione tile in pixel (sprite giocatore). */
-    public static final double TILE_SIZE = 32 * 2;
+    public static final double DIMENSIONE_TILE = 32 * 2;
 
     /** Offset rotazione sprite: 90° se punta a nord, 0° se punta a est. */
-    public static final double SPRITE_NORTH_OFFSET = 90.0;
+    public static final double OFFSET_NORD_SPRITE = 90.0;
 
     // --- Loop ---
 
     /** Delta-time fisso passato al mondo fisico ogni tick. */
     public static final double DT = 1.0;
 
-    /**
-     * Fattore lerp per l'accelerazione della spinta (0=istantaneo, 1=mai).
-     * Più basso = risposta più immediata ai tasti.
-     */
-    public static final double THRUST_LERP = 0.18;
+    /** Fattore lerp per l'accelerazione della spinta. Più basso = più immediato. */
+    public static final double LERP_SPINTA = 0.18;
 
     // --- Preset easing ---
 
     /** Curva usata per lo scorrimento delle stelle. */
-    public static final Interpolator.Preset STAR_SCROLL_EASING = Interpolator.Preset.LINEAR;
+    public static final Interpolator.Preset EASING_STELLE = Interpolator.Preset.LINEAR;
 
     /** Curva usata per la spinta del giocatore. */
-    public static final Interpolator.Preset THRUST_EASING = Interpolator.Preset.EASE_OUT;
+    public static final Interpolator.Preset EASING_SPINTA = Interpolator.Preset.EASE_OUT;
 }

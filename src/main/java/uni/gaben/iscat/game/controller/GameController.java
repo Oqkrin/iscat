@@ -11,10 +11,8 @@ import uni.gaben.iscat.utils.settings.GameSettings;
 
 /**
  * Controller di gioco: traduce l'input in forze fisiche e fa avanzare il mondo.
- *
- * La spinta usa lerp (stabile con dt=1.0).
- * Lo sfondo stellato usa una molla fisica per il parallasse.
- * Il dodge propaga un impulso visivo alle stelle.
+ * La spinta usa lerp con easing configurabile.
+ * Lo scatto propaga un impulso visivo alle stelle.
  */
 public class GameController {
 
@@ -22,12 +20,9 @@ public class GameController {
     private final GameCanvas   canvas;
     private final InputHandler input;
 
-    /** Forza di spinta corrente, interpolata via lerp ogni tick. */
-    private double currentThrustX = 0;
-    private double currentThrustY = 0;
-
-    /** Angolo del dodge appena eseguito, per propagare l'impulso alle stelle. */
-    private boolean dodgeJustFired = false;
+    private double spintaCorrenteX = 0;
+    private double spintaCorrenteY = 0;
+    private boolean scattoAppenaEseguito = false;
 
     public GameController(GameModel model, GameCanvas canvas) {
         this.model  = model;
@@ -46,33 +41,26 @@ public class GameController {
         Player p = model.getPlayer();
 
         applicaSpinta(p);
-        applicaDodge(p);
+        applicaScatto(p);
         aggiornaDirezione(p);
 
         model.update(GameSettings.DT);
 
-        // parallasse stelle — molla fisica
         Vec2 vel = p.getVelocity();
         canvas.getSpace().update(vel.x, vel.y);
 
-        // impulso visivo al dodge
-        if (dodgeJustFired) {
+        if (scattoAppenaEseguito) {
             double rad = Math.toRadians(p.getDirectionAngle());
             canvas.getSpace().applyImpulse(
-                    Math.cos(rad) * GameSettings.DODGE_IMPULSE * GameSettings.DODGE_STAR_IMPULSE_FACTOR,
-                    Math.sin(rad) * GameSettings.DODGE_IMPULSE * GameSettings.DODGE_STAR_IMPULSE_FACTOR
+                    Math.cos(rad) * GameSettings.IMPULSO_SCATTO * GameSettings.FATTORE_IMPULSO_STELLE,
+                    Math.sin(rad) * GameSettings.IMPULSO_SCATTO * GameSettings.FATTORE_IMPULSO_STELLE
             );
-            dodgeJustFired = false;
+            scattoAppenaEseguito = false;
         }
     }
 
     // --- input → forze ---
 
-    /**
-     * Lerp verso la forza target: accelerazione morbida senza instabilità numerica.
-     * La molla fisica per la spinta esplode con dt=1.0 e stiffness alta;
-     * il lerp è equivalente ma incondizionatamente stabile.
-     */
     private void applicaSpinta(Player p) {
         double targetX = 0, targetY = 0;
 
@@ -81,24 +69,22 @@ public class GameController {
         if (input.left)  { targetX += InputDirection.LEFT.dx;  targetY += InputDirection.LEFT.dy; }
         if (input.right) { targetX += InputDirection.RIGHT.dx; targetY += InputDirection.RIGHT.dy; }
 
-        targetX *= GameSettings.PLAYER_THRUST_FORCE;
-        targetY *= GameSettings.PLAYER_THRUST_FORCE;
+        targetX *= GameSettings.FORZA_SPINTA;
+        targetY *= GameSettings.FORZA_SPINTA;
 
-        currentThrustX = GameSettings.THRUST_EASING.apply(currentThrustX, targetX, GameSettings.THRUST_LERP);
-        currentThrustY = GameSettings.THRUST_EASING.apply(currentThrustY, targetY, GameSettings.THRUST_LERP);
+        spintaCorrenteX = GameSettings.EASING_SPINTA.apply(spintaCorrenteX, targetX, GameSettings.LERP_SPINTA);
+        spintaCorrenteY = GameSettings.EASING_SPINTA.apply(spintaCorrenteY, targetY, GameSettings.LERP_SPINTA);
 
-        if (Math.abs(currentThrustX) > 0.001 || Math.abs(currentThrustY) > 0.001) {
-            p.applyForce(new Vec2(currentThrustX, currentThrustY));
+        if (Math.abs(spintaCorrenteX) > 0.001 || Math.abs(spintaCorrenteY) > 0.001) {
+            p.applyForce(new Vec2(spintaCorrenteX, spintaCorrenteY));
         }
     }
 
-    /** Dodge: impulso fisico sulla nave + flag per l'impulso visivo alle stelle. */
-    private void applicaDodge(Player p) {
-        boolean wasReady = p.isDodgeReady();
-        if (input.consumeDodge()) p.requestDodge();
-        p.processDodge();
-        // se era pronto e ora non lo è più, il dodge è appena scattato
-        if (wasReady && !p.isDodgeReady()) dodgeJustFired = true;
+    private void applicaScatto(Player p) {
+        boolean eraDisponibile = p.isScattoDisponibile();
+        if (input.consumeDodge()) p.richiestaScatto();
+        p.elaboraScatto();
+        if (eraDisponibile && !p.isScattoDisponibile()) scattoAppenaEseguito = true;
     }
 
     /** Ruota la nave verso il cursore del mouse. */
@@ -107,8 +93,6 @@ public class GameController {
         double cy = p.getY() + GameCanvas.TILE_SIZE / 2.0;
         p.setDirectionAngle(Math.toDegrees(Math.atan2(input.mouseY - cy, input.mouseX - cx)));
     }
-
-    // --- loop ---
 
     /** Avvia il loop JavaFX. */
     public void startLoop() {

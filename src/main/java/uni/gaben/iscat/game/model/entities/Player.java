@@ -6,102 +6,92 @@ import uni.gaben.iscat.utils.settings.GameSettings;
 
 /**
  * Nave del giocatore.
- * Estende {@link LivingEntity} (fisica + salute) e implementa {@link Collidable}.
- *
  * La spinta viene applicata dal controller ogni tick via {@link #applyForce}.
- * Il dodge applica un impulso istantaneo nella direzione corrente della nave.
+ * Lo scatto applica un impulso istantaneo e per {@code DURATA_SCATTO_TICK} tick
+ * usa attrito ridotto e cap velocità più alto — così la distanza percorsa è reale.
  */
 public class Player extends LivingEntity implements Collidable {
 
-    /** Tick rimanenti prima che il dodge sia di nuovo disponibile. */
-    private int dodgeCooldown = 0;
+    /** Tick rimanenti al cooldown scatto. */
+    private int cooldownScatto = 0;
 
-    /** true se il dodge è stato richiesto questo tick (consumato dal controller). */
-    private boolean dodgeRequested = false;
+    /** Tick rimanenti nella fase scatto attiva (drag ridotto). */
+    private int faseScatto = 0;
 
-    // ------------------------------------------------------------------ costruttore
+    /** true se lo scatto è stato richiesto questo tick. */
+    private boolean scattoRichiesto = false;
 
     public Player(double startX, double startY) {
-        this.x      = startX;
-        this.y      = startY;
-        this.hp     = 100;
-        this.maxHp  = 100;
-        this.mass   = GameSettings.PLAYER_MASS;
-        this.name   = "Player";
+        this.x     = startX;
+        this.y     = startY;
+        this.hp    = 100;
+        this.maxHp = 100;
+        this.mass  = GameSettings.MASSA_GIOCATORE;
+        this.name  = "Player";
     }
 
-    // ------------------------------------------------------------------ fisica
+    // --- fisica ---
 
-    /**
-     * Integrazione con drag e cap velocità.
-     * Il controller chiama {@link #applyForce} prima di questo ogni tick.
-     */
     @Override
     public void integrate(double dt) {
         super.integrate(dt);
 
-        // drag
-        velocity = velocity.scale(GameSettings.PLAYER_DRAG);
+        boolean inScatto = faseScatto > 0;
 
-        // cap velocità
+        // attrito: ridotto durante lo scatto per mantenere la velocità più a lungo
+        double attrito = inScatto ? GameSettings.ATTRITO_SCATTO : GameSettings.ATTRITO;
+        velocity = velocity.scale(attrito);
+
+        // cap velocità: più alto durante lo scatto
+        double vMax = inScatto ? GameSettings.VELOCITA_MAX_SCATTO : GameSettings.VELOCITA_MAX;
         double speed = velocity.magnitude();
-        if (speed > GameSettings.PLAYER_MAX_SPEED) {
-            velocity = velocity.scale(GameSettings.PLAYER_MAX_SPEED / speed);
-        }
+        if (speed > vMax) velocity = velocity.scale(vMax / speed);
 
         // dead-zone
-        if (Math.abs(velocity.x) < 0.01 && Math.abs(velocity.y) < 0.01) {
-            velocity = Vec2.ZERO;
-        }
+        if (Math.abs(velocity.x) < 0.01 && Math.abs(velocity.y) < 0.01) velocity = Vec2.ZERO;
 
-        // decrementa cooldown dodge
-        if (dodgeCooldown > 0) dodgeCooldown--;
+        // decrementa timer
+        if (faseScatto   > 0) faseScatto--;
+        if (cooldownScatto > 0) cooldownScatto--;
     }
 
-    // ------------------------------------------------------------------ dodge
+    // --- scatto ---
+
+    /** Segnala che il giocatore vuole scattare questo tick. */
+    public void richiestaScatto() { scattoRichiesto = true; }
 
     /**
-     * Segnala che il giocatore vuole eseguire un dodge questo tick.
-     * Il controller chiama questo metodo quando rileva SPACE.
+     * Esegue lo scatto se richiesto e il cooldown è scaduto.
+     * Chiamato dal controller dopo aver aggiornato {@link #directionAngle}.
      */
-    public void requestDodge() {
-        dodgeRequested = true;
-    }
+    public void elaboraScatto() {
+        if (!scattoRichiesto) return;
+        scattoRichiesto = false;
+        if (cooldownScatto > 0) return;
 
-    /**
-     * Esegue il dodge se richiesto e il cooldown è scaduto.
-     * Applica un impulso nella direzione corrente della nave.
-     * Chiamato dal controller dopo aver impostato {@link #directionAngle}.
-     */
-    public void processDodge() {
-        if (!dodgeRequested) return;
-        dodgeRequested = false;
-        if (dodgeCooldown > 0) return;
-
-        // impulso nella direzione in cui punta la nave
         double rad = Math.toRadians(directionAngle);
-        double ix  = Math.cos(rad) * GameSettings.DODGE_IMPULSE;
-        double iy  = Math.sin(rad) * GameSettings.DODGE_IMPULSE;
+        velocity = velocity.add(
+                Math.cos(rad) * GameSettings.IMPULSO_SCATTO,
+                Math.sin(rad) * GameSettings.IMPULSO_SCATTO
+        );
 
-        // applica direttamente alla velocità (impulso, non forza)
-        velocity = velocity.add(ix, iy);
-
-        dodgeCooldown = GameSettings.DODGE_COOLDOWN_TICKS;
+        faseScatto     = GameSettings.DURATA_SCATTO_TICK;
+        cooldownScatto = GameSettings.COOLDOWN_SCATTO_TICK;
     }
 
-    /** true se il dodge è pronto. */
-    public boolean isDodgeReady() { return dodgeCooldown == 0; }
+    /** {@code true} se lo scatto è disponibile. */
+    public boolean isScattoDisponibile() { return cooldownScatto == 0; }
 
-    // ------------------------------------------------------------------ Collidable
+    /** {@code true} se la fase scatto è attiva (drag ridotto). */
+    public boolean isInScatto() { return faseScatto > 0; }
 
-    @Override public double getCollisionRadius() { return GameSettings.PLAYER_COLLISION_RADIUS; }
+    // --- Collidable ---
+
+    @Override public double getCollisionRadius() { return GameSettings.RAGGIO_COLLISIONE; }
     @Override public Vec2   getColliderCenter()  { return getPosition(); }
+    @Override public void   onCollision(Collidable other) {}
 
-    @Override
-    public void onCollision(Collidable other) { /* gestito dal sistema collisioni */ }
+    // --- Alive ---
 
-    // ------------------------------------------------------------------ Alive
-
-    @Override
-    public void die() { /* TODO: animazione morte */ }
+    @Override public void die() { /* TODO: animazione morte */ }
 }

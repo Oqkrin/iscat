@@ -37,8 +37,8 @@ public class Space {
     }
 
     void instantiateSpace() {
-        stars = new ArrayList<>(GameSettings.STAR_COUNT);
-        for (int i = 0; i < GameSettings.STAR_COUNT; i++) {
+        stars = new ArrayList<>(GameSettings.NUMERO_STELLE);
+        for (int i = 0; i < GameSettings.NUMERO_STELLE; i++) {
             double x = rand.nextDouble() * Math.max(1, getWidth());
             double y = rand.nextDouble() * Math.max(1, getHeight());
             stars.add(new Star(x, y));
@@ -51,8 +51,8 @@ public class Space {
      * @param targetVy velocità Y del giocatore
      */
     public void update(double targetVx, double targetVy) {
-        scrollVx = GameSettings.STAR_SCROLL_EASING.apply(scrollVx, targetVx, GameSettings.STAR_SCROLL_LERP);
-        scrollVy = GameSettings.STAR_SCROLL_EASING.apply(scrollVy, targetVy, GameSettings.STAR_SCROLL_LERP);
+        scrollVx = GameSettings.EASING_STELLE.apply(scrollVx, targetVx, GameSettings.LERP_STELLE);
+        scrollVy = GameSettings.EASING_STELLE.apply(scrollVy, targetVy, GameSettings.LERP_STELLE);
 
         int w = Math.max(1, getWidth());
         int h = Math.max(1, getHeight());
