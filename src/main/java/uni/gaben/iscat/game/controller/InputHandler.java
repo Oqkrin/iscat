@@ -15,6 +15,8 @@ public class InputHandler {
     /** true per un solo tick quando SPACE viene premuto. */
     public boolean dodge;
 
+    public boolean pausePressed;
+
     public double mouseX;
     public double mouseY;
 
@@ -26,6 +28,7 @@ public class InputHandler {
                 case S, DOWN   -> down  = true;
                 case D, RIGHT  -> right = true;
                 case SPACE     -> dodge = true;
+                case ESCAPE -> pausePressed = true;
             }
         });
         scene.setOnKeyReleased(e -> {
@@ -34,10 +37,18 @@ public class InputHandler {
                 case A, LEFT  -> left  = false;
                 case S, DOWN  -> down  = false;
                 case D, RIGHT -> right = false;
+                case ESCAPE -> pausePressed = false;
                 // SPACE non ha un "rilascio" — è one-shot, consumato dal controller
             }
         });
     }
+
+    public boolean consumePause() {
+        boolean p = pausePressed;
+        pausePressed = false;
+        return p;
+    }
+
 
     /**
      * Mouse in coordinate locali al canvas, non alla scena.
