@@ -15,6 +15,7 @@ import uni.gaben.iscat.login.view.LoginScene;
 import uni.gaben.iscat.menu.controller.MenuController;
 import uni.gaben.iscat.menu.view.MenuScene;
 import uni.gaben.iscat.utils.IscatUtils;
+import uni.gaben.iscat.utils.audio_manager.AudioManager;
 
 import java.util.EnumMap;
 
@@ -66,5 +67,16 @@ public class IscatApplication extends Application {
         IscatUtils.scalaCentraRispettoParent(stage, IscatUtils.getSchermiCorrenti(stage).get(0).getBounds());
     }
 
-    private void setScene(IscatScenes scene) { stage.setScene(scenes.get(scene)); }
+    private void setScene(IscatScenes scene) {
+        // Troviamo la bgm giusta per la scena che verrà settata
+        String bgm_path = switch (scene) {
+            case LOGIN -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
+            case MENU  -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
+            case GAME  -> "/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav";
+        };
+
+        // Cambiamo musica quando settiamo la nuova scena
+        AudioManager.getInstance().playBGM(bgm_path,true);
+        stage.setScene(scenes.get(scene));
+    }
 }
