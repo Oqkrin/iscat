@@ -28,16 +28,19 @@ public class PauseMenu extends VBox {
         resumeBtn.getStyleClass().add(CSS_MENU_BUTTON);
         resumeBtn.setOnAction(e -> controller.togglePause());
 
+        Button optionsBtn = new Button("OPTIONS");
+        optionsBtn.getStyleClass().add(CSS_MENU_BUTTON);
+        /* TODO: aprire menu opzioni */
+
         Button mainMenuBtn = new Button("MAIN MENU");
         mainMenuBtn.getStyleClass().add(CSS_MENU_BUTTON);
-
-        mainMenuBtn.setOnAction(e -> controller.togglePause());
+        /* TODO: far tornare il gioco al menu principale */
 
         Button quitBtn = new Button("QUIT");
         quitBtn.getStyleClass().add(CSS_MENU_BUTTON);
         quitBtn.setOnAction(e -> Platform.exit());
 
-        getChildren().addAll(pauseLabel, resumeBtn, mainMenuBtn, quitBtn);
+        getChildren().addAll(pauseLabel, resumeBtn, optionsBtn, mainMenuBtn, quitBtn);
 
         // Inizialmente invisibile e trasparente ai click
         setVisible(false);
