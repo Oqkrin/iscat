@@ -2,98 +2,85 @@ package uni.gaben.iscat.game.view;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import uni.gaben.iscat.game.model.Space;
 import uni.gaben.iscat.game.model.entities.GameModel;
 import uni.gaben.iscat.game.model.entities.Player;
+import uni.gaben.iscat.game.model.entities.Star;
+import uni.gaben.iscat.utils.settings.GameSettings;
 
 /**
- * Canvas di gioco (View) – responsabile esclusivamente del rendering.
- * Riceve il modello dall'esterno e disegna lo stato corrente.
+ * Vista di gioco: disegna il modello corrente ogni frame.
+ * Nessuna logica di gioco qui — solo rendering.
  */
 public class GameCanvas extends Canvas {
 
-    // Dimensione base dei tile (32 pixel * fattore di scala 3)
-    public static final int TILE_SIZE = 32 * 3;
+    public static final double TILE_SIZE           = GameSettings.TILE_SIZE;
+    public static final double SPRITE_NORTH_OFFSET = GameSettings.SPRITE_NORTH_OFFSET;
+
+    private static final Image PLAYER_SPRITE = new Image(
+            GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/battle_ship_1.png"));
 
     private final GameModel model;
+    private final Space     space;
 
     public GameCanvas(GameModel model) {
         this.model = model;
-
-        // Rende il canvas ridimensionabile automaticamente con il layout
-        setManaged(true);
-        // Sfondo nero (opzionale, può essere gestito via CSS o qui)
-        setOnMouseClicked(e -> requestFocus()); // per mantenere il focus se serve
-
-        // Metodo 1: binding esplicito (alternativa al resize override)
-        // widthProperty().addListener(obs -> setWidth(getWidth()));
-        // heightProperty().addListener(obs -> setHeight(getHeight()));
-
-        // Metodo 2 (migliore): override di resize() – usato sotto
+        this.space = new Space(0, 0);
+        setOnMouseClicked(e -> requestFocus());
     }
 
-    /**
-     * Chiamato automaticamente dal layout manager quando il contenitore
-     * viene ridimensionato. Aggiorna la dimensione del buffer di disegno.
-     */
     @Override
     public void resize(double width, double height) {
         super.resize(width, height);
-        setWidth(width);
-        setHeight(height);
-        // Dopo il resize forziamo un redraw (opzionale)
+        setWidth(getParent().getScene().getWidth());
+        setHeight(getParent().getScene().getHeight());
+        space.heightProperty().bind(heightProperty().asObject()
+                .map(Number::intValue));
+        space.widthProperty().bind(widthProperty().asObject()
+                .map(Number::intValue));
         render();
     }
 
-    @Override
-    public boolean isResizable() {
-        return true; // permetti al layout di ridimensionarlo
-    }
+    @Override public boolean isResizable() { return true; }
 
-    @Override
-    public double prefWidth(double height) { return 800; }
-    @Override
-    public double prefHeight(double width) { return 600; }
-
-    /**
-     * Metodo principale di disegno. Viene chiamato dal game loop.
-     */
+    /** Chiamato dal game loop ogni frame. */
     public void render() {
         GraphicsContext gc = getGraphicsContext2D();
-        // Pulisce l'intera area
+
         gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, getWidth(), getHeight());
+        gc.fillRect(0, 0, getParent().getScene().getWidth(), getParent().getScene().getHeight());
         gc.setImageSmoothing(false);
 
-        // Disegna il giocatore
-        drawPlayer(gc);
-
-        // In futuro: drawMonsters(gc); drawProjectiles(gc); ...
+        disegnaStelle(gc);
+        disegnaGiocatore(gc);
     }
 
-    private void drawPlayer(GraphicsContext gc) {
-        Player p = model.player;
-        if (p == null || p.sprite == null) return;
+    private void disegnaStelle(GraphicsContext gc) {
+        gc.setFill(Color.WHITE);
+        for (Star star : space.stars) {
+            gc.fillOval(star.getX(), star.getY(), GameSettings.STAR_SIZE, GameSettings.STAR_SIZE);
+        }
+    }
 
-        // Centro del giocatore (in pixel)
-        double centerX = p.x + TILE_SIZE / 2.0;
-        double centerY = p.y + TILE_SIZE / 2.0;
+    private void disegnaGiocatore(GraphicsContext gc) {
+        Player p = model.getPlayer();
+        if (p == null || PLAYER_SPRITE == null) return;
+
+        double cx = p.getX() + TILE_SIZE / 2.0;
+        double cy = p.getY() + TILE_SIZE / 2.0;
 
         gc.save();
-        gc.translate(centerX, centerY);
-        // L'angolo directionAngle è già calcolato dal controller
-        gc.rotate(p.directionAngle + 90);   // +90 se lo sprite punta verso l'alto di default
-
-        // Disegna lo sprite centrato
-        gc.drawImage(p.sprite,
-                -TILE_SIZE / 2.0, -TILE_SIZE / 2.0,
-                TILE_SIZE, TILE_SIZE);
+        gc.translate(cx, cy);
+        gc.rotate(p.getDirectionAngle() + SPRITE_NORTH_OFFSET);
+        gc.drawImage(PLAYER_SPRITE, -TILE_SIZE / 2.0, -TILE_SIZE / 2.0, TILE_SIZE, TILE_SIZE);
         gc.restore();
     }
 
-    /**
-     * Eventuale disegno di debug (FPS, griglia, ecc.)
-     */
+    public Space getSpace() { return space; }
+
+    /** Disegna il contatore FPS in alto a sinistra. */
     public void drawFPS(int fps) {
         GraphicsContext gc = getGraphicsContext2D();
         gc.setFill(Color.WHITE);

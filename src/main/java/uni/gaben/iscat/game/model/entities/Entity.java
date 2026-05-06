@@ -1,17 +1,24 @@
 package uni.gaben.iscat.game.model.entities;
 
-import javafx.scene.image.Image;
-
-// Entity.java – classe base astratta
+/**
+ * Base minimale per ogni oggetto nel mondo di gioco.
+ * Solo identità e posizione grezza.
+ *
+ * Fisica → {@link PhysicalEntity}.
+ * Salute → {@link LivingEntity}.
+ * Collisioni → interfaccia {@link uni.gaben.iscat.game.model.interfaces.Collidable}.
+ */
 public abstract class Entity {
-    public double x, y;            // ora meglio double per la grafica
-    public int speed;
-    public int hp;
-    public String name;
-    public Image sprite;
-    public double directionAngle;  // angolo in gradi
 
-    public void die() {
+    protected double x;
+    protected double y;
+    protected String name = "";
 
-    }
+    public double getX()    { return x; }
+    public double getY()    { return y; }
+    public String getName() { return name; }
+
+    public void setX(double x)       { this.x = x; }
+    public void setY(double y)       { this.y = y; }
+    public void setName(String name) { this.name = name; }
 }

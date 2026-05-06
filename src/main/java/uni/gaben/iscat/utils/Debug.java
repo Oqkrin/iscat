@@ -5,7 +5,11 @@ import javafx.scene.Parent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
-public final class debug {
+public final class Debug {
+    private Debug() {
+        /* classe utility */
+    }
+
 
     public static void addDebugBorderToGraph(Parent root) {
         // Definiamo uno stroke riutilizzabile

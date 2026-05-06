@@ -8,19 +8,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Store utenti con password hashate SHA-256 + salt.
- * Formato stored: "salt:hash" (entrambi Base64).
- * Con un DB in futuro basta sostituire la Map con query JDBC/JPA.
+ * User store with SHA-256 + salt hashed passwords.
+ * Stored format: "salt:hash" (both Base64).
+ * Swap the Map for JDBC/JPA queries when a real DB is introduced.
  */
 public class LoginData {
 
     private final Map<String, String> utentiRegistrati;
     private final SecureRandom rng = new SecureRandom();
 
-    /** @param utentiIniziali mappa username → password in chiaro (solo per bootstrap/dummy data) */
+    /**
+     * Creates a LoginData pre-populated with the given plaintext credentials.
+     * Only use for bootstrap/dummy data — passwords are hashed on construction.
+     */
     public LoginData(Map<String, String> utentiIniziali) {
         this.utentiRegistrati = new HashMap<>();
         utentiIniziali.forEach((u, p) -> utentiRegistrati.put(u, hash(p)));
+    }
+
+    /**
+     * Factory for the default development seed account.
+     * Keeps hardcoded credentials out of the Application class.
+     */
+    public static LoginData withDefaults() {
+        return new LoginData(Map.of("gaben", "iscat"));
     }
 
     public boolean exists(String username) {

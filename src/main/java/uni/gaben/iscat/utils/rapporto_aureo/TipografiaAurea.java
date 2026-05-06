@@ -1,17 +1,14 @@
 package uni.gaben.iscat.utils.rapporto_aureo;
 
-import uni.gaben.iscat.utils.IscatApplicationSettings;
+import uni.gaben.iscat.utils.settings.AppSettings;
 
 import static uni.gaben.iscat.utils.rapporto_aureo.ScalareAureo.*;
 
 /**
  * Scala tipografica ispirata a Material 3: 5 ruoli × 3 dimensioni,
- * con taglie derivate dal rapporto aureo a partire da una base di 14sp.
+ * taglie derivate dal rapporto aureo a partire da {@link AppSettings#BASE_FONT_SIZE}.
  *
- * Ruoli: DISPLAY, HEADLINE, TITLE, BODY, LABEL
- * Dimensioni: LARGE (0), MEDIUM (1), SMALL (2)
- *
- * Line height: ×1.2 per display/headline/title, ×1.5 per body/label (Material spec)
+ * Ruoli: DISPLAY, HEADLINE, TITLE, BODY, LABEL — dimensioni: LARGE(0), MEDIUM(1), SMALL(2).
  */
 public final class TipografiaAurea {
 
@@ -19,7 +16,7 @@ public final class TipografiaAurea {
 
     public static final int LARGE = 0, MEDIUM = 1, SMALL = 2;
 
-    private static final double BASE = IscatApplicationSettings.BASE_FONT_SIZE;
+    private static final double BASE = AppSettings.BASE_FONT_SIZE;
 
     // --- Taglie per ruolo (LARGE, MEDIUM, SMALL) ---
 
