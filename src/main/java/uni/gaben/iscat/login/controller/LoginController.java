@@ -1,6 +1,8 @@
 package uni.gaben.iscat.login.controller;
 
 import javafx.scene.input.KeyEvent;
+import uni.gaben.iscat.IscatScenes;
+import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.login.model.LoginData;
 import uni.gaben.iscat.login.model.LoginModel;
 import uni.gaben.iscat.login.model.LoginState;
@@ -13,7 +15,6 @@ public class LoginController {
     private final StringBuilder passwordBuffer = new StringBuilder();
 
     private LoginState currentLoginState = LoginState.USERNAME;
-    private Runnable onLoginSuccess;
 
     public LoginController(LoginModel model, LoginData loginData) {
         this.model = model;
@@ -21,7 +22,7 @@ public class LoginController {
 
         // Sincronizziamo lo stato interno se l'utente clicca sulla Scene
         model.loginStateProperty().addListener((obs, old, isTypingPass) ->
-                this.currentLoginState = isTypingPass ? LoginState.PASSWORD : LoginState.USERNAME);
+                this.currentLoginState = Boolean.TRUE.equals(isTypingPass) ? LoginState.PASSWORD : LoginState.USERNAME);
     }
 
     public void onKeyPressed(KeyEvent e) {
@@ -79,7 +80,8 @@ public class LoginController {
         model.setUserExists(exists);
 
         if (currentLoginState == LoginState.USERNAME) {
-            model.setStatus(u.isEmpty() ? "" : (exists ? "giocatore esistente (accedi) " : "nuovo giocatore (registrati)"));
+            if (u.isEmpty()) model.setStatus("");
+            else model.setStatus(exists ? "giocatore esistente (accedi) " : "nuovo giocatore (registrati)");
         }
     }
 
@@ -104,7 +106,7 @@ public class LoginController {
         if (loginData.exists(u)) {
             if (loginData.checkPassword(u, p)) {
                 model.setStatus("ACCESSO IN CORSO...");
-                if (onLoginSuccess != null) onLoginSuccess.run();
+                IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
             } else {
                 handleError("password errata");
             }
@@ -112,7 +114,7 @@ public class LoginController {
             // Registrazione automatica
             loginData.register(u, p);
             model.setStatus("registrazione completata!");
-            if (onLoginSuccess != null) onLoginSuccess.run();
+            IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
         }
     }
 
@@ -126,9 +128,5 @@ public class LoginController {
     private void updateDisplay() {
         model.setUsername(usernameBuffer.toString());
         model.setPassword("*".repeat(passwordBuffer.length()));
-    }
-
-    public void setOnLoginSuccess(Runnable onLoginSuccess) {
-        this.onLoginSuccess = onLoginSuccess;
     }
 }

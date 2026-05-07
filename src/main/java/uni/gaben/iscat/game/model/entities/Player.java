@@ -2,8 +2,10 @@ package uni.gaben.iscat.game.model.entities;
 
 import uni.gaben.iscat.game.model.interfaces.Collidable;
 import uni.gaben.iscat.game.model.physics.Vec2;
-import uni.gaben.iscat.utils.audio_manager.AudioManager;
-import uni.gaben.iscat.utils.settings.GameSettings;
+import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.game.model.GameSettings;
+
+import java.util.Random;
 
 /**
  * Nave del giocatore.
@@ -21,6 +23,7 @@ public class Player extends LivingEntity implements Collidable {
 
     /** true se lo scatto è stato richiesto questo tick. */
     private boolean scattoRichiesto = false;
+    private Random rand = new Random();
 
     public Player(double startX, double startY) {
         this.x     = startX;
@@ -72,13 +75,13 @@ public class Player extends LivingEntity implements Collidable {
 
         // Questo va spostato all'inizio della game scene, cosi possiamo load tutti i suoni del player ecc
         // L'ho messo qui solo per il il farting
-        AudioManager am = AudioManager.getInstance();
+        IscatAudioManager am = IscatAudioManager.getInstance();
         am.loadSFX("fart_alt1", "/uni/gaben/iscat/audio/SFX/fart3.wav");
         am.loadSFX("fart_alt2", "/uni/gaben/iscat/audio/SFX/fart8.wav");
         am.loadSFX("fart_alt3", "/uni/gaben/iscat/audio/SFX/fart7.wav");
 
-        int randomSfx = (int)(Math.random() * 3) + 1; // Genera 1, 2 o 3
-        AudioManager.getInstance().playSFX("fart_alt" + randomSfx);
+        int randomSfx = rand.nextInt(1,3+1); // Genera 1, 2 o 3
+        IscatAudioManager.getInstance().playSFX("fart_alt" + randomSfx);
 
 
         double rad = Math.toRadians(directionAngle);

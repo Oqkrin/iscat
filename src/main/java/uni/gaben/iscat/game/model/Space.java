@@ -3,7 +3,6 @@ package uni.gaben.iscat.game.model;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import uni.gaben.iscat.game.model.entities.Star;
-import uni.gaben.iscat.utils.settings.GameSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +40,14 @@ public class Space {
         for (int i = 0; i < GameSettings.NUMERO_STELLE; i++) {
             double x = rand.nextDouble() * Math.max(1, getWidth());
             double y = rand.nextDouble() * Math.max(1, getHeight());
-            stars.add(new Star(x, y));
+            
+            // Distribuzione realistica: la maggior parte delle stelle è piccola/distante
+            // Usa una power distribution per bias verso dimensioni più piccole
+            double t = Math.pow(rand.nextDouble(), GameSettings.STELLA_SIZE_POWER);
+            double size = GameSettings.DIMENSIONE_STELLA_MIN + 
+                         t * (GameSettings.DIMENSIONE_STELLA_MAX - GameSettings.DIMENSIONE_STELLA_MIN);
+            
+            stars.add(new Star(x, y, size));
         }
     }
 
@@ -60,8 +66,10 @@ public class Space {
         for (Star star : stars) {
             double nx = star.getX() - scrollVx;
             double ny = star.getY() - scrollVy;
-            if (nx < 0)  nx += w;  if (nx >= w) nx -= w;
-            if (ny < 0)  ny += h;  if (ny >= h) ny -= h;
+            if (nx < 0)  nx += w;
+            if (nx >= w) nx -= w;
+            if (ny < 0)  ny += h;
+            if (ny >= h) ny -= h;
             star.setX(nx);
             star.setY(ny);
         }

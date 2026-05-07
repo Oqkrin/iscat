@@ -1,4 +1,4 @@
-package uni.gaben.iscat.utils.settings;
+package uni.gaben.iscat.game.model;
 
 import uni.gaben.iscat.utils.Interpolator;
 
@@ -13,13 +13,13 @@ public final class GameSettings {
     // --- Fisica giocatore ---
 
     /** Forza spinta per tick mentre si tiene un tasto direzionale. */
-    public static final double FORZA_SPINTA = 3.5;
+    public static final double FORZA_SPINTA = 4;
 
     /** Attrito applicato alla velocità ogni tick (0=stop istantaneo, 1=no attrito). */
     public static final double ATTRITO = 0.92;
 
     /** Velocità massima in pixel/tick. */
-    public static final double VELOCITA_MAX = 7.0;
+    public static final double VELOCITA_MAX = 9.0;
 
     /** Massa del giocatore in kg (unità di gioco). */
     public static final double MASSA_GIOCATORE = 10.0;
@@ -47,13 +47,19 @@ public final class GameSettings {
     // --- Stelle di sfondo ---
 
     /** Numero di stelle generate nello spazio. */
-    public static final int NUMERO_STELLE = 300;
+    public static final int NUMERO_STELLE = 500;
 
     /** Fattore lerp scorrimento stelle. Più basso = più morbido. */
     public static final double LERP_STELLE = 0.12;
 
-    /** Dimensione in pixel del punto stella. */
-    public static final double DIMENSIONE_STELLA = 2.0;
+    /** Dimensione minima stella in pixel. */
+    public static final double DIMENSIONE_STELLA_MIN = 0.5;
+    
+    /** Dimensione massima stella in pixel. */
+    public static final double DIMENSIONE_STELLA_MAX = 4.5;
+    
+    /** Esponente per distribuzione dimensioni stelle (>1 = più stelle piccole). */
+    public static final double STELLA_SIZE_POWER = 2.5;
 
     /** Impulso visivo alle stelle al dodge (frazione di IMPULSO_SCATTO). */
     public static final double FATTORE_IMPULSO_STELLE = 0.4;
@@ -77,7 +83,7 @@ public final class GameSettings {
     // --- Preset easing ---
 
     /** Curva usata per lo scorrimento delle stelle. */
-    public static final Interpolator.Preset EASING_STELLE = Interpolator.Preset.LINEAR;
+    public static final Interpolator.Preset EASING_STELLE = Interpolator.Preset.SMOOTHER;
 
     /** Curva usata per la spinta del giocatore. */
     public static final Interpolator.Preset EASING_SPINTA = Interpolator.Preset.EASE_OUT;

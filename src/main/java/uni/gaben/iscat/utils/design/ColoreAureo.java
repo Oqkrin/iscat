@@ -1,10 +1,10 @@
-package uni.gaben.iscat.utils.rapporto_aureo;
+package uni.gaben.iscat.utils.design;
 
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uni.gaben.iscat.utils.rapporto_aureo.ScalareAureo.*;
+import static uni.gaben.iscat.utils.design.ScalareAureo.*;
 
 /**
  * Colori basati sul rapporto aureo: scala di opacità e sistema GRC (Golden Ratio Colors).

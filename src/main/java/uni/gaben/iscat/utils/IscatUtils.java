@@ -5,7 +5,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import static uni.gaben.iscat.utils.rapporto_aureo.GeometriaAurea.phiMinore;
+import static uni.gaben.iscat.utils.design.GeometriaAurea.phiMinore;
 
 public class IscatUtils {
     private IscatUtils() {

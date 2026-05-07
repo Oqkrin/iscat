@@ -1,9 +1,9 @@
-package uni.gaben.iscat.utils.rapporto_aureo;
+package uni.gaben.iscat.utils.design;
 
 import javafx.geometry.*;
 import javafx.scene.layout.CornerRadii;
 
-import static uni.gaben.iscat.utils.rapporto_aureo.ScalareAureo.*;
+import static uni.gaben.iscat.utils.design.ScalareAureo.*;
 
 /**
  * Applicazione del rapporto aureo a primitive geometriche JavaFX:

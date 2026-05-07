@@ -1,5 +1,6 @@
-package uni.gaben.iscat.game.model.entities;
+package uni.gaben.iscat.game.model;
 
+import uni.gaben.iscat.game.model.entities.*;
 import uni.gaben.iscat.game.model.interfaces.Collidable;
 import uni.gaben.iscat.game.model.interfaces.Gravitational;
 import uni.gaben.iscat.game.model.interfaces.Physical;

@@ -1,4 +1,4 @@
-package uni.gaben.iscat.utils.rapporto_aureo;
+package uni.gaben.iscat.utils.design;
 
 /** Costanti e scalatura aurea su {@code float} e {@code double}. */
 public final class ScalareAureo {

@@ -5,10 +5,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.game.model.Space;
-import uni.gaben.iscat.game.model.entities.GameModel;
+import uni.gaben.iscat.game.model.GameModel;
 import uni.gaben.iscat.game.model.entities.Player;
 import uni.gaben.iscat.game.model.entities.Star;
-import uni.gaben.iscat.utils.settings.GameSettings;
+import uni.gaben.iscat.game.model.GameSettings;
+
+import java.util.Objects;
 
 /**
  * Vista di gioco: disegna il modello corrente ogni frame.
@@ -20,7 +22,7 @@ public class GameCanvas extends Canvas {
     public static final double SPRITE_NORTH_OFFSET = GameSettings.OFFSET_NORD_SPRITE;
 
     private static final Image PLAYER_SPRITE = new Image(
-            GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/battle_ship_1.png"));
+            Objects.requireNonNull(GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/battle_ship_1.png")));
 
     private final GameModel model;
     private final Space     space;
@@ -60,13 +62,14 @@ public class GameCanvas extends Canvas {
     private void disegnaStelle(GraphicsContext gc) {
         gc.setFill(Color.WHITE);
         for (Star star : space.stars) {
-            gc.fillOval(star.getX(), star.getY(), GameSettings.DIMENSIONE_STELLA, GameSettings.DIMENSIONE_STELLA);
+            double size = star.getSize();
+            gc.fillOval(star.getX(), star.getY(), size, size);
         }
     }
 
     private void disegnaGiocatore(GraphicsContext gc) {
         Player p = model.getPlayer();
-        if (p == null || PLAYER_SPRITE == null) return;
+        if (p == null) return;
 
         double cx = p.getX() + TILE_SIZE / 2.0;
         double cy = p.getY() + TILE_SIZE / 2.0;

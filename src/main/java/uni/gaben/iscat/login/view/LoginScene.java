@@ -21,8 +21,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.login.controller.LoginController;
 import uni.gaben.iscat.login.model.LoginModel;
 import uni.gaben.iscat.utils.components.AutoFittingLabel;
-import uni.gaben.iscat.utils.rapporto_aureo.ScalareAureo;
-import uni.gaben.iscat.utils.rapporto_aureo.TipografiaAurea;
+import uni.gaben.iscat.utils.design.ScalareAureo;
+import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 import java.util.stream.Stream;
 
@@ -121,7 +121,7 @@ public class LoginScene extends Scene {
             passwordField.getChildren().remove(blinkLabel);
             blinkLabel.fontProperty().unbind();
 
-            if (isTypingPass) {
+            if (Boolean.TRUE.equals(isTypingPass)) {
                 passwordField.getChildren().add(blinkLabel);
                 blinkLabel.fontProperty().bind(passwordLabel.fontProperty());
             } else {
@@ -184,7 +184,7 @@ public class LoginScene extends Scene {
 
         // Assumiamo model.wrongCredentialsProperty() (BooleanProperty)
         model.wrongCredentialsProperty().addListener((obs, old, triggered) -> {
-            if (triggered) {
+            if (Boolean.TRUE.equals(triggered)) {
                 flash.playFromStart();
             }
         });

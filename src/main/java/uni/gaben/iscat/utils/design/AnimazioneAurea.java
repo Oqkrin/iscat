@@ -1,4 +1,4 @@
-package uni.gaben.iscat.utils.rapporto_aureo;
+package uni.gaben.iscat.utils.design;
 
 import javafx.util.Duration;
 

@@ -2,12 +2,12 @@ package uni.gaben.iscat.game.controller;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
-import uni.gaben.iscat.game.model.entities.GameModel;
+import uni.gaben.iscat.game.model.GameModel;
 import uni.gaben.iscat.game.model.entities.Player;
 import uni.gaben.iscat.game.model.physics.InputDirection;
 import uni.gaben.iscat.game.model.physics.Vec2;
 import uni.gaben.iscat.game.view.GameCanvas;
-import uni.gaben.iscat.utils.settings.GameSettings;
+import uni.gaben.iscat.game.model.GameSettings;
 import java.util.function.Consumer;
 
 /**
@@ -94,7 +94,8 @@ public class GameController {
     // --- input → forze ---
 
     private void applicaSpinta(Player p) {
-        double targetX = 0, targetY = 0;
+        double targetX = 0;
+        double targetY = 0;
 
         if (input.up)    { targetX += InputDirection.UP.dx;    targetY += InputDirection.UP.dy; }
         if (input.down)  { targetX += InputDirection.DOWN.dx;  targetY += InputDirection.DOWN.dy; }

@@ -1,18 +1,13 @@
 package uni.gaben.iscat.menu.controller;
 
 import javafx.application.Platform;
+import uni.gaben.iscat.IscatScenes;
+import uni.gaben.iscat.IscatNavigator;
 
 public class MenuController {
-    private Runnable onMenuStartGame;
 
     public void play() {
-        if (onMenuStartGame != null) {
-            onMenuStartGame.run();
-        }
-    }
-
-    public void setOnMenuStartGame(Runnable onMenuStartGame) {
-        this.onMenuStartGame = onMenuStartGame;
+        IscatNavigator.getInstance().navigateTo(IscatScenes.GAME);
     }
 
     public void quit() {

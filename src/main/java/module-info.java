@@ -11,9 +11,7 @@ module uni.gaben.iscat {
 
     exports uni.gaben.iscat;
     exports uni.gaben.iscat.utils;
-    exports uni.gaben.iscat.utils.settings;
     exports uni.gaben.iscat.utils.components;
-    exports uni.gaben.iscat.utils.rapporto_aureo;
     exports uni.gaben.iscat.login.controller;
     exports uni.gaben.iscat.login.model;
     exports uni.gaben.iscat.login.view;
