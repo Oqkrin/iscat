@@ -51,6 +51,6 @@ public final class GameSettings {
     public static double BGM_VOLUME = 0.5; /** Volume Musica (0.0 - 1.0) */
     public static double SFX_VOLUME = 0.7; /** Volume Effetti (0.0 - 1.0) */
     public static double SENSITIVITY = 1.0; /** Moltiplicatore sensibilità puntamento mouse */
-    public static boolean SHOW_FPS = true; /** Toggle per mostrare il contatore FPS sul Canvas */
+    public static boolean SHOW_FPS = false; /** Toggle per mostrare il contatore FPS sul Canvas */
     public static boolean SCREENSHAKE_ENABLED = true; /** Toggle per l'effetto scuotimento camera */
 }

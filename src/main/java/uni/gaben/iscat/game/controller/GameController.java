@@ -25,6 +25,15 @@ public class GameController {
     private boolean paused = false;
     private Consumer<Boolean> onPauseToggle; // contiene l'azione da eseguire in caso di pausa
 
+    // FPS
+    private static final int FPS_WINDOW = 60;
+    private final long[] frameTimes = new long[FPS_WINDOW];
+    private int  frameIndex = 0;
+    private int  frameCount = 0;
+    private long lastFrame  = 0;
+    private long sumNs      = 0;   // ← somma corrente, aggiornata in O(1)
+    private int  currentFps = 0;
+
     private double spintaCorrenteX = 0;
     private double spintaCorrenteY = 0;
     private boolean scattoAppenaEseguito = false;
@@ -127,16 +136,24 @@ public class GameController {
         p.setDirectionAngle(Math.toDegrees(Math.atan2(input.mouseY - cy, input.mouseX - cx)));
     }
 
-    /** Avvia il loop JavaFX. */
     public void startLoop() {
-        AnimationTimer timer = new AnimationTimer() {
+        new AnimationTimer() {
             @Override
             public void handle(long now) {
+                if (lastFrame > 0) {
+                    long dt = now - lastFrame;
+                    sumNs -= frameTimes[frameIndex];   // rimuove il valore più vecchio
+                    frameTimes[frameIndex] = dt;
+                    sumNs += dt;                       // aggiunge quello nuovo
+                    frameIndex = (frameIndex + 1) % FPS_WINDOW;
+                    if (frameCount < FPS_WINDOW) frameCount++;
+                    currentFps = (int) (1_000_000_000L * frameCount / sumNs);
+                }
+                lastFrame = now;
                 update();
-                canvas.render();
+                canvas.render(currentFps);
             }
-        };
-        timer.start();
+        }.start();
     }
 
 }

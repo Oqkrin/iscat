@@ -70,14 +70,13 @@ public class IscatAudioManager {
             AudioClip clip = new AudioClip(resource);
             sfxMap.put(name, clip);
         } catch (Exception e) {
-            System.err.println("Errore caricamento SFX: " + path);
+            System.err.println("Errore SFX: " + path);
         }
     }
 
     public void playSFX(String name) {
         AudioClip clip = sfxMap.get(name);
         if (clip != null) {
-            // Usa il valore sfxVolume corrente
             clip.play(sfxVolume);
         }
     }
@@ -94,6 +93,6 @@ public class IscatAudioManager {
 
     public void setSfxVolume(double volume) {
         this.sfxVolume = volume;
-        GameSettings.SFX_VOLUME = volume; // Teniamo sincronizzato GameSettings
+        GameSettings.SFX_VOLUME = volume;
     }
 }

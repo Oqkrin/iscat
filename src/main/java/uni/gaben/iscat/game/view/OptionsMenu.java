@@ -33,7 +33,7 @@ public class OptionsMenu extends VBox {
 
         Slider sfxSlider = createLabeledSlider(audioBox, "SFX VOLUME", 0, 1, GameSettings.SFX_VOLUME);
         sfxSlider.valueProperty().addListener((obs, oldV, newV) -> {
-            GameSettings.SFX_VOLUME = newV.doubleValue();
+            IscatAudioManager.getInstance().setSfxVolume(newV.doubleValue());
         });
 
         // --- Sezione Gameplay ---

@@ -42,13 +42,13 @@ public class GameCanvas extends Canvas {
                 .map(Number::intValue));
         space.widthProperty().bind(widthProperty().asObject()
                 .map(Number::intValue));
-        render();
+        render(0);
     }
 
     @Override public boolean isResizable() { return true; }
 
     /** Chiamato dal game loop ogni frame. */
-    public void render() {
+    public void render(int currentFps) {
         GraphicsContext gc = getGraphicsContext2D();
 
         gc.setFill(Color.BLACK);
@@ -57,6 +57,10 @@ public class GameCanvas extends Canvas {
 
         disegnaStelle(gc);
         disegnaGiocatore(gc);
+
+        if (GameSettings.SHOW_FPS) {
+            drawFPS(currentFps);
+        }
     }
 
     private void disegnaStelle(GraphicsContext gc) {
@@ -86,7 +90,12 @@ public class GameCanvas extends Canvas {
     /** Disegna il contatore FPS in alto a sinistra. */
     public void drawFPS(int fps) {
         GraphicsContext gc = getGraphicsContext2D();
-        gc.setFill(Color.WHITE);
-        gc.fillText("FPS: " + fps, 10, 20);
+        gc.save(); // Salviamo lo stato per non influenzare altri disegni
+
+        gc.setFill(Color.LIME); // Verde neon fa molto "hacker/space shooter"
+        gc.setFont(javafx.scene.text.Font.font("Miracode", 14));
+        gc.fillText("FPS: " + fps, 10, 25);
+
+        gc.restore();
     }
 }
