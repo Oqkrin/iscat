@@ -35,6 +35,11 @@ public class BlackHole extends PhysicalEntity implements Gravitational, Collidab
         this.gravityRadius         = gravityRadius;
         this.collisionRadius       = collisionRadius;
         this.name                  = "BlackHole";
+        
+        // BlackHole è immobile: nessun attrito, nessuna velocità massima
+        this.drag = 1.0;      // No drag (mantiene velocità)
+        this.maxSpeed = 0.0;  // Immobile (non può muoversi)
+        this.deadZone = 0.0;  // No dead-zone
     }
 
     @Override public double getGravitationalConstant() { return gravitationalConstant; }

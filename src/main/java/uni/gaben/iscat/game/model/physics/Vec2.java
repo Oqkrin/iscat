@@ -33,13 +33,15 @@ public final class Vec2 {
 
     /** Distanza da un altro punto. */
     public double distanceTo(Vec2 other) {
-        double dx = x - other.x, dy = y - other.y;
+        double dx = x - other.x;
+        double dy = y - other.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
     /** Distanza al quadrato (economica). */
     public double distanceSqTo(Vec2 other) {
-        double dx = x - other.x, dy = y - other.y;
+        double dx = x - other.x;
+        double dy = y - other.y;
         return dx * dx + dy * dy;
     }
 

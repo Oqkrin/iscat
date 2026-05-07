@@ -1,32 +1,35 @@
-.root {
-    -fx-background-color: #010203;
-    -fx-font-family: "Miracode";
-}
+/**
+ * ISCAT - Menu Scene Styles
+ */
+
+@import url('iscat-color-theme.css');
+@import url('iscat-typography.css');
+
+/* ============================================
+   TITLE
+   ============================================ */
 
 .menu-title {
     -fx-font-size: 50px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: -text-primary;
 }
+
+/* ============================================
+   BUTTONS
+   ============================================ */
 
 .menu-button {
-    -fx-padding: 5;
-    -fx-effect: dropshadow(gaussian, black, 10, 0.5, 0, 2);
-    -fx-pref-width: 200;
-    -fx-pref-height: 50;
-    -fx-background-color: black;
-    -fx-text-fill: white;
-    -fx-font-size:20px;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 50px;
+    -fx-background-color: linear-gradient(to bottom, -bg-elevated, -bg-secondary);
+    -fx-text-fill: -accent-primary;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-background-color: linear-gradient(to bottom, #333, #111);
+    -fx-effect: dropshadow(gaussian, black, 10, 0.5, 0, 2);
 }
 
-.menu-button:hover {
-    -fx-background-color: #444;
-}
-.menu-button:pressed {
-    -fx-background-color: #222;
-}
-.menu-button > .label {
-    -fx-text-fill: yellow;
-}
+.menu-button:hover   { -fx-background-color: -bg-elevated; }
+.menu-button:pressed { -fx-background-color: -bg-tertiary; }
+
+.menu-button > .label { -fx-text-fill: -accent-primary; }

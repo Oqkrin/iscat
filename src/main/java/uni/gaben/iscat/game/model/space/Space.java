@@ -1,7 +1,8 @@
-package uni.gaben.iscat.game.model;
+package uni.gaben.iscat.game.model.space;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import uni.gaben.iscat.game.model.GameSettings;
 import uni.gaben.iscat.game.model.entities.Star;
 
 import java.util.ArrayList;
@@ -36,29 +37,20 @@ public class Space {
     }
 
     void instantiateSpace() {
-        stars = new ArrayList<>(GameSettings.NUMERO_STELLE);
-        for (int i = 0; i < GameSettings.NUMERO_STELLE; i++) {
+        stars = new ArrayList<>(GameSettings.Visuale.NUMERO_STELLE);
+        for (int i = 0; i < GameSettings.Visuale.NUMERO_STELLE; i++) {
             double x = rand.nextDouble() * Math.max(1, getWidth());
             double y = rand.nextDouble() * Math.max(1, getHeight());
-            
-            // Distribuzione realistica: la maggior parte delle stelle è piccola/distante
-            // Usa una power distribution per bias verso dimensioni più piccole
-            double t = Math.pow(rand.nextDouble(), GameSettings.STELLA_SIZE_POWER);
-            double size = GameSettings.DIMENSIONE_STELLA_MIN + 
-                         t * (GameSettings.DIMENSIONE_STELLA_MAX - GameSettings.DIMENSIONE_STELLA_MIN);
-            
+            double t = Math.pow(rand.nextDouble(), GameSettings.Visuale.POTENZA_DIMENSIONE_STELLA);
+            double size = GameSettings.Visuale.DIMENSIONE_STELLA_MIN + 
+                         t * (GameSettings.Visuale.DIMENSIONE_STELLA_MAX - GameSettings.Visuale.DIMENSIONE_STELLA_MIN);
             stars.add(new Star(x, y, size));
         }
     }
 
-    /**
-     * Aggiorna le stelle ogni tick.
-     * @param targetVx velocità X del giocatore
-     * @param targetVy velocità Y del giocatore
-     */
     public void update(double targetVx, double targetVy) {
-        scrollVx = GameSettings.EASING_STELLE.apply(scrollVx, targetVx, GameSettings.LERP_STELLE);
-        scrollVy = GameSettings.EASING_STELLE.apply(scrollVy, targetVy, GameSettings.LERP_STELLE);
+        scrollVx = GameSettings.Visuale.EASING_STELLE.apply(scrollVx, targetVx, GameSettings.Visuale.LERP_STELLE);
+        scrollVy = GameSettings.Visuale.EASING_STELLE.apply(scrollVy, targetVy, GameSettings.Visuale.LERP_STELLE);
 
         int w = Math.max(1, getWidth());
         int h = Math.max(1, getHeight());

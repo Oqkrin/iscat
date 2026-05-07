@@ -1,0 +1,133 @@
+/**
+ * ISCAT - Game Styles
+ *
+ * Single stylesheet for all views inside game/view/:
+ *   GameScene, PauseMenu, OptionsMenu
+ *
+ * Loaded once by GameScene; all child nodes inherit the colors.
+ */
+
+@import url('../iscat-color-theme.css');
+@import url('../iscat-typography.css');
+
+/* ============================================
+   PAUSE MENU
+   ============================================ */
+
+.pause-menu {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+}
+
+.pause-title {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+}
+
+/* ============================================
+   OPTIONS MENU CONTAINER
+   ============================================ */
+
+.menu-opzioni {
+    -fx-background-color: rgba(20, 20, 20, 0.95);
+    -fx-padding: 30px;
+    -fx-border-color: -text-primary;
+    -fx-border-width: 2px;
+    -fx-max-width: 450px;
+    -fx-max-height: 600px;
+}
+
+.menu-opzioni .title-large {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 28px;
+    -fx-padding: 0 0 10px 0;
+}
+
+/* ============================================
+   SECTION HEADERS
+   ============================================ */
+
+.sezione-opzioni { -fx-alignment: center-left; }
+
+.titolo-sezione {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* ============================================
+   CONTROL LABELS
+   ============================================ */
+
+.etichetta-controllo {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 12px;
+}
+
+/* ============================================
+   SLIDER
+   ============================================ */
+
+.slider { -fx-max-width: 300px; }
+
+.slider .track { -fx-background-color: -bg-elevated; }
+
+.slider .thumb {
+    -fx-background-color: -accent-primary;
+}
+
+.slider .thumb:hover {
+    -fx-background-color: -accent-primary;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+/* ============================================
+   CHECKBOX
+   ============================================ */
+
+.check-box {
+    -fx-text-fill: -text-primary;
+}
+
+.check-box .box {
+    -fx-background-color: -bg-secondary;
+    -fx-border-color: -text-primary;
+    -fx-border-width: 1px;
+}
+
+.check-box:selected .box { -fx-background-color: -accent-primary; }
+
+.check-box .mark { -fx-background-color: -bg-primary; }
+
+/* ============================================
+   MENU BUTTONS  (pause + options)
+   ============================================ */
+
+.pulsante-menu {
+    -fx-pref-width: 200px;
+    -fx-pref-height: 50px;
+    -fx-min-width: 200px;
+    -fx-background-color: linear-gradient(to bottom, -bg-elevated, -bg-secondary);
+    -fx-text-fill: -accent-primary;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, black, 10, 0.5, 0, 2);
+}
+
+.pulsante-menu:hover   { -fx-background-color: -bg-elevated; }
+.pulsante-menu:pressed { -fx-background-color: -bg-tertiary; }
+
+/* danger variant - still yellow text */
+.pulsante-menu.pericolo         { -fx-text-fill: -accent-primary; }
+.pulsante-menu.pericolo:hover   { -fx-background-color: -bg-elevated; }
+
+/* primary variant - inverted */
+.pulsante-menu.primario         { -fx-background-color: -accent-primary; -fx-text-fill: -bg-primary; }
+.pulsante-menu.primario:hover   { -fx-background-color: -accent-secondary; }
+
+/* ============================================
+   CONTAINERS
+   ============================================ */
+
+.contenitore-pulsanti { -fx-alignment: center; }

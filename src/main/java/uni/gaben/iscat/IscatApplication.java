@@ -52,8 +52,15 @@ public class IscatApplication extends Application {
         scenes.put(IscatScenes.MENU, new MenuScene(menuController));
         scenes.put(IscatScenes.GAME, new GameScene(gameController, gameCanvas));
 
+        // Applica il color theme globalmente a tutte le scene
+        // I looked-up colors definiti su .root sono disponibili a tutti i discendenti
+        String colorTheme = IscatApplication.class
+                .getResource("/uni/gaben/iscat/styles/iscat-color-theme.css")
+                .toExternalForm();
+        scenes.values().forEach(scene -> scene.getStylesheets().add(0, colorTheme));
+
         // Inizializza il sistema di navigazione
-        IscatNavigator.getInstance().initialize(appModel);
+        IscatNavigator.getInstance().initialize(appModel, scenes);
         IscatController appController = new IscatController(appModel, stage, scenes);
 
         // Setup stage

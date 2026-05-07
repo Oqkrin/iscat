@@ -1,80 +1,42 @@
+/**
+ * ISCAT - Login Scene Styles
+ */
+
+@import url('iscat-color-theme.css');
+@import url('iscat-typography.css');
+
 /* ============================================
-   ISCAT LOGIN THEME
-   All colors and styling configurable here
+   TEXT STATES
    ============================================ */
 
-/* Root styling */
-.root {
-    -fx-background-color: #010203;
-    -fx-font-family: "Miracode";
-}
+.login-text         { -fx-text-fill: -text-secondary; }
+.login-text-status  { -fx-text-fill: -text-secondary; -fx-opacity: 0.55; }
+.login-text-empty   { -fx-text-fill: -text-primary; }
+.login-text-exists  { -fx-text-fill: -color-success; }
+.login-text-missing { -fx-text-fill: -color-warning; }
+.login-text-error   { -fx-text-fill: -color-error; }
 
 /* ============================================
-   TEXT COLORS
-   ============================================ */
-
-.login-text {
-    -fx-text-fill: #dcdcdc;
-}
-
-.login-text-status {
-    -fx-text-fill: #dcdcdc;
-    -fx-opacity: 0.55;
-}
-
-.login-text-empty {
-    -fx-text-fill: #ffffff;
-}
-
-.login-text-exists {
-    -fx-text-fill: #32cd32;
-}
-
-.login-text-missing {
-    -fx-text-fill: #ffd700;
-}
-
-.login-text-error {
-    -fx-text-fill: #ff6347;
-}
-
-/* ============================================
-   PLACEHOLDER STYLING
+   PLACEHOLDER
    ============================================ */
 
 .login-placeholder {
-    -fx-text-fill: #dcdcdc;
+    -fx-text-fill: -text-tertiary;
     -fx-opacity: 0.5;
 }
 
 /* ============================================
-   CURSOR STYLING
+   CURSOR
    ============================================ */
 
-.login-cursor {
-    -fx-text-fill: inherit;
-}
+.login-cursor { -fx-text-fill: inherit; }
 
 /* ============================================
-   ICON COLORS
+   ICONS
    ============================================ */
 
-.login-icon {
-    -icon-color: #dcdcdc;
-}
-
-.login-icon-empty {
-    -icon-color: #ffffff;
-}
-
-.login-icon-exists {
-    -icon-color: #32cd32;
-}
-
-.login-icon-missing {
-    -icon-color: #ffd700;
-}
-
-.login-icon-error {
-    -icon-color: #ff6347;
-}
+.login-icon         { -icon-color: -text-secondary; }
+.login-icon-empty   { -icon-color: -text-primary; }
+.login-icon-exists  { -icon-color: -color-success; }
+.login-icon-missing { -icon-color: -color-warning; }
+.login-icon-error   { -icon-color: -color-error; }

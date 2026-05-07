@@ -4,11 +4,11 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.game.model.Space;
+import uni.gaben.iscat.game.model.space.Space;
 import uni.gaben.iscat.game.model.GameModel;
+import uni.gaben.iscat.game.model.GameSettings;
 import uni.gaben.iscat.game.model.entities.Player;
 import uni.gaben.iscat.game.model.entities.Star;
-import uni.gaben.iscat.game.model.GameSettings;
 
 import java.util.Objects;
 
@@ -23,6 +23,9 @@ public class GameCanvas extends Canvas {
 
     private static final Image PLAYER_SPRITE = new Image(
             Objects.requireNonNull(GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/battle_ship_1.png")));
+    
+    private static final Image BOMBER_SPRITE = new Image(
+            Objects.requireNonNull(GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/IscatBomber.png")));
 
     private final GameModel model;
     private final Space     space;
@@ -56,9 +59,10 @@ public class GameCanvas extends Canvas {
         gc.setImageSmoothing(false);
 
         disegnaStelle(gc);
+        disegnaEnemies(gc);
         disegnaGiocatore(gc);
 
-        if (GameSettings.SHOW_FPS) {
+        if (GameSettings.Visuale.MOSTRA_FPS) {
             drawFPS(currentFps);
         }
     }
@@ -83,6 +87,25 @@ public class GameCanvas extends Canvas {
         gc.rotate(p.getDirectionAngle() + SPRITE_NORTH_OFFSET);
         gc.drawImage(PLAYER_SPRITE, -TILE_SIZE / 2.0, -TILE_SIZE / 2.0, TILE_SIZE, TILE_SIZE);
         gc.restore();
+    }
+    
+    private void disegnaEnemies(GraphicsContext gc) {
+        for (var enemy : model.getEnemies()) {
+            if (enemy instanceof uni.gaben.iscat.game.model.entities.enemies.IscatBomber) {
+                double cx = enemy.getX() + TILE_SIZE / 2.0;
+                double cy = enemy.getY() + TILE_SIZE / 2.0;
+
+                gc.save();
+                gc.translate(cx, cy);
+                gc.rotate(enemy.getDirectionAngle() + SPRITE_NORTH_OFFSET);
+                gc.drawImage(BOMBER_SPRITE, -TILE_SIZE / 2.0, -TILE_SIZE / 2.0, TILE_SIZE, TILE_SIZE);
+                gc.restore();
+            } else {
+                // Fallback: disegna un cerchio rosso per nemici senza sprite
+                gc.setFill(Color.RED);
+                gc.fillOval(enemy.getX(), enemy.getY(), TILE_SIZE, TILE_SIZE);
+            }
+        }
     }
 
     public Space getSpace() { return space; }

@@ -2,8 +2,8 @@ package uni.gaben.iscat.game.model.entities;
 
 import uni.gaben.iscat.game.model.interfaces.Collidable;
 import uni.gaben.iscat.game.model.physics.Vec2;
-import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.model.GameSettings;
+import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Random;
 
@@ -15,11 +15,11 @@ import java.util.Random;
  */
 public class Player extends LivingEntity implements Collidable {
 
-    /** Tick rimanenti al cooldown scatto. */
-    private int cooldownScatto = 0;
+    /** Cooldown per lo scatto. */
+    private final Cooldown cooldownScatto = new Cooldown();
 
-    /** Tick rimanenti nella fase scatto attiva (drag ridotto). */
-    private int faseScatto = 0;
+    /** Timer per la fase scatto attiva (drag ridotto). */
+    private final Cooldown faseScatto = new Cooldown();
 
     /** true se lo scatto è stato richiesto questo tick. */
     private boolean scattoRichiesto = false;
@@ -28,41 +28,49 @@ public class Player extends LivingEntity implements Collidable {
     public Player(double startX, double startY) {
         this.x     = startX;
         this.y     = startY;
-        this.hp    = 100;
-        this.maxHp = 100;
-        this.mass  = GameSettings.MASSA_GIOCATORE;
+        this.hp    = GameSettings.Giocatore.HP_INIZIALE;
+        this.maxHp = GameSettings.Giocatore.HP_MASSIMO;
+        this.mass  = GameSettings.Giocatore.MASSA;
         this.name  = "Player";
+        this.spriteSize = GameSettings.Giocatore.DIMENSIONE_SPRITE;
+        this.drag     = GameSettings.Giocatore.ATTRITO;
+        this.maxSpeed = GameSettings.Giocatore.VELOCITA_MAX;
+        this.deadZone = GameSettings.Giocatore.ZONA_MORTA;
     }
 
     // --- fisica ---
 
     @Override
     public void integrate(double dt) {
+        // Modifica parametri fisici durante lo scatto
+        boolean inScatto = faseScatto.isActive();
+        
+        if (inScatto) {
+            this.drag = GameSettings.Giocatore.ATTRITO_SCATTO;
+            this.maxSpeed = GameSettings.Giocatore.VELOCITA_MAX_SCATTO;
+        } else {
+            this.drag = GameSettings.Giocatore.ATTRITO;
+            this.maxSpeed = GameSettings.Giocatore.VELOCITA_MAX;
+        }
+        
+        // Usa l'integrazione base di PhysicalEntity (con drag, cap, dead-zone)
         super.integrate(dt);
 
-        boolean inScatto = faseScatto > 0;
-
-        // attrito: ridotto durante lo scatto per mantenere la velocità più a lungo
-        double attrito = inScatto ? GameSettings.ATTRITO_SCATTO : GameSettings.ATTRITO;
-        velocity = velocity.scale(attrito);
-
-        // cap velocità: più alto durante lo scatto
-        double vMax = inScatto ? GameSettings.VELOCITA_MAX_SCATTO : GameSettings.VELOCITA_MAX;
-        double speed = velocity.magnitude();
-        if (speed > vMax) velocity = velocity.scale(vMax / speed);
-
-        // dead-zone
-        if (Math.abs(velocity.x) < 0.01 && Math.abs(velocity.y) < 0.01) velocity = Vec2.ZERO;
-
-        // decrementa timer
-        if (faseScatto   > 0) faseScatto--;
-        if (cooldownScatto > 0) cooldownScatto--;
+        // Decrementa timer
+        faseScatto.tick();
+        cooldownScatto.tick();
     }
 
     // --- scatto ---
 
     /** Segnala che il giocatore vuole scattare questo tick. */
     public void richiestaScatto() { scattoRichiesto = true; }
+
+    /** Callback opzionale chiamato quando lo scatto viene eseguito (es. per riprodurre audio). */
+    private Runnable onScatto;
+
+    /** Imposta il callback da chiamare quando lo scatto viene eseguito. */
+    public void setOnScatto(Runnable callback) { this.onScatto = callback; }
 
     /**
      * Esegue lo scatto se richiesto e il cooldown è scaduto.
@@ -71,40 +79,40 @@ public class Player extends LivingEntity implements Collidable {
     public void elaboraScatto() {
         if (!scattoRichiesto) return;
         scattoRichiesto = false;
-        if (cooldownScatto > 0) return;
+        if (!cooldownScatto.isReady()) return;
 
-        // Questo va spostato all'inizio della game scene, cosi possiamo load tutti i suoni del player ecc
-        // L'ho messo qui solo per il il farting
-        IscatAudioManager am = IscatAudioManager.getInstance();
-        am.loadSFX("fart_alt1", "/uni/gaben/iscat/audio/SFX/fart3.wav");
-        am.loadSFX("fart_alt2", "/uni/gaben/iscat/audio/SFX/fart8.wav");
-        am.loadSFX("fart_alt3", "/uni/gaben/iscat/audio/SFX/fart7.wav");
-
-        int randomSfx = 1 + rand.nextInt(3); // Genera 1, 2 o 3
-        IscatAudioManager.getInstance().playSFX("fart_alt" + randomSfx);
-
+        if (onScatto != null) onScatto.run();
 
         double rad = Math.toRadians(directionAngle);
         velocity = velocity.add(
-                Math.cos(rad) * GameSettings.IMPULSO_SCATTO,
-                Math.sin(rad) * GameSettings.IMPULSO_SCATTO
+                Math.cos(rad) * GameSettings.Giocatore.IMPULSO_SCATTO,
+                Math.sin(rad) * GameSettings.Giocatore.IMPULSO_SCATTO
         );
 
-        faseScatto     = GameSettings.DURATA_SCATTO_TICK;
-        cooldownScatto = GameSettings.COOLDOWN_SCATTO_TICK;
+        faseScatto.set(GameSettings.Giocatore.DURATA_SCATTO_TICK);
+        cooldownScatto.set(GameSettings.Giocatore.COOLDOWN_SCATTO_TICK);
     }
 
     /** {@code true} se lo scatto è disponibile. */
-    public boolean isScattoDisponibile() { return cooldownScatto == 0; }
+    public boolean isScattoDisponibile() { return cooldownScatto.isReady(); }
 
     /** {@code true} se la fase scatto è attiva (drag ridotto). */
-    public boolean isInScatto() { return faseScatto > 0; }
+    public boolean isInScatto() { return faseScatto.isActive(); }
 
     // --- Collidable ---
 
-    @Override public double getCollisionRadius() { return GameSettings.RAGGIO_COLLISIONE; }
-    @Override public Vec2   getColliderCenter()  { return getPosition(); }
-    @Override public void   onCollision(Collidable other) {}
+    @Override public double getCollisionRadius() { return GameSettings.Giocatore.RAGGIO_COLLISIONE; }
+    
+    @Override 
+    public Vec2 getColliderCenter() {
+        // Usa l'implementazione di LivingEntity
+        return super.getColliderCenter();
+    }
+    
+    @Override public void   onCollision(Collidable other) {
+        // La fisica della collisione è gestita dall'altra entità
+        // (per evitare di applicare la fisica due volte)
+    }
 
     // --- Alive ---
 

@@ -1,0 +1,144 @@
+package uni.gaben.iscat.game.model.entities.enemies;
+
+import uni.gaben.iscat.game.model.GameModel;
+import uni.gaben.iscat.game.model.GameSettings;
+import uni.gaben.iscat.game.model.entities.Enemy;
+import uni.gaben.iscat.game.model.entities.Player;
+import uni.gaben.iscat.game.model.interfaces.AI;
+import uni.gaben.iscat.game.model.interfaces.Collidable;
+import uni.gaben.iscat.game.model.physics.Vec2;
+import uni.gaben.iscat.utils.Cooldown;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * IscatBomber: nemico che segue le vecchie posizioni del giocatore con interpolazione smooth.
+ * Quando collide con il giocatore, entrambi vengono respinti e il bomber entra in stun.
+ */
+public class IscatBomber extends Enemy implements Collidable, AI {
+    
+    private final List<Vec2> playerTrail = new ArrayList<>();
+    private final Cooldown stunTimer = new Cooldown(); // timer di stun dopo collisione
+    private final Cooldown collisionCooldown = new Cooldown(); // cooldown per evitare collisioni ripetute
+
+    public IscatBomber(double startX, double startY) {
+        super(startX, startY);
+        this.hp    = GameSettings.Bomber.HP;
+        this.maxHp = GameSettings.Bomber.HP;
+        this.mass  = GameSettings.Giocatore.MASSA * GameSettings.Bomber.FATTORE_MASSA;
+        this.name  = "IscatBomber";
+        this.spriteSize = GameSettings.Giocatore.DIMENSIONE_SPRITE;
+        this.drag     = GameSettings.Bomber.ATTRITO;
+        this.maxSpeed = GameSettings.Giocatore.VELOCITA_MAX * GameSettings.Bomber.FATTORE_VELOCITA_MAX;
+        this.deadZone = 0.01;
+    }
+
+    // --- AI interface ---
+
+    @Override
+    public void updateAI(GameModel model, double dt) {
+        // Decrementa cooldowns
+        stunTimer.tick();
+        collisionCooldown.tick();
+        
+        if (stunTimer.isActive()) {
+            return; // non seguire durante lo stun
+        }
+        
+        // Aggiorna trail del player
+        Vec2 playerPos = model.getPlayer().getPosition();
+        playerTrail.add(playerPos);
+        
+        // Mantieni solo le ultime N posizioni
+        if (playerTrail.size() > GameSettings.Bomber.LUNGHEZZA_TRAIL) {
+            playerTrail.remove(0);
+        }
+        
+        // Segui il player
+        followPlayer();
+    }
+    
+    @Override
+    public void resetAI() {
+        playerTrail.clear();
+        stunTimer.reset();
+        collisionCooldown.reset();
+    }
+
+    // --- AI logic ---
+
+    /**
+     * Logica di inseguimento: segue punti nella trail del player.
+     */
+    private void followPlayer() {
+        if (playerTrail.size() <= GameSettings.Bomber.RITARDO_TRAIL) {
+            return;
+        }
+        
+        int targetIndex = playerTrail.size() - GameSettings.Bomber.RITARDO_TRAIL;
+        targetIndex = Math.max(0, Math.min(targetIndex, playerTrail.size() - 1));
+        
+        Vec2 target = playerTrail.get(targetIndex);
+        Vec2 currentPos = getPosition();
+        double dx = target.x - currentPos.x;
+        double dy = target.y - currentPos.y;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > GameSettings.Bomber.DISTANZA_MIN_INSEGUIMENTO) {
+            double nx = dx / distance;
+            double ny = dy / distance;
+            applyForce(new Vec2(
+                nx * GameSettings.Bomber.VELOCITA_INSEGUIMENTO, 
+                ny * GameSettings.Bomber.VELOCITA_INSEGUIMENTO
+            ));
+            updateDirectionSmooth(dx, dy, GameSettings.Bomber.SMOOTHING_ROTAZIONE);
+        }
+    }
+
+    // --- fisica ---
+
+    @Override
+    public void integrate(double dt) {
+        // Usa l'integrazione base di PhysicalEntity (con drag, cap, dead-zone)
+        super.integrate(dt);
+    }
+
+    // --- Collidable ---
+
+    @Override 
+    public double getCollisionRadius() { 
+        return GameSettings.Bomber.RAGGIO_COLLISIONE; 
+    }
+    
+    @Override 
+    public Vec2 getColliderCenter() {
+        // Usa l'implementazione di LivingEntity
+        return super.getColliderCenter();
+    }
+    
+    @Override 
+    public void onCollision(Collidable other) {
+        // La fisica del rimbalzo è già gestita da CollisionPhysics in GameModel.
+        // Qui gestiamo solo la logica di gioco: stun e cooldown.
+        if (collisionCooldown.isActive()) return;
+
+        if (other instanceof Player) {
+            stunTimer.set(GameSettings.Bomber.DURATA_STORDIMENTO);
+            collisionCooldown.set(GameSettings.Bomber.COOLDOWN_COLLISIONE);
+        }
+    }
+
+    // --- Alive ---
+
+    @Override 
+    public void die() { 
+        /* TODO: animazione morte, esplosione, loot */ 
+    }
+    
+    // --- Accessors ---
+    
+    public boolean isStunned() {
+        return stunTimer.isActive();
+    }
+}

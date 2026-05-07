@@ -2,12 +2,14 @@ package uni.gaben.iscat.game.controller;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
+import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.model.GameModel;
+import uni.gaben.iscat.game.model.GameSettings;
 import uni.gaben.iscat.game.model.entities.Player;
 import uni.gaben.iscat.game.model.physics.InputDirection;
 import uni.gaben.iscat.game.model.physics.Vec2;
 import uni.gaben.iscat.game.view.GameCanvas;
-import uni.gaben.iscat.game.model.GameSettings;
+import java.util.Random;
 import java.util.function.Consumer;
 
 /**
@@ -26,18 +28,22 @@ public class GameController {
     private Consumer<Boolean> onPauseToggle; // contiene l'azione da eseguire in caso di pausa
     private Runnable onExitToMenu;
 
-    // FPS
+    // FPS tracking (rolling average over 60 frames)
     private static final int FPS_WINDOW = 60;
     private final long[] frameTimes = new long[FPS_WINDOW];
     private int  frameIndex = 0;
     private int  frameCount = 0;
     private long lastFrame  = 0;
-    private long sumNs      = 0;   // ← somma corrente, aggiornata in O(1)
+    private long sumNs      = 0;
     private int  currentFps = 0;
 
     private double spintaCorrenteX = 0;
     private double spintaCorrenteY = 0;
     private boolean scattoAppenaEseguito = false;
+    private final Random rand = new Random();
+    
+    // Game loop control
+    private AnimationTimer gameLoop;
 
     public GameController(GameModel model, GameCanvas canvas) {
         this.model  = model;
@@ -49,6 +55,17 @@ public class GameController {
     public void attachInput(Scene scene) {
         input.setKeyEventHandlers(scene);
         input.setMouseEventHandlers(canvas);
+    }
+
+    /**
+     * Collega il callback audio al player.
+     * Chiamato da GameScene.onShow() dopo che i suoni sono stati caricati.
+     */
+    public void setupPlayerAudio() {
+        model.getPlayer().setOnScatto(() -> {
+            int sfx = 1 + rand.nextInt(3);
+            IscatAudioManager.getInstance().playSFX("fart_alt" + sfx);
+        });
     }
 
     /** Un tick: input → fisica → stelle. */
@@ -152,23 +169,38 @@ public class GameController {
     }
 
     public void startLoop() {
-        new AnimationTimer() {
+        // Don't start if already running
+        if (gameLoop != null) {
+            return;
+        }
+        
+        gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                // Calculate FPS using rolling average
                 if (lastFrame > 0) {
                     long dt = now - lastFrame;
-                    sumNs -= frameTimes[frameIndex];   // rimuove il valore più vecchio
+                    sumNs -= frameTimes[frameIndex];   // Remove oldest value
                     frameTimes[frameIndex] = dt;
-                    sumNs += dt;                       // aggiunge quello nuovo
+                    sumNs += dt;                       // Add new value
                     frameIndex = (frameIndex + 1) % FPS_WINDOW;
                     if (frameCount < FPS_WINDOW) frameCount++;
                     currentFps = (int) (1_000_000_000L * frameCount / sumNs);
                 }
                 lastFrame = now;
+                
+                // Update game logic and render
                 update();
                 canvas.render(currentFps);
             }
-        }.start();
+        };
+        gameLoop.start();
     }
-
+    
+    public void stopLoop() {
+        if (gameLoop != null) {
+            gameLoop.stop();
+            gameLoop = null;
+        }
+    }
 }

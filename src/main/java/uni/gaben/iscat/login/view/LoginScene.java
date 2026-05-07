@@ -5,7 +5,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
@@ -13,6 +12,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
+import uni.gaben.iscat.IscatSceneAbstract;
 import uni.gaben.iscat.login.controller.LoginController;
 import uni.gaben.iscat.login.model.LoginModel;
 import uni.gaben.iscat.utils.components.AutoFittingLabel;
@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  * Schermata di login con input custom e animazioni.
  * Usa AutoFittingLabel invece di TextField per mantenere lo stile unico.
  */
-public class LoginScene extends Scene {
+public class LoginScene extends IscatSceneAbstract {
 
     private static final String FONT = "Miracode";
 
@@ -48,6 +48,7 @@ public class LoginScene extends Scene {
     // Status and cursor
     private AutoFittingLabel statusLabel;
     private Label blinkCursor;
+    private Timeline blinkAnimation;
 
     private boolean isErrorFlashing = false;
 
@@ -55,32 +56,25 @@ public class LoginScene extends Scene {
         super(new StackPane(), 800, 600);
         this.model = loginModel;
         this.controller = loginController;
-
-        initStyles();
-        initNodes();
-        initLayout();
-        initBindings();
-        setupErrorAnimation();
-        initEventFilters();
-    }
-
-    private void initStyles() {
         this.root = (StackPane) getRoot();
-        var cssUrl = getClass().getResource("/uni/gaben/iscat/styles/login.css");
-        if(cssUrl != null) getStylesheets().add(cssUrl.toExternalForm());
+        
+        initialize();
     }
 
-    private void initNodes() {
+    @Override
+    protected void initStyles() {
+        var cssUrl = getClass().getResource("/uni/gaben/iscat/styles/login.css");
+        if (cssUrl != null) {
+            getStylesheets().add(cssUrl.toExternalForm());
+        }
+    }
+
+    @Override
+    protected void initNodes() {
         // Cursore lampeggiante
         blinkCursor = new Label("_");
         blinkCursor.getStyleClass().add("login-cursor");
         blinkCursor.setMouseTransparent(true);
-
-        Timeline blinkAnim = new Timeline(
-            new KeyFrame(Duration.millis(530), e -> blinkCursor.setVisible(!blinkCursor.isVisible()))
-        );
-        blinkAnim.setCycleCount(Animation.INDEFINITE);
-        blinkAnim.play();
 
         // Username
         usernameLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE], FONT, "login-text");
@@ -108,7 +102,8 @@ public class LoginScene extends Scene {
         statusLabel = new AutoFittingLabel(TipografiaAurea.LABEL[TipografiaAurea.LARGE], FONT, "login-text-status");
     }
 
-    private void initLayout() {
+    @Override
+    protected void initLayout() {
         contentBox = new VBox();
         contentBox.setAlignment(Pos.CENTER);
 
@@ -167,7 +162,8 @@ public class LoginScene extends Scene {
         root.getChildren().add(contentBox);
     }
 
-    private void initBindings() {
+    @Override
+    protected void initBindings() {
         usernameLabel.textProperty().bind(model.usernameProperty());
         passwordLabel.textProperty().bind(model.passwordProperty());
         statusLabel.textProperty().bind(model.statusProperty());
@@ -183,6 +179,63 @@ public class LoginScene extends Scene {
         updateUsernameStyle();
         updatePasswordStyle();
     }
+
+    @Override
+    protected void initEventHandlers() {
+        addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
+        addEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
+    }
+
+    @Override
+    protected void initAnimations() {
+        // Cursor blink animation
+        blinkAnimation = new Timeline(
+            new KeyFrame(Duration.millis(530), e -> blinkCursor.setVisible(!blinkCursor.isVisible()))
+        );
+        blinkAnimation.setCycleCount(Animation.INDEFINITE);
+        
+        // Error flash animation
+        Timeline errorFlash = new Timeline(
+                new KeyFrame(Duration.ZERO, e -> {
+                    isErrorFlashing = true;
+                    usernameLabel.getStyleClass().add("login-text-error");
+                    passwordLabel.getStyleClass().add("login-text-error");
+                    loginIcon.setIconColor(javafx.scene.paint.Color.TOMATO);
+                    passwdIcon.setIconColor(javafx.scene.paint.Color.TOMATO);
+                }),
+                new KeyFrame(Duration.millis(300), e -> {
+                    isErrorFlashing = false;
+                    usernameLabel.getStyleClass().remove("login-text-error");
+                    passwordLabel.getStyleClass().remove("login-text-error");
+                    updateUsernameStyle();
+                    updatePasswordStyle();
+                })
+        );
+
+        model.wrongCredentialsProperty().addListener((obs, old, triggered) -> {
+            if (Boolean.TRUE.equals(triggered)) {
+                errorFlash.playFromStart();
+            }
+        });
+    }
+
+    @Override
+    public void onShow() {
+        // Avvia animazione cursore quando la scena diventa visibile
+        if (blinkAnimation != null) {
+            blinkAnimation.play();
+        }
+    }
+
+    @Override
+    public void onHide() {
+        // Ferma animazione cursore quando la scena viene nascosta
+        if (blinkAnimation != null) {
+            blinkAnimation.pause();
+        }
+    }
+
+    // --- Helper methods ---
 
     private void updateUsernameStyle() {
         if (isErrorFlashing) return;
@@ -214,35 +267,5 @@ public class LoginScene extends Scene {
         passwordLabel.getStyleClass().add("login-text-empty");
         passwdIcon.getStyleClass().add("login-icon-empty");
         passwdIcon.setIconColor(javafx.scene.paint.Color.WHITE);
-    }
-
-    private void setupErrorAnimation() {
-        Timeline flash = new Timeline(
-                new KeyFrame(Duration.ZERO, e -> {
-                    isErrorFlashing = true;
-                    usernameLabel.getStyleClass().add("login-text-error");
-                    passwordLabel.getStyleClass().add("login-text-error");
-                    loginIcon.setIconColor(javafx.scene.paint.Color.TOMATO);
-                    passwdIcon.setIconColor(javafx.scene.paint.Color.TOMATO);
-                }),
-                new KeyFrame(Duration.millis(300), e -> {
-                    isErrorFlashing = false;
-                    usernameLabel.getStyleClass().remove("login-text-error");
-                    passwordLabel.getStyleClass().remove("login-text-error");
-                    updateUsernameStyle();
-                    updatePasswordStyle();
-                })
-        );
-
-        model.wrongCredentialsProperty().addListener((obs, old, triggered) -> {
-            if (Boolean.TRUE.equals(triggered)) {
-                flash.playFromStart();
-            }
-        });
-    }
-
-    private void initEventFilters() {
-        addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
-        addEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
     }
 }

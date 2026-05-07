@@ -1,0 +1,56 @@
+/**
+ * ISCAT - Color Theme
+ *
+ * Defines all looked-up colors for the entire application.
+ * Load this on the Scene (or root Parent) so all descendants can reference these colors.
+ *
+ * Usage in other CSS files:
+ *   -fx-text-fill: -text-primary;
+ *   -fx-background-color: -bg-primary;
+ *   -fx-background-color: linear-gradient(to bottom, -bg-elevated, -bg-secondary);
+ */
+
+.root {
+    /* ============================================
+       BACKGROUND COLORS (4 shades)
+       ============================================ */
+    -bg-primary:   #010203;   /* Main background - almost black */
+    -bg-secondary: #111111;   /* Secondary background */
+    -bg-tertiary:  #222222;   /* Tertiary background */
+    -bg-elevated:  #333333;   /* Elevated surfaces (buttons, cards) */
+
+    /* ============================================
+       TEXT COLORS (4 shades)
+       ============================================ */
+    -text-primary:   #ffffff;  /* White - primary text */
+    -text-secondary: #dcdcdc;  /* Light gray - secondary text */
+    -text-tertiary:  #888888;  /* Medium gray - labels, hints */
+    -text-disabled:  #444444;  /* Dark gray - disabled state */
+
+    /* ============================================
+       ACCENT COLORS (3 colors)
+       ============================================ */
+    -accent-primary:   #cbcbcb;  /* Gold/Yellow - main accent (button text) */
+    -accent-secondary: #a9a9a9;  /* Orange-yellow - hover states */
+    -accent-tertiary:  #333333;  /* Deep orange - pressed states */
+
+    /* ============================================
+       SEMANTIC COLORS (4 colors)
+       ============================================ */
+    -color-success: #32cd32;  /* Lime green - success, user exists */
+    -color-warning: #ffd700;  /* Gold      - warning, user missing */
+    -color-error:   #ff6347;  /* Tomato    - error, danger */
+    -color-info:    #00bfff;  /* Deep sky  - info */
+
+    /* ============================================
+       SPECIAL (1 color)
+       ============================================ */
+    -color-transparent: rgba(0, 0, 0, 0);
+
+    /* ============================================
+       ROOT DEFAULTS
+       ============================================ */
+    -fx-background-color: -bg-primary;
+    -fx-font-family: "Miracode", "Courier New", monospace;
+    -fx-font-size: 14px;
+}

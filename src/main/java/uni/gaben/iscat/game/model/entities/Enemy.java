@@ -19,10 +19,16 @@ public class Enemy extends LivingEntity implements Collidable {
         this.maxHp = 50;
         this.mass  = 8.0;
         this.name  = "Enemy";
+        this.spriteSize = RADIUS * 2; // Sprite size based on collision radius
     }
 
     @Override public double getCollisionRadius() { return RADIUS; }
-    @Override public Vec2   getColliderCenter()  { return getPosition(); }
+    
+    @Override 
+    public Vec2 getColliderCenter() { 
+        // Use LivingEntity helper for consistent collision center calculation
+        return super.getColliderCenter();
+    }
 
     @Override public void onCollision(Collidable other) { /* TODO: danno, rimbalzo */ }
     @Override public void die()                         { /* TODO: loot, animazione */ }

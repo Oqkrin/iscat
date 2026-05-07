@@ -1,4 +1,4 @@
-package uni.gaben.iscat.game.view;
+package uni.gaben.iscat.game.view.hud;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -8,67 +8,72 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.game.controller.GameController;
 
+/**
+ * Menu di pausa del gioco.
+ * Usa CSS classes dal design system aureo.
+ */
 public class PauseMenu extends StackPane {
 
-    private static final String CSS_MENU_BUTTON = "menu-button";
     private final OptionsMenu optionsMenu;
 
     public PauseMenu(GameController controller) {
-
-        // Sfondo menu
-        setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+        // Applica CSS class per sfondo
+        getStyleClass().add("pause-menu");
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-        // Pulsanti del menu
-        VBox mainButtons = new VBox(20);
+        // Contenitore pulsanti principali
+        VBox mainButtons = new VBox();
+        mainButtons.getStyleClass().addAll("contenitore-pulsanti", "spacing-md");
         mainButtons.setAlignment(Pos.CENTER);
 
-        // Titolo menu
+        // Titolo - usa CSS class
         Label pauseLabel = new Label("GAME IS NOW PAUSED");
-        pauseLabel.setStyle("-fx-text-fill: white; -fx-font-size: 40px;");
+        pauseLabel.getStyleClass().add("pause-title");
 
         // RESUME BUTTON
         Button resumeBtn = new Button("RIPRENDI");
-        resumeBtn.getStyleClass().add(CSS_MENU_BUTTON);
+        resumeBtn.getStyleClass().add("pulsante-menu");
         resumeBtn.setOnAction(e -> controller.togglePause());
 
         // OPTIONS BUTTON
         Button optionsBtn = new Button("OPTIONS");
-        optionsBtn.getStyleClass().add(CSS_MENU_BUTTON);
+        optionsBtn.getStyleClass().add("pulsante-menu");
         optionsBtn.setOnAction(e -> toggleOptions(true));
 
         // MAIN MENU BUTTON
         Button mainMenuBtn = new Button("MAIN MENU");
-        mainMenuBtn.getStyleClass().add(CSS_MENU_BUTTON);
-        mainMenuBtn.setOnAction(e -> {
-            controller.exitToMainMenu(); // Chiama l'azione sul controller
-        });
+        mainMenuBtn.getStyleClass().add("pulsante-menu");
+        mainMenuBtn.setOnAction(e -> controller.exitToMainMenu());
 
         // QUIT BUTTON
         Button quitBtn = new Button("QUIT");
-        quitBtn.getStyleClass().add(CSS_MENU_BUTTON);
+        quitBtn.getStyleClass().addAll("pulsante-menu", "pericolo");
         quitBtn.setOnAction(e -> Platform.exit());
 
-        // Aggiungiamo tutti i pulsanti creati nel VBox
+        // Aggiungi tutti i pulsanti
         mainButtons.getChildren().addAll(pauseLabel, resumeBtn, optionsBtn, mainMenuBtn, quitBtn);
 
         // Menu Opzioni
         optionsMenu = new OptionsMenu(() -> toggleOptions(false));
-        optionsMenu.setVisible(false); // Nascosto all'inizi
+        optionsMenu.setVisible(false);
 
-        // Aggiungiamo allo StackPane entrambi i menu
+        // Aggiungi entrambi i menu
         getChildren().addAll(mainButtons, optionsMenu);
 
-        // Il menu è invisible inizialmente
+        // Inizialmente invisibile
         setVisible(false);
         setMouseTransparent(true);
     }
 
+    /**
+     * Mostra/nascondi il menu di pausa.
+     * @param show true per mostrare, false per nascondere
+     */
     public void show(boolean show) {
         setVisible(show);
         setMouseTransparent(!show);
         if (show) {
-            toggleOptions(false); // Reset: mostra sempre i bottoni main quando apri la pausa
+            toggleOptions(false); // Reset: mostra sempre i bottoni main
             toFront();
         }
     }
