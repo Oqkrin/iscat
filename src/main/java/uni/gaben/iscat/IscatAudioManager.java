@@ -3,6 +3,7 @@ package uni.gaben.iscat;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import uni.gaben.iscat.game.model.GameSettings; // Importa i tuoi settings
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -13,8 +14,9 @@ public class IscatAudioManager {
     private MediaPlayer bgmPlayer;
     private final Map<String, AudioClip> sfxMap = new HashMap<>();
 
-    private double bgmVolume = 0.5; // Massimo volume musica
-    private double sfxVolume = 1.0; // Massimo volume effetti
+    // Inizializziamo con i valori di GameSettings
+    private double bgmVolume = GameSettings.BGM_VOLUME;
+    private double sfxVolume = GameSettings.SFX_VOLUME;
 
     private IscatAudioManager() {}
 
@@ -23,38 +25,45 @@ public class IscatAudioManager {
         return instance;
     }
 
-    // BGM (Background Music)
+    /**
+     * Sincronizza i volumi interni con quelli definiti in GameSettings.
+     * Utile se i settings vengono cambiati massivamente o caricati da file.
+     */
+    public void updateVolumes() {
+        this.bgmVolume = GameSettings.BGM_VOLUME;
+        this.sfxVolume = GameSettings.SFX_VOLUME;
+
+        // Se la musica sta andando, aggiorniamo il volume istantaneamente
+        if (bgmPlayer != null) {
+            bgmPlayer.setVolume(bgmVolume);
+        }
+    }
+
+    // --- BGM ---
     public void playBGM(String path, boolean loop) {
         stopBGM();
-
         try {
             String resource = Objects.requireNonNull(getClass().getResource(path)).toExternalForm();
             Media media = new Media(resource);
             bgmPlayer = new MediaPlayer(media);
 
-            // Debug
-            bgmPlayer.setOnError(() -> {
-                System.err.println("Errore interno MediaPlayer: " + bgmPlayer.getError().getMessage());
-            });
-
-            bgmPlayer.setVolume(bgmVolume);
-            // se la musica deve loopare allora la facciamo loopare
+            bgmPlayer.setVolume(bgmVolume); // Applica il volume salvato
             if (loop) bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
             bgmPlayer.play();
         } catch (Exception e) {
-            System.err.println("Errore nel caricamento (percorso errato): " + path);
+            System.err.println("Errore nel caricamento BGM: " + path);
         }
     }
 
     public void stopBGM() {
         if (bgmPlayer != null) {
             bgmPlayer.stop();
-            bgmPlayer.dispose(); // Libera risorse
+            bgmPlayer.dispose();
         }
     }
 
-    // SFX (Sound Effects)
+    // --- SFX ---
     public void loadSFX(String name, String path) {
         try {
             String resource = Objects.requireNonNull(getClass().getResource(path)).toExternalForm();
@@ -68,8 +77,23 @@ public class IscatAudioManager {
     public void playSFX(String name) {
         AudioClip clip = sfxMap.get(name);
         if (clip != null) {
-            // AudioClip è fatto per essere lanciato "fire and forget"
+            // Usa il valore sfxVolume corrente
             clip.play(sfxVolume);
         }
+    }
+
+    // --- SETTERS REATTIVI ---
+
+    public void setBgmVolume(double volume) {
+        this.bgmVolume = volume;
+        GameSettings.BGM_VOLUME = volume; // Teniamo sincronizzato GameSettings
+        if (bgmPlayer != null) {
+            bgmPlayer.setVolume(volume);
+        }
+    }
+
+    public void setSfxVolume(double volume) {
+        this.sfxVolume = volume;
+        GameSettings.SFX_VOLUME = volume; // Teniamo sincronizzato GameSettings
     }
 }
