@@ -5,31 +5,26 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableNumberValue;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 /**
- * Label che adatta automaticamente la dimensione del font allo spazio disponibile.
- * Previene flickering usando binding espliciti invece di CSS inline.
+ * Failure
+ * TextField che adatta automaticamente la dimensione del font allo spazio disponibile.
+ * Mantiene tutte le funzionalità native di TextField (cursore, selezione, placeholder)
+ * aggiungendo il ridimensionamento automatico del testo.
  * 
  * <p>Caratteristiche:
  * <ul>
  *   <li>Ridimensionamento automatico basato su larghezza disponibile</li>
- *   <li>Supporto per limite manuale o automatico dal parent</li>
- *   <li>Misurazione efficiente tramite nodo Text invisibile</li>
- *   <li>Raffinamento iterativo per compensare kerning non lineare</li>
+ *   <li>Supporto placeholder nativo ({@link #setPromptText(String)})</li>
+ *   <li>Cursore e selezione testo nativi</li>
+ *   <li>Nessun flickering grazie a binding espliciti</li>
  * </ul>
- * 
- * <p>Esempio d'uso:
- * <pre>{@code
- * AutoFittingLabel label = new AutoFittingLabel(24.0, "Miracode", "my-style");
- * label.setText("Testo che si adatta");
- * label.setLimit(parentWidth); // Opzionale: limite manuale
- * }</pre>
  */
-public class AutoFittingLabel extends Label {
+public class AutoFittingTextField extends TextField {
 
     // --- Proprietà ---
     private final DoubleProperty baseFontSize = new SimpleDoubleProperty(12.0);
@@ -40,21 +35,16 @@ public class AutoFittingLabel extends Label {
     // --- Tracker interni ---
     private final DoubleProperty parentWidthTracker = new SimpleDoubleProperty(-1.0);
     private DoubleBinding effectiveLimit;
-    
-    /**
-     * Nodo invisibile per misurare dimensioni testo senza triggerare
-     * ricalcoli pesanti del layout della Label.
-     */
     private final Text measurementHelper = new Text();
 
     /**
-     * Costruisce una AutoFittingLabel con dimensione e famiglia font specificate.
+     * Costruisce un AutoFittingTextField con dimensione e famiglia font specificate.
      * 
      * @param baseSize Dimensione target del font (es. 24.0)
      * @param family   Famiglia del font (es. "Miracode")
      * @param cssClass Classe CSS opzionale da applicare
      */
-    public AutoFittingLabel(double baseSize, String family, String cssClass) {
+    public AutoFittingTextField(double baseSize, String family, String cssClass) {
         this.baseFontSize.set(baseSize);
         this.fontFamily.set(family);
 
@@ -103,13 +93,45 @@ public class AutoFittingLabel extends Label {
         textProperty().addListener((obs, old, val) -> recalc.run());
         baseFontSize.addListener((obs, old, val) -> recalc.run());
         fontFamily.addListener((obs, old, val) -> recalc.run());
-        paddingProperty().addListener((obs, old, val) -> recalc.run());
 
         // Inizializza quando la scena è pronta
         sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 applyCss();
                 recalc.run();
+                setupCaretScaling();
+            }
+        });
+    }
+
+    /**
+     * Configura il caret per scalare con il font.
+     * Il caret di TextField è un Path che va ridimensionato manualmente.
+     */
+    private void setupCaretScaling() {
+        // Cerca il caret nel skin del TextField
+        skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) {
+                // Il caret è un Path dentro il TextInputControl
+                javafx.scene.Node caretNode = lookup(".caret");
+                if (caretNode instanceof javafx.scene.shape.Path caret) {
+                    // Scala il caret in base alla dimensione del font
+                    fontProperty().addListener((o, old, newFont) -> {
+                        if (newFont != null) {
+                            double fontSize = newFont.getSize();
+                            // Scala il caret proporzionalmente al font
+                            caret.setScaleY(fontSize / 12.0); // 12 è la dimensione base
+                            caret.setStrokeWidth(Math.max(1.5, fontSize / 10.0));
+                        }
+                    });
+                    
+                    // Applica subito la scala iniziale
+                    if (getFont() != null) {
+                        double fontSize = getFont().getSize();
+                        caret.setScaleY(fontSize / 12.0);
+                        caret.setStrokeWidth(Math.max(1.5, fontSize / 10.0));
+                    }
+                }
             }
         });
     }
@@ -125,8 +147,7 @@ public class AutoFittingLabel extends Label {
             return;
         }
 
-        double paddingOffset = getPadding().getLeft() + getPadding().getRight();
-        double available = (limit - paddingOffset) * 0.98; // Margine 2%
+        double available = limit * 0.98; // Margine 2%
 
         if (available <= 0) {
             applyFontSize(base);

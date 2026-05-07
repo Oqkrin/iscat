@@ -7,6 +7,10 @@ import uni.gaben.iscat.login.model.LoginData;
 import uni.gaben.iscat.login.model.LoginModel;
 import uni.gaben.iscat.login.model.LoginState;
 
+/**
+ * Controller per la schermata di login.
+ * Gestisce input da tastiera, validazione e navigazione.
+ */
 public class LoginController {
 
     private final LoginModel model;
@@ -20,7 +24,7 @@ public class LoginController {
         this.model = model;
         this.loginData = loginData;
 
-        // Sincronizziamo lo stato interno se l'utente clicca sulla Scene
+        // Sincronizza stato interno con model
         model.loginStateProperty().addListener((obs, old, isTypingPass) ->
                 this.currentLoginState = Boolean.TRUE.equals(isTypingPass) ? LoginState.PASSWORD : LoginState.USERNAME);
     }
@@ -29,13 +33,12 @@ public class LoginController {
         switch (e.getCode()) {
             case BACK_SPACE -> onBackspace();
             case ENTER      -> onEnter();
-            default         -> {/*non fare nulla*/}
+            default         -> {}
         }
     }
 
     public void onKeyTyped(KeyEvent e) {
         String ch = e.getCharacter();
-        // Filtriamo caratteri non stampabili (es. Enter/Backspace che gestiamo sopra)
         if (ch.isEmpty() || ch.charAt(0) < 32 || e.isControlDown()) return;
 
         char character = ch.charAt(0);
@@ -47,17 +50,19 @@ public class LoginController {
         }
 
         updateDisplay();
-        checkUserExistence(); // Verifica real-time per il colore dell'icona
+        checkUserExistence();
     }
 
     private void onBackspace() {
         if (currentLoginState == LoginState.USERNAME) {
-            if (!usernameBuffer.isEmpty()) usernameBuffer.deleteCharAt(usernameBuffer.length() - 1);
+            if (!usernameBuffer.isEmpty()) {
+                usernameBuffer.deleteCharAt(usernameBuffer.length() - 1);
+            }
         } else {
             if (!passwordBuffer.isEmpty()) {
                 passwordBuffer.deleteCharAt(passwordBuffer.length() - 1);
             } else {
-                // Se la password è vuota e premo backspace, torno allo username
+                // Backspace su password vuota torna a username
                 switchToUsername();
             }
         }
@@ -80,8 +85,11 @@ public class LoginController {
         model.setUserExists(exists);
 
         if (currentLoginState == LoginState.USERNAME) {
-            if (u.isEmpty()) model.setStatus("");
-            else model.setStatus(exists ? "giocatore esistente (accedi) " : "nuovo giocatore (registrati)");
+            if (u.isEmpty()) {
+                model.setStatus("");
+            } else {
+                model.setStatus(exists ? "giocatore esistente (accedi)" : "nuovo giocatore (registrati)");
+            }
         }
     }
 
@@ -111,7 +119,6 @@ public class LoginController {
                 handleError("password errata");
             }
         } else {
-            // Registrazione automatica
             loginData.register(u, p);
             model.setStatus("registrazione completata!");
             IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
@@ -120,8 +127,8 @@ public class LoginController {
 
     private void handleError(String message) {
         model.setStatus(message);
-        model.triggerError(); // Fa partire il blink rosso nella Scene
-        passwordBuffer.setLength(0); // Pulisce la password per riprovare
+        model.triggerError();
+        passwordBuffer.setLength(0);
         updateDisplay();
     }
 

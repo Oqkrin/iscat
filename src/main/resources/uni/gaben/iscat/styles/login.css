@@ -1,7 +1,17 @@
+/* ============================================
+   ISCAT LOGIN THEME
+   All colors and styling configurable here
+   ============================================ */
+
+/* Root styling */
 .root {
     -fx-background-color: #010203;
     -fx-font-family: "Miracode";
 }
+
+/* ============================================
+   TEXT COLORS
+   ============================================ */
 
 .login-text {
     -fx-text-fill: #dcdcdc;
@@ -12,3 +22,59 @@
     -fx-opacity: 0.55;
 }
 
+.login-text-empty {
+    -fx-text-fill: #ffffff;
+}
+
+.login-text-exists {
+    -fx-text-fill: #32cd32;
+}
+
+.login-text-missing {
+    -fx-text-fill: #ffd700;
+}
+
+.login-text-error {
+    -fx-text-fill: #ff6347;
+}
+
+/* ============================================
+   PLACEHOLDER STYLING
+   ============================================ */
+
+.login-placeholder {
+    -fx-text-fill: #dcdcdc;
+    -fx-opacity: 0.5;
+}
+
+/* ============================================
+   CURSOR STYLING
+   ============================================ */
+
+.login-cursor {
+    -fx-text-fill: inherit;
+}
+
+/* ============================================
+   ICON COLORS
+   ============================================ */
+
+.login-icon {
+    -icon-color: #dcdcdc;
+}
+
+.login-icon-empty {
+    -icon-color: #ffffff;
+}
+
+.login-icon-exists {
+    -icon-color: #32cd32;
+}
+
+.login-icon-missing {
+    -icon-color: #ffd700;
+}
+
+.login-icon-error {
+    -icon-color: #ff6347;
+}
