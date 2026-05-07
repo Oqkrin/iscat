@@ -12,57 +12,68 @@ import uni.gaben.iscat.game.model.GameSettings;
 public class OptionsMenu extends VBox {
 
     public OptionsMenu(Runnable onBack) {
-        // --- Setup Layout ---
+
+        // SETUP
         setSpacing(15);
         setAlignment(Pos.CENTER);
         setStyle("-fx-background-color: rgba(20, 20, 20, 0.95); -fx-padding: 30; -fx-border-color: white; -fx-border-width: 2;");
         setMaxSize(450, 600);
 
-        // --- Titolo ---
+        // TITOLO
         Label title = new Label("GAME SETTINGS");
         title.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 28px; -fx-font-family: 'Miracode'; -fx-padding: 0 0 10 0;");
 
-        // --- Sezione Audio ---
+        // ==========================================================
+        // AUDIO
+        // ==========================================================
+
         VBox audioBox = createSection("AUDIO CONTROL");
 
+        // BGM SLIDER
         Slider bgmSlider = createLabeledSlider(audioBox, "MUSIC VOLUME", 0, 1, GameSettings.BGM_VOLUME);
         bgmSlider.valueProperty().addListener((obs, oldV, newV) -> {
             GameSettings.BGM_VOLUME = newV.doubleValue();
             IscatAudioManager.getInstance().updateVolumes(); // Metodo da aggiungere all'AudioManager
         });
 
+        // SFX SLIDER
         Slider sfxSlider = createLabeledSlider(audioBox, "SFX VOLUME", 0, 1, GameSettings.SFX_VOLUME);
-        sfxSlider.valueProperty().addListener((obs, oldV, newV) -> {
-            IscatAudioManager.getInstance().setSfxVolume(newV.doubleValue());
-        });
+        sfxSlider.valueProperty().addListener((obs, oldV, newV) ->
+                        IscatAudioManager.getInstance().setSfxVolume(newV.doubleValue()));
 
-        // --- Sezione Gameplay ---
+        // ==========================================================
+        // GAMEPLAY
+        // ==========================================================
+
         VBox gameplayBox = createSection("GAMEPLAY");
 
+        // MOUSE SENSIVITY
         Slider sensSlider = createLabeledSlider(gameplayBox, "MOUSE SENSITIVITY", 0.1, 2.0, GameSettings.SENSITIVITY);
-        sensSlider.valueProperty().addListener((obs, oldV, newV) -> {
-            GameSettings.SENSITIVITY = newV.doubleValue();
-        });
+        sensSlider.valueProperty().addListener((obs, oldV, newV) ->
+            GameSettings.SENSITIVITY = newV.doubleValue());
 
+        // FPS COUNTER
         CheckBox fpsCheck = new CheckBox("SHOW FPS COUNTER");
         fpsCheck.setStyle("-fx-text-fill: white; -fx-font-family: 'Miracode';");
         fpsCheck.setSelected(GameSettings.SHOW_FPS);
         fpsCheck.selectedProperty().addListener((obs, oldV, newV) -> GameSettings.SHOW_FPS = newV);
 
+        // SCREENSHAKE
         CheckBox shakeCheck = new CheckBox("ENABLE SCREENSHAKE");
         shakeCheck.setStyle("-fx-text-fill: white; -fx-font-family: 'Miracode';");
         shakeCheck.setSelected(GameSettings.SCREENSHAKE_ENABLED);
         shakeCheck.selectedProperty().addListener((obs, oldV, newV) -> GameSettings.SCREENSHAKE_ENABLED = newV);
 
+        // aggiunta nel Vbox
         gameplayBox.getChildren().addAll(fpsCheck, shakeCheck);
 
-        // --- Pulsante Indietro ---
+        // PULSANTE BACK
         Button backBtn = new Button("SAVE & BACK");
         backBtn.getStyleClass().add("menu-button");
         backBtn.setMinWidth(200);
         backBtn.setOnAction(e -> onBack.run());
 
-        // --- Aggiunta finale di tutti i gruppi ---
+        // Aggiunta di tutti nel menu
         getChildren().addAll(title, audioBox, gameplayBox, backBtn);
         setVisible(false);
     }

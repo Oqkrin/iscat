@@ -8,7 +8,7 @@ import javafx.beans.property.SimpleObjectProperty;
  * Contiene lo stato corrente della scena e (in futuro) sessione utente.
  */
 public class IscatModel {
-    private final ObjectProperty<IscatScenes> currentScene = new SimpleObjectProperty<>(IscatScenes.LOGIN);
+    private static final ObjectProperty<IscatScenes> currentScene = new SimpleObjectProperty<>(IscatScenes.LOGIN);
 
     public IscatScenes getCurrentScene() {
         return currentScene.get();
@@ -18,7 +18,7 @@ public class IscatModel {
         return currentScene;
     }
 
-    public void setCurrentScene(IscatScenes scene) {
-        this.currentScene.set(scene);
+    public static void setCurrentScene(IscatScenes scene) {
+        currentScene.set(scene);
     }
 }

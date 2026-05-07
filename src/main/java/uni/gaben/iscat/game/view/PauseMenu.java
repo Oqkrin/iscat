@@ -11,7 +11,6 @@ import uni.gaben.iscat.game.controller.GameController;
 public class PauseMenu extends StackPane {
 
     private static final String CSS_MENU_BUTTON = "menu-button";
-    private final VBox mainButtons;
     private final OptionsMenu optionsMenu;
 
     public PauseMenu(GameController controller) {
@@ -21,7 +20,7 @@ public class PauseMenu extends StackPane {
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         // Pulsanti del menu
-        mainButtons = new VBox(20);
+        VBox mainButtons = new VBox(20);
         mainButtons.setAlignment(Pos.CENTER);
 
         // Titolo menu
@@ -41,7 +40,9 @@ public class PauseMenu extends StackPane {
         // MAIN MENU BUTTON
         Button mainMenuBtn = new Button("MAIN MENU");
         mainMenuBtn.getStyleClass().add(CSS_MENU_BUTTON);
-        /* TODO: far tornare il gioco al menu principale */
+        mainMenuBtn.setOnAction(e -> {
+            controller.exitToMainMenu(); // Chiama l'azione sul controller
+        });
 
         // QUIT BUTTON
         Button quitBtn = new Button("QUIT");

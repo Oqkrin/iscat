@@ -7,6 +7,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.IscatModel;
+import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.game.controller.GameController;
 
 /** Scena di gioco: posiziona il canvas e collega il controller. */
@@ -25,6 +27,9 @@ public class GameScene extends Scene {
         getStylesheets().add(css);
 
         controller.setOnPauseToggle(pauseMenu::show);
+        controller.setOnExitToMenu(() -> {
+            IscatModel.setCurrentScene(IscatScenes.MENU);
+        });
         controller.attachInput(this);
         controller.startLoop();
     }

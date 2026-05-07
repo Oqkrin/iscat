@@ -24,6 +24,7 @@ public class GameController {
     // Logica Pause Menu
     private boolean paused = false;
     private Consumer<Boolean> onPauseToggle; // contiene l'azione da eseguire in caso di pausa
+    private Runnable onExitToMenu;
 
     // FPS
     private static final int FPS_WINDOW = 60;
@@ -82,6 +83,10 @@ public class GameController {
         }
     }
 
+    // =========================================
+    // PAUSE MENU STUFF
+    // =========================================
+
     // Metodo che la scena chiama l'azione da eseguire
     public void setOnPauseToggle(Consumer<Boolean> callback) {
         this.onPauseToggle = callback;
@@ -97,6 +102,16 @@ public class GameController {
         // Ridiamo il focus al canvas per gli input del player
         if (!paused) {
             canvas.requestFocus();
+        }
+    }
+
+    public void setOnExitToMenu(Runnable callback) {
+        this.onExitToMenu = callback;
+    }
+
+    public void exitToMainMenu() {
+        if (onExitToMenu != null) {
+            onExitToMenu.run();
         }
     }
 
