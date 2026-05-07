@@ -8,6 +8,10 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.model.GameSettings;
+import uni.gaben.iscat.game.model.settings.AudioSettings;
+import uni.gaben.iscat.game.model.settings.EffectsSettings;
+import uni.gaben.iscat.game.model.settings.InputSettings;
+import uni.gaben.iscat.game.model.settings.VisualSettings;
 
 /**
  * Menu opzioni del gioco.
@@ -32,15 +36,15 @@ public class OptionsMenu extends VBox {
 
         // BGM SLIDER
         Slider bgmSlider = createLabeledSlider(audioBox, "MUSIC VOLUME", 0, 1, 
-            GameSettings.Audio.VOLUME_BGM);
+            AudioSettings.VOLUME_BGM);
         bgmSlider.valueProperty().addListener((obs, oldV, newV) -> {
-            GameSettings.Audio.VOLUME_BGM = newV.doubleValue();
+            AudioSettings.VOLUME_BGM = newV.doubleValue();
             IscatAudioManager.getInstance().updateVolumes();
         });
 
         // SFX SLIDER
         Slider sfxSlider = createLabeledSlider(audioBox, "SFX VOLUME", 0, 1, 
-            GameSettings.Audio.VOLUME_SFX);
+            AudioSettings.VOLUME_SFX);
         sfxSlider.valueProperty().addListener((obs, oldV, newV) ->
             IscatAudioManager.getInstance().setSfxVolume(newV.doubleValue()));
 
@@ -52,23 +56,23 @@ public class OptionsMenu extends VBox {
 
         // MOUSE SENSITIVITY
         Slider sensSlider = createLabeledSlider(gameplayBox, "MOUSE SENSITIVITY", 0.1, 2.0, 
-            GameSettings.Input.SENSIBILITA_MOUSE);
+            InputSettings.SENSIBILITA_MOUSE);
         sensSlider.valueProperty().addListener((obs, oldV, newV) ->
-            GameSettings.Input.SENSIBILITA_MOUSE = newV.doubleValue());
+            InputSettings.SENSIBILITA_MOUSE = newV.doubleValue());
 
         // FPS COUNTER
         CheckBox fpsCheck = new CheckBox("SHOW FPS COUNTER");
         fpsCheck.getStyleClass().add("check-box");
-        fpsCheck.setSelected(GameSettings.Visuale.MOSTRA_FPS);
+        fpsCheck.setSelected(VisualSettings.MOSTRA_FPS);
         fpsCheck.selectedProperty().addListener((obs, oldV, newV) -> 
-            GameSettings.Visuale.MOSTRA_FPS = newV);
+            VisualSettings.MOSTRA_FPS = newV);
 
         // SCREENSHAKE
         CheckBox shakeCheck = new CheckBox("ENABLE SCREENSHAKE");
         shakeCheck.getStyleClass().add("check-box");
-        shakeCheck.setSelected(GameSettings.Effetti.SCREENSHAKE_ABILITATO);
-        shakeCheck.selectedProperty().addListener((obs, oldV, newV) -> 
-            GameSettings.Effetti.SCREENSHAKE_ABILITATO = newV);
+        shakeCheck.setSelected(EffectsSettings.SCREENSHAKE_ABILITATO);
+        shakeCheck.selectedProperty().addListener((obs, oldV, newV) ->
+                EffectsSettings.SCREENSHAKE_ABILITATO = newV);
 
         gameplayBox.getChildren().addAll(fpsCheck, shakeCheck);
 

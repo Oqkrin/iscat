@@ -8,6 +8,7 @@ import uni.gaben.iscat.game.model.GameSettings;
 import uni.gaben.iscat.game.model.entities.Player;
 import uni.gaben.iscat.game.model.physics.InputDirection;
 import uni.gaben.iscat.game.model.physics.Vec2;
+import uni.gaben.iscat.game.model.settings.PlayerSettings;
 import uni.gaben.iscat.game.view.GameCanvas;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -93,8 +94,8 @@ public class GameController {
         if (scattoAppenaEseguito) {
             double rad = Math.toRadians(p.getDirectionAngle());
             canvas.getSpace().applyImpulse(
-                    Math.cos(rad) * GameSettings.IMPULSO_SCATTO * GameSettings.FATTORE_IMPULSO_STELLE,
-                    Math.sin(rad) * GameSettings.IMPULSO_SCATTO * GameSettings.FATTORE_IMPULSO_STELLE
+                    Math.cos(rad) * PlayerSettings.IMPULSO_SCATTO * GameSettings.FATTORE_IMPULSO_STELLE,
+                    Math.sin(rad) * PlayerSettings.IMPULSO_SCATTO * GameSettings.FATTORE_IMPULSO_STELLE
             );
             scattoAppenaEseguito = false;
         }
@@ -143,8 +144,8 @@ public class GameController {
         if (input.left)  { targetX += InputDirection.LEFT.dx;  targetY += InputDirection.LEFT.dy; }
         if (input.right) { targetX += InputDirection.RIGHT.dx; targetY += InputDirection.RIGHT.dy; }
 
-        targetX *= GameSettings.FORZA_SPINTA;
-        targetY *= GameSettings.FORZA_SPINTA;
+        targetX *= PlayerSettings.FORZA_SPINTA;
+        targetY *= PlayerSettings.FORZA_SPINTA;
 
         spintaCorrenteX = GameSettings.EASING_SPINTA.apply(spintaCorrenteX, targetX, GameSettings.LERP_SPINTA);
         spintaCorrenteY = GameSettings.EASING_SPINTA.apply(spintaCorrenteY, targetY, GameSettings.LERP_SPINTA);

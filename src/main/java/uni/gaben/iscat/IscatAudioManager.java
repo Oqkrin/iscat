@@ -4,6 +4,8 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import uni.gaben.iscat.game.model.GameSettings; // Importa i tuoi settings
+import uni.gaben.iscat.game.model.settings.AudioSettings;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -15,8 +17,8 @@ public class IscatAudioManager {
     private final Map<String, AudioClip> sfxMap = new HashMap<>();
 
     // Inizializziamo con i valori di GameSettings
-    private double bgmVolume = GameSettings.BGM_VOLUME;
-    private double sfxVolume = GameSettings.SFX_VOLUME;
+    private double bgmVolume = AudioSettings.VOLUME_BGM;
+    private double sfxVolume = AudioSettings.VOLUME_SFX;
 
     private IscatAudioManager() {}
 
@@ -30,8 +32,8 @@ public class IscatAudioManager {
      * Utile se i settings vengono cambiati massivamente o caricati da file.
      */
     public void updateVolumes() {
-        this.bgmVolume = GameSettings.BGM_VOLUME;
-        this.sfxVolume = GameSettings.SFX_VOLUME;
+        this.bgmVolume = AudioSettings.VOLUME_BGM;
+        this.sfxVolume = AudioSettings.VOLUME_SFX;
 
         // Se la musica sta andando, aggiorniamo il volume istantaneamente
         if (bgmPlayer != null) {
@@ -85,7 +87,7 @@ public class IscatAudioManager {
 
     public void setBgmVolume(double volume) {
         this.bgmVolume = volume;
-        GameSettings.BGM_VOLUME = volume; // Teniamo sincronizzato GameSettings
+        AudioSettings.VOLUME_BGM = volume; // Teniamo sincronizzato GameSettings
         if (bgmPlayer != null) {
             bgmPlayer.setVolume(volume);
         }
@@ -93,6 +95,6 @@ public class IscatAudioManager {
 
     public void setSfxVolume(double volume) {
         this.sfxVolume = volume;
-        GameSettings.SFX_VOLUME = volume;
+        AudioSettings.VOLUME_SFX = volume;
     }
 }

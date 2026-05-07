@@ -7,6 +7,8 @@ import uni.gaben.iscat.game.model.entities.Player;
 import uni.gaben.iscat.game.model.interfaces.AI;
 import uni.gaben.iscat.game.model.interfaces.Collidable;
 import uni.gaben.iscat.game.model.physics.Vec2;
+import uni.gaben.iscat.game.model.settings.PlayerSettings;
+import uni.gaben.iscat.game.model.settings.enemies_settings.IscatBomberSettings;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.ArrayList;
@@ -24,13 +26,13 @@ public class IscatBomber extends Enemy implements Collidable, AI {
 
     public IscatBomber(double startX, double startY) {
         super(startX, startY);
-        this.hp    = GameSettings.Bomber.HP;
-        this.maxHp = GameSettings.Bomber.HP;
-        this.mass  = GameSettings.Giocatore.MASSA * GameSettings.Bomber.FATTORE_MASSA;
+        this.hp    = IscatBomberSettings.HP;
+        this.maxHp = IscatBomberSettings.HP;
+        this.mass  = PlayerSettings.MASSA * IscatBomberSettings.FATTORE_MASSA;
         this.name  = "IscatBomber";
-        this.spriteSize = GameSettings.Giocatore.DIMENSIONE_SPRITE;
-        this.drag     = GameSettings.Bomber.ATTRITO;
-        this.maxSpeed = GameSettings.Giocatore.VELOCITA_MAX * GameSettings.Bomber.FATTORE_VELOCITA_MAX;
+        this.spriteSize = PlayerSettings.DIMENSIONE_SPRITE;
+        this.drag     = IscatBomberSettings.ATTRITO;
+        this.maxSpeed = PlayerSettings.VELOCITA_MAX * IscatBomberSettings.FATTORE_VELOCITA_MAX;
         this.deadZone = 0.01;
     }
 
@@ -51,7 +53,7 @@ public class IscatBomber extends Enemy implements Collidable, AI {
         playerTrail.add(playerPos);
         
         // Mantieni solo le ultime N posizioni
-        if (playerTrail.size() > GameSettings.Bomber.LUNGHEZZA_TRAIL) {
+        if (playerTrail.size() > IscatBomberSettings.LUNGHEZZA_TRAIL) {
             playerTrail.remove(0);
         }
         
@@ -72,11 +74,11 @@ public class IscatBomber extends Enemy implements Collidable, AI {
      * Logica di inseguimento: segue punti nella trail del player.
      */
     private void followPlayer() {
-        if (playerTrail.size() <= GameSettings.Bomber.RITARDO_TRAIL) {
+        if (playerTrail.size() <= IscatBomberSettings.RITARDO_TRAIL) {
             return;
         }
         
-        int targetIndex = playerTrail.size() - GameSettings.Bomber.RITARDO_TRAIL;
+        int targetIndex = playerTrail.size() - IscatBomberSettings.RITARDO_TRAIL;
         targetIndex = Math.max(0, Math.min(targetIndex, playerTrail.size() - 1));
         
         Vec2 target = playerTrail.get(targetIndex);
@@ -85,14 +87,14 @@ public class IscatBomber extends Enemy implements Collidable, AI {
         double dy = target.y - currentPos.y;
         double distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance > GameSettings.Bomber.DISTANZA_MIN_INSEGUIMENTO) {
+        if (distance > IscatBomberSettings.DISTANZA_MIN_INSEGUIMENTO) {
             double nx = dx / distance;
             double ny = dy / distance;
             applyForce(new Vec2(
-                nx * GameSettings.Bomber.VELOCITA_INSEGUIMENTO, 
-                ny * GameSettings.Bomber.VELOCITA_INSEGUIMENTO
+                nx * IscatBomberSettings.VELOCITA_INSEGUIMENTO,
+                ny * IscatBomberSettings.VELOCITA_INSEGUIMENTO
             ));
-            updateDirectionSmooth(dx, dy, GameSettings.Bomber.SMOOTHING_ROTAZIONE);
+            updateDirectionSmooth(dx, dy, IscatBomberSettings.SMOOTHING_ROTAZIONE);
         }
     }
 
@@ -107,8 +109,8 @@ public class IscatBomber extends Enemy implements Collidable, AI {
     // --- Collidable ---
 
     @Override 
-    public double getCollisionRadius() { 
-        return GameSettings.Bomber.RAGGIO_COLLISIONE; 
+    public double getCollisionRadius() {
+        return IscatBomberSettings.RAGGIO_COLLISIONE;
     }
     
     @Override 
@@ -124,8 +126,8 @@ public class IscatBomber extends Enemy implements Collidable, AI {
         if (collisionCooldown.isActive()) return;
 
         if (other instanceof Player) {
-            stunTimer.set(GameSettings.Bomber.DURATA_STORDIMENTO);
-            collisionCooldown.set(GameSettings.Bomber.COOLDOWN_COLLISIONE);
+            stunTimer.set(IscatBomberSettings.DURATA_STORDIMENTO);
+            collisionCooldown.set(IscatBomberSettings.COOLDOWN_COLLISIONE);
         }
     }
 

@@ -4,6 +4,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import uni.gaben.iscat.game.model.settings.VisualSettings;
 import uni.gaben.iscat.game.model.space.Space;
 import uni.gaben.iscat.game.model.GameModel;
 import uni.gaben.iscat.game.model.GameSettings;
@@ -18,8 +19,8 @@ import java.util.Objects;
  */
 public class GameCanvas extends Canvas {
 
-    public static final double TILE_SIZE           = GameSettings.DIMENSIONE_TILE;
-    public static final double SPRITE_NORTH_OFFSET = GameSettings.OFFSET_NORD_SPRITE;
+    public static final double TILE_SIZE           = VisualSettings.DIMENSIONE_TILE;
+    public static final double SPRITE_NORTH_OFFSET = VisualSettings.OFFSET_NORD_SPRITE;
 
     private static final Image PLAYER_SPRITE = new Image(
             Objects.requireNonNull(GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/battle_ship_1.png")));
@@ -62,7 +63,7 @@ public class GameCanvas extends Canvas {
         disegnaEnemies(gc);
         disegnaGiocatore(gc);
 
-        if (GameSettings.Visuale.MOSTRA_FPS) {
+        if (VisualSettings.MOSTRA_FPS) {
             drawFPS(currentFps);
         }
     }

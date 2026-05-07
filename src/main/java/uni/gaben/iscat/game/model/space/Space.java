@@ -4,6 +4,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import uni.gaben.iscat.game.model.GameSettings;
 import uni.gaben.iscat.game.model.entities.Star;
+import uni.gaben.iscat.game.model.settings.VisualSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,20 +38,20 @@ public class Space {
     }
 
     void instantiateSpace() {
-        stars = new ArrayList<>(GameSettings.Visuale.NUMERO_STELLE);
-        for (int i = 0; i < GameSettings.Visuale.NUMERO_STELLE; i++) {
+        stars = new ArrayList<>(VisualSettings.NUMERO_STELLE);
+        for (int i = 0; i < VisualSettings.NUMERO_STELLE; i++) {
             double x = rand.nextDouble() * Math.max(1, getWidth());
             double y = rand.nextDouble() * Math.max(1, getHeight());
-            double t = Math.pow(rand.nextDouble(), GameSettings.Visuale.POTENZA_DIMENSIONE_STELLA);
-            double size = GameSettings.Visuale.DIMENSIONE_STELLA_MIN + 
-                         t * (GameSettings.Visuale.DIMENSIONE_STELLA_MAX - GameSettings.Visuale.DIMENSIONE_STELLA_MIN);
+            double t = Math.pow(rand.nextDouble(), VisualSettings.POTENZA_DIMENSIONE_STELLA);
+            double size = VisualSettings.DIMENSIONE_STELLA_MIN +
+                         t * (VisualSettings.DIMENSIONE_STELLA_MAX - VisualSettings.DIMENSIONE_STELLA_MIN);
             stars.add(new Star(x, y, size));
         }
     }
 
     public void update(double targetVx, double targetVy) {
-        scrollVx = GameSettings.Visuale.EASING_STELLE.apply(scrollVx, targetVx, GameSettings.Visuale.LERP_STELLE);
-        scrollVy = GameSettings.Visuale.EASING_STELLE.apply(scrollVy, targetVy, GameSettings.Visuale.LERP_STELLE);
+        scrollVx = VisualSettings.EASING_STELLE.apply(scrollVx, targetVx, VisualSettings.LERP_STELLE);
+        scrollVy = VisualSettings.EASING_STELLE.apply(scrollVy, targetVy, VisualSettings.LERP_STELLE);
 
         int w = Math.max(1, getWidth());
         int h = Math.max(1, getHeight());

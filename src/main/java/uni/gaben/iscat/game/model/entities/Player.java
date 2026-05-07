@@ -3,6 +3,7 @@ package uni.gaben.iscat.game.model.entities;
 import uni.gaben.iscat.game.model.interfaces.Collidable;
 import uni.gaben.iscat.game.model.physics.Vec2;
 import uni.gaben.iscat.game.model.GameSettings;
+import uni.gaben.iscat.game.model.settings.PlayerSettings;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Random;
@@ -28,14 +29,14 @@ public class Player extends LivingEntity implements Collidable {
     public Player(double startX, double startY) {
         this.x     = startX;
         this.y     = startY;
-        this.hp    = GameSettings.Giocatore.HP_INIZIALE;
-        this.maxHp = GameSettings.Giocatore.HP_MASSIMO;
-        this.mass  = GameSettings.Giocatore.MASSA;
+        this.hp    = PlayerSettings.HP_INIZIALE;
+        this.maxHp = PlayerSettings.HP_MASSIMO;
+        this.mass  = PlayerSettings.MASSA;
         this.name  = "Player";
-        this.spriteSize = GameSettings.Giocatore.DIMENSIONE_SPRITE;
-        this.drag     = GameSettings.Giocatore.ATTRITO;
-        this.maxSpeed = GameSettings.Giocatore.VELOCITA_MAX;
-        this.deadZone = GameSettings.Giocatore.ZONA_MORTA;
+        this.spriteSize = PlayerSettings.DIMENSIONE_SPRITE;
+        this.drag     = PlayerSettings.ATTRITO;
+        this.maxSpeed = PlayerSettings.VELOCITA_MAX;
+        this.deadZone = PlayerSettings.ZONA_MORTA;
     }
 
     // --- fisica ---
@@ -46,11 +47,11 @@ public class Player extends LivingEntity implements Collidable {
         boolean inScatto = faseScatto.isActive();
         
         if (inScatto) {
-            this.drag = GameSettings.Giocatore.ATTRITO_SCATTO;
-            this.maxSpeed = GameSettings.Giocatore.VELOCITA_MAX_SCATTO;
+            this.drag = PlayerSettings.ATTRITO_SCATTO;
+            this.maxSpeed = PlayerSettings.VELOCITA_MAX_SCATTO;
         } else {
-            this.drag = GameSettings.Giocatore.ATTRITO;
-            this.maxSpeed = GameSettings.Giocatore.VELOCITA_MAX;
+            this.drag = PlayerSettings.ATTRITO;
+            this.maxSpeed = PlayerSettings.VELOCITA_MAX;
         }
         
         // Usa l'integrazione base di PhysicalEntity (con drag, cap, dead-zone)
@@ -85,12 +86,12 @@ public class Player extends LivingEntity implements Collidable {
 
         double rad = Math.toRadians(directionAngle);
         velocity = velocity.add(
-                Math.cos(rad) * GameSettings.Giocatore.IMPULSO_SCATTO,
-                Math.sin(rad) * GameSettings.Giocatore.IMPULSO_SCATTO
+                Math.cos(rad) * PlayerSettings.IMPULSO_SCATTO,
+                Math.sin(rad) * PlayerSettings.IMPULSO_SCATTO
         );
 
-        faseScatto.set(GameSettings.Giocatore.DURATA_SCATTO_TICK);
-        cooldownScatto.set(GameSettings.Giocatore.COOLDOWN_SCATTO_TICK);
+        faseScatto.set(PlayerSettings.DURATA_SCATTO_TICK);
+        cooldownScatto.set(PlayerSettings.COOLDOWN_SCATTO_TICK);
     }
 
     /** {@code true} se lo scatto è disponibile. */
@@ -101,7 +102,7 @@ public class Player extends LivingEntity implements Collidable {
 
     // --- Collidable ---
 
-    @Override public double getCollisionRadius() { return GameSettings.Giocatore.RAGGIO_COLLISIONE; }
+    @Override public double getCollisionRadius() { return PlayerSettings.RAGGIO_COLLISIONE; }
     
     @Override 
     public Vec2 getColliderCenter() {
