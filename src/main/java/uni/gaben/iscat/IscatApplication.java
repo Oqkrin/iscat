@@ -65,21 +65,18 @@ public class IscatApplication extends Application {
 
         // Inizializza il sistema di navigazione
         IscatNavigator.getInstance().initialize(appModel, scenes);
-        IscatController appController = new IscatController(appModel, stage, scenes);
+        IscatController iscatController = new IscatController(appModel, stage, scenes);
 
         // Collega il comportamento finestra (drag, resize, pulsanti) a ogni scena
         scenes.values().forEach(scene -> {
-            if (scene instanceof IscatSceneAbstract s) appController.wireScene(s);
+            if (scene instanceof IscatSceneAbstract s) iscatController.wireScene(s);
         });
 
         // Setup stage
         stage.setTitle("ISCAT");
         stage.initStyle(StageStyle.UNDECORATED);
-        stage.setMinWidth(300);
-        stage.setMinHeight(150); // title bar (34) + minimum content
 
-
-        appController.initializeScene();
+        iscatController.initializeScene();
         stage.show();
         IscatUtils.scalaCentraRispettoParent(stage, IscatUtils.getSchermiCorrenti(stage).get(0).getBounds());
     }

@@ -102,7 +102,7 @@ public class LoginController {
     private void switchToPassword() {
         currentLoginState = LoginState.PASSWORD;
         model.setLoginState(true);
-        model.setStatus(model.userExistsProperty().get() ? "inserisci password" : "imposta una nuova password");
+        model.setStatus(model.userExistsProperty().get() ? "inserisci password" : "crea nuova password");
     }
 
     private void submitLogin() {

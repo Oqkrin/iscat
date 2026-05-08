@@ -47,7 +47,7 @@ public class IscatController {
      * Wires all window-management behaviour to the scene's title bar.
      */
     public void wireScene(IscatSceneAbstract scene) {
-        IscatSceneAbstract.TitleBar bar = scene.getTitleBar();
+        IscatTitleBar bar = scene.getTitleBar();
         if (bar == null) return;
 
         // --- title bar drag ---
@@ -142,7 +142,7 @@ public class IscatController {
      * to the incoming scene's title bar so it looks consistent after a transition.
      */
     private void syncWindowState(IscatSceneAbstract scene) {
-        IscatSceneAbstract.TitleBar bar = scene.getTitleBar();
+        IscatTitleBar bar = scene.getTitleBar();
         if (bar == null) return;
 
         // Pin button visual

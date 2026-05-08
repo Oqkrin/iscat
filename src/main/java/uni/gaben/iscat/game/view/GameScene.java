@@ -9,7 +9,6 @@ import uni.gaben.iscat.game.view.hud.PauseMenu;
 
 /**
  * Scena di gioco: posiziona il canvas e collega il controller.
- *
  * LIFECYCLE:
  * - onShow(): avvia game loop, carica audio
  * - onHide(): ferma game loop

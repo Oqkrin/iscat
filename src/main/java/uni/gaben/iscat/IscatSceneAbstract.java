@@ -26,7 +26,7 @@ import javafx.util.Duration;
  * è gestito da IscatController tramite wireScene().
  * <p>
  * Pattern di inizializzazione:
- *   initStyles → initNodes → initLayout → initBindings → initEventHandlers → initAnimations
+ * initStyles → initNodes → initLayout → initBindings → initEventHandlers → initAnimations
  */
 public abstract class IscatSceneAbstract extends Scene implements IscatSceneLifecycleInterface {
 
@@ -39,12 +39,24 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
     // Constructors
     // -------------------------------------------------------------------------
 
+    /**
+     * Instantiates a new Iscat scene abstract.
+     *
+     * @param root the root
+     */
     protected IscatSceneAbstract(Parent root) {
         super(buildChrome(root));
         setFill(Color.web("#010203"));
         applyRoundedClip();
     }
 
+    /**
+     * Instantiates a new Iscat scene abstract.
+     *
+     * @param root   the root
+     * @param width  the width
+     * @param height the height
+     */
     protected IscatSceneAbstract(Parent root, double width, double height) {
         super(buildChrome(root), width, height);
         setFill(Color.web("#010203"));
@@ -68,7 +80,7 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         contentWrapper.setClip(contentClip);
 
         // Title bar — sits on top of content wrapper as an overlay
-        TitleBar titleBar = new TitleBar();
+        IscatTitleBar titleBar = new IscatTitleBar();
         // Prevent StackPane from stretching the bar to full height
         titleBar.setMaxHeight(Region.USE_PREF_SIZE);
         titleBar.setMouseTransparent(false); // bar must receive mouse events
@@ -103,9 +115,11 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
 
     private boolean barVisible = true;
 
-    /** Called by IscatController when the stage enters fullscreen. */
+    /**
+     * Called by IscatController when the stage enters fullscreen.
+     */
     public void onEnterFullscreen() {
-        TitleBar bar = getTitleBar();
+        IscatTitleBar bar = getTitleBar();
         if (bar == null) return;
         bar.getStyleClass().add("title-bar-fullscreen");
         barVisible = true;
@@ -118,9 +132,11 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         });
     }
 
-    /** Called by IscatController when the stage exits fullscreen. */
+    /**
+     * Called by IscatController when the stage exits fullscreen.
+     */
     public void onExitFullscreen() {
-        TitleBar bar = getTitleBar();
+        IscatTitleBar bar = getTitleBar();
         if (bar == null) return;
         bar.getStyleClass().remove("title-bar-fullscreen");
         getRoot().setOnMouseMoved(null);
@@ -129,7 +145,7 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         bar.setOpacity(1.0);
     }
 
-    private void slideIn(TitleBar bar) {
+    private void slideIn(IscatTitleBar bar) {
         barVisible = true;
         TranslateTransition t = new TranslateTransition(Duration.millis(150), bar);
         t.setToY(0);
@@ -138,7 +154,7 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         t.play(); f.play();
     }
 
-    private void slideOut(TitleBar bar) {
+    private void slideOut(IscatTitleBar bar) {
         barVisible = false;
         TranslateTransition t = new TranslateTransition(Duration.millis(200), bar);
         t.setToY(-bar.getHeight() - 4);
@@ -151,19 +167,25 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
     // Accessors for IscatController
     // -------------------------------------------------------------------------
 
-    /** Package-visible so IscatController can wire button actions and drag. */
-    TitleBar getTitleBar() {
+    /**
+     * Package-visible so IscatController can wire button actions and drag.  @return  the title bar
+     */
+    IscatTitleBar getTitleBar() {
         // root → StackPane(root) → [0] StackPane(chrome) → children include TitleBar
         if (getRoot() instanceof StackPane root
                 && root.getChildren().get(0) instanceof StackPane chrome) {
             for (var child : chrome.getChildren()) {
-                if (child instanceof TitleBar tb) return tb;
+                if (child instanceof IscatTitleBar tb) return tb;
             }
         }
         return null;
     }
 
-    /** Returns the content root passed by the subclass to super(). */
+    /**
+     * Returns the content root passed by the subclass to super().  @param <T>  the type parameter
+     *
+     * @return the content root
+     */
     @SuppressWarnings("unchecked")
     protected <T extends Parent> T getContentRoot() {
         // root → StackPane(root) → [0] StackPane(chrome) → [0] StackPane(contentWrapper) → [0] content
@@ -176,52 +198,13 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
     }
 
     // -------------------------------------------------------------------------
-    // TitleBar — pure UI node
-    // -------------------------------------------------------------------------
-
-    static class TitleBar extends HBox {
-
-        final Button closeBtn      = makeBtn("✕",  "title-bar-btn-close",      "Close");
-        final Button maximizeBtn   = makeBtn("⬜",  "title-bar-btn-maximize",   "Maximize");
-        final Button fullscreenBtn = makeBtn("⛶",  "title-bar-btn-fullscreen", "Fullscreen");
-        final Button minimizeBtn   = makeBtn("—",  "title-bar-btn-minimize",   "Minimize");
-        final Button pinBtn        = makeBtn("📌", "title-bar-btn-pin",        "Always on top");
-
-        TitleBar() {
-            getStyleClass().add("title-bar");
-            setAlignment(Pos.CENTER);
-            setPadding(new Insets(5, 10, 5, 10));
-
-            HBox left  = new HBox(pinBtn);
-            left.setAlignment(Pos.CENTER_LEFT);
-
-            HBox center = new HBox(4, maximizeBtn, closeBtn, fullscreenBtn);
-            center.setAlignment(Pos.CENTER);
-
-            HBox right = new HBox(minimizeBtn);
-            right.setAlignment(Pos.CENTER_RIGHT);
-
-            Region leftSpacer  = new Region();
-            Region rightSpacer = new Region();
-            HBox.setHgrow(leftSpacer,  Priority.ALWAYS);
-            HBox.setHgrow(rightSpacer, Priority.ALWAYS);
-
-            getChildren().addAll(left, leftSpacer, center, rightSpacer, right);
-        }
-
-        private static Button makeBtn(String text, String styleClass, String tooltip) {
-            Button btn = new Button(text);
-            btn.getStyleClass().addAll("title-bar-btn", styleClass);
-            btn.setTooltip(new Tooltip(tooltip));
-            btn.setFocusTraversable(false);
-            return btn;
-        }
-    }
-
-    // -------------------------------------------------------------------------
     // Initialization pattern
     // -------------------------------------------------------------------------
 
+    /**
+     * Initialize.
+     * Chiami i metodi costruzione init
+     */
     protected final void initialize() {
         if (initialized) return;
         initStyles();
@@ -233,11 +216,39 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         initialized = true;
     }
 
+    /**
+     * Init styles.
+     * Carica CSS
+     * */
     protected abstract void initStyles();
+
+    /**
+     * Init nodes.
+     * Istanzia nodi scena
+     * */
     protected abstract void initNodes();
+
+    /**
+     * Init layout.
+     * Compone layout
+     * */
     protected abstract void initLayout();
+
+    /**
+     * Init bindings.
+     * Impone i Bindings
+     * */
     protected abstract void initBindings();
+
+    /**
+     * Init event handlers.
+     * Delega Input a Controller
+     * */
     protected abstract void initEventHandlers();
+
+    /**
+     * Init animations.
+     */
     protected void initAnimations() {}
 
     // -------------------------------------------------------------------------
@@ -254,6 +265,9 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         else        { onHide(); }
     }
 
+    /**
+     * Destroy.
+     */
     public void destroy() {
         if (active) setActive(false);
         onUnload();
