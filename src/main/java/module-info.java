@@ -23,7 +23,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.game.components.entities.npcs.iscat_bomber;
     exports uni.gaben.iscat.game.components.entities.npcs.fake_iscat;
     exports uni.gaben.iscat.game.components.entities.npcs.fallen_star_golem;
-    exports uni.gaben.iscat.game.hud;
     exports uni.gaben.iscat.game.controller;
     exports uni.gaben.iscat.game.utils.interfaces;
     exports uni.gaben.iscat.game.utils.physics;
