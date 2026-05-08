@@ -1,13 +1,13 @@
 package uni.gaben.iscat.game;
 
-import uni.gaben.iscat.game.entities.EntityModel;
-import uni.gaben.iscat.game.entities.LivingEntityModel;
-import uni.gaben.iscat.game.enemies.EnemyModel;
-import uni.gaben.iscat.game.enemies.iscat_bomber.IscatBomberModel;
-import uni.gaben.iscat.game.interfaces.*;
-import uni.gaben.iscat.game.physics.CollisionPhysics;
-import uni.gaben.iscat.game.player.PlayerModel;
-import uni.gaben.iscat.game.projectile.ProjectileModel;
+import uni.gaben.iscat.game.components.entities.EntityModel;
+import uni.gaben.iscat.game.components.entities.LivingEntityModel;
+import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
+import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
+import uni.gaben.iscat.game.utils.interfaces.*;
+import uni.gaben.iscat.game.utils.physics.CollisionPhysics;
+import uni.gaben.iscat.game.components.entities.player.PlayerModel;
+import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public class GameModel {
     private final PlayerModel player;
     
     // Collezioni organizzate per tipo (evita instanceof ogni frame)
-    private final List<EnemyModel>  enemies         = new ArrayList<>();
+    private final List<NpcModel>  enemies         = new ArrayList<>();
     private final List<EntityModel> allEntities     = new ArrayList<>();
     private final List<AI> aiEntities = new ArrayList<>();
     private final List<Gravitational> gravitationalBodies = new ArrayList<>();
@@ -150,7 +150,7 @@ public class GameModel {
     // --- gestione entità ---
 
     /** Aggiunge un nemico al mondo. */
-    public void addEnemy(EnemyModel enemy) {
+    public void addEnemy(NpcModel enemy) {
         enemies.add(enemy);
         addEntity(enemy);
     }
@@ -185,7 +185,7 @@ public class GameModel {
         allEntities.remove(entity);
         
         // Rimuovi da tutte le collezioni tipizzate
-        if (entity instanceof EnemyModel e) {
+        if (entity instanceof NpcModel e) {
             enemies.remove(e);
         }
         if (entity instanceof AI ai) {
@@ -211,6 +211,6 @@ public class GameModel {
     // --- accessori ---
 
     public PlayerModel       getPlayer()   { return player; }
-    public List<EnemyModel>  getEnemies()  { return Collections.unmodifiableList(enemies); }
+    public List<NpcModel>  getEnemies()  { return Collections.unmodifiableList(enemies); }
     public List<EntityModel> getEntities() { return Collections.unmodifiableList(allEntities); }
 }

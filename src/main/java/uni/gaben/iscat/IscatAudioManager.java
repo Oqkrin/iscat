@@ -3,8 +3,7 @@ package uni.gaben.iscat;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import uni.gaben.iscat.game.GameSettings;
-import uni.gaben.iscat.game.settings.AudioSettings;
+import uni.gaben.iscat.game.utils.settings.AudioSettings;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -2,15 +2,12 @@ package uni.gaben.iscat;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import uni.gaben.iscat.game.GameController;
+import uni.gaben.iscat.game.controller.GameController;
 import uni.gaben.iscat.game.GameModel;
-import uni.gaben.iscat.game.GameCanvas;
-import uni.gaben.iscat.game.GameScene;
+import uni.gaben.iscat.game.view.GameScene;
 import uni.gaben.iscat.login.controller.LoginController;
 import uni.gaben.iscat.login.model.LoginData;
 import uni.gaben.iscat.login.model.LoginModel;

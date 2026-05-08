@@ -1,6 +1,6 @@
 package uni.gaben.iscat.utils;
 
-import uni.gaben.iscat.game.physics.Vec2;
+import uni.gaben.iscat.game.utils.physics.Vec2;
 
 /**
  * Funzioni di interpolazione statiche + preset selezionabili via {@link Preset}.
