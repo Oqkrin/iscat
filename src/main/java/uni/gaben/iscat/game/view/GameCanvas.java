@@ -5,26 +5,21 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import uni.gaben.iscat.game.GameModel;
-import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
-import uni.gaben.iscat.game.components.entities.npcs.NpcView;
-import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
-import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberView;
-import uni.gaben.iscat.game.components.entities.player.PlayerView;
-import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileView;
-import uni.gaben.iscat.game.utils.settings.VisualSettings;
+import uni.gaben.iscat.game.components.entities.EntityModel;
 import uni.gaben.iscat.game.components.space.SpaceModel;
 import uni.gaben.iscat.game.components.space.SpaceView;
+import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.settings.VisualSettings;
 
 /**
  * Coordinatore del rendering di gioco.
- * Non contiene logica di disegno — delega a renderer specializzati.
  *
  * Ordine di rendering (back to front):
  *   1. Sfondo (stelle)
- *   2. Proiettili
- *   3. Nemici
- *   4. Giocatore
- *   5. HUD (FPS)
+ *   2. Entità (ordine di inserimento nel GameModel — back to front)
+ *   3. HUD (FPS)
+ *
+ * Nessun instanceof — ogni entità ha il proprio renderer registrato in GameModel.
  */
 public class GameCanvas extends Canvas {
 
@@ -32,13 +27,7 @@ public class GameCanvas extends Canvas {
 
     private final GameModel model;
     private final SpaceModel space;
-
-    // Renderers — one per entity type, stateless, loaded once
-    private final SpaceView      spaceRenderer      = new SpaceView();
-    private final PlayerView     playerRenderer     = new PlayerView();
-    private final IscatBomberView bomberRenderer    = new IscatBomberView();
-    private final ProjectileView  projectileRenderer = new ProjectileView();
-    private final NpcView fallbackRenderer   = new NpcView();
+    private final SpaceView  spaceView = new SpaceView();
 
     public GameCanvas(GameModel model) {
         this.model = model;
@@ -48,6 +37,7 @@ public class GameCanvas extends Canvas {
     }
 
     /** Called by the game loop every frame. */
+    @SuppressWarnings("unchecked")
     public void render(int currentFps) {
         double w = getWidth();
         double h = getHeight();
@@ -61,28 +51,16 @@ public class GameCanvas extends Canvas {
         gc.setImageSmoothing(false);
 
         // 1. Background
-        spaceRenderer.draw(gc, space);
+        spaceView.draw(gc, space);
 
-        // 2. Projectiles
-        for (var projectile : model.getProjectiles()) {
-            projectileRenderer.draw(gc, projectile);
+        // 2. All entities — renderer looked up from GameModel, no instanceof
+        for (var entry : model.getRenderables().entrySet()) {
+            EntityModel entity   = entry.getKey();
+            EntityRenderer renderer = entry.getValue();
+            renderer.draw(gc, entity);
         }
 
-        // 3. Enemies
-        for (NpcModel enemy : model.getEnemies()) {
-            if (enemy instanceof IscatBomberModel bomber) {
-                bomberRenderer.draw(gc, bomber);
-            } else {
-                fallbackRenderer.draw(gc, enemy);
-            }
-        }
-
-        // 4. Player
-        if (model.getPlayer() != null) {
-            playerRenderer.draw(gc, model.getPlayer());
-        }
-
-        // 5. HUD
+        // 3. HUD
         if (VisualSettings.MOSTRA_FPS) {
             drawFPS(gc, currentFps);
         }

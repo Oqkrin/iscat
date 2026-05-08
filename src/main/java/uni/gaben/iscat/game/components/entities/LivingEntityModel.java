@@ -52,7 +52,7 @@ public abstract class LivingEntityModel extends PhysicalEntityModel implements A
      * @param dy differenza y verso il target
      * @param smoothing fattore di interpolazione (0-1). Valori più bassi = rotazione più lenta.
      */
-    protected void updateDirectionSmooth(double dx, double dy, double smoothing) {
+    public void updateDirectionSmooth(double dx, double dy, double smoothing) {
         double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
         
         // Calcola la differenza angolare
