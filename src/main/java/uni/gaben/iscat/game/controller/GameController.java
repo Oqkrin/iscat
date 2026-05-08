@@ -3,6 +3,8 @@ package uni.gaben.iscat.game.controller;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.game.model.GameModel;
 import uni.gaben.iscat.game.model.GameSettings;
 import uni.gaben.iscat.game.model.entities.Player;
@@ -26,8 +28,7 @@ public class GameController {
 
     // Logica Pause Menu
     private boolean paused = false;
-    private Consumer<Boolean> onPauseToggle; // contiene l'azione da eseguire in caso di pausa
-    private Runnable onExitToMenu;
+    private Consumer<Boolean> onPauseToggle;
 
     // FPS tracking (rolling average over 60 frames)
     private static final int FPS_WINDOW = 60;
@@ -130,14 +131,10 @@ public class GameController {
         }
     }
 
-    public void setOnExitToMenu(Runnable callback) {
-        this.onExitToMenu = callback;
-    }
-
     public void exitToMainMenu() {
-        if (onExitToMenu != null) {
-            onExitToMenu.run();
-        }
+        // Unpause first so the game state is clean when returning
+        if (paused) togglePause();
+        IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
     }
 
     // --- input → forze ---

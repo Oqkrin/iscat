@@ -121,10 +121,36 @@ public class IscatController {
 
         IscatAudioManager.getInstance().playBGM(model.getBgmPath(next), true);
 
+        // JavaFX exits fullscreen when setScene() is called — save and restore it
+        boolean wasFullScreen = stage.isFullScreen();
+
         Scene nextScene = sceneMap.get(next);
         stage.setScene(nextScene);
 
-        if (nextScene instanceof IscatSceneAbstract newScene) newScene.onShow();
+        if (wasFullScreen) {
+            stage.setFullScreen(true);
+        }
+
+        if (nextScene instanceof IscatSceneAbstract newScene) {
+            syncWindowState(newScene);
+            newScene.onShow();
+        }
+    }
+
+    /**
+     * Applies the current window state from the Stage and IscatModel
+     * to the incoming scene's title bar so it looks consistent after a transition.
+     */
+    private void syncWindowState(IscatSceneAbstract scene) {
+        IscatSceneAbstract.TitleBar bar = scene.getTitleBar();
+        if (bar == null) return;
+
+        // Pin button visual
+        bar.pinBtn.getStyleClass().removeAll("title-bar-btn-pin-active");
+        if (model.isPinned()) {
+            bar.pinBtn.getStyleClass().add("title-bar-btn-pin-active");
+        }
+        // Fullscreen is handled by the stage.fullScreenProperty listener wired in wireScene()
     }
 
     // -------------------------------------------------------------------------

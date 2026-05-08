@@ -18,13 +18,13 @@ import javafx.util.Duration;
 
 /**
  * Classe base per scene ISCAT — responsabilità SOLO view.
- *
+ * <p>
  * Costruisce il chrome della finestra (title bar + content wrapper + border overlay),
  * applica il clip arrotondato e gestisce l'animazione della title bar in fullscreen.
- *
+ * <p>
  * Tutto il comportamento della finestra (drag, resize, pulsanti, fullscreen key)
  * è gestito da IscatController tramite wireScene().
- *
+ * <p>
  * Pattern di inizializzazione:
  *   initStyles → initNodes → initLayout → initBindings → initEventHandlers → initAnimations
  */
@@ -83,8 +83,7 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         borderOverlay.getStyleClass().add("window-border-overlay");
         borderOverlay.setMouseTransparent(true);
 
-        StackPane root = new StackPane(chrome, borderOverlay);
-        return root;
+        return new StackPane(chrome, borderOverlay);
     }
 
     private void applyRoundedClip() {
@@ -244,11 +243,6 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
     // -------------------------------------------------------------------------
     // Lifecycle
     // -------------------------------------------------------------------------
-
-    @Override public void onLoad()   {}
-    @Override public void onShow()   {}
-    @Override public void onHide()   {}
-    @Override public void onUnload() {}
 
     @Override public boolean isActive() { return active; }
 
