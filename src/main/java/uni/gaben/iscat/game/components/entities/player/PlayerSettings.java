@@ -75,7 +75,9 @@ public final class PlayerSettings {
 
     // === Collisione ===
     /**
-     * Raggio collisione (px)
+     * Raggio collisione (px).
+     * ~75% del raggio visivo dello sprite (spriteSize/2 = 32px → 24px).
+     * Leggermente più piccolo dello sprite per collisioni che sembrano giuste visivamente.
      */
     public static final double RAGGIO_COLLISIONE = 24.0;
 

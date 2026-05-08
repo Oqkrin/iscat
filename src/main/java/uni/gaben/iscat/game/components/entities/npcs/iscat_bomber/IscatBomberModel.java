@@ -52,7 +52,6 @@ public class IscatBomberModel extends NpcModel implements Collidable, HasRendere
         if (collisionCooldown.isActive()) return;
         if (other instanceof PlayerModel) {
             stunTimer.set(IscatBomberSettings.DURATA_STORDIMENTO);
-            collisionCooldown.set(IscatBomberSettings.COOLDOWN_COLLISIONE);
         }
     }
 

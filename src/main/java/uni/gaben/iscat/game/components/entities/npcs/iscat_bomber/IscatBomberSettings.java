@@ -34,7 +34,7 @@ public final class IscatBomberSettings {
     /**
      * Velocità inseguimento
      */
-    public static final double VELOCITA_INSEGUIMENTO = 80.0;
+    public static final double VELOCITA_INSEGUIMENTO = 50.0;
 
     /**
      * Distanza minima per inseguire
@@ -60,10 +60,12 @@ public final class IscatBomberSettings {
     /**
      * Cooldown collisione per evitare ripetizioni (tick)
      */
-    public static final int COOLDOWN_COLLISIONE = 10;
+    public static final int COOLDOWN_COLLISIONE = 1;
 
     /**
-     * Raggio collisione (px)
+     * Raggio collisione (px).
+     * ~75% del raggio visivo dello sprite (spriteSize/2 = 32px → 24px).
+     * Leggermente più piccolo dello sprite per collisioni che sembrano giuste visivamente.
      */
     public static final double RAGGIO_COLLISIONE = 24.0;
 

@@ -71,7 +71,7 @@ public class GameController {
             IscatAudioManager.getInstance().playSFX("fart_alt" + sfx);
         });
         // Shot spawn + audio → PlayerShootingController
-        shooting.setOnSparo((pos, vel) -> model.spawnProjectile(pos, vel));
+        shooting.setOnSparo(model::spawnProjectile);
         shooting.setOnSparoSound(() -> IscatAudioManager.getInstance().playSFX("shoot"));
         // Hurt audio stays on the model (LivingEntityModel.onHurt is a minor violation
         // but acceptable until LivingEntityModel is refactored)
