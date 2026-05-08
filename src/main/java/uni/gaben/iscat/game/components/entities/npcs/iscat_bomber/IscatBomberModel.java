@@ -2,7 +2,6 @@ package uni.gaben.iscat.game.components.entities.npcs.iscat_bomber;
 
 import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
-import uni.gaben.iscat.game.components.entities.player.PlayerSettings;
 import uni.gaben.iscat.game.utils.interfaces.Collidable;
 import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
 import uni.gaben.iscat.game.utils.interfaces.HasRenderer;
@@ -25,14 +24,14 @@ public class IscatBomberModel extends NpcModel implements Collidable, HasRendere
 
     public IscatBomberModel(double startX, double startY) {
         super(startX, startY);
-        this.hp        = IscatBomberSettings.HP;
-        this.maxHp     = IscatBomberSettings.HP;
-        this.mass      = PlayerSettings.MASSA * IscatBomberSettings.FATTORE_MASSA;
-        this.name      = "IscatBomber";
-        this.spriteSize = PlayerSettings.DIMENSIONE_SPRITE;
-        this.drag      = IscatBomberSettings.ATTRITO;
-        this.maxSpeed  = PlayerSettings.VELOCITA_MAX * IscatBomberSettings.FATTORE_VELOCITA_MAX;
-        this.deadZone  = 0.01;
+        this.hp         = IscatBomberSettings.HP;
+        this.maxHp      = IscatBomberSettings.HP;
+        this.mass       = IscatBomberSettings.MASSA;
+        this.name       = "IscatBomber";
+        this.spriteSize = IscatBomberSettings.DIMENSIONE_SPRITE;
+        this.drag       = IscatBomberSettings.ATTRITO;
+        this.maxSpeed   = IscatBomberSettings.VELOCITA_MAX;
+        this.deadZone   = 0.01;
     }
 
     // -------------------------------------------------------------------------
@@ -74,7 +73,7 @@ public class IscatBomberModel extends NpcModel implements Collidable, HasRendere
     // -------------------------------------------------------------------------
 
     @Override public int getCollisionLayer() { return LAYER_ENEMY; }
-    @Override public int getCollisionMask()  { return LAYER_PLAYER | LAYER_PROJECTILE; }
+    @Override public int getCollisionMask()  { return LAYER_PLAYER | LAYER_PROJECTILE | LAYER_ENEMY; }
 
     // -------------------------------------------------------------------------
     // Stun state — read by IscatBomberController

@@ -6,19 +6,19 @@ public final class IscatMotherSettings {
 
     // === Fisica ===
     /**
-     * Fattore massa rispetto al giocatore
+     * Massa (kg unità di gioco). Molto più pesante del giocatore (1.0).
      */
-    public static final double FATTORE_MASSA = 8.0;
+    public static final double MASSA = 20.0;
 
     /**
-     * Attrito
+     * Attrito (0-1, più basso = più attrito)
      */
     public static final double ATTRITO = 0.95;
 
     /**
-     * Fattore velocità massima rispetto al giocatore
+     * Velocità massima (px/tick)
      */
-    public static final double FATTORE_VELOCITA_MAX = 0.8;
+    public static final double VELOCITA_MAX = 5.0; // lenta e imponente
 
     // === AI ===
     /**
@@ -29,12 +29,12 @@ public final class IscatMotherSettings {
     /**
      * Ritardo trail (tick indietro da seguire)
      */
-    public static final int RITARDO_TRAIL = 40;
+    public static final int RITARDO_TRAIL = 80;
 
     /**
      * Velocità inseguimento
      */
-    public static final double VELOCITA_INSEGUIMENTO = 80.0;
+    public static final double VELOCITA_INSEGUIMENTO = 20.0;
 
     /**
      * Distanza minima per inseguire
@@ -42,7 +42,7 @@ public final class IscatMotherSettings {
     public static final double DISTANZA_MIN_INSEGUIMENTO = 10.0;
 
     /**
-     * Fattore smoothing rotazione (0-1)
+     * Fattore smoothing rotazione verso il giocatore (0-1)
      */
     public static final double SMOOTHING_ROTAZIONE = 0.12;
 
@@ -63,14 +63,15 @@ public final class IscatMotherSettings {
     public static final int COOLDOWN_COLLISIONE = 10;
 
     /**
-     * Raggio collisione (px)
+     * Dimensione sprite (px). IscatMother è grande il doppio del giocatore.
      */
-    public static final double RAGGIO_COLLISIONE = 24.0;
+    public static final double DIMENSIONE_SPRITE = 128.0;
 
     /**
-     * Dimensione sprite (px)
+     * Raggio collisione (px).
+     * ~75% del raggio visivo dello sprite (DIMENSIONE_SPRITE/2 * 0.75 = 48px).
      */
-    public static final double DIMENSIONE_SPRITE = 64.0;
+    public static final double RAGGIO_COLLISIONE = DIMENSIONE_SPRITE / 2.0 * .9; // 48px
 
     // === Combattimento ===
     /**

@@ -6,19 +6,19 @@ public final class IscatBomberSettings {
 
     // === Fisica ===
     /**
-     * Fattore massa rispetto al giocatore
+     * Massa (kg unità di gioco). Più pesante del giocatore (1.0) per resistere agli urti.
      */
-    public static final double FATTORE_MASSA = 8.0;
+    public static final double MASSA = 8.0;
 
     /**
-     * Attrito
+     * Attrito (0-1, più basso = più attrito)
      */
     public static final double ATTRITO = 0.95;
 
     /**
-     * Fattore velocità massima rispetto al giocatore
+     * Velocità massima (px/tick)
      */
-    public static final double FATTORE_VELOCITA_MAX = 0.8;
+    public static final double VELOCITA_MAX = 7.2; // ~80% di PlayerSettings.VELOCITA_MAX (9.0)
 
     // === AI ===
     /**
@@ -42,7 +42,7 @@ public final class IscatBomberSettings {
     public static final double DISTANZA_MIN_INSEGUIMENTO = 10.0;
 
     /**
-     * Fattore smoothing rotazione (0-1)
+     * Fattore smoothing rotazione verso il giocatore (0-1)
      */
     public static final double SMOOTHING_ROTAZIONE = 0.12;
 
@@ -63,16 +63,15 @@ public final class IscatBomberSettings {
     public static final int COOLDOWN_COLLISIONE = 1;
 
     /**
-     * Raggio collisione (px).
-     * ~75% del raggio visivo dello sprite (spriteSize/2 = 32px → 24px).
-     * Leggermente più piccolo dello sprite per collisioni che sembrano giuste visivamente.
-     */
-    public static final double RAGGIO_COLLISIONE = 24.0;
-
-    /**
      * Dimensione sprite (px)
      */
     public static final double DIMENSIONE_SPRITE = 64.0;
+
+    /**
+     * Raggio collisione (px).
+     * ~75% del raggio visivo dello sprite (DIMENSIONE_SPRITE/2 * 0.75 = 24px).
+     */
+    public static final double RAGGIO_COLLISIONE = DIMENSIONE_SPRITE / 2.0 * 0.80; // 24px
 
     // === Combattimento ===
     /**

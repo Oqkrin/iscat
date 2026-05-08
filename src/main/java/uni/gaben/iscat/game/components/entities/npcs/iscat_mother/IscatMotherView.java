@@ -46,7 +46,7 @@ public class IscatMotherView implements EntityRenderer<IscatMotherModel> {
 
         // Posizionamento e rotazione
         gc.translate(cx, cy);
-        gc.rotate(mother.getDirectionAngle() + NORTH_OFFSET);
+        gc.rotate(-(mother.getDirectionAngle() + NORTH_OFFSET));
 
         // Disegno dello sprite con scala aumentata
         gc.drawImage(

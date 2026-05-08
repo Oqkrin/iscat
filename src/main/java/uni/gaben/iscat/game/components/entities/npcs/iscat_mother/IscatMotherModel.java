@@ -2,7 +2,6 @@ package uni.gaben.iscat.game.components.entities.npcs.iscat_mother;
 
 import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
-import uni.gaben.iscat.game.components.entities.player.PlayerSettings;
 import uni.gaben.iscat.game.utils.interfaces.Collidable;
 import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
 import uni.gaben.iscat.game.utils.interfaces.HasRenderer;
@@ -27,11 +26,11 @@ public class IscatMotherModel extends NpcModel implements Collidable, HasRendere
         super(startX, startY);
         this.hp         = IscatMotherSettings.HP;
         this.maxHp      = IscatMotherSettings.HP;
-        this.mass       = PlayerSettings.MASSA * IscatMotherSettings.FATTORE_MASSA;
+        this.mass       = IscatMotherSettings.MASSA;
         this.name       = "IscatMother";
-        this.spriteSize = 128;
+        this.spriteSize = IscatMotherSettings.DIMENSIONE_SPRITE;
         this.drag       = IscatMotherSettings.ATTRITO;
-        this.maxSpeed   = PlayerSettings.VELOCITA_MAX * IscatMotherSettings.FATTORE_VELOCITA_MAX;
+        this.maxSpeed   = IscatMotherSettings.VELOCITA_MAX;
         this.deadZone   = 0.01;
     }
 
@@ -75,7 +74,7 @@ public class IscatMotherModel extends NpcModel implements Collidable, HasRendere
     // -------------------------------------------------------------------------
 
     @Override public int getCollisionLayer() { return LAYER_ENEMY; }
-    @Override public int getCollisionMask()  { return LAYER_PLAYER | LAYER_PROJECTILE; }
+    @Override public int getCollisionMask()  { return LAYER_PLAYER | LAYER_PROJECTILE | LAYER_ENEMY; }
 
     // -------------------------------------------------------------------------
     // Stun state — read by IscatMotherController

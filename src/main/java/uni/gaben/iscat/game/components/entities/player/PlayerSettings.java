@@ -75,16 +75,16 @@ public final class PlayerSettings {
 
     // === Collisione ===
     /**
-     * Raggio collisione (px).
-     * ~75% del raggio visivo dello sprite (spriteSize/2 = 32px → 24px).
-     * Leggermente più piccolo dello sprite per collisioni che sembrano giuste visivamente.
-     */
-    public static final double RAGGIO_COLLISIONE = 24.0;
-
-    /**
      * Dimensione sprite (px)
      */
     public static final double DIMENSIONE_SPRITE = 64.0;
+
+    /**
+     * Raggio collisione (px).
+     * ~75% del raggio visivo dello sprite (DIMENSIONE_SPRITE/2 * 0.75 = 24px).
+     * Leggermente più piccolo dello sprite per collisioni che sembrano giuste visivamente.
+     */
+    public static final double RAGGIO_COLLISIONE = DIMENSIONE_SPRITE / 2.0 * 0.75; // 24px
 
     // === Attacco ===
     public static final int COOLDOWN_FUOCO_TICK = 10; // Un colpo ogni 10 frame (6 al secondo a 60fps)
