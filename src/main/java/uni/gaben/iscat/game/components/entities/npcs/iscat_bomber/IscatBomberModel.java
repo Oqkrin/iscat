@@ -4,6 +4,9 @@ import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
 import uni.gaben.iscat.game.components.entities.player.PlayerSettings;
 import uni.gaben.iscat.game.utils.interfaces.Collidable;
+import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.HasRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Spawnable;
 import uni.gaben.iscat.game.utils.physics.Vec2;
 import uni.gaben.iscat.utils.Cooldown;
 
@@ -13,7 +16,9 @@ import uni.gaben.iscat.utils.Cooldown;
  * Owns: physics config, collision response, death, stun state.
  * Does NOT own: AI logic, trail, movement decisions → see IscatBomberController.
  */
-public class IscatBomberModel extends NpcModel implements Collidable {
+public class IscatBomberModel extends NpcModel implements Collidable, HasRenderer, Spawnable {
+
+    private static final IscatBomberView VIEW = new IscatBomberView();
 
     private final Cooldown stunTimer        = new Cooldown();
     private final Cooldown collisionCooldown = new Cooldown();
@@ -51,15 +56,26 @@ public class IscatBomberModel extends NpcModel implements Collidable {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Alive
-    // -------------------------------------------------------------------------
-
     @Override
     public void die() {
         System.out.println("CHE TU SIA DANNATO!!!!! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         // TODO: death animation, explosion, loot
     }
+
+    // -------------------------------------------------------------------------
+    // HasRenderer
+    // -------------------------------------------------------------------------
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public EntityRenderer<IscatBomberModel> getRenderer() { return VIEW; }
+
+    // -------------------------------------------------------------------------
+    // Collision layers
+    // -------------------------------------------------------------------------
+
+    @Override public int getCollisionLayer() { return LAYER_ENEMY; }
+    @Override public int getCollisionMask()  { return LAYER_PLAYER | LAYER_PROJECTILE; }
 
     // -------------------------------------------------------------------------
     // Stun state — read by IscatBomberController

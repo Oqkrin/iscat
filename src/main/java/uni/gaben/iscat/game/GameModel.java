@@ -1,18 +1,14 @@
 package uni.gaben.iscat.game;
 
-import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.game.components.entities.EntityModel;
-import uni.gaben.iscat.game.components.entities.LivingEntityModel;
 import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberController;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
-import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberView;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
-import uni.gaben.iscat.game.components.entities.player.PlayerView;
 import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileModel;
-import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileView;
 import uni.gaben.iscat.game.utils.interfaces.*;
 import uni.gaben.iscat.game.utils.physics.CollisionPhysics;
+import uni.gaben.iscat.game.utils.physics.Vec2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,39 +33,25 @@ public class GameModel {
 
     private final PlayerModel player;
     
-    // Typed collections for fast per-frame iteration (no instanceof each tick)
-    private final List<NpcModel>       enemies            = new ArrayList<>();
-    private final List<EntityModel>    allEntities        = new ArrayList<>();
-    private final List<AI>             aiEntities         = new ArrayList<>();
-    private final List<Gravitational>  gravitationalBodies = new ArrayList<>();
-    private final List<Physical>       physicalBodies     = new ArrayList<>();
-    private final List<Updatable>      updatableEntities  = new ArrayList<>();
-    private final List<Collidable>     collidableEntities = new ArrayList<>();
-    private final List<ProjectileModel> projectiles       = new ArrayList<>();
+    // Typed collections for fast per-frame iteration
+    private final List<NpcModel>      enemies            = new ArrayList<>();
+    private final List<EntityModel>   allEntities        = new ArrayList<>();
+    private final List<AI>            aiEntities         = new ArrayList<>();
+    private final List<Gravitational> gravitationalBodies = new ArrayList<>();
+    private final List<Physical>      physicalBodies     = new ArrayList<>();
+    private final List<Updatable>     updatableEntities  = new ArrayList<>();
+    private final List<Collidable>    collidableEntities = new ArrayList<>();
 
     /**
-     * Ordered map: entity → its renderer.
-     * Insertion order = draw order (back to front).
-     * Renderer is typed as EntityRenderer<EntityModel> via unchecked cast at registration;
-     * safe because each renderer only ever receives the entity it was registered for.
+     * Ordered map: entity → its renderer. Insertion order = draw order.
+     * Populated via HasRenderer — no instanceof per entity type needed.
      */
     @SuppressWarnings("rawtypes")
     private final Map<EntityModel, EntityRenderer> renderers = new LinkedHashMap<>();
 
-    // Pre-built renderer instances (stateless, reused for all entities of that type)
-    private static final PlayerView      PLAYER_VIEW    = new PlayerView();
-    private static final IscatBomberView BOMBER_VIEW    = new IscatBomberView();
-    private static final ProjectileView  PROJECTILE_VIEW = new ProjectileView();
-
     public GameModel() {
         player = new PlayerModel(100, 100);
         addEntity(player);
-
-        // colleghiamo lo sparo al player
-        player.setOnSparo((pos, vel) -> {
-            ProjectileModel p = new ProjectileModel(pos, vel);
-            addEntity(p); // addEntity si occuperà di smistarlo in tutte le liste
-        });
         
         // TODO: rimuovere dopo test - spawn IscatBomberModel di test
         spawnTestEnemies();
@@ -91,28 +73,14 @@ public class GameModel {
         cleanupDeadEntities();
     }
 
-    // -- Dead entities ---
+    // -- Dead / expired entities ---
     private void cleanupDeadEntities() {
-        // Raccogliamo chi deve essere rimosso
         List<EntityModel> toRemove = new ArrayList<>();
-
         for (EntityModel e : allEntities) {
-            // Rimuovi nemici/player se morti
-            if (e instanceof LivingEntityModel le && le.isDead()) {
-                toRemove.add(e);
-            }
-            // Rimuovi proiettili se scaduti
-            if (e instanceof ProjectileModel p && p.isExpired()) {
-                toRemove.add(e);
-            }
+            if (e instanceof Mortal m    && m.isDead())    toRemove.add(e);
+            if (e instanceof Expirable x && x.isExpired()) toRemove.add(e);
         }
-
-        // Rimuoviamo effettivamente
         toRemove.forEach(this::removeEntity);
-    }
-
-    public List<ProjectileModel> getProjectiles() {
-        return Collections.unmodifiableList(projectiles);
     }
     
     // --- AI ---
@@ -152,18 +120,22 @@ public class GameModel {
             Collidable a = collidableEntities.get(i);
             for (int j = i + 1; j < size; j++) {
                 Collidable b = collidableEntities.get(j);
-                if (a.collidesWith(b)) {
-                    // 1. Risolvi la fisica (impulso + separazione) se entrambi sono Physical
-                    if (a instanceof Physical pa && b instanceof Physical pb) {
-                        // Non applicare la fisica d'urto se uno dei due è un proiettile
-                        if (!(pa instanceof ProjectileModel || pb instanceof ProjectileModel)) {
-                            CollisionPhysics.resolveElasticCollision(pa, pb);
-                        }
-                    }
-                    // 2. Notifica le entità per la logica di gioco (stun, danno, ecc.)
-                    a.onCollision(b);
-                    b.onCollision(a);
+                if (!a.collidesWith(b)) continue;
+
+                // Physics impulse only between two Physical non-projectile bodies.
+                // Projectiles use LAYER_PROJECTILE which has no mask overlap with each other,
+                // so they never reach here against other projectiles.
+                // We still skip impulse if either is Expirable (projectile-like) to avoid
+                // sending bullets flying off at physics speeds.
+                boolean aExpirable = a instanceof Expirable;
+                boolean bExpirable = b instanceof Expirable;
+                if (!aExpirable && !bExpirable
+                        && a instanceof Physical pa && b instanceof Physical pb) {
+                    CollisionPhysics.resolveElasticCollision(pa, pb);
                 }
+
+                a.onCollision(b);
+                b.onCollision(a);
             }
         }
     }
@@ -188,37 +160,30 @@ public class GameModel {
         aiEntities.add(controller);
     }
 
-    /** Aggiunge un'entità generica al mondo e la registra nelle collezioni appropriate. */
     @SuppressWarnings("unchecked")
     public void addEntity(EntityModel entity) {
         allEntities.add(entity);
-        
-        if (entity instanceof AI ai)          aiEntities.add(ai);
-        if (entity instanceof Gravitational g) gravitationalBodies.add(g);
-        if (entity instanceof Physical p)      physicalBodies.add(p);
-        if (entity instanceof Updatable u)     updatableEntities.add(u);
-        if (entity instanceof Collidable c)    collidableEntities.add(c);
-        if (entity instanceof ProjectileModel p) projectiles.add(p);
 
-        // Register renderer — no instanceof needed at draw time
-        if (entity instanceof PlayerModel)      renderers.put(entity, PLAYER_VIEW);
-        else if (entity instanceof IscatBomberModel) renderers.put(entity, BOMBER_VIEW);
-        else if (entity instanceof ProjectileModel)  renderers.put(entity, PROJECTILE_VIEW);
-        // Entities with no renderer (e.g. BlackHole) are simply not drawn
+        if (entity instanceof AI ai)           aiEntities.add(ai);
+        if (entity instanceof Gravitational g)  gravitationalBodies.add(g);
+        if (entity instanceof Physical p)       physicalBodies.add(p);
+        if (entity instanceof Updatable u)      updatableEntities.add(u);
+        if (entity instanceof Collidable c)     collidableEntities.add(c);
+        if (entity instanceof HasRenderer hr)   renderers.put(entity, hr.getRenderer());
+        if (entity instanceof Spawnable s)      s.onSpawn();
     }
 
-    /** Rimuove un'entità dal mondo e da tutte le collezioni. */
     public void removeEntity(EntityModel entity) {
         allEntities.remove(entity);
         renderers.remove(entity);
 
-        if (entity instanceof NpcModel e)      enemies.remove(e);
-        if (entity instanceof AI ai)           aiEntities.remove(ai);
-        if (entity instanceof Gravitational g) gravitationalBodies.remove(g);
-        if (entity instanceof Physical p)      physicalBodies.remove(p);
-        if (entity instanceof Updatable u)     updatableEntities.remove(u);
-        if (entity instanceof Collidable c)    collidableEntities.remove(c);
-        if (entity instanceof ProjectileModel p) projectiles.remove(p);
+        if (entity instanceof NpcModel e)       enemies.remove(e);
+        if (entity instanceof AI ai)            aiEntities.remove(ai);
+        if (entity instanceof Gravitational g)  gravitationalBodies.remove(g);
+        if (entity instanceof Physical p)       physicalBodies.remove(p);
+        if (entity instanceof Updatable u)      updatableEntities.remove(u);
+        if (entity instanceof Collidable c)     collidableEntities.remove(c);
+        if (entity instanceof Spawnable s)      s.onDespawn();
     }
 
     // --- accessori ---
@@ -226,6 +191,11 @@ public class GameModel {
     public PlayerModel         getPlayer()     { return player; }
     public List<NpcModel>      getEnemies()    { return Collections.unmodifiableList(enemies); }
     public List<EntityModel>   getEntities()   { return Collections.unmodifiableList(allEntities); }
+
+    /** Spawns a projectile into the world. Called by PlayerShootingController. */
+    public void spawnProjectile(Vec2 pos, Vec2 vel) {
+        addEntity(new ProjectileModel(pos, vel));
+    }
 
     /**
      * Returns the ordered entity→renderer map for the draw pass.

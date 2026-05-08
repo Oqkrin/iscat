@@ -1,170 +1,136 @@
 package uni.gaben.iscat.game.components.entities.player;
 
-import uni.gaben.iscat.game.utils.interfaces.Collidable;
-import uni.gaben.iscat.game.utils.physics.Vec2;
 import uni.gaben.iscat.game.components.entities.LivingEntityModel;
+import uni.gaben.iscat.game.utils.interfaces.Collidable;
+import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.HasRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Spawnable;
+import uni.gaben.iscat.game.utils.physics.Vec2;
 import uni.gaben.iscat.utils.Cooldown;
 
-import java.util.Random;
-import java.util.function.BiConsumer;
-
 /**
- * Nave del giocatore.
- * La spinta viene applicata dal controller ogni tick via {@link #applyForce}.
- * Lo scatto applica un impulso istantaneo e per {@code DURATA_SCATTO_TICK} tick
- * usa attrito ridotto e cap velocità più alto — così la distanza percorsa è reale.
+ * PlayerModel — pure state.
+ *
+ * Owns: physics config, health, cooldown timers, dash phase state.
+ * Does NOT own: input flags, callbacks, audio, projectile spawning,
+ *               or any "when to act" decision logic → see player/controller/.
+ *
+ * Controllers interact via:
+ *   - isScattoDisponibile() / isInScatto()  — query state
+ *   - executeScatto(directionAngle)          — apply dash impulse + start timers
+ *   - isSparo Disponibile()                  — query state
+ *   - getSpawnData(directionAngle)           — returns projectile spawn data (no side effects)
+ *   - startCooldownFuoco()                   — start fire cooldown after shot
  */
-public class PlayerModel extends LivingEntityModel implements Collidable {
+public class PlayerModel extends LivingEntityModel implements Collidable, HasRenderer, Spawnable {
 
-    /** Cooldown per lo scatto. */
+    private static final PlayerView VIEW = new PlayerView();
+
     private final Cooldown cooldownScatto = new Cooldown();
-    /** Cooldown per lo sparo. */
-    private final Cooldown cooldownFuoco = new Cooldown();
-
-    private boolean fuocoRichiesto = false;
-    // Callback per far sapere al mondo che abbiamo sparato
-    // Il primo parametro è la posizione, il secondo è la direzione/velocità
-    private BiConsumer<Vec2, Vec2> onSparo;
-
-    /** Timer per la fase scatto attiva (drag ridotto). */
-    private final Cooldown faseScatto = new Cooldown();
-
-    /** true se lo scatto è stato richiesto questo tick. */
-    private boolean scattoRichiesto = false;
-    private Runnable onSparoSound;
-
-    private Random rand = new Random();
+    private final Cooldown cooldownFuoco  = new Cooldown();
+    private final Cooldown faseScatto     = new Cooldown();
 
     public PlayerModel(double startX, double startY) {
-        this.x     = startX;
-        this.y     = startY;
-        this.hp    = PlayerSettings.HP_INIZIALE;
-        this.maxHp = PlayerSettings.HP_MASSIMO;
-        this.mass  = PlayerSettings.MASSA;
-        this.name  = "Player";
+        this.x         = startX;
+        this.y         = startY;
+        this.hp        = PlayerSettings.HP_INIZIALE;
+        this.maxHp     = PlayerSettings.HP_MASSIMO;
+        this.mass      = PlayerSettings.MASSA;
+        this.name      = "Player";
         this.spriteSize = PlayerSettings.DIMENSIONE_SPRITE;
-        this.drag     = PlayerSettings.ATTRITO;
-        this.maxSpeed = PlayerSettings.VELOCITA_MAX;
-        this.deadZone = PlayerSettings.ZONA_MORTA;
+        this.drag      = PlayerSettings.ATTRITO;
+        this.maxSpeed  = PlayerSettings.VELOCITA_MAX;
+        this.deadZone  = PlayerSettings.ZONA_MORTA;
     }
 
-    // --- fisica ---
+    // -------------------------------------------------------------------------
+    // Physics — drag/maxSpeed vary during dash phase
+    // -------------------------------------------------------------------------
 
     @Override
     public void integrate(double dt) {
-        // Modifica parametri fisici durante lo scatto
-        boolean inScatto = faseScatto.isActive();
-        
-        if (inScatto) {
-            this.drag = PlayerSettings.ATTRITO_SCATTO;
+        if (faseScatto.isActive()) {
+            this.drag     = PlayerSettings.ATTRITO_SCATTO;
             this.maxSpeed = PlayerSettings.VELOCITA_MAX_SCATTO;
         } else {
-            this.drag = PlayerSettings.ATTRITO;
+            this.drag     = PlayerSettings.ATTRITO;
             this.maxSpeed = PlayerSettings.VELOCITA_MAX;
         }
-        
-        // Usa l'integrazione base di PhysicalEntityModel (con drag, cap, dead-zone)
         super.integrate(dt);
-
-        // Decrementa timer
         faseScatto.tick();
         cooldownScatto.tick();
-        cooldownFuoco.tick(); // timer attacco
+        cooldownFuoco.tick();
     }
 
-    // --- scatto ---
+    // -------------------------------------------------------------------------
+    // Dash state — queried and driven by PlayerDodgeController
+    // -------------------------------------------------------------------------
 
-    /** Segnala che il giocatore vuole scattare questo tick. */
-    public void richiestaScatto() { scattoRichiesto = true; }
+    /** {@code true} if dash is off cooldown and can be executed. */
+    public boolean isScattoDisponibile() { return cooldownScatto.isReady(); }
 
-    /** Callback opzionale chiamato quando lo scatto viene eseguito (es. per riprodurre audio). */
-    private Runnable onScatto;
-
-    /** Imposta il callback da chiamare quando lo scatto viene eseguito. */
-    public void setOnScatto(Runnable callback) { this.onScatto = callback; }
+    /** {@code true} while the active dash phase (reduced drag) is running. */
+    public boolean isInScatto() { return faseScatto.isActive(); }
 
     /**
-     * Esegue lo scatto se richiesto e il cooldown è scaduto.
-     * Chiamato dal controller dopo aver aggiornato {@link #directionAngle}.
+     * Applies the dash impulse and starts the dash phase + cooldown timers.
+     * Called by PlayerDodgeController after verifying the cooldown is ready.
+     * Pure state mutation — no callbacks, no audio.
      */
-    public void elaboraScatto() {
-        if (!scattoRichiesto) return;
-        scattoRichiesto = false;
-        if (!cooldownScatto.isReady()) return;
-
-        if (onScatto != null) onScatto.run();
-
+    public void executeScatto(double directionAngle) {
         double rad = Math.toRadians(directionAngle);
         velocity = velocity.add(
                 Math.cos(rad) * PlayerSettings.IMPULSO_SCATTO,
-                Math.sin(rad) * PlayerSettings.IMPULSO_SCATTO
-        );
-
+                Math.sin(rad) * PlayerSettings.IMPULSO_SCATTO);
         faseScatto.set(PlayerSettings.DURATA_SCATTO_TICK);
         cooldownScatto.set(PlayerSettings.COOLDOWN_SCATTO_TICK);
     }
 
-    /** {@code true} se lo scatto è disponibile. */
-    public boolean isScattoDisponibile() { return cooldownScatto.isReady(); }
+    // -------------------------------------------------------------------------
+    // Shooting state — queried and driven by PlayerShootingController
+    // -------------------------------------------------------------------------
 
-    /** {@code true} se la fase scatto è attiva (drag ridotto). */
-    public boolean isInScatto() { return faseScatto.isActive(); }
+    /** {@code true} if the fire cooldown has expired and a shot can be fired. */
+    public boolean isSparoDisponibile() { return cooldownFuoco.isReady(); }
 
-    // --- Collidable ---
-
-    @Override public double getCollisionRadius() { return PlayerSettings.RAGGIO_COLLISIONE; }
-    
-    @Override 
-    public Vec2 getColliderCenter() {
-        // Usa l'implementazione di LivingEntityModel
-        return super.getColliderCenter();
-    }
-    
-    @Override public void   onCollision(Collidable other) {
-        // La fisica della collisione è gestita dall'altra entità
-        // (per evitare di applicare la fisica due volte)
-    }
-
-    // --- logica attacco ---
-    public void setOnSparo(BiConsumer<Vec2, Vec2> callback) {
-        this.onSparo = callback;
-    }
-    public void setOnSparoSound(Runnable callback) {
-        this.onSparoSound = callback;
+    /**
+     * Returns the projectile spawn position and velocity for the current direction.
+     * Pure calculation — no side effects, no callbacks.
+     * Called by PlayerShootingController to create the projectile.
+     */
+    public Vec2[] getSpawnData(double directionAngle) {
+        double rad = Math.toRadians(directionAngle);
+        Vec2 spawnPos = new Vec2(x + spriteSize / 2.0, y + spriteSize / 2.0);
+        Vec2 bulletVel = new Vec2(
+                Math.cos(rad) * PlayerSettings.VELOCITA_PROIETTILE,
+                Math.sin(rad) * PlayerSettings.VELOCITA_PROIETTILE);
+        return new Vec2[]{ spawnPos, bulletVel };
     }
 
-    /** Segnala che il giocatore vuole sparare. */
-    public void richiestaFuoco() {
-        this.fuocoRichiesto = true;
-    }
-
-    /** Esegue l'attacco **/
-    public void elaboraFuoco() {
-        if (!fuocoRichiesto) return;
-        fuocoRichiesto = false;
-        if (!cooldownFuoco.isReady()) return;
-
-        // Esegui la LOGICA FISICA (quella del GameModel)
-        if (onSparo != null) {
-            double rad = Math.toRadians(directionAngle);
-            Vec2 spawnPos = new Vec2(x + spriteSize / 2, y + spriteSize / 2);
-            Vec2 bulletVel = new Vec2(
-                    Math.cos(rad) * PlayerSettings.VELOCITA_PROIETTILE,
-                    Math.sin(rad) * PlayerSettings.VELOCITA_PROIETTILE
-            );
-            onSparo.accept(spawnPos, bulletVel);
-        }
-
-        // Esegui la LOGICA AUDIO (quella del GameController)
-        if (onSparoSound != null) {
-            onSparoSound.run();
-        }
-
+    /** Starts the fire cooldown. Called by PlayerShootingController after spawning the projectile. */
+    public void startCooldownFuoco() {
         cooldownFuoco.set(PlayerSettings.COOLDOWN_FUOCO_TICK);
     }
 
+    // -------------------------------------------------------------------------
+    // Collidable
+    // -------------------------------------------------------------------------
 
-    // --- Alive ---
+    @Override public double getCollisionRadius() { return PlayerSettings.RAGGIO_COLLISIONE; }
+    @Override public Vec2   getColliderCenter()  { return super.getColliderCenter(); }
+    @Override public void   onCollision(Collidable other) {}
+    @Override public int    getCollisionLayer()  { return LAYER_PLAYER; }
+    @Override public int    getCollisionMask()   { return LAYER_ENEMY | LAYER_OBJECT; }
 
-    @Override public void die() { /* TODO: animazione morte */ }
+    // -------------------------------------------------------------------------
+    // HasRenderer
+    // -------------------------------------------------------------------------
+
+    @Override public EntityRenderer<PlayerModel> getRenderer() { return VIEW; }
+
+    // -------------------------------------------------------------------------
+    // Alive
+    // -------------------------------------------------------------------------
+
+    @Override public void die() { /* TODO: death animation */ }
 }

@@ -65,12 +65,17 @@ public class GameController {
 
     public void setupPlayerAudio() {
         PlayerModel p = model.getPlayer();
-        p.setOnScatto(() -> {
+        // Dash audio → PlayerDodgeController
+        dodge.setOnScatto(() -> {
             int sfx = 1 + rand.nextInt(3);
             IscatAudioManager.getInstance().playSFX("fart_alt" + sfx);
         });
-        p.setOnSparoSound(() -> IscatAudioManager.getInstance().playSFX("shoot"));
-        p.setOnHurt(()       -> IscatAudioManager.getInstance().playSFX("hurt"));
+        // Shot spawn + audio → PlayerShootingController
+        shooting.setOnSparo((pos, vel) -> model.spawnProjectile(pos, vel));
+        shooting.setOnSparoSound(() -> IscatAudioManager.getInstance().playSFX("shoot"));
+        // Hurt audio stays on the model (LivingEntityModel.onHurt is a minor violation
+        // but acceptable until LivingEntityModel is refactored)
+        p.setOnHurt(() -> IscatAudioManager.getInstance().playSFX("hurt"));
     }
 
     // -------------------------------------------------------------------------

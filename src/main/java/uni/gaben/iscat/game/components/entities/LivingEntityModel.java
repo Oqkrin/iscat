@@ -1,13 +1,15 @@
 package uni.gaben.iscat.game.components.entities;
 
 import uni.gaben.iscat.game.utils.interfaces.Alive;
+import uni.gaben.iscat.game.utils.interfaces.Mortal;
+import uni.gaben.iscat.game.utils.interfaces.Rotatable;
 import uni.gaben.iscat.game.utils.physics.Vec2;
 
 /**
  * {@link PhysicalEntityModel} con salute e direzione.
  * Le sottoclassi sovrascrivono {@link #die()} per animazioni, loot, respawn, ecc.
  */
-public abstract class LivingEntityModel extends PhysicalEntityModel implements Alive {
+public abstract class LivingEntityModel extends PhysicalEntityModel implements Alive, Rotatable, Mortal {
 
     protected int    hp             = 100;
     protected int    maxHp          = 100;
@@ -16,75 +18,48 @@ public abstract class LivingEntityModel extends PhysicalEntityModel implements A
     /** Dimensione dello sprite per calcolare il centro di collisione. Default: 64.0 */
     protected double spriteSize = 64.0;
 
+    // --- Alive ---
+
     @Override public int  getHp()       { return hp; }
     @Override public int  getMaxHp()    { return maxHp; }
     @Override public void setHp(int hp) { this.hp = Math.max(0, Math.min(maxHp, hp)); }
     @Override public void die()         { /* sovrascrivere */ }
-    private Runnable onHurt;
-
-    public double getDirectionAngle()             { return directionAngle; }
-    public void   setDirectionAngle(double angle) { this.directionAngle = angle; }
 
     public void setMaxHp(int maxHp) {
         this.maxHp = maxHp;
         this.hp    = Math.min(hp, maxHp);
     }
-    
+
+    public boolean isDead() { return hp <= 0; }
+
+    // --- Rotatable ---
+
+    @Override public double getDirectionAngle()             { return directionAngle; }
+    @Override public void   setDirectionAngle(double angle) { this.directionAngle = angle; }
+
     // --- Collision Center ---
-    
+
     /**
      * Restituisce il centro dello sprite per la collisione.
      * Default: posizione + spriteSize/2 su entrambi gli assi.
-     * Sovrascrivere se serve un calcolo diverso.
      */
     public Vec2 getColliderCenter() {
         return new Vec2(x + spriteSize / 2.0, y + spriteSize / 2.0);
     }
-    
-    public void setSpriteSize(double size) { this.spriteSize = size; }
-    public double getSpriteSize() { return spriteSize; }
-    
-    // --- Direction Smoothing ---
-    
-    /**
-     * Aggiorna la direzione in modo smooth verso il target.
-     * @param dx differenza x verso il target
-     * @param dy differenza y verso il target
-     * @param smoothing fattore di interpolazione (0-1). Valori più bassi = rotazione più lenta.
-     */
-    public void updateDirectionSmooth(double dx, double dy, double smoothing) {
-        double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
-        
-        // Calcola la differenza angolare
-        double angleDiff = targetAngle - directionAngle;
-        
-        // Normalizza la differenza tra -180 e 180
-        while (angleDiff > 180) angleDiff -= 360;
-        while (angleDiff < -180) angleDiff += 360;
-        
-        // Applica interpolazione
-        directionAngle += angleDiff * smoothing;
-    }
 
-    public void setOnHurt(Runnable callback) {
-        this.onHurt = callback;
-    }
+    public void   setSpriteSize(double size) { this.spriteSize = size; }
+    public double getSpriteSize()            { return spriteSize; }
 
+    // --- Damage ---
+
+    private Runnable onHurt;
+
+    public void setOnHurt(Runnable callback) { this.onHurt = callback; }
+
+    @Override
     public void takeDamage(double amount) {
-        this.hp -= amount;
-
-        // Se abbiamo un callback registrato e siamo ancora vivi (o appena colpiti), lo eseguiamo
-        if (onHurt != null && hp >= 0) {
-            onHurt.run();
-        }
-
-        if (this.hp <= 0) {
-            this.hp = 0;
-            die();
-        }
-    }
-
-    public boolean isDead() {
-        return hp <= 0;
+        this.hp -= (int) amount;
+        if (onHurt != null && hp >= 0) onHurt.run();
+        if (this.hp <= 0) { this.hp = 0; die(); }
     }
 }

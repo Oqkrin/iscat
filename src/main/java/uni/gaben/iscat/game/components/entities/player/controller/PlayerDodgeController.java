@@ -12,18 +12,22 @@ import uni.gaben.iscat.game.components.space.SpaceModel;
  */
 public class PlayerDodgeController {
 
-    private boolean scattoAppenaEseguito = false;
+    private Runnable onScatto;
+
+    /** Registra il callback audio/effetti da eseguire quando lo scatto viene eseguito. */
+    public void setOnScatto(Runnable callback) { this.onScatto = callback; }
 
     /**
      * Processa lo scatto per questo tick.
      * @return true se lo scatto è appena stato eseguito (per l'impulso stelle)
      */
     public boolean process(InputHandler input, PlayerModel p) {
-        boolean eraDisponibile = p.isScattoDisponibile();
-        if (input.consumeDodge()) p.richiestaScatto();
-        p.elaboraScatto();
-        scattoAppenaEseguito = eraDisponibile && !p.isScattoDisponibile();
-        return scattoAppenaEseguito;
+        if (input.consumeDodge() && p.isScattoDisponibile()) {
+            p.executeScatto(p.getDirectionAngle());
+            if (onScatto != null) onScatto.run();
+            return true;
+        }
+        return false;
     }
 
     /** Applica l'impulso visivo alle stelle dopo uno scatto. */
