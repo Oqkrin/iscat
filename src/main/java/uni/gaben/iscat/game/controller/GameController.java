@@ -86,6 +86,12 @@ public class GameController {
         // Logica del gioco non in pausa
         Player p = model.getPlayer();
 
+        // 1. Gestione Input Sparo
+        if (input.shooting) {
+            p.richiestaFuoco(); // Questo metodo l'abbiamo aggiunto al Player prima
+        }
+        p.elaboraFuoco(); // Esegue effettivamente lo sparo se il cooldown è OK
+
         applicaSpinta(p);
         applicaScatto(p);
 

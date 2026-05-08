@@ -83,5 +83,10 @@ public final class PlayerSettings {
      * Dimensione sprite (px)
      */
     public static final double DIMENSIONE_SPRITE = 64.0;
+
+    // === Attacco ===
+    public static final int COOLDOWN_FUOCO_TICK = 10; // Un colpo ogni 10 frame (6 al secondo a 60fps)
+    public static final double VELOCITA_PROIETTILE = 15.0;
+    public static final double DANNO_PROIETTILE = 10.0;
 }
 

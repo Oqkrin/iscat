@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import uni.gaben.iscat.game.model.entities.Projectile;
 import uni.gaben.iscat.game.model.entities.enemies.IscatBomber;
 import uni.gaben.iscat.game.model.settings.VisualSettings;
 import uni.gaben.iscat.game.model.space.Space;
@@ -52,6 +53,7 @@ public class GameCanvas extends Canvas {
         gc.setImageSmoothing(false);
 
         disegnaStelle(gc);
+        disegnaProiettili(gc);
         disegnaEnemies(gc);
         disegnaGiocatore(gc);
 
@@ -65,6 +67,24 @@ public class GameCanvas extends Canvas {
         for (Star star : space.stars) {
             double size = star.getSize();
             gc.fillRect(star.getX(), star.getY(), size, size);
+        }
+    }
+
+    private void disegnaProiettili(GraphicsContext gc) {
+        gc.setFill(Color.WHITE);
+
+        // Supponiamo che tu abbia aggiunto getProjectiles() nel GameModel
+        for (Projectile p : model.getProjectiles()) {
+            // Definiamo il raggio qui visto che spriteSize non esiste
+            double raggio = 3.0;
+
+            // Disegniamo la pallina centrata sulla posizione del proiettile
+            gc.fillOval(p.getX() - raggio, p.getY() - raggio, raggio * 2, raggio * 2);
+
+            // Un tocco di classe: un piccolo bagliore intorno
+            gc.setGlobalAlpha(0.4);
+            gc.fillOval(p.getX() - raggio * 1.5, p.getY() - raggio * 1.5, raggio * 3, raggio * 3);
+            gc.setGlobalAlpha(1.0);
         }
     }
 

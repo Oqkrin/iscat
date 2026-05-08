@@ -64,4 +64,8 @@ public abstract class LivingEntity extends PhysicalEntity implements Alive {
         // Applica interpolazione
         directionAngle += angleDiff * smoothing;
     }
+
+    public boolean isDead() {
+        return hp <= 0;
+    }
 }

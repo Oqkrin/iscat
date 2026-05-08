@@ -16,6 +16,7 @@ public class InputHandler {
     public boolean dodge;
 
     public boolean pausePressed;
+    public boolean shooting;
 
     public double mouseX;
     public double mouseY;
@@ -62,6 +63,13 @@ public class InputHandler {
         canvas.setOnMouseDragged(e -> {
             mouseX = e.getX();
             mouseY = e.getY();
+        });
+        // shooting
+        canvas.setOnMousePressed(e -> {
+            if (e.isPrimaryButtonDown()) shooting = true;
+        });
+        canvas.setOnMouseReleased(e -> {
+            if (!e.isPrimaryButtonDown()) shooting = false;
         });
     }
 

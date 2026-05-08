@@ -1,5 +1,6 @@
 package uni.gaben.iscat.game.model.entities;
 
+import uni.gaben.iscat.game.model.entities.Projectile;
 import uni.gaben.iscat.game.model.interfaces.Collidable;
 import uni.gaben.iscat.game.model.physics.Vec2;
 import uni.gaben.iscat.game.model.GameSettings;
@@ -7,6 +8,7 @@ import uni.gaben.iscat.game.model.settings.PlayerSettings;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Random;
+import java.util.function.BiConsumer;
 
 /**
  * Nave del giocatore.
@@ -18,6 +20,13 @@ public class Player extends LivingEntity implements Collidable {
 
     /** Cooldown per lo scatto. */
     private final Cooldown cooldownScatto = new Cooldown();
+    /** Cooldown per lo sparo. */
+    private final Cooldown cooldownFuoco = new Cooldown();
+
+    private boolean fuocoRichiesto = false;
+    // Callback per far sapere al mondo che abbiamo sparato
+    // Il primo parametro è la posizione, il secondo è la direzione/velocità
+    private BiConsumer<Vec2, Vec2> onSparo;
 
     /** Timer per la fase scatto attiva (drag ridotto). */
     private final Cooldown faseScatto = new Cooldown();
@@ -60,6 +69,7 @@ public class Player extends LivingEntity implements Collidable {
         // Decrementa timer
         faseScatto.tick();
         cooldownScatto.tick();
+        cooldownFuoco.tick(); // timer attacco
     }
 
     // --- scatto ---
@@ -114,6 +124,43 @@ public class Player extends LivingEntity implements Collidable {
         // La fisica della collisione è gestita dall'altra entità
         // (per evitare di applicare la fisica due volte)
     }
+
+    // --- logica attacco ---
+    public void setOnSparo(BiConsumer<Vec2, Vec2> callback) {
+        this.onSparo = callback;
+    }
+
+    /** Segnala che il giocatore vuole sparare. */
+    public void richiestaFuoco() {
+        this.fuocoRichiesto = true;
+    }
+
+    /** Esegue l'attacco **/
+    public void elaboraFuoco() {
+        if (!fuocoRichiesto) return;
+        fuocoRichiesto = false; // Reset richiesta
+
+        if (!cooldownFuoco.isReady()) return;
+
+        if (onSparo != null) {
+            double rad = Math.toRadians(directionAngle);
+
+            // Punto di origine del proiettile (il centro della nave)
+            Vec2 spawnPos = new Vec2(x + spriteSize/2, y + spriteSize/2);
+
+            // Direzione del proiettile basata sulla rotazione della nave
+            Vec2 bulletVel = new Vec2(
+                    Math.cos(rad) * PlayerSettings.VELOCITA_PROIETTILE,
+                    Math.sin(rad) * PlayerSettings.VELOCITA_PROIETTILE
+            );
+
+            // "Lancia" il proiettile tramite il callback
+            onSparo.accept(spawnPos, bulletVel);
+        }
+
+        cooldownFuoco.set(PlayerSettings.COOLDOWN_FUOCO_TICK);
+    }
+
 
     // --- Alive ---
 

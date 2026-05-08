@@ -34,10 +34,17 @@ public class GameModel {
     private final List<Physical> physicalBodies = new ArrayList<>();
     private final List<Updatable> updatableEntities = new ArrayList<>();
     private final List<Collidable> collidableEntities = new ArrayList<>();
+    private final List<Projectile> projectiles = new ArrayList<>();
 
     public GameModel() {
         player = new Player(100, 100);
         addEntity(player);
+
+        // colleghiamo lo sparo al player
+        player.setOnSparo((pos, vel) -> {
+            Projectile p = new Projectile(pos, vel);
+            addEntity(p); // addEntity si occuperà di smistarlo in tutte le liste
+        });
         
         // TODO: rimuovere dopo test - spawn IscatBomber di test
         spawnTestEnemies();
@@ -56,6 +63,31 @@ public class GameModel {
         applyGravity();
         updateAll(dt);
         resolveCollisions();
+        cleanupDeadEntities();
+    }
+
+    // -- Dead entities ---
+    private void cleanupDeadEntities() {
+        // Raccogliamo chi deve essere rimosso
+        List<Entity> toRemove = new ArrayList<>();
+
+        for (Entity e : allEntities) {
+            // Rimuovi nemici/player se morti
+            if (e instanceof LivingEntity le && le.isDead()) {
+                toRemove.add(e);
+            }
+            // Rimuovi proiettili se scaduti
+            if (e instanceof Projectile p && p.isExpired()) {
+                toRemove.add(e);
+            }
+        }
+
+        // Rimuoviamo effettivamente
+        toRemove.forEach(this::removeEntity);
+    }
+
+    public List<Projectile> getProjectiles() {
+        return Collections.unmodifiableList(projectiles);
     }
     
     // --- AI ---
@@ -98,7 +130,10 @@ public class GameModel {
                 if (a.collidesWith(b)) {
                     // 1. Risolvi la fisica (impulso + separazione) se entrambi sono Physical
                     if (a instanceof Physical pa && b instanceof Physical pb) {
-                        CollisionPhysics.resolveElasticCollision(pa, pb);
+                        // Non applicare la fisica d'urto se uno dei due è un proiettile
+                        if (!(pa instanceof Projectile || pb instanceof Projectile)) {
+                            CollisionPhysics.resolveElasticCollision(pa, pb);
+                        }
                     }
                     // 2. Notifica le entità per la logica di gioco (stun, danno, ecc.)
                     a.onCollision(b);
@@ -136,6 +171,9 @@ public class GameModel {
         if (entity instanceof Collidable c) {
             collidableEntities.add(c);
         }
+        if (entity instanceof Projectile p) {
+            projectiles.add(p);
+        }
     }
 
     /** Rimuove un'entità dal mondo e da tutte le collezioni. */
@@ -160,6 +198,9 @@ public class GameModel {
         }
         if (entity instanceof Collidable c) {
             collidableEntities.remove(c);
+        }
+        if (entity instanceof Projectile p) {
+            projectiles.remove(p);
         }
     }
 
