@@ -4,6 +4,8 @@ import uni.gaben.iscat.game.components.entities.EntityModel;
 import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberController;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
+import uni.gaben.iscat.game.components.entities.npcs.iscat_mother.IscatMotherController;
+import uni.gaben.iscat.game.components.entities.npcs.iscat_mother.IscatMotherModel;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
 import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileModel;
 import uni.gaben.iscat.game.utils.interfaces.*;
@@ -61,7 +63,10 @@ public class GameModel {
     private void spawnTestEnemies() {
         IscatBomberModel bomberModel = new IscatBomberModel(300, 100);
         IscatBomberController bomberController = new IscatBomberController(bomberModel);
+        IscatMotherModel iscatMother = new IscatMotherModel(300, 100);
+        IscatMotherController motherController = new IscatMotherController(iscatMother);
         addEnemy(bomberModel, bomberController);
+        addEnemy(iscatMother, motherController);
     }
 
     /** Avanza il mondo di un tick. */
