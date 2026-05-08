@@ -7,10 +7,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import uni.gaben.iscat.game.controller.GameController;
-import uni.gaben.iscat.game.model.GameModel;
-import uni.gaben.iscat.game.view.GameCanvas;
-import uni.gaben.iscat.game.view.GameScene;
+import uni.gaben.iscat.game.GameController;
+import uni.gaben.iscat.game.GameModel;
+import uni.gaben.iscat.game.GameCanvas;
+import uni.gaben.iscat.game.GameScene;
 import uni.gaben.iscat.login.controller.LoginController;
 import uni.gaben.iscat.login.model.LoginData;
 import uni.gaben.iscat.login.model.LoginModel;
@@ -47,14 +47,13 @@ public class IscatApplication extends Application {
         MenuController menuController = new MenuController();
 
         GameModel gameModel = new GameModel();
-        GameCanvas gameCanvas = new GameCanvas(gameModel);
-        GameController gameController = new GameController(gameModel, gameCanvas);
+        GameController gameController = new GameController(gameModel);
 
         // Costruisce la mappa delle scene
         EnumMap<IscatScenes, Scene> scenes = new EnumMap<>(IscatScenes.class);
         scenes.put(IscatScenes.LOGIN, new LoginScene(loginModel, loginController));
         scenes.put(IscatScenes.MENU, new MenuScene(menuController));
-        scenes.put(IscatScenes.GAME, new GameScene(gameController, gameCanvas));
+        scenes.put(IscatScenes.GAME, new GameScene(gameController, gameModel));
 
         // Applica il color theme globalmente a tutte le scene
         // I looked-up colors definiti su .root sono disponibili a tutti i discendenti

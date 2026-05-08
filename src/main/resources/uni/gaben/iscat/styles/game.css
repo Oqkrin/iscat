@@ -7,8 +7,8 @@
  * Loaded once by GameScene; all child nodes inherit the colors.
  */
 
-@import url('../iscat-color-theme.css');
-@import url('../iscat-typography.css');
+@import url('iscat-color-theme.css');
+@import url('iscat-typography.css');
 
 /* ============================================
    PAUSE MENU

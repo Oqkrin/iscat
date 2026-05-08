@@ -17,10 +17,19 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.login.view;
     exports uni.gaben.iscat.menu.controller;
     exports uni.gaben.iscat.menu.view;
-    exports uni.gaben.iscat.game.controller;
-    exports uni.gaben.iscat.game.model;
-    exports uni.gaben.iscat.game.model.entities;
-    exports uni.gaben.iscat.game.model.interfaces;
-    exports uni.gaben.iscat.game.model.physics;
-    exports uni.gaben.iscat.game.view;
+    exports uni.gaben.iscat.game;
+    exports uni.gaben.iscat.game.entities;
+    exports uni.gaben.iscat.game.enemies;
+    exports uni.gaben.iscat.game.enemies.iscat_bomber;
+    exports uni.gaben.iscat.game.enemies.fake_iscat;
+    exports uni.gaben.iscat.game.enemies.fallen_star_golem;
+    exports uni.gaben.iscat.game.hud;
+    exports uni.gaben.iscat.game.input;
+    exports uni.gaben.iscat.game.interfaces;
+    exports uni.gaben.iscat.game.physics;
+    exports uni.gaben.iscat.game.player;
+    exports uni.gaben.iscat.game.player.controller;
+    exports uni.gaben.iscat.game.projectile;
+    exports uni.gaben.iscat.game.settings;
+    exports uni.gaben.iscat.game.space;
 }
