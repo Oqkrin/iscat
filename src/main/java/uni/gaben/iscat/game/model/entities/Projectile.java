@@ -44,9 +44,11 @@ public class Projectile extends PhysicalEntity implements Collidable {
         if (other instanceof Projectile) return;
 
         if (!colpito) {
-            System.out.println("HO COLPITO QUALCOSA: " + other.getClass().getSimpleName());
+            if (other instanceof LivingEntity target) {
+                target.takeDamage(10); // Se colpisci un Bomber, lui subirà danno
+                System.out.println("HO COLPITO QUALCOSA: " + other.getClass().getSimpleName());
+            }
             colpito = true;
-
             // Facciamo sparire il proiettile al prossimo cleanup
             this.ticksLeft = 0;
         }

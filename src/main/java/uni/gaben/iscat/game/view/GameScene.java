@@ -73,6 +73,8 @@ public class GameScene extends IscatSceneAbstract {
         am.loadSFX("fart_alt1", "/uni/gaben/iscat/audio/SFX/fart3.wav");
         am.loadSFX("fart_alt2", "/uni/gaben/iscat/audio/SFX/fart8.wav");
         am.loadSFX("fart_alt3", "/uni/gaben/iscat/audio/SFX/fart7.wav");
+        am.loadSFX("shoot","/uni/gaben/iscat/audio/SFX/laser_shooting_sfx.wav");
+        am.loadSFX("hurt","/uni/gaben/iscat/audio/SFX/hurt.wav");
         controller.setupPlayerAudio();
         controller.startLoop();
     }

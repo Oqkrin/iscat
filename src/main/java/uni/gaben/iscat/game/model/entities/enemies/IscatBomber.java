@@ -134,7 +134,8 @@ public class IscatBomber extends Enemy implements Collidable, AI {
     // --- Alive ---
 
     @Override 
-    public void die() { 
+    public void die() {
+        System.out.println("CHE TU SIA DANNATO!!!!! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         /* TODO: animazione morte, esplosione, loot */ 
     }
     

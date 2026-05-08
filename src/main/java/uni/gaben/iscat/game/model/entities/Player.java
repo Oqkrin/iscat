@@ -33,6 +33,8 @@ public class Player extends LivingEntity implements Collidable {
 
     /** true se lo scatto è stato richiesto questo tick. */
     private boolean scattoRichiesto = false;
+    private Runnable onSparoSound;
+
     private Random rand = new Random();
 
     public Player(double startX, double startY) {
@@ -129,6 +131,9 @@ public class Player extends LivingEntity implements Collidable {
     public void setOnSparo(BiConsumer<Vec2, Vec2> callback) {
         this.onSparo = callback;
     }
+    public void setOnSparoSound(Runnable callback) {
+        this.onSparoSound = callback;
+    }
 
     /** Segnala che il giocatore vuole sparare. */
     public void richiestaFuoco() {
@@ -138,24 +143,23 @@ public class Player extends LivingEntity implements Collidable {
     /** Esegue l'attacco **/
     public void elaboraFuoco() {
         if (!fuocoRichiesto) return;
-        fuocoRichiesto = false; // Reset richiesta
-
+        fuocoRichiesto = false;
         if (!cooldownFuoco.isReady()) return;
 
+        // Esegui la LOGICA FISICA (quella del GameModel)
         if (onSparo != null) {
             double rad = Math.toRadians(directionAngle);
-
-            // Punto di origine del proiettile (il centro della nave)
-            Vec2 spawnPos = new Vec2(x + spriteSize/2, y + spriteSize/2);
-
-            // Direzione del proiettile basata sulla rotazione della nave
+            Vec2 spawnPos = new Vec2(x + spriteSize / 2, y + spriteSize / 2);
             Vec2 bulletVel = new Vec2(
                     Math.cos(rad) * PlayerSettings.VELOCITA_PROIETTILE,
                     Math.sin(rad) * PlayerSettings.VELOCITA_PROIETTILE
             );
-
-            // "Lancia" il proiettile tramite il callback
             onSparo.accept(spawnPos, bulletVel);
+        }
+
+        // Esegui la LOGICA AUDIO (quella del GameController)
+        if (onSparoSound != null) {
+            onSparoSound.run();
         }
 
         cooldownFuoco.set(PlayerSettings.COOLDOWN_FUOCO_TICK);

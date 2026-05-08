@@ -68,6 +68,13 @@ public class GameController {
             int sfx = 1 + rand.nextInt(3);
             IscatAudioManager.getInstance().playSFX("fart_alt" + sfx);
         });
+        model.getPlayer().setOnSparoSound(() -> {
+            IscatAudioManager.getInstance().playSFX("shoot");
+        });
+        model.getPlayer().setOnHurt(() -> {
+            IscatAudioManager.getInstance().playSFX("hurt");
+        });
+
     }
 
     /** Un tick: input → fisica → stelle. */

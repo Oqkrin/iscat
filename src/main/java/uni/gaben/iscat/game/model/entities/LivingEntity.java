@@ -20,6 +20,7 @@ public abstract class LivingEntity extends PhysicalEntity implements Alive {
     @Override public int  getMaxHp()    { return maxHp; }
     @Override public void setHp(int hp) { this.hp = Math.max(0, Math.min(maxHp, hp)); }
     @Override public void die()         { /* sovrascrivere */ }
+    private Runnable onHurt;
 
     public double getDirectionAngle()             { return directionAngle; }
     public void   setDirectionAngle(double angle) { this.directionAngle = angle; }
@@ -63,6 +64,24 @@ public abstract class LivingEntity extends PhysicalEntity implements Alive {
         
         // Applica interpolazione
         directionAngle += angleDiff * smoothing;
+    }
+
+    public void setOnHurt(Runnable callback) {
+        this.onHurt = callback;
+    }
+
+    public void takeDamage(double amount) {
+        this.hp -= amount;
+
+        // Se abbiamo un callback registrato e siamo ancora vivi (o appena colpiti), lo eseguiamo
+        if (onHurt != null && hp >= 0) {
+            onHurt.run();
+        }
+
+        if (this.hp <= 0) {
+            this.hp = 0;
+            die();
+        }
     }
 
     public boolean isDead() {
