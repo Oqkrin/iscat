@@ -53,10 +53,10 @@ public class LoginScene extends IscatSceneAbstract {
     private boolean isErrorFlashing = false;
 
     public LoginScene(LoginModel loginModel, LoginController loginController) {
-        super(new StackPane(), 800, 600);
+        super(new StackPane());
         this.model = loginModel;
         this.controller = loginController;
-        this.root = (StackPane) getRoot();
+        this.root = getContentRoot();
         
         initialize();
     }

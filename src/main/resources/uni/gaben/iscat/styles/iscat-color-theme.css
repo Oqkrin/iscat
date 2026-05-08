@@ -14,43 +14,140 @@
     /* ============================================
        BACKGROUND COLORS (4 shades)
        ============================================ */
-    -bg-primary:   #010203;   /* Main background - almost black */
-    -bg-secondary: #111111;   /* Secondary background */
-    -bg-tertiary:  #222222;   /* Tertiary background */
-    -bg-elevated:  #333333;   /* Elevated surfaces (buttons, cards) */
+    -bg-primary:   #010203;
+    -bg-secondary: #111111;
+    -bg-tertiary:  #222222;
+    -bg-elevated:  #333333;
 
     /* ============================================
        TEXT COLORS (4 shades)
        ============================================ */
-    -text-primary:   #ffffff;  /* White - primary text */
-    -text-secondary: #dcdcdc;  /* Light gray - secondary text */
-    -text-tertiary:  #888888;  /* Medium gray - labels, hints */
-    -text-disabled:  #444444;  /* Dark gray - disabled state */
+    -text-primary:   #ffffff;
+    -text-secondary: #dcdcdc;
+    -text-tertiary:  #888888;
+    -text-disabled:  #444444;
 
     /* ============================================
        ACCENT COLORS (3 colors)
        ============================================ */
-    -accent-primary:   #cbcbcb;  /* Gold/Yellow - main accent (button text) */
-    -accent-secondary: #a9a9a9;  /* Orange-yellow - hover states */
-    -accent-tertiary:  #333333;  /* Deep orange - pressed states */
+    -accent-primary:   #cbcbcb;
+    -accent-secondary: #a9a9a9;
+    -accent-tertiary:  #333333;
 
     /* ============================================
        SEMANTIC COLORS (4 colors)
        ============================================ */
-    -color-success: #32cd32;  /* Lime green - success, user exists */
-    -color-warning: #ffd700;  /* Gold      - warning, user missing */
-    -color-error:   #ff6347;  /* Tomato    - error, danger */
-    -color-info:    #00bfff;  /* Deep sky  - info */
+    -color-success: #32cd32;
+    -color-warning: #ffd700;
+    -color-error:   #ff6347;
+    -color-info:    #00bfff;
 
     /* ============================================
-       SPECIAL (1 color)
+       SPECIAL
        ============================================ */
     -color-transparent: rgba(0, 0, 0, 0);
 
     /* ============================================
        ROOT DEFAULTS
+       Scene fill is set in Java (IscatSceneAbstract).
+       This node background must be transparent so
+       window-chrome is the only painted background.
        ============================================ */
-    -fx-background-color: -bg-primary;
+    -fx-background-color: transparent;
     -fx-font-family: "Miracode", "Courier New", monospace;
     -fx-font-size: 14px;
+}
+
+.window-chrome {
+    -fx-background-color: -bg-primary;
+    -fx-background-radius: 16px;
+    -fx-min-height: 34px; /* never smaller than the title bar */
+}
+
+/* Bottom corners of content match chrome radius */
+.window-content {
+    -fx-background-color: -bg-primary;
+    -fx-background-radius: 0 0 16px 16px;
+}
+
+/* Decorative border overlay — transparent fill, rounded border only.
+   Sits on top of all content, mouseTransparent so it never blocks interaction. */
+.window-border-overlay {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(203, 203, 203, 0.25);
+    -fx-border-width: 1px;
+    -fx-border-radius: 16px;
+    -fx-border-insets: 0;
+}
+
+.title-bar {
+    -fx-background-color: rgba(1, 2, 3, 0.96);
+    -fx-background-radius: 16px 16px 0 0;
+    -fx-border-color: transparent transparent -text-disabled transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+}
+
+.title-bar-fullscreen {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 12, 0.5, 0, 4);
+}
+
+.title-bar-title {
+    -fx-text-fill: -accent-primary;
+    -fx-font-family: "Miracode", "Courier New", monospace;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.title-bar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 13px;
+    -fx-padding: 2px 9px;
+    -fx-cursor: hand;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-focus-traversable: false;
+}
+
+.title-bar-btn:hover {
+    -fx-text-fill: -text-primary;
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Close — red on hover */
+.title-bar-btn-close:hover {
+    -fx-text-fill: -color-error;
+    -fx-background-color: rgba(255, 99, 71, 0.15);
+}
+
+/* Minimize — accent on hover */
+.title-bar-btn-minimize:hover {
+    -fx-text-fill: -accent-primary;
+    -fx-background-color: rgba(203, 203, 203, 0.1);
+}
+
+/* Maximize */
+.title-bar-btn-maximize:hover {
+    -fx-text-fill: -color-success;
+    -fx-background-color: rgba(50, 205, 50, 0.1);
+}
+
+/* Fullscreen */
+.title-bar-btn-fullscreen:hover {
+    -fx-text-fill: -color-info;
+    -fx-background-color: rgba(0, 191, 255, 0.1);
+}
+
+/* Pin — normal */
+.title-bar-btn-pin:hover {
+    -fx-text-fill: -color-warning;
+    -fx-background-color: rgba(255, 215, 0, 0.1);
+}
+
+/* Pin — active (always on top enabled) */
+.title-bar-btn-pin-active {
+    -fx-text-fill: -color-warning;
+    -fx-effect: dropshadow(gaussian, #ffd700, 6, 0.6, 0, 0);
 }

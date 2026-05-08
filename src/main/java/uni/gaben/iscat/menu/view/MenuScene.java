@@ -5,7 +5,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatSceneAbstract;
 import uni.gaben.iscat.menu.controller.MenuController;
@@ -30,7 +29,7 @@ public class MenuScene extends IscatSceneAbstract {
     public MenuScene(MenuController menuController) {
         super(new StackPane());
         this.controller = menuController;
-        this.root = (StackPane) getRoot();
+        this.root = getContentRoot();
         
         initialize();
     }
@@ -39,7 +38,6 @@ public class MenuScene extends IscatSceneAbstract {
     protected void initStyles() {
         String css = getClass().getResource("/uni/gaben/iscat/styles/menu.css").toExternalForm();
         getStylesheets().add(css);
-        setFill(Color.BLACK);
     }
 
     @Override

@@ -4,10 +4,11 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import uni.gaben.iscat.game.model.entities.enemies.IscatBomber;
 import uni.gaben.iscat.game.model.settings.VisualSettings;
 import uni.gaben.iscat.game.model.space.Space;
 import uni.gaben.iscat.game.model.GameModel;
-import uni.gaben.iscat.game.model.GameSettings;
 import uni.gaben.iscat.game.model.entities.Player;
 import uni.gaben.iscat.game.model.entities.Star;
 
@@ -24,39 +25,30 @@ public class GameCanvas extends Canvas {
 
     private static final Image PLAYER_SPRITE = new Image(
             Objects.requireNonNull(GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/battle_ship_1.png")));
-    
+
     private static final Image BOMBER_SPRITE = new Image(
             Objects.requireNonNull(GameCanvas.class.getResourceAsStream("/uni/gaben/iscat/sprites/IscatBomber.png")));
 
     private final GameModel model;
-    private final Space     space;
+    private final Space space;
 
     public GameCanvas(GameModel model) {
         this.model = model;
         this.space = new Space(0, 0);
-        setOnMouseClicked(e -> requestFocus());
+        // Space tracks canvas size
+        space.widthProperty().bind(widthProperty().asObject().map(Number::intValue));
+        space.heightProperty().bind(heightProperty().asObject().map(Number::intValue));
     }
-
-    @Override
-    public void resize(double width, double height) {
-        super.resize(width, height);
-        setWidth(getParent().getScene().getWidth());
-        setHeight(getParent().getScene().getHeight());
-        space.heightProperty().bind(heightProperty().asObject()
-                .map(Number::intValue));
-        space.widthProperty().bind(widthProperty().asObject()
-                .map(Number::intValue));
-        render(0);
-    }
-
-    @Override public boolean isResizable() { return true; }
 
     /** Chiamato dal game loop ogni frame. */
     public void render(int currentFps) {
-        GraphicsContext gc = getGraphicsContext2D();
+        double w = getWidth();
+        double h = getHeight();
+        if (w <= 0 || h <= 0) return;
 
+        GraphicsContext gc = getGraphicsContext2D();
         gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, getParent().getScene().getWidth(), getParent().getScene().getHeight());
+        gc.fillRect(0, 0, w, h);
         gc.setImageSmoothing(false);
 
         disegnaStelle(gc);
@@ -64,7 +56,7 @@ public class GameCanvas extends Canvas {
         disegnaGiocatore(gc);
 
         if (VisualSettings.MOSTRA_FPS) {
-            drawFPS(currentFps);
+            drawFPS(gc, currentFps);
         }
     }
 
@@ -72,54 +64,46 @@ public class GameCanvas extends Canvas {
         gc.setFill(Color.WHITE);
         for (Star star : space.stars) {
             double size = star.getSize();
-            gc.fillOval(star.getX(), star.getY(), size, size);
+            gc.fillRect(star.getX(), star.getY(), size, size);
         }
     }
 
     private void disegnaGiocatore(GraphicsContext gc) {
         Player p = model.getPlayer();
         if (p == null) return;
-
         double cx = p.getX() + TILE_SIZE / 2.0;
         double cy = p.getY() + TILE_SIZE / 2.0;
-
         gc.save();
         gc.translate(cx, cy);
         gc.rotate(p.getDirectionAngle() + SPRITE_NORTH_OFFSET);
         gc.drawImage(PLAYER_SPRITE, -TILE_SIZE / 2.0, -TILE_SIZE / 2.0, TILE_SIZE, TILE_SIZE);
         gc.restore();
     }
-    
+
     private void disegnaEnemies(GraphicsContext gc) {
         for (var enemy : model.getEnemies()) {
-            if (enemy instanceof uni.gaben.iscat.game.model.entities.enemies.IscatBomber) {
+            if (enemy instanceof IscatBomber) {
                 double cx = enemy.getX() + TILE_SIZE / 2.0;
                 double cy = enemy.getY() + TILE_SIZE / 2.0;
-
                 gc.save();
                 gc.translate(cx, cy);
                 gc.rotate(enemy.getDirectionAngle() + SPRITE_NORTH_OFFSET);
                 gc.drawImage(BOMBER_SPRITE, -TILE_SIZE / 2.0, -TILE_SIZE / 2.0, TILE_SIZE, TILE_SIZE);
                 gc.restore();
             } else {
-                // Fallback: disegna un cerchio rosso per nemici senza sprite
                 gc.setFill(Color.RED);
                 gc.fillOval(enemy.getX(), enemy.getY(), TILE_SIZE, TILE_SIZE);
             }
         }
     }
 
-    public Space getSpace() { return space; }
-
-    /** Disegna il contatore FPS in alto a sinistra. */
-    public void drawFPS(int fps) {
-        GraphicsContext gc = getGraphicsContext2D();
-        gc.save(); // Salviamo lo stato per non influenzare altri disegni
-
-        gc.setFill(Color.LIME); // Verde neon fa molto "hacker/space shooter"
-        gc.setFont(javafx.scene.text.Font.font("Miracode", 14));
+    private void drawFPS(GraphicsContext gc, int fps) {
+        gc.save();
+        gc.setFill(Color.LIME);
+        gc.setFont(Font.font("Miracode", 14));
         gc.fillText("FPS: " + fps, 10, 25);
-
         gc.restore();
     }
+
+    public Space getSpace() { return space; }
 }

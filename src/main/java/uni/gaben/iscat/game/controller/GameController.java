@@ -79,14 +79,21 @@ public class GameController {
         // Se il gioco in pausa ci fermiamo qui
         if (paused) return;
 
+        // Spawn player at canvas center on first frame (canvas size not known at construction)
+        if (!playerSpawned) spawnPlayerAtCenter();
+
         // Logica del gioco non in pausa
         Player p = model.getPlayer();
 
         applicaSpinta(p);
         applicaScatto(p);
-        aggiornaDirezione(p);
 
         model.update(GameSettings.DT);
+
+        // On wrap frames, skip direction recalculation — the position jump would
+        // cause a spurious angle change. The previous angle is preserved instead.
+        boolean wrapped = wrapPosition(p);
+        if (!wrapped) aggiornaDirezione(p);
 
         Vec2 vel = p.getVelocity();
         canvas.getSpace().update(vel.x, vel.y);
@@ -167,6 +174,121 @@ public class GameController {
         double cx = p.getX() + GameCanvas.TILE_SIZE / 2.0;
         double cy = p.getY() + GameCanvas.TILE_SIZE / 2.0;
         p.setDirectionAngle(Math.toDegrees(Math.atan2(input.mouseY - cy, input.mouseX - cx)));
+    }
+
+    /**
+     * Trajectory-based wrapping.
+     *
+     * When the player exits an edge, extend their trajectory backwards and find
+     * where it re-enters the screen. That's the spawn point. Velocity unchanged.
+     *
+     * Moving ^-> and exiting the right edge → the backwards ray re-enters from
+     * the top edge → player appears on the top edge still moving ^->.
+     */
+    private boolean wrapPosition(Player p) {
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+        if (w <= 0 || h <= 0) return false;
+
+        double half = GameCanvas.TILE_SIZE / 2.0;
+        double cx   = p.getX() + half;  // sprite center
+        double cy   = p.getY() + half;
+
+        double vx = p.getVelocity().x;
+        double vy = p.getVelocity().y;
+
+        boolean exitRight  = cx > w;
+        boolean exitLeft   = cx < 0;
+        boolean exitBottom = cy > h;
+        boolean exitTop    = cy < 0;
+
+        if (!exitRight && !exitLeft && !exitBottom && !exitTop) return false;
+
+        // Ray: start at exit center, direction = -velocity (backwards along trajectory)
+        // Find intersection with screen boundary [0,w] x [0,h]
+        double rx = cx, ry = cy;   // ray origin (exit point, clamped to edge)
+        double rdx = -vx, rdy = -vy; // ray direction (backwards)
+
+        // Clamp origin to the edge it exited from
+        if (exitRight)  rx = w;
+        if (exitLeft)   rx = 0;
+        if (exitBottom) ry = h;
+        if (exitTop)    ry = 0;
+
+        double entryX = cx;
+        double entryY = cy;
+
+        if (Math.abs(rdx) < 0.001 && Math.abs(rdy) < 0.001) {
+            // No velocity — standard opposite-side wrap
+            entryX = exitRight ? 0 : exitLeft ? w : cx;
+            entryY = exitBottom ? 0 : exitTop ? h : cy;
+        } else {
+            // Find the t values where the backwards ray hits each boundary
+            // and pick the one that gives a valid intersection on a different edge
+            double bestT = Double.MAX_VALUE;
+            double bx = entryX, by = entryY;
+
+            // Check left wall (x=0)
+            if (rdx != 0) {
+                double t = (0 - rx) / rdx;
+                if (t > 0.001) {
+                    double iy = ry + t * rdy;
+                    if (iy >= 0 && iy <= h && t < bestT) {
+                        bestT = t; bx = 0; by = iy;
+                    }
+                }
+            }
+            // Check right wall (x=w)
+            if (rdx != 0) {
+                double t = (w - rx) / rdx;
+                if (t > 0.001) {
+                    double iy = ry + t * rdy;
+                    if (iy >= 0 && iy <= h && t < bestT) {
+                        bestT = t; bx = w; by = iy;
+                    }
+                }
+            }
+            // Check top wall (y=0)
+            if (rdy != 0) {
+                double t = (0 - ry) / rdy;
+                if (t > 0.001) {
+                    double ix = rx + t * rdx;
+                    if (ix >= 0 && ix <= w && t < bestT) {
+                        bestT = t; bx = ix; by = 0;
+                    }
+                }
+            }
+            // Check bottom wall (y=h)
+            if (rdy != 0) {
+                double t = (h - ry) / rdy;
+                if (t > 0.001) {
+                    double ix = rx + t * rdx;
+                    if (ix >= 0 && ix <= w && t < bestT) {
+                        bestT = t; bx = ix; by = h;
+                    }
+                }
+            }
+
+            entryX = bx;
+            entryY = by;
+        }
+
+        p.setX(entryX - half);
+        p.setY(entryY - half);
+        return true;
+    }
+
+    /** Spawns the player at the center of the canvas. Called once on first frame. */
+    private boolean playerSpawned = false;
+
+    private void spawnPlayerAtCenter() {
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+        if (w <= 0 || h <= 0) return;
+        Player p = model.getPlayer();
+        p.setX(w / 2.0 - GameCanvas.TILE_SIZE / 2.0);
+        p.setY(h / 2.0 - GameCanvas.TILE_SIZE / 2.0);
+        playerSpawned = true;
     }
 
     public void startLoop() {

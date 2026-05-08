@@ -1,6 +1,7 @@
 package uni.gaben.iscat.game.view;
 
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.IscatSceneAbstract;
 import uni.gaben.iscat.game.controller.GameController;
@@ -8,14 +9,10 @@ import uni.gaben.iscat.game.view.hud.PauseMenu;
 
 /**
  * Scena di gioco: posiziona il canvas e collega il controller.
- * 
+ *
  * LIFECYCLE:
- * - Constructor: crea nodi UI
- * - onShow(): avvia game loop
+ * - onShow(): avvia game loop, carica audio
  * - onHide(): ferma game loop
- * 
- * Il game loop viene avviato solo quando la scena è visibile,
- * evitando che il gioco giri in background.
  */
 public class GameScene extends IscatSceneAbstract {
 
@@ -29,14 +26,12 @@ public class GameScene extends IscatSceneAbstract {
         super(new StackPane());
         this.controller = controller;
         this.canvas = canvas;
-        this.root = (StackPane) getRoot();
-
+        this.root = getContentRoot();
         initialize();
     }
 
     @Override
     protected void initStyles() {
-        // Single stylesheet for all game views (GameScene, PauseMenu, OptionsMenu)
         String css = getClass().getResource("/uni/gaben/iscat/styles/game/game.css").toExternalForm();
         getStylesheets().add(css);
     }
@@ -48,6 +43,16 @@ public class GameScene extends IscatSceneAbstract {
 
     @Override
     protected void initLayout() {
+        // Bind canvas to fill the root StackPane
+        canvas.widthProperty().bind(root.widthProperty());
+        canvas.heightProperty().bind(root.heightProperty());
+
+        // Clip canvas to its own bounds so it never paints outside the content area
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(canvas.widthProperty());
+        clip.heightProperty().bind(canvas.heightProperty());
+        canvas.setClip(clip);
+
         root.getChildren().addAll(canvas, pauseMenu);
     }
 
@@ -58,28 +63,22 @@ public class GameScene extends IscatSceneAbstract {
 
     @Override
     protected void initEventHandlers() {
-        // Attach input handlers to this scene
         controller.attachInput(this);
+        canvas.setOnMouseClicked(e -> canvas.requestFocus());
     }
 
     @Override
     public void onShow() {
-        // Carica audio del giocatore (una volta sola, qui fuori dal model)
         IscatAudioManager am = IscatAudioManager.getInstance();
         am.loadSFX("fart_alt1", "/uni/gaben/iscat/audio/SFX/fart3.wav");
         am.loadSFX("fart_alt2", "/uni/gaben/iscat/audio/SFX/fart8.wav");
         am.loadSFX("fart_alt3", "/uni/gaben/iscat/audio/SFX/fart7.wav");
-
-        // Collega il callback audio al player
         controller.setupPlayerAudio();
-
-        // Avvia il game loop quando la scena viene mostrata
         controller.startLoop();
     }
 
     @Override
     public void onHide() {
-        // Ferma il game loop quando la scena viene nascosta
         controller.stopLoop();
     }
 }
