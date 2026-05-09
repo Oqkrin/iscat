@@ -59,6 +59,8 @@ public class IscatMotherModel extends NpcModel implements Collidable, HasRendere
     public void die() {
         System.out.println("CHE TU SIA DANNATO!!!!! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         // TODO: death animation, explosion, loot
+
+        super.die();
     }
 
     // -------------------------------------------------------------------------

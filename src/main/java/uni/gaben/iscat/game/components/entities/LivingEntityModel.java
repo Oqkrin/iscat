@@ -23,7 +23,6 @@ public abstract class LivingEntityModel extends PhysicalEntityModel implements A
     @Override public int  getHp()       { return hp; }
     @Override public int  getMaxHp()    { return maxHp; }
     @Override public void setHp(int hp) { this.hp = Math.max(0, Math.min(maxHp, hp)); }
-    @Override public void die()         { /* sovrascrivere */ }
 
     public void setMaxHp(int maxHp) {
         this.maxHp = maxHp;
@@ -53,8 +52,18 @@ public abstract class LivingEntityModel extends PhysicalEntityModel implements A
     // --- Damage ---
 
     private Runnable onHurt;
+    private Runnable onDeath;
 
     public void setOnHurt(Runnable callback) { this.onHurt = callback; }
+
+    public void setOnDeath(Runnable callback) { this.onDeath = callback; }
+
+    @Override
+    public void die() {
+        if (onDeath != null) {
+            onDeath.run();
+        }
+    }
 
     @Override
     public void takeDamage(double amount) {

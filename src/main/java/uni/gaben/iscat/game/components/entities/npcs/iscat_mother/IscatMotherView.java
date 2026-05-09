@@ -20,17 +20,17 @@ public class IscatMotherView implements EntityRenderer<IscatMotherModel> {
     private final Image spriteSheet;
 
     // ====================== CONFIGURAZIONE ======================
-    private static final double SCALE = 5;           // ← Cambia qui per regolare la grandezza
+    private static final double SCALE = 2;           // ← Cambia qui per regolare la grandezza
     private static final double DRAW_SIZE = TILE_SIZE * SCALE;
 
-    private static final int FRAME_WIDTH = 128;
-    private static final int FRAME_HEIGHT = 128;
-    private static final int TOTAL_FRAMES = 2;
-    private static final double FRAME_DURATION = 0.45;   // secondi per frame (0.3 = più veloce, 0.6 = più lenta)
+    private static final int FRAME_WIDTH = 32;
+    private static final int FRAME_HEIGHT = 32;
+    private static final int TOTAL_FRAMES = 19;
+    private static final double FRAME_DURATION = 0.10;   // secondi per frame (0.3 = più veloce, 0.6 = più lenta)
 
     public IscatMotherView() {
         this.spriteSheet = new Image(Objects.requireNonNull(
-                IscatMotherView.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat_mother.png")));
+                IscatMotherView.class.getResourceAsStream("/uni/gaben/iscat/sprites/fake_iscat-Sheet.png")));
     }
 
     @Override

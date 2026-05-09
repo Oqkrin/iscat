@@ -67,11 +67,17 @@ public class IscatAudioManager {
     // --- SFX ---
     public void loadSFX(String name, String path) {
         try {
-            String resource = Objects.requireNonNull(getClass().getResource(path)).toExternalForm();
+            var res = getClass().getResource(path);
+            if (res == null) {
+                System.err.println("FILE NON TROVATO: " + path);
+                return;
+            }
+            String resource = res.toExternalForm();
             AudioClip clip = new AudioClip(resource);
             sfxMap.put(name, clip);
         } catch (Exception e) {
-            System.err.println("Errore SFX: " + path);
+            System.err.println("ERRORE CARICAMENTO (" + path + "): " + e.getMessage());
+            e.printStackTrace(); // <--- Questo ti dirà se il problema è il formato del file
         }
     }
 
