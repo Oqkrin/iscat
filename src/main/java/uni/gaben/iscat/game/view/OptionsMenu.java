@@ -36,10 +36,8 @@ public class OptionsMenu extends VBox {
         // BGM SLIDER
         Slider bgmSlider = createLabeledSlider(audioBox, "MUSIC VOLUME", 0, 1, 
             AudioSettings.VOLUME_BGM);
-        bgmSlider.valueProperty().addListener((obs, oldV, newV) -> {
-            AudioSettings.VOLUME_BGM = newV.doubleValue();
-            IscatAudioManager.getInstance().updateVolumes();
-        });
+        bgmSlider.valueProperty().addListener((obs, oldV, newV) ->
+                IscatAudioManager.getInstance().setBgmVolume(newV.doubleValue()));
 
         // SFX SLIDER
         Slider sfxSlider = createLabeledSlider(audioBox, "SFX VOLUME", 0, 1, 
@@ -53,12 +51,6 @@ public class OptionsMenu extends VBox {
 
         VBox gameplayBox = createSection("GAMEPLAY");
 
-        // MOUSE SENSITIVITY
-        Slider sensSlider = createLabeledSlider(gameplayBox, "MOUSE SENSITIVITY", 0.1, 2.0, 
-            InputSettings.SENSIBILITA_MOUSE);
-        sensSlider.valueProperty().addListener((obs, oldV, newV) ->
-            InputSettings.SENSIBILITA_MOUSE = newV.doubleValue());
-
         // FPS COUNTER
         CheckBox fpsCheck = new CheckBox("SHOW FPS COUNTER");
         fpsCheck.getStyleClass().add("check-box");
@@ -66,14 +58,7 @@ public class OptionsMenu extends VBox {
         fpsCheck.selectedProperty().addListener((obs, oldV, newV) -> 
             VisualSettings.MOSTRA_FPS = newV);
 
-        // SCREENSHAKE
-        CheckBox shakeCheck = new CheckBox("ENABLE SCREENSHAKE");
-        shakeCheck.getStyleClass().add("check-box");
-        shakeCheck.setSelected(EffectsSettings.SCREENSHAKE_ABILITATO);
-        shakeCheck.selectedProperty().addListener((obs, oldV, newV) ->
-                EffectsSettings.SCREENSHAKE_ABILITATO = newV);
-
-        gameplayBox.getChildren().addAll(fpsCheck, shakeCheck);
+        gameplayBox.getChildren().addAll(fpsCheck);
 
         // PULSANTE BACK
         Button backBtn = new Button("SAVE & BACK");
