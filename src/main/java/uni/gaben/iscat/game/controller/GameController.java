@@ -92,7 +92,7 @@ public class GameController {
     }
 
     public void setupEnemyAudio(NpcModel enemy) {
-        System.out.println("[GameController] DEBUG: Sto collegando l'audio al nemico: " + enemy.getClass().getSimpleName());
+        //System.out.println("[GameController] DEBUG: Sto collegando l'audio al nemico: " + enemy.getClass().getSimpleName());
 
         enemy.setOnHurt(() -> {
             IscatAudioManager.getInstance().playSFX("hurt");

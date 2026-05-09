@@ -32,6 +32,13 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
             IscatMother.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat_mother.png")));
 
     private final Cooldown cooldownFuoco = new Cooldown();
+    private boolean hasSpawnedMinions = false;
+
+    private GameModel currentWorld = null;
+
+    public void setWorld(GameModel world) {
+        this.currentWorld = world;
+    }
 
     public IscatMother(double startX, double startY) {
         super(startX, startY);
@@ -44,19 +51,68 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     @Override
     public void updateAI(GameModel world, double dt) {
         cooldownFuoco.tick();
+
+        // Aggiorniamo il riferimento world (backup)
+        if (currentWorld == null) currentWorld = world;
+
+        checkMinionSpawn(world);
+
         if (isDead()) return;
 
         Vec2 playerPos = world.getPlayer().getColliderCenter();
         Vec2 myPos = this.getColliderCenter();
         double dist = Math.hypot(playerPos.x - myPos.x, playerPos.y - myPos.y);
 
-        // 1. Movimento
         maintainDistance(playerPos, myPos, dist);
 
-        // 2. Sparo (Logica ex-Controller integrata qui)
         if (dist >= 90 && dist <= 420 && cooldownFuoco.isReady()) {
             shoot(world, playerPos, myPos);
         }
+    }
+
+    // ====================== MORTE + ORDA ======================
+    @Override
+    public void die() {
+
+        System.out.println("=====================================");
+        System.out.println("ISCAT MOTHER HA DATO INIZIO AD UN'ORDA!");
+        System.out.println("=====================================");
+
+        if (currentWorld != null) {
+            spawnHorde(currentWorld);
+        } else {
+            System.err.println("ERRORE: currentWorld è null in die()");
+        }
+
+        super.die();
+    }
+
+    /** Controlla se IscatMother vuole spawnare i rinforzi */
+    private void checkMinionSpawn(GameModel world) {
+        if (!hasSpawnedMinions && this.hp <= HP_INIZIALI * 0.5) {
+            spawnMinions(world);
+            hasSpawnedMinions = true;
+        }
+    }
+
+    /** Spawna 5 FakeIscat intorno alla madre */
+    private void spawnMinions(GameModel world) {
+        Vec2 myPos = this.getColliderCenter();
+        double radius = 80.0;   // distanza dal centro della madre
+
+        for (int i = 0; i < 5; i++) {
+            double angle = (i * 72.0); // 360° / 5 = 72°
+            double rad = Math.toRadians(angle);
+
+            double x = myPos.x + Math.cos(rad) * radius;
+            double y = myPos.y + Math.sin(rad) * radius;
+
+            FakeIscat fake = new FakeIscat(x, y);
+            world.spawnEnemyLater(fake);
+        }
+
+        System.out.println("IscatMother ha chiamato 5 FakeIscat!");
+        // TODO: suono di spawn / effetto particelle
     }
 
     private void maintainDistance(Vec2 playerPos, Vec2 myPos, double dist) {
@@ -116,6 +172,39 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     @Override public int getCollisionLayer() { return LAYER_ENEMY; }
     @Override public int getCollisionMask() { return LAYER_PLAYER | LAYER_PROJECTILE | LAYER_ENEMY; }
     @Override public void resetAI() {}
+
+    private void spawnHorde(GameModel world) {
+        Vec2 center = this.getColliderCenter();
+        double radius = 130.0;
+
+        // 20 FakeIscat
+        for (int i = 0; i < 200; i++) {
+            double angle = Math.random() * 360;
+            double rad = Math.toRadians(angle);
+            double dist = radius + Math.random() * 60;
+
+            double x = center.x + Math.cos(rad) * dist;
+            double y = center.y + Math.sin(rad) * dist;
+
+            FakeIscat fake = new FakeIscat(x, y);
+            world.spawnEnemyLater(fake);
+        }
+
+        // 10 FallenStarGolem
+        for (int i = 0; i < 100; i++) {
+            double angle = Math.random() * 360;
+            double rad = Math.toRadians(angle);
+            double dist = radius * 0.9;
+
+            double x = center.x + Math.cos(rad) * dist;
+            double y = center.y + Math.sin(rad) * dist;
+
+            FallenStarGolem golem = new FallenStarGolem(x, y);
+            world.spawnEnemyLater(golem);
+        }
+
+        System.out.println("→ Spawnati 20 FakeIscat + 10 FallenStarGolem!");
+    }
 
     // =========================================================================
     // CLASSE INTERNA PER IL PROIETTILE

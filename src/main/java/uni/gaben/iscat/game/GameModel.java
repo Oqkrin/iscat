@@ -54,6 +54,7 @@ public class GameModel {
     private final Map<EntityModel, EntityRenderer> renderers = new LinkedHashMap<>();
 
     private Consumer<NpcModel> enemySpawnListener;
+    private final List<NpcModel> pendingEnemies = new ArrayList<>();
 
     public GameModel() {
         player = new PlayerModel(100, 100);
@@ -73,12 +74,17 @@ public class GameModel {
         spawnMother(500, 500);
     }
 
+    public void spawnEnemyLater(NpcModel enemy) {
+        pendingEnemies.add(enemy);
+    }
+
     public void spawnMother(double x, double y) {
         IscatMother mother = new IscatMother(x, y);
         FallenStarGolem star = new FallenStarGolem(x, y);
         FakeIscat fake = new FakeIscat(x, y);
         this.addEnemy(star);
         this.addEnemy(fake);
+        mother.setWorld(this);
         this.addEnemy(mother);
     }
 
@@ -89,6 +95,15 @@ public class GameModel {
         updateAll(dt);
         resolveCollisions();
         cleanupDeadEntities();
+        processPendingSpawns();
+    }
+
+    // spawniamo pending enemies
+    private void processPendingSpawns() {
+        for (NpcModel enemy : pendingEnemies) {
+            addEnemy(enemy);
+        }
+        pendingEnemies.clear();
     }
 
     // -- Dead / expired entities ---
