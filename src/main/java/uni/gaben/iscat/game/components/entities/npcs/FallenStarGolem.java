@@ -25,7 +25,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
     private static final double RAGGIO_COLLISIONE   = (DIM_SPRITE / 2.0) * 0.9;
     private static final double DISTANZA_IDEALE     = 250.0;
     private static final int    COOLDOWN_SPARO_TICKS = 60;
-    private static final double DIM_PROIETTILE      = 32.0;
+    private static final double DIM_PROIETTILE      = 16.0;
     private static final double VEL_PROIETTILE      = 10.0;
 
     private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
@@ -74,15 +74,25 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
     }
 
     private void shoot(GameModel world, Vec2 playerPos, Vec2 myPos) {
-        double rad = Math.toRadians(this.getDirectionAngle());
+        int numProiettili = 12;
+        // Calcoliamo l'angolo tra un proiettile e l'altro (360 / 12 = 30 gradi)
+        double step = (2 * Math.PI) / numProiettili;
 
-        Vec2 velocity = new Vec2(
-                Math.cos(rad) * VEL_PROIETTILE,
-                Math.sin(rad) * VEL_PROIETTILE
-        );
+        for (int i = 0; i < numProiettili; i++) {
+            // L'angolo attuale per questo proiettile
+            double currentRad = i * step;
 
-        world.addEntity(new GolemProjectile(myPos, velocity));
+            // Calcoliamo la velocità basata sull'angolo
+            Vec2 velocity = new Vec2(
+                    Math.cos(currentRad) * VEL_PROIETTILE,
+                    Math.sin(currentRad) * VEL_PROIETTILE
+            );
 
+            // Spawna il proiettile partendo dal centro del Golem
+            world.addEntity(new GolemProjectile(myPos, velocity));
+        }
+
+        // Effetto sonoro (eseguito una volta sola per la raffica)
         IscatAudioManager.getInstance().playSFX("shoot");
 
         cooldownFuoco.set(COOLDOWN_SPARO_TICKS);

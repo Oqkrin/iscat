@@ -73,15 +73,22 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     }
 
     private void shoot(GameModel world, Vec2 playerPos, Vec2 myPos) {
-        double rad = Math.toRadians(this.getDirectionAngle());
-        Vec2 velocity = new Vec2(Math.cos(rad) * VEL_PROIETTILE, Math.sin(rad) * VEL_PROIETTILE);
+        double baseAngle = this.getDirectionAngle();
+        double spreadAngle = 15.0;
 
-        // SPAWN PROIETTILE INTERNO
-        world.addEntity(new MotherProjectile(myPos, velocity));
+        for (int i = -1; i <= 1; i++) {
+            double angle = baseAngle + (i * spreadAngle);
 
-        // AUDIO
+            double rad = Math.toRadians(angle);
+            Vec2 velocity = new Vec2(
+                    Math.cos(rad) * VEL_PROIETTILE,
+                    Math.sin(rad) * VEL_PROIETTILE
+            );
+
+            world.addEntity(new MotherProjectile(myPos, velocity));
+        }
+
         IscatAudioManager.getInstance().playSFX("shoot");
-
         cooldownFuoco.set(COOLDOWN_SPARO_TICKS);
     }
 
