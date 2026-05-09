@@ -117,7 +117,9 @@ public class IscatController {
 
     private void performSceneTransition(IscatScenes next) {
         Scene current = stage.getScene();
-        if (current instanceof IscatSceneAbstract old) old.onHide();
+        if (current instanceof IscatSceneLifecycleInterface old) {
+            old.setActive(false);
+        }
 
         IscatAudioManager.getInstance().playBGM(model.getBgmPath(next), true);
 
@@ -133,7 +135,10 @@ public class IscatController {
 
         if (nextScene instanceof IscatSceneAbstract newScene) {
             syncWindowState(newScene);
-            newScene.onShow();
+        }
+        
+        if (nextScene instanceof IscatSceneLifecycleInterface newScene) {
+            newScene.setActive(true);
         }
     }
 

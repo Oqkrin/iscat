@@ -38,7 +38,7 @@ public class GameCanvas extends Canvas {
 
     /** Called by the game loop every frame. */
     @SuppressWarnings("unchecked")
-    public void render(int currentFps) {
+    public void render(int currentFps, double cameraX, double cameraY) {
         double w = getWidth();
         double h = getHeight();
         if (w <= 0 || h <= 0) return;
@@ -50,17 +50,20 @@ public class GameCanvas extends Canvas {
         gc.fillRect(0, 0, w, h);
         gc.setImageSmoothing(false);
 
-        // 1. Background
+        // 1. Background — stars scroll independently via SpaceModel
         spaceView.draw(gc, space);
 
-        // 2. All entities — renderer looked up from GameModel, no instanceof
+        // 2. All entities — camera offset applied via gc.translate
+        gc.save();
+        gc.translate(-cameraX, -cameraY);
         for (var entry : model.getRenderables().entrySet()) {
             EntityModel entity   = entry.getKey();
             EntityRenderer renderer = entry.getValue();
             renderer.draw(gc, entity);
         }
+        gc.restore();
 
-        // 3. HUD
+        // 3. HUD — always in screen space, no camera offset
         if (VisualSettings.MOSTRA_FPS) {
             drawFPS(gc, currentFps);
         }

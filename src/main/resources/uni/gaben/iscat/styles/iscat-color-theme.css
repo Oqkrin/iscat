@@ -70,6 +70,12 @@
     -fx-background-radius: 0 0 16px 16px;
 }
 
+/* Transparent content for scenes with starry background */
+.window-content-transparent {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 0 16px 16px;
+}
+
 /* Decorative border overlay — transparent fill, rounded border only.
    Sits on top of all content, mouseTransparent so it never blocks interaction. */
 .window-border-overlay {

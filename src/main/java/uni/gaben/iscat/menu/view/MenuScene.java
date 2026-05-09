@@ -27,9 +27,11 @@ public class MenuScene extends IscatSceneAbstract {
     private Button quitButton;
 
     public MenuScene(MenuController menuController) {
-        super(new StackPane());
+        super(new StackPane(), true); // Enable starry background
         this.controller = menuController;
         this.root = getContentRoot();
+        // Make root transparent so stars show through
+        root.setStyle("-fx-background-color: transparent;");
         
         initialize();
     }
@@ -90,4 +92,21 @@ public class MenuScene extends IscatSceneAbstract {
         quitButton.setOnAction(e -> controller.quit());
         // TODO: optionsButton e scoreButton quando implementati
     }
+    
+    @Override
+    public void onShow() {
+        // Enable mouse-following mode for starry background
+        if (getStarryBackground() != null) {
+            getStarryBackground().setFollowMouse(true);
+            // Track mouse at scene level to ensure we capture all movement
+            setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
+        }
+    }
+    
+    @Override
+    public void onHide() {
+        // Clean up mouse handler
+        setOnMouseMoved(null);
+    }
 }
+

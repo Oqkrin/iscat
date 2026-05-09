@@ -32,8 +32,17 @@ public class SpaceModel {
         this.width.set(width);
         this.height.set(height);
         instantiateSpace();
-        this.width .addListener((ov, o, n) -> instantiateSpace());
-        this.height.addListener((ov, o, n) -> instantiateSpace());
+        // Listener only triggers if BOTH dimensions are valid
+        this.width.addListener((ov, o, n) -> {
+            if (n.intValue() > 0 && getHeight() > 0) {
+                instantiateSpace();
+            }
+        });
+        this.height.addListener((ov, o, n) -> {
+            if (n.intValue() > 0 && getWidth() > 0) {
+                instantiateSpace();
+            }
+        });
     }
 
     void instantiateSpace() {

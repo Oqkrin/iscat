@@ -10,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import uni.gaben.iscat.utils.components.StarryBackgroundCanvas;
 
 /**
  * Classe base per scene ISCAT — responsabilità SOLO view.
@@ -29,6 +30,8 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
 
     private boolean active      = false;
     private boolean initialized = false;
+    
+    private StarryBackgroundCanvas starryBackground;
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -40,9 +43,22 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
      * @param root the root
      */
     protected IscatSceneAbstract(Parent root) {
-        super(buildChrome(root));
+        this(root, false);
+    }
+    
+    /**
+     * Instantiates a new Iscat scene abstract with optional starry background.
+     *
+     * @param root the root
+     * @param withStarryBackground whether to include animated starry background
+     */
+    protected IscatSceneAbstract(Parent root, boolean withStarryBackground) {
+        super(buildChrome(root, withStarryBackground));
         setFill(Color.web("#010203"));
         applyRoundedClip();
+        if (withStarryBackground) {
+            starryBackground = extractStarryBackground();
+        }
     }
 
     /**
@@ -53,21 +69,52 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
      * @param height the height
      */
     protected IscatSceneAbstract(Parent root, double width, double height) {
-        super(buildChrome(root), width, height);
+        this(root, width, height, false);
+    }
+    
+    /**
+     * Instantiates a new Iscat scene abstract with optional starry background.
+     *
+     * @param root   the root
+     * @param width  the width
+     * @param height the height
+     * @param withStarryBackground whether to include animated starry background
+     */
+    protected IscatSceneAbstract(Parent root, double width, double height, boolean withStarryBackground) {
+        super(buildChrome(root, withStarryBackground), width, height);
         setFill(Color.web("#010203"));
         applyRoundedClip();
+        if (withStarryBackground) {
+            starryBackground = extractStarryBackground();
+        }
     }
 
     // -------------------------------------------------------------------------
     // Chrome construction
     // -------------------------------------------------------------------------
 
-    private static StackPane buildChrome(Parent content) {
+    private static StackPane buildChrome(Parent content, boolean withStarryBackground) {
         // Content wrapper — fills all available space
-        StackPane contentWrapper = new StackPane(content);
-        contentWrapper.getStyleClass().add("window-content");
+        StackPane contentWrapper = new StackPane();
+        if (withStarryBackground) {
+            contentWrapper.getStyleClass().add("window-content-transparent");
+        } else {
+            contentWrapper.getStyleClass().add("window-content");
+        }
         contentWrapper.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         contentWrapper.setMinSize(0, 0);
+        
+        // Add starry background if requested
+        if (withStarryBackground) {
+            StarryBackgroundCanvas starryBg = new StarryBackgroundCanvas();
+            starryBg.widthProperty().bind(contentWrapper.widthProperty());
+            starryBg.heightProperty().bind(contentWrapper.heightProperty());
+            starryBg.setMouseTransparent(true);
+            contentWrapper.getChildren().add(starryBg);
+        }
+        
+        // Add content on top of background
+        contentWrapper.getChildren().add(content);
 
         Rectangle contentClip = new Rectangle();
         contentClip.widthProperty().bind(contentWrapper.widthProperty());
@@ -92,6 +139,18 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
 
         return new StackPane(chrome, borderOverlay);
     }
+    
+    private StarryBackgroundCanvas extractStarryBackground() {
+        // Navigate: root → StackPane → chrome → contentWrapper → [0] StarryBackgroundCanvas
+        if (getRoot() instanceof StackPane root
+                && root.getChildren().get(0) instanceof StackPane chrome
+                && chrome.getChildren().get(0) instanceof StackPane wrapper
+                && !wrapper.getChildren().isEmpty()
+                && wrapper.getChildren().get(0) instanceof StarryBackgroundCanvas bg) {
+            return bg;
+        }
+        return null;
+    }
 
     private void applyRoundedClip() {
         StackPane rootWrapper = (StackPane) getRoot();
@@ -102,6 +161,17 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         clip.widthProperty().bind(chrome.widthProperty());
         clip.heightProperty().bind(chrome.heightProperty());
         chrome.setClip(clip);
+    }
+
+    // -------------------------------------------------------------------------
+    // Starry background access
+    // -------------------------------------------------------------------------
+    
+    /**
+     * Returns the starry background canvas if enabled, null otherwise.
+     */
+    protected StarryBackgroundCanvas getStarryBackground() {
+        return starryBackground;
     }
 
     // -------------------------------------------------------------------------
@@ -121,7 +191,14 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         slideOut(bar);
 
         // Show bar when mouse is near the top of the screen
+        // Store existing mouse handler to preserve starry background tracking
+        var existingHandler = getRoot().getOnMouseMoved();
         getRoot().setOnMouseMoved(e -> {
+            // Call existing handler first (starry background)
+            if (existingHandler != null) {
+                existingHandler.handle(e);
+            }
+            // Then handle title bar visibility
             if (e.getSceneY() < 8 && !barVisible)                       slideIn(bar);
             else if (e.getSceneY() > bar.getPrefHeight() + 8 && barVisible) slideOut(bar);
         });
@@ -134,7 +211,8 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         IscatTitleBar bar = getTitleBar();
         if (bar == null) return;
         bar.getStyleClass().remove("title-bar-fullscreen");
-        getRoot().setOnMouseMoved(null);
+        // Don't clear mouse handler - let the scene manage it
+        // getRoot().setOnMouseMoved(null);
         barVisible = true;
         bar.setTranslateY(0);
         bar.setOpacity(1.0);
@@ -183,11 +261,12 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
      */
     @SuppressWarnings("unchecked")
     protected <T extends Parent> T getContentRoot() {
-        // root → StackPane(root) → [0] StackPane(chrome) → [0] StackPane(contentWrapper) → [0] content
+        // root → StackPane(root) → [0] StackPane(chrome) → [0] StackPane(contentWrapper) → [last] content
         if (getRoot() instanceof StackPane root
                 && root.getChildren().get(0) instanceof StackPane chrome
                 && chrome.getChildren().get(0) instanceof StackPane wrapper) {
-            return (T) wrapper.getChildren().get(0);
+            // Content is the last child (after optional starry background)
+            return (T) wrapper.getChildren().get(wrapper.getChildren().size() - 1);
         }
         return null;
     }
@@ -256,8 +335,15 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
     public void setActive(boolean active) {
         if (this.active == active) return;
         this.active = active;
-        if (active) { onLoad(); onShow(); }
-        else        { onHide(); }
+        if (active) { 
+            onLoad(); 
+            onShow();
+            if (starryBackground != null) starryBackground.start();
+        }
+        else {
+            onHide();
+            if (starryBackground != null) starryBackground.stop();
+        }
     }
 
     /**

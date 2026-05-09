@@ -53,10 +53,13 @@ public class LoginScene extends IscatSceneAbstract {
     private boolean isErrorFlashing = false;
 
     public LoginScene(LoginModel loginModel, LoginController loginController) {
-        super(new StackPane());
+        super(new StackPane(), true); // Enable starry background
         this.model = loginModel;
         this.controller = loginController;
         this.root = getContentRoot();
+        
+        // Make root transparent so stars show through
+        root.setStyle("-fx-background-color: transparent;");
         
         initialize();
     }
@@ -106,6 +109,7 @@ public class LoginScene extends IscatSceneAbstract {
     protected void initLayout() {
         contentBox = new VBox();
         contentBox.setAlignment(Pos.CENTER);
+        contentBox.setStyle("-fx-background-color: transparent;"); // Ensure stars show through
 
         // Username: HBox(label + cursor) stacked with placeholder
         HBox usernameTextBox = new HBox(usernameLabel);
@@ -225,6 +229,12 @@ public class LoginScene extends IscatSceneAbstract {
         if (blinkAnimation != null) {
             blinkAnimation.play();
         }
+        // Enable mouse-following mode for starry background
+        if (getStarryBackground() != null) {
+            getStarryBackground().setFollowMouse(true);
+            // Track mouse at scene level to ensure we capture all movement
+            setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
+        }
     }
 
     @Override
@@ -233,6 +243,8 @@ public class LoginScene extends IscatSceneAbstract {
         if (blinkAnimation != null) {
             blinkAnimation.pause();
         }
+        // Clean up mouse handler
+        setOnMouseMoved(null);
     }
 
     // --- Helper methods ---

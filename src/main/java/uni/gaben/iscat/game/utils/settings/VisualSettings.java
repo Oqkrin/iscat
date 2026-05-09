@@ -27,11 +27,18 @@ public class VisualSettings {
     public static final double POTENZA_DIMENSIONE_STELLA = 2.5;
 
     // === Parallasse ===
-    /** Fattore lerp parallasse (0-1, più basso = più lento) */
+    /** Fattore lerp parallasse stelle (0-1, più basso = più lento) */
     public static final double LERP_STELLE = 0.05;
 
-    /** Preset easing parallasse */
+    /** Preset easing parallasse stelle */
     public static Interpolator.Preset EASING_STELLE = Interpolator.Preset.LINEAR;
+
+    // === Camera scroll ===
+    /**
+     * Fattore lerp della camera (0-1).
+     * 0.20 = inseguimento fluido e reattivo.
+     */
+    public static final double LERP_CAMERA = .17;
 
     // === FPS ===
     /** Mostra contatore FPS */

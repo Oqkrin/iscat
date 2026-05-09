@@ -19,26 +19,26 @@ import java.util.function.Consumer;
  * Gestisce il loop e delega ogni responsabilità al proprio handler.
  *
  * Controllers:
- *   GamePauseController    — pausa, navigazione
+ *   GamePauseController      — pausa, navigazione
  *   PlayerMovementController — spinta, direzione
  *   PlayerDodgeController    — scatto, impulso stelle
  *   PlayerShootingController — sparo
- *   GameWrapController     — wrapping ai bordi
- *   GameFpsTracker         — calcolo FPS
+ *   GameScrollController     — scroll del mondo ai bordi
+ *   GameFpsTracker           — calcolo FPS
  */
 public class GameController {
 
     private final GameModel model;
     private GameCanvas canvas;
-    private final InputHandler   input;
+    private final InputHandler input;
 
     // Controllers
-    private final GamePauseController    pause    = new GamePauseController();
+    private final GamePauseController     pause    = new GamePauseController();
     private final PlayerMovementController movement = new PlayerMovementController();
-    private final PlayerDodgeController    dodge    = new PlayerDodgeController();
+    private final PlayerDodgeController   dodge    = new PlayerDodgeController();
     private final PlayerShootingController shooting = new PlayerShootingController();
-    private final GameWrapController       wrap     = new GameWrapController();
-    private final GameFpsTracker           fps      = new GameFpsTracker();
+    private final GameScrollController    scroll   = new GameScrollController();
+    private final GameFpsTracker          fps      = new GameFpsTracker();
 
     private final Random rand = new Random();
     private boolean playerSpawned = false;
@@ -82,14 +82,41 @@ public class GameController {
     // Game loop
     // -------------------------------------------------------------------------
 
+    private long lastFrameTime = 0;
+    private double accumulator = 0.0;
+    private static final double FIXED_DT = 1.0 / 60.0; // 60 updates per second
+    private static final long NANOS_PER_SECOND = 1_000_000_000L;
+
     public void startLoop() {
         if (gameLoop != null) return;
+        lastFrameTime = 0;
+        accumulator = 0.0;
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                // Calculate delta time in seconds
+                if (lastFrameTime == 0) {
+                    lastFrameTime = now;
+                    return;
+                }
+                
+                double deltaSeconds = (now - lastFrameTime) / (double) NANOS_PER_SECOND;
+                lastFrameTime = now;
+                
+                // Cap delta time to prevent spiral of death
+                deltaSeconds = Math.min(deltaSeconds, 0.25);
+                
+                // Accumulate time
+                accumulator += deltaSeconds;
+                
+                // Fixed timestep updates
+                while (accumulator >= FIXED_DT) {
+                    update();
+                    accumulator -= FIXED_DT;
+                }
+                
                 fps.update(now);
-                update();
-                canvas.render(fps.getFps());
+                canvas.render(fps.getFps(), scroll.getCameraX(), scroll.getCameraY());
             }
         };
         gameLoop.start();
@@ -120,9 +147,10 @@ public class GameController {
 
         model.update(GameSettings.DT);
 
-        boolean wrapped = wrap.wrap(p, canvas.getWidth(), canvas.getHeight());
-        if (!wrapped) movement.aggiornaDirezione(input, p);
+        // Update camera to follow player
+        scroll.process(p, canvas.getWidth(), canvas.getHeight());
 
+        movement.aggiornaDirezione(input, p, scroll.getCameraX(), scroll.getCameraY());
         canvas.getSpace().update(p.getVelocity().x, p.getVelocity().y);
 
         if (dashFired) {
@@ -141,6 +169,8 @@ public class GameController {
         PlayerModel p = model.getPlayer();
         p.setX(w / 2.0 - GameCanvas.TILE_SIZE / 2.0);
         p.setY(h / 2.0 - GameCanvas.TILE_SIZE / 2.0);
+        // Snap camera to player immediately to avoid initial lerp impulse
+        scroll.snapToPlayer(p, w, h);
         playerSpawned = true;
     }
 

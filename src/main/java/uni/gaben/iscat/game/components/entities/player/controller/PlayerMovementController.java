@@ -38,10 +38,19 @@ public class PlayerMovementController {
         }
     }
 
-    /** Ruota la nave verso il cursore del mouse. */
-    public void aggiornaDirezione(InputHandler input, PlayerModel p) {
+    /**
+     * Ruota la nave verso il cursore del mouse.
+     * Mouse coordinates are in screen space, so we add camera offset to convert to world space.
+     */
+    public void aggiornaDirezione(InputHandler input, PlayerModel p, double cameraX, double cameraY) {
+        // Convert mouse from screen space to world space
+        double worldMouseX = input.mouseX + cameraX;
+        double worldMouseY = input.mouseY + cameraY;
+        
+        // Player center in world space
         double cx = p.getX() + GameCanvas.TILE_SIZE / 2.0;
         double cy = p.getY() + GameCanvas.TILE_SIZE / 2.0;
-        p.setDirectionAngle(Math.toDegrees(Math.atan2(input.mouseY - cy, input.mouseX - cx)));
+        
+        p.setDirectionAngle(Math.toDegrees(Math.atan2(worldMouseY - cy, worldMouseX - cx)));
     }
 }
