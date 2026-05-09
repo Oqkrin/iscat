@@ -139,7 +139,7 @@ public class IscatAudioManager {
                         String fileName = p.getFileName().toString();
                         String sfxName  = stripExtension(fileName);
                         loadSFX(sfxName, resourceBase + "/" + fileName);
-                        System.out.println("[AudioManager] SFX caricato: " + sfxName);
+                        //DEBUG: System.out.println("[AudioManager] SFX caricato: " + sfxName);
                     });
         } catch (Exception e) {
             System.err.println("[AudioManager] Errore durante la scansione: " + e.getMessage());
@@ -162,8 +162,7 @@ public class IscatAudioManager {
             sfxMap.put(name, new AudioClip(url.toExternalForm()));
         } catch (UnsupportedOperationException e) {
             System.err.printf(
-                    "[AudioManager] Formato non supportato: %s%n" +
-                            "  → Converti il file in WAV PCM 16-bit (es. con Audacity).%n", path
+                    "[AudioManager] Formato non supportato: %s%n", path
             );
         } catch (Exception e) {
             System.err.println("[AudioManager] Errore nel caricamento SFX: " + path);

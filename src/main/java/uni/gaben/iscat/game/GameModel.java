@@ -1,11 +1,12 @@
 package uni.gaben.iscat.game;
 
-import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.components.entities.EntityModel;
+import uni.gaben.iscat.game.components.entities.npcs.FakeIscat;
+import uni.gaben.iscat.game.components.entities.npcs.FallenStarGolem;
+import uni.gaben.iscat.game.components.entities.npcs.IscatMother;
 import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberController;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
-import uni.gaben.iscat.game.components.entities.npcs.iscat_mother.*;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
 import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileModel;
 import uni.gaben.iscat.game.utils.interfaces.*;
@@ -74,11 +75,10 @@ public class GameModel {
 
     public void spawnMother(double x, double y) {
         IscatMother mother = new IscatMother(x, y);
-
-        // Usiamo addEnemy(NpcModel enemy) perché:
-        // 1. La aggiunge alla lista 'enemies'
-        // 2. Chiama addEntity (che la mette in AI, Physical, Renderers, ecc.)
-        // 3. Notifica l'IscatAudioManager per i suoni (tramite il listener)
+        FallenStarGolem star = new FallenStarGolem(x, y);
+        FakeIscat fake = new FakeIscat(x, y);
+        this.addEnemy(star);
+        this.addEnemy(fake);
         this.addEnemy(mother);
     }
 
