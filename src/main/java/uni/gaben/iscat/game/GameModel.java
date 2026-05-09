@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Mondo di gioco e radice dello stato.
@@ -50,6 +51,8 @@ public class GameModel {
      */
     @SuppressWarnings("rawtypes")
     private final Map<EntityModel, EntityRenderer> renderers = new LinkedHashMap<>();
+
+    private Consumer<NpcModel> enemySpawnListener;
 
     public GameModel() {
         player = new PlayerModel(100, 100);
@@ -151,6 +154,16 @@ public class GameModel {
     public void addEnemy(NpcModel enemy) {
         enemies.add(enemy);
         addEntity(enemy);
+
+        // --- NOTIFICA IL LISTENER ---
+        if (enemySpawnListener != null) {
+            enemySpawnListener.accept(enemy);
+        }
+    }
+
+    // Metodo per permettere al Controller di "registrarsi"
+    public void setOnEnemySpawned(Consumer<NpcModel> listener) {
+        this.enemySpawnListener = listener;
     }
 
     /**
@@ -163,6 +176,11 @@ public class GameModel {
         addEntity(enemy);
         // Register the controller for AI updates (model itself no longer implements AI)
         aiEntities.add(controller);
+
+        // --- NOTIFICA IL LISTENER ---
+        if (enemySpawnListener != null) {
+            enemySpawnListener.accept(enemy);
+        }
     }
 
     @SuppressWarnings("unchecked")

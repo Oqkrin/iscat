@@ -3,6 +3,8 @@ package uni.gaben.iscat.game.controller;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
+import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
 import uni.gaben.iscat.game.view.GameCanvas;
 import uni.gaben.iscat.game.GameModel;
 import uni.gaben.iscat.game.utils.settings.GameSettings;
@@ -47,6 +49,17 @@ public class GameController {
     public GameController(GameModel model) {
         this.model = model;
         this.input = new InputHandler();
+        initialize();
+    }
+
+    public void initialize() {
+        // Diciamo al modello di chiamare setupEnemyAudio per ogni nuovo nemico
+        model.setOnEnemySpawned(this::setupEnemyAudio);
+
+        // Gestiamo anche i nemici già presenti (quelli di test)
+        for (NpcModel existingEnemy : model.getEnemies()) {
+            setupEnemyAudio(existingEnemy);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -76,6 +89,20 @@ public class GameController {
         // Hurt audio stays on the model (LivingEntityModel.onHurt is a minor violation
         // but acceptable until LivingEntityModel is refactored)
         p.setOnHurt(() -> IscatAudioManager.getInstance().playSFX("hurt"));
+    }
+
+    public void setupEnemyAudio(NpcModel enemy) {
+        System.out.println("DEBUG: Sto collegando l'audio al nemico: " + enemy.getClass().getSimpleName());
+
+        enemy.setOnHurt(() -> {
+            System.out.println("DEBUG: Il nemico ha sentito dolore!");
+            IscatAudioManager.getInstance().playSFX("hurt");
+        });
+
+        enemy.setOnDeath(() -> {
+            System.out.println("DEBUG: Il nemico è esploso!");
+            IscatAudioManager.getInstance().playSFX("explosion");
+        });
     }
 
     // -------------------------------------------------------------------------

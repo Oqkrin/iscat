@@ -32,5 +32,9 @@ public class NpcModel extends LivingEntityModel implements Collidable {
     }
 
     @Override public void onCollision(Collidable other) { /* TODO: danno, rimbalzo */ }
-    @Override public void die()                         { /* TODO: loot, animazione */ }
+    @Override
+    public void die() {
+        // Esegue la logica di base definita in LivingEntityModel (compreso onDeath.run())
+        super.die();
+    }
 }
