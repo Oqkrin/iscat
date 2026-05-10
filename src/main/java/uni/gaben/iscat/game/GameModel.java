@@ -1,11 +1,12 @@
 package uni.gaben.iscat.game;
 
 import uni.gaben.iscat.game.components.entities.EntityModel;
+import uni.gaben.iscat.game.components.entities.npcs.FakeIscat;
+import uni.gaben.iscat.game.components.entities.npcs.FallenStarGolem;
+import uni.gaben.iscat.game.components.entities.npcs.IscatMother;
 import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberController;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
-import uni.gaben.iscat.game.components.entities.npcs.iscat_mother.IscatMotherController;
-import uni.gaben.iscat.game.components.entities.npcs.iscat_mother.IscatMotherModel;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
 import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileModel;
 import uni.gaben.iscat.game.utils.interfaces.*;
@@ -53,6 +54,7 @@ public class GameModel {
     private final Map<EntityModel, Drawable> renderers = new LinkedHashMap<>();
 
     private Consumer<NpcModel> enemySpawnListener;
+    private final List<NpcModel> pendingEnemies = new ArrayList<>();
 
     public GameModel() {
         player = new PlayerModel(100, 100);
@@ -66,10 +68,24 @@ public class GameModel {
     private void spawnTestEnemies() {
         IscatBomberModel bomberModel = new IscatBomberModel(300, 100);
         IscatBomberController bomberController = new IscatBomberController(bomberModel);
-        IscatMotherModel iscatMother = new IscatMotherModel(300, 100);
-        IscatMotherController motherController = new IscatMotherController(iscatMother);
+
         addEnemy(bomberModel, bomberController);
-        addEnemy(iscatMother, motherController);
+
+        spawnMother(500, 500);
+    }
+
+    public void spawnEnemyLater(NpcModel enemy) {
+        pendingEnemies.add(enemy);
+    }
+
+    public void spawnMother(double x, double y) {
+        IscatMother mother = new IscatMother(x, y);
+        FallenStarGolem star = new FallenStarGolem(x, y);
+        FakeIscat fake = new FakeIscat(x, y);
+        this.addEnemy(star);
+        this.addEnemy(fake);
+        mother.setWorld(this);
+        this.addEnemy(mother);
     }
 
     /** Avanza il mondo di un tick. */
@@ -79,6 +95,15 @@ public class GameModel {
         updateAll(dt);
         resolveCollisions();
         cleanupDeadEntities();
+        processPendingSpawns();
+    }
+
+    // spawniamo pending enemies
+    private void processPendingSpawns() {
+        for (NpcModel enemy : pendingEnemies) {
+            addEnemy(enemy);
+        }
+        pendingEnemies.clear();
     }
 
     // -- Dead / expired entities ---
