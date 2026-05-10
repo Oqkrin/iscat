@@ -30,7 +30,7 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     private static final double DISTANZA_IDEALE     = 250.0;
     private static final int    COOLDOWN_SPARO_TICKS = 60;
     private static final double DIM_PROIETTILE      = 32.0;
-    private static final double VEL_PROIETTILE      = 10.0; // px/tick
+    private static final double VEL_PROIETTILE      = 20.0; // px/tick
 
     private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
             IscatMother.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat_mother.png")));
@@ -71,7 +71,7 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
         maintainDistance(playerPos, myPos, dist);
 
         if (dist >= 90 && dist <= 420 && cooldownFuoco.isReady()) {
-            shoot(world, playerPos, myPos);
+            shoot(world, myPos);
         }
     }
 
@@ -138,7 +138,7 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
         this.setDirectionAngle(Math.toDegrees(angle));
     }
 
-    private void shoot(GameModel world, Vec2 playerPos, Vec2 myPos) {
+    private void shoot(GameModel world, Vec2 myPos) {
         double baseAngle = this.getDirectionAngle();
         double spreadAngle = 15.0;
 

@@ -30,7 +30,7 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
     private static final double DISTANZA_IDEALE = 250.0;
     private static final int COOLDOWN_SPARO_TICKS = 60;
     private static final double DIM_PROIETTILE = 32.0;
-    private static final double VEL_PROIETTILE = 10.0;
+    private static final double VEL_PROIETTILE = 20.0;
 
     private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
             FakeIscat.class.getResourceAsStream("/uni/gaben/iscat/sprites/fake_iscat.png")));

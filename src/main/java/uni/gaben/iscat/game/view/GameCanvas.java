@@ -56,9 +56,7 @@ public class GameCanvas extends Canvas {
         gc.translate(-cameraX, -cameraY);
 
         for (var entry : model.getRenderables().entrySet()) {
-            EntityModel entity = entry.getKey();
-            Drawable renderer = entry.getValue();
-            renderer.draw(gc, entity);
+            entry.getValue().draw(gc, entry.getKey());
         }
 
         gc.restore();
