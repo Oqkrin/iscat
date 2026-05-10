@@ -68,6 +68,7 @@ public class GameModel {
         spawnEnemy("FallenStarGolem", 500 , 500, 1);
         spawnEnemy("FakeIscat", 500 , 500, 1);
         spawnEnemy("IscatBomber",500,500,2);
+        spawnEnemy("IscatCore",500,500,2);
     }
 
     public void spawnEnemyLater(NpcModel enemy) {
@@ -88,6 +89,8 @@ public class GameModel {
                         addEnemy(new FakeIscat(x, y));
                 case "iscat" ->
                         addEnemy(new Iscat(x, y));
+                case "iscatcore" ->
+                        addEnemy(new IscatCore(x, y));
                 case "iscatbomber" -> {
                     IscatBomberModel bomberModel = new IscatBomberModel(x, y);
                     IscatBomberController bomberController = new IscatBomberController(bomberModel);

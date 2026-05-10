@@ -1,9 +1,12 @@
 package uni.gaben.iscat.game.controller;
 
+import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.utils.ThemeManager;
+import javafx.animation.KeyFrame;
+import javafx.util.Duration;
 
 /**
  * Cattura lo stato grezzo di tastiera e mouse ogni frame.
@@ -13,6 +16,12 @@ import uni.gaben.iscat.utils.ThemeManager;
 public class InputHandler {
 
     public boolean up, down, left, right;
+
+    // RAINBOW MODE
+    public boolean rainbowMode = false;
+    private Timeline rainbowTimeline;
+    private int themeIdx = 0;
+    private final Color[] colors = {Color.RED, Color.LIME, Color.CYAN, Color.ORANGE, Color.MAGENTA, Color.YELLOW};
 
     /** true per un solo tick quando SPACE viene premuto. */
     public boolean dodge;
@@ -55,6 +64,8 @@ public class InputHandler {
                 case DIGIT9 -> ThemeManager.getInstance().applyTheme(Color.rgb(100, 10, 200), 1.0); // Il tuo colore custom
                 case DIGIT0 -> ThemeManager.getInstance().applyTheme(Color.WHITE, 1.0); // Reset
 
+                // RAINBOW MODE
+                case QUOTE -> toggleRainbow();
             }
         });
     }
@@ -93,5 +104,21 @@ public class InputHandler {
         boolean d = dodge;
         dodge = false;
         return d;
+    }
+
+    private void toggleRainbow() {
+        if (rainbowTimeline != null) {
+            rainbowTimeline.stop();
+            rainbowTimeline = null;
+            ThemeManager.getInstance().applyTheme(Color.WHITE, 1.0); // Reset
+            return;
+        }
+
+        rainbowTimeline = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> {
+            ThemeManager.getInstance().applyTheme(colors[themeIdx % colors.length], 1.0);
+            themeIdx++;
+        }));
+        rainbowTimeline.setCycleCount(Timeline.INDEFINITE);
+        rainbowTimeline.play();
     }
 }
