@@ -16,7 +16,7 @@ import java.util.Objects;
 public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable, Collidable {
 
     // --- SETTINGS INTERNI ---
-    private static final int    HP_INIZIALI         = 100;
+    private static final int    HP_INIZIALI         = 500;
     private static final double DIM_SPRITE          = 128.0;
     private static final int NUMERO_FRAMES          = 2;
     private static final double SCALE = 5.0;                    // ← Scala principale

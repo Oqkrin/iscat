@@ -18,7 +18,7 @@ import java.util.Objects;
 public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, Collidable {
 
     // --- SETTINGS INTERNI ---
-    private static final int HP_INIZIALI = 100;
+    private static final int HP_INIZIALI = 50;
     private static final double DIM_SPRITE = 32.0;
     private static final int NUMERO_FRAMES = 19;
     private static final double SCALE = 2.0;

@@ -16,7 +16,7 @@ import java.util.Objects;
 public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawnable, Collidable {
 
     // --- SETTINGS INTERNI ---
-    private static final int    HP_INIZIALI         = 100;
+    private static final int    HP_INIZIALI         = 200;
     private static final double DIM_SPRITE          = 64.0;
     private static final int NUMERO_FRAMES          = 25;
     private static final double SCALE = 2.0;
