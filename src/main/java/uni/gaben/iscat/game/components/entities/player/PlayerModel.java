@@ -24,7 +24,7 @@ import uni.gaben.iscat.utils.Cooldown;
  */
 public class PlayerModel extends LivingEntityModel implements Collidable, HasRenderer, Spawnable {
 
-    private static final PlayerView VIEW = new PlayerView();
+    private final PlayerView VIEW = new PlayerView();
 
     private final Cooldown cooldownScatto = new Cooldown();
     private final Cooldown cooldownFuoco  = new Cooldown();

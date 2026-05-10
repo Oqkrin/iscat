@@ -45,25 +45,27 @@ public class GameCanvas extends Canvas {
 
         GraphicsContext gc = getGraphicsContext2D();
 
-        // Clear
+        // 1. Clear sfondo
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, w, h);
         gc.setImageSmoothing(false);
 
-        // 1. Background — stars scroll independently via SpaceModel
+        // 2. Stelle
         spaceView.draw(gc, space);
 
-        // 2. All entities — camera offset applied via gc.translate
+        // 3. Strato entità — NESSUN EFFETTO QUI
         gc.save();
         gc.translate(-cameraX, -cameraY);
+
         for (var entry : model.getRenderables().entrySet()) {
-            EntityModel entity   = entry.getKey();
+            EntityModel entity = entry.getKey();
             Drawable renderer = entry.getValue();
             renderer.draw(gc, entity);
         }
+
         gc.restore();
 
-        // 3. HUD — always in screen space, no camera offset
+        // 5. HUD
         if (VisualSettings.MOSTRA_FPS) {
             drawFPS(gc, currentFps);
         }

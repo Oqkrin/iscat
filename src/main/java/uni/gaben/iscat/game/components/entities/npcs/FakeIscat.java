@@ -1,6 +1,7 @@
 package uni.gaben.iscat.game.components.entities.npcs;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.GameModel;
@@ -9,6 +10,7 @@ import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileMode
 import uni.gaben.iscat.game.utils.interfaces.*;
 import uni.gaben.iscat.game.utils.physics.Vec2;
 import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.ThemeManager;
 
 import java.util.Objects;
 
@@ -39,6 +41,7 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
     public FakeIscat(double startX, double startY) {
         super(startX, startY);
 
+        this.Spritesize = DIM_SPRITE * SCALE;
         this.hp = HP_INIZIALI;
         this.maxHp = HP_INIZIALI;
         this.spriteSize = DIM_SPRITE * SCALE;
@@ -109,9 +112,14 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
     @Override
     public Drawable<FakeIscat> getRenderer() {
         return (gc, fakeIscat) -> {
-
             int frame = (int) ((System.nanoTime() / 1_000_000_000.0) / 0.4) % NUMERO_FRAMES;
             int sourceX = frame * (int) DIM_SPRITE;
+
+            WritableImage frameImg = new WritableImage(
+                    SPRITE_SHEET.getPixelReader(), sourceX, 0, (int) DIM_SPRITE, (int) DIM_SPRITE);
+
+            Color tint = ThemeManager.getInstance().globalTintProperty().get();
+            Image drawn = SpriteUtils.tinted(frameImg, tint);
 
             gc.save();
 
@@ -120,15 +128,10 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
                     fakeIscat.getY() + DRAW_SIZE / 2
             );
 
-            // a FakeIscat non serve la rotazione:
-            //gc.rotate(fakeIscat.getDirectionAngle());
+            gc.rotate(fakeIscat.getDirectionAngle() + 270);
 
             gc.drawImage(
-                    SPRITE_SHEET,
-                    sourceX,
-                    0,
-                    (int) DIM_SPRITE,
-                    (int) DIM_SPRITE,
+                    drawn,
                     -DRAW_SIZE / 2,
                     -DRAW_SIZE / 2,
                     DRAW_SIZE,

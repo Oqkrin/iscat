@@ -14,6 +14,8 @@ public abstract class EntityModel {
     protected double y;
     protected String name = "";
 
+    protected double Spritesize;
+
     public double getX()    { return x; }
     public double getY()    { return y; }
     public String getName() { return name; }
@@ -21,4 +23,8 @@ public abstract class EntityModel {
     public void setX(double x)       { this.x = x; }
     public void setY(double y)       { this.y = y; }
     public void setName(String name) { this.name = name; }
+
+    public double getSpriteSize() {
+        return Spritesize;
+    }
 }

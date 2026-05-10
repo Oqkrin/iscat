@@ -1,6 +1,7 @@
 package uni.gaben.iscat.game.components.entities.npcs;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.GameModel;
@@ -8,6 +9,8 @@ import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileMode
 import uni.gaben.iscat.game.utils.interfaces.*;
 import uni.gaben.iscat.game.utils.physics.Vec2;
 import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.ThemeManager;
+
 import java.util.Objects;
 
 /**
@@ -36,6 +39,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
 
     public FallenStarGolem(double startX, double startY) {
         super(startX, startY);
+        this.Spritesize = DIM_SPRITE * SCALE;
         this.hp = HP_INIZIALI;
         this.maxHp = HP_INIZIALI;
         this.spriteSize = DIM_SPRITE * SCALE;
@@ -101,26 +105,30 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
 
     @Override
     public Drawable<FallenStarGolem> getRenderer() {
-        return (gc, golem) -> {
+        return (gc, fallenStarGolem) -> {
             int frame = (int) ((System.nanoTime() / 1_000_000_000.0) / 0.4) % NUMERO_FRAMES;
             int sourceX = frame * (int) DIM_SPRITE;
 
-            gc.save();
+            WritableImage frameImg = new WritableImage(
+                    SPRITE_SHEET.getPixelReader(), sourceX, 0, (int) DIM_SPRITE, (int) DIM_SPRITE);
 
+            Color tint = ThemeManager.getInstance().globalTintProperty().get();
+            Image drawn = SpriteUtils.tinted(frameImg, tint);
+
+            gc.save();
             gc.translate(
-                    golem.getX() + DRAW_SIZE / 2,
-                    golem.getY() + DRAW_SIZE / 2
+                    fallenStarGolem.getX() + DRAW_SIZE / 2,
+                    fallenStarGolem.getY() + DRAW_SIZE / 2
             );
 
-            // a FallenStarGolem non serve la rotazione:
-            //gc.rotate(golem.getDirectionAngle());
+            gc.rotate(fallenStarGolem.getDirectionAngle() + 270);
 
             gc.drawImage(
-                    SPRITE_SHEET,
-                    sourceX, 0,
-                    (int) DIM_SPRITE, (int) DIM_SPRITE,
-                    -DRAW_SIZE / 2, -DRAW_SIZE / 2,
-                    DRAW_SIZE, DRAW_SIZE
+                    drawn,
+                    -DRAW_SIZE / 2,
+                    -DRAW_SIZE / 2,
+                    DRAW_SIZE,
+                    DRAW_SIZE
             );
 
             gc.restore();

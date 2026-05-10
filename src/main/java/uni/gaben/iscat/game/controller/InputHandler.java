@@ -2,6 +2,8 @@ package uni.gaben.iscat.game.controller;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
+import uni.gaben.iscat.utils.ThemeManager;
 
 /**
  * Cattura lo stato grezzo di tastiera e mouse ogni frame.
@@ -40,6 +42,19 @@ public class InputHandler {
                 case D, RIGHT -> right = false;
                 case ESCAPE -> pausePressed = false;
                 // SPACE non ha un "rilascio" — è one-shot, consumato dal controller
+
+                // --- GESTIONE TEMI (Tasti 1-0) ---
+                case DIGIT1 -> ThemeManager.getInstance().applyTheme(Color.RED, 1.0);
+                case DIGIT2 -> ThemeManager.getInstance().applyTheme(Color.LIME, 1.0);
+                case DIGIT3 -> ThemeManager.getInstance().applyTheme(Color.CYAN, 1.0);
+                case DIGIT4 -> ThemeManager.getInstance().applyTheme(Color.ORANGE, 1.0);
+                case DIGIT5 -> ThemeManager.getInstance().applyTheme(Color.MAGENTA, 1.0);
+                case DIGIT6 -> ThemeManager.getInstance().applyTheme(Color.YELLOW, 1.0);
+                case DIGIT7 -> ThemeManager.getInstance().applyTheme(Color.DEEPSKYBLUE, 1.0);
+                case DIGIT8 -> ThemeManager.getInstance().applyTheme(Color.VIOLET, 1.0);
+                case DIGIT9 -> ThemeManager.getInstance().applyTheme(Color.rgb(100, 10, 200), 1.0); // Il tuo colore custom
+                case DIGIT0 -> ThemeManager.getInstance().applyTheme(Color.WHITE, 1.0); // Reset
+
             }
         });
     }

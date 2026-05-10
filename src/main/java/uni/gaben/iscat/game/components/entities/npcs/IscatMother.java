@@ -1,6 +1,7 @@
 package uni.gaben.iscat.game.components.entities.npcs;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.GameModel;
@@ -8,6 +9,8 @@ import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileMode
 import uni.gaben.iscat.game.utils.interfaces.*;
 import uni.gaben.iscat.game.utils.physics.Vec2;
 import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.ThemeManager;
+
 import java.util.Objects;
 
 /**
@@ -43,6 +46,7 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
 
     public IscatMother(double startX, double startY) {
         super(startX, startY);
+        this.Spritesize = DIM_SPRITE * SCALE;
         this.hp = HP_INIZIALI;
         this.maxHp = HP_INIZIALI;
         this.spriteSize = DIM_SPRITE * SCALE;
@@ -160,21 +164,17 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
             int frame = (int) ((System.nanoTime() / 1_000_000_000.0) / 0.4) % NUMERO_FRAMES;
             int sourceX = frame * (int) DIM_SPRITE;
 
+            // Ritaglia il frame corrente dallo spritesheet
+            WritableImage frameImg = new WritableImage(
+                    SPRITE_SHEET.getPixelReader(), sourceX, 0, (int) DIM_SPRITE, (int) DIM_SPRITE);
+
+            Color tint = ThemeManager.getInstance().globalTintProperty().get();
+            Image drawn = SpriteUtils.tinted(frameImg, tint);
+
             gc.save();
-            // Centro dello sprite
             gc.translate(mother.getX() + DRAW_SIZE / 2, mother.getY() + DRAW_SIZE / 2);
-
-            // Rotazione verso il player + offset nord
-            double rotationAngle = mother.getDirectionAngle() + 270;   // a seconda dello sprite
-
-            gc.rotate(rotationAngle);
-
-            gc.drawImage(SPRITE_SHEET,
-                    sourceX, 0,
-                    (int) DIM_SPRITE, (int) DIM_SPRITE,
-                    -DRAW_SIZE / 2, -DRAW_SIZE / 2,
-                    DRAW_SIZE, DRAW_SIZE);
-
+            gc.rotate(mother.getDirectionAngle() + 270);
+            gc.drawImage(drawn, -DRAW_SIZE / 2, -DRAW_SIZE / 2, DRAW_SIZE, DRAW_SIZE);
             gc.restore();
         };
     }
@@ -222,16 +222,15 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
         @SuppressWarnings("unchecked") // Serve per evitare il warning del cast sul renderer
         public Drawable<ProjectileModel> getRenderer() {
             return (gc, p) -> {
-                // Usiamo le coordinate del proiettile 'p'
-                // 'p' viene passato come ProjectileModel, che ha i metodi getX() e getY()
                 double r = DIM_PROIETTILE / 2.0;
+                Color tint = ThemeManager.getInstance().globalTintProperty().get();
 
                 gc.save();
-                gc.setFill(Color.ORANGERED);
+                gc.setFill(tint);                          // era ORANGERED
                 gc.fillOval(p.getX() - r, p.getY() - r, r * 2, r * 2);
 
                 gc.setGlobalAlpha(0.3);
-                gc.setFill(Color.RED);
+                gc.setFill(tint.darker());                 // era RED
                 gc.fillOval(p.getX() - r * 1.5, p.getY() - r * 1.5, r * 3, r * 3);
                 gc.restore();
             };

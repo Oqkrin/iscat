@@ -1,5 +1,6 @@
 package uni.gaben.iscat.game;
 
+import javafx.scene.paint.Color;
 import uni.gaben.iscat.game.components.entities.EntityModel;
 import uni.gaben.iscat.game.components.entities.npcs.*;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberController;
@@ -9,6 +10,7 @@ import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileMode
 import uni.gaben.iscat.game.utils.interfaces.*;
 import uni.gaben.iscat.game.utils.physics.CollisionPhysics;
 import uni.gaben.iscat.game.utils.physics.Vec2;
+import uni.gaben.iscat.utils.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
