@@ -66,7 +66,7 @@ public class Iscat extends NpcModel implements AI, HasRenderer, Spawnable, Colli
 
         // Sparo
         if (dist >= 90 && dist <= 420 && cooldownFuoco.isReady()) {
-            shoot(world, playerPos, myPos);
+            shoot(world, myPos);
         }
     }
 
@@ -92,7 +92,7 @@ public class Iscat extends NpcModel implements AI, HasRenderer, Spawnable, Colli
         this.setDirectionAngle(Math.toDegrees(angle));
     }
 
-    private void shoot(GameModel world, Vec2 playerPos, Vec2 myPos) {
+    private void shoot(GameModel world, Vec2 myPos) {
         double rad = Math.toRadians(this.getDirectionAngle());
 
         Vec2 velocity = new Vec2(

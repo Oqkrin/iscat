@@ -60,7 +60,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
 
         // 2. Sparo
         if (dist >= 90 && dist <= 420 && cooldownFuoco.isReady()) {
-            shoot(world, playerPos, myPos);
+            shoot(world, myPos);
         }
     }
 
@@ -78,7 +78,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
         this.setDirectionAngle(Math.toDegrees(angle));
     }
 
-    private void shoot(GameModel world, Vec2 playerPos, Vec2 myPos) {
+    private void shoot(GameModel world, Vec2 myPos) {
         int numProiettili = 12;
         // Calcoliamo l'angolo tra un proiettile e l'altro (360 / 12 = 30 gradi)
         double step = (2 * Math.PI) / numProiettili;

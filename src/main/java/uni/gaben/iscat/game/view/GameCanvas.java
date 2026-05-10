@@ -13,12 +13,10 @@ import uni.gaben.iscat.game.utils.settings.VisualSettings;
 
 /**
  * Coordinatore del rendering di gioco.
- *
  * Ordine di rendering (back to front):
  *   1. Sfondo (stelle)
  *   2. Entità (ordine di inserimento nel GameModel — back to front)
  *   3. HUD (FPS)
- *
  * Nessun instanceof — ogni entità ha il proprio renderer registrato in GameModel.
  */
 public class GameCanvas extends Canvas {

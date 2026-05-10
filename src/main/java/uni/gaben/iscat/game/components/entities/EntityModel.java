@@ -3,7 +3,6 @@ import uni.gaben.iscat.game.utils.interfaces.Collidable;
 /**
  * Base minimale per ogni oggetto nel mondo di gioco.
  * Solo identità e posizione grezza.
- *
  * Fisica → {@link PhysicalEntityModel}.
  * Salute → {@link LivingEntityModel}.
  * Collisioni → interfaccia {@link Collidable}.
