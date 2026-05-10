@@ -1,10 +1,7 @@
 package uni.gaben.iscat.game;
 
 import uni.gaben.iscat.game.components.entities.EntityModel;
-import uni.gaben.iscat.game.components.entities.npcs.FakeIscat;
-import uni.gaben.iscat.game.components.entities.npcs.FallenStarGolem;
-import uni.gaben.iscat.game.components.entities.npcs.IscatMother;
-import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
+import uni.gaben.iscat.game.components.entities.npcs.*;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberController;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
@@ -82,6 +79,8 @@ public class GameModel {
         IscatMother mother = new IscatMother(x, y);
         FallenStarGolem star = new FallenStarGolem(x, y);
         FakeIscat fake = new FakeIscat(x, y);
+        Iscat iscat = new Iscat(x, y);
+        this.addEnemy(iscat);
         this.addEnemy(star);
         this.addEnemy(fake);
         mother.setWorld(this);

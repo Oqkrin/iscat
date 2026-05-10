@@ -21,6 +21,7 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     private static final int NUMERO_FRAMES          = 2;
     private static final double SCALE = 5.0;                    // ← Scala principale
     private static final double DRAW_SIZE = DIM_SPRITE * SCALE;
+    private static final double VELOCITA_MOVIMENTO = 15;
 
     private static final double RAGGIO_COLLISIONE   = (DIM_SPRITE / 2.0) * 0.9;
     private static final double DISTANZA_IDEALE     = 250.0;
@@ -107,11 +108,16 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
             double x = myPos.x + Math.cos(rad) * radius;
             double y = myPos.y + Math.sin(rad) * radius;
 
-            FakeIscat fake = new FakeIscat(x, y);
-            world.spawnEnemyLater(fake);
+            Iscat isc = new Iscat(x, y);
+            world.spawnEnemyLater(isc);
         }
 
-        System.out.println("IscatMother ha chiamato 5 FakeIscat!");
+        FakeIscat fake1 = new FakeIscat(x, y);
+        FakeIscat fake2 = new FakeIscat(x, y);
+        world.spawnEnemyLater(fake1);
+        world.spawnEnemyLater(fake2);
+
+        System.out.println("IscatMother ha chiamato rinforzi!");
         // TODO: suono di spawn / effetto particelle
     }
 
@@ -121,9 +127,9 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
         double angle = Math.atan2(dy, dx);
 
         if (dist < DISTANZA_IDEALE - 20) {
-            this.applyForce(new Vec2(-Math.cos(angle) * 15, -Math.sin(angle) * 15));
+            this.applyForce(new Vec2(-Math.cos(angle) * VELOCITA_MOVIMENTO, -Math.sin(angle) * VELOCITA_MOVIMENTO));
         } else if (dist > DISTANZA_IDEALE + 30) {
-            this.applyForce(new Vec2(Math.cos(angle) * 15, Math.sin(angle) * 15));
+            this.applyForce(new Vec2(Math.cos(angle) * VELOCITA_MOVIMENTO, Math.sin(angle) * VELOCITA_MOVIMENTO));
         }
         this.setDirectionAngle(Math.toDegrees(angle));
     }
@@ -182,8 +188,8 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
         Vec2 center = this.getColliderCenter();
         double radius = 130.0;
 
-        // 20 FakeIscat
-        for (int i = 0; i < 200; i++) {
+        // 20 Iscat
+        for (int i = 0; i < 20; i++) {
             double angle = Math.random() * 360;
             double rad = Math.toRadians(angle);
             double dist = radius + Math.random() * 60;
@@ -191,24 +197,9 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
             double x = center.x + Math.cos(rad) * dist;
             double y = center.y + Math.sin(rad) * dist;
 
-            FakeIscat fake = new FakeIscat(x, y);
-            world.spawnEnemyLater(fake);
+            Iscat isc = new Iscat(x, y);
+            world.spawnEnemyLater(isc);
         }
-
-        // 10 FallenStarGolem
-        for (int i = 0; i < 100; i++) {
-            double angle = Math.random() * 360;
-            double rad = Math.toRadians(angle);
-            double dist = radius * 0.9;
-
-            double x = center.x + Math.cos(rad) * dist;
-            double y = center.y + Math.sin(rad) * dist;
-
-            FallenStarGolem golem = new FallenStarGolem(x, y);
-            world.spawnEnemyLater(golem);
-        }
-
-        System.out.println("→ Spawnati 20 FakeIscat + 10 FallenStarGolem!");
     }
 
     // =========================================================================

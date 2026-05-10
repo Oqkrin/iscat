@@ -4,7 +4,6 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.GameModel;
-import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileModel;
 import uni.gaben.iscat.game.utils.interfaces.*;
 import uni.gaben.iscat.game.utils.physics.Vec2;
@@ -15,28 +14,28 @@ import java.util.Objects;
 /**
  * CLASSE MONOLITICA: Contiene Nemico, Proiettile e Renderer.
  */
-public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, Collidable {
+public class Iscat extends NpcModel implements AI, HasRenderer, Spawnable, Collidable {
 
     // --- SETTINGS INTERNI ---
-    private static final int HP_INIZIALI = 100;
+    private static final int HP_INIZIALI = 10;
     private static final double DIM_SPRITE = 32.0;
-    private static final int NUMERO_FRAMES = 19;
-    private static final double SCALE = 2.0;
+    private static final int NUMERO_FRAMES = 1;
+    private static final double SCALE = 1.5;
     private static final double DRAW_SIZE = DIM_SPRITE * SCALE;
     private static final double VELOCITA_MOVIMENTO = 50;
 
     private static final double RAGGIO_COLLISIONE = (DIM_SPRITE / 2.0) * 0.9;
-    private static final double DISTANZA_IDEALE = 250.0;
-    private static final int COOLDOWN_SPARO_TICKS = 60;
-    private static final double DIM_PROIETTILE = 32.0;
-    private static final double VEL_PROIETTILE = 10.0;
+    private static final double DISTANZA_IDEALE = 100.0;
+    private static final int COOLDOWN_SPARO_TICKS = 10;
+    private static final double DIM_PROIETTILE = 10;
+    private static final double VEL_PROIETTILE = 20.0;
 
     private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            FakeIscat.class.getResourceAsStream("/uni/gaben/iscat/sprites/fake_iscat.png")));
+            Iscat.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat.png")));
 
     private final Cooldown cooldownFuoco = new Cooldown();
 
-    public FakeIscat(double startX, double startY) {
+    public Iscat(double startX, double startY) {
         super(startX, startY);
 
         this.hp = HP_INIZIALI;
@@ -99,7 +98,7 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
                 Math.sin(rad) * VEL_PROIETTILE
         );
 
-        world.addEntity(new FakeIscatProjectile(myPos, velocity));
+        world.addEntity(new IscatProjectile(myPos, velocity));
 
         IscatAudioManager.getInstance().playSFX("shoot");
 
@@ -107,8 +106,8 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
     }
 
     @Override
-    public Drawable<FakeIscat> getRenderer() {
-        return (gc, fakeIscat) -> {
+    public Drawable<Iscat> getRenderer() {
+        return (gc, iscat) -> {
 
             int frame = (int) ((System.nanoTime() / 1_000_000_000.0) / 0.4) % NUMERO_FRAMES;
             int sourceX = frame * (int) DIM_SPRITE;
@@ -116,12 +115,13 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
             gc.save();
 
             gc.translate(
-                    fakeIscat.getX() + DRAW_SIZE / 2,
-                    fakeIscat.getY() + DRAW_SIZE / 2
+                    iscat.getX() + DRAW_SIZE / 2,
+                    iscat.getY() + DRAW_SIZE / 2
             );
 
-            // a FakeIscat non serve la rotazione:
-            //gc.rotate(fakeIscat.getDirectionAngle());
+            double rotationAngle = iscat.getDirectionAngle() + 270;   // a seconda dello sprite
+
+            gc.rotate(rotationAngle);
 
             gc.drawImage(
                     SPRITE_SHEET,
@@ -161,9 +161,9 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
     // PROIETTILE
     // =========================================================================
 
-    public static class FakeIscatProjectile extends ProjectileModel implements HasRenderer {
+    public static class IscatProjectile extends ProjectileModel implements HasRenderer {
 
-        public FakeIscatProjectile(Vec2 pos, Vec2 vel) {
+        public IscatProjectile(Vec2 pos, Vec2 vel) {
             super(pos, vel);
             this.mass = 1.0;
         }

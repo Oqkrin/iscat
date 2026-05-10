@@ -21,6 +21,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
     private static final int NUMERO_FRAMES          = 25;
     private static final double SCALE = 2.0;
     private static final double DRAW_SIZE = DIM_SPRITE * SCALE;
+    private static final double VELOCITA_MOVIMENTO = 15;
 
     private static final double RAGGIO_COLLISIONE   = (DIM_SPRITE / 2.0) * 0.9;
     private static final double DISTANZA_IDEALE     = 250.0;
@@ -65,9 +66,9 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
         double angle = Math.atan2(dy, dx);
 
         if (dist < DISTANZA_IDEALE - 20) {
-            this.applyForce(new Vec2(-Math.cos(angle) * 15, -Math.sin(angle) * 15));
+            this.applyForce(new Vec2(-Math.cos(angle) * VELOCITA_MOVIMENTO, -Math.sin(angle) * VELOCITA_MOVIMENTO));
         } else if (dist > DISTANZA_IDEALE + 30) {
-            this.applyForce(new Vec2(Math.cos(angle) * 15, Math.sin(angle) * 15));
+            this.applyForce(new Vec2(Math.cos(angle) * VELOCITA_MOVIMENTO, Math.sin(angle) * VELOCITA_MOVIMENTO));
         }
 
         this.setDirectionAngle(Math.toDegrees(angle));
