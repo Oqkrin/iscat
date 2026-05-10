@@ -182,7 +182,6 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     @Override public double getCollisionRadius() { return RAGGIO_COLLISIONE * SCALE; }
     @Override public int getCollisionLayer() { return LAYER_ENEMY; }
     @Override public int getCollisionMask() { return LAYER_PLAYER | LAYER_PROJECTILE | LAYER_ENEMY; }
-    @Override public void resetAI() {}
 
     private void spawnHorde(GameModel world) {
         Vec2 center = this.getColliderCenter();
@@ -219,7 +218,6 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
         public int getCollisionMask() { return LAYER_PLAYER; }
 
         @Override
-        @SuppressWarnings("unchecked") // Serve per evitare il warning del cast sul renderer
         public Drawable<ProjectileModel> getRenderer() {
             return (gc, p) -> {
                 double r = DIM_PROIETTILE / 2.0;

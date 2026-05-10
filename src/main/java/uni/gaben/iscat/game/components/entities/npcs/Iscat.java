@@ -143,9 +143,6 @@ public class Iscat extends NpcModel implements AI, HasRenderer, Spawnable, Colli
         return LAYER_PLAYER | LAYER_PROJECTILE | LAYER_ENEMY;
     }
 
-    @Override
-    public void resetAI() {}
-
     // =========================================================================
     // PROIETTILE
     // =========================================================================
@@ -168,7 +165,6 @@ public class Iscat extends NpcModel implements AI, HasRenderer, Spawnable, Colli
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public Drawable<ProjectileModel> getRenderer() {
 
             return (gc, p) -> {

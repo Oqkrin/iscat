@@ -1,6 +1,5 @@
 package uni.gaben.iscat.game;
 
-import javafx.scene.paint.Color;
 import uni.gaben.iscat.game.components.entities.EntityModel;
 import uni.gaben.iscat.game.components.entities.npcs.*;
 import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberController;
@@ -10,7 +9,6 @@ import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileMode
 import uni.gaben.iscat.game.utils.interfaces.*;
 import uni.gaben.iscat.game.utils.physics.CollisionPhysics;
 import uni.gaben.iscat.game.utils.physics.Vec2;
-import uni.gaben.iscat.utils.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,28 +63,41 @@ public class GameModel {
     
     /** Spawn nemici di test. Rimuovere quando ci sarà un sistema di spawn vero. */
     private void spawnTestEnemies() {
-        IscatBomberModel bomberModel = new IscatBomberModel(300, 100);
-        IscatBomberController bomberController = new IscatBomberController(bomberModel);
-
-        addEnemy(bomberModel, bomberController);
-
-        spawnMother(500, 500);
+        spawnEnemy("iscatmother", 500 , 500, 1);
+        spawnEnemy("iscat", 500 , 500, 4);
+        spawnEnemy("FallenStarGolem", 500 , 500, 1);
+        spawnEnemy("FakeIscat", 500 , 500, 1);
+        spawnEnemy("IscatBomber",500,500,2);
     }
 
     public void spawnEnemyLater(NpcModel enemy) {
         pendingEnemies.add(enemy);
     }
 
-    public void spawnMother(double x, double y) {
-        IscatMother mother = new IscatMother(x, y);
-        FallenStarGolem star = new FallenStarGolem(x, y);
-        FakeIscat fake = new FakeIscat(x, y);
-        Iscat iscat = new Iscat(x, y);
-        this.addEnemy(iscat);
-        this.addEnemy(star);
-        this.addEnemy(fake);
-        mother.setWorld(this);
-        this.addEnemy(mother);
+    public void spawnEnemy(String enemyName, double x, double y, int quantity) {
+        for (int i = 0; i < quantity; i++) {
+            switch (enemyName.toLowerCase()) {
+                case "iscatmother" -> {
+                    IscatMother mother = new IscatMother(x, y);
+                    mother.setWorld(this);
+                    addEnemy(mother);
+                }
+                case "fallenstargolem" ->
+                        addEnemy(new FallenStarGolem(x, y));
+                case "fakeiscat" ->
+                        addEnemy(new FakeIscat(x, y));
+                case "iscat" ->
+                        addEnemy(new Iscat(x, y));
+                case "iscatbomber" -> {
+                    IscatBomberModel bomberModel = new IscatBomberModel(x, y);
+                    IscatBomberController bomberController = new IscatBomberController(bomberModel);
+
+                    addEnemy(bomberModel, bomberController);
+                }
+                default ->
+                        System.err.println("Enemy not found: " + enemyName);
+            }
+        }
     }
 
     /** Avanza il mondo di un tick. */
@@ -209,7 +220,6 @@ public class GameModel {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void addEntity(EntityModel entity) {
         allEntities.add(entity);
 

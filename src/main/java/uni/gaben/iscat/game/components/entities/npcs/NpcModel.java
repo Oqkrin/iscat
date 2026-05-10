@@ -1,7 +1,6 @@
 package uni.gaben.iscat.game.components.entities.npcs;
 
 import uni.gaben.iscat.game.utils.interfaces.Collidable;
-import uni.gaben.iscat.game.utils.physics.Vec2;
 import uni.gaben.iscat.game.components.entities.LivingEntityModel;
 
 /**

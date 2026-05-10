@@ -5,7 +5,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.GameModel;
-import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.player.projectile.ProjectileModel;
 import uni.gaben.iscat.game.utils.interfaces.*;
 import uni.gaben.iscat.game.utils.physics.Vec2;
@@ -128,7 +127,7 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
                     fakeIscat.getY() + DRAW_SIZE / 2
             );
 
-            gc.rotate(fakeIscat.getDirectionAngle() + 270);
+            //gc.rotate(fakeIscat.getDirectionAngle() + 270);
 
             gc.drawImage(
                     drawn,
@@ -157,9 +156,6 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
         return LAYER_PLAYER | LAYER_PROJECTILE | LAYER_ENEMY;
     }
 
-    @Override
-    public void resetAI() {}
-
     // =========================================================================
     // PROIETTILE
     // =========================================================================
@@ -182,7 +178,6 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public Drawable<ProjectileModel> getRenderer() {
 
             return (gc, p) -> {

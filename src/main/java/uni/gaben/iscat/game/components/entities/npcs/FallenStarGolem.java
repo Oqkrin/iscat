@@ -121,7 +121,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
                     fallenStarGolem.getY() + DRAW_SIZE / 2
             );
 
-            gc.rotate(fallenStarGolem.getDirectionAngle() + 270);
+            //gc.rotate(fallenStarGolem.getDirectionAngle() + 270);
 
             gc.drawImage(
                     drawn,
@@ -150,9 +150,6 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
         return LAYER_PLAYER | LAYER_PROJECTILE | LAYER_ENEMY;
     }
 
-    @Override
-    public void resetAI() {}
-
     // =========================================================================
     // CLASSE INTERNA PROIETTILE
     // =========================================================================
@@ -175,7 +172,6 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public Drawable<ProjectileModel> getRenderer() {
             return (gc, p) -> {
                 double r = DIM_PROIETTILE / 2.0;

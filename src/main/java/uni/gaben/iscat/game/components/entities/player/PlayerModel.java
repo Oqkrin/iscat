@@ -10,11 +10,9 @@ import uni.gaben.iscat.utils.Cooldown;
 
 /**
  * PlayerModel — pure state.
- *
  * Owns: physics config, health, cooldown timers, dash phase state.
  * Does NOT own: input flags, callbacks, audio, projectile spawning,
  *               or any "when to act" decision logic → see player/controller/.
- *
  * Controllers interact via:
  *   - isScattoDisponibile() / isInScatto()  — query state
  *   - executeScatto(directionAngle)          — apply dash impulse + start timers
