@@ -149,14 +149,19 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     }
 
     @Override
-    public EntityRenderer<IscatMother> getRenderer() {
+    public Drawable<IscatMother> getRenderer() {
         return (gc, mother) -> {
             int frame = (int) ((System.nanoTime() / 1_000_000_000.0) / 0.4) % NUMERO_FRAMES;
             int sourceX = frame * (int) DIM_SPRITE;
 
             gc.save();
+            // Centro dello sprite
             gc.translate(mother.getX() + DRAW_SIZE / 2, mother.getY() + DRAW_SIZE / 2);
-            gc.rotate(mother.getDirectionAngle());
+
+            // Rotazione verso il player + offset nord
+            double rotationAngle = mother.getDirectionAngle() + 270;   // a seconda dello sprite
+
+            gc.rotate(rotationAngle);
 
             gc.drawImage(SPRITE_SHEET,
                     sourceX, 0,
@@ -224,7 +229,7 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
 
         @Override
         @SuppressWarnings("unchecked") // Serve per evitare il warning del cast sul renderer
-        public EntityRenderer<ProjectileModel> getRenderer() {
+        public Drawable<ProjectileModel> getRenderer() {
             return (gc, p) -> {
                 // Usiamo le coordinate del proiettile 'p'
                 // 'p' viene passato come ProjectileModel, che ha i metodi getX() e getY()

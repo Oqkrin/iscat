@@ -106,7 +106,7 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
     }
 
     @Override
-    public EntityRenderer<FakeIscat> getRenderer() {
+    public Drawable<FakeIscat> getRenderer() {
         return (gc, fakeIscat) -> {
 
             int frame = (int) ((System.nanoTime() / 1_000_000_000.0) / 0.4) % NUMERO_FRAMES;
@@ -119,7 +119,8 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
                     fakeIscat.getY() + DRAW_SIZE / 2
             );
 
-            gc.rotate(fakeIscat.getDirectionAngle());
+            // a FakeIscat non serve la rotazione:
+            //gc.rotate(fakeIscat.getDirectionAngle());
 
             gc.drawImage(
                     SPRITE_SHEET,
@@ -178,7 +179,7 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
 
         @Override
         @SuppressWarnings("unchecked")
-        public EntityRenderer<ProjectileModel> getRenderer() {
+        public Drawable<ProjectileModel> getRenderer() {
 
             return (gc, p) -> {
 

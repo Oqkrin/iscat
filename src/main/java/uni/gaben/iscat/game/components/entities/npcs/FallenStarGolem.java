@@ -99,7 +99,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
     }
 
     @Override
-    public EntityRenderer<FallenStarGolem> getRenderer() {
+    public Drawable<FallenStarGolem> getRenderer() {
         return (gc, golem) -> {
             int frame = (int) ((System.nanoTime() / 1_000_000_000.0) / 0.4) % NUMERO_FRAMES;
             int sourceX = frame * (int) DIM_SPRITE;
@@ -111,7 +111,8 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
                     golem.getY() + DRAW_SIZE / 2
             );
 
-            gc.rotate(golem.getDirectionAngle());
+            // a FallenStarGolem non serve la rotazione:
+            //gc.rotate(golem.getDirectionAngle());
 
             gc.drawImage(
                     SPRITE_SHEET,
@@ -166,7 +167,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
 
         @Override
         @SuppressWarnings("unchecked")
-        public EntityRenderer<ProjectileModel> getRenderer() {
+        public Drawable<ProjectileModel> getRenderer() {
             return (gc, p) -> {
                 double r = DIM_PROIETTILE / 2.0;
 
