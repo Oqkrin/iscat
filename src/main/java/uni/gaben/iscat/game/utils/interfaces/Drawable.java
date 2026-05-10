@@ -8,7 +8,7 @@ import javafx.scene.canvas.GraphicsContext;
  *
  * @param <T> il tipo di entità da disegnare
  */
-public interface EntityRenderer<T> {
+public interface Drawable<T> {
 
     /**
      * Disegna l'entità sul GraphicsContext fornito.

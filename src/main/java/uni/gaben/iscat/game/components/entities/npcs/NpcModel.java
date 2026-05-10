@@ -24,17 +24,11 @@ public class NpcModel extends LivingEntityModel implements Collidable {
     }
 
     @Override public double getCollisionRadius() { return RADIUS; }
-    
-    @Override 
-    public Vec2 getColliderCenter() { 
-        // Use LivingEntityModel helper for consistent collision center calculation
-        return super.getColliderCenter();
+
+    @Override
+    public void onCollision(Collidable other) {
+        //override
     }
 
-    @Override public void onCollision(Collidable other) { /* TODO: danno, rimbalzo */ }
-    @Override
-    public void die() {
-        // Esegue la logica di base definita in LivingEntityModel (compreso onDeath.run())
-        super.die();
-    }
+
 }

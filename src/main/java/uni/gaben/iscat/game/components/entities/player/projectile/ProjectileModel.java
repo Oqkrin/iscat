@@ -3,7 +3,7 @@ package uni.gaben.iscat.game.components.entities.player.projectile;
 import uni.gaben.iscat.game.components.entities.LivingEntityModel;
 import uni.gaben.iscat.game.components.entities.PhysicalEntityModel;
 import uni.gaben.iscat.game.utils.interfaces.Collidable;
-import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Drawable;
 import uni.gaben.iscat.game.utils.interfaces.Expirable;
 import uni.gaben.iscat.game.utils.interfaces.HasRenderer;
 import uni.gaben.iscat.game.utils.interfaces.Spawnable;
@@ -85,5 +85,5 @@ public class ProjectileModel extends PhysicalEntityModel
 
     @Override
     @SuppressWarnings("unchecked")
-    public EntityRenderer<ProjectileModel> getRenderer() { return VIEW; }
+    public Drawable<ProjectileModel> getRenderer() { return VIEW; }
 }

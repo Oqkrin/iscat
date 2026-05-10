@@ -21,5 +21,5 @@ public interface HasRenderer {
      * Il renderer deve essere stateless — non memorizzare stato per frame.
      */
     @SuppressWarnings("rawtypes")
-    EntityRenderer getRenderer();
+    Drawable getRenderer();
 }

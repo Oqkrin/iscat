@@ -2,7 +2,7 @@ package uni.gaben.iscat.game.components.entities.npcs.iscat_mother;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Drawable;
 import uni.gaben.iscat.game.utils.settings.VisualSettings;
 import java.util.Objects;
 
@@ -12,7 +12,7 @@ import java.util.Objects;
  * - Rotazione verso la direzione
  * - Scala personalizzabile (più grande)
  */
-public class IscatMotherView implements EntityRenderer<IscatMotherModel> {
+public class IscatMotherView implements Drawable<IscatMotherModel> {
 
     private static final double TILE_SIZE = VisualSettings.DIMENSIONE_TILE;
     private static final double NORTH_OFFSET = VisualSettings.OFFSET_NORD_SPRITE;

@@ -3,7 +3,7 @@ package uni.gaben.iscat.game.components.entities.player;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Drawable;
 import uni.gaben.iscat.game.utils.settings.VisualSettings;
 import uni.gaben.iscat.utils.ThemeColors;
 
@@ -14,7 +14,7 @@ import java.util.Random;
  * Disegna il giocatore: sprite ruotato verso la direzione corrente.
  * Include effetto visivo di propulsione con particelle.
  */
-public class PlayerView implements EntityRenderer<PlayerModel> {
+public class PlayerView implements Drawable<PlayerModel> {
 
     private static final double TILE_SIZE    = VisualSettings.DIMENSIONE_TILE;
     private static final double NORTH_OFFSET = VisualSettings.OFFSET_NORD_SPRITE;

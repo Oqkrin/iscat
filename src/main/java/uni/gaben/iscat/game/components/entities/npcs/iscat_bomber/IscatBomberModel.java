@@ -3,7 +3,7 @@ package uni.gaben.iscat.game.components.entities.npcs.iscat_bomber;
 import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
 import uni.gaben.iscat.game.components.entities.player.PlayerModel;
 import uni.gaben.iscat.game.utils.interfaces.Collidable;
-import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Drawable;
 import uni.gaben.iscat.game.utils.interfaces.HasRenderer;
 import uni.gaben.iscat.game.utils.interfaces.Spawnable;
 import uni.gaben.iscat.game.utils.physics.Vec2;
@@ -68,7 +68,7 @@ public class IscatBomberModel extends NpcModel implements Collidable, HasRendere
 
     @Override
     @SuppressWarnings("unchecked")
-    public EntityRenderer<IscatBomberModel> getRenderer() { return VIEW; }
+    public Drawable<IscatBomberModel> getRenderer() { return VIEW; }
 
     // -------------------------------------------------------------------------
     // Collision layers

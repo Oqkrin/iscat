@@ -8,7 +8,7 @@ import uni.gaben.iscat.game.GameModel;
 import uni.gaben.iscat.game.components.entities.EntityModel;
 import uni.gaben.iscat.game.components.space.SpaceModel;
 import uni.gaben.iscat.game.components.space.SpaceView;
-import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Drawable;
 import uni.gaben.iscat.game.utils.settings.VisualSettings;
 
 /**
@@ -58,7 +58,7 @@ public class GameCanvas extends Canvas {
         gc.translate(-cameraX, -cameraY);
         for (var entry : model.getRenderables().entrySet()) {
             EntityModel entity   = entry.getKey();
-            EntityRenderer renderer = entry.getValue();
+            Drawable renderer = entry.getValue();
             renderer.draw(gc, entity);
         }
         gc.restore();

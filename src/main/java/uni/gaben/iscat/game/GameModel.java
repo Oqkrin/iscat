@@ -50,7 +50,7 @@ public class GameModel {
      * Populated via HasRenderer — no instanceof per entity type needed.
      */
     @SuppressWarnings("rawtypes")
-    private final Map<EntityModel, EntityRenderer> renderers = new LinkedHashMap<>();
+    private final Map<EntityModel, Drawable> renderers = new LinkedHashMap<>();
 
     private Consumer<NpcModel> enemySpawnListener;
 
@@ -225,7 +225,7 @@ public class GameModel {
      * GameCanvas iterates this and calls draw() — no instanceof needed.
      */
     @SuppressWarnings("rawtypes")
-    public Map<EntityModel, EntityRenderer> getRenderables() {
+    public Map<EntityModel, Drawable> getRenderables() {
         return Collections.unmodifiableMap(renderers);
     }
 }

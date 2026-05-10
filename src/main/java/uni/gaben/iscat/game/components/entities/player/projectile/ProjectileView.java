@@ -2,12 +2,12 @@ package uni.gaben.iscat.game.components.entities.player.projectile;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Drawable;
 
 /**
  * Disegna un proiettile: cerchio bianco con bagliore semitrasparente.
  */
-public class ProjectileView implements EntityRenderer<ProjectileModel> {
+public class ProjectileView implements Drawable<ProjectileModel> {
 
     private static final double RADIUS = ProjectileModel.RADIUS;
 

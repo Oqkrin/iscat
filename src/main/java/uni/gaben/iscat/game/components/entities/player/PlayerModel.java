@@ -2,7 +2,7 @@ package uni.gaben.iscat.game.components.entities.player;
 
 import uni.gaben.iscat.game.components.entities.LivingEntityModel;
 import uni.gaben.iscat.game.utils.interfaces.Collidable;
-import uni.gaben.iscat.game.utils.interfaces.EntityRenderer;
+import uni.gaben.iscat.game.utils.interfaces.Drawable;
 import uni.gaben.iscat.game.utils.interfaces.HasRenderer;
 import uni.gaben.iscat.game.utils.interfaces.Spawnable;
 import uni.gaben.iscat.game.utils.physics.Vec2;
@@ -126,7 +126,7 @@ public class PlayerModel extends LivingEntityModel implements Collidable, HasRen
     // HasRenderer
     // -------------------------------------------------------------------------
 
-    @Override public EntityRenderer<PlayerModel> getRenderer() { return VIEW; }
+    @Override public Drawable<PlayerModel> getRenderer() { return VIEW; }
 
     // -------------------------------------------------------------------------
     // Alive
