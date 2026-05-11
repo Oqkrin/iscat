@@ -16,6 +16,11 @@ public class MenuController {
         IscatNavigator.getInstance().navigateTo(IscatScenes.GAMEN);
     }
 
+    /** Open the PlayerSkinChooseMenu */
+    public void openSkinMenu() {
+        IscatNavigator.getInstance().navigateTo(IscatScenes.SKIN_MENU);
+    }
+
     public void quit() {
         Platform.exit();
     }

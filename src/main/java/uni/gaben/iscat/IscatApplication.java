@@ -19,6 +19,8 @@ import uni.gaben.iscat.login.model.LoginModel;
 import uni.gaben.iscat.login.view.LoginScene;
 import uni.gaben.iscat.menu.controller.MenuController;
 import uni.gaben.iscat.menu.view.MenuScene;
+import uni.gaben.iscat.skin_menu.SkinMenuController;
+import uni.gaben.iscat.skin_menu.SkinMenuScene;
 import uni.gaben.iscat.utils.IscatUtils;
 
 import java.util.EnumMap;
@@ -47,6 +49,9 @@ public class IscatApplication extends Application {
         // --- Menu ---
         MenuController menuController = new MenuController();
 
+        // --- Skin Menu ---
+        SkinMenuController skinMenuController = new SkinMenuController();
+
         // --- Legacy game ---
         GameModel      legacyModel      = new GameModel();
         GameController legacyController = new GameController(legacyModel);
@@ -61,7 +66,7 @@ public class IscatApplication extends Application {
         scenes.put(IscatScenes.MENU,     new MenuScene(menuController));
         scenes.put(IscatScenes.GAME,     new GameScene(legacyController, legacyModel));
         scenes.put(IscatScenes.GAMEN, new GamenexScene(gamenexController, gamenexModel));
-
+        scenes.put(IscatScenes.SKIN_MENU, new SkinMenuScene(skinMenuController));
         // Apply global colour theme to every scene
         String colorTheme = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-color-theme.css"))

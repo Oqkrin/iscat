@@ -30,9 +30,11 @@ public class IscatModel {
     public String getBgmPath(IscatScenes scene) {
         return switch (scene) {
             case LOGIN    -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
-            case MENU     -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
+            case MENU,
+                 SKIN_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
             case GAME,
                  GAMEN -> "/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav";
+            case BESTIARY -> null;
         };
     }
 

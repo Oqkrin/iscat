@@ -9,6 +9,7 @@ module uni.gaben.iscat {
 
     opens uni.gaben.iscat to javafx.fxml;
     opens uni.gaben.iscat.utils to javafx.fxml;
+    opens uni.gaben.iscat.skin_menu to javafx.fxml;
 
     exports uni.gaben.iscat;
     exports uni.gaben.iscat.utils;

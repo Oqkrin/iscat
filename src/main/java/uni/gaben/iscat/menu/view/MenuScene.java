@@ -28,6 +28,8 @@ public class MenuScene extends IscatSceneAbstract {
     private Button    playPhiButton;
     private Button    optionsButton;
     private Button    scoreButton;
+    private Button    skinButton;
+    private Button    bestiaryButton;
     private Button    quitButton;
 
     public MenuScene(MenuController menuController) {
@@ -73,6 +75,18 @@ public class MenuScene extends IscatSceneAbstract {
         scoreButton = new Button("VIEW SCORE", scoreIcon);
         scoreButton.getStyleClass().add(CSS_MENU_BUTTON);
 
+        // --- Skin Button ---
+        FontIcon skinIcon = new FontIcon("fas-eye");
+        skinIcon.setIconSize(32);
+        skinButton = new Button("CHANGE SKIN", scoreIcon);
+        skinButton.getStyleClass().add(CSS_MENU_BUTTON);
+
+        // --- Skin Button ---
+        FontIcon bestiaryIcon = new FontIcon("fas-eye");
+        bestiaryIcon.setIconSize(32);
+        bestiaryButton = new Button("BESTIARIO", scoreIcon);
+        bestiaryButton.getStyleClass().add(CSS_MENU_BUTTON);
+
         // --- Quit ---
         FontIcon quitIcon = new FontIcon("fas-door-open");
         quitIcon.setIconSize(32);
@@ -86,7 +100,7 @@ public class MenuScene extends IscatSceneAbstract {
         HBox playRow = new HBox(16, playLegacyButton, playPhiButton);
         playRow.setAlignment(Pos.CENTER);
 
-        VBox layout = new VBox(20, title, playRow, optionsButton, scoreButton, quitButton);
+        VBox layout = new VBox(20, title, playRow, optionsButton, scoreButton, skinButton, bestiaryButton, quitButton);
         layout.setAlignment(Pos.CENTER);
 
         root.getChildren().add(layout);
@@ -100,6 +114,7 @@ public class MenuScene extends IscatSceneAbstract {
         playLegacyButton.setOnAction(e -> controller.playLegacy());
         playPhiButton.setOnAction(e    -> controller.playPhi());
         quitButton.setOnAction(e       -> controller.quit());
+        skinButton.setOnAction(e -> controller.openSkinMenu());
         // optionsButton and scoreButton: TODO
     }
 
