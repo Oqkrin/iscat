@@ -22,9 +22,9 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     private static final int    HP_INIZIALI         = 500;
     private static final double DIM_SPRITE          = 128.0;
     private static final int NUMERO_FRAMES          = 2;
-    private static final double SCALE = 5.0;                    // ← Scala principale
+    private static final double SCALE = 4.0;                    // ← Scala principale
     private static final double DRAW_SIZE = DIM_SPRITE * SCALE;
-    private static final double VELOCITA_MOVIMENTO = 15;
+    private static final double VELOCITA_MOVIMENTO = 13;
 
     private static final double RAGGIO_COLLISIONE   = (DIM_SPRITE / 2.0) * 0.9;
     private static final double DISTANZA_IDEALE     = 250.0;

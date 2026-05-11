@@ -63,12 +63,7 @@ public class GameModel {
     
     /** Spawn nemici di test. Rimuovere quando ci sarà un sistema di spawn vero. */
     private void spawnTestEnemies() {
-        spawnEnemy("iscatmother", 500 , 500, 1);
-        spawnEnemy("iscat", 500 , 500, 4);
-        spawnEnemy("FallenStarGolem", 500 , 500, 1);
-        spawnEnemy("FakeIscat", 500 , 500, 1);
-        spawnEnemy("IscatBomber",500,500,2);
-        spawnEnemy("IscatCore",500,500,2);
+        spawnEnemy("IscatCore", 500 , 500, 2);
     }
 
     public void spawnEnemyLater(NpcModel enemy) {
@@ -246,6 +241,7 @@ public class GameModel {
         if (entity instanceof Updatable u)      updatableEntities.remove(u);
         if (entity instanceof Collidable c)     collidableEntities.remove(c);
         if (entity instanceof Spawnable s)      s.onDespawn();
+
     }
 
     // --- accessori ---

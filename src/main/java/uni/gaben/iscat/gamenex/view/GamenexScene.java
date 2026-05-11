@@ -1,26 +1,33 @@
 package uni.gaben.iscat.gamenex.view;
 
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import org.dyn4j.dynamics.Body;
 import uni.gaben.iscat.IscatSceneAbstract;
-import uni.gaben.iscat.gamenex.camera.CameraModel;
+import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
+import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobView;
+import uni.gaben.iscat.gamenex.universe.player.PlayerView;
+import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
-import uni.gaben.iscat.gamenex.interfaces.model.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.gamenex.player.PlayerModel;
-import uni.gaben.iscat.gamenex.interfaces.view.Drawable;
-import uni.gaben.iscat.gamenex.world.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.gamenex.world.enviroment.asteroid.AsteroidView;
-import uni.gaben.iscat.gamenex.world.enviroment.space.SpaceController;
-import uni.gaben.iscat.gamenex.world.enviroment.space.SpaceModel;
-import uni.gaben.iscat.gamenex.world.enviroment.space.starfield.StarfieldView;
-
+import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
+import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
+import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidView;
+import uni.gaben.iscat.gamenex.universe.UniverseController;
+import uni.gaben.iscat.gamenex.universe.UniverseModel;
+import uni.gaben.iscat.gamenex.universe.starfield.StarfieldView;
+import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 import java.util.Objects;
 
+/**
+ * Scena principale di Gamenex (View).
+ * Gestisce il rendering su Canvas, l'interfaccia utente (UI) e
+ * il coordinamento tra il modello fisico e la visualizzazione.
+ */
 public class GamenexScene extends IscatSceneAbstract {
 
     private GamenexModel gamenexModel;
@@ -28,7 +35,8 @@ public class GamenexScene extends IscatSceneAbstract {
     private StackPane root;
     private Canvas canvas;
     private final StarfieldView starfieldView = new StarfieldView();
-    private java.util.Map<Class<?>, Drawable> renderers = new java.util.HashMap<>();
+    private GamenexSpawnerToolbar spawnerToolbar;
+    private GamenexPauseMenu pauseMenu;
 
     public GamenexScene(GamenexController gamenexController, GamenexModel gamenexModel) {
         super(new StackPane());
@@ -39,8 +47,11 @@ public class GamenexScene extends IscatSceneAbstract {
         // Make root transparent so stars show through
         root.setStyle("-fx-background-color: transparent;");
 
-        renderers.put(PlayerModel.class, new uni.gaben.iscat.gamenex.player.PlayerView());
-        renderers.put(AsteroidModel.class, new AsteroidView());
+        // Register default renderers in the View layer
+        ViewRegistry registry = ViewRegistry.getInstance();
+        registry.register(PlayerModel.class, new PlayerView());
+        registry.register(AsteroidModel.class, new AsteroidView());
+        registry.register(IscatMobModel.class, new IscatMobView());
 
         initialize();
     }
@@ -54,11 +65,15 @@ public class GamenexScene extends IscatSceneAbstract {
     @Override
     protected void initNodes() {
         canvas = new Canvas();
+        spawnerToolbar = new GamenexSpawnerToolbar(gamenexController);
+        pauseMenu = new GamenexPauseMenu(gamenexController);
     }
 
     @Override
     protected void initLayout() {
-        root.getChildren().add(canvas);
+        root.getChildren().addAll(canvas, spawnerToolbar, pauseMenu);
+        StackPane.setAlignment(spawnerToolbar, Pos.BOTTOM_CENTER);
+        // Pause menu covers everything
     }
 
     @Override
@@ -67,17 +82,17 @@ public class GamenexScene extends IscatSceneAbstract {
         canvas.heightProperty().bind(root.heightProperty());
 
         // Bind SpaceModel to Canvas dimensions
-        SpaceController spaceController = gamenexController.getSpaceController();
-        SpaceModel space = spaceController.getSpaceModel();
+        UniverseController universeController = gamenexController.getSpaceController();
+        UniverseModel space = universeController.getSpaceModel();
         if (space != null) {
             space.widthProperty().bind(canvas.widthProperty());
             space.heightProperty().bind(canvas.heightProperty());
 
             // Regenerate stars when dimensions change
-            space.widthProperty().addListener((obs, oldV, newV) -> 
-                spaceController.getStarfieldController().regenerate(space.getStarfieldModel(), newV.doubleValue(), space.getHeight()));
-            space.heightProperty().addListener((obs, oldV, newV) -> 
-                spaceController.getStarfieldController().regenerate(space.getStarfieldModel(), space.getWidth(), newV.doubleValue()));
+            space.widthProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
+                    .regenerate(space.getStarfieldModel(), newV.doubleValue(), space.getHeight()));
+            space.heightProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
+                    .regenerate(space.getStarfieldModel(), space.getWidth(), newV.doubleValue()));
 
             // Bind StarfieldView dimensions
             starfieldView.wProperty().bind(canvas.widthProperty());
@@ -90,9 +105,17 @@ public class GamenexScene extends IscatSceneAbstract {
         gamenexController.getInputManager().attachToScene(this);
         gamenexController.getInputManager().attachToCanvas(canvas);
 
-        // Ensure canvas can receive mouse/key focus
-        canvas.setFocusTraversable(true);
-        canvas.setOnMouseClicked(e -> canvas.requestFocus());
+        // Bind visibility to pause state
+        pauseMenu.visibleProperty().bind(gamenexModel.pausedProperty());
+        pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
+
+        // Toggle pause on ESCAPE
+        this.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                gamenexController.togglePause();
+                e.consume();
+            }
+        });
     }
 
     @Override
@@ -119,14 +142,15 @@ public class GamenexScene extends IscatSceneAbstract {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, w, h);
 
-        SpaceController spaceController = gamenexController.getSpaceController();
-        SpaceModel space = spaceController.getSpaceModel();
+        UniverseController universeController = gamenexController.getSpaceController();
+        UniverseModel space = universeController.getSpaceModel();
         if (space == null)
             return;
 
-        // space dimensions and star regeneration are now handled via bindings/listeners in initBindings
+        // space dimensions and star regeneration are now handled via bindings/listeners
+        // in initBindings
 
-        spaceController.setViewSize(w, h); // let controller know view size for camera
+        universeController.setViewSize(w, h); // let controller know view size for camera
 
         CameraModel cameraModel = gamenexController.getCameraModel();
 
@@ -134,25 +158,43 @@ public class GamenexScene extends IscatSceneAbstract {
         gamenexController.getInputManager().cameraX = cameraModel.getX();
         gamenexController.getInputManager().cameraY = cameraModel.getY();
 
-
         // 1. Draw Starry Night Parallax
         starfieldView.setCameraX(cameraModel.getX());
         starfieldView.setCameraY(cameraModel.getY());
-        starfieldView.render(space.getStarfieldModel(), gc);
+        starfieldView.draw(space.getStarfieldModel(), gc);
 
         gc.save();
         gc.translate(-cameraModel.getX(), -cameraModel.getY());
 
-        for (int i = 0; i < space.getBodyCount(); i++) {
-            Body body = space.getBody(i);
-            if (body instanceof AbstractEntityModel entity) {
-                Drawable renderer = renderers.get(entity.getClass());
-                if (renderer != null) {
-                    renderer.render(entity, gc);
-                }
+        for (var body : space.getEntities()) {
+            Drawable renderer = ViewRegistry.getInstance().getRenderer(body.getClass());
+            if (renderer != null) {
+                renderer.draw(body, gc);
             }
         }
         gc.restore();
+
+        // 3. Draw UI Overlay (FPS Counter)
+        drawFps(gc, w);
+    }
+
+    private double[] fpsHistory = new double[30];
+    private int fpsIdx = 0;
+
+    private void drawFps(GraphicsContext gc, double w) {
+        if (gamenexController.isShowFps()) {
+            double fps = 1.0 / gamenexModel.getDt();
+            fpsHistory[fpsIdx] = fps;
+            fpsIdx = (fpsIdx + 1) % fpsHistory.length;
+            
+            double avg = 0;
+            for (double f : fpsHistory) avg += f;
+            avg /= fpsHistory.length;
+
+            gc.setFill(Color.web("#00ff88", 0.7));
+            gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
+            gc.fillText(String.format("FPS: %.0f", avg), w - 80, 50);
+        }
     }
 
     @Override

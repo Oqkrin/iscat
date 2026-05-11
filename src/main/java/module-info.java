@@ -33,11 +33,17 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.game.components.space;
     exports uni.gaben.iscat.game.view;
     exports uni.gaben.iscat.game.components.entities.objects;
-    exports uni.gaben.iscat.gamenex.world;
+    exports uni.gaben.iscat.gamenex.universe;
     exports uni.gaben.iscat.gamenex.controller;
     exports uni.gaben.iscat.gamenex.view;
     exports uni.gaben.iscat.gamenex.model;
-    exports uni.gaben.iscat.gamenex.interfaces.model;
-    exports uni.gaben.iscat.gamenex.world.enviroment.space;
-    exports uni.gaben.iscat.gamenex.world.enviroment;
+    exports uni.gaben.iscat.gamenex.universe.player;
+    exports uni.gaben.iscat.gamenex.universe.starfield;
+    exports uni.gaben.iscat.gamenex.lib.interfaces.model;
+    exports uni.gaben.iscat.gamenex.lib.interfaces.view;
+    exports uni.gaben.iscat.gamenex.lib.abstracts;
+    exports uni.gaben.iscat.gamenex.universe.iscat_mob;
+    exports uni.gaben.iscat.gamenex.universe.asteroid;
+
+
 }
