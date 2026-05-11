@@ -64,4 +64,9 @@ public class IscatNavigator {
             lifecycleScene.setActive(true);
         }
     }
+
+    public IscatSceneAbstract getScene(IscatScenes sceneType) {
+        Scene scene = sceneMap.get(sceneType);
+        return scene instanceof IscatSceneAbstract ? (IscatSceneAbstract) scene : null;
+    }
 }

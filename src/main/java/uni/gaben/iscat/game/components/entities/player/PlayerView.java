@@ -3,6 +3,7 @@ package uni.gaben.iscat.game.components.entities.player;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.game.components.entities.npcs.SpriteUtils;
 import uni.gaben.iscat.game.utils.interfaces.Drawable;
 import uni.gaben.iscat.game.utils.settings.VisualSettings;
@@ -21,25 +22,57 @@ public class PlayerView implements Drawable<PlayerModel> {
     private static final double NORTH_OFFSET = VisualSettings.OFFSET_NORD_SPRITE;
     private static final Random RANDOM = new Random();
 
-    private final Image sprite = new Image(
-            Objects.requireNonNull(
-                    PlayerView.class.getResourceAsStream(
-                            "/uni/gaben/iscat/sprites/player1.png")));
+    private Image currentSprite;
 
     // Cache: ricalcola lo sprite tintato solo quando il tint cambia
     private Color lastTint     = Color.WHITE;
-    private Image cachedTinted = sprite;
+    private Image cachedTinted;
+
+    public PlayerView() {
+        reloadSprite();
+    }
+
+    // Ricarica lo sprite quando viene cambiata la skin
+    public void reloadSprite() {
+        try {
+            String path = IscatSettings.player_skin;
+
+            if (path == null || path.isBlank()) {
+                path = "/uni/gaben/iscat/sprites/player1.png";
+            }
+
+            currentSprite = new Image(
+                    Objects.requireNonNull(
+                            PlayerView.class.getResourceAsStream(path),
+                            "Sprite non trovato: " + path
+                    )
+            );
+
+            cachedTinted = currentSprite;
+            System.out.println("Player sprite caricato correttamente: " + path);
+
+        } catch (Exception e) {
+            System.err.println("Errore caricamento sprite: " + IscatSettings.player_skin);
+            e.printStackTrace();
+        }
+    }
 
     private Image getTintedSprite(Color tint) {
-        if (!tint.equals(lastTint)) {
-            lastTint     = tint;
-            cachedTinted = SpriteUtils.tinted(sprite, tint);
+        if (currentSprite == null) reloadSprite();
+
+        if (!tint.equals(lastTint) || cachedTinted == null) {
+            lastTint = tint;
+            cachedTinted = SpriteUtils.tinted(currentSprite, tint);
         }
         return cachedTinted;
     }
 
     @Override
     public void draw(GraphicsContext gc, PlayerModel p) {
+        if (currentSprite == null) {
+            reloadSprite();
+        }
+
         Color tint = ThemeManager.getInstance().globalTintProperty().get();
 
         double cx = p.getX() + TILE_SIZE / 2.0;

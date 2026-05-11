@@ -3,6 +3,7 @@ package uni.gaben.iscat.gamenex.universe.player;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
@@ -19,8 +20,12 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
 
     private static final Random RANDOM = new Random();
 
-    private final Image sprite = new Image(Objects.requireNonNull(
-            PlayerView.class.getResourceAsStream("/uni/gaben/iscat/sprites/player6.png")));
+    private Image currentSprite;
+
+    // Caricamento iniziale dello sprite, serve per far in modo che lo sprite del player si carichi all'inizio
+    public PlayerView() {
+        reloadSprite();
+    }
 
     @Override
     public void draw(PlayerModel entity, GraphicsContext gc) {
@@ -35,7 +40,7 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
 
         drawThrustEffect(gc, entity);
 
-        gc.drawImage(sprite, -w / 2, -h / 2, w, h);
+        gc.drawImage(currentSprite, -w / 2, -h / 2, w, h);
         gc.restore();
 
         // HP bar (drawn in screen space after restore)
@@ -95,5 +100,25 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
                 Math.min(1.0, brightness * accent.getGreen()),
                 Math.min(1.0, brightness * accent.getBlue()),
                 Math.min(1.0, alpha));
+    }
+
+    // Metodo che ridisegna lo sprite quando viene cambiata la skin
+    public void reloadSprite() {
+        try {
+            String path = IscatSettings.player_skin;
+
+            currentSprite = new Image(
+                    Objects.requireNonNull(
+                            PlayerView.class.getResourceAsStream(path),
+                            "Sprite non trovato: " + path
+                    )
+            );
+
+            //System.out.println("Player sprite ricaricato con successo: " + path);
+
+        } catch (Exception e) {
+            System.err.println("Errore caricamento sprite: " + IscatSettings.player_skin);
+            e.printStackTrace();
+        }
     }
 }

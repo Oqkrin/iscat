@@ -208,4 +208,14 @@ public class GamenexScene extends IscatSceneAbstract {
         super.onUnload();
         gamenexController.stopGameLoop();
     }
+
+    // Ricarica la skin del player
+    public void reloadPlayerSkin() {
+        ViewRegistry registry = ViewRegistry.getInstance();
+        Drawable renderer = registry.getRenderer(PlayerModel.class);
+
+        if (renderer instanceof PlayerView playerView) {
+            playerView.reloadSprite();
+        }
+    }
 }

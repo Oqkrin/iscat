@@ -32,6 +32,7 @@ import java.util.function.Consumer;
  */
 public class GameModel {
 
+    private static GameModel instance;
     private final PlayerModel player;
     
     // Typed collections for fast per-frame iteration
@@ -54,13 +55,18 @@ public class GameModel {
     private final List<NpcModel> pendingEnemies = new ArrayList<>();
 
     public GameModel() {
+        instance = this;
         player = new PlayerModel(100, 100);
         addEntity(player);
         
         // TODO: rimuovere dopo test - spawn IscatBomberModel di test
         spawnTestEnemies();
     }
-    
+
+    public static GameModel getInstance() {
+        return instance;
+    }
+
     /** Spawn nemici di test. Rimuovere quando ci sarà un sistema di spawn vero. */
     private void spawnTestEnemies() {
         spawnEnemy("IscatCore", 500 , 500, 2);
