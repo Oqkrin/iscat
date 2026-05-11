@@ -2,12 +2,14 @@ package uni.gaben.iscat.gamenex.controller;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseButton;
 
 public class InputManager {
     public boolean up, down, left, right;
-    public boolean dash;
+    public boolean dash;      // SPACE
+    public boolean dashMouse; // MIDDLE CLICK
     public boolean shooting;
-    public boolean suction; // Q - attracts nearby bodies
+    public boolean suction;
     public double mouseX, mouseY;
     public double cameraX, cameraY;
 
@@ -43,16 +45,24 @@ public class InputManager {
             mouseY = e.getY();
         });
         canvas.setOnMousePressed(e -> {
-            if (e.isPrimaryButtonDown()) shooting = true;
+            if (e.getButton() == MouseButton.PRIMARY) shooting = true;
+            if (e.getButton() == MouseButton.MIDDLE)  dashMouse = true;
         });
         canvas.setOnMouseReleased(e -> {
-            if (!e.isPrimaryButtonDown()) shooting = false;
+            if (e.getButton() == MouseButton.PRIMARY) shooting = false;
+            if (e.getButton() == MouseButton.MIDDLE)  dashMouse = false;
         });
     }
 
     public boolean consumeDash() {
         boolean d = dash;
         dash = false;
+        return d;
+    }
+
+    public boolean consumeDashMouse() {
+        boolean d = dashMouse;
+        dashMouse = false;
         return d;
     }
 }

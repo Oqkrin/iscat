@@ -4,9 +4,7 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
-import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.gamenex.lib.interfaces.model.Alive;
 import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
@@ -18,7 +16,6 @@ public class PlayerModel extends LivingEntityModel {
 
     public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
-        // Scala il raggio di collisione in metri
         BodyFixture fixture = addFixture(Geometry.createCircle(PlayerSettings.RAGGIO_COLLISIONE / UniverseSettings.SCALE));
         fixture.setFilter(GamenexCollisionLayers.PLAYER_FILTER);
         setMass(MassType.NORMAL);
@@ -30,50 +27,48 @@ public class PlayerModel extends LivingEntityModel {
         if (dashPhaseRemaining > 0) dashPhaseRemaining -= dt;
         if (fireCooldownRemaining > 0) fireCooldownRemaining -= dt;
 
-        // Gestione Attrito/Damping dinamico durante lo scatto
         if (isInScatto()) {
-            setLinearDamping(PlayerSettings.LINEAR_DAMPING_SCATTO);
+            setLinearDamping(0.5); // Quasi zero attrito per mantenere il momentum
         } else {
             setLinearDamping(PlayerSettings.LINEAR_DAMPING);
-            // Cap velocità normale
-            Vector2 vel = getLinearVelocity();
-            if (vel.getMagnitude() > PlayerSettings.VELOCITA_MAX) {
-                vel.normalize();
-                vel.multiply(PlayerSettings.VELOCITA_MAX);
-                setLinearVelocity(vel);
-            }
+            applyVelocityCap();
         }
     }
 
-    public boolean isScattoDisponibile() {
-        return dashCooldownRemaining <= 0;
+    private void applyVelocityCap() {
+        Vector2 vel = getLinearVelocity();
+        if (vel.getMagnitude() > PlayerSettings.VELOCITA_MAX) {
+            vel.normalize();
+            vel.multiply(PlayerSettings.VELOCITA_MAX);
+            setLinearVelocity(vel);
+        }
     }
 
-    public boolean isInScatto() {
-        return dashPhaseRemaining > 0;
-    }
+    public void executeScatto(double angle) {
+        Vector2 dashDir = new Vector2(Math.cos(angle), Math.sin(angle));
 
-    public void executeScatto(double directionAngleRad) {
-        double mass = getMass().getMass();
-        Vector2 impulse = new Vector2(
-            Math.cos(directionAngleRad) * PlayerSettings.IMPULSO_SCATTO * mass,
-            Math.sin(directionAngleRad) * PlayerSettings.IMPULSO_SCATTO * mass
-        );
-        applyImpulse(impulse);
+        // Directional Snap: se scatto controcorrente, resetto velocità per reattività istantanea
+        if (getLinearVelocity().dot(dashDir) < 0) {
+            setLinearVelocity(new Vector2(0,0));
+        }
+
+        applyImpulse(dashDir.multiply(PlayerSettings.IMPULSO_SCATTO * getMass().getMass()));
+
         dashPhaseRemaining = PlayerSettings.DURATA_SCATTO_SEC;
         dashCooldownRemaining = PlayerSettings.COOLDOWN_SCATTO_SEC;
     }
 
-    public boolean isSparoDisponibile() {
-        return fireCooldownRemaining <= 0;
-    }
+    public boolean isScattoDisponibile() { return dashCooldownRemaining <= 0; }
+    public boolean isInScatto() { return dashPhaseRemaining > 0; }
+    public boolean isSparoDisponibile() { return fireCooldownRemaining <= 0; }
+    public void startCooldownFuoco() { fireCooldownRemaining = PlayerSettings.COOLDOWN_FUOCO_SEC; }
 
-    public void startCooldownFuoco() {
-        fireCooldownRemaining = PlayerSettings.COOLDOWN_FUOCO_SEC;
+    /** Ritorna un valore [0, 1] per la barra dello scatto nella UI */
+    public double getDashMeter() {
+        if (isScattoDisponibile()) return 1.0;
+        return 1.0 - (dashCooldownRemaining / PlayerSettings.COOLDOWN_SCATTO_SEC);
     }
 
     @Override
-    public void onDeath() {
-        System.out.println("Player died");
-    }
+    public void onDeath() { /* Implement logic */ }
 }

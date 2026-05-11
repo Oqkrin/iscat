@@ -66,8 +66,7 @@ public class GamenexController {
         // Spawning iniziale: Giocatore, Asteroide di test e primo Mob
         spawner.spawnPlayer(w / 2.0, h / 2.0);
         spawner.spawnAsteroid(UniverseSettings.TEST_ASTEROID_X,
-                UniverseSettings.TEST_ASTEROID_Y,
-                UniverseSettings.TEST_ASTEROID_RADIUS);
+                UniverseSettings.TEST_ASTEROID_Y);
         spawner.spawnIscatMob(w / 2.0 + 200, h / 2.0 + 200);
 
         initTimer(gamenexModel);

@@ -5,6 +5,16 @@ package uni.gaben.iscat.gamenex.universe.iscat_mob;
  * Definisce le costanti fisiche e i parametri dell'intelligenza artificiale.
  */
 public class IscatMobSettings {
+    /** Lunghezza del raggio per vedere i muri. */
+    public static final double AVOIDANCE_RAY_LEN = 60.0;
+    /** Forza per sterzare via dai muri (deve essere alta). */
+    public static final double AVOIDANCE_FORCE = 250.0;
+
+    // --- LOGICA DI SQUADRA (New) ---
+    /** Raggio della "bolla personale" del mob. */
+    public static final double SEPARATION_RADIUS_PX = 50.0;
+    /** Forza di repulsione tra mob. */
+    public static final double SEPARATION_FORCE = 100.0;
     // --- PROPRIETÀ FISICHE ---
     /** Punti vita iniziali del mob. */
     public static final int HP_INIZIALI = 30;
@@ -21,7 +31,7 @@ public class IscatMobSettings {
 
     // --- MOVIMENTO AI (ChaseBehavior) ---
     /** Distanza minima dal player prima che il mob inizi ad allontanarsi. */
-    public static final double DISTANZA_IDEALE_PX = 150.0;
+    public static final double DISTANZA_IDEALE_PX = 75.0;
     /** Spazio di frenata/accelerazione per rendere il movimento fluido. */
     public static final double RAMP_UP_PX = 400.0;
     /** Velocità massima in metri al secondo. (25 m/s è molto veloce) */

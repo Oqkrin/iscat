@@ -58,7 +58,7 @@ public class UniverseController {
         PlayerModel player = universeModel.getPlayer();
 
         if (input != null) {
-            playerController.processInput(player, input, cameraModel.getX(), cameraModel.getY());
+            playerController.processInput(player, input, cameraModel.getX(), cameraModel.getY(), dt);
 
             if (input.suction) {
                 applyOrbitalGravity(player);

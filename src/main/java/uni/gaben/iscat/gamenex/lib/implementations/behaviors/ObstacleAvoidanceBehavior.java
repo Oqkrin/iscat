@@ -4,10 +4,7 @@ import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 
-public class ChaseBehavior implements AiBehavior {
-
-    public ChaseBehavior(double distanzaIdealePx, double maxForce, double rampUpPx, double maxVelocityMs, double steeringGain, double minDistMult, double maxDistMult) {
-    }
+public class ObstacleAvoidanceBehavior implements AiBehavior {
 
     @Override
     public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {

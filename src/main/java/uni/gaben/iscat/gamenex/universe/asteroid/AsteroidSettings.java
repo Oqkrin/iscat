@@ -1,6 +1,8 @@
 package uni.gaben.iscat.gamenex.universe.asteroid;
 
 public final class AsteroidSettings {
+    public static final int MAXPXSIZE = 100;
+
     private AsteroidSettings() {}
 
     public static final int MIN_VERTICES = 5;

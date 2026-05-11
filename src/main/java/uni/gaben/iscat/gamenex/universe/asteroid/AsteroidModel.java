@@ -29,10 +29,10 @@ public class AsteroidModel extends AbstractEntityModel {
     public AsteroidModel(double x, double y, double radiusPixel, 
                         int minVertices, int variation, 
                         double radiusMin, double radiusRange) {
-                        
-        this.size = radiusPixel * 2;
-        double radiusMeters = radiusPixel / UniverseSettings.SCALE;
         Random rand = new Random();
+        this.size = radiusPixel != 0 ? radiusPixel * 2 : (2+rand.nextInt(AsteroidSettings.MAXPXSIZE));
+        double radiusMeters = size/2 / UniverseSettings.SCALE;
+
         int numVertices = minVertices + (rand.nextInt(variation));
         displayVertices = new Vector2[numVertices];
         double angleStep = Math.PI * 2 / numVertices;
@@ -57,6 +57,11 @@ public class AsteroidModel extends AbstractEntityModel {
         this(x, y, radiusPixel, 
              AsteroidSettings.MIN_VERTICES, AsteroidSettings.VERTICE_VARIATION, 
              AsteroidSettings.RADIUS_VARIATION_MIN, AsteroidSettings.RADIUS_VARIATION_RANGE);
+    }
+    public AsteroidModel(double x, double y) {
+        this(x, y, 0,
+                AsteroidSettings.MIN_VERTICES, AsteroidSettings.VERTICE_VARIATION,
+                AsteroidSettings.RADIUS_VARIATION_MIN, AsteroidSettings.RADIUS_VARIATION_RANGE);
     }
     
     public double getSize() { return size; }

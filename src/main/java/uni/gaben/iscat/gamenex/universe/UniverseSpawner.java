@@ -28,7 +28,7 @@ public class UniverseSpawner {
 
     private UniverseSpawner() {
         // Registrazione iniziale delle entità core per permettere lo spawning dinamico
-        register("ASTEROID", (x, y) -> spawnAsteroid(x, y, 30.0));
+        register("ASTEROID", this::spawnAsteroid);
         register("ISCAT_MOB", this::spawnIscatMob);
     }
 
@@ -116,8 +116,14 @@ public class UniverseSpawner {
      * @param radius Raggio dell'asteroide (pixel).
      * @return Il modello dell'asteroide creato.
      */
-    public AsteroidModel spawnAsteroid(double x, double y, double radius) {
+    public AsteroidModel spawnAsteroid(double x, double y, int radius) {
         AsteroidModel asteroid = new AsteroidModel(x, y, radius);
+        model.addEntity(asteroid);
+        return asteroid;
+    }
+
+    public AsteroidModel spawnAsteroid(double x, double y) {
+        AsteroidModel asteroid = new AsteroidModel(x, y, 0);
         model.addEntity(asteroid);
         return asteroid;
     }
