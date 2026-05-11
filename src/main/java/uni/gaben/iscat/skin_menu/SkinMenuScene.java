@@ -10,12 +10,10 @@ import java.io.IOException;
 
 public class SkinMenuScene extends IscatSceneAbstract {
 
-    private final SkinMenuController controller;
     private final StackPane contentRoot;
 
-    public SkinMenuScene(SkinMenuController controller) {
+    public SkinMenuScene() {
         super(new StackPane(), true);   // Per avere lo sfondo con le stelle
-        this.controller = controller;
         this.contentRoot = getContentRoot();
         loadFXML();
     }
@@ -26,7 +24,6 @@ public class SkinMenuScene extends IscatSceneAbstract {
                     getClass().getResource("/uni/gaben/iscat/fxml/player_skin_choose_menu.fxml")
             );
 
-            loader.setController(controller);
             Parent fxmlContent = loader.load();
 
             // Scaliamo dato che senno è piccolo
