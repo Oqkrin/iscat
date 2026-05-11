@@ -1,0 +1,53 @@
+.root {
+    -fx-background-color: black;
+    -fx-padding: 10;
+}
+
+/* HBOX spacing tra VBox e Grid */
+.hbox {
+    -fx-spacing: 20;
+    -fx-alignment: center;
+}
+
+/* GRID */
+.grid-pane {
+    -fx-background-color: black;
+
+    -fx-hgap: 10;
+    -fx-vgap: 10;
+
+    -fx-border-color: white;
+    -fx-border-width: 1;
+    -fx-padding: 10;
+
+    -fx-alignment: center;
+}
+
+/* VBOX */
+.vbox {
+    -fx-background-color: black;
+
+    -fx-padding: 10;
+    -fx-spacing: 10;
+
+    -fx-border-color: white;
+    -fx-border-width: 1;
+}
+
+/* BUTTON */
+.button {
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-width: 1;
+
+    -fx-alignment: center;
+
+    -fx-max-width: infinity;
+    -fx-max-height: infinity;
+}
+
+/* IMAGE */
+.image-view {
+    -fx-preserve-ratio: true;
+    -fx-smooth: true;
+}

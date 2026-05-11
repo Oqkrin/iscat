@@ -24,7 +24,7 @@ public class PlayerView implements Drawable<PlayerModel> {
     private final Image sprite = new Image(
             Objects.requireNonNull(
                     PlayerView.class.getResourceAsStream(
-                            "/uni/gaben/iscat/sprites/battle_ship_1.png")));
+                            "/uni/gaben/iscat/sprites/player1.png")));
 
     // Cache: ricalcola lo sprite tintato solo quando il tint cambia
     private Color lastTint     = Color.WHITE;

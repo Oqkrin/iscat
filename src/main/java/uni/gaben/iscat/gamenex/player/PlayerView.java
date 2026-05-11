@@ -19,7 +19,7 @@ public class PlayerView implements Drawable<PlayerModel> {
     private static final Random RANDOM = new Random();
 
     private final Image sprite = new Image(Objects.requireNonNull(
-            PlayerView.class.getResourceAsStream("/uni/gaben/iscat/sprites/battle_ship_1.png")));
+            PlayerView.class.getResourceAsStream("/uni/gaben/iscat/sprites/player1.png")));
 
     @Override
     public void render(PlayerModel entity, GraphicsContext gc) {
