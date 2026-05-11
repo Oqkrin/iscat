@@ -3,6 +3,7 @@ package uni.gaben.iscat.menu.view;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -10,29 +11,30 @@ import uni.gaben.iscat.IscatSceneAbstract;
 import uni.gaben.iscat.menu.controller.MenuController;
 
 /**
- * Schermata menu principale con pulsanti per navigare nel gioco.
+ * Main menu screen.
+ * Offers two play buttons: one for the legacy game package,
+ * one for the new game_phi architecture.
  */
 public class MenuScene extends IscatSceneAbstract {
 
     private static final String CSS_MENU_BUTTON = "menu-button";
-    private static final String CSS_TITLE = "menu-title";
+    private static final String CSS_TITLE       = "menu-title";
 
     private final MenuController controller;
-    
+
     private StackPane root;
-    private Label title;
-    private Button playButton;
-    private Button optionsButton;
-    private Button scoreButton;
-    private Button quitButton;
+    private Label     title;
+    private Button    playLegacyButton;
+    private Button    playPhiButton;
+    private Button    optionsButton;
+    private Button    scoreButton;
+    private Button    quitButton;
 
     public MenuScene(MenuController menuController) {
-        super(new StackPane(), true); // Enable starry background
+        super(new StackPane(), true); // starry background
         this.controller = menuController;
         this.root = getContentRoot();
-        // Make root transparent so stars show through
         root.setStyle("-fx-background-color: transparent;");
-        
         initialize();
     }
 
@@ -47,66 +49,70 @@ public class MenuScene extends IscatSceneAbstract {
         title = new Label("ISCAT");
         title.getStyleClass().add(CSS_TITLE);
 
-        // Play Button
-        FontIcon playIcon = new FontIcon("fas-play");
-        playIcon.setIconSize(40);
-        playButton = new Button("PLAY", playIcon);
-        playButton.getStyleClass().add(CSS_MENU_BUTTON);
+        // --- Play Legacy ---
+        FontIcon legacyIcon = new FontIcon("fas-play");
+        legacyIcon.setIconSize(32);
+        playLegacyButton = new Button("PLAY  (legacy)", legacyIcon);
+        playLegacyButton.getStyleClass().add(CSS_MENU_BUTTON);
 
-        // Options Button
+        // --- Play Phi ---
+        FontIcon phiIcon = new FontIcon("fas-rocket");
+        phiIcon.setIconSize(32);
+        playPhiButton = new Button("PLAY  (game_phi)", phiIcon);
+        playPhiButton.getStyleClass().add(CSS_MENU_BUTTON);
+
+        // --- Options (placeholder) ---
         FontIcon optionIcon = new FontIcon("fas-cog");
-        optionIcon.setIconSize(40);
+        optionIcon.setIconSize(32);
         optionsButton = new Button("OPTIONS", optionIcon);
         optionsButton.getStyleClass().add(CSS_MENU_BUTTON);
 
-        // Score Button
+        // --- Score (placeholder) ---
         FontIcon scoreIcon = new FontIcon("fas-eye");
-        scoreIcon.setIconSize(40);
+        scoreIcon.setIconSize(32);
         scoreButton = new Button("VIEW SCORE", scoreIcon);
         scoreButton.getStyleClass().add(CSS_MENU_BUTTON);
 
-        // Quit Button
+        // --- Quit ---
         FontIcon quitIcon = new FontIcon("fas-door-open");
-        quitIcon.setIconSize(40);
+        quitIcon.setIconSize(32);
         quitButton = new Button("QUIT", quitIcon);
         quitButton.getStyleClass().add(CSS_MENU_BUTTON);
     }
 
     @Override
     protected void initLayout() {
-        VBox layout = new VBox(title, playButton, optionsButton, scoreButton, quitButton);
+        // Two play buttons side-by-side
+        HBox playRow = new HBox(16, playLegacyButton, playPhiButton);
+        playRow.setAlignment(Pos.CENTER);
+
+        VBox layout = new VBox(20, title, playRow, optionsButton, scoreButton, quitButton);
         layout.setAlignment(Pos.CENTER);
-        layout.setSpacing(20);
 
         root.getChildren().add(layout);
     }
 
     @Override
-    protected void initBindings() {
-        // Nessun binding necessario per il menu
-    }
+    protected void initBindings() {}
 
     @Override
     protected void initEventHandlers() {
-        playButton.setOnAction(e -> controller.play());
-        quitButton.setOnAction(e -> controller.quit());
-        // TODO: optionsButton e scoreButton quando implementati
+        playLegacyButton.setOnAction(e -> controller.playLegacy());
+        playPhiButton.setOnAction(e    -> controller.playPhi());
+        quitButton.setOnAction(e       -> controller.quit());
+        // optionsButton and scoreButton: TODO
     }
-    
+
     @Override
     public void onShow() {
-        // Enable mouse-following mode for starry background
         if (getStarryBackground() != null) {
             getStarryBackground().setFollowMouse(true);
-            // Track mouse at scene level to ensure we capture all movement
             setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
         }
     }
-    
+
     @Override
     public void onHide() {
-        // Clean up mouse handler
         setOnMouseMoved(null);
     }
 }
-

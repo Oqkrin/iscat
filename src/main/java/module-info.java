@@ -5,6 +5,7 @@ module uni.gaben.iscat {
     requires org.kordamp.ikonli.fontawesome5;
     requires java.desktop;
     requires javafx.media;
+    requires org.dyn4j;
 
     opens uni.gaben.iscat to javafx.fxml;
     opens uni.gaben.iscat.utils to javafx.fxml;
@@ -31,4 +32,11 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.game.components.space;
     exports uni.gaben.iscat.game.view;
     exports uni.gaben.iscat.game.components.entities.objects;
+    exports uni.gaben.iscat.gamenex.world;
+    exports uni.gaben.iscat.gamenex.controller;
+    exports uni.gaben.iscat.gamenex.view;
+    exports uni.gaben.iscat.gamenex.model;
+    exports uni.gaben.iscat.gamenex.interfaces.model;
+    exports uni.gaben.iscat.gamenex.world.enviroment.space;
+    exports uni.gaben.iscat.gamenex.world.enviroment;
 }

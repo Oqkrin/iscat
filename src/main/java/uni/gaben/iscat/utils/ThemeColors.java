@@ -11,30 +11,13 @@ public final class ThemeColors {
     
     private ThemeColors() {}
     
-    // Cache dei colori per evitare lookup ripetuti
-    private static Color accentPrimary;
-    private static Color accentSecondary;
-    private static Color accentTertiary;
-    private static Color textPrimary;
-    private static Color textSecondary;
-    private static Color colorSuccess;
-    private static Color colorWarning;
-    private static Color colorError;
-    
-    /**
-     * Ottiene un colore dal CSS usando il lookup.
-     * Se il lookup fallisce, ritorna il colore di fallback.
-     */
-    private static Color lookupColor(String cssVar, Color fallback) {
-        try {
-            Paint paint = Paint.valueOf(cssVar);
-            if (paint instanceof Color) {
-                return (Color) paint;
-            }
-        } catch (Exception e) {
-            // Lookup fallito, usa fallback
+    // Mappa dei colori parsata dinamicamente dal file CSS
+    private static java.util.Map<String, Color> parsedColors = null;
+
+    private static void ensureLoaded() {
+        if (parsedColors == null) {
+            parsedColors = CssColorParser.parseColors("/uni/gaben/iscat/styles/iscat-color-theme.css");
         }
-        return fallback;
     }
     
     // =========================================================================
@@ -42,24 +25,18 @@ public final class ThemeColors {
     // =========================================================================
     
     public static Color getAccentPrimary() {
-        if (accentPrimary == null) {
-            accentPrimary = Color.rgb(203, 203, 203); // #cbcbcb
-        }
-        return accentPrimary;
+        ensureLoaded();
+        return parsedColors.getOrDefault("accent-primary", Color.rgb(203, 203, 203)); // #cbcbcb
     }
     
     public static Color getAccentSecondary() {
-        if (accentSecondary == null) {
-            accentSecondary = Color.rgb(169, 169, 169); // #a9a9a9
-        }
-        return accentSecondary;
+        ensureLoaded();
+        return parsedColors.getOrDefault("accent-secondary", Color.rgb(169, 169, 169)); // #a9a9a9
     }
     
     public static Color getAccentTertiary() {
-        if (accentTertiary == null) {
-            accentTertiary = Color.rgb(51, 51, 51); // #333333
-        }
-        return accentTertiary;
+        ensureLoaded();
+        return parsedColors.getOrDefault("accent-tertiary", Color.rgb(51, 51, 51)); // #333333
     }
     
     // =========================================================================
@@ -67,17 +44,13 @@ public final class ThemeColors {
     // =========================================================================
     
     public static Color getTextPrimary() {
-        if (textPrimary == null) {
-            textPrimary = Color.rgb(255, 255, 255); // #ffffff
-        }
-        return textPrimary;
+        ensureLoaded();
+        return parsedColors.getOrDefault("text-primary", Color.rgb(255, 255, 255)); // #ffffff
     }
     
     public static Color getTextSecondary() {
-        if (textSecondary == null) {
-            textSecondary = Color.rgb(220, 220, 220); // #dcdcdc
-        }
-        return textSecondary;
+        ensureLoaded();
+        return parsedColors.getOrDefault("text-secondary", Color.rgb(220, 220, 220)); // #dcdcdc
     }
     
     // =========================================================================
@@ -85,23 +58,17 @@ public final class ThemeColors {
     // =========================================================================
     
     public static Color getColorSuccess() {
-        if (colorSuccess == null) {
-            colorSuccess = Color.rgb(50, 205, 50); // #32cd32
-        }
-        return colorSuccess;
+        ensureLoaded();
+        return parsedColors.getOrDefault("color-success", Color.rgb(50, 205, 50)); // #32cd32
     }
     
     public static Color getColorWarning() {
-        if (colorWarning == null) {
-            colorWarning = Color.rgb(255, 215, 0); // #ffd700
-        }
-        return colorWarning;
+        ensureLoaded();
+        return parsedColors.getOrDefault("color-warning", Color.rgb(255, 215, 0)); // #ffd700
     }
     
     public static Color getColorError() {
-        if (colorError == null) {
-            colorError = Color.rgb(255, 99, 71); // #ff6347
-        }
-        return colorError;
+        ensureLoaded();
+        return parsedColors.getOrDefault("color-error", Color.rgb(255, 99, 71)); // #ff6347
     }
 }

@@ -29,9 +29,10 @@ public class IscatModel {
     /** BGM path for each scene — centralised so the controller stays audio-agnostic. */
     public String getBgmPath(IscatScenes scene) {
         return switch (scene) {
-            case LOGIN -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
-            case MENU  -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
-            case GAME  -> "/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav";
+            case LOGIN    -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
+            case MENU     -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
+            case GAME,
+                 GAMEN -> "/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav";
         };
     }
 
