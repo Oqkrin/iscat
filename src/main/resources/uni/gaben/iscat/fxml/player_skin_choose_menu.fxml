@@ -123,10 +123,12 @@
                         <Font size="30.0" />
                      </font>
                   </Label>
-                  <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="skinPreview" fitHeight="150.0" fitWidth="200.0"
+                             pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../sprites/player6.png" />
-                     </image></ImageView>
+                        <Image url="@../sprites/player1.png" />
+                     </image>
+                  </ImageView>
                   <Label text="GOBLIN IN SPACE CAGE" textFill="WHITE">
                      <font>
                         <Font size="30.0" />
