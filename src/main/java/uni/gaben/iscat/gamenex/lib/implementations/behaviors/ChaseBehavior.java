@@ -23,13 +23,15 @@ public class ChaseBehavior implements AiBehavior {
 
     /**
      * Crea un comportamento di inseguimento dinamico.
-     * @param idealDistPx Distanza bersaglio (pixel).
-     * @param maxForce Forza massima (Newton).
-     * @param rampUpPx Spazio di accelerazione (pixel).
-     * @param maxVelocity Velocità di crociera base (m/s).
+     * Di Default insegue il player
+     *
+     * @param idealDistPx  Distanza bersaglio (pixel).
+     * @param maxForce     Forza massima (Newton).
+     * @param rampUpPx     Spazio di accelerazione (pixel).
+     * @param maxVelocity  Velocità di crociera base (m/s).
      * @param steeringGain Reattività della sterzata.
-     * @param minScale Moltiplicatore velocità minima (vicino).
-     * @param maxScale Moltiplicatore velocità massima (lontano).
+     * @param minScale     Moltiplicatore velocità minima (vicino).
+     * @param maxScale     Moltiplicatore velocità massima (lontano).
      */
     public ChaseBehavior(double idealDistPx, double maxForce, double rampUpPx, double maxVelocity, double steeringGain, double minScale, double maxScale) {
         this.idealDistMeters = idealDistPx / UniverseSettings.SCALE;
@@ -43,39 +45,45 @@ public class ChaseBehavior implements AiBehavior {
 
     @Override
     public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
-        Vector2 target = universe.getPlayer().getTransform().getTranslation();
+        // Passiamo il target come parametro locale (o recuperiamolo dal controller)
+        Vector2 playerPos = universe.getPlayer().getTransform().getTranslation();
+        executeOnTarget(npc, playerPos, dt);
+    }
+
+    public void executeOnCurrentDirection(AbstractEntityModel npc, UniverseModel universe, double dt) {
+        chase(npc, 1, Vector2.create(npc.getLinearVelocity().getMagnitude(), npc.getTransform().getRotationAngle()), 1);
+    }
+
+    public void executeOnTarget(AbstractEntityModel npc, Vector2 targetPos, double dt) {
         Vector2 myPos = npc.getTransform().getTranslation();
+        double dist = myPos.distance(targetPos);
 
-        double dist = target.distance(myPos);
-        Vector2 direction = myPos.to(target);
-        direction.normalize();
+        // Calcoliamo la direzione basata sulla rotazione attuale (come nel tuo codice)
+        double currentAngle = npc.getTransform().getRotationAngle();
+        Vector2 forwardDir = new Vector2(currentAngle);
 
-        double diff = dist - idealDistMeters;
-        double t = Math.clamp(diff / rampUpMeters, -1.0, 1.0);
+        // 1. Decidiamo se andare avanti o indietro
+        double sign = (dist < idealDistMeters) ? -1.0 : 1.0;
 
-        // Fattore di guida (1.0 = avanti tutta, -1.0 = retromarcia)
-        double driveFactor = Interpolator.smoothStep(0, 1, Math.abs(t)) * Math.signum(t);
+        chase(npc, dist, forwardDir, sign);
+    }
 
-        Vector2 currentVel = npc.getLinearVelocity();
-        double currentSpeed = currentVel.getMagnitude();
+    private void chase(AbstractEntityModel npc, double dist, Vector2 forwardDir, double sign) {
+        // 2. Applichiamo la forza
+        // Invece di usare smootherStep con dt, usiamo una forza costante se siamo fuori range.
+        // Se vuoi smoothing, dovresti interpolare la MAGNITUDO della forza, non i segni.
+        if (Math.abs(dist - idealDistMeters) > 0.1) {
+            // Applichiamo la spinta
+            Vector2 push = forwardDir.product(sign * maxForce);
+            npc.applyForce(push);
 
-        if (driveFactor > 0) {
-            // Se stiamo spingendo in avanti
-            if (currentSpeed > maxVelocity) {
-                // Se abbiamo superato il limite, non applichiamo nessuna forza.
-                // L'attrito naturale (Damping) farà scendere la velocità dolcemente.
-                return;
-            }
-
-            // Calcoliamo una forza che sfuma man mano che arriviamo alla top speed.
-            // Se siamo al 90% della velocità, spingiamo solo con il 10% della forza.
-            double speedMargin = Math.clamp(1.0 - (currentSpeed / maxVelocity), 0.0, 1.0);
-            double finalForceMagnitude = maxForce * driveFactor * speedMargin;
-
-            npc.applyForce(direction.product(finalForceMagnitude));
-        } else if (driveFactor < 0) {
-            // Se dobbiamo frenare/andare in retro, applichiamo la forza normalmente
-            npc.applyForce(direction.product(driveFactor * maxForce));
+            // 3. Damping dinamico
+            // Invece di 40.0 (che è un muro), usiamo un valore che freni il mob
+            // solo quando è vicino al player o quando deve cambiare direzione.
+            npc.setLinearDamping(2.0);
+        } else {
+            // Se siamo "arrivati", freniamo più bruscamente per stabilizzarci
+            npc.setLinearDamping(10.0);
         }
     }
 }

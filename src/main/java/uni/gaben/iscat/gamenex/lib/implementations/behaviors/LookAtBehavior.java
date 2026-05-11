@@ -22,7 +22,7 @@ public class LookAtBehavior implements AiBehavior {
      * @param accuracy Precisione del puntamento (0.0 - 1.0).
      */
     public LookAtBehavior(double stiffness, double damping, double accuracy) {
-        this.rotationSpring = Spring.sottoSmorzata(0, stiffness, damping);
+        this.rotationSpring = Spring.critico(0, stiffness, damping);
         this.accuracy = accuracy;
     }
 

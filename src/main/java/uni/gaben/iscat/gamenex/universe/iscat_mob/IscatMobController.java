@@ -3,6 +3,10 @@ package uni.gaben.iscat.gamenex.universe.iscat_mob;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.gamenex.lib.implementations.behaviors.ChaseBehavior;
 import uni.gaben.iscat.gamenex.lib.implementations.behaviors.LookAtBehavior;
+import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
+import uni.gaben.iscat.gamenex.universe.UniverseModel;
+
+import java.util.List;
 
 /**
  * Controller per l'entità IscatMob.
@@ -13,6 +17,8 @@ import uni.gaben.iscat.gamenex.lib.implementations.behaviors.LookAtBehavior;
  * 2. ChaseBehavior: Calcola la forza di sterzata per mantenere la distanza ideale.
  */
 public class IscatMobController extends AiBehaviours<IscatMobModel> {
+
+    private ChaseBehavior  customChaseBehavior;
 
     /**
      * Inizializza il controller per un mob specifico.
@@ -31,7 +37,7 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
         
         // Comportamento di inseguimento: gestisce il movimento fisico (steering)
         // Include ora i parametri di scalabilità della velocità in base alla distanza
-        addBehavior(new ChaseBehavior(
+        customChaseBehavior = new ChaseBehavior(
                 IscatMobSettings.DISTANZA_IDEALE_PX,
                 IscatMobSettings.MAX_FORCE,
                 IscatMobSettings.RAMP_UP_PX,
@@ -39,6 +45,13 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
                 IscatMobSettings.STEERING_GAIN,
                 IscatMobSettings.MIN_DIST_MULT,
                 IscatMobSettings.MAX_DIST_MULT
-        ));
+        );
+    }
+
+    @Override
+    public void aiUpdate(UniverseModel universeModel, double dt) {
+        super.aiUpdate(universeModel, dt);
+        customChaseBehavior.executeOnCurrentDirection(npc, universeModel, dt);
+
     }
 }
