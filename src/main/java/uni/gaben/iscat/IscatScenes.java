@@ -1,4 +1,4 @@
 package uni.gaben.iscat;
 
 /** Scene disponibili nell'applicazione. */
-public enum IscatScenes { LOGIN, MENU, GAME, GAMEN, SKIN_MENU, BESTIARY }
+public enum IscatScenes { LOGIN_MENU, MAIN_MENU, GAME, GAMEN, SKIN_MENU, BESTIARY_MENU, SCORE_MENU, OPTIONS_MENU }

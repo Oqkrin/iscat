@@ -36,7 +36,7 @@ public class GamePauseController {
 
     public void exitToMainMenu() {
         if (paused) toggle(); // unpause so state is clean
-        IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
+        IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
     }
 
     public boolean isPaused() { return paused; }

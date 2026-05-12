@@ -57,12 +57,16 @@ public class IscatApplication extends Application {
         GamenexController gamenexController = new GamenexController(gamenexModel);
 
         // --- Scene map ---
-        EnumMap<IscatScenes, Scene> scenes = new EnumMap<>(IscatScenes.class);
-        scenes.put(IscatScenes.LOGIN,    new LoginScene(loginModel, loginController));
-        scenes.put(IscatScenes.MENU,     new MenuScene(menuController));
-        scenes.put(IscatScenes.GAME,     new GameScene(legacyController, legacyModel));
-        scenes.put(IscatScenes.GAMEN, new GamenexScene(gamenexController, gamenexModel));
-        scenes.put(IscatScenes.SKIN_MENU, new SkinMenuScene());
+        EnumMap<IscatScenes, Scene> scenes =  new EnumMap<>(IscatScenes.class);
+        scenes.put(IscatScenes.LOGIN_MENU,    new LoginScene(loginModel, loginController));
+        scenes.put(IscatScenes.MAIN_MENU,     new MenuScene(menuController));
+        scenes.put(IscatScenes.GAME,          new GameScene(legacyController, legacyModel));
+        scenes.put(IscatScenes.GAMEN,         new GamenexScene(gamenexController, gamenexModel));
+        scenes.put(IscatScenes.SCORE_MENU,    new SkinMenuScene());
+        scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuScene());
+        scenes.put(IscatScenes.OPTIONS_MENU,  new SkinMenuScene());
+        scenes.put(IscatScenes.BESTIARY_MENU, new SkinMenuScene());
+
         // Apply global colour theme to every scene
         String colorTheme = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-color-theme.css"))

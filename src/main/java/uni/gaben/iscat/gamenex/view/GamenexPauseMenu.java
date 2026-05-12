@@ -60,7 +60,7 @@ public class GamenexPauseMenu extends VBox {
         Button menuBtn = createBigButton("QUIT TO MENU");
         menuBtn.setOnAction(e -> {
             controller.setPaused(false); // Unpause before leaving
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
+            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
         });
 
         Button quitBtn = createBigButton("QUIT GAME");

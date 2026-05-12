@@ -114,14 +114,14 @@ public class LoginController {
         if (loginData.exists(u)) {
             if (loginData.checkPassword(u, p)) {
                 model.setStatus("ACCESSO IN CORSO...");
-                IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
+                IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
             } else {
                 handleError("password errata");
             }
         } else {
             loginData.register(u, p);
             model.setStatus("registrazione completata!");
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
+            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
         }
     }
 

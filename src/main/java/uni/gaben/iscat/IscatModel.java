@@ -20,7 +20,7 @@ public class IscatModel {
     // -------------------------------------------------------------------------
 
     private final ObjectProperty<IscatScenes> currentScene =
-            new SimpleObjectProperty<>(IscatScenes.LOGIN);
+            new SimpleObjectProperty<>(IscatScenes.LOGIN_MENU);
 
     public IscatScenes getCurrentScene()                    { return currentScene.get(); }
     public void setCurrentScene(IscatScenes scene)          { currentScene.set(scene); }
@@ -29,12 +29,14 @@ public class IscatModel {
     /** BGM path for each scene — centralised so the controller stays audio-agnostic. */
     public String getBgmPath(IscatScenes scene) {
         return switch (scene) {
-            case LOGIN    -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
-            case MENU,
-                 SKIN_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
+            case LOGIN_MENU    -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
+            case MAIN_MENU,
+                 SKIN_MENU,
+                 BESTIARY_MENU,
+                 SCORE_MENU,
+                 OPTIONS_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
             case GAME,
                  GAMEN -> "/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav";
-            case BESTIARY -> null;
         };
     }
 

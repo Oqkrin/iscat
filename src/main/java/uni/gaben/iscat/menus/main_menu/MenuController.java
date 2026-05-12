@@ -21,6 +21,21 @@ public class MenuController {
         IscatNavigator.getInstance().navigateTo(IscatScenes.SKIN_MENU);
     }
 
+    /** Apre il menu delle opzioni **/
+    public void openOptionsMenu() {
+        IscatNavigator.getInstance().navigateTo(IscatScenes.OPTIONS_MENU);
+    }
+
+    /** Apre il menu dello score **/
+    public void openScoreMenu() {
+        IscatNavigator.getInstance().navigateTo(IscatScenes.SCORE_MENU);
+    }
+
+    /** Apre il menu del bestiary **/
+    public void openBestiaryMenu() {
+        IscatNavigator.getInstance().navigateTo(IscatScenes.BESTIARY_MENU);
+    }
+
     public void quit() {
         Platform.exit();
     }

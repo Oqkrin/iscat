@@ -128,11 +128,11 @@ public class SkinMenuController {
     @FXML private void handleConfirm(ActionEvent event) {
         if (selectedSkinPath != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
+            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
         }
     }
 
     @FXML private void handleBack(ActionEvent event) {
-        IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
+        IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
     }
 }

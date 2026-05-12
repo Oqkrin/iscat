@@ -114,7 +114,10 @@ public class MenuScene extends IscatSceneAbstract {
         playPhiButton.setOnAction(e    -> controller.playPhi());
         quitButton.setOnAction(e       -> controller.quit());
         skinButton.setOnAction(e -> controller.openSkinMenu());
-        // optionsButton and scoreButton: TODO
+        optionsButton.setOnAction(e -> controller.openOptionsMenu());
+        scoreButton.setOnAction(e -> controller.openScoreMenu());
+        bestiaryButton.setOnAction(e -> controller.openBestiaryMenu());
+
     }
 
     @Override
