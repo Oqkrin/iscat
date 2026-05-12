@@ -1,8 +1,6 @@
 package uni.gaben.iscat.menus.login_menu.view;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -12,7 +10,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
+import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatSceneAbstract;
+import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.menus.login_menu.controller.LoginController;
 import uni.gaben.iscat.menus.login_menu.model.LoginModel;
 import uni.gaben.iscat.utils.components.AutoFittingLabel;
@@ -36,6 +36,7 @@ public class LoginScene extends IscatSceneAbstract {
     private VBox contentBox;
 
     // Username components
+    private AutoFittingLabel welcomeTitle;
     private AutoFittingLabel usernameLabel;
     private AutoFittingLabel usernamePlaceholder;
     private FontIcon loginIcon;
@@ -52,15 +53,19 @@ public class LoginScene extends IscatSceneAbstract {
 
     private boolean isErrorFlashing = false;
 
+    private AutoFittingLabel loggedInUserLabel;
+    private HBox usernameField;
+    private HBox passwordField;
+
     public LoginScene(LoginModel loginModel, LoginController loginController) {
         super(new StackPane(), true); // Enable starry background
         this.model = loginModel;
         this.controller = loginController;
         this.root = getContentRoot();
-        
+
         // Make root transparent so stars show through
         root.setStyle("-fx-background-color: transparent;");
-        
+
         initialize();
     }
 
@@ -74,6 +79,10 @@ public class LoginScene extends IscatSceneAbstract {
 
     @Override
     protected void initNodes() {
+        // Titolo
+        welcomeTitle = new AutoFittingLabel(TipografiaAurea.DISPLAY[TipografiaAurea.MEDIUM], FONT, "login-title");
+        welcomeTitle.setText("WELCOME TO ISCAT");
+
         // Cursore lampeggiante
         blinkCursor = new Label("_");
         blinkCursor.getStyleClass().add("login-cursor");
@@ -82,9 +91,9 @@ public class LoginScene extends IscatSceneAbstract {
         // Username
         usernameLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE], FONT, "login-text");
         usernamePlaceholder = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE], FONT, "login-placeholder");
-        usernamePlaceholder.setText("username");
+        usernamePlaceholder.setText("Nome Utente");
         usernamePlaceholder.setMouseTransparent(true);
-        
+
         loginIcon = new FontIcon("fas-id-card-alt");
         loginIcon.iconSizeProperty().bind(usernameLabel.baseFontSizeProperty());
         loginIcon.getStyleClass().add("login-icon");
@@ -93,9 +102,9 @@ public class LoginScene extends IscatSceneAbstract {
         // Password
         passwordLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.MEDIUM], FONT, "login-text");
         passwordPlaceholder = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.MEDIUM], FONT, "login-placeholder");
-        passwordPlaceholder.setText("**************");
+        passwordPlaceholder.setText("Password");
         passwordPlaceholder.setMouseTransparent(true);
-        
+
         passwdIcon = new FontIcon("fas-asterisk");
         passwdIcon.iconSizeProperty().bind(passwordLabel.baseFontSizeProperty());
         passwdIcon.getStyleClass().add("login-icon");
@@ -103,6 +112,11 @@ public class LoginScene extends IscatSceneAbstract {
 
         // Status
         statusLabel = new AutoFittingLabel(TipografiaAurea.LABEL[TipografiaAurea.LARGE], FONT, "login-text-status");
+
+        // Label che apparirà dopo il login
+        loggedInUserLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE], FONT, "login-user-success");
+        loggedInUserLabel.setOpacity(0); // Invisibile all'inizio
+        loggedInUserLabel.setManaged(false);
     }
 
     @Override
@@ -114,9 +128,11 @@ public class LoginScene extends IscatSceneAbstract {
         // Username: HBox(label + cursor) stacked with placeholder
         HBox usernameTextBox = new HBox(usernameLabel);
         usernameTextBox.setAlignment(Pos.CENTER_LEFT);
+
         StackPane usernameStack = new StackPane(usernamePlaceholder, usernameTextBox);
         usernameStack.setAlignment(Pos.CENTER_LEFT);
-        HBox usernameField = new HBox(loginIcon, usernameStack);
+
+        usernameField = new HBox(loginIcon, usernameStack);
         usernameField.setAlignment(Pos.CENTER_LEFT);
         usernameField.setPickOnBounds(true);
         usernameField.setOnMouseClicked(e -> model.setLoginState(false));
@@ -124,9 +140,11 @@ public class LoginScene extends IscatSceneAbstract {
         // Password: HBox(label + cursor) stacked with placeholder
         HBox passwordTextBox = new HBox(passwordLabel);
         passwordTextBox.setAlignment(Pos.CENTER_LEFT);
+
         StackPane passwordStack = new StackPane(passwordPlaceholder, passwordTextBox);
         passwordStack.setAlignment(Pos.CENTER_LEFT);
-        HBox passwordField = new HBox(passwdIcon, passwordStack);
+
+        passwordField = new HBox(passwdIcon, passwordStack);
         passwordField.setAlignment(Pos.CENTER_LEFT);
         passwordField.setPickOnBounds(true);
         passwordField.setOnMouseClicked(e -> model.setLoginState(true));
@@ -154,8 +172,16 @@ public class LoginScene extends IscatSceneAbstract {
         blinkCursor.fontProperty().bind(usernameLabel.fontProperty());
         blinkCursor.textFillProperty().bind(usernameLabel.textFillProperty());
 
-        contentBox.getChildren().addAll(usernameField, passwordField, statusLabel);
+        StackPane headerStack = new StackPane(welcomeTitle, loggedInUserLabel);
+        headerStack.setAlignment(Pos.CENTER);
+
+        contentBox.getChildren().addAll(headerStack, loggedInUserLabel, usernameField, passwordField, statusLabel);
         contentBox.maxWidthProperty().bind(this.widthProperty().multiply(ScalareAureo.IPHI_D));
+
+        // Title settings
+        welcomeTitle.setAlignment(Pos.CENTER); // Se lo vuoi centrato
+        welcomeTitle.maxWidthProperty().bind(contentBox.maxWidthProperty());
+        welcomeTitle.setLimit(contentBox.maxWidthProperty());
 
         Stream.of(usernameLabel, passwordLabel, statusLabel, usernamePlaceholder, passwordPlaceholder).forEach(l -> {
             l.setAlignment(Pos.CENTER_LEFT);
@@ -179,7 +205,7 @@ public class LoginScene extends IscatSceneAbstract {
         // Dynamic styling
         model.usernameProperty().addListener((obs, old, val) -> updateUsernameStyle());
         model.userExistsProperty().addListener((obs, old, val) -> updateUsernameStyle());
-        
+
         updateUsernameStyle();
         updatePasswordStyle();
     }
@@ -197,7 +223,7 @@ public class LoginScene extends IscatSceneAbstract {
             new KeyFrame(Duration.millis(530), e -> blinkCursor.setVisible(!blinkCursor.isVisible()))
         );
         blinkAnimation.setCycleCount(Animation.INDEFINITE);
-        
+
         // Error flash animation
         Timeline errorFlash = new Timeline(
                 new KeyFrame(Duration.ZERO, e -> {
@@ -219,6 +245,12 @@ public class LoginScene extends IscatSceneAbstract {
         model.wrongCredentialsProperty().addListener((obs, old, triggered) -> {
             if (Boolean.TRUE.equals(triggered)) {
                 errorFlash.playFromStart();
+            }
+        });
+
+        model.isLoggedInProperty().addListener((obs, old, loggedIn) -> {
+            if (Boolean.TRUE.equals(loggedIn)) {
+                playLoginSuccessAnimation();
             }
         });
     }
@@ -251,10 +283,10 @@ public class LoginScene extends IscatSceneAbstract {
 
     private void updateUsernameStyle() {
         if (isErrorFlashing) return;
-        
+
         usernameLabel.getStyleClass().removeAll("login-text-empty", "login-text-exists", "login-text-missing");
         loginIcon.getStyleClass().removeAll("login-icon-empty", "login-icon-exists", "login-icon-missing");
-        
+
         if (model.getUsername().isEmpty()) {
             usernameLabel.getStyleClass().add("login-text-empty");
             loginIcon.getStyleClass().add("login-icon-empty");
@@ -269,15 +301,54 @@ public class LoginScene extends IscatSceneAbstract {
             loginIcon.setIconColor(javafx.scene.paint.Color.GOLD);
         }
     }
-    
+
     private void updatePasswordStyle() {
         if (isErrorFlashing) return;
-        
+
         passwordLabel.getStyleClass().removeAll("login-text-empty", "login-text-error");
         passwdIcon.getStyleClass().removeAll("login-icon-empty", "login-icon-error");
-        
+
         passwordLabel.getStyleClass().add("login-text-empty");
         passwdIcon.getStyleClass().add("login-icon-empty");
         passwdIcon.setIconColor(javafx.scene.paint.Color.WHITE);
+    }
+
+    private void playLoginSuccessAnimation() {
+        // 1. Spariscono i campi (Username/Password/Status)
+        FadeTransition fadeOutU = new FadeTransition(Duration.millis(400), usernameField);
+        fadeOutU.setToValue(0);
+        FadeTransition fadeOutP = new FadeTransition(Duration.millis(400), passwordField);
+        fadeOutP.setToValue(0);
+        FadeTransition fadeOutS = new FadeTransition(Duration.millis(400), statusLabel);
+        fadeOutS.setToValue(0);
+
+        // 2. Il titolo sale leggermente o scende (decidi tu l'offset)
+        TranslateTransition moveTitle = new TranslateTransition(Duration.millis(600), welcomeTitle);
+        moveTitle.setToY(-20); // Lo alziamo un po' per fare spazio sotto
+        moveTitle.setInterpolator(Interpolator.EASE_BOTH);
+
+        // 3. Appare il nome utente scendendo
+        loggedInUserLabel.setText(model.getUsername());
+        // NON USARE setManaged(true) qui!
+
+        TranslateTransition moveLabel = new TranslateTransition(Duration.millis(600), loggedInUserLabel);
+        moveLabel.setToY(400);   // Scende sotto il titolo
+        moveLabel.setInterpolator(Interpolator.EASE_BOTH);
+
+        FadeTransition fadeInUser = new FadeTransition(Duration.millis(500), loggedInUserLabel);
+        fadeInUser.setFromValue(0);
+        fadeInUser.setToValue(1);
+        fadeInUser.setDelay(Duration.millis(200));
+
+        // 4. Esecuzione
+        ParallelTransition successAnim = new ParallelTransition(
+                fadeOutU, fadeOutP, fadeOutS, moveTitle, moveLabel, fadeInUser
+        );
+
+        successAnim.setOnFinished(e -> {
+            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+        });
+
+        successAnim.play();
     }
 }

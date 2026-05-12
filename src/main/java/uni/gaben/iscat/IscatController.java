@@ -19,9 +19,9 @@ import java.util.EnumMap;
  */
 public class IscatController {
 
-    private static final int    RESIZE_MARGIN = 8;
-    private static final double MIN_W         = 300;
-    private static final double MIN_H         = 150;
+    private static final int    RESIZE_MARGIN = 3;
+    private static final double MIN_W         = 720;
+    private static final double MIN_H         = 576;
 
     private final IscatModel model;
     private final Stage      stage;

@@ -111,17 +111,21 @@ public class LoginController {
 
         if (p.isEmpty()) return;
 
+        // Impediamo doppie sottomissioni durante l'animazione
+        if (model.isLoggedIn()) return;
+
         if (loginData.exists(u)) {
             if (loginData.checkPassword(u, p)) {
                 model.setStatus("ACCESSO IN CORSO...");
-                IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+                // Scatena l'animazione nella Scene tramite il listener nel model
+                model.setLoggedIn(true);
             } else {
                 handleError("password errata");
             }
         } else {
             loginData.register(u, p);
             model.setStatus("registrazione completata!");
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+            model.setLoggedIn(true);
         }
     }
 

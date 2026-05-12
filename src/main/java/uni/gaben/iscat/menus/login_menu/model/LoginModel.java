@@ -5,6 +5,8 @@ import javafx.beans.property.*;
 /** Stato osservabile della schermata di login. JavaBean + JavaFX properties. */
 public class LoginModel {
 
+    private final BooleanProperty isLoggedIn = new SimpleBooleanProperty(false);
+
     private final StringProperty  username      = new SimpleStringProperty("");
     private final StringProperty  password      = new SimpleStringProperty("");
     private final StringProperty  status        = new SimpleStringProperty("");
@@ -49,4 +51,9 @@ public class LoginModel {
         wrongCredentials.set(true);
         wrongCredentials.set(false); // Reset immediato per permettere trigger successivi
     }
+
+    // Metodi per l'animazione del login menu
+    public BooleanProperty isLoggedInProperty() { return isLoggedIn; }
+    public boolean isLoggedIn() { return isLoggedIn.get(); }
+    public void setLoggedIn(boolean v) { isLoggedIn.set(v); }
 }
