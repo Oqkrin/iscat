@@ -1,6 +1,7 @@
 package uni.gaben.iscat.gamenex.lib.abstracts;
 
 import org.dyn4j.dynamics.Body;
+import uni.gaben.iscat.gamenex.lib.interfaces.model.CappedVelocity;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
 /**
@@ -8,7 +9,7 @@ import uni.gaben.iscat.gamenex.universe.UniverseSettings;
  * Estende {@link Body} di Dyn4j per fornire capacità di simulazione fisica.
  * Gestisce la conversione tra il sistema di coordinate pixel (View) e metri (Fisica).
  */
-public abstract class AbstractEntityModel extends Body {
+public abstract class AbstractEntityModel extends Body implements CappedVelocity {
     private String entityId;
 
     /**
@@ -39,4 +40,9 @@ public abstract class AbstractEntityModel extends Body {
     public String getEntityId() { return entityId; }
     /** Imposta l'ID dell'entità. */
     public void setEntityId(String id) { this.entityId = id; }
+
+    @Override
+    public double getMaxVelocity() {
+        return Double.MAX_VALUE;
+    }
 }

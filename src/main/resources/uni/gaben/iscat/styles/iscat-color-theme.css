@@ -108,7 +108,7 @@
 
 .title-bar-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: -text-tertiary;
+    -fx-text-fill:     -text-tertiary;
     -fx-font-size: 13px;
     -fx-padding: 2px 9px;
     -fx-cursor: hand;

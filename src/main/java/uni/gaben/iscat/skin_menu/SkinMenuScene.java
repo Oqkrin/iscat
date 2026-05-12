@@ -3,6 +3,7 @@ package uni.gaben.iscat.skin_menu;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.IscatSceneAbstract;
 
@@ -13,7 +14,7 @@ public class SkinMenuScene extends IscatSceneAbstract {
     private final StackPane contentRoot;
 
     public SkinMenuScene() {
-        super(new StackPane(), true);   // Per avere lo sfondo con le stelle
+        super(new StackPane(), true, SceneAntialiasing.DISABLED);   // Per avere lo sfondo con le stelle
         this.contentRoot = getContentRoot();
         loadFXML();
     }
@@ -26,27 +27,17 @@ public class SkinMenuScene extends IscatSceneAbstract {
 
             Parent fxmlContent = loader.load();
 
-            // Scaliamo dato che senno è piccolo
-            double targetWidth = 300;
-            double targetHeight = 150;
+            if (fxmlContent instanceof javafx.scene.layout.Region region) {
+                // Permettiamo alla region di rimpicciolirsi fino a zero
+                region.setMinSize(0, 0);
+                region.prefWidthProperty().bind(contentRoot.widthProperty());
+                region.prefHeightProperty().bind(contentRoot.heightProperty());
+            }
 
-            double scaleX = targetWidth / fxmlContent.prefWidth(-1);
-            double scaleY = targetHeight / fxmlContent.prefHeight(-1);
-            double scale = Math.min(scaleX, scaleY);
-
-            fxmlContent.setScaleX(scale);
-            fxmlContent.setScaleY(scale);
-
-            // Centriamo
-            fxmlContent.setTranslateX((targetWidth - fxmlContent.prefWidth(-1) * scale) / 2);
-            fxmlContent.setTranslateY((targetHeight - fxmlContent.prefHeight(-1) * scale) / 2);
-
-            // Aggiungiamo il contenuto FXML scalato
             contentRoot.getChildren().add(fxmlContent);
-            contentRoot.setAlignment(Pos.CENTER);
+            StackPane.setAlignment(fxmlContent, Pos.CENTER);
 
         } catch (IOException e) {
-            System.err.println("ERRORE: Impossibile caricare player_skin_choose_menu.fxml");
             e.printStackTrace();
         }
     }

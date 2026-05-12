@@ -2,10 +2,13 @@ package uni.gaben.iscat.gamenex.lib.implementations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
+
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiController;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
+import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobController;
 
 /**
  * Controller che "possiede" un NPC ed esegue una lista di comportamenti in sequenza.
@@ -19,6 +22,7 @@ public class AiBehaviours<T extends AbstractEntityModel> implements AiController
     protected final T npc;
     /** Lista dei comportamenti atomici da eseguire ad ogni frame. */
     private final List<AiBehavior> behaviors = new ArrayList<>();
+    private final PriorityQueue<Runnable> taskList = new PriorityQueue<>();
 
     /**
      * Crea un controller per un'entità specifica.

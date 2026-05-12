@@ -78,6 +78,12 @@ public class UniverseModel extends World<Body> {
             return false;
         });
 
+        bodies.forEach(b -> {
+            if(b.getLinearVelocity().getMagnitude() > ((AbstractEntityModel) b).getMaxVelocity()) {
+                b.setLinearVelocity(b.getLinearVelocity().getNormalized().setMagnitude(((AbstractEntityModel) b).getMaxVelocity()));
+            }
+        });
+
         return super.update(dt);
     }
     

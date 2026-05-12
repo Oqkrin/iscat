@@ -157,5 +157,5 @@ public final class Interpolator {
 
     // ------------------------------------------------------------------ utility
 
-    private static double clamp01(double t) { return Math.max(0, Math.min(1, t)); }
+    private static double clamp01(double t) { return Math.clamp(t, 0, 1); }
 }

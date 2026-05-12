@@ -5,6 +5,7 @@ import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -69,7 +70,7 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
      * @param height the height
      */
     protected IscatSceneAbstract(Parent root, double width, double height) {
-        this(root, width, height, false);
+        this(root, width, height, false, SceneAntialiasing.BALANCED);
     }
     
     /**
@@ -80,13 +81,18 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
      * @param height the height
      * @param withStarryBackground whether to include animated starry background
      */
-    protected IscatSceneAbstract(Parent root, double width, double height, boolean withStarryBackground) {
-        super(buildChrome(root, withStarryBackground), width, height);
+    protected IscatSceneAbstract(Parent root, double width, double height, boolean withStarryBackground, SceneAntialiasing ant) {
+        super(buildChrome(root, withStarryBackground), width, height, false, ant);
         setFill(Color.web("#010203"));
         applyRoundedClip();
         if (withStarryBackground) {
             starryBackground = extractStarryBackground();
         }
+    }
+
+    public IscatSceneAbstract(StackPane root, boolean starry, SceneAntialiasing ant) {
+        this(root, 0, 0, starry, ant);
+        System.out.println(getAntiAliasing());
     }
 
     // -------------------------------------------------------------------------

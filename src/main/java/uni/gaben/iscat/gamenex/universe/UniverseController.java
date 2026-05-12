@@ -2,13 +2,11 @@ package uni.gaben.iscat.gamenex.universe;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobController;
-import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
 import uni.gaben.iscat.gamenex.view.camera.CameraController;
 import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.controller.InputManager;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
-import uni.gaben.iscat.gamenex.universe.player.controller.PlayerController;
+import uni.gaben.iscat.gamenex.universe.player.PlayerController;
 import uni.gaben.iscat.gamenex.universe.starfield.StarfieldController;
 import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiController;
 import java.util.ArrayList;

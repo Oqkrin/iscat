@@ -1,5 +1,7 @@
 package uni.gaben.iscat.gamenex.universe.iscat_mob;
 
+import uni.gaben.iscat.gamenex.universe.UniverseSettings;
+
 /**
  * Impostazioni centralizzate per l'IscatMob.
  * Definisce le costanti fisiche e i parametri dell'intelligenza artificiale.
@@ -35,9 +37,9 @@ public class IscatMobSettings {
     /** Spazio di frenata/accelerazione per rendere il movimento fluido. */
     public static final double RAMP_UP_PX = 400.0;
     /** Velocità massima in metri al secondo. (25 m/s è molto veloce) */
-    public static final double MAX_VELOCITY_MS = 25.0;
+    public static final double MAX_VELOCITY_MS = 30;
     /** Forza massima di sterzata (maggiore = più reattivo). */
-    public static final double MAX_FORCE = 150.0;
+    public static final double FORCE = 15;
     /** Guadagno di sterzata per correggere la traiettoria. */
     public static final double STEERING_GAIN = 10.0;
 

@@ -1,5 +1,7 @@
 package uni.gaben.iscat.gamenex.universe.player;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
@@ -7,6 +9,8 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
+
+import javax.swing.event.ChangeListener;
 
 public class PlayerModel extends LivingEntityModel {
 
@@ -26,21 +30,10 @@ public class PlayerModel extends LivingEntityModel {
         if (dashCooldownRemaining > 0) dashCooldownRemaining -= dt;
         if (dashPhaseRemaining > 0) dashPhaseRemaining -= dt;
         if (fireCooldownRemaining > 0) fireCooldownRemaining -= dt;
-
         if (isInScatto()) {
-            setLinearDamping(0.5); // Quasi zero attrito per mantenere il momentum
+            setLinearDamping(0.7); // Quasi zero attrito per mantenere il momentum
         } else {
             setLinearDamping(PlayerSettings.LINEAR_DAMPING);
-            applyVelocityCap();
-        }
-    }
-
-    private void applyVelocityCap() {
-        Vector2 vel = getLinearVelocity();
-        if (vel.getMagnitude() > PlayerSettings.VELOCITA_MAX) {
-            vel.normalize();
-            vel.multiply(PlayerSettings.VELOCITA_MAX);
-            setLinearVelocity(vel);
         }
     }
 
@@ -71,4 +64,9 @@ public class PlayerModel extends LivingEntityModel {
 
     @Override
     public void onDeath() { /* Implement logic */ }
+
+    @Override
+    public double getMaxVelocity() {
+        return PlayerSettings.VELOCITA_MAX;
+    }
 }

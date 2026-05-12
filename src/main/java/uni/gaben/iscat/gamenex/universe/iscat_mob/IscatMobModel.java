@@ -34,5 +34,11 @@ public class IscatMobModel extends LivingEntityModel {
         
         // Applica l'attrito lineare per simulare la resistenza al movimento nel vuoto
         setLinearDamping(IscatMobSettings.DAMPING_LINEARE);
+
+    }
+
+    @Override
+    public double getMaxVelocity() {
+        return IscatMobSettings.MAX_VELOCITY_MS;
     }
 }

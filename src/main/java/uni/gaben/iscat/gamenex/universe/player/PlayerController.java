@@ -1,10 +1,8 @@
-package uni.gaben.iscat.gamenex.universe.player.controller;
+package uni.gaben.iscat.gamenex.universe.player;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.controller.InputManager;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
-import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
-import uni.gaben.iscat.gamenex.universe.player.PlayerSettings;
 import uni.gaben.iscat.utils.Interpolator;
 
 public class PlayerController {
