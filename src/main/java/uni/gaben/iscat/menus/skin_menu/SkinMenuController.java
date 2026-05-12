@@ -29,13 +29,25 @@ public class SkinMenuController {
     private static final int TOTAL_SKINS = 9;
     private static final double BASE_SIZE = 32.0; // Dimensione nativa della tua sprite
 
+    private static final String[] SKIN_NAMES = {
+            "Battle Ship",          // 1
+            "Simple Battle Ship",   // 2
+            "Friendly Ship",        // 3
+            "Iscat Traitor",        // 4
+            "Cubism Lover",         // 5
+            "Space Goblin",         // 6
+            "Phantom",              // 7
+            "NO NAME",              // 8
+            "NO NAME"               // 9
+    };
+
     @FXML
     public void initialize() {
         // Popoliamo la griglia inizialmente
         populateGrid();
 
         // Seleziona la prima skin di default
-        selectSkin("/uni/gaben/iscat/sprites/player1.png", "Goblin Standard");
+        selectSkin("/uni/gaben/iscat/sprites/player1.png", SKIN_NAMES[0]);
 
         // Listener per scalare i bottoni e la preview per multipli di 2
         ChangeListener<Number> sizeListener = (obs, oldVal, newVal) -> updateDynamicScaling();
@@ -100,6 +112,7 @@ public class SkinMenuController {
         for (int i = 0; i < TOTAL_SKINS; i++) {
             int num = i + 1;
             String path = "/uni/gaben/iscat/sprites/player" + num + ".png";
+            String name = SKIN_NAMES[i];
 
             Button btn = new Button();
             btn.getStyleClass().add("skin-button");
@@ -108,7 +121,7 @@ public class SkinMenuController {
             icon.setUserData(path); // Fondamentale per ricaricare l'immagine nel listener
             btn.setGraphic(icon);
 
-            btn.setOnAction(e -> selectSkin(path, "GOBLIN #" + num));
+            btn.setOnAction(e -> selectSkin(path, name));
             skinGrid.add(btn, i % 3, i / 3);
         }
     }
