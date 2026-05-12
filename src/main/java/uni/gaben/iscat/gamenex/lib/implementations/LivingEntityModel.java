@@ -93,4 +93,5 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
     public void onDeath() {
         // Implementazione vuota, sovrascrivibile nelle classi figlie
     }
+
 }

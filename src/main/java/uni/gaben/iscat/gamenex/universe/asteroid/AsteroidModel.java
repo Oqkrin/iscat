@@ -66,4 +66,5 @@ public class AsteroidModel extends AbstractEntityModel {
     
     public double getSize() { return size; }
     public Vector2[] getDisplayVertices() { return displayVertices; }
+
 }
