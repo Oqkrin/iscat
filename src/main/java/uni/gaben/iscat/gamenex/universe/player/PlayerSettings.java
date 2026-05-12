@@ -1,9 +1,19 @@
 package uni.gaben.iscat.gamenex.universe.player;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  * Impostazioni centralizzate per il giocatore.
  */
 public final class PlayerSettings {
+    /** Player skin path **/
+    private static StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/player1.png");
+
+    public static StringProperty playerSkinProperty() { return playerSkin; }
+    public static String getPlayerSkin() { return playerSkin.getValue(); }
+    public static void setPlayerSkin(String playerSkin) { PlayerSettings.playerSkin.setValue(playerSkin); }
+
     private PlayerSettings() {}
 
     // === Fisica (adattata per Dyn4j) ===

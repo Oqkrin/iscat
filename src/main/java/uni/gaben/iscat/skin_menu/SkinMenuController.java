@@ -13,7 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.IscatSettings;
+import uni.gaben.iscat.gamenex.universe.player.PlayerSettings;
 
 import java.util.Objects;
 
@@ -127,7 +127,7 @@ public class SkinMenuController {
 
     @FXML private void handleConfirm(ActionEvent event) {
         if (selectedSkinPath != null) {
-            IscatSettings.player_skin = selectedSkinPath;
+            PlayerSettings.setPlayerSkin(selectedSkinPath);
             IscatNavigator.getInstance().navigateTo(IscatScenes.MENU);
         }
     }

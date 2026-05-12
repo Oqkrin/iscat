@@ -3,7 +3,6 @@ package uni.gaben.iscat.game.components.entities.player;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.game.components.entities.npcs.SpriteUtils;
 import uni.gaben.iscat.game.utils.interfaces.Drawable;
 import uni.gaben.iscat.game.utils.settings.VisualSettings;
@@ -35,7 +34,7 @@ public class PlayerView implements Drawable<PlayerModel> {
     // Ricarica lo sprite quando viene cambiata la skin
     public void reloadSprite() {
         try {
-            String path = IscatSettings.player_skin;
+            String path = uni.gaben.iscat.gamenex.universe.player.PlayerSettings.getPlayerSkin();
 
             if (path == null || path.isBlank()) {
                 path = "/uni/gaben/iscat/sprites/player1.png";
@@ -52,7 +51,7 @@ public class PlayerView implements Drawable<PlayerModel> {
             System.out.println("Player sprite caricato correttamente: " + path);
 
         } catch (Exception e) {
-            System.err.println("Errore caricamento sprite: " + IscatSettings.player_skin);
+            System.err.println("Errore caricamento sprite: " + uni.gaben.iscat.gamenex.universe.player.PlayerSettings.getPlayerSkin());
             e.printStackTrace();
         }
     }

@@ -3,7 +3,6 @@ package uni.gaben.iscat.gamenex.universe.player;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
@@ -21,15 +20,31 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
     private static final Random RANDOM = new Random();
 
     private Image currentSprite;
-
-    // Caricamento iniziale dello sprite, serve per far in modo che lo sprite del player si carichi all'inizio
+    
     public PlayerView() {
-        reloadSprite();
+        
+        PlayerSettings.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+
+                currentSprite = new Image(
+                        Objects.requireNonNull(
+                                PlayerView.class.getResourceAsStream(newValue),
+                                "Sprite non trovato: " + newValue
+                        )
+                );
+
+                System.out.println("Player sprite ricaricato con successo: " + newValue);
+
+            } catch (Exception e) {
+                System.err.println("Errore caricamento sprite: " + newValue);
+                e.printStackTrace();
+            }
+        });
+        
     }
 
     @Override
     public void draw(PlayerModel entity, GraphicsContext gc) {
-
         setPos(entity);
         setAngle(entity);
         setSize(PlayerSettings.DIMENSIONE_SPRITE);
@@ -101,24 +116,5 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
                 Math.min(1.0, brightness * accent.getBlue()),
                 Math.min(1.0, alpha));
     }
-
-    // Metodo che ridisegna lo sprite quando viene cambiata la skin
-    public void reloadSprite() {
-        try {
-            String path = IscatSettings.player_skin;
-
-            currentSprite = new Image(
-                    Objects.requireNonNull(
-                            PlayerView.class.getResourceAsStream(path),
-                            "Sprite non trovato: " + path
-                    )
-            );
-
-            //System.out.println("Player sprite ricaricato con successo: " + path);
-
-        } catch (Exception e) {
-            System.err.println("Errore caricamento sprite: " + IscatSettings.player_skin);
-            e.printStackTrace();
-        }
-    }
+    
 }
