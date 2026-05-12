@@ -12,7 +12,6 @@
 .login-title {
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    /* Usa font-size invece di size */
     -fx-font-size: 55px;
     -fx-effect: dropshadow(gaussian, rgba(255,255, 255, 0.5), 15, 0, 0, 0);
 }

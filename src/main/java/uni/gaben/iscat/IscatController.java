@@ -20,8 +20,8 @@ import java.util.EnumMap;
 public class IscatController {
 
     private static final int    RESIZE_MARGIN = 3;
-    private static final double MIN_W         = 720;
-    private static final double MIN_H         = 576;
+    private static final double MIN_W         = 1280;
+    private static final double MIN_H         = 720;
 
     private final IscatModel model;
     private final Stage      stage;
@@ -32,6 +32,9 @@ public class IscatController {
         this.model    = model;
         this.stage    = stage;
         this.sceneMap = sceneMap;
+
+        this.stage.setMinWidth(MIN_W);
+        this.stage.setMinHeight(MIN_H);
 
         model.currentSceneProperty().addListener((obs, old, next) ->
                 performSceneTransition(next));
