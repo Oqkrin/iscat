@@ -39,6 +39,8 @@ public class IscatController {
 
     /** Called by IscatApplication after the stage is shown. */
     public void initializeScene() {
+        stage.setWidth(MIN_W);
+        stage.setHeight(MIN_H);
         performSceneTransition(model.getCurrentScene());
     }
 
