@@ -10,11 +10,9 @@ import uni.gaben.iscat.game.controller.GameController;
 import uni.gaben.iscat.game.GameModel;
 import uni.gaben.iscat.game.view.GameScene;
 
-import uni.gaben.iscat.game.view.OptionsMenu;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.gamenex.view.GamenexScene;
-import uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuController;
 import uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuScene;
 import uni.gaben.iscat.menus.login_menu.controller.LoginController;
 import uni.gaben.iscat.menus.login_menu.model.LoginData;
@@ -23,7 +21,6 @@ import uni.gaben.iscat.menus.login_menu.view.LoginScene;
 import uni.gaben.iscat.menus.main_menu.MenuController;
 import uni.gaben.iscat.menus.main_menu.MenuScene;
 import uni.gaben.iscat.menus.options_menu.OptionsMenuScene;
-import uni.gaben.iscat.menus.score_menu.ScoreMenuController;
 import uni.gaben.iscat.menus.score_menu.ScoreMenuScene;
 import uni.gaben.iscat.menus.skin_menu.SkinMenuScene;
 import uni.gaben.iscat.utils.IscatUtils;
@@ -70,10 +67,8 @@ public class IscatApplication extends Application {
         scenes.put(IscatScenes.GAMEN,         new GamenexScene(gamenexController, gamenexModel));
         scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuScene());
         scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuScene());
-        //scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuScene());
-        //scenes.put(IscatScenes.BESTIARY_MENU, new BestiaryMenuScene());
-        //TODO OPTIONS MENU
-        //TODO BESTIARY MENU
+        scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuScene());
+        scenes.put(IscatScenes.BESTIARY_MENU, new BestiaryMenuScene());
 
         // Apply global colour theme to every scene
         String colorTheme = Objects.requireNonNull(

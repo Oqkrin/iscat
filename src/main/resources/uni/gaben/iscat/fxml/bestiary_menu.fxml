@@ -10,13 +10,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/skin_menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.menus.skin_menu.SkinMenuController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/bestiary_menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuController">
    <top>
       <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
             <Insets top="40.0" />
          </padding>
-         <Label text="PLAYER SKINS" textFill="WHITE">
+         <Label text="BESTIARY" textFill="WHITE">
             <font>
                <Font name="System Bold" size="80.0" />
             </font>
@@ -29,11 +29,6 @@
             <padding>
                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
             </padding>
-            <Label text="PREVIEW" textFill="WHITE">
-               <font>
-                  <Font name="System Bold" size="35.0" />
-               </font>
-            </Label>
 
             <ImageView fx:id="skinPreview" pickOnBounds="true" />
 
@@ -44,8 +39,7 @@
             </Label>
 
             <VBox alignment="CENTER" spacing="15.0">
-               <Button ellipsisString="" onAction="#handleConfirm" styleClass="confirm-button" text="CONFERMA" />
-               <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ANNULLA" />
+               <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
             </VBox>
          </VBox>
       </HBox>
