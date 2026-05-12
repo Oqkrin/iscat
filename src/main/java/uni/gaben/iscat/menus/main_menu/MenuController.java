@@ -1,4 +1,4 @@
-package uni.gaben.iscat.menu.controller;
+package uni.gaben.iscat.menus.main_menu;
 
 import javafx.application.Platform;
 import uni.gaben.iscat.IscatNavigator;

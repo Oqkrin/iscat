@@ -1,11 +1,11 @@
-package uni.gaben.iscat.login.controller;
+package uni.gaben.iscat.menus.login_menu.controller;
 
 import javafx.scene.input.KeyEvent;
 import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.login.model.LoginData;
-import uni.gaben.iscat.login.model.LoginModel;
-import uni.gaben.iscat.login.model.LoginState;
+import uni.gaben.iscat.menus.login_menu.model.LoginData;
+import uni.gaben.iscat.menus.login_menu.model.LoginModel;
+import uni.gaben.iscat.menus.login_menu.model.LoginState;
 
 /**
  * Controller per la schermata di login.

@@ -1,4 +1,4 @@
-package uni.gaben.iscat.login.model;
+package uni.gaben.iscat.menus.login_menu.model;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

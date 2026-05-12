@@ -1,4 +1,4 @@
-package uni.gaben.iscat.login.view;
+package uni.gaben.iscat.menus.login_menu.view;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -13,8 +13,8 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatSceneAbstract;
-import uni.gaben.iscat.login.controller.LoginController;
-import uni.gaben.iscat.login.model.LoginModel;
+import uni.gaben.iscat.menus.login_menu.controller.LoginController;
+import uni.gaben.iscat.menus.login_menu.model.LoginModel;
 import uni.gaben.iscat.utils.components.AutoFittingLabel;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.design.TipografiaAurea;

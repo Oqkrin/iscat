@@ -1,4 +1,4 @@
-package uni.gaben.iscat.skin_menu;
+package uni.gaben.iscat.menus.skin_menu;
 
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;

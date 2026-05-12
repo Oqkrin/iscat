@@ -1,4 +1,4 @@
-package uni.gaben.iscat.menu.view;
+package uni.gaben.iscat.menus.main_menu;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -8,7 +8,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatSceneAbstract;
-import uni.gaben.iscat.menu.controller.MenuController;
 
 /**
  * Main menu screen.

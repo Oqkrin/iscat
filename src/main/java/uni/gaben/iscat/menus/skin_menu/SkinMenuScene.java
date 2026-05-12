@@ -1,4 +1,4 @@
-package uni.gaben.iscat.skin_menu;
+package uni.gaben.iscat.menus.skin_menu;
 
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -22,7 +22,7 @@ public class SkinMenuScene extends IscatSceneAbstract {
     private void loadFXML() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/uni/gaben/iscat/fxml/player_skin_choose_menu.fxml")
+                    getClass().getResource("/uni/gaben/iscat/fxml/skin_menu.fxml")
             );
 
             Parent fxmlContent = loader.load();
