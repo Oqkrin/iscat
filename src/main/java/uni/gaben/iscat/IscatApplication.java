@@ -89,7 +89,6 @@ public class IscatApplication extends Application {
         stage.initStyle(StageStyle.UNDECORATED);
         iscatController.initializeScene();
         stage.show();
-        IscatUtils.scalaCentraRispettoParent(stage,
-                IscatUtils.getSchermiCorrenti(stage).get(0).getBounds());
+        stage.centerOnScreen();
     }
 }

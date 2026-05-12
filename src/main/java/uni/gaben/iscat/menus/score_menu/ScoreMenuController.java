@@ -31,13 +31,15 @@ public class ScoreMenuController {
         blackOverlay.setOpacity(0);
         rootPane.getChildren().add(blackOverlay);
 
-        FadeTransition fadeIn = new FadeTransition(Duration.seconds(2),blackOverlay);
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.5),blackOverlay);
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
         fadeIn.play();
 
-        fadeIn.setOnFinished(e ->
-                IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU)
+        fadeIn.setOnFinished(e -> {
+                    IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+                    rootPane.getChildren().remove(blackOverlay);
+                }
         );
     }
 }
