@@ -1,6 +1,8 @@
 package uni.gaben.iscat.gamenex.universe;
 
 import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
+import uni.gaben.iscat.gamenex.universe.hearth.HearthController;
+import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobController;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
@@ -30,6 +32,15 @@ public class UniverseSpawner {
         // Registrazione iniziale delle entità core per permettere lo spawning dinamico
         register("ASTEROID", this::spawnAsteroid);
         register("ISCAT_MOB", this::spawnIscatMob);
+        register("HEARTH", this::spawnHearth);
+    }
+
+    public HearthModel spawnHearth(double x, double y) {
+        HearthModel hearth = new HearthModel(x, y);
+        model.addEntity(hearth);
+        HearthController hearthController = new HearthController(hearth);
+        controller.addAiController(hearthController);
+        return hearth;
     }
 
     /**

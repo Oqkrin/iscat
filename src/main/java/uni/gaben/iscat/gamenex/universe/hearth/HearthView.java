@@ -29,7 +29,6 @@ public class HearthView extends AbstractEntityView implements Drawable<HearthMod
         Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
         Image tintedSheet = ThemeManager.getInstance().getTintedImage(SPRITE_SHEET, currentTint);
 
-        // Only split the sheet into frames if the tinted sheet has changed
         if (tintedSheet != lastTintedSheet) {
             lastTintedSheet = tintedSheet;
             for (int i = 0; i < NUMERO_FRAMES; i++) {

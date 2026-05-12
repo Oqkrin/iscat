@@ -33,13 +33,17 @@ public class GamenexSpawnerToolbar extends StackPane {
         container.setAlignment(Pos.CENTER);
         container.setStyle("-fx-padding: 10 20;");
 
+        // SPAWNERS BUTTONS
         Button spawnAsteroidBtn = createSmallButton("ASTEROID");
         spawnAsteroidBtn.setOnAction(e -> controller.spawnAsteroid());
         
         Button spawnIscatBtn = createSmallButton("ISCAT MOB");
         spawnIscatBtn.setOnAction(e -> controller.spawnIscatMob());
 
-        container.getChildren().addAll(spawnAsteroidBtn, spawnIscatBtn);
+        Button spawnHearthBtn = createSmallButton("HEARTH");
+        spawnHearthBtn.setOnAction(e -> controller.spawnHearth());
+
+        container.getChildren().addAll(spawnAsteroidBtn, spawnIscatBtn, spawnHearthBtn);
         
         scroll.setContent(container);
         

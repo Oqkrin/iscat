@@ -177,6 +177,16 @@ public class GamenexController {
         UniverseSpawner.getInstance().spawn("ISCAT_MOB", x, y);
     }
 
+    public void spawnHearth() {
+        double x = cameraModel.getX() + (universeController.getSpaceModel().getWidth() / 2.0);
+        double y = cameraModel.getY() + (universeController.getSpaceModel().getHeight() / 2.0);
+
+        x += (Math.random() - 0.5) * 400;
+        y += (Math.random() - 0.5) * 400;
+
+        UniverseSpawner.getInstance().spawn("HEARTH", x, y);
+    }
+
     private boolean showFps = false;
 
     /**

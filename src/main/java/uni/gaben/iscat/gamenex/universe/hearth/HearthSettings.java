@@ -7,7 +7,7 @@ public class HearthSettings {
     /** Numero di frame dell'animazione. */
     public static final int NUMERO_FRAMES = 1;
     /** Scala di rendering. */
-    public static final double SCALE = 1.5;
+    public static final double SCALE = 1;
     /** Raggio della collisione fisica. */
     public static final double RAGGIO_COLLISIONE_PX = (DIM_SPRITE / 2.0) * 0.9;
     /** Vita data in collisione */

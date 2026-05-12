@@ -4,25 +4,44 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
-
-import java.util.Random;
+import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 
 public class HearthController extends AiBehaviours<HearthModel> {
-    Vector2 target = null;
-    Random rand = new Random();
-    Vector2 dirvec;
-    double maxMagnitude = 40 / UniverseSettings.SCALE;
-    double minMagnitude = 20 / UniverseSettings.SCALE;
+
+    private final HearthModel hearth;
+
     public HearthController(HearthModel hearth) {
         super(hearth);
+        this.hearth = hearth;
     }
 
-    // Hearth non si muove e non fa nulla, aspetta la collisione, pero potremmo fare che se il player si avvicina troppo, il hearth si avvicina per far avvenire la collisione
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
         super.aiUpdate(universeModel, dt);
+
+        if (hearth == null || hearth.isConsumed()) return;
+
+        PlayerModel player = universeModel.getPlayer();
+        if (player == null) return;
+
+        Vector2 hearthPos = hearth.getTransform().getTranslation();
+        Vector2 playerPos = player.getTransform().getTranslation();
+
+        double distanceSquared = hearthPos.distanceSquared(playerPos);
+
+        double collisionRadius = HearthSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE * 1.15;
+
+        if (distanceSquared < collisionRadius * collisionRadius) {
+            applyHeal(player, universeModel);
+        }
+    }
+
+    private void applyHeal(PlayerModel player, UniverseModel universe) {
+        // Cura il giocatore
+        player.heal(HearthSettings.HP_BOOST);
+
+        // Rimuovi l'hearth
+        hearth.consume();
+        universe.removeEntity(hearth);
     }
 }
-
-//TODO: Quando player collide con Hearth, Hearth scompare e da al player 50 HP come scritto su settings
-//TODO: Quando un nemico muore, oppure un asteroide muore, hearth può apparire come drop

@@ -6,6 +6,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.IscatSceneAbstract;
+import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
+import uni.gaben.iscat.gamenex.universe.hearth.HearthView;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobView;
 import uni.gaben.iscat.gamenex.universe.player.PlayerView;
@@ -52,6 +54,7 @@ public class GamenexScene extends IscatSceneAbstract {
         registry.register(PlayerModel.class, new PlayerView());
         registry.register(AsteroidModel.class, new AsteroidView());
         registry.register(IscatMobModel.class, new IscatMobView());
+        registry.register(HearthModel.class, new HearthView());
 
         initialize();
     }

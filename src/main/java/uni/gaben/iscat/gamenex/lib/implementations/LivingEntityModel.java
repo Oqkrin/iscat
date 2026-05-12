@@ -79,6 +79,13 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
         }
     }
 
+    public void heal(int amount) {
+        if (!isAlive()) return;
+
+        life = Math.min(maxLife, life + amount);
+        //TODO Eventuale effetto visivo / suono qui
+    }
+
     /**
      * Uccide istantaneamente l'entità ed esegue il callback di morte.
      */

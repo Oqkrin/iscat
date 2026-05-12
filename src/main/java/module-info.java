@@ -44,6 +44,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.gamenex.lib.interfaces.view;
     exports uni.gaben.iscat.gamenex.lib.abstracts;
     exports uni.gaben.iscat.gamenex.universe.iscat_mob;
+    exports uni.gaben.iscat.gamenex.universe.hearth;
     exports uni.gaben.iscat.gamenex.universe.asteroid;
     exports uni.gaben.iscat.menus.options_menu;
     exports uni.gaben.iscat.menus.main_menu;
