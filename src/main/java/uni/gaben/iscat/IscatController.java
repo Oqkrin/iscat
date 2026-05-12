@@ -33,9 +33,6 @@ public class IscatController {
         this.stage    = stage;
         this.sceneMap = sceneMap;
 
-        this.stage.setMinWidth(MIN_W);
-        this.stage.setMinHeight(MIN_H);
-
         model.currentSceneProperty().addListener((obs, old, next) ->
                 performSceneTransition(next));
     }
