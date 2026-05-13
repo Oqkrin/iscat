@@ -22,25 +22,29 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
     private Image currentSprite;
     
     public PlayerView() {
-        
+
+        loadSkin(PlayerSettings.getPlayerSkin());
+
         PlayerSettings.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-
-                currentSprite = new Image(
-                        Objects.requireNonNull(
-                                PlayerView.class.getResourceAsStream(newValue),
-                                "Sprite non trovato: " + newValue
-                        )
-                );
-
-                System.out.println("Player sprite ricaricato con successo: " + newValue);
-
-            } catch (Exception e) {
-                System.err.println("Errore caricamento sprite: " + newValue);
-                e.printStackTrace();
-            }
+            loadSkin(newValue);
         });
-        
+    }
+
+    private void loadSkin(String path) {
+        try {
+            if (path == null || path.isEmpty()) return;
+
+            currentSprite = new Image(
+                    Objects.requireNonNull(
+                            PlayerView.class.getResourceAsStream(path),
+                            "[PLayerView] Sprite non trovato: " + path
+                    )
+            );
+            //System.out.println("[PLayerView] Player sprite caricato: " + path);
+        } catch (Exception e) {
+            //System.err.println("[PLayerView] Errore caricamento sprite: " + path);
+            e.printStackTrace();
+        }
     }
 
     @Override
