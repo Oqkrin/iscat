@@ -1,8 +1,10 @@
 package uni.gaben.iscat.gamenex.view;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.IscatSceneAbstract;
@@ -23,6 +25,7 @@ import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidView;
 import uni.gaben.iscat.gamenex.universe.UniverseController;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.starfield.StarfieldView;
+import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 import java.util.Objects;
@@ -41,6 +44,7 @@ public class GamenexScene extends IscatSceneAbstract {
     private final StarfieldView starfieldView = new StarfieldView();
     private GamenexSpawnerToolbar spawnerToolbar;
     private GamenexPauseMenu pauseMenu;
+    private Button debugButton;
 
     public GamenexScene(GamenexController gamenexController, GamenexModel gamenexModel) {
         super(new StackPane());
@@ -73,13 +77,21 @@ public class GamenexScene extends IscatSceneAbstract {
         canvas = new Canvas();
         spawnerToolbar = new GamenexSpawnerToolbar(gamenexController);
         pauseMenu = new GamenexPauseMenu(gamenexController);
+        // ==================== DEBUG BUTTON ====================
+        debugButton = new Button("DEBUG");
+        debugButton.setFocusTraversable(false);
+        CssHelper.stilePulsanteMenu(debugButton);
+        CssHelper.testoPrimario(debugButton);
+        debugButton.setStyle(debugButton.getStyle() + "-fx-font-size: 14px; -fx-padding: 6 18; -fx-background-color: rgba(0,0,0,0.6);");
     }
 
     @Override
     protected void initLayout() {
-        root.getChildren().addAll(canvas, spawnerToolbar, pauseMenu);
+        root.getChildren().addAll(canvas, spawnerToolbar, pauseMenu, debugButton);
         StackPane.setAlignment(spawnerToolbar, Pos.BOTTOM_CENTER);
-        // Pause menu covers everything
+
+        StackPane.setAlignment(debugButton, Pos.TOP_LEFT);
+        StackPane.setMargin(debugButton, new Insets(50, 0, 0, 50));
     }
 
     @Override
@@ -121,6 +133,13 @@ public class GamenexScene extends IscatSceneAbstract {
                 gamenexController.togglePause();
                 e.consume();
             }
+        });
+
+        // ==================== DEBUG BUTTON ACTION ====================
+        debugButton.setOnAction(e -> {
+            boolean visible = !spawnerToolbar.isSpawnButtonsVisible();
+            spawnerToolbar.setSpawnButtonsVisible(visible);
+            debugButton.setText(visible ? "HIDE DEBUG" : "DEBUG");
         });
     }
 
