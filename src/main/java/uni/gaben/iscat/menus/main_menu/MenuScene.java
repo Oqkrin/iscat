@@ -62,28 +62,28 @@ public class MenuScene extends IscatSceneAbstract {
         playPhiButton = new Button("PLAY  (game_phi)", phiIcon);
         playPhiButton.getStyleClass().add(CSS_MENU_BUTTON);
 
-        // --- Options (placeholder) ---
+        // --- Options ---
         FontIcon optionIcon = new FontIcon("fas-cog");
         optionIcon.setIconSize(32);
         optionsButton = new Button("OPTIONS", optionIcon);
         optionsButton.getStyleClass().add(CSS_MENU_BUTTON);
 
-        // --- Score (placeholder) ---
+        // --- Score ---
         FontIcon scoreIcon = new FontIcon("fas-eye");
         scoreIcon.setIconSize(32);
         scoreButton = new Button("VIEW SCORE", scoreIcon);
         scoreButton.getStyleClass().add(CSS_MENU_BUTTON);
 
         // --- Skin Button ---
-        FontIcon skinIcon = new FontIcon("fas-eye");
+        FontIcon skinIcon = new FontIcon("fas-gift");
         skinIcon.setIconSize(32);
-        skinButton = new Button("CHANGE SKIN", scoreIcon);
+        skinButton = new Button("CHANGE SKIN", skinIcon);
         skinButton.getStyleClass().add(CSS_MENU_BUTTON);
 
-        // --- Skin Button ---
-        FontIcon bestiaryIcon = new FontIcon("fas-eye");
+        // --- Bestiary Button ---
+        FontIcon bestiaryIcon = new FontIcon("fas-bug");
         bestiaryIcon.setIconSize(32);
-        bestiaryButton = new Button("BESTIARIO", scoreIcon);
+        bestiaryButton = new Button("BESTIARIO", bestiaryIcon);
         bestiaryButton.getStyleClass().add(CSS_MENU_BUTTON);
 
         // --- Quit ---

@@ -1,23 +1,104 @@
+```css
 .root {
     -fx-background-color: black;
 }
 
-/* Selettore specifico per i bottoni della griglia */
+/* ----------------------------- */
+/* LABELS */
+/* ----------------------------- */
+
+.label {
+    -fx-text-fill: white;
+
+    -fx-font-family: "Consolas";
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* Titolo preview skin */
+#skinNameLabel {
+    -fx-font-size: 34px;
+    -fx-text-fill: #00ffcc;
+}
+
+/* ----------------------------- */
+/* TEXT AREA */
+/* ----------------------------- */
+
+.text-area {
+    -fx-background-color: black;
+    -fx-border-color: white;
+    -fx-border-width: 2;
+
+    -fx-font-family: "Consolas";
+    -fx-font-size: 18px;
+
+    -fx-text-fill: white;
+}
+
+.text-area .content {
+    -fx-background-color: black;
+}
+
+.text-area .viewport {
+    -fx-background-color: black;
+}
+
+.text-area .text {
+    -fx-fill: white;
+}
+
+/* ----------------------------- */
+/* BUTTONS GENERICI */
+/* ----------------------------- */
+
+.button {
+    -fx-background-color: #111111;
+
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-border-radius: 6;
+
+    -fx-text-fill: white;
+
+    -fx-font-family: "Consolas";
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+
+    -fx-padding: 10 20 10 20;
+}
+
+.button:hover {
+    -fx-background-color: #00ffcc22;
+    -fx-border-color: white;
+}
+
+.button:pressed {
+    -fx-background-color: #00ffcc55;
+}
+
+/* ----------------------------- */
+/* SKIN BUTTONS */
+/* ----------------------------- */
+
 .skin-button {
     -fx-background-color: #1a1a1a;
-    -fx-border-color: #555555;
+
+    -fx-border-color: white;
     -fx-border-width: 2;
     -fx-border-radius: 4;
-    -fx-padding: 10; /* Spazio interno tra bordo e icona */
-    -fx-content-display: graphic-only; /* Forza la visualizzazione solo dell'icona */
+
+    -fx-padding: 10;
+
+    -fx-content-display: graphic-only;
 }
 
-.skin-button:hoer {
-    -fx-background-color: #00ffcc33; /* Un tocco di colore goblin al passaggio */
-    -fx-border-color: #00ffcc;
+.skin-button:hover {
+    -fx-background-color: #00ffcc33;
+    -fx-border-color: white;
 }
 
-/* Rimuovi transizioni o scale se vedi che creano "sfocatura" durante il movimento */
 .skin-button:pressed {
     -fx-background-color: #00ffcc66;
 }
+```

@@ -3,36 +3,46 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/bestiary_menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuController">
    <top>
-      <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
+      <VBox spacing="10.0" BorderPane.alignment="TOP_LEFT">
          <padding>
             <Insets top="40.0" />
          </padding>
-         <Label text="BESTIARY" textFill="WHITE">
+         <Label prefHeight="39.0" prefWidth="368.0" text="BESTIARY" textAlignment="CENTER" textFill="WHITE">
             <font>
-               <Font name="System Bold" size="80.0" />
+               <Font name="System Bold" size="40.0" />
             </font>
          </Label>
       </VBox>
    </top>
    <center>
       <HBox alignment="CENTER" spacing="80.0" BorderPane.alignment="CENTER">
-         <GridPane fx:id="skinGrid" alignment="CENTER" hgap="15.0" minHeight="0" minWidth="0" vgap="15.0" />            <VBox fx:id="previewBox" alignment="CENTER" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
+         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="250.0">
+            <children>
+               <Button fx:id="iscat_mob" contentDisplay="CENTER" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Mob" />
+               <Button fx:id="iscat_bomber" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Bomber" />
+               <Button fx:id="iscat_core" contentDisplay="CENTER" layoutX="10.0" layoutY="36.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Core" />
+               <Button fx:id="iscat_mother" contentDisplay="CENTER" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Mother" />
+               <Button fx:id="fake_iscat" contentDisplay="CENTER" layoutX="10.0" layoutY="87.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Fake Iscat" />
+               <Button fx:id="fallen_star_golem" contentDisplay="CENTER" layoutX="10.0" layoutY="112.0" mnemonicParsing="false" onAction="#showEnemy" prefWidth="250.0" text="Fallen Star Golem" />
+               <Button fx:id="eater" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Eater" />
+            </children>
+         </VBox>            <VBox fx:id="previewBox" alignment="CENTER" prefWidth="303.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
             <padding>
                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
             </padding>
 
             <ImageView fx:id="skinPreview" pickOnBounds="true" />
 
-            <Label fx:id="skinNameLabel" ellipsisString="" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
+            <Label fx:id="skinNameLabel" ellipsisString="" text="Enemy Name" textFill="#00ffcc">
                <font>
                   <Font name="System Italic" size="25.0" />
                </font>
@@ -42,6 +52,7 @@
                <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
             </VBox>
          </VBox>
+         <TextArea fx:id="description" prefHeight="200.0" prefWidth="400.0" />
       </HBox>
    </center>
 </BorderPane>

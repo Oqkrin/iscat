@@ -5,7 +5,7 @@ import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 public class HearthSettings {
 
     /** Dimensione base dello sprite in pixel. */
-    public static final double DIM_SPRITE = 32.0;
+    public static final int DIM_SPRITE = 32;
     /** Numero di frame dell'animazione. */
     public static final int NUMERO_FRAMES = 1;
     /** Scala di rendering. */

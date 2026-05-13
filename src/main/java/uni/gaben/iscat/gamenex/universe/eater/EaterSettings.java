@@ -15,7 +15,7 @@ public class EaterSettings {
     /** Punti vita iniziali del mob. */
     public static final int HP_INIZIALI = 15;
     /** Dimensione base dello sprite in pixel. */
-    public static final double DIM_SPRITE = 32.0;
+    public static final int DIM_SPRITE = 32;
     /** Numero di frame dell'animazione. */
     public static final int NUMERO_FRAMES = 2;
     /** Scala di rendering. */
