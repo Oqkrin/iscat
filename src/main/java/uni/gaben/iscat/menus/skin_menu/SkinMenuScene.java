@@ -17,6 +17,10 @@ public class SkinMenuScene extends IscatSceneAbstract {
 
     @Override
     public void onShow() {
-        if (getStarryBackground() != null) getStarryBackground().setFollowMouse(true);
+        if (getStarryBackground() != null) {
+            getStarryBackground().setFollowMouse(true);
+            setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
+            fadeIn();
+        }
     }
 }

@@ -75,34 +75,33 @@ public class IscatNavigator {
         return scene instanceof IscatSceneAbstract ? (IscatSceneAbstract) scene : null;
     }
 
-    public void navigateWithFade(IscatScenes targetScene, StackPane rootPane) {
-        if (rootPane == null) {
-            // Fallback se non c'è rootPane
-            navigateTo(targetScene);
-            return;
+    public void navigateWithFade(IscatScenes target, StackPane currentContentRoot) {
+        // 1. Recupera il contentRoot della scena di destinazione e portalo a 0 subito
+        StackPane targetContentRoot = null;
+        Scene targetScene = sceneMap.get(target);
+        if (targetScene instanceof IscatSceneAbstract nextScene) {
+            targetContentRoot = nextScene.getContentRoot();
+            if (targetContentRoot != null) targetContentRoot.setOpacity(0.0);
         }
 
-        ImageView blackOverlay = new ImageView(
-                new Image(Objects.requireNonNull(
-                        getClass().getResourceAsStream("/uni/gaben/iscat/sprites/black.png")
-                ))
-        );
+        final StackPane finalTarget = targetContentRoot;
 
-        blackOverlay.setFitWidth(5000);
-        blackOverlay.setFitHeight(5000);
-        blackOverlay.setOpacity(0);
+        // 2. Fade-out della scena corrente
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.5), currentContentRoot);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> {
+            navigateTo(target);
+            currentContentRoot.setOpacity(1.0); // resetta per la prossima volta
 
-        rootPane.getChildren().add(blackOverlay);
-
-        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.5), blackOverlay);
-        fadeIn.setFromValue(0.0);
-        fadeIn.setToValue(1.0);
-        fadeIn.play();
-
-        fadeIn.setOnFinished(e -> {
-            // Navigazione vera e propria
-            navigateTo(targetScene);
-            rootPane.getChildren().remove(blackOverlay);
+            // 3. Fade-in della nuova scena
+            if (finalTarget != null) {
+                FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.5), finalTarget);
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.play();
+            }
         });
+        fadeOut.play();
     }
 }

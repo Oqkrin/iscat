@@ -346,7 +346,7 @@ public class LoginScene extends IscatSceneAbstract {
         );
 
         successAnim.setOnFinished(e -> {
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, root);
         });
 
         successAnim.play();

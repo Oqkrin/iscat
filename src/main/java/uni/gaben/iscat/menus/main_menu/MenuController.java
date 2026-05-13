@@ -1,42 +1,30 @@
 package uni.gaben.iscat.menus.main_menu;
 
 import javafx.application.Platform;
+import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
 
 public class MenuController {
+    private StackPane contentRoot;
 
-    /** Launch the legacy game (game package). */
-    public void playLegacy() {
-        IscatNavigator.getInstance().navigateTo(IscatScenes.GAME);
+    public void setContentRoot(StackPane contentRoot) {
+        this.contentRoot = contentRoot;
     }
 
-    /** Launch the new gamenex architecture. */
-    public void playPhi() {
-        IscatNavigator.getInstance().navigateTo(IscatScenes.GAMEN);
+    private void navigate(IscatScenes target) {
+        if (contentRoot != null) {
+            IscatNavigator.getInstance().navigateWithFade(target, contentRoot);
+        } else {
+            IscatNavigator.getInstance().navigateTo(target);
+        }
     }
 
-    /** Open the PlayerSkinChooseMenu */
-    public void openSkinMenu() {
-        IscatNavigator.getInstance().navigateTo(IscatScenes.SKIN_MENU);
-    }
-
-    /** Apre il menu delle opzioni **/
-    public void openOptionsMenu() {
-        IscatNavigator.getInstance().navigateTo(IscatScenes.OPTIONS_MENU);
-    }
-
-    /** Apre il menu dello score **/
-    public void openScoreMenu() {
-        IscatNavigator.getInstance().navigateTo(IscatScenes.SCORE_MENU);
-    }
-
-    /** Apre il menu del bestiary **/
-    public void openBestiaryMenu() {
-        IscatNavigator.getInstance().navigateTo(IscatScenes.BESTIARY_MENU);
-    }
-
-    public void quit() {
-        Platform.exit();
-    }
+    public void playLegacy()      { navigate(IscatScenes.GAME);         }
+    public void playPhi()         { navigate(IscatScenes.GAMEN);        }
+    public void openSkinMenu()    { navigate(IscatScenes.SKIN_MENU);    }
+    public void openOptionsMenu() { navigate(IscatScenes.OPTIONS_MENU); }
+    public void openScoreMenu()   { navigate(IscatScenes.SCORE_MENU);   }
+    public void openBestiaryMenu(){ navigate(IscatScenes.BESTIARY_MENU);}
+    public void quit() {Platform.exit();}
 }

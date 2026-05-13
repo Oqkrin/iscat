@@ -391,4 +391,18 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         if (active) setActive(false);
         onUnload();
     }
+
+    protected void fadeIn(Duration duration) {
+        StackPane contentRoot = getContentRoot();
+        if (contentRoot == null) return;
+        contentRoot.setOpacity(0.0);
+        FadeTransition fade = new FadeTransition(duration, contentRoot);
+        fade.setFromValue(0.0);
+        fade.setToValue(1.0);
+        fade.play();
+    }
+
+    protected void fadeIn() {
+        fadeIn(Duration.millis(300));
+    }
 }
