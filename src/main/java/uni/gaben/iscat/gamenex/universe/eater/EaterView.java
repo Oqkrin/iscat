@@ -11,8 +11,8 @@ import uni.gaben.iscat.utils.ThemeManager;
 
 import java.util.Objects;
 
-import static uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobSettings.DIM_SPRITE;
-import static uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobSettings.NUMERO_FRAMES;
+import static uni.gaben.iscat.gamenex.universe.eater.EaterSettings.DIM_SPRITE;
+import static uni.gaben.iscat.gamenex.universe.eater.EaterSettings.NUMERO_FRAMES;
 
 public class EaterView extends AbstractEntityView implements Drawable<EaterModel> {
 
