@@ -92,7 +92,7 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
 
     public IscatSceneAbstract(StackPane root, boolean starry, SceneAntialiasing ant) {
         this(root, 0, 0, starry, ant);
-        System.out.println(getAntiAliasing());
+        //System.out.println("[IscatSceneAbstract] getAntiAliasing(): " + getAntiAliasing());
     }
 
     // -------------------------------------------------------------------------
