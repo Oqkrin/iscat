@@ -1,6 +1,7 @@
 package uni.gaben.iscat.gamenex.universe.asteroid;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.utils.ThemeColors;
@@ -18,6 +19,9 @@ public class AsteroidView implements Drawable<AsteroidModel> {
             xPoints[i] = worldPoint.x * UniverseSettings.SCALE;
             yPoints[i] = worldPoint.y * UniverseSettings.SCALE;
         }
+
+        gc.setFill(Color.BLACK);
+        gc.fillPolygon(xPoints, yPoints, vertices.length);
         
         gc.setStroke(ThemeColors.getTextSecondary());
         gc.setLineWidth(2);
