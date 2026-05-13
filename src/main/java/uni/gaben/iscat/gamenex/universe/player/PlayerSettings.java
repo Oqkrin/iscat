@@ -40,7 +40,7 @@ public final class PlayerSettings {
 
     // === Combattimento ===
     public static final int HP_MASSIMO = 100;
-    public static final int HP_INIZIALE = 100;
+    public static int HP_INIZIALE = 100;
 
     // === Collisione ===
     public static final double DIMENSIONE_SPRITE = 64.0;

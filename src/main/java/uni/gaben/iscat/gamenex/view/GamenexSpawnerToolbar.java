@@ -43,14 +43,17 @@ public class GamenexSpawnerToolbar extends StackPane {
         Button spawnHearthBtn = createSmallButton("HEARTH");
         spawnHearthBtn.setOnAction(e -> controller.spawnHearth());
 
-        container.getChildren().addAll(spawnAsteroidBtn, spawnIscatBtn, spawnHearthBtn);
+        Button spawnEaterBtn = createSmallButton("EATER");
+        spawnEaterBtn.setOnAction(e -> controller.spawnEater());
+
+        container.getChildren().addAll(spawnAsteroidBtn, spawnIscatBtn, spawnHearthBtn, spawnEaterBtn);
         
         scroll.setContent(container);
         
         // Layout: centrato in basso, dimensioni contenute
         getChildren().add(scroll);
         setMaxHeight(60);
-        setMaxWidth(650);
+        setMaxWidth(800);
         
         // Applica lo stile del Main Menu al contenitore tramite CssHelper
         CssHelper.sfondoScuro(this);

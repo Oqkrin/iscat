@@ -1,6 +1,8 @@
 package uni.gaben.iscat.gamenex.universe;
 
 import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
+import uni.gaben.iscat.gamenex.universe.eater.EaterController;
+import uni.gaben.iscat.gamenex.universe.eater.EaterModel;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthController;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobController;
@@ -33,6 +35,7 @@ public class UniverseSpawner {
         register("ASTEROID", this::spawnAsteroid);
         register("ISCAT_MOB", this::spawnIscatMob);
         register("HEARTH", this::spawnHearth);
+        register("EATER", this::spawnEater);
     }
 
     public HearthModel spawnHearth(double x, double y) {
@@ -41,6 +44,14 @@ public class UniverseSpawner {
         HearthController hearthController = new HearthController(hearth);
         controller.addAiController(hearthController);
         return hearth;
+    }
+
+    public EaterModel spawnEater(double x, double y) {
+        EaterModel eater = new EaterModel(x, y);
+        model.addEntity(eater);
+        EaterController eaterController = new EaterController(eater);
+        controller.addAiController(eaterController);
+        return eater;
     }
 
     /**

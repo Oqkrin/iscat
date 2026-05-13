@@ -187,6 +187,16 @@ public class GamenexController {
         UniverseSpawner.getInstance().spawn("HEARTH", x, y);
     }
 
+    public void spawnEater() {
+        double x = cameraModel.getX() + (universeController.getSpaceModel().getWidth() / 2.0);
+        double y = cameraModel.getY() + (universeController.getSpaceModel().getHeight() / 2.0);
+
+        x += (Math.random() - 0.5) * 400;
+        y += (Math.random() - 0.5) * 400;
+
+        UniverseSpawner.getInstance().spawn("EATER", x, y);
+    }
+
     private boolean showFps = false;
 
     /**

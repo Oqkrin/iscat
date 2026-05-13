@@ -18,6 +18,9 @@ public class PlayerModel extends LivingEntityModel {
     private double dashPhaseRemaining = 0;
     private double fireCooldownRemaining = 0;
 
+    private int current_hp = PlayerSettings.HP_INIZIALE;
+    private boolean morto = false;
+
     public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
         BodyFixture fixture = addFixture(Geometry.createCircle(PlayerSettings.RAGGIO_COLLISIONE / UniverseSettings.SCALE));
@@ -63,10 +66,31 @@ public class PlayerModel extends LivingEntityModel {
     }
 
     @Override
-    public void onDeath() { /* Implement logic */ }
+    public void onDeath() { if(current_hp < 0){
+        System.out.println("[PlayerModel] IL PLAYER è MORTO");
+        morto = true;
+        //TODO animazione morte
+        //TODO rimozione da Universe
+        //TODO dire al gioco di calcolare e mostrare lo score
+    } }
 
     @Override
     public double getMaxVelocity() {
         return PlayerSettings.VELOCITA_MAX;
+    }
+
+    public void take_damage(int attack_power){
+        current_hp -= attack_power;
+        onDeath(); //controlliamo se il player muore
+        System.out.println("[PlayerModel] Player ha subito: " + attack_power + " danni!\n[PlayerModel] HP attuali: " + current_hp);
+    }
+
+    @Override
+    public void heal(int amount) {
+        if (!isAlive()) return;
+
+        current_hp = Math.min((int)maxLife, current_hp + amount);
+        life = Math.min(maxLife, life + amount);
+        //TODO Eventuale effetto visivo / suono qui
     }
 }
