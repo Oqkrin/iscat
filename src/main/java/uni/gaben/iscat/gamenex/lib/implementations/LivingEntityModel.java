@@ -11,42 +11,42 @@ import uni.gaben.iscat.gamenex.lib.interfaces.model.Mortal;
  */
 public class LivingEntityModel extends AbstractEntityModel implements Alive, Mortal {
     /** Salute attuale dell'entità. */
-    protected double currentHp;
+    protected double life;
     /** Salute massima raggiungibile. */
-    protected double maxHp;
+    protected double maxLife;
 
     /**
      * Crea un'entità vivente in una posizione specifica.
      * @param x Coordinata X (pixel).
      * @param y Coordinata Y (pixel).
-     * @param currentHp Salute iniziale.
-     * @param maxHp Salute massima.
+     * @param life Salute iniziale.
+     * @param maxLife Salute massima.
      */
-    public LivingEntityModel(double x, double y,double currentHp, double maxHp) {
+    public LivingEntityModel(double x, double y, double life, double maxLife) {
         super(x, y);
-        this.currentHp = currentHp;
-        this.maxHp = maxHp;
+        this.life = life;
+        this.maxLife = maxLife;
     }
 
     /** Restituisce la salute attuale. */
     public double getLife() {
-        return currentHp;
+        return life;
     }
 
     /** Restituisce la salute massima. */
     public double getMaxLife() {
-        return maxHp;
+        return maxLife;
     }
 
     /** Imposta la salute attuale, assicurandosi che resti nei limiti [0, maxLife]. */
     public void setLife(double life) {
-        this.currentHp = Math.clamp(life, 0, maxHp);
+        this.life = Math.clamp(life, 0, maxLife);
     }
 
     /** Imposta la salute massima e aggiorna la salute attuale se necessario. */
     public void setMaxLife(double maxLife) {
-        this.maxHp = maxLife;
-        setLife(currentHp);
+        this.maxLife = maxLife;
+        setLife(life);
     }
 
     // --- Gestione Eventi ---
@@ -69,20 +69,20 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
      * Sottrae salute all'entità. Se la salute scende a zero, l'entità viene uccisa.
      * @param amount Quantità di danno subito.
      */
-    public void take_damage(double amount) {
-        this.currentHp -= (int) amount;
-        if (onHurt != null && currentHp >= 0) onHurt.run();
-        if (this.currentHp <= 0) {
-            this.currentHp = 0;
+    @Override
+    public void bleed(double amount) {
+        this.life -= amount;
+        if (onHurt != null && life > 0) onHurt.run();
+        if (this.life <= 0) {
+            this.life = 0;
             kill();
         }
     }
 
-    public void heal(int amount) {
+    public void heal(double amount) {
         if (!isAlive()) return;
 
-        currentHp = Math.min(maxHp, currentHp + amount);;
-        //TODO Eventuale effetto visivo / suono qui
+        life = Math.min(maxLife, life + amount);
     }
 
     /**

@@ -35,21 +35,21 @@ public class EaterView extends AbstractEntityView implements Drawable<EaterModel
             for (int i = 0; i < NUMERO_FRAMES; i++) {
                 frameCache[i] = new WritableImage(
                         tintedSheet.getPixelReader(),
-                        i * (int) DIM_SPRITE, 0, (int) DIM_SPRITE, (int) DIM_SPRITE
+                        i * DIM_SPRITE, 0, DIM_SPRITE, DIM_SPRITE
                 );
             }
         }
 
+
+
+        int frameIdx = (int) ((System.nanoTime() / GamenexModel.NANOSECUNIT) / 0.4) % NUMERO_FRAMES;
+
         setAngle(entity);
         setPos(entity);
         setSize(DRAW_SIZE);
-
-        int frameIdx = (int) ((System.nanoTime() / GamenexModel.NANOSECUNIT) / 0.4) % NUMERO_FRAMES;
-        Image drawn = frameCache[frameIdx];
-
         gc.save();
         gc.translate(cx, cy);
-        gc.drawImage(drawn, -DRAW_SIZE / 2, -DRAW_SIZE / 2, DRAW_SIZE, DRAW_SIZE);
+        gc.drawImage(frameCache[frameIdx], -DRAW_SIZE / 2, -DRAW_SIZE / 2, DRAW_SIZE, DRAW_SIZE);
         gc.restore();
         drawHpBar(entity, gc);
     }

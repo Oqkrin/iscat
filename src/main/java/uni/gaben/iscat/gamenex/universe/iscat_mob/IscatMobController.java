@@ -12,8 +12,8 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
     Vector2 target = null;
     Random rand = new Random();
     Vector2 dirvec;
-    double maxMagnitude = 40 / UniverseSettings.SCALE;
-    double minMagnitude = 20 / UniverseSettings.SCALE;
+    double maxMagnitude = 2;
+    double minMagnitude = 1;
     public IscatMobController(IscatMobModel iscat) {
         super(iscat);
 
@@ -37,16 +37,12 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
                     minMagnitude + rand.nextDouble(maxMagnitude),
                     currentDir - 1.5*Math.PI + rand.nextDouble(1.5*Math.PI));
         } else {
-            if (npc.getLinearVelocity().getMagnitude() <= IscatMobSettings.MAX_VELOCITY_MS) {
-                dirvec = npc.getTransform().getTranslation().to(target);
-                npc.getTransform().setRotation(
-                        Interpolator.smootherStep(npc.getTransform().getRotationAngle(),dirvec.getDirection(),
-                                1-(1/dirvec.getMagnitude())
-                        ));
-                npc.applyForce(dirvec.getNormalized().multiply(IscatMobSettings.FORCE));
-            } else {
-                npc.setLinearVelocity(npc.getLinearVelocity().setMagnitude(IscatMobSettings.MAX_VELOCITY_MS));
-            }
+            npc.getTransform().setRotation(
+                    Interpolator.smootherStep(npc.getTransform().getRotationAngle(),target.getDirection(),
+                            1-(1/target.getMagnitude())
+                    ));
+            npc.applyForce(target.getNormalized().multiply(IscatMobSettings.FORCE));
+
             if(npc.contains(target)) {
                 target = null;
             }

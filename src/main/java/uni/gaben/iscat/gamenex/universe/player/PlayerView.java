@@ -38,9 +38,10 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
                     Objects.requireNonNull(
                             PlayerView.class.getResourceAsStream(path),
                             "[PLayerView] Sprite non trovato: " + path
-                    )
+            )
             );
             //System.out.println("[PLayerView] Player sprite caricato: " + path);
+
         } catch (Exception e) {
             //System.err.println("[PLayerView] Errore caricamento sprite: " + path);
             e.printStackTrace();

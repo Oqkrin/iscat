@@ -18,8 +18,6 @@ public class PlayerModel extends LivingEntityModel {
     private double dashPhaseRemaining = 0;
     private double fireCooldownRemaining = 0;
 
-    private int current_hp = PlayerSettings.HP_INIZIALE;
-
     public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
         BodyFixture fixture = addFixture(Geometry.createCircle(PlayerSettings.RAGGIO_COLLISIONE / UniverseSettings.SCALE));
@@ -65,12 +63,12 @@ public class PlayerModel extends LivingEntityModel {
     }
 
     @Override
-    public void onDeath() { if(current_hp < 0){
-        System.out.println("[PlayerModel] IL PLAYER è MORTO");
-        //TODO animazione morte
-        //TODO rimozione da Universe
-        //TODO dire al gioco di calcolare e mostrare lo score
-    } }
+    public void onDeath() { 
+        if(life <= 0){
+            // Logic for death (score calculation, etc.) should be handled by a Listener/Controller, 
+            // not the Model itself.
+        } 
+    }
 
     @Override
     public double getMaxVelocity() {

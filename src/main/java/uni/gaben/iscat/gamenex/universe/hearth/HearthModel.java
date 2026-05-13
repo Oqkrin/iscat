@@ -4,17 +4,14 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobSettings;
 
-public class HearthModel extends AbstractEntityModel {
-
-    // Hearth può essere usato una sola volta
-    private boolean consumed = false;
-
+public class HearthModel extends LivingEntityModel {
     public HearthModel(double x, double y) {
-        super(x, y);
+        super(x, y, 1, 1);
 
         // Creazione della forma di collisione circolare scalata in metri
         BodyFixture fixture = addFixture(Geometry.createCircle(HearthSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE));
@@ -26,14 +23,6 @@ public class HearthModel extends AbstractEntityModel {
         this.setMass(MassType.NORMAL);
         // Applica l'attrito lineare per simulare la resistenza al movimento nel vuoto
         setLinearDamping(IscatMobSettings.DAMPING_LINEARE);
-    }
-
-    public boolean isConsumed() {
-        return consumed;
-    }
-
-    public void consume() {
-        this.consumed = true;
     }
 
     @Override

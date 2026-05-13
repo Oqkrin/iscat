@@ -20,10 +20,12 @@ public class EaterController extends AiBehaviours<EaterModel> {
     public void aiUpdate(UniverseModel universeModel, double dt) {
         super.aiUpdate(universeModel, dt);
 
-        if (eater == null || eater.isConsumed()) return;
+        if (eater == null || eater.isConsumed())
+            return;
 
         PlayerModel player = universeModel.getPlayer();
-        if (player == null) return;
+        if (player == null)
+            return;
 
         Vector2 eaterPos = eater.getTransform().getTranslation();
         Vector2 playerPos = player.getTransform().getTranslation();
@@ -62,12 +64,11 @@ public class EaterController extends AiBehaviours<EaterModel> {
     }
 
     private void performAttack(PlayerModel player, UniverseModel universe) {
-        //System.out.println("[EaterController] COLLISIONE! Attacco al player!");
+        // System.out.println("[EaterController] COLLISIONE! Attacco al player!");
 
-        player.take_damage(EaterSettings.ATTACK_POWER);
+        player.bleed(EaterSettings.ATTACK_POWER);
 
         eater.consume();
-        eater.onDeath();
-        universe.removeEntity(eater);
+        eater.setLife(0); // This will trigger automatic removal in UniverseModel.update()
     }
 }

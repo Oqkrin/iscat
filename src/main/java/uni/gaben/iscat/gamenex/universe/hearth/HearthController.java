@@ -17,7 +17,7 @@ public class HearthController extends AiBehaviours<HearthModel> {
 
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        if (hearth == null || hearth.isConsumed()) return;
+        if (hearth == null) return;
 
         PlayerModel player = universeModel.getPlayer();
         if (player == null) return;
@@ -53,9 +53,6 @@ public class HearthController extends AiBehaviours<HearthModel> {
     private void applyHeal(PlayerModel player, UniverseModel universe) {
         // Cura il giocatore
         player.heal(HearthSettings.HP_BOOST);
-
-        // Rimuovi l'hearth
-        hearth.consume();
-        universe.removeEntity(hearth);
+        hearth.setLife(0);
     }
 }

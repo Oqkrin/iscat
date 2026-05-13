@@ -69,7 +69,7 @@ public class UniverseModel extends World<Body> {
     public boolean update(double dt) {
         player.update(dt);
 
-        // Remove dead entities
+        // Remove dead or consumed entities
         entities.removeIf(e -> {
             if (e instanceof Alive a && !a.isAlive()) {
                 removeBody(e);
