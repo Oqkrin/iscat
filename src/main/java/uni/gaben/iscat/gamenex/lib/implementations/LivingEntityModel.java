@@ -11,42 +11,42 @@ import uni.gaben.iscat.gamenex.lib.interfaces.model.Mortal;
  */
 public class LivingEntityModel extends AbstractEntityModel implements Alive, Mortal {
     /** Salute attuale dell'entità. */
-    protected double life;
+    protected double currentHp;
     /** Salute massima raggiungibile. */
-    protected double maxLife;
+    protected double maxHp;
 
     /**
      * Crea un'entità vivente in una posizione specifica.
      * @param x Coordinata X (pixel).
      * @param y Coordinata Y (pixel).
-     * @param life Salute iniziale.
-     * @param maxLife Salute massima.
+     * @param currentHp Salute iniziale.
+     * @param maxHp Salute massima.
      */
-    public LivingEntityModel(double x, double y,double life, double maxLife) {
+    public LivingEntityModel(double x, double y,double currentHp, double maxHp) {
         super(x, y);
-        this.life = life;
-        this.maxLife = maxLife;
+        this.currentHp = currentHp;
+        this.maxHp = maxHp;
     }
 
     /** Restituisce la salute attuale. */
     public double getLife() {
-        return life;
+        return currentHp;
     }
 
     /** Restituisce la salute massima. */
     public double getMaxLife() {
-        return maxLife;
+        return maxHp;
     }
 
     /** Imposta la salute attuale, assicurandosi che resti nei limiti [0, maxLife]. */
     public void setLife(double life) {
-        this.life = Math.clamp(life, 0, maxLife);
+        this.currentHp = Math.clamp(life, 0, maxHp);
     }
 
     /** Imposta la salute massima e aggiorna la salute attuale se necessario. */
     public void setMaxLife(double maxLife) {
-        this.maxLife = maxLife;
-        setLife(life);
+        this.maxHp = maxLife;
+        setLife(currentHp);
     }
 
     // --- Gestione Eventi ---
@@ -69,12 +69,11 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
      * Sottrae salute all'entità. Se la salute scende a zero, l'entità viene uccisa.
      * @param amount Quantità di danno subito.
      */
-    @Override
-    public void bleed(double amount) {
-        this.life -= (int) amount;
-        if (onHurt != null && life >= 0) onHurt.run();
-        if (this.life <= 0) {
-            this.life = 0;
+    public void take_damage(double amount) {
+        this.currentHp -= (int) amount;
+        if (onHurt != null && currentHp >= 0) onHurt.run();
+        if (this.currentHp <= 0) {
+            this.currentHp = 0;
             kill();
         }
     }
@@ -82,7 +81,7 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
     public void heal(int amount) {
         if (!isAlive()) return;
 
-        life = Math.min(maxLife, life + amount);
+        currentHp = Math.min(maxHp, currentHp + amount);;
         //TODO Eventuale effetto visivo / suono qui
     }
 
