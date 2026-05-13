@@ -17,22 +17,36 @@ public class HearthController extends AiBehaviours<HearthModel> {
 
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        super.aiUpdate(universeModel, dt);
-
         if (hearth == null || hearth.isConsumed()) return;
 
         PlayerModel player = universeModel.getPlayer();
         if (player == null) return;
 
-        Vector2 hearthPos = hearth.getTransform().getTranslation();
-        Vector2 playerPos = player.getTransform().getTranslation();
+        Vector2 hPos = hearth.getTransform().getTranslation();
+        Vector2 pPos = player.getTransform().getTranslation();
 
-        double distanceSquared = hearthPos.distanceSquared(playerPos);
+        // Calcoliamo vettore direzione e distanza
+        Vector2 diff = pPos.copy().subtract(hPos);
+        double dist = diff.getMagnitude();
 
-        double collisionRadius = HearthSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE * 1.15;
-
-        if (distanceSquared < collisionRadius * collisionRadius) {
+        // 1. COLLISIONE (Appena è abbastanza vicino, cura e sparisce)
+        double collisionThreshold = (HearthSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE) + 0.2;
+        if (dist < collisionThreshold) {
             applyHeal(player, universeModel);
+            return;
+        }
+
+        // 2. INSEGUIMENTO Se il player è nel raggio, hearth va verso di lui
+        if (dist < HearthSettings.RANGE_ATTIVAZIONE) {
+            // Calcoliamo la velocità verso il player
+            Vector2 velocitaDesiderata = diff.getNormalized().multiply(HearthSettings.VELOCITA_INSEGUIMENTO);
+
+            // Applichiamo direttamente la velocità per una risposta immediata
+            hearth.setLinearVelocity(velocitaDesiderata);
+
+        } else {
+            // Se il player è lontano, rallenta fino a fermarsi (inerzia)
+            hearth.getLinearVelocity().multiply(0.9);
         }
     }
 

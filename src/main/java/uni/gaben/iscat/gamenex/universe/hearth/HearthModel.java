@@ -22,8 +22,8 @@ public class HearthModel extends AbstractEntityModel {
         fixture.setFilter(GamenexCollisionLayers.BOOST_FILTER);
         // Rende l'oggetto un sensore: viene rilevato il tocco ma ci passi attraverso
         fixture.setSensor(true);
-        // Imposta il tipo di massa infinite cosi non si muove se colpito
-        setMass(MassType.INFINITE);
+        // Hearth si muove se c'è il player nel suo raggio
+        this.setMass(MassType.NORMAL);
         // Applica l'attrito lineare per simulare la resistenza al movimento nel vuoto
         setLinearDamping(IscatMobSettings.DAMPING_LINEARE);
     }

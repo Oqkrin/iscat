@@ -31,7 +31,7 @@ public class EaterSettings {
     /** Spazio di frenata/accelerazione per rendere il movimento fluido. */
     public static final double RAMP_UP_PX = 400.0;
     /** Velocità massima in metri al secondo. (25 m/s è molto veloce) */
-    public static final double MAX_VELOCITY_MS = 30;
+    public static final double MAX_VELOCITY_MS = 15;
     /** Forza massima di sterzata (maggiore = più reattivo). */
     public static final double FORCE = 15;
     /** Guadagno di sterzata per correggere la traiettoria. */

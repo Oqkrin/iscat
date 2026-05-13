@@ -4,21 +4,13 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
-import uni.gaben.iscat.gamenex.universe.hearth.HearthSettings;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
-import uni.gaben.iscat.utils.Interpolator;
-
-import java.util.Random;
 
 public class EaterController extends AiBehaviours<EaterModel> {
 
     private final EaterModel eater;
+    private Vector2 target = null;
 
-    Vector2 target = null;
-    Random rand = new Random();
-    Vector2 dirvec;
-    double maxMagnitude = 40 / UniverseSettings.SCALE;
-    double minMagnitude = 20 / UniverseSettings.SCALE;
     public EaterController(EaterModel eater) {
         super(eater);
         this.eater = eater;
@@ -28,28 +20,6 @@ public class EaterController extends AiBehaviours<EaterModel> {
     public void aiUpdate(UniverseModel universeModel, double dt) {
         super.aiUpdate(universeModel, dt);
 
-        /**
-        if (target == null) {
-            double currentDir = npc.getTransform().getRotationAngle();
-            target = Vector2.create(
-                    minMagnitude + rand.nextDouble(maxMagnitude),
-                    currentDir - 1.5*Math.PI + rand.nextDouble(1.5*Math.PI));
-        } else {
-            if (npc.getLinearVelocity().getMagnitude() <= EaterSettings.MAX_VELOCITY_MS) {
-                dirvec = npc.getTransform().getTranslation().to(target);
-                npc.getTransform().setRotation(
-                        Interpolator.smootherStep(npc.getTransform().getRotationAngle(),dirvec.getDirection(),
-                                1-(1/dirvec.getMagnitude())
-                        ));
-                npc.applyForce(dirvec.getNormalized().multiply(EaterSettings.FORCE));
-            } else {
-                npc.setLinearVelocity(npc.getLinearVelocity().setMagnitude(EaterSettings.MAX_VELOCITY_MS));
-            }
-            if(npc.contains(target)) {
-                target = null;
-            }
-        } **/
-
         if (eater == null || eater.isConsumed()) return;
 
         PlayerModel player = universeModel.getPlayer();
@@ -58,18 +28,42 @@ public class EaterController extends AiBehaviours<EaterModel> {
         Vector2 eaterPos = eater.getTransform().getTranslation();
         Vector2 playerPos = player.getTransform().getTranslation();
 
-        double distanceSquared = eaterPos.distanceSquared(playerPos);
+        // Aggiorna target sul player
+        if (target == null || eaterPos.distanceSquared(target) < 10) {
+            target = playerPos.copy();
+        }
 
-        double collisionRadius = HearthSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE * 3;
+        Vector2 direction = target.copy().subtract(eaterPos);
+        double distance = direction.getMagnitude();
 
-        if (distanceSquared < collisionRadius * collisionRadius) {
-            attack(eater, player, universeModel);
+        // Attacco
+        double attackRadius = EaterSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE * 3;
+
+        if (distance < attackRadius) {
+            performAttack(player, universeModel);
+            return;
+        }
+
+        // Inseguimento
+        if (distance > 0.5) {
+            // Forza
+            if (eater.getLinearVelocity().getMagnitude() <= EaterSettings.MAX_VELOCITY_MS) {
+                Vector2 force = direction.getNormalized()
+                        .multiply(EaterSettings.FORCE * 1);
+
+                eater.applyForce(force);
+            } else {
+                // Cap velocità
+                Vector2 vel = eater.getLinearVelocity();
+                eater.setLinearVelocity(vel.getNormalized()
+                        .multiply(EaterSettings.MAX_VELOCITY_MS));
+            }
         }
     }
 
-    private void attack(EaterModel eater, PlayerModel player, UniverseModel universe) {
-        // Attacca il giocatore
-        System.out.println("[EaterController] Eater ha attaccato ed è morto! ");
+    private void performAttack(PlayerModel player, UniverseModel universe) {
+        //System.out.println("[EaterController] COLLISIONE! Attacco al player!");
+
         player.take_damage(EaterSettings.ATTACK_POWER);
 
         eater.consume();
