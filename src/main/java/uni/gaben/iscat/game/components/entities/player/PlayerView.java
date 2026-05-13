@@ -43,15 +43,15 @@ public class PlayerView implements Drawable<PlayerModel> {
             currentSprite = new Image(
                     Objects.requireNonNull(
                             PlayerView.class.getResourceAsStream(path),
-                            "Sprite non trovato: " + path
+                            "[PlayerView di Game] Sprite non trovato: " + path
                     )
             );
 
             cachedTinted = currentSprite;
-            System.out.println("Player sprite caricato correttamente: " + path);
+            //System.out.println("[PlayerView di Game] Player sprite caricato correttamente: " + path);
 
         } catch (Exception e) {
-            System.err.println("Errore caricamento sprite: " + uni.gaben.iscat.gamenex.universe.player.PlayerSettings.getPlayerSkin());
+            //System.err.println("[PlayerView di Game] Errore caricamento sprite: " + uni.gaben.iscat.gamenex.universe.player.PlayerSettings.getPlayerSkin());
             e.printStackTrace();
         }
     }
