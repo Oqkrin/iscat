@@ -35,22 +35,26 @@ public class IscatWormBodyPartController extends AiBehaviours<IscatWormBodyPartM
         if (bodyPart == null || bodyPart.isConsumed() || previousSegment == null) return;
 
         Vector2 myPos = bodyPart.getTransform().getTranslation();
-        Vector2 prevPos = previousSegment.getPosition();   // usa l'interfaccia
+        Vector2 prevPos = previousSegment.getPosition();
 
         Vector2 direction = prevPos.copy().subtract(myPos);
         double distance = direction.getMagnitude();
 
-        if (distance > IscatWormBodyPartSettings.FOLLOW_DISTANCE / UniverseSettings.SCALE) {
+        double desiredDistance = IscatWormBodyPartSettings.FOLLOW_DISTANCE / UniverseSettings.SCALE;
+
+        // FORZA MOLTO AGGRESSIVA se si allontana
+        if (distance > desiredDistance) {
+            double excess = distance - desiredDistance;
+
             Vector2 force = direction.getNormalized()
-                    .multiply(IscatWormBodyPartSettings.FOLLOW_FORCE);
+                    .multiply(IscatWormBodyPartSettings.FOLLOW_FORCE * (1 + excess * 8)); // correzione extra
 
             bodyPart.applyForce(force);
 
+            // Rotazione molto reattiva
             double targetAngle = direction.getDirection();
             double currentAngle = bodyPart.getTransform().getRotationAngle();
-            double newAngle = Interpolator.smootherStep(currentAngle, targetAngle,
-                    IscatWormBodyPartSettings.ROTATION_SPEED);
-
+            double newAngle = Interpolator.smootherStep(currentAngle, targetAngle, 0.28);
             bodyPart.getTransform().setRotation(newAngle);
         }
 

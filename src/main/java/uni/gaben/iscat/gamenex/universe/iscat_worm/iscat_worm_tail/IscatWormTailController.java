@@ -5,8 +5,6 @@ import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.iscat_worm.IscatWormSegment;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadModel; // se hai già la head
 import uni.gaben.iscat.utils.Interpolator;
 
 public class IscatWormTailController extends AiBehaviours<IscatWormTailModel> {
@@ -35,32 +33,26 @@ public class IscatWormTailController extends AiBehaviours<IscatWormTailModel> {
         if (tail == null || tail.isConsumed() || previousSegment == null) return;
 
         Vector2 myPos = tail.getTransform().getTranslation();
-        Vector2 prevPos;
-
-        if (previousSegment instanceof IscatWormHeadModel head) {
-            prevPos = head.getTransform().getTranslation();
-        } else if (previousSegment instanceof IscatWormBodyPartModel body) {
-            prevPos = body.getTransform().getTranslation();
-        } else {
-            return;
-        }
+        Vector2 prevPos = previousSegment.getPosition();
 
         Vector2 direction = prevPos.copy().subtract(myPos);
         double distance = direction.getMagnitude();
 
-        // Mantieni distanza dal segmento precedente
-        if (distance > IscatWormTailSettings.FOLLOW_DISTANCE / UniverseSettings.SCALE) {
+        double desiredDistance = IscatWormTailSettings.FOLLOW_DISTANCE / UniverseSettings.SCALE;
+
+        // FORZA MOLTO AGGRESSIVA se si allontana
+        if (distance > desiredDistance) {
+            double excess = distance - desiredDistance;
+
             Vector2 force = direction.getNormalized()
-                    .multiply(IscatWormTailSettings.FOLLOW_FORCE);
+                    .multiply(IscatWormTailSettings.FOLLOW_FORCE * (1 + excess * 8)); // correzione extra
 
             tail.applyForce(force);
 
-            // Rotazione più morbida (coda floscia)
+            // Rotazione molto reattiva
             double targetAngle = direction.getDirection();
             double currentAngle = tail.getTransform().getRotationAngle();
-            double newAngle = Interpolator.smootherStep(currentAngle, targetAngle,
-                    IscatWormTailSettings.ROTATION_SPEED);
-
+            double newAngle = Interpolator.smootherStep(currentAngle, targetAngle, 0.28);
             tail.getTransform().setRotation(newAngle);
         }
 

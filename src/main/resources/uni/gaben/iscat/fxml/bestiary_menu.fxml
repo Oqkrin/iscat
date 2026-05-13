@@ -34,6 +34,9 @@
                <Button fx:id="fake_iscat" contentDisplay="CENTER" layoutX="10.0" layoutY="87.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Fake Iscat" />
                <Button fx:id="fallen_star_golem" contentDisplay="CENTER" layoutX="10.0" layoutY="112.0" mnemonicParsing="false" onAction="#showEnemy" prefWidth="250.0" text="Fallen Star Golem" />
                <Button fx:id="eater" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Eater" />
+               <Button fx:id="iscat_worm_head" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Worm Head" />
+               <Button fx:id="iscat_worm_body_part" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Worm Body Part" />
+               <Button fx:id="iscat_worm_tail" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Worm Tail" />
             </children>
          </VBox>            <VBox fx:id="previewBox" alignment="CENTER" prefWidth="303.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
             <padding>
@@ -42,7 +45,7 @@
 
             <ImageView fx:id="skinPreview" pickOnBounds="true" />
 
-            <Label fx:id="skinNameLabel" ellipsisString="" text="Enemy Name" textFill="#00ffcc">
+            <Label fx:id="skinNameLabel" ellipsisString="" text="Enemy Name" textFill="#00ffcc" wrapText="true">
                <font>
                   <Font name="System Italic" size="25.0" />
                </font>

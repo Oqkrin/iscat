@@ -10,11 +10,11 @@ public class IscatWormTailSettings {
     public static final int HP_INIZIALI = 20;
 
     // --- FISICA ---
-    public static final double DAMPING_LINEARE = 5.0;
-    public static final double MAX_VELOCITY_MS = 10;
+    public static final double DAMPING_LINEARE = 4.5;
+    public static final double MAX_VELOCITY_MS = 22;
 
     // --- FOLLOW BEHAVIOUR ---
-    public static final double FOLLOW_DISTANCE = 32.0;        // distanza dal segmento precedente
-    public static final double FOLLOW_FORCE = 10;         // un po' meno forte della body part
-    public static final double ROTATION_SPEED = 0.18;         // coda più "floscia" (meno reattiva)
+    public static final double FOLLOW_DISTANCE = 16.0;     // distanza ideale dal segmento precedente
+    public static final double FOLLOW_FORCE = 1;
+    public static final double ROTATION_SPEED = 0.25;        // coda più "floscia" (meno reattiva)
 }
