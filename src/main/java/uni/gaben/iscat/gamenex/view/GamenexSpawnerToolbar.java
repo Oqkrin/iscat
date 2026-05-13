@@ -46,7 +46,10 @@ public class GamenexSpawnerToolbar extends StackPane {
         Button spawnEaterBtn = createSmallButton("EATER");
         spawnEaterBtn.setOnAction(e -> controller.spawnEater());
 
-        spawnContainer.getChildren().addAll(spawnAsteroidBtn, spawnIscatBtn, spawnHearthBtn, spawnEaterBtn);
+        Button spawnWormBtn = createSmallButton("EATER");
+        spawnWormBtn.setOnAction(e -> controller.spawnWorm());
+
+        spawnContainer.getChildren().addAll(spawnAsteroidBtn, spawnIscatBtn, spawnHearthBtn, spawnEaterBtn, spawnWormBtn);
 
         scroll.setContent(spawnContainer);
 

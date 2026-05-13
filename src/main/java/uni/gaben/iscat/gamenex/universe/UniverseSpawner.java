@@ -7,6 +7,12 @@ import uni.gaben.iscat.gamenex.universe.hearth.HearthController;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobController;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartController;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadController;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailController;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailModel;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +42,8 @@ public class UniverseSpawner {
         register("ISCAT_MOB", this::spawnIscatMob);
         register("HEARTH", this::spawnHearth);
         register("EATER", this::spawnEater);
+
+        register("WORM", this::spawnWorm);
     }
 
     public HearthModel spawnHearth(double x, double y) {
@@ -52,6 +60,61 @@ public class UniverseSpawner {
         EaterController eaterController = new EaterController(eater);
         controller.addAiController(eaterController);
         return eater;
+    }
+
+    public IscatWormHeadModel spawnWorm(double x, double y) {
+        if (model == null || controller == null) {
+            System.err.println("UniverseSpawner non inizializzato!");
+            return null;
+        }
+
+        double spacing = 28.0 / UniverseSettings.SCALE; // distanza tra i segmenti in metri
+
+        // 1. CREA LA TESTA
+        IscatWormHeadModel head = new IscatWormHeadModel(x, y);
+        model.addEntity(head);
+        IscatWormHeadController headController = new IscatWormHeadController(head);
+        controller.addAiController(headController);
+
+        IscatWormBodyPartModel previous = null;
+        IscatWormBodyPartModel firstBody = null;
+
+        // 2. CREA 10 BODY PARTS
+        for (int i = 0; i < 10; i++) {
+            double bodyX = x - (i + 1) * spacing * 1.2;
+            double bodyY = y;
+
+            IscatWormBodyPartModel body = new IscatWormBodyPartModel(bodyX, bodyY);
+            model.addEntity(body);
+
+            IscatWormBodyPartController bodyController = new IscatWormBodyPartController(body);
+
+            // Collega al segmento precedente
+            if (previous == null) {
+                bodyController.setPreviousSegment(head);   // primo body segue la testa
+                firstBody = body;
+            } else {
+                bodyController.setPreviousSegment(previous);
+            }
+
+            controller.addAiController(bodyController);
+            previous = body;
+        }
+
+        // 3. CREA LA TAIL
+        double tailX = x - 11 * spacing * 1.2;
+        double tailY = y;
+
+        IscatWormTailModel tail = new IscatWormTailModel(tailX, tailY);
+        model.addEntity(tail);
+
+        IscatWormTailController tailController = new IscatWormTailController(tail);
+        tailController.setPreviousSegment(previous);   // segue l'ultimo body part
+        controller.addAiController(tailController);
+
+        System.out.println("IscatWorm spawnato con 1 Head + 10 Body + 1 Tail @ (" + x + ", " + y + ")");
+
+        return head;   // restituiamo la testa come "entità principale" del verme
     }
 
     /**

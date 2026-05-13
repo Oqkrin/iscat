@@ -14,6 +14,12 @@ import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthView;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobView;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartView;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadView;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailView;
 import uni.gaben.iscat.gamenex.universe.player.PlayerView;
 import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
@@ -62,6 +68,10 @@ public class GamenexScene extends IscatSceneAbstract {
         registry.register(IscatMobModel.class, new IscatMobView());
         registry.register(HearthModel.class, new HearthView());
         registry.register(EaterModel.class, new EaterView());
+        registry.register(IscatWormHeadModel.class, new IscatWormHeadView());
+        registry.register(IscatWormBodyPartModel.class, new IscatWormBodyPartView());
+        registry.register(IscatWormTailModel.class, new IscatWormTailView());
+
 
         initialize();
     }

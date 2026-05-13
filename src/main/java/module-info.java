@@ -47,6 +47,9 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.gamenex.universe.hearth;
     exports uni.gaben.iscat.gamenex.universe.asteroid;
     exports uni.gaben.iscat.gamenex.universe.eater;
+    exports uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head;
+    exports uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part;
+    exports uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail;
     exports uni.gaben.iscat.menus.options_menu;
     exports uni.gaben.iscat.menus.main_menu;
 

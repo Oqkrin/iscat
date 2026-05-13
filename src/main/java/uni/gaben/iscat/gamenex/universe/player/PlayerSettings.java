@@ -39,8 +39,8 @@ public final class PlayerSettings {
     public static final double COOLDOWN_SCATTO_SEC = 0.8; 
 
     // === Combattimento ===
-    public static final int HP_MASSIMO = 100;
-    public static int HP_INIZIALE = 100;
+    public static final int HP_MASSIMO = 1000000000;
+    public static int HP_INIZIALE = 100000000;
 
     // === Collisione ===
     public static final double DIMENSIONE_SPRITE = 64.0;
