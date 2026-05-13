@@ -10,20 +10,29 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.gamenex.universe.player.PlayerSettings;
 
 import java.util.Objects;
 
-public class SkinMenuController {
+public class SkinMenuController implements IscatFxmlController {
 
-    @FXML private GridPane skinGrid;
-    @FXML private ImageView skinPreview;
-    @FXML private Label skinNameLabel;
-    @FXML private BorderPane rootPane;
-    @FXML private VBox previewBox;
+    @FXML
+    private GridPane skinGrid;
+    @FXML
+    private ImageView skinPreview;
+    @FXML
+    private Label skinNameLabel;
+    @FXML
+    private BorderPane rootPane;
+    @FXML
+    private VBox previewBox;
+
+    private StackPane contentRoot;
 
     private String selectedSkinPath;
     private static final int TOTAL_SKINS = 9;
@@ -138,14 +147,25 @@ public class SkinMenuController {
                 size, size, true, false);
     }
 
-    @FXML private void handleConfirm(ActionEvent event) {
+    @FXML
+    private void handleConfirm(ActionEvent event) {
         if (selectedSkinPath != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
             IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
         }
     }
 
-    @FXML private void handleBack(ActionEvent event) {
-        IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+    @Override
+    public void setContentRoot(StackPane contentRoot) {
+        this.contentRoot = contentRoot;
+    }
+
+    @FXML
+    private void handleBack(ActionEvent event) {
+        if (contentRoot != null) {
+            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+        } else {
+            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+        }
     }
 }

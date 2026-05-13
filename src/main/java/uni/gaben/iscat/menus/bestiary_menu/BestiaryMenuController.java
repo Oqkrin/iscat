@@ -11,7 +11,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.gamenex.universe.eater.EaterSettings;
@@ -23,7 +25,7 @@ import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTail
 import java.io.InputStream;
 import java.util.Map;
 
-public class BestiaryMenuController {
+public class BestiaryMenuController implements IscatFxmlController {
 
     /**
      * @param name       nome visualizzato
@@ -88,6 +90,8 @@ public class BestiaryMenuController {
     @FXML private ImageView  skinPreview;
     @FXML private Label      skinNameLabel;
     @FXML private TextArea description;
+
+    private StackPane contentRoot;
 
     // -------------------------------------------------------------------------
     // Stato corrente
@@ -195,9 +199,17 @@ public class BestiaryMenuController {
     // Navigazione
     // -------------------------------------------------------------------------
 
+    @Override
+    public void setContentRoot(StackPane contentRoot) {
+        this.contentRoot = contentRoot;
+    }
+
     @FXML
     private void handleBack(ActionEvent event) {
-        stopAnimation();
-        IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+        if (contentRoot != null) {
+            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+        } else {
+            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+        }
     }
 }

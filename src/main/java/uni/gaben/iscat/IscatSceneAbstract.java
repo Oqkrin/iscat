@@ -2,6 +2,7 @@ package uni.gaben.iscat;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,6 +13,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import uni.gaben.iscat.utils.components.StarryBackgroundCanvas;
+
+import java.io.IOException;
 
 /**
  * Classe base per scene ISCAT — responsabilità SOLO view.
@@ -266,7 +269,7 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
      * @return the content root
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Parent> T getContentRoot() {
+    protected  <T extends Parent> T getContentRoot() {
         // root → StackPane(root) → [0] StackPane(chrome) → [0] StackPane(contentWrapper) → [last] content
         if (getRoot() instanceof StackPane root
                 && root.getChildren().get(0) instanceof StackPane chrome
@@ -275,6 +278,35 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
             return (T) wrapper.getChildren().get(wrapper.getChildren().size() - 1);
         }
         return null;
+    }
+
+    /**
+     * Carica un FXML nella contentRoot e inietta il contentRoot nel controller
+     * se implementa IscatFxmlController.
+     */
+    protected void loadFxml(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent fxmlContent = loader.load();
+
+            if (loader.getController() instanceof IscatFxmlController controller) {
+                controller.setContentRoot(getContentRoot());
+            }
+
+            if (fxmlContent instanceof Region region) {
+                region.setMinSize(0, 0);
+                StackPane contentRoot = getContentRoot();
+                region.prefWidthProperty().bind(contentRoot.widthProperty());
+                region.prefHeightProperty().bind(contentRoot.heightProperty());
+            }
+
+            StackPane contentRoot = getContentRoot();
+            contentRoot.getChildren().add(fxmlContent);
+            StackPane.setAlignment(fxmlContent, Pos.CENTER);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // -------------------------------------------------------------------------

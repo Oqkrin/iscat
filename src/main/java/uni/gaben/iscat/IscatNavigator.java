@@ -1,13 +1,18 @@
 package uni.gaben.iscat;
 
+import javafx.animation.FadeTransition;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 
 import java.util.EnumMap;
+import java.util.Objects;
 
 /**
  * Singleton facade per la navigazione.
  * Altri controller chiamano questo per cambiare scena senza conoscere Stage/Scene.
- * 
  * ARCHITECTURE:
  * - IscatModel: contiene lo stato corrente (quale scena è attiva)
  * - IscatNavigator: gestisce la navigazione e il ciclo di vita delle scene
@@ -68,5 +73,36 @@ public class IscatNavigator {
     public IscatSceneAbstract getScene(IscatScenes sceneType) {
         Scene scene = sceneMap.get(sceneType);
         return scene instanceof IscatSceneAbstract ? (IscatSceneAbstract) scene : null;
+    }
+
+    public void navigateWithFade(IscatScenes targetScene, StackPane rootPane) {
+        if (rootPane == null) {
+            // Fallback se non c'è rootPane
+            navigateTo(targetScene);
+            return;
+        }
+
+        ImageView blackOverlay = new ImageView(
+                new Image(Objects.requireNonNull(
+                        getClass().getResourceAsStream("/uni/gaben/iscat/sprites/black.png")
+                ))
+        );
+
+        blackOverlay.setFitWidth(5000);
+        blackOverlay.setFitHeight(5000);
+        blackOverlay.setOpacity(0);
+
+        rootPane.getChildren().add(blackOverlay);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.5), blackOverlay);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
+
+        fadeIn.setOnFinished(e -> {
+            // Navigazione vera e propria
+            navigateTo(targetScene);
+            rootPane.getChildren().remove(blackOverlay);
+        });
     }
 }
