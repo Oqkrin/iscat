@@ -63,11 +63,6 @@ public class GamenexScene extends IscatSceneAbstract {
         // Make root transparent so stars show through
         root.setStyle("-fx-background-color: transparent;");
 
-        // Register default renderers in the View layer
-        ViewRegistry registry = ViewRegistry.getInstance();
-
-
-
         initialize();
     }
 
@@ -87,7 +82,6 @@ public class GamenexScene extends IscatSceneAbstract {
         debugButton.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(debugButton);
         CssHelper.testoPrimario(debugButton);
-        debugButton.setStyle(STR."\{debugButton.getStyle()}-fx-font-size: 14px; -fx-padding: 6 18; -fx-background-color: rgba(0,0,0,0.6);");
     }
 
     @Override
