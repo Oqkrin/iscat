@@ -52,6 +52,8 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail;
     exports uni.gaben.iscat.menus.options_menu;
     exports uni.gaben.iscat.menus.main_menu;
+    exports uni.gaben.iscat.utils.sprite;
+    opens uni.gaben.iscat.utils.sprite to javafx.fxml;
 
 
 }
