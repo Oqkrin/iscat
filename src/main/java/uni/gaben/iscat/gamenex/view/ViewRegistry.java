@@ -2,6 +2,23 @@ package uni.gaben.iscat.gamenex.view;
 
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
+import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidView;
+import uni.gaben.iscat.gamenex.universe.eater.EaterModel;
+import uni.gaben.iscat.gamenex.universe.eater.EaterView;
+import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
+import uni.gaben.iscat.gamenex.universe.hearth.HearthView;
+import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
+import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobView;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartView;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadView;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailModel;
+import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailView;
+import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
+import uni.gaben.iscat.gamenex.universe.player.PlayerView;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +35,14 @@ public class ViewRegistry {
     public static synchronized ViewRegistry getInstance() {
         if (instance == null) {
             instance = new ViewRegistry();
+            instance.register(PlayerModel.class, new PlayerView());
+            instance.register(AsteroidModel.class, new AsteroidView());
+            instance.register(IscatMobModel.class, new IscatMobView());
+            instance.register(HearthModel.class, new HearthView());
+            instance.register(EaterModel.class, new EaterView());
+            instance.register(IscatWormHeadModel.class, new IscatWormHeadView());
+            instance.register(IscatWormBodyPartModel.class, new IscatWormBodyPartView());
+            instance.register(IscatWormTailModel.class, new IscatWormTailView());
         }
         return instance;
     }

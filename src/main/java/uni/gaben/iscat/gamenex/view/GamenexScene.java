@@ -36,6 +36,8 @@ import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 import java.util.Objects;
 
+import static javafx.application.Platform.runLater;
+
 /**
  * Scena principale di Gamenex (View).
  * Gestisce il rendering su Canvas, l'interfaccia utente (UI) e
@@ -63,14 +65,7 @@ public class GamenexScene extends IscatSceneAbstract {
 
         // Register default renderers in the View layer
         ViewRegistry registry = ViewRegistry.getInstance();
-        registry.register(PlayerModel.class, new PlayerView());
-        registry.register(AsteroidModel.class, new AsteroidView());
-        registry.register(IscatMobModel.class, new IscatMobView());
-        registry.register(HearthModel.class, new HearthView());
-        registry.register(EaterModel.class, new EaterView());
-        registry.register(IscatWormHeadModel.class, new IscatWormHeadView());
-        registry.register(IscatWormBodyPartModel.class, new IscatWormBodyPartView());
-        registry.register(IscatWormTailModel.class, new IscatWormTailView());
+
 
 
         initialize();
@@ -92,7 +87,7 @@ public class GamenexScene extends IscatSceneAbstract {
         debugButton.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(debugButton);
         CssHelper.testoPrimario(debugButton);
-        debugButton.setStyle(debugButton.getStyle() + "-fx-font-size: 14px; -fx-padding: 6 18; -fx-background-color: rgba(0,0,0,0.6);");
+        debugButton.setStyle(STR."\{debugButton.getStyle()}-fx-font-size: 14px; -fx-padding: 6 18; -fx-background-color: rgba(0,0,0,0.6);");
     }
 
     @Override
@@ -163,7 +158,7 @@ public class GamenexScene extends IscatSceneAbstract {
         super.onShow();
         gamenexController.setRenderCallback(this::renderFrame);
         gamenexController.startGameLoop();
-        javafx.application.Platform.runLater(() -> canvas.requestFocus());
+        runLater(() -> canvas.requestFocus());
     }
 
     private void renderFrame() {
