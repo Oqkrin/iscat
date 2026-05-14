@@ -1,55 +1,83 @@
 package uni.gaben.iscat.gamenex.universe.iscat_mob;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
-import uni.gaben.iscat.game.components.entities.npcs.SpriteUtils;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.utils.ThemeManager;
-import java.util.Objects;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
+import uni.gaben.iscat.utils.sprite.SpritesLibrary;
+
 import static uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobSettings.*;
 
-public class IscatMobView extends AbstractEntityView implements Drawable<IscatMobModel> {
+/**
+ * Vista per i Mob Iscat.
+ * Implementa {@link Drawable} per sfruttare il sistema di animazione centralizzato.
+ */
+public class IscatMobView extends AbstractEntityView implements Drawable<IscatMobModel> , DrawableSpriteSheet {
 
-    private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            IscatMobModel.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat.png")));
+    // Costanti di rendering
+    public static final double DRAW_SIZE = DIM_SPRITE * SCALE;
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/iscat.png";
 
-    public static final double DRAW_SIZE = IscatMobSettings.DIM_SPRITE * IscatMobSettings.SCALE;
+    private final SpriteSheetsParser spriteSheet;
+    private final SpriteSheetsAnimator animator;
 
-    private static Image lastTintedSheet;
-    private static final Image[] frameCache = new Image[NUMERO_FRAMES];
+    public IscatMobView() {
+        // 1. Carichiamo lo spritesheet tramite la libreria (per il caching dell'Image)
+        this.spriteSheet = SpritesLibrary.getInstance().getSprite(
+                SPRITE_PATH,
+                (int) DIM_SPRITE,
+                (int) DIM_SPRITE
+        );
+
+        // 2. Inizializziamo l'animatore con le dimensioni corrette
+        this.animator = new SpriteSheetsAnimator(
+                0.1, // Durata frame default (100ms)
+                spriteSheet.getTotalFrames(),
+                spriteSheet.getTotalStates()
+        );
+    }
+
+    @Override
+    public SpriteSheetsParser getSpriteSheet() {
+        return spriteSheet;
+    }
+
+    @Override
+    public SpriteSheetsAnimator getAnimator() {
+        return animator;
+    }
 
     @Override
     public void draw(IscatMobModel entity, GraphicsContext gc) {
-        Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
-        Image tintedSheet = ThemeManager.getInstance().getTintedImage(SPRITE_SHEET, currentTint);
-        
-        // Only split the sheet into frames if the tinted sheet has changed
-        if (tintedSheet != lastTintedSheet) {
-            lastTintedSheet = tintedSheet;
-            for (int i = 0; i < NUMERO_FRAMES; i++) {
-                frameCache[i] = new WritableImage(
-                        tintedSheet.getPixelReader(), 
-                        i * (int) DIM_SPRITE, 0, (int) DIM_SPRITE, (int) DIM_SPRITE
-                );
-            }
-        }
-        
-        setAngle(entity);
-        setPos(entity);
-        setSize(DRAW_SIZE);
+        // Aggiornamento logica animazione
+        animator.update(GamenexModel.TICKUNIT);
 
-        int frameIdx = (int) ((System.nanoTime() / GamenexModel.NANOSECUNIT) / 0.4) % NUMERO_FRAMES;
-        Image drawn = frameCache[frameIdx];
+        // Impostiamo lo stato dell'animatore (es. se ha stati diversi per morte/attacco)
+        // animator.setState(entity.getCurrentStateIndex());
 
         gc.save();
+
+        // Setup trasformazioni
+        setPos(entity);
         gc.translate(cx, cy);
+
+        setAngle(entity);
         gc.rotate(rotDeg + 180);
-        gc.drawImage(drawn, -DRAW_SIZE / 2, -DRAW_SIZE / 2, DRAW_SIZE, DRAW_SIZE);
+
+        setSize(DRAW_SIZE);
+
+        // Il metodo drawSprite dell'interfaccia gestisce:
+        // - Recupero frame corretto dall'animator
+        // - Tinting dinamico dal ThemeManager
+        // - Ritaglio dello spritesheet (Viewport)
+        drawSprite(gc, 0, 0, w, h);
+
         gc.restore();
+
+        // Overlay della barra HP
         drawHpBar(entity, gc);
     }
 }

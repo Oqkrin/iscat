@@ -4,72 +4,64 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.gamenex.universe.UniverseController;
-import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.utils.ThemeManager;
-import uni.gaben.iscat.utils.sprite.AnimationController;
-import uni.gaben.iscat.utils.sprite.SpriteDrawer;
-import uni.gaben.iscat.utils.sprite.SpriteLibrary;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
+import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
 import java.util.Random;
 
-public class PlayerView extends AbstractEntityView implements Drawable<PlayerModel> {
+public class PlayerView extends AbstractEntityView implements Drawable<PlayerModel>, DrawableSpriteSheet {
 
     private static final Random RANDOM = new Random();
 
-    // Logica di Sprite e Animazione
-    private SpriteDrawer sprite;
-    private final AnimationController anim = new AnimationController();
+    private SpriteSheetsParser spriteSheet;
+    // Inizializziamo l'animatore. Le dimensioni verranno impostate in updateSprite.
+    private final SpriteSheetsAnimator animator = new SpriteSheetsAnimator(0.1, 1, 1);
 
     public PlayerView() {
-        // Inizializzazione basata sulla skin attuale
         updateSprite(PlayerSettings.getPlayerSkin());
-
-        // Listener per cambiare skin a runtime
         PlayerSettings.playerSkinProperty().addListener((obs, old, newValue) -> updateSprite(newValue));
     }
 
     private void updateSprite(String path) {
-        // Usiamo la libreria per non ricaricare la stessa immagine più volte
-        // frameSize e totalFrames dovrebbero venire da PlayerSettings o dedotti
-        this.sprite = SpriteLibrary.getInstance().getSprite(path, 32, 32);
+        // 1. Carichiamo/Prendiamo lo spritesheet
+        this.spriteSheet = SpritesLibrary.getInstance().getSprite(path, 32, 32);
+
+        // 2. Sincronizziamo l'animatore con le nuove dimensioni dello spritesheet
+        if (spriteSheet != null) {
+            animator.constantDurationFiller(
+                    0.1, // 100ms per frame di default
+                    spriteSheet.getTotalFrames(),
+                    spriteSheet.getTotalStates()
+            );
+        }
     }
+
+    // --- Implementazione Drawable ---
 
     @Override
     public void draw(PlayerModel entity, GraphicsContext gc) {
-        setPos(entity);
-        setAngle(entity);
-        setSize(PlayerSettings.DIMENSIONE_SPRITE);
+        // Aggiorna il tempo dell'animazione
+        animator.update(GamenexModel.TICKUNIT);
 
-        // 2. Logica Animazione Dinamica
-        double speed = entity.getLinearVelocity().getMagnitude();
-        if (speed > 0.1) {
-            anim.setState(1); // Riga 1: Movimento/Thruster attivi
-            anim.setSpeed(1.0 + (speed / PlayerSettings.VELOCITA_MAX)); // Più corre, più veloce l'animazione
-        } else {
-            anim.setState(0); // Riga 0: Idle/Fermo
-            anim.setSpeed(1.0);
-        }
-        anim.update(GamenexModel.TICKUNIT);
-
-        // 3. Rendering
         gc.save();
+        setPos(entity);
         gc.translate(cx, cy);
+
+        setAngle(entity);
         gc.rotate(rotDeg);
+        setSize(PlayerSettings.DIMENSIONE_DA_DISEGNARE);
 
-        // Effetto scia (ora usa i colori del tema)
+        // Chiamata al metodo default dell'interfaccia
+        drawSprite(gc, 0, 0, w, h);
+
         drawThrustEffect(gc, entity);
-
-        // Disegno dello Sprite tramite il sistema centralizzato (gestisce il tint)
-        if (sprite != null) {
-            int frame = anim.getCurrentFrameIdx(sprite.getTotalFrames(), GamenexModel.TICKUNIT*10); //10 fps
-            int row = anim.getCurrentState();
-            sprite.draw(gc, row, frame, 0, 0, w, h); // x,y sono 0 perché siamo traslati
-        }
-
         gc.restore();
+
         drawHpBar(entity, gc);
     }
 
@@ -111,5 +103,15 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
                 Math.min(1.0, brightness * accent.getGreen()),
                 Math.min(1.0, brightness * accent.getBlue()),
                 Math.min(1.0, alpha * alphaMix));
+    }
+
+    @Override
+    public SpriteSheetsParser getSpriteSheet() {
+        return spriteSheet;
+    }
+
+    @Override
+    public SpriteSheetsAnimator getAnimator() {
+        return animator;
     }
 }

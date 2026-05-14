@@ -6,6 +6,7 @@ module uni.gaben.iscat {
     requires java.desktop;
     requires javafx.media;
     requires org.dyn4j;
+    requires jdk.unsupported.desktop;
 
     opens uni.gaben.iscat to javafx.fxml;
     opens uni.gaben.iscat.utils to javafx.fxml;

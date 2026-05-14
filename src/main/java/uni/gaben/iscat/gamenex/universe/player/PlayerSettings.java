@@ -43,7 +43,7 @@ public final class PlayerSettings {
     public static int HP_INIZIALE = 100000000;
 
     // === Collisione ===
-    public static final double DIMENSIONE_SPRITE = 64.0;
+    public static final double DIMENSIONE_DA_DISEGNARE = 64.0;
     public static final double RAGGIO_COLLISIONE = 24.0;
 
     // === Attacco ===

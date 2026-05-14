@@ -1,59 +1,77 @@
 package uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.utils.ThemeManager;
-import java.util.Objects;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
+import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
-import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailSettings.DIM_SPRITE;
-import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailSettings.NUMERO_FRAMES;
+import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailSettings.*;
 
-public class IscatWormTailView extends AbstractEntityView implements Drawable<IscatWormTailModel> {
+public class IscatWormTailView extends AbstractEntityView implements Drawable<IscatWormTailModel>, DrawableSpriteSheet {
 
-    private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            IscatWormTailModel.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat_worm_tail.png")));
+    // Costanti centralizzate
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/iscat_worm_tail.png";
+    public static final double DRAW_SIZE = DIM_SPRITE * SCALE;
 
-    public static final double DRAW_SIZE = IscatWormTailSettings.DIM_SPRITE * IscatWormTailSettings.SCALE;
+    private final SpriteSheetsParser spriteSheet;
+    private final SpriteSheetsAnimator animator;
 
-    private static Image lastTintedSheet;
-    private static final Image[] frameCache = new Image[NUMERO_FRAMES];
+    public IscatWormTailView() {
+        // 1. Carichiamo lo spritesheet tramite la libreria dedicata
+        this.spriteSheet = SpritesLibrary.getInstance().getSprite(
+                SPRITE_PATH,
+                (int) DIM_SPRITE,
+                (int) DIM_SPRITE
+        );
+
+        // 2. Inizializziamo l'animatore (es. 12 FPS -> circa 0.08s per frame)
+        this.animator = new SpriteSheetsAnimator(
+                0.08,
+                spriteSheet.getTotalFrames(),
+                spriteSheet.getTotalStates()
+        );
+    }
+
+    // --- Metodi richiesti dall'interfaccia Drawable ---
+
+    @Override
+    public SpriteSheetsParser getSpriteSheet() {
+        return spriteSheet;
+    }
+
+    @Override
+    public SpriteSheetsAnimator getAnimator() {
+        return animator;
+    }
 
     @Override
     public void draw(IscatWormTailModel entity, GraphicsContext gc) {
-        Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
-        Image tintedSheet = ThemeManager.getInstance().getTintedImage(SPRITE_SHEET, currentTint);
+        // Avanzamento del tempo dell'animazione
+        animator.update(GamenexModel.TICKUNIT);
 
-        if (tintedSheet != lastTintedSheet || frameCache[0] == null) {
-            lastTintedSheet = tintedSheet;
-            for (int i = 0; i < NUMERO_FRAMES; i++) {
-                frameCache[i] = new WritableImage(
-                        tintedSheet.getPixelReader(),
-                        i * (int) DIM_SPRITE,
-                        0,
-                        (int) DIM_SPRITE,
-                        (int) DIM_SPRITE
-                );
-            }
-        }
-
-        setAngle(entity);
+        // Setup coordinate e dimensioni
         setPos(entity);
+        setAngle(entity);
         setSize(DRAW_SIZE);
 
-        int frameIdx = (int) ((System.nanoTime() / GamenexModel.NANOSECUNIT) / 0.5) % NUMERO_FRAMES;
-        Image drawn = frameCache[frameIdx];
-
         gc.save();
+
+        // Traslazione e rotazione (manteniamo +180 se il verso dello sprite è invertito)
         gc.translate(cx, cy);
         gc.rotate(rotDeg + 180);
-        gc.drawImage(drawn, -DRAW_SIZE / 2, -DRAW_SIZE / 2, DRAW_SIZE, DRAW_SIZE);
+
+        // Disegno automatico: drawSprite gestisce internamente il ritaglio del frame
+        // calcolato dall'animator e l'applicazione del colore (Tinting) dal ThemeManager.
+        drawSprite(gc, 0, 0, w, h);
+
         gc.restore();
 
+        // Barra HP opzionale (spesso le code dei vermi condividono la vita con la testa,
+        // ma se è un'entità separata, questo la disegna correttamente).
         drawHpBar(entity, gc);
     }
 }

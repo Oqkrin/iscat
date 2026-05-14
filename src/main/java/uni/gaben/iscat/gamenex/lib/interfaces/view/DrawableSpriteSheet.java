@@ -1,0 +1,43 @@
+package uni.gaben.iscat.gamenex.lib.interfaces.view;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
+
+public interface DrawableSpriteSheet {
+
+    SpriteSheetsParser getSpriteSheet();
+    SpriteSheetsAnimator getAnimator();
+
+    default void drawSprite(GraphicsContext gc, double x, double y, double w, double h) {
+        SpriteSheetsParser sheet = getSpriteSheet();
+        SpriteSheetsAnimator anim = getAnimator();
+
+        if (sheet == null || anim == null || sheet.getSheet() == null) return;
+
+        // Recuperiamo i dati dall'animatore
+        int currentState = anim.getCurrentState();
+        int currentFrame = anim.getCurrentFrame(); // Allineato con SpriteSheetsAnimator
+
+        Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
+        Image renderedImage = ThemeManager.getInstance().getTintedImage(sheet.getSheet(), currentTint);
+
+        int sheetRow = Math.clamp(currentState, 0, sheet.getTotalStates() - 1);
+        int sheetColumn = Math.clamp(currentFrame, 0, sheet.getTotalFrames() - 1);
+
+        double sx = sheetColumn * sheet.frameWidth;
+        double sy = sheetRow * sheet.frameHeight;
+
+        gc.drawImage(
+                renderedImage,
+                sx, sy,
+                sheet.frameWidth, sheet.frameHeight,
+                x - w / 2, y - h / 2, // Posizionamento centrato
+                w, h
+        );
+    }
+}

@@ -1,59 +1,80 @@
 package uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.utils.ThemeManager;
-import java.util.Objects;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
+import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
-import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadSettings.DIM_SPRITE;
-import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadSettings.NUMERO_FRAMES;
+import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadSettings.*;
 
-public class IscatWormHeadView extends AbstractEntityView implements Drawable<IscatWormHeadModel> {
+/**
+ * Vista per la testa dell'Iscat Worm.
+ * Sfrutta il sistema centralizzato di animazione e rendering per garantire
+ * fluidità e coerenza cromatica con il tema globale.
+ */
+public class IscatWormHeadView extends AbstractEntityView implements Drawable<IscatWormHeadModel>, DrawableSpriteSheet {
 
-    private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            IscatWormHeadView.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat_worm_head.png")));
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/iscat_worm_head.png";
+    public static final double DRAW_SIZE = DIM_SPRITE * SCALE;
 
-    public static final double DRAW_SIZE = IscatWormHeadSettings.DIM_SPRITE * IscatWormHeadSettings.SCALE;
+    private final SpriteSheetsParser spriteSheet;
+    private final SpriteSheetsAnimator animator;
 
-    private static Image lastTintedSheet;
-    private static final Image[] frameCache = new Image[NUMERO_FRAMES];
+    public IscatWormHeadView() {
+        // 1. Recupero dello spritesheet dalla libreria condivisa
+        this.spriteSheet = SpritesLibrary.getInstance().getSprite(
+                SPRITE_PATH,
+                (int) DIM_SPRITE,
+                (int) DIM_SPRITE
+        );
+
+        // 2. Configurazione dell'animatore
+        // frameDuration impostata a ~0.035s per riflettere il divisore 0.35 del codice originale
+        this.animator = new SpriteSheetsAnimator(
+                0.035,
+                spriteSheet.getTotalFrames(),
+                spriteSheet.getTotalStates()
+        );
+    }
+
+    // --- Implementazione dei getter richiesti da Drawable ---
+
+    @Override
+    public SpriteSheetsParser getSpriteSheet() {
+        return spriteSheet;
+    }
+
+    @Override
+    public SpriteSheetsAnimator getAnimator() {
+        return animator;
+    }
 
     @Override
     public void draw(IscatWormHeadModel entity, GraphicsContext gc) {
-        Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
-        Image tintedSheet = ThemeManager.getInstance().getTintedImage(SPRITE_SHEET, currentTint);
+        // Avanzamento temporale dell'animazione
+        animator.update(GamenexModel.TICKUNIT);
 
-        if (tintedSheet != lastTintedSheet || frameCache[0] == null) {
-            lastTintedSheet = tintedSheet;
-            for (int i = 0; i < NUMERO_FRAMES; i++) {
-                frameCache[i] = new WritableImage(
-                        tintedSheet.getPixelReader(),
-                        i * (int) DIM_SPRITE,
-                        0,
-                        (int) DIM_SPRITE,
-                        (int) DIM_SPRITE
-                );
-            }
-        }
-
-        setAngle(entity);
+        // Setup trasformazioni e dimensioni
         setPos(entity);
+        setAngle(entity);
         setSize(DRAW_SIZE);
 
-        int frameIdx = (int) ((System.nanoTime() / GamenexModel.NANOSECUNIT) / 0.35) % NUMERO_FRAMES;
-        Image drawn = frameCache[frameIdx];
-
         gc.save();
+
+        // Centratura e rotazione dello sprite (+180 per correggere l'orientamento)
         gc.translate(cx, cy);
         gc.rotate(rotDeg + 180);
-        gc.drawImage(drawn, -DRAW_SIZE / 2, -DRAW_SIZE / 2, DRAW_SIZE, DRAW_SIZE);
+
+        // Rendering dello sprite: gestisce automaticamente il frame corrente e il tinting
+        drawSprite(gc, 0, 0, w, h);
+
         gc.restore();
 
+        // Overlay della barra della salute
         drawHpBar(entity, gc);
     }
 }

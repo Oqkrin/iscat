@@ -1,59 +1,82 @@
 package uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.utils.ThemeManager;
-import java.util.Objects;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
+import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
-import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings.DIM_SPRITE;
-import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings.NUMERO_FRAMES;
+import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings.*;
 
-public class IscatWormBodyPartView extends AbstractEntityView implements Drawable<IscatWormBodyPartModel> {
+/**
+ * Vista per i segmenti del corpo dell'Iscat Worm.
+ * Implementa {@link Drawable} per uniformare il rendering a quello della testa e della coda.
+ */
+public class IscatWormBodyPartView extends AbstractEntityView implements Drawable<IscatWormBodyPartModel>, DrawableSpriteSheet {
 
-    private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            IscatWormBodyPartModel.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat_worm_body_part.png")));
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/iscat_worm_body_part.png";
+    public static final double DRAW_SIZE = DIM_SPRITE * SCALE;
 
-    public static final double DRAW_SIZE = IscatWormBodyPartSettings.DIM_SPRITE * IscatWormBodyPartSettings.SCALE;
+    private final SpriteSheetsParser spriteSheet;
+    private final SpriteSheetsAnimator animator;
 
-    private static Image lastTintedSheet;
-    private static final Image[] frameCache = new Image[NUMERO_FRAMES];
+    public IscatWormBodyPartView() {
+        // 1. Caricamento centralizzato dello spritesheet
+        this.spriteSheet = SpritesLibrary.getInstance().getSprite(
+                SPRITE_PATH,
+                (int) DIM_SPRITE,
+                (int) DIM_SPRITE
+        );
+
+        // 2. Configurazione animatore
+        // Usiamo 0.045 come durata base per riflettere il divisore 0.45 originale
+        this.animator = new SpriteSheetsAnimator(
+                0.045,
+                spriteSheet.getTotalFrames(),
+                spriteSheet.getTotalStates()
+        );
+    }
+
+    // --- Implementazione Getter Drawable ---
+
+    @Override
+    public SpriteSheetsParser getSpriteSheet() {
+        return spriteSheet;
+    }
+
+    @Override
+    public SpriteSheetsAnimator getAnimator() {
+        return animator;
+    }
 
     @Override
     public void draw(IscatWormBodyPartModel entity, GraphicsContext gc) {
-        Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
-        Image tintedSheet = ThemeManager.getInstance().getTintedImage(SPRITE_SHEET, currentTint);
+        // Update del tempo di animazione (sincronizzato con il loop di gioco)
+        animator.update(GamenexModel.TICKUNIT);
 
-        if (tintedSheet != lastTintedSheet || frameCache[0] == null) {
-            lastTintedSheet = tintedSheet;
-            for (int i = 0; i < NUMERO_FRAMES; i++) {
-                frameCache[i] = new WritableImage(
-                        tintedSheet.getPixelReader(),
-                        i * (int) DIM_SPRITE,
-                        0,
-                        (int) DIM_SPRITE,
-                        (int) DIM_SPRITE
-                );
-            }
-        }
-
-        setAngle(entity);
+        // Calcolo posizione, angolo e dimensione
         setPos(entity);
+        setAngle(entity);
         setSize(DRAW_SIZE);
 
-        int frameIdx = (int) ((System.nanoTime() / GamenexModel.NANOSECUNIT) / 0.45) % NUMERO_FRAMES;
-        Image drawn = frameCache[frameIdx];
-
         gc.save();
+
+        // Traslazione al centro del segmento e rotazione correttiva
         gc.translate(cx, cy);
         gc.rotate(rotDeg + 180);
-        gc.drawImage(drawn, -DRAW_SIZE / 2, -DRAW_SIZE / 2, DRAW_SIZE, DRAW_SIZE);
+
+        // Il metodo drawSprite si occupa di:
+        // - Chiedere all'animator il frame corretto
+        // - Applicare il colore del tema attuale (Tint)
+        // - Disegnare la porzione corretta dello spritesheet
+        drawSprite(gc, 0, 0, w, h);
+
         gc.restore();
 
+        // Overlay HP (solitamente disabilitato per i segmenti del corpo, ma disponibile)
         drawHpBar(entity, gc);
     }
 }

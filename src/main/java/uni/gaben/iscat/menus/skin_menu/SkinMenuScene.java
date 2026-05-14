@@ -9,11 +9,6 @@ public class SkinMenuScene extends IscatSceneAbstract {
         super(new StackPane(), true, SceneAntialiasing.DISABLED);
         loadFxml("/uni/gaben/iscat/fxml/skin_menu.fxml");
     }
-    @Override protected void initStyles()        {}
-    @Override protected void initNodes()         {}
-    @Override protected void initLayout()        {}
-    @Override protected void initBindings()      {}
-    @Override protected void initEventHandlers() {}
 
     @Override
     public void onShow() {
@@ -22,5 +17,30 @@ public class SkinMenuScene extends IscatSceneAbstract {
             setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
             fadeIn();
         }
+    }
+
+    @Override
+    protected void initStyles() {
+
+    }
+
+    @Override
+    protected void initNodes() {
+
+    }
+
+    @Override
+    protected void initLayout() {
+
+    }
+
+    @Override
+    protected void initBindings() {
+
+    }
+
+    @Override
+    protected void initEventHandlers() {
+
     }
 }
