@@ -1,8 +1,6 @@
 package uni.gaben.iscat.menus.login_menu.controller;
 
 import javafx.scene.input.KeyEvent;
-import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.menus.login_menu.model.LoginData;
 import uni.gaben.iscat.menus.login_menu.model.LoginModel;
 import uni.gaben.iscat.menus.login_menu.model.LoginState;

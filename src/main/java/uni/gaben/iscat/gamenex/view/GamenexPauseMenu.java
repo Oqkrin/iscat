@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.utils.settings.AudioSettings;
@@ -29,8 +30,7 @@ public class GamenexPauseMenu extends VBox {
         setStyle("-fx-background-color: rgba(0, 0, 0, 0.85);");
 
         Label title = new Label("GAME PAUSED");
-        title.setStyle(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE] + 
-                      "-fx-text-fill: white; -fx-letter-spacing: 8;");
+        title.setStyle(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE] + "-fx-text-fill: white; -fx-letter-spacing: 8;");
 
         // SETTINGS BOX
         VBox settingsBox = new VBox(20);
@@ -59,8 +59,9 @@ public class GamenexPauseMenu extends VBox {
 
         Button menuBtn = createBigButton("QUIT TO MENU");
         menuBtn.setOnAction(e -> {
-            controller.setPaused(false); // Unpause before leaving
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+            controller.setPaused(false); // Unpausa il menu
+            javafx.scene.Parent actualRoot = this.getScene().getRoot();
+            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, (StackPane) actualRoot);
         });
 
         Button quitBtn = createBigButton("QUIT GAME");
