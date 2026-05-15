@@ -47,6 +47,7 @@ public final class PlayerSettings {
     public static final double RAGGIO_COLLISIONE = 24.0;
 
     // === Attacco ===
+    public static final double COOLDOWN_FUOCO_TICKS = 0.16;
     public static final double COOLDOWN_FUOCO_SEC = 0.16; 
     public static final double VELOCITA_PROIETTILE = 800.0;
     public static final double DANNO_PROIETTILE = 10.0;

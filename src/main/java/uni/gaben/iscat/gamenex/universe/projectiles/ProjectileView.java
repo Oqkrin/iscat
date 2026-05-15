@@ -22,7 +22,7 @@ public class ProjectileView extends AbstractEntityView implements Drawable<Proje
         setAngle(p);
         gc.rotate(rotDeg);
 
-        setSize(32);
+        setSize(16);
 
         ThemeColors.ensureLoaded();
         gc.setFill(ThemeColors.getAccentPrimary());

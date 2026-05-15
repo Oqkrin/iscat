@@ -34,10 +34,16 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
     public void update(double dt) {
         if (dashCooldownRemaining > 0) dashCooldownRemaining -= dt;
         if (dashPhaseRemaining > 0) dashPhaseRemaining -= dt;
-        if (fireCooldownRemaining > 0) fireCooldownRemaining -= dt;
+
+        // Cooldown sparo
+        if (fireCooldownRemaining > 0) {
+            fireCooldownRemaining -= dt;
+        }
+
         projectileCooldown.tick();
+
         if (isInScatto()) {
-            setLinearDamping(0.7); // Quasi zero attrito per mantenere il momentum
+            setLinearDamping(0.7);
         } else {
             setLinearDamping(PlayerSettings.LINEAR_DAMPING);
         }
@@ -59,8 +65,13 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
 
     public boolean isScattoDisponibile() { return dashCooldownRemaining <= 0; }
     public boolean isInScatto() { return dashPhaseRemaining > 0; }
-    public boolean isSparoDisponibile() { return fireCooldownRemaining <= 0; }
-    public void startCooldownFuoco() { fireCooldownRemaining = PlayerSettings.COOLDOWN_FUOCO_SEC; }
+    public boolean isSparoDisponibile() {
+        return fireCooldownRemaining <= 0 && projectileCooldown.isReady();
+    }
+    public void startCooldownFuoco() {
+        fireCooldownRemaining = PlayerSettings.COOLDOWN_FUOCO_SEC;
+        projectileCooldown.set(PlayerSettings.COOLDOWN_FUOCO_TICKS);
+    }
 
     /** Ritorna un valore [0, 1] per la barra dello scatto nella UI */
     public double getDashMeter() {

@@ -108,10 +108,11 @@ public class PlayerController {
     }
 
     private void handleShooting(InputManager input) {
-        // Guard clause: check for input AND weapon presence
-        if (input.shooting && shooter != null) {
-            shooter.shoot();
-            player.projectileCooldown().set(10);
+        if (player == null || shooter == null) return;
+
+        if (input.shooting && player.isSparoDisponibile()) {
+            shooter.shoot();                    // spara
+            player.startCooldownFuoco();        // attiva il cooldown
         }
     }
 }
