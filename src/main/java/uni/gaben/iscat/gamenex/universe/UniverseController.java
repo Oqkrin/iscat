@@ -25,7 +25,7 @@ import java.util.List;
 public class UniverseController {
 
     private final UniverseModel universeModel;
-    private final PlayerController playerController = new PlayerController();
+    private final PlayerController playerController;
     private final List<AiController> aiControllers = new ArrayList<>();
     private final CameraController cameraController = new CameraController();
     private final StarfieldController starfieldController = new StarfieldController();
@@ -41,6 +41,7 @@ public class UniverseController {
 
     public UniverseController(UniverseModel universeModel) {
         this.universeModel = universeModel;
+        playerController = new PlayerController(universeModel.getPlayer());
     }
 
     public void addAiController(AiController controller) {
@@ -54,9 +55,10 @@ public class UniverseController {
 
     public void update(double dt, InputManager input, CameraModel cameraModel) {
         PlayerModel player = universeModel.getPlayer();
+        if(playerController.getPlayer() == null) playerController.setPlayer(player);
 
         if (input != null) {
-            playerController.processInput(player, input, cameraModel.getX(), cameraModel.getY(), dt);
+            playerController.processInput(input, cameraModel.getX(), cameraModel.getY(), dt);
 
             if (input.suction) {
                 applyOrbitalGravity(player);

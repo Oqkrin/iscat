@@ -8,7 +8,7 @@ public class ScoreMenuScene extends IscatSceneAbstract {
 
     public ScoreMenuScene() {
         super(new StackPane(), true, SceneAntialiasing.DISABLED);
-        loadFxml("/uni/gaben/iscat/fxml/score_menu.fxml");
+        initialize("/uni/gaben/iscat/fxml/score_menu.fxml");
     }
     @Override protected void initStyles()        {}
     @Override protected void initNodes()         {}

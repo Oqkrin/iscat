@@ -5,32 +5,19 @@ import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import uni.gaben.iscat.IscatSceneAbstract;
-import uni.gaben.iscat.gamenex.universe.eater.EaterModel;
-import uni.gaben.iscat.gamenex.universe.eater.EaterView;
-import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
-import uni.gaben.iscat.gamenex.universe.hearth.HearthView;
-import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
-import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobView;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartView;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadModel;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadView;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailModel;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailView;
-import uni.gaben.iscat.gamenex.universe.player.PlayerView;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
-import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
-import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidView;
 import uni.gaben.iscat.gamenex.universe.UniverseController;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.starfield.StarfieldView;
+import uni.gaben.iscat.utils.ThemeColors;
 import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
@@ -67,12 +54,6 @@ public class GamenexScene extends IscatSceneAbstract {
     }
 
     @Override
-    protected void initStyles() {
-        getStylesheets().add(Objects.requireNonNull(GamenexScene.class.getResource("/uni/gaben/iscat/styles/game.css"))
-                .toExternalForm());
-    }
-
-    @Override
     protected void initNodes() {
         canvas = new Canvas();
         spawnerToolbar = new GamenexSpawnerToolbar(gamenexController);
@@ -80,6 +61,13 @@ public class GamenexScene extends IscatSceneAbstract {
         // ==================== DEBUG BUTTON ====================
         debugButton = new Button("DEBUG");
         debugButton.setFocusTraversable(false);
+
+    }
+
+    @Override
+    protected void initStyles() {
+        getStylesheets().add(Objects.requireNonNull(GamenexScene.class.getResource("/uni/gaben/iscat/styles/game.css"))
+                .toExternalForm());
         CssHelper.stilePulsanteMenu(debugButton);
         CssHelper.testoPrimario(debugButton);
     }
@@ -114,6 +102,10 @@ public class GamenexScene extends IscatSceneAbstract {
             // Bind StarfieldView dimensions
             starfieldView.wProperty().bind(canvas.widthProperty());
             starfieldView.hProperty().bind(canvas.heightProperty());
+
+            // Bind visibility to pause state
+            pauseMenu.visibleProperty().bind(gamenexModel.pausedProperty());
+            pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
         }
     }
 
@@ -122,25 +114,24 @@ public class GamenexScene extends IscatSceneAbstract {
         gamenexController.getInputManager().attachToScene(this);
         gamenexController.getInputManager().attachToCanvas(canvas);
 
-        // Bind visibility to pause state
-        pauseMenu.visibleProperty().bind(gamenexModel.pausedProperty());
-        pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
 
         // Toggle pause on ESCAPE
-        this.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+        this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
                 gamenexController.togglePause();
                 e.consume();
             }
         });
 
         // ==================== DEBUG BUTTON ACTION ====================
-        debugButton.setOnAction(e -> {
+        debugButton.setOnAction(_ -> {
             boolean visible = !spawnerToolbar.isSpawnButtonsVisible();
             spawnerToolbar.setSpawnButtonsVisible(visible);
             debugButton.setText(visible ? "HIDE DEBUG" : "DEBUG");
         });
     }
+
+
 
     @Override
     public void onLoad() {
@@ -163,11 +154,13 @@ public class GamenexScene extends IscatSceneAbstract {
         double h = canvas.getHeight();
 
         gc.clearRect(0, 0, w, h);
-        gc.setFill(Color.BLACK);
+        ThemeColors.ensureLoaded();
+        gc.setFill(ThemeColors.parsedColors.get("bg-primary"));
         gc.fillRect(0, 0, w, h);
 
         UniverseController universeController = gamenexController.getSpaceController();
         UniverseModel space = universeController.getSpaceModel();
+
         if (space == null)
             return;
 
@@ -190,10 +183,10 @@ public class GamenexScene extends IscatSceneAbstract {
         gc.save();
         gc.translate(-cameraModel.getX(), -cameraModel.getY());
 
-        for (var body : space.getEntities()) {
-            Drawable renderer = ViewRegistry.getInstance().getRenderer(body.getClass());
+        for (var entity : space.getEntities()) {
+            Drawable renderer = ViewRegistry.getInstance().getRenderer(entity.getClass());
             if (renderer != null) {
-                renderer.draw(body, gc);
+                renderer.draw(entity, gc);
             }
         }
         gc.restore();
@@ -206,7 +199,7 @@ public class GamenexScene extends IscatSceneAbstract {
     private int fpsIdx = 0;
 
     private void drawFps(GraphicsContext gc, double w) {
-        if (gamenexController.isShowFps()) {
+        if (gamenexController.isFpsOn()) {
             double fps = 1.0 / gamenexModel.getDt();
             fpsHistory[fpsIdx] = fps;
             fpsIdx = (fpsIdx + 1) % fpsHistory.length;
@@ -215,7 +208,7 @@ public class GamenexScene extends IscatSceneAbstract {
             for (double f : fpsHistory) avg += f;
             avg /= fpsHistory.length;
 
-            gc.setFill(Color.web("#00ff88", 0.7));
+            gc.setFill(avg >= 60 ? ThemeColors.getColorSuccess() : avg >= 30 ? ThemeColors.getColorWarning() : ThemeColors.getColorError());
             gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
             gc.fillText(String.format("FPS: %.0f", avg), w - 80, 50);
         }
@@ -224,7 +217,7 @@ public class GamenexScene extends IscatSceneAbstract {
     @Override
     public void onHide() {
         super.onHide();
-        gamenexController.stopGameLoop();
+        gamenexController.setPaused(true);
     }
 
     @Override

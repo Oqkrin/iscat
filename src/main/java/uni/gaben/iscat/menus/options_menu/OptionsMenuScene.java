@@ -7,7 +7,7 @@ import uni.gaben.iscat.IscatSceneAbstract;
 public class OptionsMenuScene extends IscatSceneAbstract {
     public OptionsMenuScene() {
         super(new StackPane(), true, SceneAntialiasing.DISABLED);
-        loadFxml("/uni/gaben/iscat/fxml/options_menu.fxml");
+        initialize("/uni/gaben/iscat/fxml/options_menu.fxml");
     }
     @Override protected void initStyles()        {}
     @Override protected void initNodes()         {}

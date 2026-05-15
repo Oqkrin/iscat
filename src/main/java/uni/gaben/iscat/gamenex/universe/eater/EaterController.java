@@ -66,7 +66,7 @@ public class EaterController extends AiBehaviours<EaterModel> {
     private void performAttack(PlayerModel player, UniverseModel universe) {
         // System.out.println("[EaterController] COLLISIONE! Attacco al player!");
 
-        player.bleed(EaterSettings.ATTACK_POWER);
+        player.setLife(player.getLife()-EaterSettings.ATTACK_POWER);
 
         eater.consume();
         eater.setLife(0); // This will trigger automatic removal in UniverseModel.update()

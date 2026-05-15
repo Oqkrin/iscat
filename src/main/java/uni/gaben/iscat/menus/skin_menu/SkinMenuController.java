@@ -46,7 +46,7 @@ public class SkinMenuController implements IscatFxmlController {
             "Cubism Lover",         // 5
             "Space Goblin",         // 6
             "Phantom",              // 7
-            "NO NAME",              // 8
+            "Radar",              // 8
             "NO NAME"               // 9
     };
 

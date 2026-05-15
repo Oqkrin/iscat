@@ -1,5 +1,7 @@
 package uni.gaben.iscat.gamenex.universe;
 
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
 import uni.gaben.iscat.gamenex.universe.eater.EaterController;
 import uni.gaben.iscat.gamenex.universe.eater.EaterModel;
@@ -211,5 +213,10 @@ public class UniverseSpawner {
         AsteroidModel asteroid = new AsteroidModel(x, y, 0);
         model.addEntity(asteroid);
         return asteroid;
+    }
+
+    public AbstractProjectileModel spawnProjectile(AbstractProjectileModel p) {
+        model.addEntity(p);
+        return p;
     }
 }

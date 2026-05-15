@@ -31,7 +31,7 @@ public class IscatWormBodyPartModel extends LivingEntityModel implements IscatWo
     }
 
     @Override
-    public double getMaxVelocity() {
+    public double getTerminalVelocity() {
         return IscatWormBodyPartSettings.MAX_VELOCITY_MS;
     }
 

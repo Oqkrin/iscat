@@ -74,7 +74,7 @@ public class IscatApplication extends Application {
         String colorTheme = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-color-theme.css"))
                 .toExternalForm();
-        scenes.values().forEach(s -> s.getStylesheets().add(0, colorTheme));
+        scenes.values().forEach(s -> s.getStylesheets().addFirst(colorTheme));
 
         // Navigation
         IscatNavigator.getInstance().initialize(appModel, scenes);

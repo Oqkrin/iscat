@@ -69,7 +69,8 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
 
     protected IscatSceneAbstract(Parent root, double width, double height, boolean withStarryBackground, SceneAntialiasing ant) {
         super(buildChrome(root, withStarryBackground), width, height, false, ant);
-        setFill(Color.web("#010203"));
+        ThemeColors.ensureLoaded();
+        setFill(ThemeColors.parsedColors.get("bg-primary"));
         applyRoundedClip();
         if (withStarryBackground) {
             starryBackground = extractStarryBackground();

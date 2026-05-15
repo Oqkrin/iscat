@@ -219,7 +219,7 @@ public class GamenexController {
     /**
      * Restituisce true se la visualizzazione degli FPS è attiva.
      */
-    public boolean isShowFps() {
+    public boolean isFpsOn() {
         return showFps;
     }
 

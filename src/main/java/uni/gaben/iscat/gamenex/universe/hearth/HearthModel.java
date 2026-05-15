@@ -26,7 +26,7 @@ public class HearthModel extends LivingEntityModel {
     }
 
     @Override
-    public double getMaxVelocity() {
+    public double getTerminalVelocity() {
         return IscatMobSettings.MAX_VELOCITY_MS;
     }
 }

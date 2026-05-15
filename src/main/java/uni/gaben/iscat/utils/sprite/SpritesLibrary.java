@@ -3,6 +3,8 @@ package uni.gaben.iscat.utils.sprite;
 import java.util.HashMap;
 import java.util.Map;
 
+
+// Cache Library per Cachare gli sprite come piace a lui ^
 public class SpritesLibrary {
     private static final SpritesLibrary instance = new SpritesLibrary();
     public static SpritesLibrary getInstance() { return instance; }

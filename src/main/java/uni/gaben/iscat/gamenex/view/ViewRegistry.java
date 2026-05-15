@@ -18,6 +18,8 @@ import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTail
 import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailView;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.universe.player.PlayerView;
+import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
+import uni.gaben.iscat.gamenex.universe.projectiles.ProjectileView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +45,7 @@ public class ViewRegistry {
             instance.register(IscatWormHeadModel.class, new IscatWormHeadView());
             instance.register(IscatWormBodyPartModel.class, new IscatWormBodyPartView());
             instance.register(IscatWormTailModel.class, new IscatWormTailView());
+            instance.register(Projectile.class, new ProjectileView());
         }
         return instance;
     }

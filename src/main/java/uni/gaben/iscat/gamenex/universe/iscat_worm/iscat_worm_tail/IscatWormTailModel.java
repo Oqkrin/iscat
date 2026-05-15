@@ -31,7 +31,7 @@ public class IscatWormTailModel extends LivingEntityModel implements IscatWormSe
     }
 
     @Override
-    public double getMaxVelocity() {
+    public double getTerminalVelocity() {
         return IscatWormTailSettings.MAX_VELOCITY_MS;
     }
 

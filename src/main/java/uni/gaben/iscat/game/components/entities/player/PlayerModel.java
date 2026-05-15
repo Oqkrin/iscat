@@ -47,7 +47,7 @@ public class PlayerModel extends LivingEntityModel implements Collidable, HasRen
 
     @Override
     public void integrate(double dt) {
-        if (faseScatto.isActive()) {
+        if (faseScatto.isCoolingDown()) {
             this.drag     = PlayerSettings.ATTRITO_SCATTO;
             this.maxSpeed = PlayerSettings.VELOCITA_MAX_SCATTO;
         } else {
@@ -68,7 +68,7 @@ public class PlayerModel extends LivingEntityModel implements Collidable, HasRen
     public boolean isScattoDisponibile() { return cooldownScatto.isReady(); }
 
     /** {@code true} while the active dash phase (reduced drag) is running. */
-    public boolean isInScatto() { return faseScatto.isActive(); }
+    public boolean isInScatto() { return faseScatto.isCoolingDown(); }
 
     /**
      * Applies the dash impulse and starts the dash phase + cooldown timers.

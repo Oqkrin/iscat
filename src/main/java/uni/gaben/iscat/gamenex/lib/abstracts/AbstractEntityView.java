@@ -3,7 +3,7 @@ package uni.gaben.iscat.gamenex.lib.abstracts;
 import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.player.PlayerSettings;
-import uni.gaben.iscat.gamenex.lib.interfaces.model.Alive;
+import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
 import uni.gaben.iscat.gamenex.view.ViewSettings;
 import uni.gaben.iscat.utils.ThemeColors;
 
@@ -66,7 +66,7 @@ public class AbstractEntityView  {
      * @param entity L'entità vivente (che possiede dati sulla vita).
      * @param gc Il contesto grafico su cui disegnare.
      */
-    protected void drawHpBar(Alive entity, GraphicsContext gc) {
+    protected void drawHpBar(Lifecycle entity, GraphicsContext gc) {
         gc.setFill(ThemeColors.getColorError());
         gc.fillRect(cx - w / 2, cy - h / 2 - PlayerSettings.HP_BAR_OFFSET_Y, w, PlayerSettings.HP_BAR_HEIGHT);
         gc.setFill(ThemeColors.getColorSuccess());

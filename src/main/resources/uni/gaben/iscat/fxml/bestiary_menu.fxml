@@ -26,18 +26,29 @@
    <center>
       <HBox alignment="CENTER" spacing="80.0" BorderPane.alignment="CENTER">
          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="250.0">
-            <children>
-               <Button fx:id="iscat_mob" contentDisplay="CENTER" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Mob" />
-               <Button fx:id="iscat_bomber" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Bomber" />
-               <Button fx:id="iscat_core" contentDisplay="CENTER" layoutX="10.0" layoutY="36.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Core" />
-               <Button fx:id="iscat_mother" contentDisplay="CENTER" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Mother" />
-               <Button fx:id="fake_iscat" contentDisplay="CENTER" layoutX="10.0" layoutY="87.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Fake Iscat" />
-               <Button fx:id="fallen_star_golem" contentDisplay="CENTER" layoutX="10.0" layoutY="112.0" mnemonicParsing="false" onAction="#showEnemy" prefWidth="250.0" text="Fallen Star Golem" />
-               <Button fx:id="eater" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Eater" />
-               <Button fx:id="iscat_worm_head" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Worm Head" />
-               <Button fx:id="iscat_worm_body_part" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Worm Body Part" />
-               <Button fx:id="iscat_worm_tail" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Worm Tail" />
-            </children>
+            <Button fx:id="iscat_mob" contentDisplay="CENTER" mnemonicParsing="false" onAction="#showEnemy"
+                    prefHeight="26.0" prefWidth="250.0" text="Iscat Mob"/>
+            <Button fx:id="iscat_bomber" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
+                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Bomber"/>
+            <Button fx:id="iscat_core" contentDisplay="CENTER" layoutX="10.0" layoutY="36.0" mnemonicParsing="false"
+                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Core"/>
+            <Button fx:id="iscat_mother" contentDisplay="CENTER" layoutX="10.0" layoutY="61.0" mnemonicParsing="false"
+                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Mother"/>
+            <Button fx:id="fake_iscat" contentDisplay="CENTER" layoutX="10.0" layoutY="87.0" mnemonicParsing="false"
+                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Fake Iscat"/>
+            <Button fx:id="fallen_star_golem" contentDisplay="CENTER" layoutX="10.0" layoutY="112.0"
+                    mnemonicParsing="false" onAction="#showEnemy" prefWidth="250.0" text="Fallen Star Golem"/>
+            <Button fx:id="eater" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false"
+                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Eater"/>
+            <Button fx:id="iscat_worm_head" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0"
+                    mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0"
+                    text="Iscat Worm Head"/>
+            <Button fx:id="iscat_worm_body_part" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0"
+                    mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0"
+                    text="Iscat Worm Body Part"/>
+            <Button fx:id="iscat_worm_tail" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0"
+                    mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0"
+                    text="Iscat Worm Tail"/>
          </VBox>            <VBox fx:id="previewBox" alignment="CENTER" prefWidth="303.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
             <padding>
                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />

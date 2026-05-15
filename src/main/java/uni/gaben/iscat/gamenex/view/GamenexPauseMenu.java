@@ -49,7 +49,7 @@ public class GamenexPauseMenu extends VBox {
         // FPS COUNTER
         CheckBox fpsCheck = new CheckBox("SHOW FPS COUNTER");
         fpsCheck.getStyleClass().add("check-box");
-        fpsCheck.setSelected(controller.isShowFps());
+        fpsCheck.setSelected(controller.isFpsOn());
         fpsCheck.selectedProperty().addListener((obs, oldV, newV) -> controller.setShowFps(newV));
         settingsBox.getChildren().add(fpsCheck);
 

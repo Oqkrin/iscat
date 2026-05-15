@@ -48,7 +48,7 @@ public class IscatBomberModel extends NpcModel implements Collidable, HasRendere
     public void onCollision(Collidable other) {
         // Physics handled by CollisionPhysics in GameModel.
         // Only game logic here: stun + cooldown.
-        if (collisionCooldown.isActive()) return;
+        if (collisionCooldown.isCoolingDown()) return;
         if (other instanceof PlayerModel) {
             stunTimer.set(IscatBomberSettings.DURATA_STORDIMENTO);
         }
@@ -81,7 +81,7 @@ public class IscatBomberModel extends NpcModel implements Collidable, HasRendere
     // Stun state — read by IscatBomberController
     // -------------------------------------------------------------------------
 
-    public boolean isStunned()          { return stunTimer.isActive(); }
+    public boolean isStunned()          { return stunTimer.isCoolingDown(); }
 
     /** Tick stun and collision cooldown — called by IscatBomberController each AI update. */
     public void tickCooldowns() {

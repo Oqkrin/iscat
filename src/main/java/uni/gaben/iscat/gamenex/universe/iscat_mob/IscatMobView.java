@@ -21,15 +21,15 @@ public class IscatMobView extends AbstractEntityView implements Drawable<IscatMo
     public static final double DRAW_SIZE = DIM_SPRITE * SCALE;
     private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/iscat.png";
 
-    private final SpriteSheetsParser spriteSheet;
-    private final SpriteSheetsAnimator animator;
+    private final SpriteSheetsParser spriteSheet; //detiene lo sprite sheet
+    private final SpriteSheetsAnimator animator; // anima lo sprite sheet
 
     public IscatMobView() {
         // 1. Carichiamo lo spritesheet tramite la libreria (per il caching dell'Image)
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(
                 SPRITE_PATH,
-                (int) DIM_SPRITE,
-                (int) DIM_SPRITE
+                DIM_SPRITE,
+                DIM_SPRITE
         );
 
         // 2. Inizializziamo l'animatore con le dimensioni corrette

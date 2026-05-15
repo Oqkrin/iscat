@@ -71,6 +71,6 @@ public class IscatWormHeadController extends AiBehaviours<IscatWormHeadModel> {
     private void performAttack(PlayerModel player, UniverseModel universe) {
         System.out.println("[SnakeHead] ATTACCO al player!");
 
-        player.bleed(IscatWormHeadSettings.ATTACK_POWER);
+        player.setLife(player.getLife()- IscatWormHeadSettings.ATTACK_POWER);
     }
 }

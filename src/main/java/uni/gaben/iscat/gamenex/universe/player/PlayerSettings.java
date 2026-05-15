@@ -19,13 +19,13 @@ public final class PlayerSettings {
     // === Fisica (adattata per Dyn4j) ===
     public static final double MASSA = 1.0;
     /** Attrito lineare: decelera il corpo nel tempo. Un valore più alto = più controllo ma meno inerzia. */
-    public static final double LINEAR_DAMPING = 0.1;
+    public static final double LINEAR_DAMPING = 1.5;
     /** Velocità massima del giocatore (m/s). Aumentata per un gameplay più dinamico. */
-    public static final double VELOCITA_MAX = 22.0; 
+    public static final double VELOCITA_MAX = 75.0;
     
     // === Movimento ===
     /** Forza di spinta applicata dai motori (Newton). */
-    public static final double FORZA_SPINTA = 12.0;
+    public static final double FORZA_SPINTA = 30.0;
 
     // === Dash ===
     /** Impulso istantaneo applicato durante lo scatto. */

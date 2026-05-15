@@ -1,17 +1,18 @@
 package uni.gaben.iscat.gamenex.lib.implementations;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.gamenex.lib.interfaces.model.Alive;
-import uni.gaben.iscat.gamenex.lib.interfaces.model.Mortal;
+import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
 
 /**
  * Implementazione di un'entità dotata di vita e soggetta a mortalità.
  * Gestisce i punti vita (HP), la guarigione e il danneggiamento.
  * Permette di registrare callback per eventi specifici come il ferimento o la morte.
  */
-public class LivingEntityModel extends AbstractEntityModel implements Alive, Mortal {
+public class LivingEntityModel extends AbstractEntityModel implements Lifecycle {
     /** Salute attuale dell'entità. */
-    protected double life;
+    protected DoubleProperty life = new SimpleDoubleProperty();
     /** Salute massima raggiungibile. */
     protected double maxLife;
 
@@ -24,13 +25,16 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
      */
     public LivingEntityModel(double x, double y, double life, double maxLife) {
         super(x, y);
-        this.life = life;
+        this.life.set(life);
         this.maxLife = maxLife;
     }
 
+    public DoubleProperty lifeProperty() {
+        return life;
+    }
     /** Restituisce la salute attuale. */
     public double getLife() {
-        return life;
+        return life.get();
     }
 
     /** Restituisce la salute massima. */
@@ -40,13 +44,18 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
 
     /** Imposta la salute attuale, assicurandosi che resti nei limiti [0, maxLife]. */
     public void setLife(double life) {
-        this.life = Math.clamp(life, 0, maxLife);
+        this.life.set(Math.clamp(life, 0, maxLife));
+    }
+
+    @Override
+    public void deltaToLife(double delta) {
+        setLife(getLife() + delta);
     }
 
     /** Imposta la salute massima e aggiorna la salute attuale se necessario. */
     public void setMaxLife(double maxLife) {
         this.maxLife = maxLife;
-        setLife(life);
+        setLife(getLife());
     }
 
     // --- Gestione Eventi ---
@@ -64,27 +73,6 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
         this.onDeath = callback;
     }
 
-
-    /**
-     * Sottrae salute all'entità. Se la salute scende a zero, l'entità viene uccisa.
-     * @param amount Quantità di danno subito.
-     */
-    @Override
-    public void bleed(double amount) {
-        this.life -= amount;
-        if (onHurt != null && life > 0) onHurt.run();
-        if (this.life <= 0) {
-            this.life = 0;
-            kill();
-        }
-    }
-
-    public void heal(double amount) {
-        if (!isAlive()) return;
-
-        life = Math.min(maxLife, life + amount);
-    }
-
     /**
      * Uccide istantaneamente l'entità ed esegue il callback di morte.
      */
@@ -93,6 +81,7 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
         if (onDeath != null) {
             onDeath.run();
         }
+        setShouldRemove(true);
     }
 
     @Override
@@ -100,4 +89,8 @@ public class LivingEntityModel extends AbstractEntityModel implements Alive, Mor
         // Implementazione vuota, sovrascrivibile nelle classi figlie
     }
 
+    @Override
+    public double getBaseAccelerationPerTick() {
+        return 0;
+    }
 }

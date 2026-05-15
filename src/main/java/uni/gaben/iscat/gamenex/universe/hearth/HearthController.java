@@ -52,7 +52,7 @@ public class HearthController extends AiBehaviours<HearthModel> {
 
     private void applyHeal(PlayerModel player, UniverseModel universe) {
         // Cura il giocatore
-        player.heal(HearthSettings.HP_BOOST);
+        player.deltaToLife(HearthSettings.HP_BOOST);
         hearth.setLife(0);
     }
 }

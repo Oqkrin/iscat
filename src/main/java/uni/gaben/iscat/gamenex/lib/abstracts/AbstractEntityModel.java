@@ -1,7 +1,8 @@
 package uni.gaben.iscat.gamenex.lib.abstracts;
 
+import javafx.beans.property.DoubleProperty;
 import org.dyn4j.dynamics.Body;
-import uni.gaben.iscat.gamenex.lib.interfaces.model.CappedVelocity;
+import uni.gaben.iscat.gamenex.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
 /**
@@ -9,8 +10,11 @@ import uni.gaben.iscat.gamenex.universe.UniverseSettings;
  * Estende {@link Body} di Dyn4j per fornire capacità di simulazione fisica.
  * Gestisce la conversione tra il sistema di coordinate pixel (View) e metri (Fisica).
  */
-public abstract class AbstractEntityModel extends Body implements CappedVelocity {
+public abstract class AbstractEntityModel extends Body implements HasTerminalVelocity {
     private String entityId;
+    private double terminalVelocity = Double.MAX_VALUE;
+    private double baseAccelerationPerTick = Double.MAX_VALUE;
+    private boolean shouldRemove = false;
 
     /**
      * Crea un modello con un identificatore specifico.
@@ -42,7 +46,21 @@ public abstract class AbstractEntityModel extends Body implements CappedVelocity
     public void setEntityId(String id) { this.entityId = id; }
 
     @Override
-    public double getMaxVelocity() {
-        return Double.MAX_VALUE;
+    public double getTerminalVelocity() {
+        return terminalVelocity;
     }
+
+    @Override
+    public double getBaseAccelerationPerTick() {
+        return baseAccelerationPerTick;
+    }
+
+    public boolean shouldRemove() {
+        return shouldRemove;
+    }
+
+    public void setShouldRemove(boolean shouldRemove) {
+        this.shouldRemove = shouldRemove;
+    }
+
 }

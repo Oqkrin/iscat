@@ -40,8 +40,8 @@ public class Cooldown {
      * Imposta il cooldown a un numero di tick.
      * @param ticks numero di tick (valori negativi vengono trattati come 0)
      */
-    public void set(int ticks) {
-        this.ticks = Math.max(0, ticks);
+    public void set(double ticks) {
+        this.ticks = (int) Math.max(0, ticks);
     }
     
     /**
@@ -62,7 +62,7 @@ public class Cooldown {
     /**
      * @return true se il cooldown è attivo (tick rimanenti > 0)
      */
-    public boolean isActive() {
+    public boolean isCoolingDown() {
         return ticks > 0;
     }
     

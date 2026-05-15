@@ -35,7 +35,7 @@ public class EaterModel extends LivingEntityModel {
     }
 
     @Override
-    public double getMaxVelocity() {
+    public double getTerminalVelocity() {
         return EaterSettings.MAX_VELOCITY_MS;
     }
 

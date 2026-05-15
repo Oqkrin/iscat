@@ -7,16 +7,21 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.gamenex.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
+import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
+import uni.gaben.iscat.utils.Cooldown;
 
 import javax.swing.event.ChangeListener;
 
-public class PlayerModel extends LivingEntityModel {
+public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile> {
 
     private double dashCooldownRemaining = 0;
     private double dashPhaseRemaining = 0;
     private double fireCooldownRemaining = 0;
+    private Projectile projectile = new Projectile();
+    private Cooldown projectileCooldown = new Cooldown();
 
     public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
@@ -30,6 +35,7 @@ public class PlayerModel extends LivingEntityModel {
         if (dashCooldownRemaining > 0) dashCooldownRemaining -= dt;
         if (dashPhaseRemaining > 0) dashPhaseRemaining -= dt;
         if (fireCooldownRemaining > 0) fireCooldownRemaining -= dt;
+        projectileCooldown.tick();
         if (isInScatto()) {
             setLinearDamping(0.7); // Quasi zero attrito per mantenere il momentum
         } else {
@@ -64,14 +70,39 @@ public class PlayerModel extends LivingEntityModel {
 
     @Override
     public void onDeath() { 
-        if(life <= 0){
+        if(getLife() <= 0){
             // Logic for death (score calculation, etc.) should be handled by a Listener/Controller, 
             // not the Model itself.
         } 
     }
 
     @Override
-    public double getMaxVelocity() {
+    public double getTerminalVelocity() {
         return PlayerSettings.VELOCITA_MAX;
+    }
+
+    @Override
+    public Projectile getProjectile() {
+        return projectile;
+    }
+
+    @Override
+    public boolean hasAmmo() {
+        return true;
+    }
+
+    @Override
+    public Cooldown projectileCooldown() {
+        return projectileCooldown;
+    }
+
+    @Override
+    public int getProjectileCooldownTickCount() {
+        return 0;
+    }
+
+    @Override
+    public void setProjectileCooldownTickCount(int tickCount) {
+        /**/
     }
 }

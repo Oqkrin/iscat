@@ -3,34 +3,37 @@ package uni.gaben.iscat.gamenex.universe;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.dynamics.Body;
+import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
-
-import java.util.Random;
-
+import uni.gaben.iscat.gamenex.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.universe.starfield.StarfieldModel;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.gamenex.lib.interfaces.model.Alive;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Modello fisico del mondo di gioco.
- * Rappresenta lo spazio in cui esistono le entità, basato sul mondo fisico Dyn4j.
- * Gestisce le dimensioni della visuale e la lista dei corpi attivi.
  */
 public class UniverseModel extends World<Body> {
 
-    private Random rand = new Random();
+    private final Random rand = new Random();
     private PlayerModel player;
+
     private final List<AbstractEntityModel> entities = new ArrayList<>();
     private final StarfieldModel starfieldModel = new StarfieldModel();
 
-    private DoubleProperty width = new SimpleDoubleProperty(UniverseSettings.DEFAULT_WIDTH);
-    private DoubleProperty height = new SimpleDoubleProperty(UniverseSettings.DEFAULT_HEIGHT);
+    private final DoubleProperty width = new SimpleDoubleProperty(UniverseSettings.DEFAULT_WIDTH);
+    private final DoubleProperty height = new SimpleDoubleProperty(UniverseSettings.DEFAULT_HEIGHT);
 
     public UniverseModel() {
-        setGravity(World.ZERO_GRAVITY);
+        setGravity(PhysicsWorld.ZERO_GRAVITY);
+    }
+
+    public static double getUniverseScaled(double value) {
+        return value / UniverseSettings.SCALE;
     }
 
     public void setPlayer(PlayerModel player) {
@@ -51,42 +54,59 @@ public class UniverseModel extends World<Body> {
     public List<AbstractEntityModel> getEntities() {
         return entities;
     }
-    
+
+    /**
+     * Helper to get specific types. Usage: getEntitiesOfType(AsteroidModel.class)
+     */
+    public <T extends AbstractEntityModel> List<T> getEntitiesOfType(Class<T> type) {
+        return entities.stream()
+                .filter(type::isInstance)
+                .map(type::cast)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean update(double dt) {
+        // 1. Logic Update
+        if (player != null) {
+            player.update(dt);
+        }
+
+        // entity removal
+        entities.removeIf(e -> {
+            if (e.shouldRemove()) {
+                removeEntity(e);
+                return true;
+            }
+            return false;
+        });
+
+        // 3. Physics Constraints (Terminal Velocity)
+        // Fixed: Added instanceof check to prevent ClassCastException if non-entity bodies exist
+        for (Body b : getBodies()) {
+            if (b instanceof HasTerminalVelocity entity) {
+                double terminal = entity.getTerminalVelocity();
+                if (b.getLinearVelocity().getMagnitude() > terminal) {
+                    b.setLinearVelocity(b.getLinearVelocity().getNormalized().setMagnitude(terminal));
+                }
+            }
+        }
+
+        // 4. Dyn4j Physics Step
+        return super.update(dt);
+    }
+
+    // Standard getters/setters...
     public void setDimensions(double w, double h) {
         if (w > 0 && h > 0) {
             this.width.set(w);
             this.height.set(h);
         }
     }
-
     public double getWidth() { return width.get(); }
     public double getHeight() { return height.get(); }
-
     public DoubleProperty widthProperty() { return width; }
     public DoubleProperty heightProperty() { return height; }
-
-    @Override
-    public boolean update(double dt) {
-        player.update(dt);
-
-        // Remove dead or consumed entities
-        entities.removeIf(e -> {
-            if (e instanceof Alive a && !a.isAlive()) {
-                removeBody(e);
-                return true;
-            }
-            return false;
-        });
-
-        bodies.forEach(b -> {
-            if(b.getLinearVelocity().getMagnitude() > ((AbstractEntityModel) b).getMaxVelocity()) {
-                b.setLinearVelocity(b.getLinearVelocity().getNormalized().setMagnitude(((AbstractEntityModel) b).getMaxVelocity()));
-            }
-        });
-
-        return super.update(dt);
-    }
-    
     public PlayerModel getPlayer() { return player; }
     public StarfieldModel getStarfieldModel() { return starfieldModel; }
 }

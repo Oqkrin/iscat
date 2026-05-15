@@ -3,6 +3,8 @@ package uni.gaben.iscat.utils;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
+import java.util.Map;
+
 /**
  * Utility per accedere ai colori del tema CSS.
  * Usa il sistema di lookup di JavaFX per ottenere i colori definiti in iscat-color-theme.css.
@@ -12,9 +14,9 @@ public final class ThemeColors {
     private ThemeColors() {}
     
     // Mappa dei colori parsata dinamicamente dal file CSS
-    private static java.util.Map<String, Color> parsedColors = null;
+    public static Map<String, Color> parsedColors = null;
 
-    private static void ensureLoaded() {
+    public static void ensureLoaded() {
         if (parsedColors == null) {
             parsedColors = CssColorParser.parseColors("/uni/gaben/iscat/styles/iscat-color-theme.css");
         }
