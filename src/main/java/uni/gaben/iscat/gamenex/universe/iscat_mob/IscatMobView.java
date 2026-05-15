@@ -65,7 +65,8 @@ public class IscatMobView extends AbstractEntityView implements Drawable<IscatMo
         gc.translate(cx, cy);
 
         setAngle(entity);
-        gc.rotate(rotDeg + 180);
+        if(ROTATION_TOWARDS_PLAYER)
+            gc.rotate(rotDeg + 180);
 
         setSize(DRAW_SIZE);
 

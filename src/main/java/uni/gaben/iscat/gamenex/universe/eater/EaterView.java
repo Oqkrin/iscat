@@ -9,8 +9,7 @@ import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
-import static uni.gaben.iscat.gamenex.universe.eater.EaterSettings.DIM_SPRITE;
-import static uni.gaben.iscat.gamenex.universe.eater.EaterSettings.SCALE;
+import static uni.gaben.iscat.gamenex.universe.eater.EaterSettings.*;
 
 public class EaterView extends AbstractEntityView implements Drawable<EaterModel>, DrawableSpriteSheet {
 
@@ -62,9 +61,8 @@ public class EaterView extends AbstractEntityView implements Drawable<EaterModel
         gc.save();
         gc.translate(cx, cy);
 
-        // Se l'Eater deve guardare verso la direzione di movimento,
-        // aggiungi eventuali rotazioni extra qui (es. gc.rotate(rotDeg))
-        gc.rotate(rotDeg);
+        if(ROTATION_TOWARDS_PLAYER)
+            gc.rotate(rotDeg);
 
         // 4. Delega il disegno all'interfaccia Drawable.
         // Nota: x e y sono 0 perché usiamo il translate del GraphicsContext

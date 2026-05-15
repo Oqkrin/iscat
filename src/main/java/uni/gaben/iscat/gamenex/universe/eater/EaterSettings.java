@@ -36,6 +36,8 @@ public class EaterSettings {
     public static final double FORCE = 15;
     /** Guadagno di sterzata per correggere la traiettoria. */
     public static final double STEERING_GAIN = 10.0;
+    /** Se il nemico puo rotarsi verso il player */
+    public static final boolean ROTATION_TOWARDS_PLAYER = false;
 
     // --- PARAMETRI DINAMICI (Speed Scaling) ---
     /** Moltiplicatore minimo di velocità (quando il mob è molto vicino). */
