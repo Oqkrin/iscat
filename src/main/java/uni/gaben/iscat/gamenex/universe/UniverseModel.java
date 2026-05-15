@@ -3,8 +3,10 @@ package uni.gaben.iscat.gamenex.universe;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.dynamics.Body;
+import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
+import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.universe.starfield.StarfieldModel;
@@ -67,32 +69,50 @@ public class UniverseModel extends World<Body> {
 
     @Override
     public boolean update(double dt) {
-        // 1. Logic Update
         if (player != null) {
             player.update(dt);
         }
 
-        // entity removal
-        entities.removeIf(e -> {
-            if (e.shouldRemove()) {
-                removeEntity(e);
-                return true;
-            }
-            return false;
-        });
+        // === RIMOZIONE SICURA DELLE ENTITÀ MORTE ===
+        List<AbstractEntityModel> toRemove = new ArrayList<>();
 
-        // 3. Physics Constraints (Terminal Velocity)
-        // Fixed: Added instanceof check to prevent ClassCastException if non-entity bodies exist
+        for (AbstractEntityModel e : entities) {
+            if (e == null) continue;
+
+            boolean dead = false;
+
+            // Controllo vita per LivingEntityModel
+            if (e instanceof LivingEntityModel living) {
+                if (living.getLife() <= 0 || living.shouldRemove()) {
+                    dead = true;
+                }
+            }
+            // Controllo generico
+            else if (e.shouldRemove()) {
+                dead = true;
+            }
+
+            if (dead) {
+                toRemove.add(e);
+            }
+        }
+
+        // Rimuoviamo dopo aver finito di iterare
+        for (AbstractEntityModel entity : toRemove) {
+            removeEntity(entity);
+        }
+
+        // === LIMITAZIONE VELOCITÀ ===
         for (Body b : getBodies()) {
             if (b instanceof HasTerminalVelocity entity) {
                 double terminal = entity.getTerminalVelocity();
-                if (b.getLinearVelocity().getMagnitude() > terminal) {
-                    b.setLinearVelocity(b.getLinearVelocity().getNormalized().setMagnitude(terminal));
+                Vector2 vel = b.getLinearVelocity();
+                if (vel.getMagnitude() > terminal) {
+                    b.setLinearVelocity(vel.getNormalized().setMagnitude(terminal));
                 }
             }
         }
 
-        // 4. Dyn4j Physics Step
         return super.update(dt);
     }
 
