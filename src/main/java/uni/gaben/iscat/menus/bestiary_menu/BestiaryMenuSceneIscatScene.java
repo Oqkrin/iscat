@@ -2,10 +2,10 @@ package uni.gaben.iscat.menus.bestiary_menu;
 
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.IscatSceneAbstract;
+import uni.gaben.iscat.AbstractIscatScene;
 
-public class BestiaryMenuScene extends IscatSceneAbstract {
-    public BestiaryMenuScene() {
+public class BestiaryMenuSceneIscatScene extends AbstractIscatScene {
+    public BestiaryMenuSceneIscatScene() {
         super(new StackPane(), true, SceneAntialiasing.DISABLED);
         initialize("/uni/gaben/iscat/fxml/bestiary_menu.fxml");
     }

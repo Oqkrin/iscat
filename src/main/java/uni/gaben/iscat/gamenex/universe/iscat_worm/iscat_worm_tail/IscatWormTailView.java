@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
@@ -51,7 +52,7 @@ public class IscatWormTailView extends AbstractEntityView implements Drawable<Is
     @Override
     public void draw(IscatWormTailModel entity, GraphicsContext gc) {
         // Avanzamento del tempo dell'animazione
-        animator.update(GamenexModel.TICKUNIT);
+        animator.update(UU.UNIVERSE_TICK);
 
         // Setup coordinate e dimensioni
         setPos(entity);

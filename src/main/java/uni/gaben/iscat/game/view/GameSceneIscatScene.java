@@ -2,7 +2,7 @@ package uni.gaben.iscat.game.view;
 
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.IscatAudioManager;
-import uni.gaben.iscat.IscatSceneAbstract;
+import uni.gaben.iscat.AbstractIscatScene;
 import uni.gaben.iscat.game.GameModel;
 import uni.gaben.iscat.game.controller.GameController;
 
@@ -14,14 +14,14 @@ import java.util.Objects;
  * - onShow(): avvia game loop, carica audio
  * - onHide(): ferma game loop
  */
-public class GameScene extends IscatSceneAbstract {
+public class GameSceneIscatScene extends AbstractIscatScene {
 
     private final GameController controller;
     private final GameCanvas canvas;
     private StackPane root;
     private PauseMenu pauseMenu;
 
-    public GameScene(GameController controller, GameModel model) {
+    public GameSceneIscatScene(GameController controller, GameModel model) {
         super(new StackPane());
         this.controller = controller;
         this.canvas = new GameCanvas(model);

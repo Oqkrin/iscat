@@ -69,7 +69,7 @@ public class UniverseController {
             ai.aiUpdate(universeModel, dt);
         }
 
-        universeModel.update(dt);
+        universeModel.update(dt, Integer.MAX_VALUE);
 
         // Camera update lives in the controller, not the model (MVC)
         double playerWorldX = player.getTransform().getTranslationX() * UniverseSettings.SCALE;
@@ -128,6 +128,6 @@ public class UniverseController {
         }
     }
 
-    public UniverseModel getSpaceModel() { return universeModel; }
+    public UniverseModel getUniverseModel() { return universeModel; }
     public StarfieldController getStarfieldController() { return starfieldController; }
 }

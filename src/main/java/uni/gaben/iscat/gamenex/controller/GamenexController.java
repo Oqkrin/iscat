@@ -1,7 +1,6 @@
 package uni.gaben.iscat.gamenex.controller;
 
 import javafx.animation.AnimationTimer;
-import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.gamenex.universe.UniverseController;
@@ -14,12 +13,11 @@ import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
  * i sotto-controller dell'universo e della telecamera.
  */
 public class GamenexController {
-
-    private UniverseController universeController;
     private GamenexModel gamenexModel;
+    private UniverseController universeController;
     private CameraModel cameraModel = new CameraModel();
     private AnimationTimer gameLoop;
-    private Runnable renderCallback;
+    private Runnable drawCall;
     private InputManager inputManager = new InputManager();
 
     /**
@@ -33,8 +31,8 @@ public class GamenexController {
      * Imposta la funzione di callback per il rendering.
      * Viene eseguita al termine di ogni frame del ciclo di gioco.
      */
-    public void setRenderCallback(Runnable renderCallback) {
-        this.renderCallback = renderCallback;
+    public void setDrawCall(Runnable drawCall) {
+        this.drawCall = drawCall;
     }
 
     /**
@@ -54,22 +52,9 @@ public class GamenexController {
 
         // Inizializzazione dello Spawner e generazione del mondo iniziale
         UniverseSpawner spawner = UniverseSpawner.getInstance();
-        spawner.init(universeController.getSpaceModel(), universeController);
+        spawner.init(universeController.getUniverseModel(), universeController);
 
-        double w = universeController.getSpaceModel().getWidth();
-        double h = universeController.getSpaceModel().getHeight();
-
-        // Se le dimensioni non sono ancora vincolate alla finestra, usa i default
-        if (w <= 0) w = UniverseSettings.DEFAULT_WIDTH;
-        if (h <= 0) h = UniverseSettings.DEFAULT_HEIGHT;
-
-        // Spawning iniziale: Giocatore, Asteroide di test e primo Mob
-        spawner.spawnPlayer(w / 2.0, h / 2.0);
-        spawner.spawnAsteroid(UniverseSettings.TEST_ASTEROID_X,
-                UniverseSettings.TEST_ASTEROID_Y);
-        spawner.spawnIscatMob(w / 2.0 + 200, h / 2.0 + 200);
-
-        initTimer(gamenexModel);
+        setupTimer(gamenexModel);
     }
 
     /**
@@ -77,7 +62,7 @@ public class GamenexController {
      * Utilizza una logica a "Tempo Accumulato" per garantire che la fisica proceda
      * a passi costanti (TICKUNIT) indipendentemente dalla velocità di rendering.
      */
-    private void initTimer(GamenexModel gamenexModel) {
+    private void setupTimer(GamenexModel gamenexModel) {
         this.gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -96,14 +81,14 @@ public class GamenexController {
                 gamenexModel.setAccumulator(gamenexModel.getAccumulator() + dt);
 
                 // Esegue tanti "tick" fisici quanti necessari per coprire il tempo trascorso
-                while (gamenexModel.getAccumulator() >= GamenexModel.TICKUNIT) {
-                    tick(GamenexModel.TICKUNIT);
-                    gamenexModel.setAccumulator(gamenexModel.getAccumulator() - GamenexModel.TICKUNIT);
-                }
+                //while (gamenexModel.getAccumulator() >= UU.UNIVERSE_TICK) {
+                    tick(dt);
+                  //  gamenexModel.setAccumulator(gamenexModel.getAccumulator() - GamenexModel.TICKUNIT);
+                //}
 
                 // Esegue il rendering (la View)
-                if (renderCallback != null) {
-                    renderCallback.run();
+                if (drawCall != null) {
+                    drawCall.run();
                 }
 
                 gamenexModel.setLastUpdate(now);
@@ -154,9 +139,9 @@ public class GamenexController {
      * Utilizza il nuovo sistema di spawning dinamico.
      */
     public void spawnAsteroid() {
-        double x = cameraModel.getX() + (universeController.getSpaceModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getSpaceModel().getHeight() / 2.0);
-        
+        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
+        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
+
         x += (Math.random() - 0.5) * 400;
         y += (Math.random() - 0.5) * 400;
 
@@ -168,8 +153,8 @@ public class GamenexController {
      * Utilizza il nuovo sistema di spawning dinamico.
      */
     public void spawnIscatMob() {
-        double x = cameraModel.getX() + (universeController.getSpaceModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getSpaceModel().getHeight() / 2.0);
+        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
+        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
 
         x += (Math.random() - 0.5) * 400;
         y += (Math.random() - 0.5) * 400;
@@ -178,8 +163,8 @@ public class GamenexController {
     }
 
     public void spawnHearth() {
-        double x = cameraModel.getX() + (universeController.getSpaceModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getSpaceModel().getHeight() / 2.0);
+        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
+        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
 
         x += (Math.random() - 0.5) * 400;
         y += (Math.random() - 0.5) * 400;
@@ -188,8 +173,8 @@ public class GamenexController {
     }
 
     public void spawnEater() {
-        double x = cameraModel.getX() + (universeController.getSpaceModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getSpaceModel().getHeight() / 2.0);
+        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
+        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
 
         x += (Math.random() - 0.5) * 400;
         y += (Math.random() - 0.5) * 400;
@@ -198,8 +183,8 @@ public class GamenexController {
     }
 
     public void spawnWorm() {
-        double x = cameraModel.getX() + (universeController.getSpaceModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getSpaceModel().getHeight() / 2.0);
+        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
+        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
 
         x += (Math.random() - 0.5) * 400;
         y += (Math.random() - 0.5) * 400;
@@ -227,7 +212,7 @@ public class GamenexController {
      * Restituisce il modello dell'universo (per accesso ai dati fisici).
      */
     public UniverseModel getSpaceModel() {
-        return universeController.getSpaceModel();
+        return universeController.getUniverseModel();
     }
 
     /**

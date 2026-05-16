@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
@@ -53,7 +54,7 @@ public class IscatMobView extends AbstractEntityView implements Drawable<IscatMo
     @Override
     public void draw(IscatMobModel entity, GraphicsContext gc) {
         // Aggiornamento logica animazione
-        animator.update(GamenexModel.TICKUNIT);
+        animator.update(UU.UNIVERSE_TICK);
 
         // Impostiamo lo stato dell'animatore (es. se ha stati diversi per morte/attacco)
         // animator.setState(entity.getCurrentStateIndex());

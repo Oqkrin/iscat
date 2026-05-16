@@ -2,10 +2,10 @@ package uni.gaben.iscat.menus.skin_menu;
 
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.IscatSceneAbstract;
+import uni.gaben.iscat.AbstractIscatScene;
 
-public class SkinMenuScene extends IscatSceneAbstract {
-    public SkinMenuScene() {
+public class SkinMenuSceneIscatScene extends AbstractIscatScene {
+    public SkinMenuSceneIscatScene() {
         super(new StackPane(), true, SceneAntialiasing.DISABLED);
         initialize("/uni/gaben/iscat/fxml/skin_menu.fxml");
     }

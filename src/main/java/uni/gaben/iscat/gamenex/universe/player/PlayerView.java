@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.utils.ThemeManager;
@@ -46,7 +47,7 @@ public class PlayerView extends AbstractEntityView implements Drawable<PlayerMod
     @Override
     public void draw(PlayerModel entity, GraphicsContext gc) {
         // Aggiorna il tempo dell'animazione
-        animator.update(GamenexModel.TICKUNIT);
+        animator.update(UU.UNIVERSE_TICK);
 
         gc.save();
         setPos(entity);

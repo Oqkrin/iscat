@@ -2,13 +2,10 @@ package uni.gaben.iscat;
 
 import javafx.animation.FadeTransition;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 import java.util.EnumMap;
-import java.util.Objects;
 
 /**
  * Singleton facade per la navigazione.
@@ -70,16 +67,16 @@ public class IscatNavigator {
         }
     }
 
-    public IscatSceneAbstract getScene(IscatScenes sceneType) {
+    public AbstractIscatScene getScene(IscatScenes sceneType) {
         Scene scene = sceneMap.get(sceneType);
-        return scene instanceof IscatSceneAbstract ? (IscatSceneAbstract) scene : null;
+        return scene instanceof AbstractIscatScene ? (AbstractIscatScene) scene : null;
     }
 
     public void navigateWithFade(IscatScenes target, StackPane currentContentRoot) {
         // 1. Recupera il contentRoot della scena di destinazione e portalo a 0 subito
         StackPane targetContentRoot = null;
         Scene targetScene = sceneMap.get(target);
-        if (targetScene instanceof IscatSceneAbstract nextScene) {
+        if (targetScene instanceof AbstractIscatScene nextScene) {
             targetContentRoot = nextScene.getContentRoot();
             if (targetContentRoot != null) targetContentRoot.setOpacity(0.0);
         }

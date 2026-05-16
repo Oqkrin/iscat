@@ -11,7 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.IscatSceneAbstract;
+import uni.gaben.iscat.AbstractIscatScene;
 import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.menus.login_menu.controller.LoginController;
 import uni.gaben.iscat.menus.login_menu.model.LoginModel;
@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  * Schermata di login con input custom e animazioni.
  * Usa AutoFittingLabel invece di TextField per mantenere lo stile unico.
  */
-public class LoginScene extends IscatSceneAbstract {
+public class LoginSceneIscatScene extends AbstractIscatScene {
 
     private static final String FONT = "Miracode";
 
@@ -57,7 +57,7 @@ public class LoginScene extends IscatSceneAbstract {
     private HBox usernameField;
     private HBox passwordField;
 
-    public LoginScene(LoginModel loginModel, LoginController loginController) {
+    public LoginSceneIscatScene(LoginModel loginModel, LoginController loginController) {
         super(new StackPane(), true); // Enable starry background
         this.model = loginModel;
         this.controller = loginController;

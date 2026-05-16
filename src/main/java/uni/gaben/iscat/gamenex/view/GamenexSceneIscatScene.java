@@ -8,8 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.IscatSceneAbstract;
-import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.AbstractIscatScene;
 import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
@@ -30,7 +29,7 @@ import static javafx.application.Platform.runLater;
  * Gestisce il rendering su Canvas, l'interfaccia utente (UI) e
  * il coordinamento tra il modello fisico e la visualizzazione.
  */
-public class GamenexScene extends IscatSceneAbstract {
+public class GamenexSceneIscatScene extends AbstractIscatScene {
 
     private GamenexModel gamenexModel;
     private GamenexController gamenexController;
@@ -41,7 +40,7 @@ public class GamenexScene extends IscatSceneAbstract {
     private GamenexPauseMenu pauseMenu;
     private Button debugButton;
 
-    public GamenexScene(GamenexController gamenexController, GamenexModel gamenexModel) {
+    public GamenexSceneIscatScene(GamenexController gamenexController, GamenexModel gamenexModel) {
         super(new StackPane());
         this.gamenexModel = gamenexModel;
         this.gamenexController = gamenexController;
@@ -66,7 +65,7 @@ public class GamenexScene extends IscatSceneAbstract {
 
     @Override
     protected void initStyles() {
-        getStylesheets().add(Objects.requireNonNull(GamenexScene.class.getResource("/uni/gaben/iscat/styles/game.css"))
+        getStylesheets().add(Objects.requireNonNull(GamenexSceneIscatScene.class.getResource("/uni/gaben/iscat/styles/game.css"))
                 .toExternalForm());
         CssHelper.stilePulsanteMenu(debugButton);
         CssHelper.testoPrimario(debugButton);
@@ -88,7 +87,7 @@ public class GamenexScene extends IscatSceneAbstract {
 
         // Bind SpaceModel to Canvas dimensions
         UniverseController universeController = gamenexController.getSpaceController();
-        UniverseModel space = universeController.getSpaceModel();
+        UniverseModel space = universeController.getUniverseModel();
         if (space != null) {
             space.widthProperty().bind(canvas.widthProperty());
             space.heightProperty().bind(canvas.heightProperty());
@@ -141,7 +140,7 @@ public class GamenexScene extends IscatSceneAbstract {
     @Override
     public void onShow() {
         super.onShow();
-        gamenexController.setRenderCallback(this::renderFrame);
+        gamenexController.setDrawCall(this::renderFrame);
         gamenexController.startGameLoop();
         runLater(() -> canvas.requestFocus());
     }
@@ -159,7 +158,7 @@ public class GamenexScene extends IscatSceneAbstract {
         gc.fillRect(0, 0, w, h);
 
         UniverseController universeController = gamenexController.getSpaceController();
-        UniverseModel space = universeController.getSpaceModel();
+        UniverseModel space = universeController.getUniverseModel();
 
         if (space == null)
             return;

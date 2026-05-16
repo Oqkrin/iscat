@@ -9,13 +9,10 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import uni.gaben.iscat.utils.ThemeColors;
 import uni.gaben.iscat.utils.components.StarryBackgroundCanvas;
-import uni.gaben.iscat.utils.design.CssHelper;
 
 import java.io.IOException;
 
@@ -31,7 +28,7 @@ import java.io.IOException;
  * Pattern di inizializzazione:
  * initStyles → initNodes → initLayout → initBindings → initEventHandlers → initAnimations
  */
-public abstract class IscatSceneAbstract extends Scene implements IscatSceneLifecycleInterface {
+public abstract class AbstractIscatScene extends Scene implements IscatSceneLifecycleInterface {
 
     // =========================================================================
     // Constants & Fields
@@ -49,11 +46,11 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
     // Constructors
     // =========================================================================
 
-    protected IscatSceneAbstract(Parent root) {
+    protected AbstractIscatScene(Parent root) {
         this(root, false);
     }
 
-    protected IscatSceneAbstract(Parent root, boolean withStarryBackground) {
+    protected AbstractIscatScene(Parent root, boolean withStarryBackground) {
         super(buildChrome(root, withStarryBackground));
         ThemeColors.ensureLoaded();
         setFill(ThemeColors.parsedColors.get("bg-primary"));
@@ -63,11 +60,11 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         }
     }
 
-    protected IscatSceneAbstract(Parent root, double width, double height) {
+    protected AbstractIscatScene(Parent root, double width, double height) {
         this(root, width, height, false, SceneAntialiasing.BALANCED);
     }
 
-    protected IscatSceneAbstract(Parent root, double width, double height, boolean withStarryBackground, SceneAntialiasing ant) {
+    protected AbstractIscatScene(Parent root, double width, double height, boolean withStarryBackground, SceneAntialiasing ant) {
         super(buildChrome(root, withStarryBackground), width, height, false, ant);
         ThemeColors.ensureLoaded();
         setFill(ThemeColors.parsedColors.get("bg-primary"));
@@ -77,7 +74,7 @@ public abstract class IscatSceneAbstract extends Scene implements IscatSceneLife
         }
     }
 
-    public IscatSceneAbstract(StackPane root, boolean starry, SceneAntialiasing ant) {
+    public AbstractIscatScene(StackPane root, boolean starry, SceneAntialiasing ant) {
         this(root, 0, 0, starry, ant);
     }
 

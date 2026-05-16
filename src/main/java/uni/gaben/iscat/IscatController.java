@@ -48,7 +48,7 @@ public class IscatController {
      * Called by IscatApplication once per scene after it is created.
      * Wires all window-management behaviour to the scene's title bar.
      */
-    public void wireScene(IscatSceneAbstract scene) {
+    public void wireCustomDecoration(AbstractIscatScene scene) {
         IscatTitleBar bar = scene.getTitleBar();
         if (bar == null) return;
 
@@ -135,7 +135,7 @@ public class IscatController {
             stage.setFullScreen(true);
         }
 
-        if (nextScene instanceof IscatSceneAbstract newScene) {
+        if (nextScene instanceof AbstractIscatScene newScene) {
             syncWindowState(newScene);
         }
         
@@ -148,7 +148,7 @@ public class IscatController {
      * Applies the current window state from the Stage and IscatModel
      * to the incoming scene's title bar so it looks consistent after a transition.
      */
-    private void syncWindowState(IscatSceneAbstract scene) {
+    private void syncWindowState(AbstractIscatScene scene) {
         IscatTitleBar bar = scene.getTitleBar();
         if (bar == null) return;
 

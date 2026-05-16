@@ -70,6 +70,7 @@ public class GameModel {
     /** Spawn nemici di test. Rimuovere quando ci sarà un sistema di spawn vero. */
     private void spawnTestEnemies() {
         spawnEnemy("IscatCore", 500 , 500, 2);
+        spawnEnemy("iscatMother", 500, 500, 1);
     }
 
     public void spawnEnemyLater(NpcModel enemy) {

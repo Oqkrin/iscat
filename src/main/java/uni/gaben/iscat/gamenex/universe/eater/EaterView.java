@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
@@ -48,7 +49,7 @@ public class EaterView extends AbstractEntityView implements Drawable<EaterModel
     @Override
     public void draw(EaterModel entity, GraphicsContext gc) {
         // 1. Update temporale (sincronizzato con il gioco)
-        animator.update(GamenexModel.TICKUNIT);
+        animator.update(UU.UNIVERSE_TICK);
 
         // 2. Logica di stato (Esempio: se l'Eater sta mangiando, cambia riga dello spritesheet)
         // if (entity.isEating()) animator.setState(1); else animator.setState(0);

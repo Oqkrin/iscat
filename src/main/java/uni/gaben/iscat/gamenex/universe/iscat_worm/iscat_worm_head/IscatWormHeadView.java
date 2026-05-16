@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
@@ -56,7 +57,7 @@ public class IscatWormHeadView extends AbstractEntityView implements Drawable<Is
     @Override
     public void draw(IscatWormHeadModel entity, GraphicsContext gc) {
         // Avanzamento temporale dell'animazione
-        animator.update(GamenexModel.TICKUNIT);
+        animator.update(UU.UNIVERSE_TICK);
 
         // Setup trasformazioni e dimensioni
         setPos(entity);

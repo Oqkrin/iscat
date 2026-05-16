@@ -1,14 +1,13 @@
-package uni.gaben.iscat.menus.score_menu;
+package uni.gaben.iscat.menus.options_menu;
 
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.IscatSceneAbstract;
+import uni.gaben.iscat.AbstractIscatScene;
 
-public class ScoreMenuScene extends IscatSceneAbstract {
-
-    public ScoreMenuScene() {
+public class OptionsMenuSceneIscatScene extends AbstractIscatScene {
+    public OptionsMenuSceneIscatScene() {
         super(new StackPane(), true, SceneAntialiasing.DISABLED);
-        initialize("/uni/gaben/iscat/fxml/score_menu.fxml");
+        initialize("/uni/gaben/iscat/fxml/options_menu.fxml");
     }
     @Override protected void initStyles()        {}
     @Override protected void initNodes()         {}

@@ -13,9 +13,7 @@ import javafx.beans.property.SimpleLongProperty;
  * e i riferimenti ai controller principali.
  */
 public class GamenexModel {
-
-    public static final double NANOSECUNIT = 1_000_000_000.0;
-    public static final double TICKUNIT = 1.0 / 60.0;
+    public static final double ONE_SECOND_IN_NANO_SECONDS = 1_000_000_000.0;
     public static final double ACCUMULATORUNIT = 0.25;
 
     private LongProperty lastUpdate = new SimpleLongProperty(0);
@@ -25,7 +23,7 @@ public class GamenexModel {
     private BooleanProperty paused = new SimpleBooleanProperty(false);
 
     public GamenexModel() {
-        dt.bind(now.subtract(lastUpdate).divide(NANOSECUNIT));
+        dt.bind(now.subtract(lastUpdate).divide(ONE_SECOND_IN_NANO_SECONDS));
     }
 
     public long getLastUpdate() {
@@ -80,7 +78,7 @@ public class GamenexModel {
         this.paused.set(p);
     }
 
-    public javafx.beans.property.BooleanProperty pausedProperty() {
+    public BooleanProperty pausedProperty() {
         return paused;
     }
 }

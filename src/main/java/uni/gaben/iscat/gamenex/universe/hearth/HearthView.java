@@ -43,7 +43,7 @@ public class HearthView extends AbstractEntityView implements Drawable<HearthMod
         setPos(entity);
         setSize(DRAW_SIZE);
 
-        int frameIdx = (int) ((System.nanoTime() / GamenexModel.NANOSECUNIT) / 0.4) % NUMERO_FRAMES;
+        int frameIdx = (int) ((System.nanoTime() / GamenexModel.ONE_SECOND_IN_NANO_SECONDS) / 0.4) % NUMERO_FRAMES;
         Image drawn = frameCache[frameIdx];
 
         gc.save();

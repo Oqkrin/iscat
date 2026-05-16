@@ -2,6 +2,7 @@ package uni.gaben.iscat.utils.sprite;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 
 public class SpriteSheetsAnimator {
     private double internalTime = 0;
