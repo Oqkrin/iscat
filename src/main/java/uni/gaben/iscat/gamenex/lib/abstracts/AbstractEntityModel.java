@@ -1,14 +1,14 @@
 package uni.gaben.iscat.gamenex.lib.abstracts;
 
-import javafx.beans.property.DoubleProperty;
 import org.dyn4j.dynamics.Body;
+import org.dyn4j.geometry.AABB;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasTerminalVelocity;
-import uni.gaben.iscat.gamenex.universe.UniverseSettings;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
+import java.util.function.Consumer;
 
 /**
  * Rappresentazione astratta di un'entità nel mondo fisico.
- * Estende {@link Body} di Dyn4j per fornire capacità di simulazione fisica.
- * Gestisce la conversione tra il sistema di coordinate pixel (View) e metri (Fisica).
+ * Calcola in modo dinamico le dimensioni basandosi sulle Fixture fisiche attive.
  */
 public abstract class AbstractEntityModel extends Body implements HasTerminalVelocity {
     private String entityId;
@@ -16,51 +16,55 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
     private double baseAccelerationPerTick = Double.MAX_VALUE;
     private boolean shouldRemove = false;
 
-    /**
-     * Crea un modello con un identificatore specifico.
-     * @param entityId ID univoco per il sistema di spawning o logica.
-     */
-    protected AbstractEntityModel(String entityId) {
-        super();
-        this.entityId = entityId;
-    }
+    // Callback di notifica per le collisioni intercettate
+    private Consumer<AbstractEntityModel> collisionCallback;
 
-    protected AbstractEntityModel() {
-        super();
-    }
-
-    /**
-     * Inizializza l'entità in una posizione specifica.
-     * Converte automaticamente le coordinate pixel in metri per Dyn4j.
-     * @param x Coordinata X (pixel).
-     * @param y Coordinata Y (pixel).
-     */
     protected AbstractEntityModel(double x, double y) {
         super();
-        translate(x / UniverseSettings.SCALE, y / UniverseSettings.SCALE);
+        this.setUserData(this);
+        translate(UU.pxToM(x), UU.pxToM(y));
     }
 
-    /** Restituisce l'ID dell'entità. */
+    /**
+     * Permette a un agente esterno (es. Controller) di definire cosa succede all'impatto.
+     */
+    public void setOnCollision(Consumer<AbstractEntityModel> callback) {
+        this.collisionCallback = callback;
+    }
+
+    /**
+     * Innesca la logica di notifica associata a questa entità.
+     */
+    public void triggerCollision(AbstractEntityModel other) {
+        if (collisionCallback != null) {
+            collisionCallback.accept(other);
+        }
+    }
+
+    /** Calcola la larghezza totale racchiusa dalla shape di collisione (in Metri) */
+    public double getWidthMeters() {
+        if (getFixtureCount() == 0) return 0.0;
+        AABB aabb = createAABB();
+        return aabb.getWidth();
+    }
+
+    /** Calcola l'altezza totale racchiusa dalla shape di collisione (in Metri) */
+    public double getHeightMeters() {
+        if (getFixtureCount() == 0) return 0.0;
+        AABB aabb = createAABB();
+        return aabb.getHeight();
+    }
+
+    /** Helper pratico per estrarre la larghezza calcolata in Pixel */
+    public double getWidthPx() { return UU.mToPx(getWidthMeters()); }
+
+    /** Helper pratico per estrarre l'altezza calcolata in Pixel */
+    public double getHeightPx() { return UU.mToPx(getHeightMeters()); }
+
     public String getEntityId() { return entityId; }
-    /** Imposta l'ID dell'entità. */
     public void setEntityId(String id) { this.entityId = id; }
-
-    @Override
-    public double getTerminalVelocity() {
-        return terminalVelocity;
-    }
-
-    @Override
-    public double getBaseAccelerationPerTick() {
-        return baseAccelerationPerTick;
-    }
-
-    public boolean shouldRemove() {
-        return shouldRemove;
-    }
-
-    public void setShouldRemove(boolean shouldRemove) {
-        this.shouldRemove = shouldRemove;
-    }
-
+    @Override public double getTerminalVelocity() { return terminalVelocity; }
+    @Override public double getBaseAccelerationPerTick() { return baseAccelerationPerTick; }
+    public boolean shouldRemove() { return shouldRemove; }
+    public void setShouldRemove(boolean shouldRemove) { this.shouldRemove = shouldRemove; }
 }

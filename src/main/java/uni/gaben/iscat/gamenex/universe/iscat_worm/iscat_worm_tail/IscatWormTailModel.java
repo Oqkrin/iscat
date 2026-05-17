@@ -5,7 +5,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
+import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.iscat_worm.IscatWormSegment;
 
@@ -20,7 +20,7 @@ public class IscatWormTailModel extends LivingEntityModel implements IscatWormSe
                 Geometry.createCircle(IscatWormTailSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE)
         );
 
-        fixture.setFilter(GamenexCollisionLayers.ENEMY_FILTER);
+        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(IscatWormTailSettings.DAMPING_LINEARE);
     }

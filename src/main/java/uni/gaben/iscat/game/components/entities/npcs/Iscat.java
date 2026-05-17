@@ -44,12 +44,12 @@ public class Iscat extends NpcModel implements AI, HasRenderer, Spawnable, Colli
         this.maxHp = HP_INIZIALI;
         this.spriteSize = DIM_SPRITE * SCALE;
 
-        this.cooldownFuoco.set(COOLDOWN_SPARO_TICKS);
+        this.cooldownFuoco.start(COOLDOWN_SPARO_TICKS);
     }
 
     @Override
     public void updateAI(GameModel world, double dt) {
-        cooldownFuoco.tick();
+        cooldownFuoco.update(dt);
 
         if (isDead()) return;
 
@@ -104,7 +104,7 @@ public class Iscat extends NpcModel implements AI, HasRenderer, Spawnable, Colli
 
         IscatAudioManager.getInstance().playSFX("shoot");
 
-        cooldownFuoco.set(COOLDOWN_SPARO_TICKS);
+        cooldownFuoco.start(COOLDOWN_SPARO_TICKS);
     }
 
     @Override

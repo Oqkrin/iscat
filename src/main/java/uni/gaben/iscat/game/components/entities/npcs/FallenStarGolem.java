@@ -43,12 +43,12 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
         this.hp = HP_INIZIALI;
         this.maxHp = HP_INIZIALI;
         this.spriteSize = DIM_SPRITE * SCALE;
-        this.cooldownFuoco.set(COOLDOWN_SPARO_TICKS);
+        this.cooldownFuoco.start(COOLDOWN_SPARO_TICKS);
     }
 
     @Override
     public void updateAI(GameModel world, double dt) {
-        cooldownFuoco.tick();
+        cooldownFuoco.update(dt);
         if (isDead()) return;
 
         Vec2 playerPos = world.getPlayer().getColliderCenter();
@@ -100,7 +100,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
         // Effetto sonoro (eseguito una volta sola per la raffica)
         IscatAudioManager.getInstance().playSFX("shoot");
 
-        cooldownFuoco.set(COOLDOWN_SPARO_TICKS);
+        cooldownFuoco.start(COOLDOWN_SPARO_TICKS);
     }
 
     @Override

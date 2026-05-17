@@ -5,7 +5,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
+import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
 import java.util.Random;
@@ -29,6 +29,7 @@ public class AsteroidModel extends AbstractEntityModel {
     public AsteroidModel(double x, double y, double radiusPixel, 
                         int minVertices, int variation, 
                         double radiusMin, double radiusRange) {
+        super(x, y);
         Random rand = new Random();
         this.size = radiusPixel != 0 ? radiusPixel * 2 : (2+rand.nextInt(AsteroidSettings.MAXPXSIZE));
         double radiusMeters = size/2 / UniverseSettings.SCALE;
@@ -45,7 +46,7 @@ public class AsteroidModel extends AbstractEntityModel {
         
         // Use a circle for physics collision
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusMeters));
-        fixture.setFilter(GamenexCollisionLayers.ASTEROID_FILTER);
+        fixture.setFilter(UniverseCollisionLayers.ASTEROID_FILTER);
         setMass(MassType.NORMAL);
         translate(x / UniverseSettings.SCALE, y / UniverseSettings.SCALE);
     }

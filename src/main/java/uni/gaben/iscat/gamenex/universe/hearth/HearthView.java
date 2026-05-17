@@ -1,54 +1,65 @@
 package uni.gaben.iscat.gamenex.universe.hearth;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
-import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.utils.ThemeManager;
-
-import java.util.Objects;
+import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
+import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
+import uni.gaben.iscat.utils.sprite.SpritesLibrary; // Adjusted to match your library package path
 
 import static uni.gaben.iscat.gamenex.universe.hearth.HearthSettings.DIM_SPRITE;
-import static uni.gaben.iscat.gamenex.universe.hearth.HearthSettings.NUMERO_FRAMES;
 
-public class HearthView extends AbstractEntityView implements Drawable<HearthModel>{
+/**
+ * Vista standardizzata per l'entità Hearth.
+ * Utilizza la SpritesLibrary e l'interfaccia DrawableSpriteSheet per eliminare
+ * la gestione manuale del pixel reading e della cache dei frame.
+ */
+public class HearthView extends AbstractEntityView<HearthModel>
+        implements Drawable<HearthModel>, DrawableSpriteSheet {
 
-    private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            HearthModel.class.getResourceAsStream("/uni/gaben/iscat/sprites/hearth.png")));
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/hearth.png";
 
-    public static final double DRAW_SIZE = HearthSettings.DIM_SPRITE * HearthSettings.SCALE;
+    private final SpriteSheetsParser spriteSheet;
+    private final SpriteSheetsAnimator animator;
 
-    private static Image lastTintedSheet;
-    private static final Image[] frameCache = new Image[NUMERO_FRAMES];
+    public HearthView() {
+        // 1. Carica lo spritesheet delegando il parsing e il caching alla libreria globale
+        this.spriteSheet = SpritesLibrary.getInstance().getSprite(
+                SPRITE_PATH,
+                (int) DIM_SPRITE,
+                (int) DIM_SPRITE
+        );
+
+        // 2. Configura l'animatore standard con la durata dei frame desiderata (es: 0.1s)
+        this.animator = new SpriteSheetsAnimator(
+                0.1,
+                spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
+                spriteSheet != null ? spriteSheet.getTotalStates() : 1
+        );
+    }
+
+    // --- Implementazione dei getter di DrawableSpriteSheet ---
+
+    @Override
+    public SpriteSheetsParser getSpriteSheet() { return spriteSheet; }
+
+    @Override
+    public SpriteSheetsAnimator getAnimator() { return animator; }
 
     @Override
     public void draw(HearthModel entity, GraphicsContext gc) {
-        Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
-        Image tintedSheet = ThemeManager.getInstance().getTintedImage(SPRITE_SHEET, currentTint);
+        // 3. Fai avanzare il timer dell'animazione secondo i tick di gioco
+        animator.update(UU.UNIVERSE_TICK);
 
-        if (tintedSheet != lastTintedSheet) {
-            lastTintedSheet = tintedSheet;
-            for (int i = 0; i < NUMERO_FRAMES; i++) {
-                frameCache[i] = new WritableImage(
-                        tintedSheet.getPixelReader(),
-                        i * (int) DIM_SPRITE, 0, (int) DIM_SPRITE, (int) DIM_SPRITE
-                );
-            }
-        }
+        // 4. Invia l'entità nella pipeline centrale di rendering
+        renderEntity(entity, gc, 0.0);
+    }
 
-        setAngle(entity);
-        setPos(entity);
-        setSize(DRAW_SIZE);
-
-        int frameIdx = (int) ((System.nanoTime() / GamenexModel.ONE_SECOND_IN_NANO_SECONDS) / 0.4) % NUMERO_FRAMES;
-        Image drawn = frameCache[frameIdx];
-
-        gc.save();
-        gc.translate(cx, cy);
-        gc.drawImage(drawn, -DRAW_SIZE / 2, -DRAW_SIZE / 2, DRAW_SIZE, DRAW_SIZE);
-        gc.restore();
+    @Override
+    protected void drawContent(HearthModel entity, GraphicsContext gc, double x, double y, double width, double height) {
+        // 5. drawSprite calcola in automatico riga, colonna, tinting globale e disegna nel centro local space
+        drawSprite(gc, x, y, width, height);
     }
 }

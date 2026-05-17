@@ -1,49 +1,44 @@
 package uni.gaben.iscat.gamenex.universe.player;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasProjectile;
-import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
-import uni.gaben.iscat.gamenex.universe.UniverseSettings;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
+import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
 import uni.gaben.iscat.utils.Cooldown;
 
-import javax.swing.event.ChangeListener;
-
 public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile> {
 
-    private double dashCooldownRemaining = 0;
-    private double dashPhaseRemaining = 0;
-    private double fireCooldownRemaining = 0;
-    private Projectile projectile = new Projectile();
-    private Cooldown projectileCooldown = new Cooldown();
+    private final Cooldown dashCooldown = new Cooldown();
+    private final Cooldown dashDuration = new Cooldown();
+    private final Cooldown weaponCooldown = new Cooldown();
+
+    private final Projectile projectile = new Projectile();
 
     public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
-        BodyFixture fixture = addFixture(Geometry.createCircle(PlayerSettings.RAGGIO_COLLISIONE / UniverseSettings.SCALE));
-        fixture.setFilter(GamenexCollisionLayers.PLAYER_FILTER);
+
+        // Convert physics collision metrics through the UU boundary helper
+        double radiusInMeters = UU.pxToM(PlayerSettings.RAGGIO_COLLISIONE);
+        BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters));
+
+        fixture.setFilter(UniverseCollisionLayers.PLAYER_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(PlayerSettings.LINEAR_DAMPING);
     }
 
     public void update(double dt) {
-        if (dashCooldownRemaining > 0) dashCooldownRemaining -= dt;
-        if (dashPhaseRemaining > 0) dashPhaseRemaining -= dt;
-
-        // Cooldown sparo
-        if (fireCooldownRemaining > 0) {
-            fireCooldownRemaining -= dt;
-        }
-
-        projectileCooldown.tick();
+        // Uniform clock ticking processing via dt seconds
+        dashCooldown.update(dt);
+        dashDuration.update(dt);
+        weaponCooldown.update(dt);
 
         if (isInScatto()) {
-            setLinearDamping(0.7);
+            setLinearDamping(PlayerSettings.LINEAR_DAMPING_SCATTO);
         } else {
             setLinearDamping(PlayerSettings.LINEAR_DAMPING);
         }
@@ -52,39 +47,28 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
     public void executeScatto(double angle) {
         Vector2 dashDir = new Vector2(Math.cos(angle), Math.sin(angle));
 
-        // Directional Snap: se scatto controcorrente, resetto velocità per reattività istantanea
+        // Directional Snap: instantly counter current momentum if dashing backwards
         if (getLinearVelocity().dot(dashDir) < 0) {
-            setLinearVelocity(new Vector2(0,0));
+            setLinearVelocity(new Vector2(0, 0));
         }
 
         applyImpulse(dashDir.multiply(PlayerSettings.IMPULSO_SCATTO * getMass().getMass()));
 
-        dashPhaseRemaining = PlayerSettings.DURATA_SCATTO_SEC;
-        dashCooldownRemaining = PlayerSettings.COOLDOWN_SCATTO_SEC;
+        dashDuration.start(PlayerSettings.DURATA_SCATTO_SEC);
+        dashCooldown.start(PlayerSettings.COOLDOWN_SCATTO_SEC);
     }
 
-    public boolean isScattoDisponibile() { return dashCooldownRemaining <= 0; }
-    public boolean isInScatto() { return dashPhaseRemaining > 0; }
-    public boolean isSparoDisponibile() {
-        return fireCooldownRemaining <= 0 && projectileCooldown.isReady();
-    }
+    public boolean isScattoDisponibile() { return dashCooldown.isReady(); }
+    public boolean isInScatto() { return dashDuration.isCoolingDown(); }
+    public boolean isSparoDisponibile() { return weaponCooldown.isReady(); }
+
     public void startCooldownFuoco() {
-        fireCooldownRemaining = PlayerSettings.COOLDOWN_FUOCO_SEC;
-        projectileCooldown.set(PlayerSettings.COOLDOWN_FUOCO_TICKS);
+        weaponCooldown.start(PlayerSettings.COOLDOWN_FUOCO_SEC);
     }
 
-    /** Ritorna un valore [0, 1] per la barra dello scatto nella UI */
+    /** Managed safe retrieval of current cooldown fraction for visual interface bars */
     public double getDashMeter() {
-        if (isScattoDisponibile()) return 1.0;
-        return 1.0 - (dashCooldownRemaining / PlayerSettings.COOLDOWN_SCATTO_SEC);
-    }
-
-    @Override
-    public void onDeath() { 
-        if(getLife() <= 0){
-            // Logic for death (score calculation, etc.) should be handled by a Listener/Controller, 
-            // not the Model itself.
-        } 
+        return dashCooldown.getProgress();
     }
 
     @Override
@@ -104,16 +88,21 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
 
     @Override
     public Cooldown projectileCooldown() {
-        return projectileCooldown;
+        return weaponCooldown;
     }
 
     @Override
     public int getProjectileCooldownTickCount() {
-        return 0;
+        return (int) UU.sToTicks(PlayerSettings.COOLDOWN_FUOCO_SEC);
     }
 
     @Override
     public void setProjectileCooldownTickCount(int tickCount) {
-        /**/
+        this.weaponCooldown.start(UU.ticksToS(tickCount));
+    }
+
+    @Override
+    public void onDeath() {
+        // Managed downstream via spatial listeners
     }
 }

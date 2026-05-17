@@ -4,73 +4,50 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- * Impostazioni centralizzate per il giocatore.
+ * Centralized settings configuration for the Player entity.
+ * All units are documented and scaled properly.
  */
 public final class PlayerSettings {
-    /** Player skin path **/
-    private static StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/player1.png");
+    public static final boolean DEBUG_COLLISION_VISIBLE = true;
+    private static final StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/player1.png");
 
     public static StringProperty playerSkinProperty() { return playerSkin; }
     public static String getPlayerSkin() { return playerSkin.getValue(); }
-    public static void setPlayerSkin(String playerSkin) { PlayerSettings.playerSkin.setValue(playerSkin); }
+    public static void setPlayerSkin(String skin) { playerSkin.setValue(skin); }
 
     private PlayerSettings() {}
 
-    // === Fisica (adattata per Dyn4j) ===
+    // === Core Physics ===
     public static final double MASSA = 1.0;
-    /** Attrito lineare: decelera il corpo nel tempo. Un valore più alto = più controllo ma meno inerzia. */
     public static final double LINEAR_DAMPING = 1.5;
-    /** Velocità massima del giocatore (m/s). Aumentata per un gameplay più dinamico. */
-    public static final double VELOCITA_MAX = 75.0;
-    
-    // === Movimento ===
-    /** Forza di spinta applicata dai motori (Newton). */
-    public static final double FORZA_SPINTA = 30.0;
+    public static final double VELOCITA_MAX = 75.0; // Meters per second
+    public static final double FORZA_SPINTA = 30.0; // Newtons
 
-    // === Dash ===
-    /** Impulso istantaneo applicato durante lo scatto. */
-    public static final double IMPULSO_SCATTO = 25.0; 
-    public static final double LINEAR_DAMPING_SCATTO = 1.0; 
-    /** Velocità massima raggiungibile durante lo scatto. */
+    // === Dash Mechanical Settings ===
+    public static final double IMPULSO_SCATTO = 25.0;
+    public static final double LINEAR_DAMPING_SCATTO = 1.0;
     public static final double VELOCITA_MAX_SCATTO = 55.0;
-    
-    // Cooldown e durata dello scatto (in secondi)
-    public static final double DURATA_SCATTO_SEC = 0.25; 
-    public static final double COOLDOWN_SCATTO_SEC = 0.8; 
+    public static final double DURATA_SCATTO_SEC = 0.25;
+    public static final double COOLDOWN_SCATTO_SEC = 0.8;
 
-    // === Combattimento ===
+    // === Combat & Vitals ===
     public static final int HP_MASSIMO = 1000;
-    public static int HP_INIZIALE = 100;
-
-    // === Collisione ===
-    public static final double DIMENSIONE_DA_DISEGNARE = 64.0;
-    public static final double RAGGIO_COLLISIONE = 24.0;
-
-    // === Attacco ===
-    public static final double COOLDOWN_FUOCO_TICKS = 0.16;
-    public static final double COOLDOWN_FUOCO_SEC = 0.16; 
+    public static final int HP_INIZIALE = 100;
+    public static final double COOLDOWN_FUOCO_SEC = 0.16; // Single source of truth for firing speed
     public static final double VELOCITA_PROIETTILE = 800.0;
     public static final double DANNO_PROIETTILE = 10.0;
 
-    // === Visual ===
+    // === Visuals & Dimensions ===
+    public static final double DIMENSIONE_DA_DISEGNARE = 64.0; // Render box size (pixels)
+    public static final double RAGGIO_COLLISIONE = 24.0;       // Collision boundary radius (pixels)
     public static final double HP_BAR_OFFSET_Y = 10.0;
     public static final double HP_BAR_HEIGHT = 4.0;
 
-    // === Thrust Effect (Particelle dei motori) ===
+    // === Engine Particle Thrust Effects ===
     public static final int THRUST_MIN_PARTICLES = 3;
     public static final int THRUST_EXTRA_PARTICLES = 7;
     public static final double THRUST_HEIGHT_FACTOR = 0.65;
     public static final double THRUST_SPREAD_X_FACTOR = 0.15;
     public static final double THRUST_MIN_PARTICLE_SIZE = 2.0;
     public static final double THRUST_PARTICLE_SIZE_VARIATION = 3.0;
-
-    // === Colori Particelle ===
-    public static final double PARTICLE_CORE_THRESHOLD = 0.3;
-    public static final double PARTICLE_MID_THRESHOLD = 0.7;
-    public static final double PARTICLE_CORE_BRIGHTNESS = 1.0;
-    public static final double PARTICLE_CORE_ALPHA = 0.9;
-    public static final double PARTICLE_MID_BRIGHTNESS = 0.9;
-    public static final double PARTICLE_MID_ALPHA = 0.8;
-    public static final double PARTICLE_TAIL_BRIGHTNESS = 0.5;
-    public static final double PARTICLE_TAIL_ALPHA = 0.7;
 }

@@ -7,86 +7,63 @@ import uni.gaben.iscat.gamenex.universe.UniverseController;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
 
-/**
- * Controller principale del motore Gamenex.
- * Coordina il ciclo di gioco, gestisce l'input dell'utente e supervisiona
- * i sotto-controller dell'universo e della telecamera.
- */
 public class GamenexController {
     private GamenexModel gamenexModel;
     private UniverseController universeController;
     private CameraModel cameraModel = new CameraModel();
     private AnimationTimer gameLoop;
     private Runnable drawCall;
-    private InputManager inputManager = new InputManager();
+    private GamenexInputs gamenexInputs = new GamenexInputs();
 
-    /**
-     * Restituisce il gestore dell'input associato a questo controller.
-     */
-    public InputManager getInputManager() {
-        return inputManager;
+    public GamenexInputs getInputManager() {
+        return gamenexInputs;
     }
 
-    /**
-     * Imposta la funzione di callback per il rendering.
-     * Viene eseguita al termine di ogni frame del ciclo di gioco.
-     */
     public void setDrawCall(Runnable drawCall) {
         this.drawCall = drawCall;
     }
 
-    /**
-     * Costruttore standard: inizializza il motore con i valori predefiniti.
-     */
     public GamenexController(GamenexModel gamenexModel) {
         this(gamenexModel, new UniverseController());
     }
 
-    /**
-     * Costruttore avanzato: permette l'iniezione di un UniverseController personalizzato.
-     * Inizializza il mondo fisico, genera le entità iniziali e prepara il timer di gioco.
-     */
     public GamenexController(GamenexModel gamenexModel, UniverseController universeController) {
         this.gamenexModel = gamenexModel;
         this.universeController = universeController;
 
         // Inizializzazione dello Spawner e generazione del mondo iniziale
-        UniverseSpawner spawner = UniverseSpawner.getInstance();
-        spawner.init(universeController.getUniverseModel(), universeController);
+        UniverseSpawner.getInstance().init(getUniverseModel(), universeController);
+
+        double midX = getUniverseModel().getWidth() / 2.0;
+        double midY = getUniverseModel().getHeight() / 2.0;
+
+        UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+
+        // Stabilize spring hooks immediately to prevent camera lens pan jitter during launch
+        cameraModel.getSpringX().setPosition(midX);
+        cameraModel.getSpringY().setPosition(midY);
 
         setupTimer(gamenexModel);
     }
 
-    /**
-     * Inizializza l'AnimationTimer (il battito cardiaco del gioco).
-     * Utilizza una logica a "Tempo Accumulato" per garantire che la fisica proceda
-     * a passi costanti (TICKUNIT) indipendentemente dalla velocità di rendering.
-     */
     private void setupTimer(GamenexModel gamenexModel) {
         this.gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if (gamenexModel.getLastUpdate() == 0) {
                     gamenexModel.setLastUpdate(now);
+                    return;
                 }
 
                 gamenexModel.setNow(now);
                 double dt = gamenexModel.getDt();
 
-                // Evita il "salto del tempo" (Spiral of Death) se il computer rallenta troppo
                 if (dt > GamenexModel.ACCUMULATORUNIT) {
                     dt = GamenexModel.ACCUMULATORUNIT;
                 }
 
-                gamenexModel.setAccumulator(gamenexModel.getAccumulator() + dt);
+                tick(dt);
 
-                // Esegue tanti "tick" fisici quanti necessari per coprire il tempo trascorso
-                //while (gamenexModel.getAccumulator() >= UU.UNIVERSE_TICK) {
-                    tick(dt);
-                  //  gamenexModel.setAccumulator(gamenexModel.getAccumulator() - GamenexModel.TICKUNIT);
-                //}
-
-                // Esegue il rendering (la View)
                 if (drawCall != null) {
                     drawCall.run();
                 }
@@ -96,135 +73,54 @@ public class GamenexController {
         };
     }
 
-    /**
-     * Esegue un singolo passo logico della simulazione.
-     * @param dt Il passo temporale costante (Delta Time).
-     */
     private void tick(double dt) {
         if (!gamenexModel.isPaused()) {
-            universeController.update(dt, inputManager, cameraModel);
+            universeController.updatev(dt, gamenexInputs, cameraModel);
         }
     }
 
-    /**
-     * Inverte lo stato di pausa del gioco.
-     */
     public void togglePause() {
         gamenexModel.setPaused(!gamenexModel.isPaused());
     }
 
-    /**
-     * Forza lo stato di pausa a un valore specifico.
-     */
     public void setPaused(boolean paused) {
         gamenexModel.setPaused(paused);
     }
 
-    /**
-     * Avvia il ciclo di gioco principale.
-     */
     public void startGameLoop() {
         gameLoop.start();
     }
 
-    /**
-     * Ferma il ciclo di gioco principale.
-     */
     public void stopGameLoop() {
         gameLoop.stop();
     }
 
-    /**
-     * Genera un nuovo asteroide in una posizione casuale vicino al centro della visuale attuale.
-     * Utilizza il nuovo sistema di spawning dinamico.
-     */
-    public void spawnAsteroid() {
-        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
+    public void debugSpawn(String spawnableId) {
+        // THE FIX: Drops models symmetrically balanced over the actual camera center position
+        double spawnWorldX = cameraModel.getX() + ((Math.random() - 0.5) * 400);
+        double spawnWorldY = cameraModel.getY() + ((Math.random() - 0.5) * 400);
 
-        x += (Math.random() - 0.5) * 400;
-        y += (Math.random() - 0.5) * 400;
-
-        UniverseSpawner.getInstance().spawn("ASTEROID", x, y);
-    }
-
-    /**
-     * Genera un nuovo IscatMob vicino al centro della visuale attuale.
-     * Utilizza il nuovo sistema di spawning dinamico.
-     */
-    public void spawnIscatMob() {
-        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
-
-        x += (Math.random() - 0.5) * 400;
-        y += (Math.random() - 0.5) * 400;
-
-        UniverseSpawner.getInstance().spawn("ISCAT_MOB", x, y);
-    }
-
-    public void spawnHearth() {
-        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
-
-        x += (Math.random() - 0.5) * 400;
-        y += (Math.random() - 0.5) * 400;
-
-        UniverseSpawner.getInstance().spawn("HEARTH", x, y);
-    }
-
-    public void spawnEater() {
-        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
-
-        x += (Math.random() - 0.5) * 400;
-        y += (Math.random() - 0.5) * 400;
-
-        UniverseSpawner.getInstance().spawn("EATER", x, y);
-    }
-
-    public void spawnWorm() {
-        double x = cameraModel.getX() + (universeController.getUniverseModel().getWidth() / 2.0);
-        double y = cameraModel.getY() + (universeController.getUniverseModel().getHeight() / 2.0);
-
-        x += (Math.random() - 0.5) * 400;
-        y += (Math.random() - 0.5) * 400;
-
-        UniverseSpawner.getInstance().spawn("WORM", x, y);
+        UniverseSpawner.getInstance().spawn(spawnableId, spawnWorldX, spawnWorldY);
     }
 
     private boolean showFps = false;
 
-    /**
-     * Determina se mostrare il contatore FPS sull'interfaccia.
-     */
     public void setShowFps(boolean show) {
         this.showFps = show;
     }
 
-    /**
-     * Restituisce true se la visualizzazione degli FPS è attiva.
-     */
     public boolean isFpsOn() {
         return showFps;
     }
 
-    /**
-     * Restituisce il modello dell'universo (per accesso ai dati fisici).
-     */
-    public UniverseModel getSpaceModel() {
+    public UniverseModel getUniverseModel() {
         return universeController.getUniverseModel();
     }
 
-    /**
-     * Restituisce il controller dell'universo.
-     */
-    public UniverseController getSpaceController() {
+    public UniverseController getUniverseController() {
         return universeController;
     }
 
-    /**
-     * Restituisce il modello della telecamera.
-     */
     public CameraModel getCameraModel() {
         return cameraModel;
     }

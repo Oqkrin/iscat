@@ -12,7 +12,7 @@ import uni.gaben.iscat.game.view.GameSceneIscatScene;
 
 import uni.gaben.iscat.gamenex.controller.GamenexController;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.gamenex.view.GamenexSceneIscatScene;
+import uni.gaben.iscat.gamenex.view.GamenexScene;
 import uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuSceneIscatScene;
 import uni.gaben.iscat.menus.login_menu.controller.LoginController;
 import uni.gaben.iscat.menus.login_menu.model.LoginData;
@@ -74,7 +74,7 @@ public class IscatApplication extends Application {
         scenes.put(IscatScenes.LOGIN_MENU,    new LoginSceneIscatScene(loginModel, loginController));
         scenes.put(IscatScenes.MAIN_MENU,     new MenuSceneIscatScene(menuController));
         scenes.put(IscatScenes.GAME,          new GameSceneIscatScene(legacyController, legacyModel));
-        scenes.put(IscatScenes.GAMEN,         new GamenexSceneIscatScene(gamenexController, gamenexModel));
+        scenes.put(IscatScenes.GAMEN,         new GamenexScene(gamenexController, gamenexModel));
         scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuSceneIscatScene());
         scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuSceneIscatScene());
         scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuSceneIscatScene());

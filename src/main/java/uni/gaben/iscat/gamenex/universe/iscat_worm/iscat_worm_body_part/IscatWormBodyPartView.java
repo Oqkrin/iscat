@@ -5,7 +5,6 @@ import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.lib.utils.UU;
-import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
@@ -13,71 +12,53 @@ import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings.*;
 
 /**
- * Vista per i segmenti del corpo dell'Iscat Worm.
- * Implementa {@link Drawable} per uniformare il rendering a quello della testa e della coda.
+ * Vista standardizzata per i segmenti del corpo dell'Iscat Worm.
+ * Implementa {@link Drawable} sfruttando la pipeline centrale dell'engine.
  */
-public class IscatWormBodyPartView extends AbstractEntityView implements Drawable<IscatWormBodyPartModel>, DrawableSpriteSheet {
+public class IscatWormBodyPartView extends AbstractEntityView<IscatWormBodyPartModel>
+        implements Drawable<IscatWormBodyPartModel>, DrawableSpriteSheet {
 
     private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/iscat_worm_body_part.png";
-    public static final double DRAW_SIZE = DIM_SPRITE * SCALE;
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
 
     public IscatWormBodyPartView() {
-        // 1. Caricamento centralizzato dello spritesheet
+        // 1. Caricamento centralizzato dello spritesheet tramite la libreria condivisa
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(
                 SPRITE_PATH,
                 (int) DIM_SPRITE,
                 (int) DIM_SPRITE
         );
 
-        // 2. Configurazione animatore
-        // Usiamo 0.045 come durata base per riflettere il divisore 0.45 originale
+        // 2. Configurazione dell'animatore (~22 FPS basato sull'intervallo 0.045s)
         this.animator = new SpriteSheetsAnimator(
                 0.045,
-                spriteSheet.getTotalFrames(),
-                spriteSheet.getTotalStates()
+                spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
+                spriteSheet != null ? spriteSheet.getTotalStates() : 1
         );
     }
 
-    // --- Implementazione Getter Drawable ---
+    // --- Implementazione dei getter richiesti da DrawableSpriteSheet ---
 
     @Override
-    public SpriteSheetsParser getSpriteSheet() {
-        return spriteSheet;
-    }
+    public SpriteSheetsParser getSpriteSheet() { return spriteSheet; }
 
     @Override
-    public SpriteSheetsAnimator getAnimator() {
-        return animator;
-    }
+    public SpriteSheetsAnimator getAnimator() { return animator; }
 
     @Override
     public void draw(IscatWormBodyPartModel entity, GraphicsContext gc) {
-        // Update del tempo di animazione (sincronizzato con il loop di gioco)
+        // 3. Update temporale dell'animazione agganciato ai tick del loop di gioco
         animator.update(UU.UNIVERSE_TICK);
 
-        // Calcolo posizione, angolo e dimensione
-        setPos(entity);
-        setAngle(entity);
-        setSize(DRAW_SIZE);
+        // 4. Esegue la pipeline centralizzata applicando la correzione a 180° dell'asset orientato
+        renderEntity(entity, gc, 180.0);
+    }
 
-        gc.save();
-
-        // Traslazione al centro del segmento e rotazione correttiva
-        gc.translate(cx, cy);
-        gc.rotate(rotDeg + 180);
-
-        // Il metodo drawSprite si occupa di:
-        // - Chiedere all'animator il frame corretto
-        // - Applicare il colore del tema attuale (Tint)
-        // - Disegnare la porzione corretta dello spritesheet
-        drawSprite(gc, 0, 0, w, h);
-
-        gc.restore();
-
-        // Overlay HP (solitamente disabilitato per i segmenti del corpo, ma disponibile)
-        drawHpBar(entity, gc);
+    @Override
+    protected void drawContent(IscatWormBodyPartModel entity, GraphicsContext gc, double x, double y, double width, double height) {
+        // 5. Rendering del segmento: l'origine (0,0) del canvas si trova già centrata e orientata
+        drawSprite(gc, x, y, width, height);
     }
 }

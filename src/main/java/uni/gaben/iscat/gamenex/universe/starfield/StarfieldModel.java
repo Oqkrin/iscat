@@ -8,6 +8,10 @@ import java.util.List;
 public class StarfieldModel extends AbstractEntityModel {
     private final List<StarModel> stars = new ArrayList<>();
 
+    public StarfieldModel(double x, double y) {
+        super(x, y);
+    }
+
     public List<StarModel> getStars() {
         return stars;
     }

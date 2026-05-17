@@ -7,6 +7,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
+import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 import uni.gaben.iscat.utils.design.CssHelper;
@@ -33,23 +34,14 @@ public class GamenexSpawnerToolbar extends StackPane {
         spawnContainer.setAlignment(Pos.CENTER);
         spawnContainer.setStyle("-fx-padding: 10 20;");
 
+
+
         // SPAWNERS BUTTONS
-        Button spawnAsteroidBtn = createSmallButton("ASTEROID");
-        spawnAsteroidBtn.setOnAction(e -> controller.spawnAsteroid());
-        
-        Button spawnIscatBtn = createSmallButton("ISCAT MOB");
-        spawnIscatBtn.setOnAction(e -> controller.spawnIscatMob());
-
-        Button spawnHearthBtn = createSmallButton("HEARTH");
-        spawnHearthBtn.setOnAction(e -> controller.spawnHearth());
-
-        Button spawnEaterBtn = createSmallButton("EATER");
-        spawnEaterBtn.setOnAction(e -> controller.spawnEater());
-
-        Button spawnWormBtn = createSmallButton("EATER");
-        spawnWormBtn.setOnAction(e -> controller.spawnWorm());
-
-        spawnContainer.getChildren().addAll(spawnAsteroidBtn, spawnIscatBtn, spawnHearthBtn, spawnEaterBtn, spawnWormBtn);
+        for (String spawnRegistryKey : UniverseSpawner.getInstance().getSpawnRegistryKeys()) {
+            Button b = createSmallButton(spawnRegistryKey);
+            b.setOnAction(e -> controller.debugSpawn(spawnRegistryKey));
+            spawnContainer.getChildren().add(b);
+        }
 
         scroll.setContent(spawnContainer);
 

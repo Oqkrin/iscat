@@ -5,74 +5,60 @@ import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.lib.utils.UU;
-import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
 import static uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailSettings.*;
 
-public class IscatWormTailView extends AbstractEntityView implements Drawable<IscatWormTailModel>, DrawableSpriteSheet {
+/**
+ * Vista standardizzata per la coda dell'Iscat Worm.
+ * Sfrutta la pipeline centralizzata per gestire in automatico le matrici di trasformazione relative.
+ */
+public class IscatWormTailView extends AbstractEntityView<IscatWormTailModel>
+        implements Drawable<IscatWormTailModel>, DrawableSpriteSheet {
 
-    // Costanti centralizzate
     private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/iscat_worm_tail.png";
-    public static final double DRAW_SIZE = DIM_SPRITE * SCALE;
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
 
     public IscatWormTailView() {
-        // 1. Carichiamo lo spritesheet tramite la libreria dedicata
+        // 1. Recupero dello spritesheet dalla libreria condivisa
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(
                 SPRITE_PATH,
-                (int) DIM_SPRITE,
-                (int) DIM_SPRITE
+                DIM_SPRITE,
+                DIM_SPRITE
         );
 
-        // 2. Inizializziamo l'animatore (es. 12 FPS -> circa 0.08s per frame)
+        // 2. Configurazione dell'animatore (12 FPS -> circa 0.08s per frame)
         this.animator = new SpriteSheetsAnimator(
                 0.08,
-                spriteSheet.getTotalFrames(),
-                spriteSheet.getTotalStates()
+                spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
+                spriteSheet != null ? spriteSheet.getTotalStates() : 1
         );
     }
 
-    // --- Metodi richiesti dall'interfaccia Drawable ---
+    // --- Implementazione dei getter richiesti da DrawableSpriteSheet ---
 
     @Override
-    public SpriteSheetsParser getSpriteSheet() {
-        return spriteSheet;
-    }
+    public SpriteSheetsParser getSpriteSheet() { return spriteSheet; }
 
     @Override
-    public SpriteSheetsAnimator getAnimator() {
-        return animator;
-    }
+    public SpriteSheetsAnimator getAnimator() { return animator; }
 
     @Override
     public void draw(IscatWormTailModel entity, GraphicsContext gc) {
-        // Avanzamento del tempo dell'animazione
+        // 3. Avanzamento temporale dell'animazione
         animator.update(UU.UNIVERSE_TICK);
 
-        // Setup coordinate e dimensioni
-        setPos(entity);
-        setAngle(entity);
-        setSize(DRAW_SIZE);
+        // 4. Esegue la pipeline centralizzata applicando la correzione a 180° dell'asset
+        renderEntity(entity, gc, 180.0);
+    }
 
-        gc.save();
-
-        // Traslazione e rotazione (manteniamo +180 se il verso dello sprite è invertito)
-        gc.translate(cx, cy);
-        gc.rotate(rotDeg + 180);
-
-        // Disegno automatico: drawSprite gestisce internamente il ritaglio del frame
-        // calcolato dall'animator e l'applicazione del colore (Tinting) dal ThemeManager.
-        drawSprite(gc, 0, 0, w, h);
-
-        gc.restore();
-
-        // Barra HP opzionale (spesso le code dei vermi condividono la vita con la testa,
-        // ma se è un'entità separata, questo la disegna correttamente).
-        drawHpBar(entity, gc);
+    @Override
+    protected void drawContent(IscatWormTailModel entity, GraphicsContext gc, double x, double y, double width, double height) {
+        // 5. Il canvas è pre-configurato al centro esatto: disegna lo sprite alle coordinate locali filtrate
+        drawSprite(gc, x, y, width, height);
     }
 }

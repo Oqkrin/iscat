@@ -4,7 +4,7 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
+import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
 /**
@@ -27,7 +27,7 @@ public class IscatMobModel extends LivingEntityModel {
         BodyFixture fixture = addFixture(Geometry.createCircle(IscatMobSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE));
         
         // Applica il filtro per distinguere questa entità come NEMICO nelle collisioni
-        fixture.setFilter(GamenexCollisionLayers.ENEMY_FILTER);
+        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         
         // Imposta il tipo di massa normale per permettere risposte fisiche agli urti
         setMass(MassType.NORMAL);

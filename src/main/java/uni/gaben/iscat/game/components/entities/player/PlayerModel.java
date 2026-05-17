@@ -55,9 +55,9 @@ public class PlayerModel extends LivingEntityModel implements Collidable, HasRen
             this.maxSpeed = PlayerSettings.VELOCITA_MAX;
         }
         super.integrate(dt);
-        faseScatto.tick();
-        cooldownScatto.tick();
-        cooldownFuoco.tick();
+        faseScatto.update(dt);
+        cooldownScatto.update(dt);
+        cooldownFuoco.update(dt);
     }
 
     // -------------------------------------------------------------------------
@@ -80,8 +80,8 @@ public class PlayerModel extends LivingEntityModel implements Collidable, HasRen
         velocity = velocity.add(
                 Math.cos(rad) * PlayerSettings.IMPULSO_SCATTO,
                 Math.sin(rad) * PlayerSettings.IMPULSO_SCATTO);
-        faseScatto.set(PlayerSettings.DURATA_SCATTO_TICK);
-        cooldownScatto.set(PlayerSettings.COOLDOWN_SCATTO_TICK);
+        faseScatto.start(PlayerSettings.DURATA_SCATTO_TICK);
+        cooldownScatto.start(PlayerSettings.COOLDOWN_SCATTO_TICK);
     }
 
     // -------------------------------------------------------------------------
@@ -107,7 +107,7 @@ public class PlayerModel extends LivingEntityModel implements Collidable, HasRen
 
     /** Starts the fire cooldown. Called by PlayerShootingController after spawning the projectile. */
     public void startCooldownFuoco() {
-        cooldownFuoco.set(PlayerSettings.COOLDOWN_FUOCO_TICK);
+        cooldownFuoco.start(PlayerSettings.COOLDOWN_FUOCO_TICK);
     }
 
     // -------------------------------------------------------------------------

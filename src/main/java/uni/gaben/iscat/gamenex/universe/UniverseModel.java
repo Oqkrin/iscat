@@ -3,39 +3,61 @@ package uni.gaben.iscat.gamenex.universe;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.contact.Contact;
+import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
+import org.dyn4j.world.ContactCollisionData;
+import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasTerminalVelocity;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.universe.starfield.StarfieldModel;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
-/**
- * Modello fisico del mondo di gioco.
- */
 public class UniverseModel extends World<Body> {
 
-    private final Random rand = new Random();
     private PlayerModel player;
-
     private final List<AbstractEntityModel> entities = new ArrayList<>();
-    private final StarfieldModel starfieldModel = new StarfieldModel();
+    private final StarfieldModel starfieldModel = new StarfieldModel(0, 0);
 
     private final DoubleProperty width = new SimpleDoubleProperty(UniverseSettings.DEFAULT_WIDTH);
     private final DoubleProperty height = new SimpleDoubleProperty(UniverseSettings.DEFAULT_HEIGHT);
 
     public UniverseModel() {
         setGravity(PhysicsWorld.ZERO_GRAVITY);
+
+        addContactListener(new ContactListenerAdapter<Body>() {
+            @Override
+            public void begin(ContactCollisionData<Body> collision, Contact contact) {
+                Body b1 = collision.getBody1();
+                Body b2 = collision.getBody2();
+
+                AbstractEntityModel entA = null;
+                if (b1 instanceof AbstractEntityModel model) entA = model;
+                else if (b1.getUserData() instanceof AbstractEntityModel model) entA = model;
+
+                AbstractEntityModel entB = null;
+                if (b2 instanceof AbstractEntityModel model) entB = model;
+                else if (b2.getUserData() instanceof AbstractEntityModel model) entB = model;
+
+                if (entA != null && entB != null) {
+                    // Innesca in sicurezza i callback logici nei rispettivi controller
+                    entA.triggerCollision(entB);
+                    entB.triggerCollision(entA);
+                }
+            }
+        });
     }
 
     public static double getUniverseScaled(double value) {
-        return value / UniverseSettings.SCALE;
+        return UU.pxToM(value);
     }
 
     public void setPlayer(PlayerModel player) {
@@ -49,17 +71,23 @@ public class UniverseModel extends World<Body> {
     }
 
     public void removeEntity(AbstractEntityModel entity) {
+        if (entity == null) return;
+
+        // Rimozione immediata dalla lista logica usata dalla View per il rendering
         this.entities.remove(entity);
-        this.removeBody(entity);
+
+        // Disabilitazione totale del corpo fisico per prevenire contatti fantasma residui
+        entity.setEnabled(false);
+        entity.setLinearVelocity(0, 0);
+        entity.setAngularVelocity(0);
+        entity.setMass(MassType.INFINITE);
+        entity.removeAllFixtures();
+
+        boolean removed = this.removeBody(entity);
     }
 
-    public List<AbstractEntityModel> getEntities() {
-        return entities;
-    }
+    public List<AbstractEntityModel> getEntities() { return entities; }
 
-    /**
-     * Helper to get specific types. Usage: getEntitiesOfType(AsteroidModel.class)
-     */
     public <T extends AbstractEntityModel> List<T> getEntitiesOfType(Class<T> type) {
         return entities.stream()
                 .filter(type::isInstance)
@@ -67,62 +95,76 @@ public class UniverseModel extends World<Body> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Esegue l'aggiornamento dello stato dei corpi interni.
+     * Nota: Questo metodo viene invocato esplicitamente dall'update del Controller.
+     */
     @Override
-    public boolean update(double dt) {
+    public void updatev(double dt) {
         if (player != null) {
             player.update(dt);
         }
+        clampTerminalVelocities();
+        super.updatev(dt);
+    }
 
-        // === RIMOZIONE SICURA DELLE ENTITÀ MORTE ===
+    /**
+     * Ispeziona lo stato vitale delle entità e rimuove i corpi distrutti.
+     * Esposto pubblicamente per permettere all'UniverseController di sincronizzarlo nel loop.
+     */
+    public void processEntityCleanup() {
         List<AbstractEntityModel> toRemove = new ArrayList<>();
+        List<AbstractEntityModel> currentEntities = new ArrayList<>(this.entities);
 
-        for (AbstractEntityModel e : entities) {
+        for (AbstractEntityModel e : currentEntities) {
             if (e == null) continue;
 
-            boolean dead = false;
+            boolean shouldDeadClean = false;
 
-            // Controllo vita per LivingEntityModel
-            if (e instanceof LivingEntityModel living) {
-                if (living.getLife() <= 0 || living.shouldRemove()) {
-                    dead = true;
+            // 1. Verifica flag di rimozione esplicito dell'entità
+            if (e.shouldRemove()) {
+                shouldDeadClean = true;
+            }
+            // 2. Fallback per modelli viventi con punti vita azzerati
+            else if (e instanceof LivingEntityModel living) {
+                if (living.getLife() <= 0) {
+                    if (!living.shouldRemove()) {
+                        living.kill();
+                    }
+                    shouldDeadClean = true;
                 }
             }
-            // Controllo generico
-            else if (e.shouldRemove()) {
-                dead = true;
-            }
 
-            if (dead) {
+            if (shouldDeadClean) {
                 toRemove.add(e);
             }
         }
 
-        // Rimuoviamo dopo aver finito di iterare
         for (AbstractEntityModel entity : toRemove) {
             removeEntity(entity);
         }
+    }
 
-        // === LIMITAZIONE VELOCITÀ ===
+    private void clampTerminalVelocities() {
         for (Body b : getBodies()) {
             if (b instanceof HasTerminalVelocity entity) {
-                double terminal = entity.getTerminalVelocity();
-                Vector2 vel = b.getLinearVelocity();
-                if (vel.getMagnitude() > terminal) {
-                    b.setLinearVelocity(vel.getNormalized().setMagnitude(terminal));
+                double maxAllowedSpeed = entity.getTerminalVelocity();
+                Vector2 velocity = b.getLinearVelocity();
+
+                if (velocity.getMagnitude() > maxAllowedSpeed) {
+                    b.setLinearVelocity(velocity.getNormalized().setMagnitude(maxAllowedSpeed));
                 }
             }
         }
-
-        return super.update(dt);
     }
 
-    // Standard getters/setters...
     public void setDimensions(double w, double h) {
         if (w > 0 && h > 0) {
             this.width.set(w);
             this.height.set(h);
         }
     }
+
     public double getWidth() { return width.get(); }
     public double getHeight() { return height.get(); }
     public DoubleProperty widthProperty() { return width; }

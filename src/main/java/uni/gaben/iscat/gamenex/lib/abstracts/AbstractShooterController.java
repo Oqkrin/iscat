@@ -17,7 +17,7 @@ public abstract class AbstractShooterController<T extends CollisionBody & HasPro
         for (var p : shootingLogic(model.getProjectile())) {
             UniverseSpawner.getInstance().spawnProjectile(p);
         }
-        model.projectileCooldown().set(model.getProjectileCooldownTickCount());
+        model.projectileCooldown().start(model.getProjectileCooldownTickCount());
     }
 
     protected abstract AbstractProjectileModel[] shootingLogic(AbstractProjectileModel projectile);

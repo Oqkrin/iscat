@@ -9,6 +9,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.AbstractIscatScene;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
@@ -24,12 +25,7 @@ import java.util.Objects;
 
 import static javafx.application.Platform.runLater;
 
-/**
- * Scena principale di Gamenex (View).
- * Gestisce il rendering su Canvas, l'interfaccia utente (UI) e
- * il coordinamento tra il modello fisico e la visualizzazione.
- */
-public class GamenexSceneIscatScene extends AbstractIscatScene {
+public class GamenexScene extends AbstractIscatScene {
 
     private GamenexModel gamenexModel;
     private GamenexController gamenexController;
@@ -40,15 +36,13 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
     private GamenexPauseMenu pauseMenu;
     private Button debugButton;
 
-    public GamenexSceneIscatScene(GamenexController gamenexController, GamenexModel gamenexModel) {
+    public GamenexScene(GamenexController gamenexController, GamenexModel gamenexModel) {
         super(new StackPane());
         this.gamenexModel = gamenexModel;
         this.gamenexController = gamenexController;
         this.root = getContentRoot();
 
-        // Make root transparent so stars show through
         root.setStyle("-fx-background-color: transparent;");
-
         initialize();
     }
 
@@ -57,15 +51,13 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
         canvas = new Canvas();
         spawnerToolbar = new GamenexSpawnerToolbar(gamenexController);
         pauseMenu = new GamenexPauseMenu(gamenexController);
-        // ==================== DEBUG BUTTON ====================
         debugButton = new Button("DEBUG");
         debugButton.setFocusTraversable(false);
-
     }
 
     @Override
     protected void initStyles() {
-        getStylesheets().add(Objects.requireNonNull(GamenexSceneIscatScene.class.getResource("/uni/gaben/iscat/styles/game.css"))
+        getStylesheets().add(Objects.requireNonNull(GamenexScene.class.getResource("/uni/gaben/iscat/styles/game.css"))
                 .toExternalForm());
         CssHelper.stilePulsanteMenu(debugButton);
         CssHelper.testoPrimario(debugButton);
@@ -75,7 +67,6 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
     protected void initLayout() {
         root.getChildren().addAll(canvas, spawnerToolbar, pauseMenu, debugButton);
         StackPane.setAlignment(spawnerToolbar, Pos.BOTTOM_CENTER);
-
         StackPane.setAlignment(debugButton, Pos.TOP_LEFT);
         StackPane.setMargin(debugButton, new Insets(50, 0, 0, 50));
     }
@@ -85,24 +76,24 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
         canvas.widthProperty().bind(root.widthProperty());
         canvas.heightProperty().bind(root.heightProperty());
 
-        // Bind SpaceModel to Canvas dimensions
-        UniverseController universeController = gamenexController.getSpaceController();
-        UniverseModel space = universeController.getUniverseModel();
-        if (space != null) {
-            space.widthProperty().bind(canvas.widthProperty());
-            space.heightProperty().bind(canvas.heightProperty());
+        CameraModel camera = gamenexController.getCameraModel();
+        camera.screenWidthProperty().bind(canvas.widthProperty());
+        camera.screenHeightProperty().bind(canvas.heightProperty());
 
-            // Regenerate stars when dimensions change
-            space.widthProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
-                    .regenerate(space.getStarfieldModel(), newV.doubleValue(), space.getHeight()));
-            space.heightProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
-                    .regenerate(space.getStarfieldModel(), space.getWidth(), newV.doubleValue()));
+        UniverseController universeController = gamenexController.getUniverseController();
+        UniverseModel universe = universeController.getUniverseModel();
+        if (universe != null) {
+            universe.widthProperty().bind(canvas.widthProperty());
+            universe.heightProperty().bind(canvas.heightProperty());
 
-            // Bind StarfieldView dimensions
+            universe.widthProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
+                    .regenerate(universe.getStarfieldModel(), newV.doubleValue(), universe.getHeight()));
+            universe.heightProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
+                    .regenerate(universe.getStarfieldModel(), universe.getWidth(), newV.doubleValue()));
+
             starfieldView.wProperty().bind(canvas.widthProperty());
             starfieldView.hProperty().bind(canvas.heightProperty());
 
-            // Bind visibility to pause state
             pauseMenu.visibleProperty().bind(gamenexModel.pausedProperty());
             pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
         }
@@ -113,8 +104,6 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
         gamenexController.getInputManager().attachToScene(this);
         gamenexController.getInputManager().attachToCanvas(canvas);
 
-
-        // Toggle pause on ESCAPE
         this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) {
                 gamenexController.togglePause();
@@ -122,19 +111,11 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
             }
         });
 
-        // ==================== DEBUG BUTTON ACTION ====================
         debugButton.setOnAction(_ -> {
             boolean visible = !spawnerToolbar.isSpawnButtonsVisible();
             spawnerToolbar.setSpawnButtonsVisible(visible);
             debugButton.setText(visible ? "HIDE DEBUG" : "DEBUG");
         });
-    }
-
-
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
     }
 
     @Override
@@ -147,7 +128,7 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
 
     private void renderFrame() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setImageSmoothing(false); // Pixel-perfect rendering
+        gc.setImageSmoothing(false);
 
         double w = canvas.getWidth();
         double h = canvas.getHeight();
@@ -157,40 +138,40 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
         gc.setFill(ThemeColors.parsedColors.get("bg-primary"));
         gc.fillRect(0, 0, w, h);
 
-        UniverseController universeController = gamenexController.getSpaceController();
-        UniverseModel space = universeController.getUniverseModel();
+        UniverseController universeController = gamenexController.getUniverseController();
+        UniverseModel universe = universeController.getUniverseModel();
 
-        if (space == null)
-            return;
-
-        // space dimensions and star regeneration are now handled via bindings/listeners
-        // in initBindings
-
-        universeController.setViewSize(w, h); // let controller know view size for camera
+        if (universe == null) return;
 
         CameraModel cameraModel = gamenexController.getCameraModel();
 
-        // Pass camera back to input manager for correct mouse-to-world mapping
-        gamenexController.getInputManager().cameraX = cameraModel.getX();
-        gamenexController.getInputManager().cameraY = cameraModel.getY();
-
-        // 1. Draw Starry Night Parallax
+        // 2. Rendering di Sfondo (Parallasse dello Starfield)
         starfieldView.setCameraX(cameraModel.getX());
         starfieldView.setCameraY(cameraModel.getY());
-        starfieldView.draw(space.getStarfieldModel(), gc);
+        starfieldView.draw(universe.getStarfieldModel(), gc);
 
         gc.save();
-        gc.translate(-cameraModel.getX(), -cameraModel.getY());
 
-        for (var entity : space.getEntities()) {
+        // Spostiamo la matrice del contesto grafico in base all'angolo in alto a sinistra della telecamera
+        gc.translate(-cameraModel.getViewportLeftX(), -cameraModel.getViewportTopY());
+
+        for (var entity : universe.getEntities()) {
             Drawable renderer = ViewRegistry.getInstance().getRenderer(entity.getClass());
             if (renderer != null) {
+                // IL FIX DELLA DOPPIA ROTAZIONE: PlayerView.draw() deve invocare renderEntity(..., 0.0)
                 renderer.draw(entity, gc);
+
+                if (spawnerToolbar.isSpawnButtonsVisible() && renderer instanceof AbstractEntityView entityView) {
+                    gc.save();
+                    entityView.setPos(entity);
+                    entityView.drawDebugCollision(entity, gc);
+                    gc.restore();
+                }
             }
         }
         gc.restore();
 
-        // 3. Draw UI Overlay (FPS Counter)
+        // 3. UI Overlay
         drawFps(gc, w);
     }
 
@@ -202,7 +183,7 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
             double fps = 1.0 / gamenexModel.getDt();
             fpsHistory[fpsIdx] = fps;
             fpsIdx = (fpsIdx + 1) % fpsHistory.length;
-            
+
             double avg = 0;
             for (double f : fpsHistory) avg += f;
             avg /= fpsHistory.length;
@@ -224,5 +205,4 @@ public class GamenexSceneIscatScene extends AbstractIscatScene {
         super.onUnload();
         gamenexController.stopGameLoop();
     }
-
 }

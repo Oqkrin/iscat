@@ -6,8 +6,8 @@ import org.dyn4j.collision.CategoryFilter;
  * Centralized collision filtering for the Gamenex universe.
  * Ensures that entities only collide with what they are supposed to.
  */
-public final class GamenexCollisionLayers {
-    private GamenexCollisionLayers() {}
+public final class UniverseCollisionLayers {
+    private UniverseCollisionLayers() {}
 
     // Categories (Powers of 2)
     public static final long PLAYER     = 1;

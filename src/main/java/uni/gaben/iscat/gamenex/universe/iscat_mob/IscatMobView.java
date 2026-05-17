@@ -1,7 +1,9 @@
 package uni.gaben.iscat.gamenex.universe.iscat_mob;
 
 import javafx.scene.canvas.GraphicsContext;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
+import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.lib.utils.UU;
@@ -52,34 +54,21 @@ public class IscatMobView extends AbstractEntityView implements Drawable<IscatMo
     }
 
     @Override
+    protected void drawContent(AbstractEntityModel entity, GraphicsContext gc, double x, double y, double width, double height) {
+
+        drawSprite(gc, 0, 0, w, h);
+        // Overlay della barra HP
+        drawHpBar((Lifecycle) entity, gc);
+    }
+
+    @Override
     public void draw(IscatMobModel entity, GraphicsContext gc) {
         // Aggiornamento logica animazione
         animator.update(UU.UNIVERSE_TICK);
-
         // Impostiamo lo stato dell'animatore (es. se ha stati diversi per morte/attacco)
         // animator.setState(entity.getCurrentStateIndex());
 
-        gc.save();
+        renderEntity(entity, gc, 180.0);
 
-        // Setup trasformazioni
-        setPos(entity);
-        gc.translate(cx, cy);
-
-        setAngle(entity);
-        if(ROTATION_TOWARDS_PLAYER)
-            gc.rotate(rotDeg + 180);
-
-        setSize(DRAW_SIZE);
-
-        // Il metodo drawSprite dell'interfaccia gestisce:
-        // - Recupero frame corretto dall'animator
-        // - Tinting dinamico dal ThemeManager
-        // - Ritaglio dello spritesheet (Viewport)
-        drawSprite(gc, 0, 0, w, h);
-
-        gc.restore();
-
-        // Overlay della barra HP
-        drawHpBar(entity, gc);
     }
 }

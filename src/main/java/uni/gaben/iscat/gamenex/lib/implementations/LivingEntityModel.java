@@ -8,43 +8,32 @@ import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
 /**
  * Implementazione di un'entità dotata di vita e soggetta a mortalità.
  * Gestisce i punti vita (HP), la guarigione e il danneggiamento.
- * Permette di registrare callback per eventi specifici come il ferimento o la morte.
  */
 public class LivingEntityModel extends AbstractEntityModel implements Lifecycle {
-    /** Salute attuale dell'entità. */
     protected DoubleProperty life = new SimpleDoubleProperty();
-    /** Salute massima raggiungibile. */
     protected double maxLife;
 
-    /**
-     * Crea un'entità vivente in una posizione specifica.
-     * @param x Coordinata X (pixel).
-     * @param y Coordinata Y (pixel).
-     * @param life Salute iniziale.
-     * @param maxLife Salute massima.
-     */
+    private Runnable onHurt;
+    private Runnable onDeath;
+
     public LivingEntityModel(double x, double y, double life, double maxLife) {
         super(x, y);
         this.life.set(life);
         this.maxLife = maxLife;
     }
 
-    public DoubleProperty lifeProperty() {
-        return life;
-    }
-    /** Restituisce la salute attuale. */
-    public double getLife() {
-        return life.get();
-    }
+    public DoubleProperty lifeProperty() { return life; }
+    public double getLife() { return life.get(); }
+    public double getMaxLife() { return maxLife; }
 
-    /** Restituisce la salute massima. */
-    public double getMaxLife() {
-        return maxLife;
-    }
-
-    /** Imposta la salute attuale, assicurandosi che resti nei limiti [0, maxLife]. */
     public void setLife(double life) {
-        this.life.set(Math.clamp(life, 0, maxLife));
+        double clampedLife = Math.clamp(life, 0, maxLife);
+        this.life.set(clampedLife);
+
+        // Se la salute scende a zero, forziamo l'istantanea esecuzione delle routine di morte
+        if (clampedLife <= 0 && !shouldRemove()) {
+            kill();
+        }
     }
 
     @Override
@@ -52,45 +41,26 @@ public class LivingEntityModel extends AbstractEntityModel implements Lifecycle 
         setLife(getLife() + delta);
     }
 
-    /** Imposta la salute massima e aggiorna la salute attuale se necessario. */
     public void setMaxLife(double maxLife) {
         this.maxLife = maxLife;
         setLife(getLife());
     }
 
-    // --- Gestione Eventi ---
+    public void setOnHurt(Runnable callback) { this.onHurt = callback; }
+    public void setOnDeath(Runnable callback) { this.onDeath = callback; }
 
-    private Runnable onHurt;
-    private Runnable onDeath;
-
-    /** Imposta un'azione da eseguire quando l'entità subisce danni. */
-    public void setOnHurt(Runnable callback) {
-        this.onHurt = callback;
-    }
-
-    /** Imposta un'azione da eseguire quando l'entità muore. */
-    public void setOnDeath(Runnable callback) {
-        this.onDeath = callback;
-    }
-
-    /**
-     * Uccide istantaneamente l'entità ed esegue il callback di morte.
-     */
     @Override
     public void kill() {
-        if (onDeath != null) {
-            onDeath.run();
+        if (!shouldRemove()) {
+            this.life.set(0);
+            setShouldRemove(true);
+            if (onDeath != null) {
+                onDeath.run();
+            }
+            onDeath();
         }
-        setShouldRemove(true);
     }
 
-    @Override
-    public void onDeath() {
-        // Implementazione vuota, sovrascrivibile nelle classi figlie
-    }
-
-    @Override
-    public double getBaseAccelerationPerTick() {
-        return 0;
-    }
+    @Override public void onDeath() {}
+    @Override public double getBaseAccelerationPerTick() { return 0; }
 }

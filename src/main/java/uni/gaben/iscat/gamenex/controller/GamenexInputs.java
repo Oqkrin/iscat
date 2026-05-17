@@ -4,14 +4,16 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
 
-public class InputManager {
+public class GamenexInputs {
     public boolean up, down, left, right;
-    public boolean dash;      // SPACE
-    public boolean dashMouse; // MIDDLE CLICK
+
+    // We change these to private/managed flags so they can't be accidentally altered mid-tick
+    private boolean dashRequested = false;
+    private boolean dashMouseRequested = false;
+
     public boolean shooting;
     public boolean suction;
     public double mouseX, mouseY;
-    public double cameraX, cameraY;
 
     public void attachToScene(Scene scene) {
         scene.setOnKeyPressed(e -> {
@@ -20,7 +22,7 @@ public class InputManager {
                 case A, LEFT  -> left = true;
                 case S, DOWN  -> down = true;
                 case D, RIGHT -> right = true;
-                case SPACE    -> dash = true;
+                case SPACE    -> dashRequested = true; // Salva la richiesta discreta
                 case Q        -> suction = true;
             }
         });
@@ -46,23 +48,24 @@ public class InputManager {
         });
         canvas.setOnMousePressed(e -> {
             if (e.getButton() == MouseButton.PRIMARY) shooting = true;
-            if (e.getButton() == MouseButton.MIDDLE)  dashMouse = true;
+            if (e.getButton() == MouseButton.MIDDLE)  dashMouseRequested = true;
         });
         canvas.setOnMouseReleased(e -> {
             if (e.getButton() == MouseButton.PRIMARY) shooting = false;
-            if (e.getButton() == MouseButton.MIDDLE)  dashMouse = false;
+            if (e.getButton() == MouseButton.MIDDLE)  dashMouseRequested = false;
         });
     }
 
+    // Metodi di consumo atomici e puliti per evitare lag di input di fine frame
     public boolean consumeDash() {
-        boolean d = dash;
-        dash = false;
+        boolean d = dashRequested;
+        dashRequested = false;
         return d;
     }
 
     public boolean consumeDashMouse() {
-        boolean d = dashMouse;
-        dashMouse = false;
+        boolean d = dashMouseRequested;
+        dashMouseRequested = false;
         return d;
     }
 }

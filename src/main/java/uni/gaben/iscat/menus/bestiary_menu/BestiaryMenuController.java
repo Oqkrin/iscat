@@ -16,7 +16,7 @@ import javafx.util.Duration;
 import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.gamenex.universe.eater.EaterSettings;
+import uni.gaben.iscat.gamenex.universe.iscat_eater.IscatEaterSettings;
 import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobSettings;
 import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings;
 import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadSettings;
@@ -66,7 +66,7 @@ public class BestiaryMenuController implements IscatFxmlController {
                     "Descrizione Fallen Star Golem")),
 
             Map.entry("eater", new Enemy("Eater", BASE + "eater.png",
-                    EaterSettings.NUMERO_FRAMES, EaterSettings.DIM_SPRITE, EaterSettings.DIM_SPRITE,
+                    IscatEaterSettings.NUMERO_FRAMES, IscatEaterSettings.DIM_SPRITE, IscatEaterSettings.DIM_SPRITE,
                     "Descrizione Eater")),
 
             Map.entry("iscat_worm_head", new Enemy("Iscat Worm Head", BASE + "iscat_worm_head.png",

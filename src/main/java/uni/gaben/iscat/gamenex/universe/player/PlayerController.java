@@ -1,118 +1,122 @@
 package uni.gaben.iscat.gamenex.universe.player;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.gamenex.controller.InputManager;
-import uni.gaben.iscat.gamenex.universe.UniverseSettings;
+import uni.gaben.iscat.gamenex.controller.GamenexInputs;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.projectiles.Shooter;
 import uni.gaben.iscat.utils.Interpolator;
+import uni.gaben.iscat.utils.Cooldown;
 
 public class PlayerController {
     private PlayerModel player;
     private Shooter<PlayerModel> shooter;
 
-    private double dashBufferTimer = 0;
+    private final Cooldown dashBuffer = new Cooldown();
     private boolean bufferedDashIsWASD = false;
 
-    /**
-     * Links this controller to a specific player instance.
-     */
     public PlayerController(PlayerModel player) {
         this.player = player;
-        shooter = new Shooter<>(player);
-    }
-
-    public PlayerModel getPlayer() {
-        return player;
-    }
-    public void setPlayer(PlayerModel player) {
-        this.player = player;
-        shooter = new Shooter<>(player);
+        this.shooter = new Shooter<>(player);
     }
 
     /**
-     * Updates the current shooter (weapon).
-     * Safe to set to null if the player has no weapon.
+     * @param input         The clean input payload
+     * @param viewportLeftX Explicit cameraModel.getViewportLeftX()
+     * @param viewportTopY  Explicit cameraModel.getViewportTopY()
+     * @param dt            Delta time seconds
      */
-    public void setShooter(Shooter<PlayerModel> shooter) {
-        this.shooter = shooter;
-    }
-
-    public void processInput(InputManager input, double cameraX, double cameraY, double dt) {
-
+    public void processInput(GamenexInputs input, double viewportLeftX, double viewportTopY, double dt) {
         if (player == null) return;
 
-        // --- 1. DIRECTIONAL INPUT ---
+        dashBuffer.update(dt);
+
+        // --- 1. DIRECTIONAL INPUTS ---
         double dx = 0, dy = 0;
         if (input.up)    dy -= 1;
         if (input.down)  dy += 1;
         if (input.left)  dx -= 1;
         if (input.right) dx += 1;
 
-        // --- 2. MOVEMENT & ROTATION ---
+        // --- 2. MOVEMENT & ROTATION SYSTEM ---
         double currentAngle = player.getTransform().getRotationAngle();
         double nextAngle = currentAngle;
 
         if (!player.isInScatto()) {
-            // Apply movement force
             if (dx != 0 || dy != 0) {
                 Vector2 dir = new Vector2(dx, dy).getNormalized();
                 player.applyForce(dir.multiply(PlayerSettings.FORZA_SPINTA * player.getMass().getMass()));
             }
 
-            // Interpolate rotation towards mouse
-            double mouseWorldX = (input.mouseX + cameraX) / UniverseSettings.SCALE;
-            double mouseWorldY = (input.mouseY + cameraY) / UniverseSettings.SCALE;
-            Vector2 playerPos = player.getTransform().getTranslation();
+            // 1. Convert player physical coordinates from meters to world pixels
+            double playerWorldPxX = UU.mToPx(player.getTransform().getTranslationX());
+            double playerWorldPxY = UU.mToPx(player.getTransform().getTranslationY());
 
-            double targetAngle = Math.atan2(mouseWorldY - playerPos.y, mouseWorldX - playerPos.x);
+            // 2. Map mouse coordinates to world pixels by adding the viewport top-left bounds
+            double mouseWorldPxX = input.mouseX + viewportLeftX;
+            double mouseWorldPxY = input.mouseY + viewportTopY;
+
+            // 3. Compute absolute precise delta angle tracking
+            double targetAngle = Math.atan2(mouseWorldPxY - playerWorldPxY, mouseWorldPxX - playerWorldPxX);
             double diff = targetAngle - currentAngle;
 
-            // Normalization to prevent "spinning the long way around"
+            // Shortest path arc interpolation wrap arounds
             while (diff < -Math.PI) diff += Math.PI * 2;
             while (diff > Math.PI)  diff -= Math.PI * 2;
 
             nextAngle = Interpolator.lerp(currentAngle, currentAngle + diff, Math.min(15.0 * dt, 1.0));
             player.getTransform().setRotation(nextAngle);
 
-            // Physic angular damping
             player.setAngularVelocity(Interpolator.lerp(player.getAngularVelocity(), 0, Math.min(20.0 * dt, 1.0)));
         } else {
-            // Lock rotation during dash
             player.setAngularVelocity(0);
         }
 
-        // --- 3. DASH & SHOOTING ---
-        handleDash(input, dx, dy, nextAngle, dt);
+        // --- 3. EXECUTE DISCRETE ACTIONS ---
+        handleDash(input, dx, dy, nextAngle);
         handleShooting(input);
     }
 
-    private void handleDash(InputManager input, double dx, double dy, double nextAngle, double dt) {
-        if (dashBufferTimer > 0) dashBufferTimer -= dt;
-
+    private void handleDash(GamenexInputs input, double dx, double dy, double nextAngle) {
         if (input.consumeDash()) {
-            dashBufferTimer = 0.15;
+            dashBuffer.start(0.15);
             bufferedDashIsWASD = true;
         } else if (input.consumeDashMouse()) {
-            dashBufferTimer = 0.15;
+            dashBuffer.start(0.15);
             bufferedDashIsWASD = false;
         }
 
-        if (dashBufferTimer > 0 && player.isScattoDisponibile()) {
+        if (dashBuffer.isCoolingDown() && player.isScattoDisponibile()) {
             double finalDashAngle = (bufferedDashIsWASD && (dx != 0 || dy != 0))
                     ? Math.atan2(dy, dx)
                     : nextAngle;
 
             player.executeScatto(finalDashAngle);
-            dashBufferTimer = 0;
+            dashBuffer.reset();
         }
     }
 
-    private void handleShooting(InputManager input) {
+    public void setPlayer(PlayerModel player) {
+        this.player = player;
+        // CRITICAL GUARD: Only initialize the shooter system if we have a real entity model
+        if (player != null) {
+            this.shooter = new Shooter<>(player);
+        } else {
+            this.shooter = null;
+        }
+    }
+
+    private void handleShooting(GamenexInputs input) {
+        // Structural Guard: Ensure BOTH player and shooter instances are active and ready
         if (player == null || shooter == null) return;
 
         if (input.shooting && player.isSparoDisponibile()) {
-            shooter.shoot();                    // spara
-            player.startCooldownFuoco();        // attiva il cooldown
+            shooter.shoot();
+            player.startCooldownFuoco();
         }
     }
+
+    public PlayerModel getPlayer() {
+        return player;
+    }
+
 }

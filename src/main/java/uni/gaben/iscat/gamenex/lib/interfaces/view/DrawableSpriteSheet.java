@@ -36,7 +36,7 @@ public interface DrawableSpriteSheet {
                 renderedImage,
                 sx, sy,
                 sheet.frameWidth, sheet.frameHeight,
-                x - w / 2, y - h / 2, // Posizionamento centrato
+                x, y, // Posizionamento centrato
                 w, h
         );
     }

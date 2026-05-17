@@ -1,33 +1,34 @@
 package uni.gaben.iscat.gamenex.universe.projectiles;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
-import uni.gaben.iscat.gamenex.universe.player.PlayerSettings;
 import uni.gaben.iscat.utils.ThemeColors;
 
 /**
- * Disegna un proiettile: cerchio bianco con bagliore semitrasparente.
+ * Vista standardizzata per il Proiettile.
+ * Risolve i problemi di centratura e scala dimensionale ereditando dalla pipeline centrale.
  */
-public class ProjectileView extends AbstractEntityView implements Drawable<Projectile> {
-
+public class ProjectileView extends AbstractEntityView<Projectile> implements Drawable<Projectile> {
 
     @Override
-    public void draw(Projectile p,  GraphicsContext gc) {
-        gc.save();
-        setPos(p);
-        gc.translate(cx, cy);
-
-        setAngle(p);
-        gc.rotate(rotDeg);
-
-        setSize(16);
-
+    public void draw(Projectile p, GraphicsContext gc) {
+        // Carica i colori prima dell'esecuzione del loop
         ThemeColors.ensureLoaded();
-        gc.setFill(ThemeColors.getAccentPrimary());
-        gc.fillOval(0, 0, w, h);
 
-        gc.restore();
+        // Passa il modello alla pipeline principale.
+        // L'angolo dell'asset di default è 0.0.
+        renderEntity(p, gc, 0.0);
+    }
+
+    @Override
+    protected void drawContent(Projectile p, GraphicsContext gc, double x, double y, double width, double height) {
+        // Applica il colore dell'accento globale impostato nel tema
+        gc.setFill(ThemeColors.getAccentPrimary());
+
+        // IL FIX: x e y arrivano precalcolate come (-width/2, -height/2).
+        // Disegnando qui, il cerchio grafico si allinea millimetricamente
+        // alla fixture fisica di Dyn4j invece di sporgere dall'angolo (0,0).
+        gc.fillOval(x, y, width, height);
     }
 }

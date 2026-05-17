@@ -29,7 +29,7 @@ public class IscatBomberController implements AI {
 
     @Override
     public void updateAI(GameModel world, double dt) {
-        model.tickCooldowns();
+        model.tickCooldowns(dt);
 
         if (model.isStunned()) return;
 

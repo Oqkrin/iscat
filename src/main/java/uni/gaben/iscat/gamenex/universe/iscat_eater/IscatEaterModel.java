@@ -1,31 +1,31 @@
-package uni.gaben.iscat.gamenex.universe.eater;
+package uni.gaben.iscat.gamenex.universe.iscat_eater;
 
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.gamenex.universe.GamenexCollisionLayers;
+import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
-public class EaterModel extends LivingEntityModel {
+public class IscatEaterModel extends LivingEntityModel {
 
     // Eater attacca una sola volta
     private boolean consumed = false;
 
-    public EaterModel(double x, double y) {
-        super(x, y, EaterSettings.HP_INIZIALI, EaterSettings.HP_INIZIALI);
+    public IscatEaterModel(double x, double y) {
+        super(x, y, IscatEaterSettings.HP_INIZIALI, IscatEaterSettings.HP_INIZIALI);
 
         // Creazione della forma di collisione circolare scalata in metri
-        BodyFixture fixture = addFixture(Geometry.createCircle(EaterSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE));
+        BodyFixture fixture = addFixture(Geometry.createCircle(IscatEaterSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE));
 
         // Applica il filtro per distinguere questa entità come NEMICO nelle collisioni
-        fixture.setFilter(GamenexCollisionLayers.ENEMY_FILTER);
+        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
 
         // Imposta il tipo di massa normale per permettere risposte fisiche agli urti
         setMass(MassType.NORMAL);
 
         // Applica l'attrito lineare per simulare la resistenza al movimento nel vuoto
-        setLinearDamping(EaterSettings.DAMPING_LINEARE);
+        setLinearDamping(IscatEaterSettings.DAMPING_LINEARE);
 
     }
 
@@ -36,7 +36,7 @@ public class EaterModel extends LivingEntityModel {
 
     @Override
     public double getTerminalVelocity() {
-        return EaterSettings.MAX_VELOCITY_MS;
+        return IscatEaterSettings.MAX_VELOCITY_MS;
     }
 
     public boolean isConsumed() {

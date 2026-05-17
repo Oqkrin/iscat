@@ -1,6 +1,6 @@
-package uni.gaben.iscat.gamenex.universe.eater;
+package uni.gaben.iscat.gamenex.universe.iscat_eater;
 
-public class EaterSettings {
+public class IscatEaterSettings {
     /** Lunghezza del raggio per vedere i muri. */
     public static final double AVOIDANCE_RAY_LEN = 60.0;
     /** Forza per sterzare via dai muri (deve essere alta). */
