@@ -77,12 +77,9 @@ public class PlayerController {
     }
 
     private void handleDash(GamenexInputs input, double dx, double dy, double nextAngle) {
-        if (input.consumeDash()) {
+        if (input.consumeDash() || input.consumeDashMouse()) {
             dashBuffer.start(0.15);
             bufferedDashIsWASD = true;
-        } else if (input.consumeDashMouse()) {
-            dashBuffer.start(0.15);
-            bufferedDashIsWASD = false;
         }
 
         if (dashBuffer.isCoolingDown() && player.isScattoDisponibile()) {

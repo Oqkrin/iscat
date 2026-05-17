@@ -2,6 +2,7 @@ package uni.gaben.iscat.gamenex.universe.player;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import uni.gaben.iscat.utils.design.ScalareAureo;
 
 /**
  * Centralized settings configuration for the Player entity.
@@ -20,14 +21,13 @@ public final class PlayerSettings {
     // === Core Physics ===
     public static final double MASSA = 1.0;
     public static final double LINEAR_DAMPING = 1.5;
-    public static final double VELOCITA_MAX = 75.0; // Meters per second
-    public static final double FORZA_SPINTA = 30.0; // Newtons
+    public static final double VELOCITA_MAX = 120.0; // Meters per second
+    public static final double FORZA_SPINTA = 60.0; // Newtons
 
     // === Dash Mechanical Settings ===
-    public static final double IMPULSO_SCATTO = 25.0;
-    public static final double LINEAR_DAMPING_SCATTO = 1.0;
-    public static final double VELOCITA_MAX_SCATTO = 55.0;
-    public static final double DURATA_SCATTO_SEC = 0.25;
+    public static final double IMPULSO_SCATTO = 30.0;
+    public static final double LINEAR_DAMPING_SCATTO = 0.7;
+    public static final double DURATA_SCATTO_SEC = 1.0/4.0;
     public static final double COOLDOWN_SCATTO_SEC = 0.8;
 
     // === Combat & Vitals ===
@@ -44,10 +44,10 @@ public final class PlayerSettings {
     public static final double HP_BAR_HEIGHT = 4.0;
 
     // === Engine Particle Thrust Effects ===
-    public static final int THRUST_MIN_PARTICLES = 3;
-    public static final int THRUST_EXTRA_PARTICLES = 7;
-    public static final double THRUST_HEIGHT_FACTOR = 0.65;
-    public static final double THRUST_SPREAD_X_FACTOR = 0.15;
-    public static final double THRUST_MIN_PARTICLE_SIZE = 2.0;
-    public static final double THRUST_PARTICLE_SIZE_VARIATION = 3.0;
+    public static final int THRUST_MIN_PARTICLES = 12;              // Raddoppiate le particelle minime (da 12)
+    public static final int THRUST_EXTRA_PARTICLES = 48;            // Aumentate le particelle massime (da 48)
+    public static final double THRUST_HEIGHT_FACTOR = ScalareAureo.IPHI;         // Coda leggermente più lunga (da 0.65)
+    public static final double THRUST_SPREAD_X_FACTOR = 0.45;       // Triplicata la larghezza del cono (da 0.15)
+    public static final double THRUST_MIN_PARTICLE_SIZE = 1.0;      // Particelle base più grandi (da 1.0)
+    public static final double THRUST_PARTICLE_SIZE_VARIATION = 7.0; // Maggiore escursione di volume (da 7.0)
 }

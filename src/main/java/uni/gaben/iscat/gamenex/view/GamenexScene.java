@@ -24,6 +24,7 @@ import uni.gaben.iscat.utils.design.TipografiaAurea;
 import java.util.Objects;
 
 import static javafx.application.Platform.runLater;
+import static javafx.beans.binding.Bindings.when;
 
 public class GamenexScene extends AbstractIscatScene {
 
@@ -35,7 +36,7 @@ public class GamenexScene extends AbstractIscatScene {
     private GamenexSpawnerToolbar spawnerToolbar;
     private GamenexPauseMenu pauseMenu;
     private Button debugButton;
-
+    private boolean debugPanelVisible = false;
     public GamenexScene(GamenexController gamenexController, GamenexModel gamenexModel) {
         super(new StackPane());
         this.gamenexModel = gamenexModel;
@@ -66,6 +67,7 @@ public class GamenexScene extends AbstractIscatScene {
     @Override
     protected void initLayout() {
         root.getChildren().addAll(canvas, spawnerToolbar, pauseMenu, debugButton);
+
         StackPane.setAlignment(spawnerToolbar, Pos.BOTTOM_CENTER);
         StackPane.setAlignment(debugButton, Pos.TOP_LEFT);
         StackPane.setMargin(debugButton, new Insets(50, 0, 0, 50));
@@ -111,11 +113,18 @@ public class GamenexScene extends AbstractIscatScene {
             }
         });
 
+        // === DEBUG BUTTON FIX ===
         debugButton.setOnAction(_ -> {
-            boolean visible = !spawnerToolbar.isSpawnButtonsVisible();
-            spawnerToolbar.setSpawnButtonsVisible(visible);
-            debugButton.setText(visible ? "HIDE DEBUG" : "DEBUG");
+            debugPanelVisible = !debugPanelVisible;
+
+            spawnerToolbar.setVisible(debugPanelVisible);
+
+            debugButton.setText(debugPanelVisible ? "HIDE DEBUG" : "DEBUG");
         });
+
+        // Force initial state
+        spawnerToolbar.setVisible(false);
+        debugButton.setText("DEBUG");
     }
 
     @Override
@@ -161,7 +170,7 @@ public class GamenexScene extends AbstractIscatScene {
                 // IL FIX DELLA DOPPIA ROTAZIONE: PlayerView.draw() deve invocare renderEntity(..., 0.0)
                 renderer.draw(entity, gc);
 
-                if (spawnerToolbar.isSpawnButtonsVisible() && renderer instanceof AbstractEntityView entityView) {
+                if (debugPanelVisible && renderer instanceof AbstractEntityView entityView) {
                     gc.save();
                     entityView.setPos(entity);
                     entityView.drawDebugCollision(entity, gc);

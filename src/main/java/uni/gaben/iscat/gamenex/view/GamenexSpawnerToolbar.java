@@ -18,7 +18,7 @@ import uni.gaben.iscat.utils.design.CssHelper;
  */
 public class GamenexSpawnerToolbar extends StackPane {
 
-    private final HBox spawnContainer;
+    public final HBox spawnContainer;
     private final ScrollPane scroll;
 
     public GamenexSpawnerToolbar(GamenexController controller) {
@@ -29,6 +29,8 @@ public class GamenexSpawnerToolbar extends StackPane {
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setFitToHeight(true);
         scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+
 
         spawnContainer = new HBox(12);
         spawnContainer.setAlignment(Pos.CENTER);
@@ -44,10 +46,9 @@ public class GamenexSpawnerToolbar extends StackPane {
         }
 
         scroll.setContent(spawnContainer);
-
         getChildren().addAll(scroll);
 
-        // Stile generale della toolbar
+        // Style
         setMaxHeight(80);
         setMaxWidth(900);
         CssHelper.sfondoScuro(this);
@@ -55,6 +56,8 @@ public class GamenexSpawnerToolbar extends StackPane {
         CssHelper.ombra3(this);
         CssHelper.bordoPrimario(this);
         setStyle(getStyle() + "-fx-background-color: rgba(13, 15, 18, 0.92); -fx-border-width: 1.5;");
+
+        // Start hidden - already handled from scene now, but safe to keep
         setVisible(false);
     }
 
@@ -73,15 +76,5 @@ public class GamenexSpawnerToolbar extends StackPane {
 
         btn.setStyle(btn.getStyle() + "-fx-padding: 0 15; -fx-font-size: 13px;");
         return btn;
-    }
-
-    public void setSpawnButtonsVisible(boolean visible) {
-        setVisible(visible);
-        scroll.setVisible(visible);
-        spawnContainer.setVisible(visible);
-    }
-
-    public boolean isSpawnButtonsVisible() {
-        return spawnContainer.isVisible();
     }
 }
