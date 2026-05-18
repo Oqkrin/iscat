@@ -1,18 +1,16 @@
 package uni.gaben.iscat.gamenex.view;
 
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import uni.gaben.iscat.IscatApplication;
-import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.*;
 import uni.gaben.iscat.game.utils.settings.AudioSettings;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
-import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 import java.util.function.Consumer;
@@ -64,10 +62,10 @@ public class GamenexPauseMenu extends VBox {
             controller.stopGameLoop();
 
             // Reset completo tramite Application
-            IscatApplication.getInstance().resetGamenex();
+            controller.resetUniverse();
 
             // Navigazione
-            javafx.scene.Parent root = this.getScene().getRoot();
+            Parent root = this.getScene().getRoot();
             if (root instanceof StackPane stackPane) {
                 IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, stackPane);
             } else {

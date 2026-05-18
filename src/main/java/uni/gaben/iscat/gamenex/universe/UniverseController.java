@@ -15,14 +15,10 @@ import java.util.List;
 
 public class UniverseController {
 
-    private final UniverseModel universeModel;
+    private UniverseModel universeModel;
     private final PlayerController playerController;
     private final List<AiController> aiControllers = new ArrayList<>();
     private final StarfieldController starfieldController = new StarfieldController();
-
-    public UniverseController() {
-        this(new UniverseModel());
-    }
 
     public UniverseController(UniverseModel universeModel) {
         this.universeModel = universeModel;
@@ -85,11 +81,7 @@ public class UniverseController {
         Vector2 pPos = player.getTransform().getTranslation();
         Vector2 pVel = player.getLinearVelocity();
 
-        int bodyCount = universeModel.getBodyCount();
-
-        for (int i = 0; i < bodyCount; i++) {
-            Body body = universeModel.getBody(i);
-
+        for (Body body : universeModel.getBodies()) {
             if (body == player || body.getMass().isInfinite()) {
                 continue;
             }
@@ -123,4 +115,6 @@ public class UniverseController {
 
     public UniverseModel getUniverseModel() { return universeModel; }
     public StarfieldController getStarfieldController() { return starfieldController; }
+
+
 }

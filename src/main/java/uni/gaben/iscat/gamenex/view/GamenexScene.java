@@ -114,7 +114,7 @@ public class GamenexScene extends AbstractIscatScene {
         });
 
         // === DEBUG BUTTON FIX ===
-        debugButton.setOnAction(_ -> {
+        debugButton.setOnAction(event -> {
             debugPanelVisible = !debugPanelVisible;
 
             spawnerToolbar.setVisible(debugPanelVisible);

@@ -12,7 +12,10 @@ import uni.gaben.iscat.game.view.GameSceneIscatScene;
 
 import uni.gaben.iscat.gamenex.controller.GamenexController;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
+import uni.gaben.iscat.gamenex.universe.UniverseController;
+import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.view.GamenexScene;
+import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuSceneIscatScene;
 import uni.gaben.iscat.menus.login_menu.controller.LoginController;
 import uni.gaben.iscat.menus.login_menu.model.LoginData;
@@ -33,12 +36,6 @@ import java.util.Objects;
  */
 public class IscatApplication extends Application {
 
-    private static IscatApplication instance;
-
-    public static IscatApplication getInstance() {
-        return instance;
-    }
-
     IscatModel iscatModel = new IscatModel();
 
     // --- Login Menu ---
@@ -53,9 +50,12 @@ public class IscatApplication extends Application {
     GameModel      legacyModel      = new GameModel();
     GameController legacyController = new GameController(legacyModel);
 
-    // --- Game game ---
-    GamenexModel      gamenexModel      = new GamenexModel();
-    GamenexController gamenexController = new GamenexController(gamenexModel);
+    // --- Gamenex game ---
+    UniverseModel     universeModel     = new UniverseModel();
+    CameraModel       cameraModel       = new CameraModel();
+    GamenexModel      gamenexModel      = new GamenexModel(universeModel, cameraModel);
+    UniverseController universeController = new UniverseController(universeModel);
+    GamenexController gamenexController = new GamenexController(gamenexModel, universeController);
 
     EnumMap<IscatScenes, Scene> scenes =  new EnumMap<>(IscatScenes.class);
 
@@ -89,7 +89,6 @@ public class IscatApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-        instance = this;
         IscatController iscatController = new IscatController(iscatModel, stage, scenes);
         // Wire window chrome (drag, resize, title-bar buttons) to every scene
         scenes.values().forEach(s -> {
@@ -102,11 +101,7 @@ public class IscatApplication extends Application {
         stage.centerOnScreen();
     }
 
-    public void resetGamenex() {
-        gamenexModel = new GamenexModel();
-        gamenexController = new GamenexController(gamenexModel);
-        scenes.put(IscatScenes.GAMEN, new GamenexScene(gamenexController, gamenexModel));
 
-        //System.out.println("[IscatApplication] Gamenex resettato completamente.");
-    }
+
+
 }

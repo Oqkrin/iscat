@@ -8,7 +8,9 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.dyn4j.UnitConversion;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawnable;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
@@ -27,11 +29,11 @@ public class GamenexSpawnerToolbar extends StackPane {
     private final ScrollPane scroll;
 
     // Spawn button che non dovrebbero esistere
-    private static final Set<String> HIDDEN_SPAWNABLES = Set.of(
-            "PROJECTILE",
-            "WORM_HEAD",
-            "WORM_BODY",
-            "WORM_TAIL"
+    private static final Set<UniverseSpawnable> HIDDEN_SPAWNABLES = Set.of(
+            UniverseSpawnable.PLAYER,
+            UniverseSpawnable.WORM_HEAD,
+            UniverseSpawnable.WORM_BODY,
+            UniverseSpawnable.WORM_TAIL
     );
 
 
@@ -51,7 +53,7 @@ public class GamenexSpawnerToolbar extends StackPane {
 
         // SPAWNERS BUTTONS
         for (UniverseSpawnable spawnable : UniverseSpawnable.values()) {
-            if (HIDDEN_SPAWNABLES.contains(spawnable.name())) continue;
+            if (HIDDEN_SPAWNABLES.contains(spawnable)) continue;
             Button b = createSmallButton(spawnable.name());
             b.setOnAction(e -> controller.debugSpawn(spawnable.name()));
             spawnContainer.getChildren().add(b);

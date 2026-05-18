@@ -10,7 +10,6 @@ import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
 public class GamenexController {
     private GamenexModel gamenexModel;
     private UniverseController universeController;
-    private CameraModel cameraModel = new CameraModel();
     private AnimationTimer gameLoop;
     private Runnable drawCall;
     private GamenexInputs gamenexInputs = new GamenexInputs();
@@ -21,10 +20,6 @@ public class GamenexController {
 
     public void setDrawCall(Runnable drawCall) {
         this.drawCall = drawCall;
-    }
-
-    public GamenexController(GamenexModel gamenexModel) {
-        this(gamenexModel, new UniverseController());
     }
 
     public GamenexController(GamenexModel gamenexModel, UniverseController universeController) {
@@ -40,8 +35,8 @@ public class GamenexController {
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
 
         // Stabilize spring hooks immediately to prevent camera lens pan jitter during launch
-        cameraModel.getSpringX().setPosition(midX);
-        cameraModel.getSpringY().setPosition(midY);
+        getCameraModel().getSpringX().setPosition(midX);
+        getCameraModel().getSpringY().setPosition(midY);
 
         setupTimer(gamenexModel);
     }
@@ -75,7 +70,7 @@ public class GamenexController {
 
     private void tick(double dt) {
         if (gamenexModel.isPaused()) {
-            universeController.updatev(dt, gamenexInputs, cameraModel);
+            universeController.updatev(dt, gamenexInputs, getCameraModel());
         }
     }
 
@@ -93,8 +88,8 @@ public class GamenexController {
 
     public void debugSpawn(String spawnableId) {
         // THE FIX: Drops models symmetrically balanced over the actual camera center position
-        double spawnWorldX = cameraModel.getX() + ((Math.random() - 0.5) * 400);
-        double spawnWorldY = cameraModel.getY() + ((Math.random() - 0.5) * 400);
+        double spawnWorldX = getCameraModel().getX() + ((Math.random() - 0.5) * 400);
+        double spawnWorldY = getCameraModel().getY() + ((Math.random() - 0.5) * 400);
 
         UniverseSpawner.getInstance().spawn(spawnableId, spawnWorldX, spawnWorldY);
     }
@@ -110,7 +105,7 @@ public class GamenexController {
     }
 
     public UniverseModel getUniverseModel() {
-        return universeController.getUniverseModel();
+        return gamenexModel.getUniverseModel();
     }
 
     public UniverseController getUniverseController() {
@@ -118,6 +113,22 @@ public class GamenexController {
     }
 
     public CameraModel getCameraModel() {
-        return cameraModel;
+        return gamenexModel.getCameraModel();
+    }
+
+    public void resetUniverse() {
+        UniverseModel newUniverse = new UniverseModel();
+        gamenexModel.setUniverseModel(newUniverse);
+        universeController = new UniverseController(newUniverse);
+
+        UniverseSpawner.getInstance().init(newUniverse, universeController);
+        
+        double midX = newUniverse.getWidth() / 2.0;
+        double midY = newUniverse.getHeight() / 2.0;
+
+        UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+
+        getCameraModel().getSpringX().setPosition(midX);
+        getCameraModel().getSpringY().setPosition(midY);
     }
 }

@@ -7,14 +7,20 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 
+import uni.gaben.iscat.gamenex.universe.UniverseModel;
+import uni.gaben.iscat.gamenex.view.camera.CameraModel;
+
 /**
  * Modello dello stato globale di Gamenex.
  * Mantiene informazioni sul tempo di gioco, lo stato di pausa
- * e i riferimenti ai controller principali.
+ * e i riferimenti ai modelli principali dell'universo e della telecamera.
  */
 public class GamenexModel {
     public static final double ONE_SECOND_IN_NANO_SECONDS = 1_000_000_000.0;
     public static final double ACCUMULATORUNIT = 0.25;
+
+    private UniverseModel universeModel;
+    private final CameraModel cameraModel;
 
     private LongProperty lastUpdate = new SimpleLongProperty(0);
     private DoubleProperty dt = new SimpleDoubleProperty(0);
@@ -22,8 +28,22 @@ public class GamenexModel {
     private DoubleProperty accumulator = new SimpleDoubleProperty(0);
     private BooleanProperty paused = new SimpleBooleanProperty(false);
 
-    public GamenexModel() {
+    public GamenexModel(UniverseModel universeModel, CameraModel cameraModel) {
+        this.universeModel = universeModel;
+        this.cameraModel = cameraModel;
         dt.bind(now.subtract(lastUpdate).divide(ONE_SECOND_IN_NANO_SECONDS));
+    }
+
+    public void setUniverseModel(UniverseModel universeModel) {
+        this.universeModel = universeModel;
+    }
+
+    public UniverseModel getUniverseModel() {
+        return universeModel;
+    }
+
+    public CameraModel getCameraModel() {
+        return cameraModel;
     }
 
     public long getLastUpdate() {
