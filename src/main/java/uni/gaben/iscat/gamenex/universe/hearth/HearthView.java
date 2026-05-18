@@ -54,7 +54,7 @@ public class HearthView extends AbstractEntityView<HearthModel>
         animator.update(UU.UNIVERSE_TICK);
 
         // 4. Invia l'entità nella pipeline centrale di rendering
-        renderEntity(entity, gc, 0.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 0.0);
     }
 
     @Override

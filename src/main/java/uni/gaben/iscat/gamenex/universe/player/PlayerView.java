@@ -42,7 +42,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
     @Override
     public void draw(PlayerModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
-        renderEntity(entity, gc, 0.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 0.0);
     }
 
     @Override

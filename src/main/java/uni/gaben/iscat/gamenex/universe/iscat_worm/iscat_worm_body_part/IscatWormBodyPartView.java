@@ -53,7 +53,7 @@ public class IscatWormBodyPartView extends AbstractEntityView<IscatWormBodyPartM
         animator.update(UU.UNIVERSE_TICK);
 
         // 4. Esegue la pipeline centralizzata applicando la correzione a 180° dell'asset orientato
-        renderEntity(entity, gc, 180.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 180.0);
     }
 
     @Override

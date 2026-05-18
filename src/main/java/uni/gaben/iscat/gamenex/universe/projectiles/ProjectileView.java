@@ -18,7 +18,7 @@ public class ProjectileView extends AbstractEntityView<Projectile> implements Dr
 
         // Passa il modello alla pipeline principale.
         // L'angolo dell'asset di default è 0.0.
-        renderEntity(p, gc, 0.0);
+        setupGraphicsContextAndDrawContent(p, gc, 0.0);
     }
 
     @Override

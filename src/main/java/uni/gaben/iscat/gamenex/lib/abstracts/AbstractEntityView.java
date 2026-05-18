@@ -38,7 +38,7 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
      * Isola lo stack delle trasformazioni, calcola il punto di rotazione al centro,
      * e richiama il disegno specifico in coordinate locali (-w/2, -h/2).
      */
-    public final void renderEntity(M entity, GraphicsContext gc, double assetAngularOffsetDeg) {
+    public final void setupGraphicsContextAndDrawContent(M entity, GraphicsContext gc, double assetAngularOffsetDeg) {
         setPos(entity);
         setAngle(entity);
 

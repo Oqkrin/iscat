@@ -39,7 +39,7 @@ public final class PlayerSettings {
 
     // === Visuals & Dimensions ===
     public static final double DIMENSIONE_DA_DISEGNARE = 64.0; // Render box size (pixels)
-    public static final double RAGGIO_COLLISIONE = 24.0;       // Collision boundary radius (pixels)
+    public static final double RAGGIO_COLLISIONE = 32.0;       // Collision boundary radius (pixels)
     public static final double HP_BAR_OFFSET_Y = 10.0;
     public static final double HP_BAR_HEIGHT = 4.0;
 

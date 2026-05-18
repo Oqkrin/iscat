@@ -57,7 +57,7 @@ public class IscatEaterView extends AbstractEntityView<IscatEaterModel>
         double structuralOffset = ROTATION_TOWARDS_PLAYER ? 0.0 : -rotDeg;
 
         // 5. Invia l'entità alla pipeline standard dell'engine
-        renderEntity(entity, gc, structuralOffset);
+        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset);
     }
 
     @Override

@@ -7,7 +7,6 @@ import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.gamenex.lib.utils.UU;
-import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
@@ -68,7 +67,7 @@ public class IscatMobView extends AbstractEntityView implements Drawable<IscatMo
         // Impostiamo lo stato dell'animatore (es. se ha stati diversi per morte/attacco)
         // animator.setState(entity.getCurrentStateIndex());
 
-        renderEntity(entity, gc, 180.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 180.0);
 
     }
 }

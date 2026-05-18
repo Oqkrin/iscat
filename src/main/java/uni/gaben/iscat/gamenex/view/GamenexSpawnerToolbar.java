@@ -7,6 +7,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
+import uni.gaben.iscat.gamenex.universe.UniverseSpawnable;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
@@ -39,9 +40,9 @@ public class GamenexSpawnerToolbar extends StackPane {
 
 
         // SPAWNERS BUTTONS
-        for (String spawnRegistryKey : UniverseSpawner.getInstance().getSpawnRegistryKeys()) {
-            Button b = createSmallButton(spawnRegistryKey);
-            b.setOnAction(e -> controller.debugSpawn(spawnRegistryKey));
+        for (UniverseSpawnable spawnable : UniverseSpawnable.values()) {
+            Button b = createSmallButton(spawnable.name());
+            b.setOnAction(e -> controller.debugSpawn(spawnable.name()));
             spawnContainer.getChildren().add(b);
         }
 
