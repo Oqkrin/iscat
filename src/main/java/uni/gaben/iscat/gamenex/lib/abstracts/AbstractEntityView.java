@@ -17,6 +17,12 @@ import uni.gaben.iscat.utils.ThemeColors;
 public abstract class AbstractEntityView<M extends AbstractEntityModel> {
     protected double cx, cy, w, h, rotDeg, rotRad;
 
+    /** Fattore di scala visiva indipendente dall'hitbox fisico. Default = 1.0 */
+    protected double spriteScale = 1.0;
+
+    /** Dimensioni dello sprite calcolate: hitbox × spriteScale */
+    protected double sw, sh;
+
     /**
      * Sincronizza la posizione globale dello schermo e le metriche delle
      * dimensioni direttamente estratti dai contorni fisici reali dell'entità.
@@ -26,6 +32,9 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         cy = UU.mToPx(e.getTransform().getTranslationY());
         w = e.getWidthPx();
         h = e.getHeightPx();
+
+        sw = w * spriteScale;
+        sh = h * spriteScale;
     }
 
     protected void setAngle(M e) {
@@ -50,7 +59,7 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
 
         // Delega l'esecuzione del disegno interno alle classi derivate.
         // In drawContent(), (0,0) corrisponde perfettamente al centro dell'entità!
-        drawContent(entity, gc, -w / 2, -h / 2, w, h);
+        drawContent(entity, gc, -sw / 2, -sh / 2, sw, sh);
 
         gc.restore();
     }
@@ -81,7 +90,8 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         gc.setStroke(Color.LIME);
         gc.setLineWidth(1.5);
 
-        if (e.getFixtureCount() > 0 && e.getFixture(0).getShape() instanceof org.dyn4j.geometry.Circle) {
+        if (e.getFixtureCount() > 0
+                && e.getFixture(0).getShape() instanceof org.dyn4j.geometry.Circle) {
             double radiusPx = w / 2;
             gc.strokeOval(-radiusPx, -radiusPx, w, h);
         } else {

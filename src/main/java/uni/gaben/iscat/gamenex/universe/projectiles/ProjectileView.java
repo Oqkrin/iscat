@@ -11,6 +11,9 @@ import uni.gaben.iscat.utils.ThemeColors;
  */
 public class ProjectileView extends AbstractEntityView<Projectile> implements Drawable<Projectile> {
 
+    public ProjectileView() {
+        spriteScale = 1.0;
+    }
     @Override
     public void draw(Projectile p, GraphicsContext gc) {
         // Carica i colori prima dell'esecuzione del loop

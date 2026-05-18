@@ -27,6 +27,7 @@ public class IscatMobView extends AbstractEntityView implements Drawable<IscatMo
     private final SpriteSheetsAnimator animator; // anima lo sprite sheet
 
     public IscatMobView() {
+        spriteScale = IscatMobSettings.SCALE;
         // 1. Carichiamo lo spritesheet tramite la libreria (per il caching dell'Image)
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(
                 SPRITE_PATH,

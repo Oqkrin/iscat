@@ -24,6 +24,7 @@ public class IscatWormTailView extends AbstractEntityView<IscatWormTailModel>
     private final SpriteSheetsAnimator animator;
 
     public IscatWormTailView() {
+        spriteScale = IscatWormTailSettings.SCALE;
         // 1. Recupero dello spritesheet dalla libreria condivisa
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(
                 SPRITE_PATH,

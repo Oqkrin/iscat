@@ -26,6 +26,7 @@ public class HearthView extends AbstractEntityView<HearthModel>
 
     public HearthView() {
         // 1. Carica lo spritesheet delegando il parsing e il caching alla libreria globale
+        spriteScale = HearthSettings.SCALE;
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(
                 SPRITE_PATH,
                 (int) DIM_SPRITE,

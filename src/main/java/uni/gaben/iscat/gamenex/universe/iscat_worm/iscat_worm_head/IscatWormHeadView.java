@@ -19,6 +19,7 @@ public class IscatWormHeadView extends AbstractEntityView<IscatWormHeadModel>
     private final SpriteSheetsAnimator animator;
 
     public IscatWormHeadView() {
+        spriteScale = IscatWormHeadSettings.SCALE;
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(SPRITE_PATH, DIM_SPRITE, DIM_SPRITE);
         this.animator = new SpriteSheetsAnimator(0.035, spriteSheet.getTotalFrames(), spriteSheet.getTotalStates());
     }

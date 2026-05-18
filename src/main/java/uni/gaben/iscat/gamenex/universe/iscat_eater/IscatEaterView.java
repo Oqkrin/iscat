@@ -24,6 +24,7 @@ public class IscatEaterView extends AbstractEntityView<IscatEaterModel>
     private static final String SPRITE_SHEET_PATH = "/uni/gaben/iscat/sprites/eater.png";
 
     public IscatEaterView() {
+        spriteScale = IscatEaterSettings.SCALE;
         // 1. Inizializzazione dello spritesheet tramite la libreria globale
         this.spriteSheetsParser = SpritesLibrary.getInstance().getSprite(SPRITE_SHEET_PATH, DIM_SPRITE, DIM_SPRITE);
 

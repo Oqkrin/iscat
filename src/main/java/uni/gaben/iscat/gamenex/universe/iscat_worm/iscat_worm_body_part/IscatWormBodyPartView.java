@@ -24,6 +24,7 @@ public class IscatWormBodyPartView extends AbstractEntityView<IscatWormBodyPartM
     private final SpriteSheetsAnimator animator;
 
     public IscatWormBodyPartView() {
+        spriteScale = IscatWormBodyPartSettings.SCALE;
         // 1. Caricamento centralizzato dello spritesheet tramite la libreria condivisa
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(
                 SPRITE_PATH,

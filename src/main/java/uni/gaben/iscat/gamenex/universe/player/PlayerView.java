@@ -25,6 +25,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
     private final SpriteSheetsAnimator animator = new SpriteSheetsAnimator(0.1, 1, 1);
 
     public PlayerView() {
+        spriteScale = PlayerSettings.MASSA;
         updateSprite(PlayerSettings.getPlayerSkin());
         PlayerSettings.playerSkinProperty().addListener((obs, old, nv) -> updateSprite(nv));
     }
