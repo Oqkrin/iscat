@@ -33,6 +33,12 @@ import java.util.Objects;
  */
 public class IscatApplication extends Application {
 
+    private static IscatApplication instance;
+
+    public static IscatApplication getInstance() {
+        return instance;
+    }
+
     IscatModel iscatModel = new IscatModel();
 
     // --- Login Menu ---
@@ -83,6 +89,7 @@ public class IscatApplication extends Application {
 
     @Override
     public void start(Stage stage) {
+        instance = this;
         IscatController iscatController = new IscatController(iscatModel, stage, scenes);
         // Wire window chrome (drag, resize, title-bar buttons) to every scene
         scenes.values().forEach(s -> {
@@ -93,5 +100,13 @@ public class IscatApplication extends Application {
         iscatController.initializeScene();
         stage.show();
         stage.centerOnScreen();
+    }
+
+    public void resetGamenex() {
+        gamenexModel = new GamenexModel();
+        gamenexController = new GamenexController(gamenexModel);
+        scenes.put(IscatScenes.GAMEN, new GamenexScene(gamenexController, gamenexModel));
+
+        //System.out.println("[IscatApplication] Gamenex resettato completamente.");
     }
 }

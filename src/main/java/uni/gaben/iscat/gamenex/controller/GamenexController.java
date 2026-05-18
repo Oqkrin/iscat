@@ -74,13 +74,13 @@ public class GamenexController {
     }
 
     private void tick(double dt) {
-        if (!gamenexModel.isPaused()) {
+        if (gamenexModel.isPaused()) {
             universeController.updatev(dt, gamenexInputs, cameraModel);
         }
     }
 
     public void togglePause() {
-        gamenexModel.setPaused(!gamenexModel.isPaused());
+        gamenexModel.setPaused(gamenexModel.isPaused());
     }
 
     public void setPaused(boolean paused) {

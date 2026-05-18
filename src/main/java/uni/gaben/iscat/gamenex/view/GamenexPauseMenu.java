@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.IscatApplication;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.utils.settings.AudioSettings;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
@@ -59,9 +60,19 @@ public class GamenexPauseMenu extends VBox {
 
         Button menuBtn = createBigButton("QUIT TO MENU");
         menuBtn.setOnAction(e -> {
-            controller.setPaused(false); // Unpausa il menu
-            javafx.scene.Parent actualRoot = this.getScene().getRoot();
-            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, (StackPane) actualRoot);
+            controller.setPaused(false);
+            controller.stopGameLoop();
+
+            // Reset completo tramite Application
+            IscatApplication.getInstance().resetGamenex();
+
+            // Navigazione
+            javafx.scene.Parent root = this.getScene().getRoot();
+            if (root instanceof StackPane stackPane) {
+                IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, stackPane);
+            } else {
+                IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
+            }
         });
 
         Button quitBtn = createBigButton("QUIT GAME");

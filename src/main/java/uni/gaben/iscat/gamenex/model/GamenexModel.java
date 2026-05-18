@@ -71,7 +71,7 @@ public class GamenexModel {
     }
 
     public boolean isPaused() {
-        return paused.get();
+        return !paused.get();
     }
 
     public void setPaused(boolean p) {
