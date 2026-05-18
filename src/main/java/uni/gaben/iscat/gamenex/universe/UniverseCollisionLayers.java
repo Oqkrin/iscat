@@ -19,7 +19,7 @@ public final class UniverseCollisionLayers {
 
     // Filters
     public static final CategoryFilter PLAYER_FILTER = new CategoryFilter(PLAYER, 
-        PLAYER | ASTEROID | ENEMY | PROJECTILE | BOOST);
+        PLAYER | ASTEROID | ENEMY | ENEMY_PROJECTILE | BOOST);
         
     public static final CategoryFilter ASTEROID_FILTER = new CategoryFilter(ASTEROID, 
         PLAYER | ASTEROID | ENEMY | PROJECTILE);

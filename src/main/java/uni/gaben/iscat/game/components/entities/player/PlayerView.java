@@ -37,7 +37,7 @@ public class PlayerView implements Drawable<PlayerModel> {
             String path = uni.gaben.iscat.gamenex.universe.player.PlayerSettings.getPlayerSkin();
 
             if (path == null || path.isBlank()) {
-                path = "/uni/gaben/iscat/sprites/player1.png";
+                path = "/uni/gaben/iscat/sprites/players/player1.png";
             }
 
             currentSprite = new Image(

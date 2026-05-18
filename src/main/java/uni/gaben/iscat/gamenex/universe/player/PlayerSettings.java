@@ -10,7 +10,7 @@ import uni.gaben.iscat.utils.design.ScalareAureo;
  */
 public final class PlayerSettings {
     public static final boolean DEBUG_COLLISION_VISIBLE = true;
-    private static final StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/player1.png");
+    private static final StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/players/player1.png");
 
     public static StringProperty playerSkinProperty() { return playerSkin; }
     public static String getPlayerSkin() { return playerSkin.getValue(); }

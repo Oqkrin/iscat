@@ -56,7 +56,7 @@ public class SkinMenuController implements IscatFxmlController {
         populateGrid();
 
         // Seleziona la prima skin di default
-        selectSkin("/uni/gaben/iscat/sprites/player1.png", SKIN_NAMES[0]);
+        selectSkin("/uni/gaben/iscat/sprites/players/player1.png", SKIN_NAMES[0]);
 
         // Listener per scalare i bottoni e la preview per multipli di 2
         ChangeListener<Number> sizeListener = (obs, oldVal, newVal) -> updateDynamicScaling();
@@ -120,7 +120,7 @@ public class SkinMenuController implements IscatFxmlController {
         skinGrid.getChildren().clear();
         for (int i = 0; i < TOTAL_SKINS; i++) {
             int num = i + 1;
-            String path = "/uni/gaben/iscat/sprites/player" + num + ".png";
+            String path = "/uni/gaben/iscat/sprites/players/player" + num + ".png";
             String name = SKIN_NAMES[i];
 
             Button btn = new Button();

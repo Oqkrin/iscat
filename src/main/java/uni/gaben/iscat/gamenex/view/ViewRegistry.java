@@ -1,17 +1,18 @@
 package uni.gaben.iscat.gamenex.view;
 
-import uni.gaben.iscat.game.components.entities.npcs.IscatMother;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawnable;
 import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidView;
+import uni.gaben.iscat.gamenex.universe.enemies.fake_iscat.FakeIscatView;
+import uni.gaben.iscat.gamenex.universe.enemies.fallen_star_golem.FallenStarGolemView;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_core.IscatCoreView;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthView;
-import uni.gaben.iscat.gamenex.universe.iscat_eater.IscatEaterView;
-import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobView;
-import uni.gaben.iscat.gamenex.universe.iscat_mother.IscatMotherView;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartView;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadView;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailView;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_eater.IscatEaterView;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_mob.IscatMobView;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartView;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadView;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailView;
 import uni.gaben.iscat.gamenex.universe.player.PlayerView;
 import uni.gaben.iscat.gamenex.universe.projectiles.ProjectileView;
 
@@ -58,6 +59,9 @@ public class ViewRegistry {
             case WORM_BODY -> new IscatWormBodyPartView();
             case WORM_TAIL -> new IscatWormTailView();
             case PROJECTILE -> new ProjectileView();
+            case ISCAT_CORE -> new IscatCoreView();
+            case FAKE_ISCAT -> new FakeIscatView();
+            case FALLEN_STAR_GOLEM -> new FallenStarGolemView();
             case WORM -> null; // WORM non ha View diretta, essendo composto
         };
     }

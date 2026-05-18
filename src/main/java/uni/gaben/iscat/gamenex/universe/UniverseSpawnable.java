@@ -2,13 +2,15 @@ package uni.gaben.iscat.gamenex.universe;
 
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
+import uni.gaben.iscat.gamenex.universe.enemies.fake_iscat.FakeIscatModel;
+import uni.gaben.iscat.gamenex.universe.enemies.fallen_star_golem.FallenStarGolemModel;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_core.IscatCoreModel;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
-import uni.gaben.iscat.gamenex.universe.iscat_eater.IscatEaterModel;
-import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobModel;
-import uni.gaben.iscat.gamenex.universe.iscat_mother.IscatMotherModel;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadModel;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailModel;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_eater.IscatEaterModel;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_mob.IscatMobModel;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadModel;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailModel;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
 
@@ -19,6 +21,9 @@ public enum UniverseSpawnable {
     //ISCAT_MOTHER(IscatMotherModel.class),
     HEARTH(HearthModel.class),
     EATER(IscatEaterModel.class),
+    ISCAT_CORE(IscatCoreModel.class),
+    FALLEN_STAR_GOLEM(FallenStarGolemModel.class),
+    FAKE_ISCAT(FakeIscatModel.class),
 
     WORM(null),
     WORM_HEAD(IscatWormHeadModel.class),

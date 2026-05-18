@@ -6,7 +6,7 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
-import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobSettings;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_mob.IscatMobSettings;
 
 public class HearthModel extends LivingEntityModel {
     public HearthModel(double x, double y) {

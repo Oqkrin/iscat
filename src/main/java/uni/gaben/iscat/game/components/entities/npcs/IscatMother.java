@@ -33,7 +33,7 @@ public class IscatMother extends NpcModel implements AI, HasRenderer, Spawnable,
     private static final double VEL_PROIETTILE      = 20.0; // px/tick
 
     private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            IscatMother.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat_mother.png")));
+            IscatMother.class.getResourceAsStream("/uni/gaben/iscat/sprites/enemies/iscat_mother.png")));
 
     private final Cooldown cooldownFuoco = new Cooldown();
     private boolean hasSpawnedMinions = false;

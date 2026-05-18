@@ -33,7 +33,7 @@ public class FallenStarGolem extends NpcModel implements AI, HasRenderer, Spawna
     private static final double VEL_PROIETTILE      = 20.0;
 
     private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            FallenStarGolem.class.getResourceAsStream("/uni/gaben/iscat/sprites/fallen_star_golem.png")));
+            FallenStarGolem.class.getResourceAsStream("/uni/gaben/iscat/sprites/enemies/fallen_star_golem.png")));
 
     private final Cooldown cooldownFuoco = new Cooldown();
 

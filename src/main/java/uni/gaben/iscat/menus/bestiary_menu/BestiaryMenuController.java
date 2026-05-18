@@ -16,11 +16,11 @@ import javafx.util.Duration;
 import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.gamenex.universe.iscat_eater.IscatEaterSettings;
-import uni.gaben.iscat.gamenex.universe.iscat_mob.IscatMobSettings;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_head.IscatWormHeadSettings;
-import uni.gaben.iscat.gamenex.universe.iscat_worm.iscat_worm_tail.IscatWormTailSettings;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_eater.IscatEaterSettings;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_mob.IscatMobSettings;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadSettings;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailSettings;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class BestiaryMenuController implements IscatFxmlController {
      */
     private record Enemy(String name, String sprite, int frameCount, int frameW, int frameH, String description) {}
 
-    private static final String BASE = "/uni/gaben/iscat/sprites/";
+    private static final String BASE = "/uni/gaben/iscat/sprites/enemies/";
     private static final double DISPLAY_SIZE    = 160.0;   // dimensione preview sullo schermo
     private static final double FRAME_DURATION_MS = 150.0; // ms per frame
 

@@ -21,7 +21,7 @@ public class IscatBomberView implements Drawable<IscatBomberModel> {
     private final Image sprite = new Image(
             Objects.requireNonNull(
                     IscatBomberView.class.getResourceAsStream(
-                            "/uni/gaben/iscat/sprites/IscatBomber.png")));
+                            "/uni/gaben/iscat/sprites/enemies/IscatBomber.png")));
 
     @Override
     public void draw(GraphicsContext gc, IscatBomberModel bomber) {

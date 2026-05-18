@@ -33,7 +33,7 @@ public class IscatCore extends NpcModel implements AI, HasRenderer, Spawnable, C
     private static final double VEL_PROIETTILE = 20.0;
 
     private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            IscatCore.class.getResourceAsStream("/uni/gaben/iscat/sprites/iscat_core.png")));
+            IscatCore.class.getResourceAsStream("/uni/gaben/iscat/sprites/enemies/iscat_core.png")));
 
     private final Cooldown cooldownFuoco = new Cooldown();
 

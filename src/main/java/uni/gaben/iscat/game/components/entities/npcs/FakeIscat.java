@@ -33,7 +33,7 @@ public class FakeIscat extends NpcModel implements AI, HasRenderer, Spawnable, C
     private static final double VEL_PROIETTILE = 20.0;
 
     private static final Image SPRITE_SHEET = new Image(Objects.requireNonNull(
-            FakeIscat.class.getResourceAsStream("/uni/gaben/iscat/sprites/fake_iscat.png")));
+            FakeIscat.class.getResourceAsStream("/uni/gaben/iscat/sprites/enemies/fake_iscat.png")));
 
     private final Cooldown cooldownFuoco = new Cooldown();
 
