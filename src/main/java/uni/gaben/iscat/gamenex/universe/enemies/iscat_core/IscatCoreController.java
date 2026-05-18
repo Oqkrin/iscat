@@ -13,8 +13,8 @@ import uni.gaben.iscat.utils.Interpolator;
 import java.util.Random;
 
 /**
- * Controller di Intelligenza Artificiale per l'IscatCore.
- * Gestisce la macchina a stati (Wander, Chase, Combat), il movimento e lo sparo.
+ * Controller di Intelligenza Artificiale per l'IscatCore (Boss Quadrato).
+ * Gestisce il movimento e l'attacco rotatorio a 4 lati con 3 proiettili per lato.
  */
 public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
 
@@ -62,7 +62,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
                 : aiEntity.getTransform().getTranslation()
                 .distance(player.getTransform().getTranslation());
 
-        // ── MACCHINA A STATI ───────────────────────────────────────────────────
+        // ── MACCHINA A STATI (Calcolo transizioni in base alla distanza) ───────
         if (player == null || distToPlayer > IscatCoreSettings.DETECTION_RANGE) {
             state = State.WANDER;
         } else if (distToPlayer <= IscatCoreSettings.COMBAT_RANGE) {
@@ -71,7 +71,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
             state = State.CHASE;
         }
 
-        // ── ESECUZIONE DELLO STATO ─────────────────────────────────────────────
+        // ── ESECUZIONE DELLO STATO CORRENTE ───────────────────────────────────
         switch (state) {
             case WANDER -> updateWander(dt);
             case CHASE  -> updateChase(player, dt);
@@ -80,7 +80,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
     }
 
     /**
-     * Stato WANDER: movimento casuale.
+     * Stato WANDER: movimento casuale di pattugliamento.
      */
     private void updateWander(double dt) {
         if (wanderTarget == null) {
@@ -91,8 +91,6 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
                     currentDir - 1.5 * Math.PI + rand.nextDouble(1.5 * Math.PI)
             );
         }
-
-        //rotateTo(wanderTarget.getDirection(), dt);
 
         aiEntity.applyForce(
                 wanderTarget.getNormalized()
@@ -105,14 +103,12 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
     }
 
     /**
-     * Stato CHASE: inseguimento del player.
+     * Stato CHASE: Insegue il giocatore se si trova nel raggio di ingaggio.
      */
     private void updateChase(PlayerModel player, double dt) {
         wanderTarget = null;
 
         Vector2 toPlayer = directionToPlayer(player);
-
-        //rotateTo(toPlayer.getDirection(), dt);
 
         aiEntity.applyForce(
                 toPlayer.getNormalized()
@@ -121,7 +117,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
     }
 
     /**
-     * Stato COMBAT: mantiene distanza e spara.
+     * Stato COMBAT: Gestisce il balletto della distanza e la logica di sparo rotatoria.
      */
     private void updateCombat(PlayerModel player, double dt) {
         wanderTarget = null;
@@ -129,12 +125,12 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
         Vector2 toPlayer = directionToPlayer(player);
         double dist = toPlayer.getMagnitude();
 
+        // Mantiene il posizionamento ottimale rispetto al player
         if (dist < IscatCoreSettings.PREFERRED_RANGE) {
             aiEntity.applyForce(
                     toPlayer.getNormalized()
                             .multiply(-IscatCoreSettings.FORCE * 0.6)
             );
-
         } else if (dist > IscatCoreSettings.PREFERRED_RANGE * 1.2) {
             aiEntity.applyForce(
                     toPlayer.getNormalized()
@@ -142,16 +138,46 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
             );
         }
 
-        //rotateTo(toPlayer.getDirection(), dt);
-
+        // ── LOGICA DI SPARO CON ROTAZIONE DI 45° ──────────────────────────────
         if (!fireCooldown.isCoolingDown()) {
-            shooter.shoot(bulletTemplate);
+
+            // 1. Calcoliamo la nuova rotazione fisica del quadrato sommandoci 45 gradi (PI / 4 radianti)
+            double newCoreRotation = aiEntity.getTransform().getRotationAngle() + (Math.PI / 4.0);
+
+            // 2. Applichiamo immediatamente la nuova rotazione al modello
+            aiEntity.getTransform().setRotation(newCoreRotation);
+            aiEntity.setAngularVelocity(0.0); // Azzera l'inerzia della fisica di dyn4j
+
+            // 3. Ciclo per i 4 lati del quadrato (ogni lato è sfasato di 90° ovvero PI / 2)
+            for (int side = 0; side < 4; side++) {
+                double sideAngle = newCoreRotation + (side * (Math.PI / 2.0));
+
+                // 4. Per ogni lato, spara 3 proiettili (b varia tra -1, 0, 1) creando la sventagliata
+                for (int b = -1; b <= 1; b++) {
+                    // Distanza angolare di sventagliata tra i 3 colpi dello stesso lato (es. 10 gradi)
+                    double spreadOffset = Math.toRadians(10);
+                    double finalBulletAngle = sideAngle + (b * spreadOffset);
+
+                    // Forziamo momentaneamente la rotazione dell'entità sull'angolo del singolo proiettile
+                    // in modo che la classe Shooter lo legga e generi la traiettoria corretta
+                    aiEntity.getTransform().setRotation(finalBulletAngle);
+
+                    // Esegue il comando di sparo nativo della tua libreria
+                    shooter.shoot(bulletTemplate);
+                }
+            }
+
+            // 5. Ripristiniamo la rotazione strutturale corretta a 45 gradi impostata all'inizio.
+            // Così i colpi sono partiti inclinati e il quadrato rimane fermo a 45° fino al prossimo sparo!
+            aiEntity.getTransform().setRotation(newCoreRotation);
+
+            // Avvia il timer di ricarica dell'arma
             fireCooldown.start(IscatCoreSettings.FIRE_COOLDOWN_S);
         }
     }
 
     /**
-     * Calcola il vettore verso il player.
+     * Calcola il vettore direzione verso il player.
      */
     private Vector2 directionToPlayer(PlayerModel player) {
         return player.getTransform().getTranslation()
@@ -160,7 +186,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
     }
 
     /**
-     * Rotazione fluida verso un angolo obiettivo.
+     * Rotazione fluida verso un angolo obiettivo (Attualmente non usata dagli stati).
      */
     private void rotateTo(double targetAngle, double dt) {
         aiEntity.setAngularVelocity(0.0);
