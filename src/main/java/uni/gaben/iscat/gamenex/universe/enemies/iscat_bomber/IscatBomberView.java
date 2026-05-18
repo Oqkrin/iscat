@@ -1,4 +1,4 @@
-package uni.gaben.iscat.gamenex.universe.enemies.iscat_mother;
+package uni.gaben.iscat.gamenex.universe.enemies.iscat_bomber;
 
 import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
@@ -9,24 +9,33 @@ import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
-import static uni.gaben.iscat.gamenex.universe.enemies.iscat_mother.IscatMotherSettings.*;
+import static uni.gaben.iscat.gamenex.universe.enemies.iscat_bomber.IscatBomberSettings.*;
 
-public class IscatMotherView extends AbstractEntityView<IscatMotherModel>
-        implements Drawable<IscatMotherModel>, DrawableSpriteSheet {
+/**
+ * Vista per l'IscatBomber.
+ * Segue il pattern standard gamenex: {@link AbstractEntityView} per la pipeline
+ * di rendering (translate + rotate) e {@link DrawableSpriteSheet} per il
+ * campionamento dal foglio di sprite con tint globale automatico via ThemeManager.
+ */
+public class IscatBomberView extends AbstractEntityView<IscatBomberModel>
+        implements Drawable<IscatBomberModel>, DrawableSpriteSheet {
 
-    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/enemies/iscat_mother.png";
+    // Percorso assoluto classpath — il file è in resources/uni/gaben/iscat/sprites/enemies/
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/enemies/IscatBomber.png";
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
 
-    public IscatMotherView() {
+    public IscatBomberView() {
         spriteScale = SCALE;
 
+        // Carica lo spritesheet tramite la libreria centrale (cache automatica)
         this.spriteSheet = SpritesLibrary.getInstance()
                 .getSprite(SPRITE_PATH, DIM_SPRITE, DIM_SPRITE);
 
+        // Configura l'animatore con i frame del foglio
         this.animator = new SpriteSheetsAnimator(
-                0.4,  // 2.5 FPS — animazione lenta per boss grande
+                UU.UNIVERSE_TICK * 2,
                 spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
                 spriteSheet != null ? spriteSheet.getTotalStates() : 1
         );
@@ -40,19 +49,19 @@ public class IscatMotherView extends AbstractEntityView<IscatMotherModel>
     @Override
     public SpriteSheetsAnimator getAnimator() { return animator; }
 
-    // --- Drawable<IscatMotherModel> ---
+    // --- Drawable<IscatBomberModel> ---
 
     @Override
-    public void draw(IscatMotherModel entity, GraphicsContext gc) {
+    public void draw(IscatBomberModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
-        // +270° per allineare lo sprite alla direzione di rotazione (legacy: rotate + 270)
-        setupGraphicsContextAndDrawContent(entity, gc, 270.0);
+        // +90° perché il bomber punta verso l'alto nel file PNG
+        setupGraphicsContextAndDrawContent(entity, gc, 90.0);
     }
 
-    // --- AbstractEntityView<IscatMotherModel> ---
+    // --- AbstractEntityView<IscatBomberModel> ---
 
     @Override
-    protected void drawContent(IscatMotherModel entity, GraphicsContext gc,
+    protected void drawContent(IscatBomberModel entity, GraphicsContext gc,
                                double x, double y, double width, double height) {
         drawSprite(gc, x, y, width, height);
         drawHpBar(entity, gc);

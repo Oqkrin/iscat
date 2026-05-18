@@ -7,12 +7,14 @@ import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidView;
 import uni.gaben.iscat.gamenex.universe.enemies.fake_iscat.FakeIscatView;
 import uni.gaben.iscat.gamenex.universe.enemies.fallen_star_golem.FallenStarGolemView;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_core.IscatCoreView;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_mother.IscatMotherView;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthView;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_eater.IscatEaterView;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_mob.IscatMobView;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartView;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadView;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailView;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_bomber.IscatBomberView;
 import uni.gaben.iscat.gamenex.universe.player.PlayerView;
 import uni.gaben.iscat.gamenex.universe.projectiles.ProjectileView;
 
@@ -52,7 +54,8 @@ public class ViewRegistry {
             case PLAYER -> new PlayerView();
             case ASTEROID -> new AsteroidView();
             case ISCAT_MOB -> new IscatMobView();
-            //case ISCAT_MOTHER -> new IscatMotherView(); // Sostituisci con new IscatMotherView() se la hai
+            case ISCAT_BOMBER -> new IscatBomberView();
+            case ISCAT_MOTHER -> new IscatMotherView();
             case HEARTH -> new HearthView();
             case EATER -> new IscatEaterView();
             case WORM_HEAD -> new IscatWormHeadView();

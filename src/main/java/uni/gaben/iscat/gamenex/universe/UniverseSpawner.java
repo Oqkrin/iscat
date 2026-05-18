@@ -10,6 +10,8 @@ import uni.gaben.iscat.gamenex.universe.enemies.fallen_star_golem.FallenStarGole
 import uni.gaben.iscat.gamenex.universe.enemies.fallen_star_golem.FallenStarGolemModel;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_core.IscatCoreController;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_core.IscatCoreModel;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_mother.IscatMotherController;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_mother.IscatMotherModel;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthController;
 import uni.gaben.iscat.gamenex.universe.hearth.HearthModel;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_eater.IscatEaterController;
@@ -22,6 +24,8 @@ import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_head.Iscat
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadModel;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailController;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailModel;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_bomber.IscatBomberController;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_bomber.IscatBomberModel;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 
 import java.util.function.BiFunction;
@@ -70,7 +74,8 @@ public class UniverseSpawner {
             case PLAYER -> spawnPlayer(x, y);
             case ASTEROID -> spawnStandard(AsteroidModel::new, null, x, y);
             case ISCAT_MOB -> spawnStandard(IscatMobModel::new, IscatMobController::new, x, y);
-            //case ISCAT_MOTHER -> spawnStandard(IscatMotherModel::new, IscatMotherController::new, x, y);
+            case ISCAT_MOTHER -> spawnStandard(IscatMotherModel::new, IscatMotherController::new, x, y);
+            case ISCAT_BOMBER -> spawnStandard(IscatBomberModel::new, IscatBomberController::new, x, y);
             case HEARTH -> spawnStandard(HearthModel::new, HearthController::new, x, y);
             case EATER -> spawnStandard(IscatEaterModel::new, IscatEaterController::new, x, y);
             case ISCAT_CORE -> spawnStandard(IscatCoreModel::new, IscatCoreController:: new, x, y);
