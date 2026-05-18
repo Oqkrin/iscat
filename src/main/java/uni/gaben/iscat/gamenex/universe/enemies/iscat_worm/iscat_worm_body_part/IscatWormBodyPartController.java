@@ -1,7 +1,9 @@
 package uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_body_part;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.IscatWormSegment;
@@ -15,6 +17,49 @@ public class IscatWormBodyPartController extends AiBehaviours<IscatWormBodyPartM
     public IscatWormBodyPartController(IscatWormBodyPartModel bodyPart) {
         super(bodyPart);
         this.bodyPart = bodyPart;
+
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                return 10.0;
+            }
+
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                if (IscatWormBodyPartController.this.bodyPart == null || IscatWormBodyPartController.this.bodyPart.isConsumed() || previousSegment == null) return;
+
+                Vector2 myPos = IscatWormBodyPartController.this.bodyPart.getTransform().getTranslation();
+                Vector2 prevPos = previousSegment.getPosition();
+
+                Vector2 direction = prevPos.copy().subtract(myPos);
+                double distance = direction.getMagnitude();
+
+                double desiredDistance = IscatWormBodyPartSettings.FOLLOW_DISTANCE / UniverseSettings.SCALE;
+
+                // FORZA MOLTO AGGRESSIVA se si allontana
+                if (distance > desiredDistance) {
+                    double excess = distance - desiredDistance;
+
+                    Vector2 force = direction.getNormalized()
+                            .multiply(IscatWormBodyPartSettings.FOLLOW_FORCE * (1 + excess * 8)); // correzione extra
+
+                    IscatWormBodyPartController.this.bodyPart.applyForce(force);
+
+                    // Rotazione molto reattiva
+                    double targetAngle = direction.getDirection();
+                    double currentAngle = IscatWormBodyPartController.this.bodyPart.getTransform().getRotationAngle();
+                    double newAngle = Interpolator.smootherStep(currentAngle, targetAngle, 0.28);
+                    IscatWormBodyPartController.this.bodyPart.getTransform().setRotation(newAngle);
+                }
+
+                // Limita velocità
+                Vector2 vel = IscatWormBodyPartController.this.bodyPart.getLinearVelocity();
+                if (vel.getMagnitude() > IscatWormBodyPartSettings.MAX_VELOCITY_MS) {
+                    IscatWormBodyPartController.this.bodyPart.setLinearVelocity(vel.getNormalized()
+                            .multiply(IscatWormBodyPartSettings.MAX_VELOCITY_MS));
+                }
+            }
+        });
     }
 
     public void setPreviousSegment(IscatWormSegment previous) {
@@ -30,39 +75,7 @@ public class IscatWormBodyPartController extends AiBehaviours<IscatWormBodyPartM
 
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        super.aiUpdate(universeModel, dt);
-
         if (bodyPart == null || bodyPart.isConsumed() || previousSegment == null) return;
-
-        Vector2 myPos = bodyPart.getTransform().getTranslation();
-        Vector2 prevPos = previousSegment.getPosition();
-
-        Vector2 direction = prevPos.copy().subtract(myPos);
-        double distance = direction.getMagnitude();
-
-        double desiredDistance = IscatWormBodyPartSettings.FOLLOW_DISTANCE / UniverseSettings.SCALE;
-
-        // FORZA MOLTO AGGRESSIVA se si allontana
-        if (distance > desiredDistance) {
-            double excess = distance - desiredDistance;
-
-            Vector2 force = direction.getNormalized()
-                    .multiply(IscatWormBodyPartSettings.FOLLOW_FORCE * (1 + excess * 8)); // correzione extra
-
-            bodyPart.applyForce(force);
-
-            // Rotazione molto reattiva
-            double targetAngle = direction.getDirection();
-            double currentAngle = bodyPart.getTransform().getRotationAngle();
-            double newAngle = Interpolator.smootherStep(currentAngle, targetAngle, 0.28);
-            bodyPart.getTransform().setRotation(newAngle);
-        }
-
-        // Limita velocità
-        Vector2 vel = bodyPart.getLinearVelocity();
-        if (vel.getMagnitude() > IscatWormBodyPartSettings.MAX_VELOCITY_MS) {
-            bodyPart.setLinearVelocity(vel.getNormalized()
-                    .multiply(IscatWormBodyPartSettings.MAX_VELOCITY_MS));
-        }
+        super.aiUpdate(universeModel, dt);
     }
 }

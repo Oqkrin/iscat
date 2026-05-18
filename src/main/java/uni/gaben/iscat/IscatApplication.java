@@ -74,6 +74,9 @@ public class IscatApplication extends Application {
 
         // Navigation
         IscatNavigator.getInstance().initialize(iscatModel, scenes);
+
+        // Load Audio SFX
+        IscatAudioManager.getInstance().loadDefaultAudio();
     }
 
     private void putScenes() {

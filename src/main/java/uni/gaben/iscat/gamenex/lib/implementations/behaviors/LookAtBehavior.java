@@ -56,6 +56,11 @@ public class LookAtBehavior implements AiBehavior {
     }
 
     @Override
+    public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+        return 0.0;
+    }
+
+    @Override
     public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
         Vector2 target = universe.getPlayer().getTransform().getTranslation();
         Vector2 myPos  = npc.getTransform().getTranslation();

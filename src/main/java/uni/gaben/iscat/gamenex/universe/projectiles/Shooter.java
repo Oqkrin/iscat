@@ -2,6 +2,7 @@ package uni.gaben.iscat.gamenex.universe.projectiles;
 
 import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractShooterController;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasProjectile;
@@ -16,9 +17,13 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
 
     public void shoot(AbstractProjectileModel template) {
         AbstractProjectileModel[] projectiles = shootingLogic(template);
-        // registra nel world tramite il tuo spawner/universeController
+        
+
+
         for (AbstractProjectileModel p : projectiles) {
-            UniverseSpawner.getInstance().spawnProjectile(p);
+            // Riproduce il suono di sparo
+           IscatAudioManager.getInstance().playSFX("shoot");
+           UniverseSpawner.getInstance().spawnEntity(p);
         }
     }
 

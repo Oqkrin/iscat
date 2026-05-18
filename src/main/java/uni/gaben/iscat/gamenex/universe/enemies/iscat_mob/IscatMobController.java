@@ -1,7 +1,9 @@
 package uni.gaben.iscat.gamenex.universe.enemies.iscat_mob;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
@@ -9,6 +11,9 @@ import uni.gaben.iscat.gamenex.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.gamenex.universe.projectiles.Shooter;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.Interpolator;
+
+import uni.gaben.iscat.gamenex.lib.implementations.behaviors.SeparationBehavior;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 
 import java.util.Random;
 
@@ -37,12 +42,58 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
      */
     public IscatMobController(IscatMobModel iscat) {
         super(iscat);
-        // Inizializza lo shooter associandolo a questo specifico mob
         shooter = new Shooter<>(iscat);
-
-        // Configura il tipo di proiettile come proiettile nemico
         bulletTemplate = new Projectile();
         bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+
+        // --- COMPOSIZIONE BEHAVIORS ---
+
+        // Comportamento parallelo di separazione per evitare clumping (raggio 32px, forza bilanciata)
+        this.addBehavior(new SeparationBehavior(UU.pxToM(32.0), IscatMobSettings.FORCE * 0.8));
+
+        // 1. WANDER: Priorità base (10.0). Se nient'altro si attiva, pattuglia.
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                return 10.0;
+            }
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                updateWander(dt);
+            }
+        });
+
+        // 2. CHASE: Priorità media (50.0). Si attiva se il player è nel DETECTION_RANGE ma fuori dal COMBAT_RANGE.
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                PlayerModel player = universe.getPlayer();
+                if (player == null) return 0.0;
+                double dist = aiEntity.getTransform().getTranslation().distance(player.getTransform().getTranslation());
+                if (dist > IscatMobSettings.COMBAT_RANGE && dist <= IscatMobSettings.DETECTION_RANGE) return 50.0;
+                return 0.0;
+            }
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                updateChase(universe.getPlayer(), dt);
+            }
+        });
+
+        // 3. COMBAT: Priorità alta (80.0). Si attiva se il player entra nel COMBAT_RANGE.
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                PlayerModel player = universe.getPlayer();
+                if (player == null) return 0.0;
+                double dist = aiEntity.getTransform().getTranslation().distance(player.getTransform().getTranslation());
+                if (dist <= IscatMobSettings.COMBAT_RANGE) return 80.0;
+                return 0.0;
+            }
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                updateCombat(universe.getPlayer(), dt);
+            }
+        });
     }
 
     /**
@@ -50,37 +101,12 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
      */
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        super.aiUpdate(universeModel, dt);
-
-        // Controllo di sicurezza: se il mob non esiste o è stato rimosso, interrompi
         if (aiEntity == null || aiEntity.shouldRemove()) return;
-
-        // Aggiorna il timer del cooldown dello sparo
+        
         fireCooldown.update(dt);
-
-        // Recupera il giocatore principale dall'universo
-        PlayerModel player = universeModel.getPlayer();
-
-        // Calcola la distanza dal player (se il player non esiste, imposta distanza infinita)
-        double distToPlayer = player == null ? Double.MAX_VALUE
-                : aiEntity.getTransform().getTranslation()
-                .distance(player.getTransform().getTranslation());
-
-        // ── MACCHINA A STATI: TRANSIZIONI ─────────────────────────────────────
-        if (player == null || distToPlayer > IscatMobSettings.DETECTION_RANGE) {
-            state = State.WANDER; // Il giocatore è troppo lontano o morto -> Pattuglia
-        } else if (distToPlayer <= IscatMobSettings.COMBAT_RANGE) {
-            state = State.COMBAT; // Il giocatore è molto vicino -> Attacca
-        } else {
-            state = State.CHASE;  // Il giocatore è avvistato ma fuori tiro -> Insegui
-        }
-
-        // ── ESECUZIONE DELLO STATO CORRENTE ───────────────────────────────────
-        switch (state) {
-            case WANDER -> updateWander(dt);
-            case CHASE  -> updateChase(player, dt);
-            case COMBAT -> updateCombat(player, dt);
-        }
+        
+        // Delega la scelta dello stato al sistema a priorità (PriorityQueue in AiBehaviours)
+        super.aiUpdate(universeModel, dt);
     }
 
     /**

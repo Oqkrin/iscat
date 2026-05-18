@@ -33,8 +33,8 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         w = e.getWidthPx();
         h = e.getHeightPx();
 
-        sw = w * spriteScale;
-        sh = h * spriteScale;
+        sw = w;
+        sh = h;
     }
 
     protected void setAngle(M e) {

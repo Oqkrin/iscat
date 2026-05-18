@@ -32,9 +32,9 @@ public class IscatWormTailView extends AbstractEntityView<IscatWormTailModel>
                 DIM_SPRITE
         );
 
-        // 2. Configurazione dell'animatore (12 FPS -> circa 0.08s per frame)
+        // 2. Configurazione dell'animatore (~5.5 FPS)
         this.animator = new SpriteSheetsAnimator(
-                0.08,
+                0.18,
                 spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
                 spriteSheet != null ? spriteSheet.getTotalStates() : 1
         );

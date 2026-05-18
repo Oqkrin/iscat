@@ -5,6 +5,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.IscatWormSegment;
@@ -14,11 +15,12 @@ public class IscatWormBodyPartModel extends LivingEntityModel implements IscatWo
     private boolean consumed = false;
 
     public IscatWormBodyPartModel(double x, double y) {
-        super(x, y, IscatWormBodyPartSettings.HP_INIZIALI, IscatWormBodyPartSettings.HP_INIZIALI); // usa HP_INIZIALI dalle settings
+        super(x, y, IscatWormBodyPartSettings.HP_INIZIALI, IscatWormBodyPartSettings.HP_INIZIALI); // usa HP_INIZIALI
+                                                                                                   // dalle settings
 
         BodyFixture fixture = addFixture(
-                Geometry.createCircle(IscatWormBodyPartSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE)
-        );
+                Geometry.createCircle(
+                        UU.pxToM(IscatWormBodyPartSettings.DIM_SPRITE * IscatWormBodyPartSettings.SCALE / 2.0 * 0.75)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);

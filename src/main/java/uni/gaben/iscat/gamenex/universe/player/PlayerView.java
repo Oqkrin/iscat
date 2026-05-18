@@ -44,6 +44,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
     public void draw(PlayerModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
         setupGraphicsContextAndDrawContent(entity, gc, 0.0);
+        drawHpBar(entity, gc);
     }
 
     @Override
@@ -93,6 +94,8 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
             gc.fillRect(offsetX - size / 2, offsetY - size / 2, size, size);
         }
 
+        // JavaFX gc.restore() doesn't restore BlendMode! Must be reset manually.
+        gc.setGlobalBlendMode(BlendMode.SRC_OVER);
         gc.restore();
     }
 
@@ -146,7 +149,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
                     Math.min(1.0, 1.0 + accent.getRed() * t),
                     Math.min(1.0, 1.0 + accent.getGreen() * t),
                     Math.min(1.0, 1.0 + accent.getBlue() * t),
-                    intensity * 0.98
+                    Math.max(0.0, Math.min(1.0, intensity * 0.98))
             );
 
         } else if (distanceRatio < 0.85) {
@@ -157,7 +160,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
                     Math.min(1.0, accent.getRed() * brightness),
                     Math.min(1.0, accent.getGreen() * brightness),
                     Math.min(1.0, accent.getBlue() * brightness),
-                    Math.min(1.0, alpha * 0.9)
+                    Math.max(0.0, Math.min(1.0, alpha * 0.9))
             );
 
         } else {
@@ -168,7 +171,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
                     accent.getRed() * cooling,
                     accent.getGreen() * cooling,
                     accent.getBlue() * cooling,
-                    Math.min(1.0, alpha * 0.7)
+                    Math.max(0.0, Math.min(1.0, alpha * 0.7))
             );
         }
     }

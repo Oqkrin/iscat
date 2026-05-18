@@ -1,8 +1,13 @@
 package uni.gaben.iscat.gamenex.universe.enemies.fallen_star_golem;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
+import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
+import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
 import uni.gaben.iscat.gamenex.universe.projectiles.ProjectileType;
@@ -12,55 +17,120 @@ import uni.gaben.iscat.utils.Interpolator;
 
 import java.util.Random;
 
+/**
+ * Controller per il FallenStarGolem.
+ * Utilizza un sistema a comportamenti compositi (AiBehavior) con priorità dinamiche.
+ */
 public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel> {
 
-    private enum State { WANDER, CHASE, COMBAT }
-    private State state = State.WANDER;
-
+    // ── PARAMETRI PER LO STATO WANDER ─────────────────────────────────────────
     private Vector2 wanderTarget = null;
     private final Random rand = new Random();
     private final double maxMagnitude = 2, minMagnitude = 1;
 
+    // ── COMPONENTI DI SPARO BASE ──────────────────────────────────────────────
     private final Shooter<FallenStarGolemModel> shooter;
     private final Projectile bulletTemplate;
     private final Cooldown fireCooldown = new Cooldown();
 
+    // ── PARAMETRI PER L'ATTACCO A SPIRALE TEMPORIZZATO ────────────────────────
+    private int spiralBulletsLeft = 0;
+    private double spiralTimer = 0.0;
+    private double currentSpiralAngle = 0.0;
+    private static final double SPIRAL_DELAY = 0.05; // 50ms di ritardo tra ogni proiettile
+    private static final int NUM_SPIRAL_BULLETS = 12;
+    private static final double SPIRAL_ANGLE_STEP = (2.0 * Math.PI) / NUM_SPIRAL_BULLETS;
+
+    /**
+     * Costruttore: Inizializza i componenti e registra i comportamenti dell'IA.
+     */
     public FallenStarGolemController(FallenStarGolemModel golem) {
         super(golem);
-        shooter = new Shooter<>(golem);
 
-        bulletTemplate = new Projectile();
-        bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+        this.shooter = new Shooter<>(golem);
+        this.bulletTemplate = new Projectile();
+        this.bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+
+        // ── REGISTRAZIONE DEI BEHAVIORS COMPOSITI ──
+
+        // 1. PATTUGLIAMENTO (Wander) - Comportamento di fallback
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                return 10.0;
+            }
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                updateWander(dt);
+            }
+        });
+
+        // 2. INSEGUIMENTO (Chase) - Si attiva quando il player è visibile ma fuori portata di tiro
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                PlayerModel player = universe.getPlayer();
+                if (player == null) return 0.0;
+
+                double dist = aiEntity.getTransform().getTranslation().distance(player.getTransform().getTranslation());
+                if (dist > FallenStarGolemSettings.COMBAT_RANGE && dist <= FallenStarGolemSettings.DETECTION_RANGE) {
+                    return 50.0;
+                }
+                return 0.0;
+            }
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                updateChase(universe.getPlayer(), dt);
+            }
+        });
+
+        // 3. COMBATTIMENTO (Combat) - Massima priorità quando il player è vicino
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                PlayerModel player = universe.getPlayer();
+                if (player == null) return 0.0;
+
+                double dist = aiEntity.getTransform().getTranslation().distance(player.getTransform().getTranslation());
+                if (dist <= FallenStarGolemSettings.COMBAT_RANGE) {
+                    return 80.0;
+                }
+                return 0.0;
+            }
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                updateCombat(universe.getPlayer(), dt);
+            }
+        });
     }
 
+    /**
+     * Aggiornamento logico eseguito ad ogni frame.
+     */
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        super.aiUpdate(universeModel, dt);
         if (aiEntity == null || aiEntity.shouldRemove()) return;
 
+        // Aggiorna il cooldown globale di fuoco
         fireCooldown.update(dt);
-        PlayerModel player = universeModel.getPlayer();
 
-        double distToPlayer = player == null
-                ? Double.MAX_VALUE
-                : aiEntity.getTransform().getTranslation()
-                .distance(player.getTransform().getTranslation());
-
-        if (player == null || distToPlayer > FallenStarGolemSettings.DETECTION_RANGE) {
-            state = State.WANDER;
-        } else if (distToPlayer <= FallenStarGolemSettings.COMBAT_RANGE) {
-            state = State.COMBAT;
-        } else {
-            state = State.CHASE;
+        // Gestione dello spawning sequenziale della spirale di proiettili
+        if (spiralBulletsLeft > 0) {
+            spiralTimer += dt;
+            if (spiralTimer >= SPIRAL_DELAY) {
+                spiralTimer -= SPIRAL_DELAY;
+                spawnSpiralBullet();
+                spiralBulletsLeft--;
+            }
         }
 
-        switch (state) {
-            case WANDER -> updateWander(dt);
-            case CHASE -> updateChase(player, dt);
-            case COMBAT -> updateCombat(player, dt);
-        }
+        // Passa il controllo al motore dei comportamenti (esegue il behavior a priorità più alta)
+        super.aiUpdate(universeModel, dt);
     }
 
+    /**
+     * Movimento casuale di perlustrazione.
+     */
     private void updateWander(double dt) {
         if (wanderTarget == null) {
             double currentDir = aiEntity.getTransform().getRotationAngle();
@@ -69,81 +139,122 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
                     currentDir - 1.5 * Math.PI + rand.nextDouble(1.5 * Math.PI)
             );
         }
+
+        // Rimuovi il commento sotto se desideri che il Golem ruoti fisicamente mentre vaga
+        // rotateTo(wanderTarget.getDirection(), dt);
+
         aiEntity.applyForce(wanderTarget.getNormalized().multiply(FallenStarGolemSettings.FORCE));
-        if (aiEntity.contains(wanderTarget)) wanderTarget = null;
+
+        if (aiEntity.contains(wanderTarget)) {
+            wanderTarget = null;
+        }
     }
 
+    /**
+     * Avvicinamento dritto verso la posizione del Player.
+     */
     private void updateChase(PlayerModel player, double dt) {
         wanderTarget = null;
         Vector2 toPlayer = directionToPlayer(player);
+
+        // rotateTo(toPlayer.getDirection(), dt);
+
         aiEntity.applyForce(toPlayer.getNormalized().multiply(FallenStarGolemSettings.FORCE));
     }
 
-    // ── COMBAT MODIFICATO: ATTACCO RADIALE A 12 DIREZIONI ─────────────────────
+    /**
+     * Posizionamento tattico di kiting e attivazione della raffica a spirale.
+     */
     private void updateCombat(PlayerModel player, double dt) {
         wanderTarget = null;
-
         Vector2 toPlayer = directionToPlayer(player);
         double dist = toPlayer.getMagnitude();
 
+        // Mantenimento della distanza di sicurezza dal bersaglio
         if (dist < FallenStarGolemSettings.PREFERRED_RANGE) {
             aiEntity.applyForce(toPlayer.getNormalized().multiply(-FallenStarGolemSettings.FORCE * 0.6));
         } else if (dist > FallenStarGolemSettings.PREFERRED_RANGE * 1.2) {
             aiEntity.applyForce(toPlayer.getNormalized().multiply(FallenStarGolemSettings.FORCE * 0.4));
         }
 
-        // Controllo del Cooldown di fuoco
+        // Ruota costantemente il Golem verso il giocatore durante il combattimento
+        rotateTo(toPlayer.getDirection(), dt);
+
+        // Innesco dell'attacco speciale se pronto
         if (!fireCooldown.isCoolingDown()) {
-
-            // 1. Salviamo l'angolo di rotazione originale del Golem per non perderlo
-            double originalAngle = aiEntity.getTransform().getRotationAngle();
-
-            // 2. Definiamo quante direzioni vogliamo (12)
-            int totalDirections = 12;
-
-            // 3. Calcoliamo lo spazio in radianti tra un proiettile e l'altro.
-            // Un cerchio completo è 2 * PI. Diviso 12 significa uno sparo ogni 30 gradi (PI / 6).
-            double angleIncrement = (2 * Math.PI) / totalDirections;
-
-            // 4. Ciclo per sparare nelle 12 direzioni
-            for (int i = 0; i < totalDirections; i++) {
-                // Calcola l'angolo per questo specifico proiettile
-                double currentSliceAngle = i * angleIncrement;
-
-                // Ruota momentaneamente il modello fisico verso questo angolo
-                aiEntity.getTransform().setRotation(currentSliceAngle);
-
-                // Lo shooter legge la rotazione appena impostata e lancia il proiettile in questa direzione
-                shooter.shoot(bulletTemplate);
-            }
-
-            // 5. Ripristiniamo l'angolo originale del Golem così graficamente non impazzisce
-            aiEntity.getTransform().setRotation(originalAngle);
-
-            // Fatto! Avvia il cooldown dello sparo globale
+            startSpiralBurst();
             fireCooldown.start(FallenStarGolemSettings.FIRE_COOLDOWN_S);
         }
     }
 
+    /**
+     * Inizializza i parametri per la sequenza di colpi a spirale.
+     */
+    private void startSpiralBurst() {
+        spiralBulletsLeft = NUM_SPIRAL_BULLETS;
+        spiralTimer = 0.0;
+        currentSpiralAngle = rand.nextDouble() * Math.PI * 2.0; // Angolo iniziale randomico per imprevedibilità
+    }
+
+    /**
+     * Istanzia, configura e lancia un singolo proiettile della traiettoria curva.
+     */
+    private void spawnSpiralBullet() {
+        Vector2 myPos = aiEntity.getTransform().getTranslation();
+        double velMetersS = bulletTemplate.getTerminalVelocity();
+        Vector2 velocity = Vector2.create(velMetersS, currentSpiralAngle);
+
+        Projectile p = (Projectile) bulletTemplate.blueprint();
+        p.getTransform().setTranslation(myPos.copy());
+        p.getTransform().setRotation(currentSpiralAngle);
+        p.setLinearVelocity(velocity);
+
+        // Gestione collisioni e danno
+        p.setOnCollision(other -> {
+            if (p.shouldRemove()) return;
+            if (other instanceof Lifecycle target) {
+                target.deltaToLife(-p.getDamage());
+            }
+            p.kill();
+            p.setShouldRemove(true);
+        });
+
+        // Spawna l'entità nel mondo e aggiorna l'angolo per il prossimo colpo della serie
+        UniverseSpawner.getInstance().spawnEntity(p);
+        currentSpiralAngle += SPIRAL_ANGLE_STEP;
+
+        // Effetto sonoro locale
+        IscatAudioManager.getInstance().playSFX("shoot");
+    }
+
+    /**
+     * Calcola il vettore distanza tra l'entità corrente e il Player.
+     */
     private Vector2 directionToPlayer(PlayerModel player) {
         return player.getTransform().getTranslation()
                 .copy()
                 .subtract(aiEntity.getTransform().getTranslation());
     }
 
+    /**
+     * Interpolazione sferica fluida (Lerp) per evitare rotazioni istantanee innaturali.
+     */
     private void rotateTo(double targetAngle, double dt) {
-        aiEntity.setAngularVelocity(0.0);
+        aiEntity.setAngularVelocity(0.0); // Resetta forze angolari parassite indotte dal motore fisico
+
         double current = aiEntity.getTransform().getRotationAngle();
         double diff = targetAngle - current;
 
+        // Normalizzazione dell'angolo nell'intervallo [-PI, PI] per evitare giri completi errati
         while (diff < -Math.PI) diff += Math.PI * 2;
-        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff > Math.PI)  diff -= Math.PI * 2;
 
         double next = Interpolator.lerp(
                 current,
                 current + diff,
                 Math.min(FallenStarGolemSettings.ROTATION_SPEED * dt, 1.0)
         );
+
         aiEntity.getTransform().setRotation(next);
     }
 }

@@ -5,6 +5,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasProjectile;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
@@ -24,8 +25,8 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
         super(x, y, IscatMotherSettings.HP_INIZIALI, IscatMotherSettings.HP_INIZIALI);
 
         BodyFixture fixture = addFixture(
-                Geometry.createCircle(IscatMotherSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE)
-        );
+                Geometry.createCircle(
+                        UU.pxToM(IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE / 2.0 * 0.9)));
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(IscatMotherSettings.DAMPING_LINEARE);
@@ -39,7 +40,9 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
 
     // ─── Fire cooldown ──────────────────────────────────────────────────────
 
-    public boolean isFireReady() { return fireCooldown.isReady(); }
+    public boolean isFireReady() {
+        return fireCooldown.isReady();
+    }
 
     public void startFireCooldown() {
         fireCooldown.start(IscatMotherSettings.COOLDOWN_SPARO_SEC);
@@ -47,9 +50,13 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
 
     // ─── Minion spawn state ─────────────────────────────────────────────────
 
-    public boolean hasSpawnedMinions() { return hasSpawnedMinions; }
+    public boolean hasSpawnedMinions() {
+        return hasSpawnedMinions;
+    }
 
-    public void markMinionsSpawned() { this.hasSpawnedMinions = true; }
+    public void markMinionsSpawned() {
+        this.hasSpawnedMinions = true;
+    }
 
     public boolean shouldSpawnMinions() {
         return !hasSpawnedMinions
@@ -64,19 +71,23 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
     }
 
     @Override
-    public boolean hasAmmo() { return true; }
+    public boolean hasAmmo() {
+        return true;
+    }
 
     @Override
-    public Cooldown projectileCooldown() { return fireCooldown; }
+    public Cooldown projectileCooldown() {
+        return fireCooldown;
+    }
 
     @Override
     public int getProjectileCooldownTickCount() {
-        return (int) (IscatMotherSettings.COOLDOWN_SPARO_SEC * 60);
+        return (int) UU.sToTicks(IscatMotherSettings.COOLDOWN_SPARO_SEC);
     }
 
     @Override
     public void setProjectileCooldownTickCount(int tickCount) {
-        fireCooldown.start(tickCount / 60.0);
+        fireCooldown.start(UU.ticksToS(tickCount));
     }
 
     // ─── Terminal velocity ──────────────────────────────────────────────────

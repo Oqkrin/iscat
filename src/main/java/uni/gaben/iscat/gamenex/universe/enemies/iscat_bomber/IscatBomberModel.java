@@ -4,8 +4,8 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.utils.Cooldown;
 
 /**
@@ -27,8 +27,8 @@ public class IscatBomberModel extends LivingEntityModel {
         super(x, y, IscatBomberSettings.HP_INIZIALI, IscatBomberSettings.HP_INIZIALI);
 
         BodyFixture fixture = addFixture(
-                Geometry.createCircle(IscatBomberSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE)
-        );
+                Geometry.createCircle(
+                        UU.pxToM(IscatBomberSettings.DIM_SPRITE * IscatBomberSettings.SCALE / 2.0 * 0.9)));
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
 
         setMass(MassType.NORMAL);

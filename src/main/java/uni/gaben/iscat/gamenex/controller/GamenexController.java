@@ -128,6 +128,39 @@ public class GamenexController {
 
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
 
+        // Spawn 6 initial clumps of asteroids all around the world (mostly off-camera)
+        for (int clump = 0; clump < 6; clump++) {
+            double angle = (clump * (Math.PI * 2.0 / 6.0)) + (Math.random() * 0.5);
+            double dist = 600.0 + Math.random() * 1200.0;
+
+            double cx = midX + Math.cos(angle) * dist;
+            double cy = midY + Math.sin(angle) * dist;
+
+            int count = 3 + new java.util.Random().nextInt(3);
+            for (int i = 0; i < count; i++) {
+                double offsetAngle = Math.random() * Math.PI * 2.0;
+                double offsetDist = Math.random() * 180.0;
+
+                double ax = cx + Math.cos(offsetAngle) * offsetDist;
+                double ay = cy + Math.sin(offsetAngle) * offsetDist;
+
+                // Larger radii (diameter up to 180px)
+                double radius = 20.0 + Math.random() * 70.0;
+
+                uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel ast =
+                        new uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel(ax, ay, radius);
+
+                double driftAngle = Math.random() * Math.PI * 2.0;
+                double speed = 0.5 + Math.random() * 2.0;
+                ast.setLinearVelocity(new org.dyn4j.geometry.Vector2(
+                        Math.cos(driftAngle) * speed,
+                        Math.sin(driftAngle) * speed
+                ));
+
+                UniverseSpawner.getInstance().spawnEntity(ast);
+            }
+        }
+
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
     }

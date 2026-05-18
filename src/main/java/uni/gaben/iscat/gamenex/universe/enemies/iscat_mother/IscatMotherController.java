@@ -2,7 +2,9 @@ package uni.gaben.iscat.gamenex.universe.enemies.iscat_mother;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawnable;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
@@ -36,43 +38,59 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
 
         // Alla morte, spawna l'orda finale
         mother.setOnDeath(this::spawnHorde);
+
+        // --- COMPOSIZIONE BEHAVIORS ---
+
+        // 1. SPAWN MINIONS (Priorità altissima)
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                return aiEntity.shouldSpawnMinions() ? 100.0 : 0.0;
+            }
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                spawnMinions();
+                aiEntity.markMinionsSpawned();
+            }
+        });
+
+        // 2. COMBAT STATE (Priorità base, sempre attiva se il player è in vita)
+        addBehavior(new AiBehavior() {
+            @Override
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
+                return universe.getPlayer() != null ? 50.0 : 0.0;
+            }
+            @Override
+            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                PlayerModel player = universe.getPlayer();
+                if (player == null) return;
+
+                Vector2 myPos = aiEntity.getTransform().getTranslation();
+                Vector2 playerPos = player.getTransform().getTranslation();
+                Vector2 toPlayer = playerPos.copy().subtract(myPos);
+                double dist = toPlayer.getMagnitude();
+
+                maintainDistance(toPlayer, dist);
+                rotateTo(toPlayer.getDirection(), dt);
+
+                if (dist >= IscatMotherSettings.COMBAT_RANGE_MIN
+                        && dist <= IscatMotherSettings.COMBAT_RANGE_MAX
+                        && aiEntity.isFireReady()) {
+                    shootBurst();
+                }
+            }
+        });
     }
 
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        super.aiUpdate(universeModel, dt);
-
         if (aiEntity == null || aiEntity.shouldRemove()) return;
 
         // Tick cooldown interni
         aiEntity.update(dt);
 
-        // Controlla se è il momento di spawnare i minioni
-        if (aiEntity.shouldSpawnMinions()) {
-            spawnMinions();
-            aiEntity.markMinionsSpawned();
-        }
-
-        PlayerModel player = universeModel.getPlayer();
-        if (player == null) return;
-
-        Vector2 myPos = aiEntity.getTransform().getTranslation();
-        Vector2 playerPos = player.getTransform().getTranslation();
-        Vector2 toPlayer = playerPos.copy().subtract(myPos);
-        double dist = toPlayer.getMagnitude();
-
-        // ── MANTENIMENTO DISTANZA ────────────────────────────────────────────
-        maintainDistance(toPlayer, dist);
-
-        // ── ROTAZIONE VERSO IL PLAYER ────────────────────────────────────────
-        rotateTo(toPlayer.getDirection(), dt);
-
-        // ── SPARO A VENTAGLIO ────────────────────────────────────────────────
-        if (dist >= IscatMotherSettings.COMBAT_RANGE_MIN
-                && dist <= IscatMotherSettings.COMBAT_RANGE_MAX
-                && aiEntity.isFireReady()) {
-            shootBurst();
-        }
+        // Delega al Priority Queue (esegue il behavior col priority maggiore)
+        super.aiUpdate(universeModel, dt);
     }
 
     // ─── Movimento ──────────────────────────────────────────────────────────
@@ -117,7 +135,7 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
                 p.setShouldRemove(true);
             });
 
-            UniverseSpawner.getInstance().spawnProjectile(p);
+            UniverseSpawner.getInstance().spawnEntity(p);
         }
 
         IscatAudioManager.getInstance().playSFX("shoot");
@@ -136,10 +154,13 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
             double x = myPos.x + Math.cos(angle) * radius;
             double y = myPos.y + Math.sin(angle) * radius;
 
+            double px = uni.gaben.iscat.gamenex.lib.utils.UU.mToPx(x);
+            double py = uni.gaben.iscat.gamenex.lib.utils.UU.mToPx(y);
+
             if (i < IscatMotherSettings.MINION_ISCAT_COUNT) {
-                UniverseSpawner.getInstance().spawn(UniverseSpawnable.ISCAT_MOB.name(), x, y);
+                UniverseSpawner.getInstance().spawn(UniverseSpawnable.ISCAT_MOB.name(), px, py);
             } else {
-                UniverseSpawner.getInstance().spawn(UniverseSpawnable.EATER.name(), x, y);
+                UniverseSpawner.getInstance().spawn(UniverseSpawnable.EATER.name(), px, py);
             }
         }
         System.out.println("IscatMother ha chiamato rinforzi!");
@@ -158,10 +179,13 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
             double x = center.x + Math.cos(angle) * dist;
             double y = center.y + Math.sin(angle) * dist;
 
+            double px = uni.gaben.iscat.gamenex.lib.utils.UU.mToPx(x);
+            double py = uni.gaben.iscat.gamenex.lib.utils.UU.mToPx(y);
+
             if (i % 2 == 0) {
-                UniverseSpawner.getInstance().spawn(UniverseSpawnable.HEARTH.name(), x, y);
+                UniverseSpawner.getInstance().spawn(UniverseSpawnable.HEARTH.name(), px, py);
             } else {
-                UniverseSpawner.getInstance().spawn(UniverseSpawnable.EATER.name(), x, y);
+                UniverseSpawner.getInstance().spawn(UniverseSpawnable.EATER.name(), px, py);
             }
         }
         System.out.println("IscatMother ha dato inizio ad un'orda!");

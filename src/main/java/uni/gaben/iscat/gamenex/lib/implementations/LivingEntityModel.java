@@ -2,8 +2,10 @@ package uni.gaben.iscat.gamenex.lib.implementations;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
+import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 
 /**
  * Implementazione di un'entità dotata di vita e soggetta a mortalità.
@@ -38,6 +40,11 @@ public class LivingEntityModel extends AbstractEntityModel implements Lifecycle 
 
     @Override
     public void deltaToLife(double delta) {
+        if (delta < 0) {
+            if (this instanceof PlayerModel) {
+                uni.gaben.iscat.IscatAudioManager.getInstance().playSFX("hurt");
+            }
+        }
         setLife(getLife() + delta);
     }
 
@@ -51,11 +58,19 @@ public class LivingEntityModel extends AbstractEntityModel implements Lifecycle 
 
     @Override
     public void kill() {
+        kill(false);
+    }
+
+    public void kill(boolean silent) {
         if (!shouldRemove()) {
             this.life.set(0);
             setShouldRemove(true);
             if (onDeath != null) {
                 onDeath.run();
+            }
+            if (!silent) {
+                // Riproduci SFX di esplosione per tutte le morti
+                IscatAudioManager.getInstance().playSFX("explosion");
             }
             onDeath();
         }

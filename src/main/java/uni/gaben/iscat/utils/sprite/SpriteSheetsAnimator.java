@@ -46,8 +46,14 @@ public class SpriteSheetsAnimator {
         frameDurations[state % frameDurations.length][frame % frameDurations[0].length].set(duration);
     }
 
+    private long lastUpdateNanos = 0;
+
     public void update(double deltaTime) {
-        internalTime += deltaTime * speedMultiplier;
+        long now = System.nanoTime();
+        if (now - lastUpdateNanos > 5_000_000) { // Throttle a 5ms per evitare il bug del double-update nei singleton View
+            internalTime += deltaTime * speedMultiplier;
+            lastUpdateNanos = now;
+        }
     }
 
     /**

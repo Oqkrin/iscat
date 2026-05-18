@@ -1,8 +1,11 @@
 package uni.gaben.iscat.gamenex.universe;
 
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.joint.DistanceJoint;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiController;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
 import uni.gaben.iscat.gamenex.universe.enemies.fake_iscat.FakeIscatController;
 import uni.gaben.iscat.gamenex.universe.enemies.fake_iscat.FakeIscatModel;
@@ -128,9 +131,9 @@ public class UniverseSpawner {
         return player;
     }
 
-    public AbstractProjectileModel spawnProjectile(AbstractProjectileModel p) {
-        model.addEntity(p);
-        return p;
+    public <T extends AbstractEntityModel> T spawnEntity(T entity) {
+        model.addEntity(entity);
+        return entity;
     }
 
     public IscatWormHeadModel spawnWorm(double x, double y) {
@@ -139,33 +142,37 @@ public class UniverseSpawner {
             return null;
         }
 
-        double spacing = 28.0 / UniverseSettings.SCALE;
+        double spacing = UU.pxToM(48.0);
 
         IscatWormHeadModel head = new IscatWormHeadModel(x, y);
         model.addEntity(head);
         controller.addAiController(new IscatWormHeadController(head));
 
-        IscatWormBodyPartModel previous = null;
+        Body previous = head;
 
         for (int i = 0; i < 10; i++) {
-            double bodyX = x - (i + 1) * spacing * 1.2;
+            double bodyX = x - (i + 1) * spacing;
             IscatWormBodyPartModel body = new IscatWormBodyPartModel(bodyX, y);
             model.addEntity(body);
 
-            IscatWormBodyPartController bodyController = new IscatWormBodyPartController(body);
-            bodyController.setPreviousSegment(previous == null ? head : previous);
+            // Crea il giunto fisico tra i segmenti consecutivi del verme
+            DistanceJoint<Body> joint =
+                new DistanceJoint<>(previous, body, previous.getWorldCenter(), body.getWorldCenter());
+            joint.setRestDistance(spacing);
+            model.addJoint(joint);
 
-            controller.addAiController(bodyController);
             previous = body;
         }
 
-        double tailX = x - 11 * spacing * 1.2;
+        double tailX = x - 11 * spacing;
         IscatWormTailModel tail = new IscatWormTailModel(tailX, y);
         model.addEntity(tail);
 
-        IscatWormTailController tailController = new IscatWormTailController(tail);
-        tailController.setPreviousSegment(previous);
-        controller.addAiController(tailController);
+        // Collega la coda all'ultimo segmento corporeo
+        DistanceJoint<Body> joint =
+            new DistanceJoint<>(previous, tail, previous.getWorldCenter(), tail.getWorldCenter());
+        joint.setRestDistance(spacing);
+        model.addJoint(joint);
 
         return head;
     }

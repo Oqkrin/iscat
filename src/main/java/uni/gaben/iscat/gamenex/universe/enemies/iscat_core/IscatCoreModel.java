@@ -5,8 +5,8 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasProjectile;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
 import uni.gaben.iscat.utils.Cooldown;
 
@@ -19,10 +19,8 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
         super(x, y, IscatCoreSettings.HP_INIZIALI, IscatCoreSettings.HP_INIZIALI);
 
         BodyFixture fixture = addFixture(
-                Geometry.createCircle(
-                        IscatCoreSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE
-                )
-        );
+                Geometry.createSquare(
+                        UU.pxToM(IscatCoreSettings.DIM_SPRITE * IscatCoreSettings.SCALE * 0.9)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
@@ -60,12 +58,12 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
 
     @Override
     public int getProjectileCooldownTickCount() {
-        return (int) (IscatCoreSettings.COOLDOWN_FUOCO_SEC * 60);
+        return (int) UU.sToTicks(IscatCoreSettings.COOLDOWN_FUOCO_SEC);
     }
 
     @Override
     public void setProjectileCooldownTickCount(int tickCount) {
-        weaponCooldown.start(tickCount / 60.0);
+        weaponCooldown.start(UU.ticksToS(tickCount));
     }
 
     @Override

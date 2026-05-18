@@ -16,16 +16,21 @@ import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 import uni.gaben.iscat.gamenex.universe.starfield.StarfieldModel;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractProjectileModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class UniverseModel extends World<Body> {
 
     private PlayerModel player;
     private final List<AbstractEntityModel> entities = new ArrayList<>();
+    private final List<AbstractProjectileModel> projectiles = new ArrayList<>();
     private final StarfieldModel starfieldModel = new StarfieldModel(0, 0);
+    private final Map<Class<?>, List<AbstractEntityModel>> entitiesByCategory = new HashMap<>();
 
     private final DoubleProperty width = new SimpleDoubleProperty(UniverseSettings.DEFAULT_WIDTH);
     private final DoubleProperty height = new SimpleDoubleProperty(UniverseSettings.DEFAULT_HEIGHT);
@@ -65,9 +70,41 @@ public class UniverseModel extends World<Body> {
         addEntity(player);
     }
 
+    private void registerEntityCategories(AbstractEntityModel entity) {
+        Class<?> current = entity.getClass();
+        while (current != null && current != Object.class) {
+            entitiesByCategory.computeIfAbsent(current, k -> new ArrayList<>()).add(entity);
+            for (Class<?> iface : current.getInterfaces()) {
+                entitiesByCategory.computeIfAbsent(iface, k -> new ArrayList<>()).add(entity);
+            }
+            current = current.getSuperclass();
+        }
+    }
+
+    private void unregisterEntityCategories(AbstractEntityModel entity) {
+        Class<?> current = entity.getClass();
+        while (current != null && current != Object.class) {
+            List<AbstractEntityModel> list = entitiesByCategory.get(current);
+            if (list != null) {
+                list.remove(entity);
+            }
+            for (Class<?> iface : current.getInterfaces()) {
+                List<AbstractEntityModel> ifaceList = entitiesByCategory.get(iface);
+                if (ifaceList != null) {
+                    ifaceList.remove(entity);
+                }
+            }
+            current = current.getSuperclass();
+        }
+    }
+
     public void addEntity(AbstractEntityModel entity) {
         this.entities.add(entity);
         this.addBody(entity);
+        if (entity instanceof AbstractProjectileModel projectile) {
+            this.projectiles.add(projectile);
+        }
+        registerEntityCategories(entity);
     }
 
     public void removeEntity(AbstractEntityModel entity) {
@@ -75,6 +112,10 @@ public class UniverseModel extends World<Body> {
 
         // Rimozione immediata dalla lista logica usata dalla View per il rendering
         this.entities.remove(entity);
+        if (entity instanceof AbstractProjectileModel projectile) {
+            this.projectiles.remove(projectile);
+        }
+        unregisterEntityCategories(entity);
 
         // Disabilitazione totale del corpo fisico per prevenire contatti fantasma residui
         entity.setEnabled(false);
@@ -87,12 +128,15 @@ public class UniverseModel extends World<Body> {
     }
 
     public List<AbstractEntityModel> getEntities() { return entities; }
+    public List<AbstractProjectileModel> getProjectiles() { return projectiles; }
 
+    @SuppressWarnings("unchecked")
     public <T extends AbstractEntityModel> List<T> getEntitiesOfType(Class<T> type) {
-        return entities.stream()
-                .filter(type::isInstance)
-                .map(type::cast)
-                .collect(Collectors.toList());
+        List<AbstractEntityModel> list = entitiesByCategory.get(type);
+        if (list == null) {
+            return new ArrayList<>();
+        }
+        return (List<T>) new ArrayList<>(list);
     }
 
     /**
@@ -105,6 +149,18 @@ public class UniverseModel extends World<Body> {
             player.update(dt);
         }
         clampTerminalVelocities();
+
+        // Align worm segments and tail rotation to their physical movement direction
+        for (Body b : getBodies()) {
+            if (b instanceof uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel ||
+                b instanceof uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailModel) {
+                Vector2 vel = b.getLinearVelocity();
+                if (vel.getMagnitudeSquared() > 0.01) {
+                    b.getTransform().setRotation(vel.getDirection());
+                }
+            }
+        }
+
         super.updatev(dt);
     }
 

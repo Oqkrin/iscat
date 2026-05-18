@@ -40,16 +40,13 @@ public class IscatMotherView extends AbstractEntityView<IscatMotherModel>
     @Override
     public SpriteSheetsAnimator getAnimator() { return animator; }
 
-    // --- Drawable<IscatMotherModel> ---
 
     @Override
     public void draw(IscatMotherModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
-        // +270° per allineare lo sprite alla direzione di rotazione (legacy: rotate + 270)
-        setupGraphicsContextAndDrawContent(entity, gc, 270.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 180.0);
     }
 
-    // --- AbstractEntityView<IscatMotherModel> ---
 
     @Override
     protected void drawContent(IscatMotherModel entity, GraphicsContext gc,

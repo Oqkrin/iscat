@@ -2,6 +2,7 @@ package uni.gaben.iscat.gamenex.lib.abstracts;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.AABB;
+import org.dyn4j.geometry.Transform;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.gamenex.lib.utils.UU;
 import java.util.function.Consumer;
@@ -44,14 +45,14 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
     /** Calcola la larghezza totale racchiusa dalla shape di collisione (in Metri) */
     public double getWidthMeters() {
         if (getFixtureCount() == 0) return 0.0;
-        AABB aabb = createAABB();
+        AABB aabb = createAABB(new Transform());
         return aabb.getWidth();
     }
 
     /** Calcola l'altezza totale racchiusa dalla shape di collisione (in Metri) */
     public double getHeightMeters() {
         if (getFixtureCount() == 0) return 0.0;
-        AABB aabb = createAABB();
+        AABB aabb = createAABB(new Transform());
         return aabb.getHeight();
     }
 

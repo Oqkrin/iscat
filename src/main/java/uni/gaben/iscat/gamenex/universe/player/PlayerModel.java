@@ -4,6 +4,7 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
+import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.gamenex.lib.utils.UU;
@@ -56,6 +57,10 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
 
         dashDuration.start(PlayerSettings.DURATA_SCATTO_SEC);
         dashCooldown.start(PlayerSettings.COOLDOWN_SCATTO_SEC);
+
+        // Riproduce un SFX di fart casuale per lo scatto!
+        int randFart = new java.util.Random().nextInt(3) + 1;
+        IscatAudioManager.getInstance().playSFX("fart_alt" + randFart);
     }
 
     public boolean isScattoDisponibile() { return dashCooldown.isReady(); }

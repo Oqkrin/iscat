@@ -32,48 +32,59 @@ public class IscatBomberController extends AiBehaviours<IscatBomberModel> {
                 aiEntity.applyStun();
             }
         });
+
+        this.addBehavior(new uni.gaben.iscat.gamenex.lib.implementations.behaviors.SeparationBehavior(
+                uni.gaben.iscat.gamenex.lib.utils.UU.pxToM(48.0), IscatBomberSettings.FORCE * 0.8));
+
+        addBehavior(new uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior() {
+            @Override
+            public double getPriority(uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel npc, UniverseModel universe) {
+                // Se stordito priorità 0, altrimenti 50
+                return aiEntity.isStunned() || universe.getPlayer() == null ? 0.0 : 50.0;
+            }
+
+            @Override
+            public void execute(uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel npc, UniverseModel universe, double dt) {
+                PlayerModel player = universe.getPlayer();
+                if (player == null) return;
+
+                // ── REGISTRAZIONE TRAIL ──────────────────────────────────────────────
+                Vector2 playerPos = player.getTransform().getTranslation().copy();
+                playerTrail.addLast(playerPos);
+                if (playerTrail.size() > IscatBomberSettings.LUNGHEZZA_TRAIL) {
+                    playerTrail.removeFirst();
+                }
+
+                // ── INSEGUIMENTO CON RITARDO ─────────────────────────────────────────
+                if (playerTrail.size() > IscatBomberSettings.RITARDO_TRAIL) {
+                    int targetIndex = Math.max(0, playerTrail.size() - IscatBomberSettings.RITARDO_TRAIL - 1);
+                    Vector2 delayedTarget = playerTrail.get(targetIndex);
+
+                    Vector2 pos    = aiEntity.getTransform().getTranslation();
+                    Vector2 toTarget = delayedTarget.copy().subtract(pos);
+                    double dist    = toTarget.getMagnitude();
+
+                    double minDistMeters = IscatBomberSettings.DISTANZA_MIN_INSEGUIMENTO / UniverseSettings.SCALE;
+                    if (dist > minDistMeters) {
+                        toTarget.normalize();
+                        aiEntity.applyForce(toTarget.multiply(IscatBomberSettings.FORCE * aiEntity.getMass().getMass()));
+                    }
+                }
+
+                // ── ROTAZIONE VERSO IL PLAYER REALE ─────────────────────────────────
+                rotateTo(playerPos, dt);
+            }
+        });
     }
 
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        super.aiUpdate(universeModel, dt);
-
         if (aiEntity == null || aiEntity.shouldRemove()) return;
 
         // Tick del cooldown interno al modello
         aiEntity.update(dt);
 
-        // Quando stordito non si muove
-        if (aiEntity.isStunned()) return;
-
-        PlayerModel player = universeModel.getPlayer();
-        if (player == null) return;
-
-        // ── REGISTRAZIONE TRAIL ──────────────────────────────────────────────
-        Vector2 playerPos = player.getTransform().getTranslation().copy();
-        playerTrail.addLast(playerPos);
-        if (playerTrail.size() > IscatBomberSettings.LUNGHEZZA_TRAIL) {
-            playerTrail.removeFirst();
-        }
-
-        // ── INSEGUIMENTO CON RITARDO ─────────────────────────────────────────
-        if (playerTrail.size() > IscatBomberSettings.RITARDO_TRAIL) {
-            int targetIndex = Math.max(0, playerTrail.size() - IscatBomberSettings.RITARDO_TRAIL - 1);
-            Vector2 delayedTarget = playerTrail.get(targetIndex);
-
-            Vector2 pos    = aiEntity.getTransform().getTranslation();
-            Vector2 toTarget = delayedTarget.copy().subtract(pos);
-            double dist    = toTarget.getMagnitude();
-
-            double minDistMeters = IscatBomberSettings.DISTANZA_MIN_INSEGUIMENTO / UniverseSettings.SCALE;
-            if (dist > minDistMeters) {
-                toTarget.normalize();
-                aiEntity.applyForce(toTarget.multiply(IscatBomberSettings.FORCE * aiEntity.getMass().getMass()));
-            }
-        }
-
-        // ── ROTAZIONE VERSO IL PLAYER REALE ─────────────────────────────────
-        rotateTo(playerPos, dt);
+        super.aiUpdate(universeModel, dt);
     }
 
     /**

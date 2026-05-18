@@ -32,9 +32,9 @@ public class IscatWormBodyPartView extends AbstractEntityView<IscatWormBodyPartM
                 (int) DIM_SPRITE
         );
 
-        // 2. Configurazione dell'animatore (~22 FPS basato sull'intervallo 0.045s)
+        // 2. Configurazione dell'animatore (~10 FPS)
         this.animator = new SpriteSheetsAnimator(
-                0.045,
+                0.10,
                 spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
                 spriteSheet != null ? spriteSheet.getTotalStates() : 1
         );

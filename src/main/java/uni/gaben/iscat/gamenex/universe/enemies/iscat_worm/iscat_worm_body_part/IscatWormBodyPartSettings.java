@@ -12,7 +12,7 @@ public class IscatWormBodyPartSettings {
 
     // --- FISICA ---
     public static final double DAMPING_LINEARE = 4.5;
-    public static final double MAX_VELOCITY_MS = 22;
+    public static final double MAX_VELOCITY_MS = 60;
 
     // --- FOLLOW BEHAVIOUR ---
     public static final double FOLLOW_DISTANCE = 16.0;     // distanza ideale dal segmento precedente

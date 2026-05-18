@@ -1,21 +1,24 @@
 package uni.gaben.iscat.gamenex.universe.enemies.iscat_eater;
 
-import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.gamenex.lib.implementations.behaviors.ChaseBehavior;
+import uni.gaben.iscat.gamenex.lib.implementations.behaviors.SeparationBehavior;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
 
 public class IscatEaterController extends AiBehaviours<IscatEaterModel> {
 
-    private final IscatEaterModel eater;
-    private Vector2 target = null;
-
     public IscatEaterController(IscatEaterModel eater) {
         super(eater);
-        this.eater = eater;
+
+        // Add modular behaviors
+        this.addBehavior(new ChaseBehavior(IscatEaterSettings.FORCE, IscatEaterSettings.MAX_VELOCITY_MS));
+        this.addBehavior(new SeparationBehavior(
+                UU.pxToM(24.0), IscatEaterSettings.FORCE * 0.8));
 
         // COSA SUCCEDE SE COLLIDO? Definito in modo indipendente.
-        this.eater.setOnCollision(otherEntity -> {
+        eater.setOnCollision(otherEntity -> {
             if (otherEntity instanceof PlayerModel player && !eater.shouldRemove()) {
                 player.deltaToLife(-IscatEaterSettings.ATTACK_POWER); // Danneggia il giocatore
 
@@ -30,29 +33,7 @@ public class IscatEaterController extends AiBehaviours<IscatEaterModel> {
 
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        if (eater == null || eater.shouldRemove()) return;
-
-        PlayerModel player = universeModel.getPlayer();
-        if (player == null) return;
-
-        Vector2 eaterPos = eater.getTransform().getTranslation();
-        Vector2 playerPos = player.getTransform().getTranslation();
-
-        if (target == null || eaterPos.distanceSquared(target) < 10) {
-            target = playerPos.copy();
-        }
-
-        Vector2 direction = target.copy().subtract(eaterPos);
-        double distance = direction.getMagnitude();
-
-        if (distance > 0.5) {
-            if (eater.getLinearVelocity().getMagnitude() <= IscatEaterSettings.MAX_VELOCITY_MS) {
-                Vector2 force = direction.getNormalized().multiply(IscatEaterSettings.FORCE);
-                eater.applyForce(force);
-            } else {
-                Vector2 vel = eater.getLinearVelocity();
-                eater.setLinearVelocity(vel.getNormalized().multiply(IscatEaterSettings.MAX_VELOCITY_MS));
-            }
-        }
+        // Execute modular behaviors added in constructor
+        super.aiUpdate(universeModel, dt);
     }
 }

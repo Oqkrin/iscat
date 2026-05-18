@@ -4,8 +4,8 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
 public class IscatEaterModel extends LivingEntityModel {
 
@@ -16,7 +16,9 @@ public class IscatEaterModel extends LivingEntityModel {
         super(x, y, IscatEaterSettings.HP_INIZIALI, IscatEaterSettings.HP_INIZIALI);
 
         // Creazione della forma di collisione circolare scalata in metri
-        BodyFixture fixture = addFixture(Geometry.createCircle(IscatEaterSettings.RAGGIO_COLLISIONE_PX / UniverseSettings.SCALE));
+        BodyFixture fixture = addFixture(
+                Geometry.createCircle(
+                        UU.pxToM(IscatEaterSettings.DIM_SPRITE * IscatEaterSettings.SCALE / 2.0 * 0.9)));
 
         // Applica il filtro per distinguere questa entità come NEMICO nelle collisioni
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);

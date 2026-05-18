@@ -16,7 +16,7 @@ public class IscatCoreSettings {
     public static final double COMBAT_RANGE = 10.0; // metri — entra in modalità combattimento
     public static final double PREFERRED_RANGE = 7.0; // metri — distanza ideale di fuoco
     public static final double FIRE_COOLDOWN_S = 1.2; // secondi tra un colpo e l'altro
-    public static final double ROTATION_SPEED = 5.0; // velocità rotazione verso il player
+    public static final double ROTATION_SPEED = 1.5; // velocità rotazione verso il player
     public static final double COOLDOWN_FUOCO_SEC = 1.2; // tempo tra uno sparo e l'altro
 
     public static final int PROJECTILE_DAMAGE = 12;
@@ -30,7 +30,7 @@ public class IscatCoreSettings {
 
     // --- PROPRIETÀ FISICHE ---
     /** Punti vita iniziali del mob. */
-    public static final int HP_INIZIALI = 30;
+    public static final int HP_INIZIALI = 500;
 
     /** Dimensione base dello sprite in pixel. */
     public static final int DIM_SPRITE = 64;
