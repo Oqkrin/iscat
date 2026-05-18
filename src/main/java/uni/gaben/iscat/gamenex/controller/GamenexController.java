@@ -83,10 +83,6 @@ public class GamenexController {
         gamenexModel.setPaused(gamenexModel.isPaused());
     }
 
-    public void setPaused(boolean paused) {
-        gamenexModel.setPaused(paused);
-    }
-
     public void startGameLoop() {
         gameLoop.start();
     }

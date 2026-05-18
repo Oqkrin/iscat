@@ -206,7 +206,7 @@ public class GamenexScene extends AbstractIscatScene {
     @Override
     public void onHide() {
         super.onHide();
-        gamenexController.setPaused(true);
+        gamenexController.togglePause();
     }
 
     @Override

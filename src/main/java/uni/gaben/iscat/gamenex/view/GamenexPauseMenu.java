@@ -60,7 +60,7 @@ public class GamenexPauseMenu extends VBox {
 
         Button menuBtn = createBigButton("QUIT TO MENU");
         menuBtn.setOnAction(e -> {
-            controller.setPaused(false);
+            controller.togglePause();
             controller.stopGameLoop();
 
             // Reset completo tramite Application
