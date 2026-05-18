@@ -15,17 +15,24 @@ public final class UniverseCollisionLayers {
     public static final long ENEMY      = 4;
     public static final long PROJECTILE = 8;
     public static final long BOOST = 16;
+    public static final long ENEMY_PROJECTILE = 32;
 
     // Filters
     public static final CategoryFilter PLAYER_FILTER = new CategoryFilter(PLAYER, 
         PLAYER | ASTEROID | ENEMY | PROJECTILE | BOOST);
         
     public static final CategoryFilter ASTEROID_FILTER = new CategoryFilter(ASTEROID, 
-        PLAYER | ASTEROID | ENEMY); // Asteroids hit everything except projectiles (for now)
+        PLAYER | ASTEROID | ENEMY | PROJECTILE);
         
     public static final CategoryFilter ENEMY_FILTER = new CategoryFilter(ENEMY, 
         PLAYER | ASTEROID | ENEMY | PROJECTILE);
 
     public static final CategoryFilter BOOST_FILTER = new CategoryFilter(BOOST,
-            PLAYER ); // Boost collide only with player
+            PLAYER );
+
+    public static final CategoryFilter ENEMY_PROJECTILE_FILTER = new CategoryFilter(ENEMY_PROJECTILE,
+            PLAYER | ASTEROID);
+
+    public static final CategoryFilter PROJECTILE_FILTER = new CategoryFilter(PROJECTILE,
+            ASTEROID | ENEMY);
 }

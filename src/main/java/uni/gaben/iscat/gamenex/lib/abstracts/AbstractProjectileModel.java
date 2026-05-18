@@ -6,9 +6,11 @@ import uni.gaben.iscat.gamenex.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 
 public abstract class AbstractProjectileModel extends LivingEntityModel {
+    protected double terminalVelocity;
+    protected double damage;
+    protected double lifespan;
     protected double baseAccelerationPerTick = 20.0;
-    protected double terminalVelocity = 30.0;
-    protected double size = 32;
+    protected double size = 16;
     protected AbstractProjectileModel() {
         this(4000);
 
@@ -29,6 +31,13 @@ public abstract class AbstractProjectileModel extends LivingEntityModel {
     public double getTerminalVelocity() {
         return terminalVelocity;
     }
+    public void setTerminalVelocity(double v) { this.terminalVelocity = v; }
+
+    public double getDamage() { return damage; }
+    public void setDamage(double d) { this.damage = d; }
+
+    public double getLifespan() { return lifespan; }
+    public void setLifespan(double l) { this.lifespan = l; }
 
     public abstract AbstractProjectileModel blueprint();
 }

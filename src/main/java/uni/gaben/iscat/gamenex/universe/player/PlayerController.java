@@ -3,6 +3,8 @@ package uni.gaben.iscat.gamenex.universe.player;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.controller.GamenexInputs;
 import uni.gaben.iscat.gamenex.lib.utils.UU;
+import uni.gaben.iscat.gamenex.universe.projectiles.Projectile;
+import uni.gaben.iscat.gamenex.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.gamenex.universe.projectiles.Shooter;
 import uni.gaben.iscat.utils.Interpolator;
 import uni.gaben.iscat.utils.Cooldown;
@@ -11,12 +13,18 @@ public class PlayerController {
     private PlayerModel player;
     private Shooter<PlayerModel> shooter;
 
+    // Template riusabile: blueprint() ne crea una copia ad ogni sparo
+    private final Projectile projectileTemplate;
+
     private final Cooldown dashBuffer = new Cooldown();
     private boolean bufferedDashIsWASD = false;
 
     public PlayerController(PlayerModel player) {
         this.player = player;
         this.shooter = new Shooter<>(player);
+
+        projectileTemplate = new Projectile();
+        projectileTemplate.setType(ProjectileType.PLAYER_BULLET);
     }
 
     /**
@@ -107,7 +115,7 @@ public class PlayerController {
         if (player == null || shooter == null) return;
 
         if (input.shooting && player.isSparoDisponibile()) {
-            shooter.shoot();
+            shooter.shoot(projectileTemplate);
             player.startCooldownFuoco();
         }
     }
