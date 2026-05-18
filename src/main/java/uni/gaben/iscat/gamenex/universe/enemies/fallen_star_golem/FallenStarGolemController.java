@@ -27,7 +27,6 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
 
     public FallenStarGolemController(FallenStarGolemModel golem) {
         super(golem);
-
         shooter = new Shooter<>(golem);
 
         bulletTemplate = new Projectile();
@@ -37,11 +36,9 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
         super.aiUpdate(universeModel, dt);
-
         if (aiEntity == null || aiEntity.shouldRemove()) return;
 
         fireCooldown.update(dt);
-
         PlayerModel player = universeModel.getPlayer();
 
         double distToPlayer = player == null
@@ -67,34 +64,22 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
     private void updateWander(double dt) {
         if (wanderTarget == null) {
             double currentDir = aiEntity.getTransform().getRotationAngle();
-
             wanderTarget = Vector2.create(
                     minMagnitude + rand.nextDouble(maxMagnitude),
                     currentDir - 1.5 * Math.PI + rand.nextDouble(1.5 * Math.PI)
             );
         }
-
-        //rotateTo(wanderTarget.getDirection(), dt);
-
-        aiEntity.applyForce(
-                wanderTarget.getNormalized().multiply(FallenStarGolemSettings.FORCE)
-        );
-
+        aiEntity.applyForce(wanderTarget.getNormalized().multiply(FallenStarGolemSettings.FORCE));
         if (aiEntity.contains(wanderTarget)) wanderTarget = null;
     }
 
     private void updateChase(PlayerModel player, double dt) {
         wanderTarget = null;
-
         Vector2 toPlayer = directionToPlayer(player);
-
-        //rotateTo(toPlayer.getDirection(), dt);
-
-        aiEntity.applyForce(
-                toPlayer.getNormalized().multiply(FallenStarGolemSettings.FORCE)
-        );
+        aiEntity.applyForce(toPlayer.getNormalized().multiply(FallenStarGolemSettings.FORCE));
     }
 
+    // ── COMBAT MODIFICATO: ATTACCO RADIALE A 12 DIREZIONI ─────────────────────
     private void updateCombat(PlayerModel player, double dt) {
         wanderTarget = null;
 
@@ -107,10 +92,35 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
             aiEntity.applyForce(toPlayer.getNormalized().multiply(FallenStarGolemSettings.FORCE * 0.4));
         }
 
-        //rotateTo(toPlayer.getDirection(), dt);
-
+        // Controllo del Cooldown di fuoco
         if (!fireCooldown.isCoolingDown()) {
-            shooter.shoot(bulletTemplate);
+
+            // 1. Salviamo l'angolo di rotazione originale del Golem per non perderlo
+            double originalAngle = aiEntity.getTransform().getRotationAngle();
+
+            // 2. Definiamo quante direzioni vogliamo (12)
+            int totalDirections = 12;
+
+            // 3. Calcoliamo lo spazio in radianti tra un proiettile e l'altro.
+            // Un cerchio completo è 2 * PI. Diviso 12 significa uno sparo ogni 30 gradi (PI / 6).
+            double angleIncrement = (2 * Math.PI) / totalDirections;
+
+            // 4. Ciclo per sparare nelle 12 direzioni
+            for (int i = 0; i < totalDirections; i++) {
+                // Calcola l'angolo per questo specifico proiettile
+                double currentSliceAngle = i * angleIncrement;
+
+                // Ruota momentaneamente il modello fisico verso questo angolo
+                aiEntity.getTransform().setRotation(currentSliceAngle);
+
+                // Lo shooter legge la rotazione appena impostata e lancia il proiettile in questa direzione
+                shooter.shoot(bulletTemplate);
+            }
+
+            // 5. Ripristiniamo l'angolo originale del Golem così graficamente non impazzisce
+            aiEntity.getTransform().setRotation(originalAngle);
+
+            // Fatto! Avvia il cooldown dello sparo globale
             fireCooldown.start(FallenStarGolemSettings.FIRE_COOLDOWN_S);
         }
     }
@@ -123,7 +133,6 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
 
     private void rotateTo(double targetAngle, double dt) {
         aiEntity.setAngularVelocity(0.0);
-
         double current = aiEntity.getTransform().getRotationAngle();
         double diff = targetAngle - current;
 
@@ -135,7 +144,6 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
                 current + diff,
                 Math.min(FallenStarGolemSettings.ROTATION_SPEED * dt, 1.0)
         );
-
         aiEntity.getTransform().setRotation(next);
     }
 }
