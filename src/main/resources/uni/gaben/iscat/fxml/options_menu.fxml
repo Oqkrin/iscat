@@ -39,7 +39,7 @@
                            <Font name="System Italic" size="25.0" />
                         </font>
                      </Label>
-                     <Slider fx:id="BGMSlider" onDragDetected="#updateBGMAudio" />
+                     <Slider fx:id="BGMSlider" />
                   </children>
                </HBox>
                <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
@@ -49,7 +49,7 @@
                            <Font name="System Italic" size="25.0" />
                         </font>
                      </Label>
-                     <Slider fx:id="SFXSlider" onDragDetected="#updateSFXAudio" />
+                     <Slider fx:id="SFXSlider" />
                   </children>
                </HBox>
                <Label text="---- Miscelaneus ----" />

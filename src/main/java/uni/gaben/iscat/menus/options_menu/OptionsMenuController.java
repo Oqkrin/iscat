@@ -95,14 +95,6 @@ public class OptionsMenuController implements IscatFxmlController {
         }
     }
 
-    @FXML
-    void updateBGMAudio(MouseEvent event) {
-    }
-
-    @FXML
-    void updateSFXAudio(MouseEvent event) {
-    }
-
     @Override
     public void setContentRoot(StackPane contentRoot) {
         this.contentRoot = contentRoot;
