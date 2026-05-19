@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -23,37 +24,89 @@
          </Label>
       </VBox>
    </top>
-   <center>            <VBox fx:id="previewBox" alignment="CENTER" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;" BorderPane.alignment="CENTER">
-         <padding>
-            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-         </padding>
-         <Label text="---- Audio ----" />
-         <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0">
-            <children>
-
-               <Label fx:id="skinNameLabel" ellipsisString="" text="BGM AUDIO" textFill="#00ffcc">
-                  <font>
-                     <Font name="System Italic" size="25.0" />
-                  </font>
-               </Label>
-               <Slider onDragDetected="#updateBGMAudio" />
-            </children>
-         </HBox>
-         <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0">
-            <children>
-               <Label fx:id="skinNameLabel1" ellipsisString="" text="SFX AUDIO" textFill="#00ffcc">
-                  <font>
-                     <Font name="System Italic" size="25.0" />
-                  </font>
-               </Label>
-               <Slider onDragDetected="#updateSFXAudio" />
-            </children>
-         </HBox>
-         <Label text="---- Miscelaneus ----" />
-         <CheckBox mnemonicParsing="false" onAction="#toggleFPSVisible" text="MOSTRA FPS" />
-         <CheckBox mnemonicParsing="false" onAction="#toggleFullscreen" text="FULLSCREEN" />
-         <Button ellipsisString="" onAction="#show_controls" styleClass="back-button" text="Controls" />
-      <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
-      </VBox>
+   <center>
+      <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>            <VBox fx:id="mainOptions" alignment="CENTER" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
+               <padding>
+                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+               </padding>
+               <Label text="---- Audio ----" />
+               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0">
+                  <children>
+      
+                           <Label fx:id="skinNameLabel" ellipsisString="" text="BGM AUDIO" textFill="#00ffcc">
+                        <font>
+                           <Font name="System Italic" size="25.0" />
+                        </font>
+                     </Label>
+                     <Slider fx:id="BGMSlider" onDragDetected="#updateBGMAudio" />
+                  </children>
+               </HBox>
+               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0">
+                  <children>
+                     <Label fx:id="skinNameLabel1" ellipsisString="" text="SFX AUDIO" textFill="#00ffcc">
+                        <font>
+                           <Font name="System Italic" size="25.0" />
+                        </font>
+                     </Label>
+                     <Slider fx:id="SFXSlider" onDragDetected="#updateSFXAudio" />
+                  </children>
+               </HBox>
+               <Label text="---- Miscelaneus ----" />
+               <CheckBox fx:id="checkFps" mnemonicParsing="false" onAction="#toggleFPSVisible" text="MOSTRA FPS" />
+               <CheckBox fx:id="FullscreenCheck" mnemonicParsing="false" onAction="#toggleFullscreen" text="FULLSCREEN" />
+               <Button fx:id="ControlsBtn" ellipsisString="" onAction="#showControls" styleClass="back-button" text="Controls" />
+            <Button fx:id="ExitBtn" ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
+            </VBox>
+            <VBox fx:id="controlsBox" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" visible="false" StackPane.alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Walk up" />
+                        <Button fx:id="walkUp" mnemonicParsing="false" onAction="#changeControl" text="W" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Walk left" />
+                        <Button fx:id="walkLeft" mnemonicParsing="false" onAction="#changeControl" text="A" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Walk down" />
+                        <Button fx:id="walkDown" mnemonicParsing="false" onAction="#changeControl" text="S" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Walk right" />
+                        <Button fx:id="walkRight" mnemonicParsing="false" onAction="#changeControl" text="D" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Dash 1" />
+                        <Button fx:id="dash1" mnemonicParsing="false" onAction="#changeControl" text="Space" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Dash 2" />
+                        <Button fx:id="dash2" mnemonicParsing="false" onAction="#changeControl" text="Middle mouse" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Pause Game" />
+                        <Button mnemonicParsing="false" onAction="#changeControl" text="ESC" />
+                     </children>
+                  </HBox>
+                  <Button fx:id="resetControlsBtn" mnemonicParsing="false" onAction="#resetControls" text="RESET" />
+                  <Button fx:id="saveAndCloseControlsBtn" mnemonicParsing="false" onAction="#saveAndCloseControls" text="SAVE AND EXIT" />
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
    </center>
 </BorderPane>
