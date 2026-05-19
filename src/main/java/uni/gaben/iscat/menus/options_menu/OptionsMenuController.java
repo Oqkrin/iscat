@@ -3,10 +3,12 @@ package uni.gaben.iscat.menus.options_menu;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
@@ -19,6 +21,12 @@ public class OptionsMenuController implements IscatFxmlController {
     private VBox mainOptions;
 
     @FXML
+    private Slider BGMSlider;
+
+    @FXML
+    private Slider SFXSlider;
+
+    @FXML
     private BorderPane rootPane;
 
     @FXML
@@ -29,6 +37,17 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     private VBox controlsBox;
+
+    @FXML
+    public void initialize(){
+        BGMSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            IscatAudioManager.getInstance().setBgmVolume(newValue.doubleValue());
+        });
+
+        SFXSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            IscatAudioManager.getInstance().setSfxVolume(newValue.doubleValue());
+        });
+    }
 
     @FXML
     void changeControl(ActionEvent event) {
@@ -70,12 +89,10 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void updateBGMAudio(MouseEvent event) {
-
     }
 
     @FXML
     void updateSFXAudio(MouseEvent event) {
-
     }
 
     @Override
