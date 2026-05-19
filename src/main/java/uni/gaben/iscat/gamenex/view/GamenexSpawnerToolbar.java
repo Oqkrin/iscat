@@ -33,7 +33,8 @@ public class GamenexSpawnerToolbar extends StackPane {
             UniverseSpawnable.PLAYER,
             UniverseSpawnable.WORM_HEAD,
             UniverseSpawnable.WORM_BODY,
-            UniverseSpawnable.WORM_TAIL
+            UniverseSpawnable.WORM_TAIL,
+            UniverseSpawnable.PROJECTILE
     );
 
 
