@@ -23,8 +23,8 @@ public class MenuSceneIscatScene extends AbstractIscatScene {
 
     private StackPane root;
     private Label     title;
-    private Button    playLegacyButton;
-    private Button    playPhiButton;
+    //private Button    playLegacyButton;
+    private Button    playButton;
     private Button    optionsButton;
     private Button    scoreButton;
     private Button    skinButton;
@@ -52,16 +52,16 @@ public class MenuSceneIscatScene extends AbstractIscatScene {
         title.getStyleClass().add(CSS_TITLE);
 
         // --- Play Legacy ---
-        FontIcon legacyIcon = new FontIcon("fas-play");
-        legacyIcon.setIconSize(32);
-        playLegacyButton = new Button("PLAY  (legacy)", legacyIcon);
-        playLegacyButton.getStyleClass().add(CSS_MENU_BUTTON);
+        //FontIcon legacyIcon = new FontIcon("fas-play");
+        //legacyIcon.setIconSize(32);
+        //playLegacyButton = new Button("PLAY  (legacy)", legacyIcon);
+        //playLegacyButton.getStyleClass().add(CSS_MENU_BUTTON);
 
         // --- Play Phi ---
         FontIcon phiIcon = new FontIcon("fas-rocket");
         phiIcon.setIconSize(32);
-        playPhiButton = new Button("PLAY  (game_phi)", phiIcon);
-        playPhiButton.getStyleClass().add(CSS_MENU_BUTTON);
+        playButton = new Button("PLAY", phiIcon);
+        playButton.getStyleClass().add(CSS_MENU_BUTTON);
 
         // --- Options ---
         FontIcon optionIcon = new FontIcon("fas-cog");
@@ -97,10 +97,12 @@ public class MenuSceneIscatScene extends AbstractIscatScene {
     @Override
     protected void initLayout() {
         // Two play buttons side-by-side
-        HBox playRow = new HBox(16, playLegacyButton, playPhiButton);
-        playRow.setAlignment(Pos.CENTER);
+        //HBox playRow = new HBox(16, playLegacyButton, playPhiButton);
+        //playRow.setAlignment(Pos.CENTER);
 
-        VBox layout = new VBox(20, title, playRow, optionsButton, scoreButton, skinButton, bestiaryButton, quitButton);
+        //VBox layout = new VBox(20, title, playRow, optionsButton, scoreButton, skinButton, bestiaryButton, quitButton);
+        VBox layout = new VBox(20, title, playButton, optionsButton, scoreButton, skinButton, bestiaryButton, quitButton);
+
         layout.setAlignment(Pos.CENTER);
 
         root.getChildren().add(layout);
@@ -111,8 +113,8 @@ public class MenuSceneIscatScene extends AbstractIscatScene {
 
     @Override
     protected void initEventHandlers() {
-        playLegacyButton.setOnAction(e -> controller.playLegacy());
-        playPhiButton.setOnAction(e    -> controller.playPhi());
+        //playLegacyButton.setOnAction(e -> controller.playLegacy());
+        playButton.setOnAction(e    -> controller.playPhi());
         quitButton.setOnAction(e       -> controller.quit());
         skinButton.setOnAction(e -> controller.openSkinMenu());
         optionsButton.setOnAction(e -> controller.openOptionsMenu());
