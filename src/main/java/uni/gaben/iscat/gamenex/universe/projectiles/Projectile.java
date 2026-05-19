@@ -4,6 +4,7 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractProjectileModel;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
 public class Projectile extends AbstractProjectileModel {
@@ -16,7 +17,7 @@ public class Projectile extends AbstractProjectileModel {
 
         // Rimuove eventuali fixture precedenti e ne crea una nuova
         removeAllFixtures();
-        double radiusMeters = type.radiusPx / UniverseSettings.SCALE;
+        double radiusMeters = UU.pxToM(type.radiusPx);
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusMeters));
         fixture.setFilter(type.filter);
         setMass(MassType.NORMAL);

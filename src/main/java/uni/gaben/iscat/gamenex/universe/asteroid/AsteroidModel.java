@@ -35,7 +35,7 @@ public class AsteroidModel extends AbstractEntityModel {
         super(x, y);
         Random rand = new Random();
         this.size = radiusPixel != 0 ? radiusPixel * 2 : (2 + rand.nextInt(AsteroidSettings.MAXPXSIZE));
-        double radiusMeters = size / 2 / UniverseSettings.SCALE;
+        double radiusMeters = UU.pxToM(size / 2);
 
         int numVertices = minVertices + (rand.nextInt(variation));
         displayVertices = new Vector2[numVertices];

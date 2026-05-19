@@ -2,6 +2,7 @@ package uni.gaben.iscat.gamenex.universe.enemies.iscat_bomber;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
@@ -64,7 +65,7 @@ public class IscatBomberController extends AiBehaviours<IscatBomberModel> {
                     Vector2 toTarget = delayedTarget.copy().subtract(pos);
                     double dist    = toTarget.getMagnitude();
 
-                    double minDistMeters = IscatBomberSettings.DISTANZA_MIN_INSEGUIMENTO / UniverseSettings.SCALE;
+                    double minDistMeters = UU.pxToM(IscatBomberSettings.DISTANZA_MIN_INSEGUIMENTO);
                     if (dist > minDistMeters) {
                         toTarget.normalize();
                         aiEntity.applyForce(toTarget.multiply(IscatBomberSettings.FORCE * aiEntity.getMass().getMass()));

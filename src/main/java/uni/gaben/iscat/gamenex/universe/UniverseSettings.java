@@ -9,9 +9,6 @@ public final class UniverseSettings {
     private UniverseSettings() {
         // Impedisce l'istanza di questa classe di utility
     }
-
-    // --- Core Layout & Scale ---
-    public static final double SCALE = 64.0;
     public static final double DEFAULT_HEIGHT = 1080.0;
     public static final double DEFAULT_WIDTH = 1920.0;
 

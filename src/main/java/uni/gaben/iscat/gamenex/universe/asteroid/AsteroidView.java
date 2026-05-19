@@ -3,6 +3,7 @@ package uni.gaben.iscat.gamenex.universe.asteroid;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.gamenex.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.utils.ThemeColors;
 import org.dyn4j.geometry.Vector2;
@@ -16,8 +17,8 @@ public class AsteroidView implements Drawable<AsteroidModel> {
         
         for(int i=0; i<vertices.length; i++) {
             Vector2 worldPoint = entity.getTransform().getTransformed(vertices[i]);
-            xPoints[i] = worldPoint.x * UniverseSettings.SCALE;
-            yPoints[i] = worldPoint.y * UniverseSettings.SCALE;
+            xPoints[i] = UU.mToPx(worldPoint.x);
+            yPoints[i] = UU.mToPx(worldPoint.y);
         }
 
         gc.setFill(Color.BLACK);

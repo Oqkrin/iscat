@@ -4,6 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.player.PlayerModel;
@@ -78,8 +79,7 @@ public class IscatWormHeadController extends AiBehaviours<IscatWormHeadModel> {
                 Vector2 playerPos = player.getTransform().getTranslation();
                 double distance = playerPos.copy().subtract(headPos).getMagnitude();
 
-                double attackRadius = IscatWormHeadSettings.RAGGIO_COLLISIONE_PX
-                        / UniverseSettings.SCALE
+                double attackRadius = UU.pxToM(IscatWormHeadSettings.RAGGIO_COLLISIONE_PX)
                         * IscatWormHeadSettings.ATTACK_RADIUS_MULTIPLIER;
 
                 return distance < attackRadius ? 80.0 : 0.0;

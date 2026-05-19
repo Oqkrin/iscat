@@ -4,6 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.gamenex.lib.interfaces.controller.AiBehavior;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.IscatWormSegment;
@@ -34,7 +35,7 @@ public class IscatWormBodyPartController extends AiBehaviours<IscatWormBodyPartM
                 Vector2 direction = prevPos.copy().subtract(myPos);
                 double distance = direction.getMagnitude();
 
-                double desiredDistance = IscatWormBodyPartSettings.FOLLOW_DISTANCE / UniverseSettings.SCALE;
+                double desiredDistance = UU.pxToM(IscatWormBodyPartSettings.FOLLOW_DISTANCE);
 
                 // FORZA MOLTO AGGRESSIVA se si allontana
                 if (distance > desiredDistance) {

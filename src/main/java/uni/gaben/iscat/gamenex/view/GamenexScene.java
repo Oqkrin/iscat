@@ -10,6 +10,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.AbstractIscatScene;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityView;
+import uni.gaben.iscat.gamenex.universe.starfield.StarfieldModel;
 import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.controller.GamenexController;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
@@ -32,7 +33,7 @@ public class GamenexScene extends AbstractIscatScene {
     private GamenexController gamenexController;
     private StackPane root;
     private Canvas canvas;
-    private final StarfieldView starfieldView = new StarfieldView();
+    private StarfieldView starfieldView = new StarfieldView();
     private GamenexSpawnerToolbar spawnerToolbar;
     private GamenexPauseMenu pauseMenu;
     private Button debugButton;
@@ -213,5 +214,9 @@ public class GamenexScene extends AbstractIscatScene {
     public void onUnload() {
         super.onUnload();
         gamenexController.stopGameLoop();
+    }
+
+    public void setStarfieldView(StarfieldView starfieldView) {
+        this.starfieldView = starfieldView;
     }
 }

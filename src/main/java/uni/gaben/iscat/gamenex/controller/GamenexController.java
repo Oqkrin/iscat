@@ -1,11 +1,14 @@
 package uni.gaben.iscat.gamenex.controller;
 
 import javafx.animation.AnimationTimer;
+import uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel;
 import uni.gaben.iscat.gamenex.view.camera.CameraModel;
 import uni.gaben.iscat.gamenex.model.GamenexModel;
 import uni.gaben.iscat.gamenex.universe.UniverseController;
 import uni.gaben.iscat.gamenex.universe.UniverseModel;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
+
+import java.util.Random;
 
 public class GamenexController {
     private GamenexModel gamenexModel;
@@ -122,7 +125,11 @@ public class GamenexController {
         universeController = new UniverseController(newUniverse);
 
         UniverseSpawner.getInstance().init(newUniverse, universeController);
-        
+        universeController.getStarfieldController().regenerate(
+                newUniverse.getStarfieldModel(),
+                newUniverse.getWidth(),
+                newUniverse.getHeight()
+        );
         double midX = newUniverse.getWidth() / 2.0;
         double midY = newUniverse.getHeight() / 2.0;
 
@@ -136,7 +143,7 @@ public class GamenexController {
             double cx = midX + Math.cos(angle) * dist;
             double cy = midY + Math.sin(angle) * dist;
 
-            int count = 3 + new java.util.Random().nextInt(3);
+            int count = 3 + new Random().nextInt(3);
             for (int i = 0; i < count; i++) {
                 double offsetAngle = Math.random() * Math.PI * 2.0;
                 double offsetDist = Math.random() * 180.0;
@@ -147,8 +154,7 @@ public class GamenexController {
                 // Larger radii (diameter up to 180px)
                 double radius = 20.0 + Math.random() * 70.0;
 
-                uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel ast =
-                        new uni.gaben.iscat.gamenex.universe.asteroid.AsteroidModel(ax, ay, radius);
+                AsteroidModel ast = new AsteroidModel(ax, ay, radius);
 
                 double driftAngle = Math.random() * Math.PI * 2.0;
                 double speed = 0.5 + Math.random() * 2.0;

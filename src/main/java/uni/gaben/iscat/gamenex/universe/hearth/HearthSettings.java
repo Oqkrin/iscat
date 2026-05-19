@@ -1,5 +1,6 @@
 package uni.gaben.iscat.gamenex.universe.hearth;
 
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 import uni.gaben.iscat.gamenex.universe.UniverseSettings;
 
 public class HearthSettings {
@@ -15,7 +16,7 @@ public class HearthSettings {
     /** Vita data in collisione */
     public static final int HP_BOOST = 50;
     /** Raggio in pixel (es. 300px), convertito in metri */
-    public static final double RANGE_ATTIVAZIONE = 300.0 / UniverseSettings.SCALE;
+    public static final double RANGE_ATTIVAZIONE = UU.pxToM(300.0);
     /** Velocità di "scatto" del cuore */
     public static final double VELOCITA_INSEGUIMENTO = 8.0;
 }
