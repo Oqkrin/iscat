@@ -100,17 +100,30 @@ public class IscatWormController implements AiController {
 
         Vector2 dir = target.getWorldCenter().copy().subtract(me.getWorldCenter());
         double dist = dir.getMagnitude();
-        double desired = UU.pxToM(IscatWormSettings.FOLLOW_DISTANCE_PX);
+
+        // Determina la scala in base al tipo di segmento corrente
+        double currentScale = switch (me.getType()) {
+            case HEAD -> IscatWormSettings.HEAD_SCALE;
+            case BODY -> IscatWormSettings.BODY_SCALE;
+            case TAIL -> IscatWormSettings.TAIL_SCALE;
+        };
+
+        // CALCOLO DINAMICO: 50 pixel * scala del segmento, convertiti in metri
+        double scaledDistancePx = IscatWormSettings.FOLLOW_DISTANCE_PX * currentScale;
+        double desired = UU.pxToM(scaledDistancePx);
 
         if (dist > desired) {
             double excess = dist - desired;
             me.setAtRest(false);
-            me.applyForce(dir.getNormalized().multiply(force * (1.0 + excess * 8.0)));
+
+            // Forza proporzionale per mantenere la rigidità strutturale
+            me.applyForce(dir.getNormalized().multiply(force * (1.0 + excess * 12.0)));
             rotateTo(me, dir.getDirection(), dt, 0.28);
         }
 
+        // Sincronizzazione velocità
         Vector2 vel = me.getLinearVelocity();
-        double maxSpeed = IscatWormSettings.HEAD_MAX_SPEED * 0.85;
+        double maxSpeed = IscatWormSettings.HEAD_MAX_SPEED * 0.95;
         if (vel.getMagnitude() > maxSpeed) {
             me.setLinearVelocity(vel.getNormalized().multiply(maxSpeed));
         }

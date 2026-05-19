@@ -16,6 +16,7 @@ public final class UniverseCollisionLayers {
     public static final long PROJECTILE = 8;
     public static final long BOOST = 16;
     public static final long ENEMY_PROJECTILE = 32;
+    public static final long WORM_BODY        = 64;
 
     // Filters
     public static final CategoryFilter PLAYER_FILTER = new CategoryFilter(PLAYER, 
@@ -35,4 +36,7 @@ public final class UniverseCollisionLayers {
 
     public static final CategoryFilter PROJECTILE_FILTER = new CategoryFilter(PROJECTILE,
             ASTEROID | ENEMY | ENEMY_PROJECTILE);
+
+    public static final CategoryFilter WORM_BODY_FILTER = new CategoryFilter(WORM_BODY,
+            PLAYER | ASTEROID | PROJECTILE);
 }

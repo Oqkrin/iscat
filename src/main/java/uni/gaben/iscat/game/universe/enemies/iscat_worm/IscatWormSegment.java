@@ -16,7 +16,7 @@ public class IscatWormSegment extends LivingEntityModel {
 
     public enum Type { HEAD, BODY, TAIL }
 
-    private Type type; // non final: permette promozione a HEAD
+    private Type type;
     private boolean consumed = false;
     private IscatWormSegment previousSegment;
     private final Cooldown attackCooldown = new Cooldown();
@@ -26,11 +26,16 @@ public class IscatWormSegment extends LivingEntityModel {
         this.type = type;
 
         BodyFixture fixture = addFixture(Geometry.createCircle(UU.pxToM(getRadius(type))));
-        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
-        setMass(MassType.NORMAL);
 
+        // --- APPLICAZIONE FILTRI CENTRALIZZATI ---
+        if (type == Type.HEAD) {
+            fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
+        } else {
+            fixture.setFilter(UniverseCollisionLayers.WORM_BODY_FILTER);
+        }
+
+        setMass(MassType.NORMAL);
         setLinearDamping(getDamping(type));
-        // FIX: Rimuove l'attrito angolare per permettere virate istantanee e fulminee
         setAngularDamping(0.0);
     }
 
@@ -41,7 +46,13 @@ public class IscatWormSegment extends LivingEntityModel {
     }
 
     // ── Promozione ────────────────────────────────────────────────────────────
-    public void promoteToHead() { this.type = Type.HEAD; }
+    public void promoteToHead() {
+        this.type = Type.HEAD;
+        // Quando viene promosso, scala di categoria e inizia a collidere come una testa a tutti gli effetti
+        if (!getFixtures().isEmpty()) {
+            getFixtures().get(0).setFilter(UniverseCollisionLayers.ENEMY_FILTER);
+        }
+    }
 
     // ── Cooldown (aggiornato dal controller ogni tick) ────────────────────────
     public void updateCooldowns(double dt)       { attackCooldown.update(dt); }
@@ -55,7 +66,6 @@ public class IscatWormSegment extends LivingEntityModel {
     public IscatWormSegment  getPreviousSegment(){ return previousSegment; }
     public void              setPreviousSegment(IscatWormSegment p) { this.previousSegment = p; }
 
-    // Metodi fisici esposti (niente @Override: non c'è interfaccia)
     public Vector2 getPosition()              { return getTransform().getTranslation(); }
     public void    setRotation(double angle)  { getTransform().setRotation(angle); }
     public double  getRotation()              { return getTransform().getRotationAngle(); }
