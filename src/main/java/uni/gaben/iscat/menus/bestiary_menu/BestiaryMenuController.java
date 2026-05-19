@@ -43,7 +43,7 @@ public class BestiaryMenuController implements IscatFxmlController {
     private static final Map<String, Enemy> ENEMIES = Map.ofEntries(
             Map.entry("iscat_mob", new Enemy("Iscat Mob", BASE + "iscat.png",
                     IscatMobSettings.NUMERO_FRAMES, IscatMobSettings.DIM_SPRITE, IscatMobSettings.DIM_SPRITE,
-                    "Descrizione Iscat")),
+                    "Descrizione Iscat\nFiglio di Iscat Mother, ama mangiare pankakes a colazione e pizza per pranzo e cena. ASPETTA QUESTA E' LA DESCRIZIONE! SORRY!! Iscat è un nemico che naviga per lo spazio in cerca di cibo solitamente in gruppo. Ha poca vita e poca potenza d'attacco.")),
 
             Map.entry("iscat_bomber", new Enemy("Iscat Bomber", BASE + "iscatBomber.png",
                     1, 32, 32,
