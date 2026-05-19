@@ -196,8 +196,8 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
         if (!fireCooldown.isCoolingDown()) {
             shootCoreBurst();
 
-            double healthPercent = (double) aiEntity.getLife() / aiEntity.getMaxLife();
-            double dynamicCooldown = IscatCoreSettings.FIRE_COOLDOWN_S * Math.max(0.5, healthPercent);
+            double healthPercent =  aiEntity.getLife() / aiEntity.getMaxLife();
+            double dynamicCooldown = IscatCoreSettings.FIRE_COOLDOWN_S * healthPercent;
 
             fireCooldown.start(dynamicCooldown);
         }

@@ -25,8 +25,10 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
         super(x, y, IscatMotherSettings.HP_INIZIALI, IscatMotherSettings.HP_INIZIALI);
 
         BodyFixture fixture = addFixture(
-                Geometry.createCircle(
-                        UU.pxToM(IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE / 2.0 * 0.9)));
+                Geometry.createCapsule(
+                        UU.pxToM(IscatMotherSettings.DIM_SPRITE),
+                        UU.pxToM(IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE / 2.0 * 0.75)
+                        ));
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(IscatMotherSettings.DAMPING_LINEARE);
@@ -95,5 +97,10 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
     @Override
     public double getTerminalVelocity() {
         return IscatMotherSettings.MAX_VELOCITY_MS;
+    }
+
+    @Override
+    public double getHeightMeters() {
+        return UU.pxToM(IscatMotherSettings.DIM_SPRITE) * 2;
     }
 }

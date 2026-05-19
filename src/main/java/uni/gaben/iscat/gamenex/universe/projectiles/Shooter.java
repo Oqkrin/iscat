@@ -3,16 +3,24 @@ package uni.gaben.iscat.gamenex.universe.projectiles;
 import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.gamenex.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.gamenex.lib.abstracts.AbstractShooterController;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
+import uni.gaben.iscat.gamenex.universe.enemies.iscat_core.IscatCoreSettings;
 
 public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractShooterController<T> {
 
+    private double distance;
     public Shooter(T model) {
         super(model);
+        if(model instanceof AbstractEntityModel aem){
+            distance = aem.getHeightMeters()/2;
+        } else {
+            distance = .1;
+        }
     }
 
     public void shoot(AbstractProjectileModel template) {
@@ -31,7 +39,7 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
     protected AbstractProjectileModel[] shootingLogic(AbstractProjectileModel template) {
         Projectile bullet = (Projectile) template.blueprint();
         bullet.setTransform(model.getTransform());
-        bullet.translate(Vector2.create(1, model.getTransform().getRotationAngle()));
+        bullet.translate(Vector2.create(distance, model.getTransform().getRotationAngle()));
         bullet.setLinearVelocity(
                 Vector2.create(template.getTerminalVelocity(),
                         model.getTransform().getRotationAngle())

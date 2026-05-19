@@ -13,7 +13,7 @@ public final class IscatBomberSettings {
     
     // --- RENDERING ---
     public static final int DIM_SPRITE = 32;
-    public static final double SCALE = 1.0;
+    public static final double SCALE = 4.0;
     public static final double RAGGIO_COLLISIONE_PX = (DIM_SPRITE / 2.0) * 0.80; // 24px
 
     // --- AI e INSEGUIMENTO ---
