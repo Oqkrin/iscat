@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<?import javafx.scene.control.Button?>
 <BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/options_menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.menus.options_menu.OptionsMenuController">
    <top>
       <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
@@ -26,23 +27,33 @@
          <padding>
             <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
          </padding>
+         <Label text="---- Audio ----" />
+         <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0">
+            <children>
 
-         <Label fx:id="skinNameLabel" ellipsisString="" text="BGM AUDIO" textFill="#00ffcc">
-            <font>
-               <Font name="System Italic" size="25.0" />
-            </font>
-         </Label>
-         <Slider />
-         <Label fx:id="skinNameLabel1" ellipsisString="" layoutX="118.0" layoutY="40.0" text="SFX AUDIO" textFill="#00ffcc">
-            <font>
-               <Font name="System Italic" size="25.0" />
-            </font>
-         </Label>
-         <Slider layoutX="40.0" layoutY="107.0" />
-         <CheckBox mnemonicParsing="false" text="MOSTRA FPS" />
-      <VBox alignment="CENTER" spacing="15.0">
-         <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
-      </VBox>
+               <Label fx:id="skinNameLabel" ellipsisString="" text="BGM AUDIO" textFill="#00ffcc">
+                  <font>
+                     <Font name="System Italic" size="25.0" />
+                  </font>
+               </Label>
+               <Slider onDragDetected="#updateBGMAudio" />
+            </children>
+         </HBox>
+         <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0">
+            <children>
+               <Label fx:id="skinNameLabel1" ellipsisString="" text="SFX AUDIO" textFill="#00ffcc">
+                  <font>
+                     <Font name="System Italic" size="25.0" />
+                  </font>
+               </Label>
+               <Slider onDragDetected="#updateSFXAudio" />
+            </children>
+         </HBox>
+         <Label text="---- Miscelaneus ----" />
+         <CheckBox mnemonicParsing="false" onAction="#toggleFPSVisible" text="MOSTRA FPS" />
+         <CheckBox mnemonicParsing="false" onAction="#toggleFullscreen" text="FULLSCREEN" />
+         <Button ellipsisString="" onAction="#show_controls" styleClass="back-button" text="Controls" />
+      <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
       </VBox>
    </center>
 </BorderPane>
