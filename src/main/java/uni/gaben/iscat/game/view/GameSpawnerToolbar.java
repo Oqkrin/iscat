@@ -25,9 +25,6 @@ public class GameSpawnerToolbar extends StackPane {
     // Spawn button che non dovrebbero esistere
     private static final Set<UniverseSpawnable> HIDDEN_SPAWNABLES = Set.of(
             UniverseSpawnable.PLAYER,
-            UniverseSpawnable.WORM_HEAD,
-            UniverseSpawnable.WORM_BODY,
-            UniverseSpawnable.WORM_TAIL,
             UniverseSpawnable.PROJECTILE
     );
 

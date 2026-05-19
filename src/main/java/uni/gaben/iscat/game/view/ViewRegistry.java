@@ -8,12 +8,11 @@ import uni.gaben.iscat.game.universe.enemies.fake_iscat.FakeIscatView;
 import uni.gaben.iscat.game.universe.enemies.fallen_star_golem.FallenStarGolemView;
 import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreView;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherView;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSegment;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormView;
 import uni.gaben.iscat.game.universe.hearth.HearthView;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterView;
 import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobView;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartView;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadView;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailView;
 import uni.gaben.iscat.game.universe.enemies.iscat_bomber.IscatBomberView;
 import uni.gaben.iscat.game.universe.player.PlayerView;
 import uni.gaben.iscat.game.universe.projectiles.ProjectileView;
@@ -58,14 +57,12 @@ public class ViewRegistry {
             case ISCAT_MOTHER -> new IscatMotherView();
             case HEARTH -> new HearthView();
             case EATER -> new IscatEaterView();
-            case WORM_HEAD -> new IscatWormHeadView();
-            case WORM_BODY -> new IscatWormBodyPartView();
-            case WORM_TAIL -> new IscatWormTailView();
             case PROJECTILE -> new ProjectileView();
             case ISCAT_CORE -> new IscatCoreView();
             case FAKE_ISCAT -> new FakeIscatView();
             case FALLEN_STAR_GOLEM -> new FallenStarGolemView();
-            case WORM -> null; // WORM non ha View diretta, essendo composto
+            case WORM -> (Drawable<IscatWormSegment>) (segment, gc) ->
+                    IscatWormView.forType(segment.getType()).draw(segment, gc);
         };
     }
 

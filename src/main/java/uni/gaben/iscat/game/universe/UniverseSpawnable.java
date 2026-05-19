@@ -9,12 +9,10 @@ import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherModel;
 import uni.gaben.iscat.game.universe.hearth.HearthModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobModel;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadModel;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_bomber.IscatBomberModel;
 import uni.gaben.iscat.game.universe.player.PlayerModel;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSegment;
 
 public enum UniverseSpawnable {
     PLAYER(PlayerModel.class),
@@ -28,10 +26,7 @@ public enum UniverseSpawnable {
     FAKE_ISCAT(FakeIscatModel.class),
     ISCAT_BOMBER(IscatBomberModel.class),
 
-    WORM(null),
-    WORM_HEAD(IscatWormHeadModel.class),
-    WORM_BODY(IscatWormBodyPartModel.class),
-    WORM_TAIL(IscatWormTailModel.class),
+    WORM(IscatWormSegment.class),
 
     PROJECTILE(Projectile.class);
 

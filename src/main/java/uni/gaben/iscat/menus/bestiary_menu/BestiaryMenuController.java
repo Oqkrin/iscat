@@ -18,9 +18,6 @@ import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterSettings;
 import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobSettings;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadSettings;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailSettings;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -67,9 +64,9 @@ public class BestiaryMenuController implements IscatFxmlController {
 
             Map.entry("eater", new Enemy("Eater", BASE + "eater.png",
                     IscatEaterSettings.NUMERO_FRAMES, IscatEaterSettings.DIM_SPRITE, IscatEaterSettings.DIM_SPRITE,
-                    "Descrizione Eater")),
+                    "Descrizione Eater"))
 
-            Map.entry("iscat_worm_head", new Enemy("Iscat Worm Head", BASE + "iscat_worm_head.png",
+           /* Map.entry("iscat_worm_head", new Enemy("Iscat Worm Head", BASE + "iscat_worm_head.png",
                     IscatWormHeadSettings.NUMERO_FRAMES, IscatWormHeadSettings.DIM_SPRITE, IscatWormHeadSettings.DIM_SPRITE,
                     "Descrizione Iscat Worm Head")),
 
@@ -79,7 +76,7 @@ public class BestiaryMenuController implements IscatFxmlController {
 
             Map.entry("iscat_worm_tail", new Enemy("Iscat Worm Tail", BASE + "iscat_worm_tail.png",
                     IscatWormTailSettings.NUMERO_FRAMES, IscatWormTailSettings.DIM_SPRITE, IscatWormTailSettings.DIM_SPRITE,
-                    "Descrizione Iscat Worm Tail"))
+                    "Descrizione Iscat Worm Tail"))*/
     );
 
     // -------------------------------------------------------------------------

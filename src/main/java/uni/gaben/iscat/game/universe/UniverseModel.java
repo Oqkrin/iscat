@@ -13,6 +13,7 @@ import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.game.lib.utils.UU;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSegment;
 import uni.gaben.iscat.game.universe.player.PlayerModel;
 import uni.gaben.iscat.game.universe.starfield.StarfieldModel;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
@@ -149,10 +150,9 @@ public class UniverseModel extends World<Body> {
         }
         clampTerminalVelocities();
 
-        // Align worm segments and tail rotation to their physical movement direction
+        // Allinea i segmenti del corpo e della coda del verme alla direzione del loro movimento fisico
         for (Body b : getBodies()) {
-            if (b instanceof uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel ||
-                b instanceof uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailModel) {
+            if (b instanceof IscatWormSegment segment && segment.getType() != IscatWormSegment.Type.HEAD) {
                 Vector2 vel = b.getLinearVelocity();
                 if (vel.getMagnitudeSquared() > 0.01) {
                     b.getTransform().setRotation(vel.getDirection());

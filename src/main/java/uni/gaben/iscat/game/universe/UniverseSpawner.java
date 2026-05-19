@@ -1,10 +1,7 @@
 package uni.gaben.iscat.game.universe;
 
-import org.dyn4j.dynamics.Body;
-import org.dyn4j.dynamics.joint.DistanceJoint;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.controller.AiController;
-import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.asteroid.AsteroidModel;
 import uni.gaben.iscat.game.universe.enemies.fake_iscat.FakeIscatController;
 import uni.gaben.iscat.game.universe.enemies.fake_iscat.FakeIscatModel;
@@ -14,18 +11,15 @@ import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreController;
 import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherController;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherModel;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartController;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailController;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormController;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormModel;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSegment;
 import uni.gaben.iscat.game.universe.hearth.HearthController;
 import uni.gaben.iscat.game.universe.hearth.HearthModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterController;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobController;
 import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobModel;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartModel;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadController;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadModel;
-import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_bomber.IscatBomberController;
 import uni.gaben.iscat.game.universe.enemies.iscat_bomber.IscatBomberModel;
 import uni.gaben.iscat.game.universe.player.PlayerModel;
@@ -86,7 +80,6 @@ public class UniverseSpawner {
             case WORM -> spawnWorm(x, y);
 
             case PROJECTILE -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");
-            case WORM_HEAD, WORM_BODY, WORM_TAIL -> throw new IllegalArgumentException("Usa il tipo WORM per spawnare l'intero verme");
         };
     }
 
@@ -135,73 +128,12 @@ public class UniverseSpawner {
         return entity;
     }
 
-    public IscatWormHeadModel spawnWorm(double x, double y) {
-        if (model == null || controller == null) {
-            System.err.println("UniverseSpawner non inizializzato!");
-            return null;
+    public IscatWormModel spawnWorm(double x, double y) {
+        IscatWormModel worm = new IscatWormModel(x, y);
+        for (IscatWormSegment seg : worm.getSegments()) {
+            model.addEntity(seg); // ogni segmento è un corpo fisico separato
         }
-
-        double spacing = UU.pxToM(48.0);
-
-        // 1. CREA LA TESTA
-        IscatWormHeadModel head = new IscatWormHeadModel(x, y);
-        model.addEntity(head);
-        controller.addAiController(new IscatWormHeadController(head));
-
-        IscatWormBodyPartModel previousBody = null;
-        Body previousBodyPhysics = head;
-
-        // 2. CREA 10 BODY PARTS
-        for (int i = 0; i < 10; i++) {
-            double bodyX = x - (i + 1) * spacing;
-            double bodyY = y;
-
-            IscatWormBodyPartModel body = new IscatWormBodyPartModel(bodyX, bodyY);
-            model.addEntity(body);
-
-            IscatWormBodyPartController bodyController = new IscatWormBodyPartController(body);
-
-            // Collega al segmento precedente
-            if (previousBody == null) {
-                bodyController.setPreviousSegment(head);      // primo body segue la testa
-            } else {
-                bodyController.setPreviousSegment(previousBody);
-            }
-
-            controller.addAiController(bodyController);
-
-            // Joint fisico
-            DistanceJoint<Body> joint = new DistanceJoint<>(previousBodyPhysics, body,
-                    previousBodyPhysics.getWorldCenter(),
-                    body.getWorldCenter());
-            joint.setRestDistance(spacing);
-            model.addJoint(joint);
-
-            previousBody = body;
-            previousBodyPhysics = body;
-        }
-
-        // 3. CREA LA TAIL
-        double tailX = x - 11 * spacing;
-        double tailY = y;
-
-        IscatWormTailModel tail = new IscatWormTailModel(tailX, tailY);
-        model.addEntity(tail);
-
-        IscatWormTailController tailController = new IscatWormTailController(tail);
-        tailController.setPreviousSegment(previousBody);   // segue l'ultimo body part
-
-        controller.addAiController(tailController);
-
-        // Joint tra ultimo body e tail
-        DistanceJoint<Body> tailJoint = new DistanceJoint<>(previousBodyPhysics, tail,
-                previousBodyPhysics.getWorldCenter(),
-                tail.getWorldCenter());
-        tailJoint.setRestDistance(spacing);
-        model.addJoint(tailJoint);
-
-//        System.out.println("IscatWorm spawnato correttamente: 1 Head + 10 Body + 1 Tail");
-
-        return head;
+        controller.addAiController(new IscatWormController(worm));
+        return worm;
     }
 }
