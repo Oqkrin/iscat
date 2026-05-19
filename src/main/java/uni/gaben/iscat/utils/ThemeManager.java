@@ -9,7 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import uni.gaben.iscat.game.components.entities.npcs.SpriteUtils;
+import uni.gaben.iscat.utils.sprite.SpriteUtils;
 
 import java.util.HashMap;
 import java.util.Map;

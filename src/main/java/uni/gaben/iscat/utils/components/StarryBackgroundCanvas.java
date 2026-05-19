@@ -4,50 +4,54 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.game.components.space.SpaceModel;
-import uni.gaben.iscat.game.components.space.SpaceView;
+import uni.gaben.iscat.game.universe.starfield.StarfieldModel;
+import uni.gaben.iscat.game.universe.starfield.StarfieldView;
+import uni.gaben.iscat.game.universe.starfield.StarModel;
+import uni.gaben.iscat.utils.ThemeColors;
+
+import java.util.Random;
 
 /**
- * Canvas con sfondo stellato animato.
- * 
- * Può seguire:
- * - Velocità del giocatore (modalità game)
- * - Posizione del mouse (modalità menu/login)
+ * Canvas con sfondo stellato animato che si interfaccia con il modello passivo StarfieldModel.
  */
 public class StarryBackgroundCanvas extends Canvas {
 
-    private final SpaceModel space;
-    private final SpaceView spaceView = new SpaceView();
-    private AnimationTimer animationLoop;
-    
+    private final StarfieldModel space;
+    private final StarfieldView spaceView = new StarfieldView();
+    private final AnimationTimer animationLoop;
+
+    // Configurazione stelle
+    private static final int STAR_COUNT = 150;
+
     // Mouse tracking mode
     private boolean followMouse = false;
     private double mouseX = 0;
     private double mouseY = 0;
-    private double targetVx = 0;
-    private double targetVy = 0;
     private double prevMouseX = 0;
     private double prevMouseY = 0;
-    
-    // Mouse sensitivity for parallax effect
+
+    // Sensibilità parallasse del mouse
     private static final double MOUSE_PARALLAX_FACTOR = 0.15;
 
     public StarryBackgroundCanvas() {
-        this.space = new SpaceModel(0, 0);
-        
-        // Update space size when canvas resizes
+        // Inizializza il tuo modello passivo
+        this.space = new StarfieldModel(0, 0);
+
+        // Rigenera e ripopola il modello quando cambiano le dimensioni della finestra
         widthProperty().addListener((obs, old, newWidth) -> {
             if (newWidth.doubleValue() > 0) {
-                space.setWidth(newWidth.intValue());
+                spaceView.setW(newWidth.doubleValue());
+                populateStarfield();
             }
         });
         heightProperty().addListener((obs, old, newHeight) -> {
             if (newHeight.doubleValue() > 0) {
-                space.setHeight(newHeight.intValue());
+                spaceView.setH(newHeight.doubleValue());
+                populateStarfield();
             }
         });
-        
-        // Render loop
+
+        // Loop di calcolo e rendering ad ogni frame
         animationLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -56,10 +60,30 @@ public class StarryBackgroundCanvas extends Canvas {
             }
         };
     }
-    
+
     /**
-     * Abilita modalità "segui mouse" per scene senza player.
+     * Popola la lista interna dello StarfieldModel passivo usando le dimensioni correnti del Canvas.
      */
+    private void populateStarfield() {
+        double w = getWidth();
+        double h = getHeight();
+        if (w <= 0 || h <= 0) return;
+
+        // Puliamo il vecchio stato (essenziale per evitare sovrapposizioni al resize/reset)
+        space.clear();
+
+        Random rand = new Random();
+        for (int i = 0; i < STAR_COUNT; i++) {
+            double starX = rand.nextDouble() * w;
+            double starY = rand.nextDouble() * h;
+            // Dimensioni assortite tra 1.0 e 3.5 pixel
+            double size = 1.0 + rand.nextDouble() * 2.5;
+
+            // Inseriamo la stella nel modello tramite il tuo metodo nativo
+            space.addStar(new StarModel(starX, starY, size));
+        }
+    }
+
     public void setFollowMouse(boolean followMouse) {
         this.followMouse = followMouse;
         if (followMouse) {
@@ -67,86 +91,76 @@ public class StarryBackgroundCanvas extends Canvas {
             prevMouseY = mouseY;
         }
     }
-    
-    /**
-     * Aggiorna la posizione del mouse (chiamato dalla scena).
-     */
+
     public void updateMousePosition(double x, double y) {
         this.mouseX = x;
         this.mouseY = y;
     }
-    
+
     /**
-     * Aggiorna le stelle con velocità esterna (es. player velocity).
-     * Disabilita automaticamente followMouse.
+     * Sposta la telecamera della View in base alla velocità (es. del player).
+     * Sostituisce il vecchio space.update() che dava errore di compilazione.
      */
     public void updateWithVelocity(double vx, double vy) {
         followMouse = false;
-        space.update(vx, vy);
+        spaceView.setCameraX(spaceView.getCameraX() + vx);
+        spaceView.setCameraY(spaceView.getCameraY() + vy);
     }
-    
+
     /**
-     * Applica impulso diretto alle stelle (es. dash).
+     * Applica un impulso istantaneo alle coordinate della telecamera di sfondo.
      */
     public void applyImpulse(double dvx, double dvy) {
-        space.applyImpulse(dvx, dvy);
+        spaceView.setCameraX(spaceView.getCameraX() + dvx);
+        spaceView.setCameraY(spaceView.getCameraY() + dvy);
     }
-    
+
     private void update() {
         if (followMouse) {
-            // Calculate mouse velocity for parallax effect
             double dx = mouseX - prevMouseX;
             double dy = mouseY - prevMouseY;
-            
-            // Parallax effect: stars move opposite to mouse (like looking through a window)
-            targetVx = dx * MOUSE_PARALLAX_FACTOR;
-            targetVy = dy * MOUSE_PARALLAX_FACTOR;
-            
-            space.update(targetVx, targetVy);
-            
+
+            // Muove la telecamera interna in base allo spostamento del mouse
+            spaceView.setCameraX(spaceView.getCameraX() + (dx * MOUSE_PARALLAX_FACTOR));
+            spaceView.setCameraY(spaceView.getCameraY() + (dy * MOUSE_PARALLAX_FACTOR));
+
             prevMouseX = mouseX;
             prevMouseY = mouseY;
         }
     }
-    
+
     private void render() {
         double w = getWidth();
         double h = getHeight();
-        if (w <= 0 || h <= 0) return;
-        
+        if (w <= 0 || h <= 0 || space.getStars().isEmpty()) return;
+
         GraphicsContext gc = getGraphicsContext2D();
-        
-        // Clear with black background
-        gc.setFill(Color.BLACK);
+
+        ThemeColors.ensureLoaded();
+        Color bgColor = ThemeColors.parsedColors.getOrDefault("bg-primary", Color.BLACK);
+
+        // Pulisce lo sfondo
+        gc.setFill(bgColor);
         gc.fillRect(0, 0, w, h);
         gc.setImageSmoothing(false);
-        
-        // Draw stars
-        spaceView.draw(gc, space);
+
+        // Disegna delegando alla View nativa passando il modello popolato
+        spaceView.draw(space, gc);
     }
-    
-    /**
-     * Avvia l'animazione delle stelle.
-     */
+
     public void start() {
-        if (animationLoop != null) {
-            animationLoop.start();
-        }
+        if (animationLoop != null) animationLoop.start();
     }
-    
-    /**
-     * Ferma l'animazione delle stelle.
-     */
+
     public void stop() {
-        if (animationLoop != null) {
-            animationLoop.stop();
-        }
+        if (animationLoop != null) animationLoop.stop();
     }
-    
-    /**
-     * Accesso diretto al modello stelle (per uso avanzato).
-     */
-    public SpaceModel getSpace() {
+
+    public StarfieldModel getSpace() {
         return space;
+    }
+
+    public StarfieldView getSpaceView() {
+        return spaceView;
     }
 }

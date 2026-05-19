@@ -7,8 +7,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import uni.gaben.iscat.game.controller.GameController;
-import uni.gaben.iscat.game.GameModel;
-import uni.gaben.iscat.game.view.GameSceneIscatScene;
 
 import uni.gaben.iscat.game.universe.UniverseController;
 import uni.gaben.iscat.game.universe.UniverseModel;
@@ -44,10 +42,6 @@ public class IscatApplication extends Application {
     // --- Main Menu ---
     MenuController menuController = new MenuController();
 
-    // --- Legacy game ---
-    GameModel      legacyModel      = new GameModel();
-    GameController legacyController = new GameController(legacyModel);
-
     // --- Gamenex game ---
     UniverseModel     universeModel     = new UniverseModel();
     CameraModel       cameraModel       = new CameraModel();
@@ -80,7 +74,6 @@ public class IscatApplication extends Application {
     private void putScenes() {
         scenes.put(IscatScenes.LOGIN_MENU,    new LoginSceneIscatScene(loginModel, loginController));
         scenes.put(IscatScenes.MAIN_MENU,     new MenuSceneIscatScene(menuController));
-        scenes.put(IscatScenes.GAME,          new GameSceneIscatScene(legacyController, legacyModel));
         scenes.put(IscatScenes.GAMEN,         new GameScene(gameController, gameModel));
         scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuSceneIscatScene());
         scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuSceneIscatScene());
