@@ -28,7 +28,10 @@ public class IscatWormSegment extends LivingEntityModel {
         BodyFixture fixture = addFixture(Geometry.createCircle(UU.pxToM(getRadius(type))));
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
+
         setLinearDamping(getDamping(type));
+        // FIX: Rimuove l'attrito angolare per permettere virate istantanee e fulminee
+        setAngularDamping(0.0);
     }
 
     @Override
