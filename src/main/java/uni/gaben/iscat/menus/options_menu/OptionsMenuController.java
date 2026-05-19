@@ -12,6 +12,7 @@ import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
+import uni.gaben.iscat.gamenex.lib.utils.UU;
 
 public class OptionsMenuController implements IscatFxmlController {
 
@@ -48,6 +49,9 @@ public class OptionsMenuController implements IscatFxmlController {
             IscatAudioManager.getInstance().setSfxVolume(newValue.doubleValue());
         });
     }
+
+    @FXML
+    private Slider scaleSlider;
 
     @FXML
     void changeControl(ActionEvent event) {
@@ -116,5 +120,12 @@ public class OptionsMenuController implements IscatFxmlController {
         if (show) {
             controlsBox.toFront();
         }
+    }
+
+    @FXML
+    void updateScale(MouseEvent event) {
+
+        UU.setUniverseScale(scaleSlider.getValue());
+
     }
 }

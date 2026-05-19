@@ -1,5 +1,7 @@
 package uni.gaben.iscat.gamenex.lib.utils;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.geometry.Vector2;
 
 
@@ -9,8 +11,20 @@ import org.dyn4j.geometry.Vector2;
  * Dyn4j physics units (meters, seconds) and visual engine units (pixels, ticks).
  */
 public class UU {
+    public static double getUniverseScale() {
+        return UNIVERSE_SCALE.get();
+    }
+
+    public static DoubleProperty UNIVERSE_SCALEProperty() {
+        return UNIVERSE_SCALE;
+    }
+
+    public static void setUniverseScale(double universeScale) {
+        UNIVERSE_SCALE.set(universeScale);
+    }
+
     // 64 pixels = 1 meter
-    public static final double UNIVERSE_SCALE = 64.0;
+    public static DoubleProperty UNIVERSE_SCALE = new SimpleDoubleProperty(64.0);
     // 1 tick = 1/60th of a second (assuming a standard 60Hz physics loop)
     public static final double UNIVERSE_TICK = 1.0 / 60.0;
 
@@ -48,21 +62,21 @@ public class UU {
     // --- DISTANCE & POSITION CONVERSIONS ---
 
     public static double pxToM(double px) {
-        return px / UNIVERSE_SCALE;
+        return px / getUniverseScale();
     }
 
     public static double mToPx(double m) {
-        return m * UNIVERSE_SCALE;
+        return m * getUniverseScale();
     }
 
     /** Converts pixel coordinates into a Dyn4j physics vector */
     public static Vector2 pxToM(double x, double y) {
-        return new Vector2(x / UNIVERSE_SCALE, y / UNIVERSE_SCALE);
+        return new Vector2(x / getUniverseScale(), y / getUniverseScale());
     }
 
     /** Converts a Dyn4j physics vector into pixel coordinates */
     public static Vector2 mToPx(Vector2 metersVec) {
-        return new Vector2(metersVec.x * UNIVERSE_SCALE, metersVec.y * UNIVERSE_SCALE);
+        return new Vector2(metersVec.x * getUniverseScale(), metersVec.y * getUniverseScale());
     }
 
     // --- TIME & FRAME CONVERSIONS ---

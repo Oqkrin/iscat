@@ -31,7 +31,7 @@
                   <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
                </padding>
                <Label text="---- Audio ----" />
-               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0">
+               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
                   <children>
       
                            <Label fx:id="skinNameLabel" ellipsisString="" text="BGM AUDIO" textFill="#00ffcc">
@@ -42,7 +42,7 @@
                      <Slider fx:id="BGMSlider" onDragDetected="#updateBGMAudio" />
                   </children>
                </HBox>
-               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0">
+               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
                   <children>
                      <Label fx:id="skinNameLabel1" ellipsisString="" text="SFX AUDIO" textFill="#00ffcc">
                         <font>
@@ -53,6 +53,16 @@
                   </children>
                </HBox>
                <Label text="---- Miscelaneus ----" />
+               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
+                  <children>
+                     <Label fx:id="skinNameLabel11" ellipsisString="" text="scale" textFill="#00ffcc">
+                        <font>
+                           <Font name="System Italic" size="25.0" />
+                        </font>
+                     </Label>
+                     <Slider fx:id="scaleSlider" blockIncrement="2.0" max="96.0" min="1.0" onDragDetected="#updateScale" value="64.0" />
+                  </children>
+               </HBox>
                <CheckBox fx:id="checkFps" mnemonicParsing="false" onAction="#toggleFPSVisible" text="MOSTRA FPS" />
                <CheckBox fx:id="FullscreenCheck" mnemonicParsing="false" onAction="#toggleFullscreen" text="FULLSCREEN" />
                <Button fx:id="ControlsBtn" ellipsisString="" onAction="#showControls" styleClass="back-button" text="Controls" />
