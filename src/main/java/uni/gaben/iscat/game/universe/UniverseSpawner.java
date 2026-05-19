@@ -14,6 +14,8 @@ import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreController;
 import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherController;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherModel;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartController;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailController;
 import uni.gaben.iscat.game.universe.hearth.HearthController;
 import uni.gaben.iscat.game.universe.hearth.HearthModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterController;
@@ -141,35 +143,64 @@ public class UniverseSpawner {
 
         double spacing = UU.pxToM(48.0);
 
+        // 1. CREA LA TESTA
         IscatWormHeadModel head = new IscatWormHeadModel(x, y);
         model.addEntity(head);
         controller.addAiController(new IscatWormHeadController(head));
 
-        Body previous = head;
+        IscatWormBodyPartModel previousBody = null;
+        Body previousBodyPhysics = head;
 
+        // 2. CREA 10 BODY PARTS
         for (int i = 0; i < 10; i++) {
             double bodyX = x - (i + 1) * spacing;
-            IscatWormBodyPartModel body = new IscatWormBodyPartModel(bodyX, y);
+            double bodyY = y;
+
+            IscatWormBodyPartModel body = new IscatWormBodyPartModel(bodyX, bodyY);
             model.addEntity(body);
 
-            // Crea il giunto fisico tra i segmenti consecutivi del verme
-            DistanceJoint<Body> joint =
-                new DistanceJoint<>(previous, body, previous.getWorldCenter(), body.getWorldCenter());
+            IscatWormBodyPartController bodyController = new IscatWormBodyPartController(body);
+
+            // Collega al segmento precedente
+            if (previousBody == null) {
+                bodyController.setPreviousSegment(head);      // primo body segue la testa
+            } else {
+                bodyController.setPreviousSegment(previousBody);
+            }
+
+            controller.addAiController(bodyController);
+
+            // Joint fisico
+            DistanceJoint<Body> joint = new DistanceJoint<>(previousBodyPhysics, body,
+                    previousBodyPhysics.getWorldCenter(),
+                    body.getWorldCenter());
             joint.setRestDistance(spacing);
             model.addJoint(joint);
 
-            previous = body;
+            previousBody = body;
+            previousBodyPhysics = body;
         }
 
+        // 3. CREA LA TAIL
         double tailX = x - 11 * spacing;
-        IscatWormTailModel tail = new IscatWormTailModel(tailX, y);
+        double tailY = y;
+
+        IscatWormTailModel tail = new IscatWormTailModel(tailX, tailY);
         model.addEntity(tail);
 
-        // Collega la coda all'ultimo segmento corporeo
-        DistanceJoint<Body> joint =
-            new DistanceJoint<>(previous, tail, previous.getWorldCenter(), tail.getWorldCenter());
-        joint.setRestDistance(spacing);
-        model.addJoint(joint);
+        IscatWormTailController tailController = new IscatWormTailController(tail);
+        tailController.setPreviousSegment(previousBody);   // segue l'ultimo body part
+
+        controller.addAiController(tailController);
+
+        // Joint tra ultimo body e tail
+        DistanceJoint<Body> tailJoint = new DistanceJoint<>(previousBodyPhysics, tail,
+                previousBodyPhysics.getWorldCenter(),
+                tail.getWorldCenter());
+        tailJoint.setRestDistance(spacing);
+        model.addJoint(tailJoint);
+
+//        System.out.println("IscatWorm spawnato correttamente: 1 Head + 10 Body + 1 Tail");
 
         return head;
     }
