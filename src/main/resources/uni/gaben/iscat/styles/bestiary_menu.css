@@ -1,4 +1,3 @@
-```css
 .root {
     -fx-background-color: black;
 }
@@ -27,7 +26,7 @@
 
 .text-area {
     -fx-background-color: black;
-    -fx-border-color: white;
+    -fx-border-color: #2a2a2a;
     -fx-border-width: 2;
 
     -fx-font-family: "Consolas";
@@ -53,28 +52,106 @@
 /* ----------------------------- */
 
 .button {
-    -fx-background-color: #111111;
 
-    -fx-border-color: white;
-    -fx-border-width: 2;
-    -fx-border-radius: 6;
-
-    -fx-text-fill: white;
+    /* testo */
+    -fx-text-fill: #d9d9d9;
 
     -fx-font-family: "Consolas";
-    -fx-font-size: 20px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
 
-    -fx-padding: 10 20 10 20;
+    /* stessa dimensione */
+    -fx-pref-width: 220px;
+    -fx-min-width: 220px;
+    -fx-max-width: 220px;
+
+    -fx-pref-height: 45px;
+    -fx-min-height: 45px;
+    -fx-max-height: 45px;
+
+    /* padding */
+    -fx-padding: 8px 18px;
+
+    /* allineamento */
+    -fx-alignment: CENTER;
+    -fx-content-display: LEFT;
+
+    /* nero base */
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%,
+        #121212,
+        #000000);
+
+    /* bordi */
+    -fx-border-color: #2a2a2a;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+
+    /* ombra */
+    -fx-effect: dropshadow(
+        gaussian,
+        rgba(0,0,0,0.35),
+        12,
+        0.2,
+        0,
+        4
+    );
+
+    /* mouse */
+    -fx-cursor: hand;
+
+    /* scala iniziale */
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
 }
+
+/* hover = grigio */
 
 .button:hover {
-    -fx-background-color: #00ffcc22;
-    -fx-border-color: white;
+
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%,
+        #404040,
+        #2c2c2c);
+
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+
+    -fx-translate-y: -1;
+
+    -fx-effect: dropshadow(
+        gaussian,
+        rgba(0,0,0,0.45),
+        16,
+        0.25,
+        0,
+        6
+    );
 }
 
+/* click = grigio azzurro */
+
 .button:pressed {
-    -fx-background-color: #00ffcc55;
+
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%,
+        #5f7280,
+        #425461);
+
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+
+    -fx-translate-y: 2;
+
+    -fx-effect: dropshadow(
+        gaussian,
+        rgba(0,0,0,0.3),
+        8,
+        0.2,
+        0,
+        3
+    );
 }
 
 /* ----------------------------- */
@@ -82,23 +159,63 @@
 /* ----------------------------- */
 
 .skin-button {
-    -fx-background-color: #1a1a1a;
 
-    -fx-border-color: white;
-    -fx-border-width: 2;
-    -fx-border-radius: 4;
+    /* stessa dimensione */
+    -fx-pref-width: 80px;
+    -fx-pref-height: 80px;
 
-    -fx-padding: 10;
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%,
+        #121212,
+        #000000);
+
+    -fx-border-color: #2a2a2a;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+
+    -fx-padding: 8;
 
     -fx-content-display: graphic-only;
+
+    -fx-effect: dropshadow(
+        gaussian,
+        rgba(0,0,0,0.35),
+        12,
+        0.2,
+        0,
+        4
+    );
+
+    -fx-cursor: hand;
 }
+
+/* hover = grigio */
 
 .skin-button:hover {
-    -fx-background-color: #00ffcc33;
-    -fx-border-color: white;
+
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%,
+        #404040,
+        #2c2c2c);
+
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+
+    -fx-translate-y: -1;
 }
 
+/* pressed = grigio azzurro */
+
 .skin-button:pressed {
-    -fx-background-color: #00ffcc66;
+
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%,
+        #5f7280,
+        #425461);
+
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+
+    -fx-translate-y: 2;
 }
-```
