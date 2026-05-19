@@ -11,9 +11,12 @@ import uni.gaben.iscat.gamenex.lib.interfaces.model.Lifecycle;
 import uni.gaben.iscat.gamenex.universe.UniverseSpawner;
 import uni.gaben.iscat.gamenex.universe.enemies.iscat_core.IscatCoreSettings;
 
+import java.util.Random;
+
 public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractShooterController<T> {
 
     private double distance;
+    private final Random random = new Random();
     public Shooter(T model) {
         super(model);
         if(model instanceof AbstractEntityModel aem){
@@ -49,14 +52,16 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
         bullet.setOnCollision(otherEntity -> {
             if (bullet.shouldRemove()) return; // guard: evita doppia collisione nello stesso tick
 
-            // Applica danno solo a entità con vita (Player, Enemy, ecc.)
-            if (otherEntity instanceof Lifecycle target) {
+            if (otherEntity instanceof AbstractProjectileModel) {
+                bullet.getTransform().setRotation(otherEntity.getTransform().getRotation().getRotated(random.nextDouble(-Math.PI, Math.PI)));
+            } else if (otherEntity instanceof Lifecycle target) {
                 target.deltaToLife(-bullet.getDamage());
-            }
 
+                bullet.kill();
+                bullet.setShouldRemove(true);
+            }
+            // Applica danno solo a entità con vita (Player, Enemy, ecc.)
             // Il proiettile si auto-distrugge sempre al primo impatto
-            bullet.kill();
-            bullet.setShouldRemove(true);
         });
 
         return new AbstractProjectileModel[]{ bullet };

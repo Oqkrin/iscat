@@ -31,8 +31,8 @@ public final class UniverseCollisionLayers {
             PLAYER );
 
     public static final CategoryFilter ENEMY_PROJECTILE_FILTER = new CategoryFilter(ENEMY_PROJECTILE,
-            PLAYER | ASTEROID);
+            PLAYER | ASTEROID | PROJECTILE);
 
     public static final CategoryFilter PROJECTILE_FILTER = new CategoryFilter(PROJECTILE,
-            ASTEROID | ENEMY);
+            ASTEROID | ENEMY | ENEMY_PROJECTILE);
 }

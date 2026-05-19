@@ -36,7 +36,8 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
     // ── ROTAZIONE AUTONOMA A SCATTI DI 45° ────────────────────────────────────
     private double targetRotationAngle = 0.0;
     private double rotationTimer = 0.0;
-    private static final double ROTATION_INTERVAL = 10.0; // Secondi per intervallo
+    private static double ROTATION_INTERVAL = 10.0; // Secondi per intervallo
+    private int firedBulletsCount = 0;
 
     /**
      * Costruttore del Controller. Inizializza i componenti e registra i comportamenti.
@@ -116,7 +117,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
 
         // Gestione rotazione autonoma a scatti di 45 gradi
         rotationTimer += dt;
-        if (rotationTimer >= ROTATION_INTERVAL) {
+        if (rotationTimer >= ROTATION_INTERVAL || firedBulletsCount == 10) {
             rotationTimer -= ROTATION_INTERVAL;
             targetRotationAngle += Math.PI / 4.0; // +45 gradi
 
@@ -194,7 +195,9 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
 
         // Gestione dello sparo condizionato dal Cooldown Dinamico (Spara più velocemente se ferito)
         if (!fireCooldown.isCoolingDown()) {
+            if (firedBulletsCount >= 10) firedBulletsCount = 0;
             shootCoreBurst();
+            firedBulletsCount++;
 
             double healthPercent =  aiEntity.getLife() / aiEntity.getMaxLife();
             double dynamicCooldown = IscatCoreSettings.FIRE_COOLDOWN_S * healthPercent;
