@@ -1,213 +1,173 @@
 package uni.gaben.iscat.game.controller;
 
 import javafx.animation.AnimationTimer;
-import javafx.scene.Scene;
-import uni.gaben.iscat.IscatAudioManager;
-import uni.gaben.iscat.game.components.entities.npcs.NpcModel;
-import uni.gaben.iscat.game.components.entities.npcs.iscat_bomber.IscatBomberModel;
-import uni.gaben.iscat.game.view.GameCanvas;
-import uni.gaben.iscat.game.GameModel;
-import uni.gaben.iscat.game.utils.settings.GameSettings;
-import uni.gaben.iscat.game.components.entities.player.PlayerModel;
-import uni.gaben.iscat.game.components.entities.player.controller.PlayerDodgeController;
-import uni.gaben.iscat.game.components.entities.player.controller.PlayerMovementController;
-import uni.gaben.iscat.game.components.entities.player.controller.PlayerShootingController;
+import uni.gaben.iscat.game.universe.asteroid.AsteroidModel;
+import uni.gaben.iscat.game.view.camera.CameraModel;
+import uni.gaben.iscat.game.model.GameModel;
+import uni.gaben.iscat.game.universe.UniverseController;
+import uni.gaben.iscat.game.universe.UniverseModel;
+import uni.gaben.iscat.game.universe.UniverseSpawner;
 
 import java.util.Random;
-import java.util.function.Consumer;
 
-/**
- * Orchestratore del gioco.
- * Gestisce il loop e delega ogni responsabilità al proprio handler.
- *
- * Controllers:
- *   GamePauseController      — pausa, navigazione
- *   PlayerMovementController — spinta, direzione
- *   PlayerDodgeController    — scatto, impulso stelle
- *   PlayerShootingController — sparo
- *   GameScrollController     — scroll del mondo ai bordi
- *   GameFpsTracker           — calcolo FPS
- */
 public class GameController {
-
-    private final GameModel model;
-    private GameCanvas canvas;
-    private final InputHandler input;
-
-    // Controllers
-    private final GamePauseController     pause    = new GamePauseController();
-    private final PlayerMovementController movement = new PlayerMovementController();
-    private final PlayerDodgeController   dodge    = new PlayerDodgeController();
-    private final PlayerShootingController shooting = new PlayerShootingController();
-    private final GameScrollController    scroll   = new GameScrollController();
-    private final GameFpsTracker          fps      = new GameFpsTracker();
-
-    private final Random rand = new Random();
-    private boolean playerSpawned = false;
+    private GameModel gameModel;
+    private UniverseController universeController;
     private AnimationTimer gameLoop;
+    private Runnable drawCall;
+    private GameInputs gameInputs = new GameInputs();
 
-    public GameController(GameModel model) {
-        this.model = model;
-        this.input = new InputHandler();
-        initialize();
+    public GameInputs getInputManager() {
+        return gameInputs;
     }
 
-    public void initialize() {
-        // Diciamo al modello di chiamare setupEnemyAudio per ogni nuovo nemico
-        model.setOnEnemySpawned(this::setupEnemyAudio);
+    public void setDrawCall(Runnable drawCall) {
+        this.drawCall = drawCall;
+    }
 
-        // Gestiamo anche i nemici già presenti (quelli di test)
-        for (NpcModel existingEnemy : model.getEnemies()) {
-            setupEnemyAudio(existingEnemy);
+    public GameController(GameModel gameModel, UniverseController universeController) {
+        this.gameModel = gameModel;
+        this.universeController = universeController;
+
+        // Inizializzazione dello Spawner e generazione del mondo iniziale
+        UniverseSpawner.getInstance().init(getUniverseModel(), universeController);
+
+        double midX = getUniverseModel().getWidth() / 2.0;
+        double midY = getUniverseModel().getHeight() / 2.0;
+
+        UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+
+        // Stabilize spring hooks immediately to prevent camera lens pan jitter during launch
+        getCameraModel().getSpringX().setPosition(midX);
+        getCameraModel().getSpringY().setPosition(midY);
+
+        setupTimer(gameModel);
+    }
+
+    private void setupTimer(GameModel gameModel) {
+        this.gameLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (gameModel.getLastUpdate() == 0) {
+                    gameModel.setLastUpdate(now);
+                    return;
+                }
+
+                gameModel.setNow(now);
+                double dt = gameModel.getDt();
+
+                if (dt > GameModel.ACCUMULATORUNIT) {
+                    dt = GameModel.ACCUMULATORUNIT;
+                }
+
+                tick(dt);
+
+                if (drawCall != null) {
+                    drawCall.run();
+                }
+
+                gameModel.setLastUpdate(now);
+            }
+        };
+    }
+
+    private void tick(double dt) {
+        if (gameModel.isPaused()) {
+            universeController.updatev(dt, gameInputs, getCameraModel());
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Setup
-    // -------------------------------------------------------------------------
-
-    public void setCanvas(GameCanvas canvas) {
-        this.canvas = canvas;
-        pause.setFocusTarget(canvas);
+    public void togglePause() {
+        gameModel.setPaused(gameModel.isPaused());
     }
 
-    public void attachInput(Scene scene) {
-        input.setKeyEventHandlers(scene);
-        input.setMouseEventHandlers(canvas);
-    }
-
-    public void setupPlayerAudio() {
-        PlayerModel p = model.getPlayer();
-        // Dash audio → PlayerDodgeController
-        dodge.setOnScatto(() -> {
-            int sfx = 1 + rand.nextInt(3);
-            IscatAudioManager.getInstance().playSFX("fart_alt" + sfx);
-        });
-        // Shot spawn + audio → PlayerShootingController
-        shooting.setOnSparo(model::spawnProjectile);
-        shooting.setOnSparoSound(() -> IscatAudioManager.getInstance().playSFX("shoot"));
-        // Hurt audio stays on the model (LivingEntityModel.onHurt is a minor violation
-        // but acceptable until LivingEntityModel is refactored)
-        p.setOnHurt(() -> IscatAudioManager.getInstance().playSFX("hurt"));
-    }
-
-    public void setupEnemyAudio(NpcModel enemy) {
-        //System.out.println("[GameController] DEBUG: Sto collegando l'audio al nemico: " + enemy.getClass().getSimpleName());
-
-        enemy.setOnHurt(() -> {
-            IscatAudioManager.getInstance().playSFX("hurt");
-        });
-
-        enemy.setOnDeath(() -> {
-            IscatAudioManager.getInstance().playSFX("explosion");
-        });
-    }
-
-    // -------------------------------------------------------------------------
-    // Game loop
-    // -------------------------------------------------------------------------
-
-    private long lastFrameTime = 0;
-    private double accumulator = 0.0;
-    private static final double FIXED_DT = 1.0 / 60.0; // 60 updates per second
-    private static final long NANOS_PER_SECOND = 1_000_000_000L;
-
-    public void startLoop() {
-        if (gameLoop != null) return;
-        lastFrameTime = 0;
-        accumulator = 0.0;
-        gameLoop = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                // Calculate delta time in seconds
-                if (lastFrameTime == 0) {
-                    lastFrameTime = now;
-                    return;
-                }
-                
-                double deltaSeconds = (now - lastFrameTime) / (double) NANOS_PER_SECOND;
-                lastFrameTime = now;
-                
-                // Cap delta time to prevent spiral of death
-                deltaSeconds = Math.min(deltaSeconds, 0.25);
-                
-                // Accumulate time
-                accumulator += deltaSeconds;
-                
-                // Fixed timestep updates
-                while (accumulator >= FIXED_DT) {
-                    update();
-                    accumulator -= FIXED_DT;
-                }
-                
-                fps.update(now);
-                canvas.render(fps.getFps(), scroll.getCameraX(), scroll.getCameraY());
-            }
-        };
+    public void startGameLoop() {
         gameLoop.start();
     }
 
-    public void stopLoop() {
-        if (gameLoop != null) {
-            gameLoop.stop();
-            gameLoop = null;
+    public void stopGameLoop() {
+        gameLoop.stop();
+    }
+
+    public void debugSpawn(String spawnableId) {
+        // THE FIX: Drops models symmetrically balanced over the actual camera center position
+        double spawnWorldX = getCameraModel().getX() + ((Math.random() - 0.5) * 400);
+        double spawnWorldY = getCameraModel().getY() + ((Math.random() - 0.5) * 400);
+
+        UniverseSpawner.getInstance().spawn(spawnableId, spawnWorldX, spawnWorldY);
+    }
+
+    private boolean showFps = false;
+
+    public void setShowFps(boolean show) {
+        this.showFps = show;
+    }
+
+    public boolean isFpsOn() {
+        return showFps;
+    }
+
+    public UniverseModel getUniverseModel() {
+        return gameModel.getUniverseModel();
+    }
+
+    public UniverseController getUniverseController() {
+        return universeController;
+    }
+
+    public CameraModel getCameraModel() {
+        return gameModel.getCameraModel();
+    }
+
+    public void resetUniverse() {
+        UniverseModel newUniverse = new UniverseModel();
+        gameModel.setUniverseModel(newUniverse);
+        universeController = new UniverseController(newUniverse);
+
+        UniverseSpawner.getInstance().init(newUniverse, universeController);
+        universeController.getStarfieldController().regenerate(
+                newUniverse.getStarfieldModel(),
+                newUniverse.getWidth(),
+                newUniverse.getHeight()
+        );
+        double midX = newUniverse.getWidth() / 2.0;
+        double midY = newUniverse.getHeight() / 2.0;
+
+        UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+
+        // Spawn 6 initial clumps of asteroids all around the world (mostly off-camera)
+        for (int clump = 0; clump < 6; clump++) {
+            double angle = (clump * (Math.PI * 2.0 / 6.0)) + (Math.random() * 0.5);
+            double dist = 600.0 + Math.random() * 1200.0;
+
+            double cx = midX + Math.cos(angle) * dist;
+            double cy = midY + Math.sin(angle) * dist;
+
+            int count = 3 + new Random().nextInt(3);
+            for (int i = 0; i < count; i++) {
+                double offsetAngle = Math.random() * Math.PI * 2.0;
+                double offsetDist = Math.random() * 180.0;
+
+                double ax = cx + Math.cos(offsetAngle) * offsetDist;
+                double ay = cy + Math.sin(offsetAngle) * offsetDist;
+
+                // Larger radii (diameter up to 180px)
+                double radius = 20.0 + Math.random() * 70.0;
+
+                AsteroidModel ast = new AsteroidModel(ax, ay, radius);
+
+                double driftAngle = Math.random() * Math.PI * 2.0;
+                double speed = 0.5 + Math.random() * 2.0;
+                ast.setLinearVelocity(new org.dyn4j.geometry.Vector2(
+                        Math.cos(driftAngle) * speed,
+                        Math.sin(driftAngle) * speed
+                ));
+
+                UniverseSpawner.getInstance().spawnEntity(ast);
+            }
         }
+
+        getCameraModel().getSpringX().setPosition(midX);
+        getCameraModel().getSpringY().setPosition(midY);
     }
-
-    // -------------------------------------------------------------------------
-    // Update — one tick
-    // -------------------------------------------------------------------------
-
-    private void update() {
-        pause.processInput(input);
-        if (pause.isPaused()) return;
-
-        if (!playerSpawned) spawnPlayerAtCenter();
-
-        PlayerModel p = model.getPlayer();
-
-        shooting.process(input, p);
-        movement.applicaSpinta(input, p);
-        boolean dashFired = dodge.process(input, p);
-
-        model.update(GameSettings.DT);
-
-        // Update camera to follow player
-        scroll.process(p, canvas.getWidth(), canvas.getHeight());
-
-        movement.aggiornaDirezione(input, p, scroll.getCameraX(), scroll.getCameraY());
-        canvas.getSpace().update(p.getVelocity().x, p.getVelocity().y);
-
-        if (dashFired) {
-            dodge.applyStarImpulse(p, canvas.getSpace());
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Spawn
-    // -------------------------------------------------------------------------
-
-    private void spawnPlayerAtCenter() {
-        double w = canvas.getWidth();
-        double h = canvas.getHeight();
-        if (w <= 0 || h <= 0) return;
-        PlayerModel p = model.getPlayer();
-        p.setX(w / 2.0 - GameCanvas.TILE_SIZE / 2.0);
-        p.setY(h / 2.0 - GameCanvas.TILE_SIZE / 2.0);
-        // Snap camera to player immediately to avoid initial lerp impulse
-        scroll.snapToPlayer(p, w, h);
-        playerSpawned = true;
-    }
-
-    // -------------------------------------------------------------------------
-    // Pause / navigation — delegated to GamePauseController
-    // -------------------------------------------------------------------------
-
-    public void setOnPauseToggle(Consumer<Boolean> callback) {
-        pause.setOnPauseToggle(callback);
-    }
-
-    public void togglePause() { pause.toggle(); }
-
-    public void exitToMainMenu() { pause.exitToMainMenu(); }
 }

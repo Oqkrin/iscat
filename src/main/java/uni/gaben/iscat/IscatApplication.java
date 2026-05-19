@@ -10,12 +10,10 @@ import uni.gaben.iscat.game.controller.GameController;
 import uni.gaben.iscat.game.GameModel;
 import uni.gaben.iscat.game.view.GameSceneIscatScene;
 
-import uni.gaben.iscat.gamenex.controller.GamenexController;
-import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.gamenex.universe.UniverseController;
-import uni.gaben.iscat.gamenex.universe.UniverseModel;
-import uni.gaben.iscat.gamenex.view.GamenexScene;
-import uni.gaben.iscat.gamenex.view.camera.CameraModel;
+import uni.gaben.iscat.game.universe.UniverseController;
+import uni.gaben.iscat.game.universe.UniverseModel;
+import uni.gaben.iscat.game.view.GameScene;
+import uni.gaben.iscat.game.view.camera.CameraModel;
 import uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuSceneIscatScene;
 import uni.gaben.iscat.menus.login_menu.controller.LoginController;
 import uni.gaben.iscat.menus.login_menu.model.LoginData;
@@ -53,9 +51,9 @@ public class IscatApplication extends Application {
     // --- Gamenex game ---
     UniverseModel     universeModel     = new UniverseModel();
     CameraModel       cameraModel       = new CameraModel();
-    GamenexModel      gamenexModel      = new GamenexModel(universeModel, cameraModel);
+    uni.gaben.iscat.game.model.GameModel gameModel = new uni.gaben.iscat.game.model.GameModel(universeModel, cameraModel);
     UniverseController universeController = new UniverseController(universeModel);
-    GamenexController gamenexController = new GamenexController(gamenexModel, universeController);
+    GameController gameController = new GameController(gameModel, universeController);
 
     EnumMap<IscatScenes, Scene> scenes =  new EnumMap<>(IscatScenes.class);
 
@@ -83,7 +81,7 @@ public class IscatApplication extends Application {
         scenes.put(IscatScenes.LOGIN_MENU,    new LoginSceneIscatScene(loginModel, loginController));
         scenes.put(IscatScenes.MAIN_MENU,     new MenuSceneIscatScene(menuController));
         scenes.put(IscatScenes.GAME,          new GameSceneIscatScene(legacyController, legacyModel));
-        scenes.put(IscatScenes.GAMEN,         new GamenexScene(gamenexController, gamenexModel));
+        scenes.put(IscatScenes.GAMEN,         new GameScene(gameController, gameModel));
         scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuSceneIscatScene());
         scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuSceneIscatScene());
         scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuSceneIscatScene());

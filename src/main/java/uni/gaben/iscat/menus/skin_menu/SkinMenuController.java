@@ -15,7 +15,7 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.gamenex.universe.player.PlayerSettings;
+import uni.gaben.iscat.game.universe.player.PlayerSettings;
 
 import java.util.Objects;
 

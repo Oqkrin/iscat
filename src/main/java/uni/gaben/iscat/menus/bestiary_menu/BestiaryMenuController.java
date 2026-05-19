@@ -16,11 +16,11 @@ import javafx.util.Duration;
 import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.gamenex.universe.enemies.iscat_eater.IscatEaterSettings;
-import uni.gaben.iscat.gamenex.universe.enemies.iscat_mob.IscatMobSettings;
-import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings;
-import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadSettings;
-import uni.gaben.iscat.gamenex.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailSettings;
+import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterSettings;
+import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobSettings;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_body_part.IscatWormBodyPartSettings;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_head.IscatWormHeadSettings;
+import uni.gaben.iscat.game.universe.enemies.iscat_worm.iscat_worm_tail.IscatWormTailSettings;
 
 import java.io.InputStream;
 import java.util.Map;

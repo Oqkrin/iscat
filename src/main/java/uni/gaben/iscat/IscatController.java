@@ -5,9 +5,6 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import uni.gaben.iscat.gamenex.controller.GamenexController;
-import uni.gaben.iscat.gamenex.model.GamenexModel;
-import uni.gaben.iscat.gamenex.view.GamenexScene;
 
 import java.util.EnumMap;
 

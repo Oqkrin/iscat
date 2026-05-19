@@ -1,0 +1,105 @@
+package uni.gaben.iscat.game.universe.enemies.iscat_mother;
+
+import org.dyn4j.dynamics.BodyFixture;
+import org.dyn4j.geometry.Geometry;
+import org.dyn4j.geometry.MassType;
+import uni.gaben.iscat.game.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
+import uni.gaben.iscat.game.lib.utils.UU;
+import uni.gaben.iscat.game.universe.UniverseCollisionLayers;
+import uni.gaben.iscat.game.universe.projectiles.Projectile;
+import uni.gaben.iscat.utils.Cooldown;
+
+/**
+ * Modello fisico puro dell'IscatMother (boss).
+ * Contiene solo stato e predicati: la logica comportamentale
+ * (sparo, spawn minioni, orda) è nel Controller.
+ */
+public class IscatMotherModel extends LivingEntityModel implements HasProjectile<Projectile> {
+
+    private final Cooldown fireCooldown = new Cooldown();
+    private boolean hasSpawnedMinions = false;
+
+    public IscatMotherModel(double x, double y) {
+        super(x, y, IscatMotherSettings.HP_INIZIALI, IscatMotherSettings.HP_INIZIALI);
+
+        BodyFixture fixture = addFixture(
+                Geometry.createCapsule(
+                        UU.pxToM(IscatMotherSettings.DIM_SPRITE),
+                        UU.pxToM(IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE / 2.0 * 0.75)
+                        ));
+        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
+        setMass(MassType.NORMAL);
+        setLinearDamping(IscatMotherSettings.DAMPING_LINEARE);
+    }
+
+    // ─── Lifecycle ──────────────────────────────────────────────────────────
+
+    public void update(double dt) {
+        fireCooldown.update(dt);
+    }
+
+    // ─── Fire cooldown ──────────────────────────────────────────────────────
+
+    public boolean isFireReady() {
+        return fireCooldown.isReady();
+    }
+
+    public void startFireCooldown() {
+        fireCooldown.start(IscatMotherSettings.COOLDOWN_SPARO_SEC);
+    }
+
+    // ─── Minion spawn state ─────────────────────────────────────────────────
+
+    public boolean hasSpawnedMinions() {
+        return hasSpawnedMinions;
+    }
+
+    public void markMinionsSpawned() {
+        this.hasSpawnedMinions = true;
+    }
+
+    public boolean shouldSpawnMinions() {
+        return !hasSpawnedMinions
+                && getLife() <= getMaxLife() * IscatMotherSettings.MINION_SPAWN_HP_THRESHOLD;
+    }
+
+    // ─── HasProjectile ──────────────────────────────────────────────────────
+
+    @Override
+    public Projectile getProjectile() {
+        return new Projectile();
+    }
+
+    @Override
+    public boolean hasAmmo() {
+        return true;
+    }
+
+    @Override
+    public Cooldown projectileCooldown() {
+        return fireCooldown;
+    }
+
+    @Override
+    public int getProjectileCooldownTickCount() {
+        return (int) UU.sToTicks(IscatMotherSettings.COOLDOWN_SPARO_SEC);
+    }
+
+    @Override
+    public void setProjectileCooldownTickCount(int tickCount) {
+        fireCooldown.start(UU.ticksToS(tickCount));
+    }
+
+    // ─── Terminal velocity ──────────────────────────────────────────────────
+
+    @Override
+    public double getTerminalVelocity() {
+        return IscatMotherSettings.MAX_VELOCITY_MS;
+    }
+
+    @Override
+    public double getHeightMeters() {
+        return UU.pxToM(IscatMotherSettings.DIM_SPRITE) * 2;
+    }
+}

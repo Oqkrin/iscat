@@ -13,7 +13,7 @@ import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.gamenex.lib.utils.UU;
+import uni.gaben.iscat.game.lib.utils.UU;
 
 public class OptionsMenuController implements IscatFxmlController {
 

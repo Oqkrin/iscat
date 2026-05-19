@@ -3,7 +3,7 @@ package uni.gaben.iscat;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import uni.gaben.iscat.game.utils.settings.AudioSettings;
+import uni.gaben.iscat.utils.AudioSettings;
 
 import java.net.URI;
 import java.nio.file.*;
