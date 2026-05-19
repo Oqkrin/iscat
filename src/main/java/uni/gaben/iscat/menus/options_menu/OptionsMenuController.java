@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
@@ -84,7 +85,10 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void toggleFullscreen(ActionEvent event) {
-
+        if (rootPane != null && rootPane.getScene() != null) {
+            Stage stage = (Stage) rootPane.getScene().getWindow();
+            stage.setFullScreen(!stage.isFullScreen());
+        }
     }
 
     @FXML
