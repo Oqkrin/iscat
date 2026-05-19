@@ -10,6 +10,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.AbstractIscatScene;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityView;
+import uni.gaben.iscat.game.universe.UniverseSpawner;
 import uni.gaben.iscat.game.view.camera.CameraModel;
 import uni.gaben.iscat.game.controller.GameController;
 import uni.gaben.iscat.game.model.GameModel;
@@ -126,11 +127,140 @@ public class GameScene extends AbstractIscatScene {
         debugButton.setText("DEBUG");
     }
 
+    // NON LEGGERE IL CODICE!
+    // BASTA SPOILER
+    // NO AGLI SPOILER
+    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
+    //    // BASTA SPOILER
+    //    // NO AGLI SPOILER
+    //    // NON LEGGERE IL CODICE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // NON LEGGERE IL CODICE!
+    // BASTA SPOILER
+    // NO AGLI SPOILER
+    // NON LEGGERE IL CODICE
+
     @Override
     public void onShow() {
         super.onShow();
         gameController.setDrawCall(this::renderFrame);
         gameController.startGameLoop();
+
+        // NON LEGGERE IL CODICE!
+        // BASTA SPOILER
+        // NO AGLI SPOILER
+        // NON LEGGERE IL CODICE
+
+        UniverseController universeController = gameController.getUniverseController();
+
+        // NON LEGGERE IL CODICE!
+        // BASTA SPOILER
+        // NO AGLI SPOILER
+        // NON LEGGERE IL CODICE
+
+        if (universeController != null) {
+
+            // NON LEGGERE IL CODICE!
+            // BASTA SPOILER
+            // NO AGLI SPOILER
+            // NON LEGGERE IL CODICE
+
+            java.util.Random random = new java.util.Random();
+
+
+            // NON LEGGERE IL CODICE!
+            // BASTA SPOILER
+            // NO AGLI SPOILER
+            // NON LEGGERE IL CODICE
+
+
+            for (int i = 0; i < 10; i++) {
+
+                // NON LEGGERE IL CODICE!
+                // BASTA SPOILER
+                // NO AGLI SPOILER
+                // NON LEGGERE IL CODICE
+                double randomX = 3000.0 + random.nextDouble() * 2000.0;
+
+                // NON LEGGERE IL CODICE!
+                // BASTA SPOILER
+                // NO AGLI SPOILER
+                // NON LEGGERE IL CODICE
+                double randomY = 3000.0 + random.nextDouble() * 2000.0;
+
+                // NON LEGGERE IL CODICE!
+                // BASTA SPOILER
+                // NO AGLI SPOILER
+                // NON LEGGERE IL CODICE
+                UniverseSpawner.getInstance().spawnWorm(randomX, randomY);
+
+                // NON LEGGERE IL CODICE!
+                // BASTA SPOILER
+                // NO AGLI SPOILER
+                // NON LEGGERE IL CODICE
+            }
+        }
+
+        // NON LEGGERE IL CODICE!
+        // BASTA SPOILER
+        // NO AGLI SPOILER
+        // NON LEGGERE IL CODICE
         runLater(() -> canvas.requestFocus());
     }
 
