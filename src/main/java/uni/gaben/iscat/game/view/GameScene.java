@@ -126,141 +126,26 @@ public class GameScene extends AbstractIscatScene {
         spawnerToolbar.setVisible(false);
         debugButton.setText("DEBUG");
     }
-
-    // NON LEGGERE IL CODICE!
-    // BASTA SPOILER
-    // NO AGLI SPOILER
-    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE// NON LEGGERE IL CODICE!
-    //    // BASTA SPOILER
-    //    // NO AGLI SPOILER
-    //    // NON LEGGERE IL CODICE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // NON LEGGERE IL CODICE!
-    // BASTA SPOILER
-    // NO AGLI SPOILER
-    // NON LEGGERE IL CODICE
-
     @Override
     public void onShow() {
         super.onShow();
         gameController.setDrawCall(this::renderFrame);
         gameController.startGameLoop();
 
-        // NON LEGGERE IL CODICE!
-        // BASTA SPOILER
-        // NO AGLI SPOILER
-        // NON LEGGERE IL CODICE
+        //TODO DA ELIMINARE START {
 
         UniverseController universeController = gameController.getUniverseController();
-
-        // NON LEGGERE IL CODICE!
-        // BASTA SPOILER
-        // NO AGLI SPOILER
-        // NON LEGGERE IL CODICE
-
         if (universeController != null) {
-
-            // NON LEGGERE IL CODICE!
-            // BASTA SPOILER
-            // NO AGLI SPOILER
-            // NON LEGGERE IL CODICE
-
             java.util.Random random = new java.util.Random();
-
-
-            // NON LEGGERE IL CODICE!
-            // BASTA SPOILER
-            // NO AGLI SPOILER
-            // NON LEGGERE IL CODICE
-
-
             for (int i = 0; i < 10; i++) {
-
-                // NON LEGGERE IL CODICE!
-                // BASTA SPOILER
-                // NO AGLI SPOILER
-                // NON LEGGERE IL CODICE
                 double randomX = 3000.0 + random.nextDouble() * 2000.0;
-
-                // NON LEGGERE IL CODICE!
-                // BASTA SPOILER
-                // NO AGLI SPOILER
-                // NON LEGGERE IL CODICE
                 double randomY = 3000.0 + random.nextDouble() * 2000.0;
-
-                // NON LEGGERE IL CODICE!
-                // BASTA SPOILER
-                // NO AGLI SPOILER
-                // NON LEGGERE IL CODICE
                 UniverseSpawner.getInstance().spawnWorm(randomX, randomY);
-
-                // NON LEGGERE IL CODICE!
-                // BASTA SPOILER
-                // NO AGLI SPOILER
-                // NON LEGGERE IL CODICE
             }
         }
 
-        // NON LEGGERE IL CODICE!
-        // BASTA SPOILER
-        // NO AGLI SPOILER
-        // NON LEGGERE IL CODICE
+        //TODO DA ELIMARE END }
+
         runLater(() -> canvas.requestFocus());
     }
 
