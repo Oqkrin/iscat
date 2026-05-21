@@ -84,7 +84,6 @@ public class IscatApplication extends Application {
     @Override
     public void start(Stage stage) {
         IscatController iscatController = new IscatController(iscatModel, stage, scenes);
-        // Wire window chrome (drag, resize, title-bar buttons) to every scene
         scenes.values().forEach(s -> {
             if (s instanceof AbstractIscatScene ais) iscatController.wireCustomDecoration(ais);
         });

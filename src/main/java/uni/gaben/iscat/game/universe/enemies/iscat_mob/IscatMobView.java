@@ -20,7 +20,7 @@ public class IscatMobView extends AbstractEntityView<IscatMobModel>
     private final SpriteSheetsParser spriteSheetsParser; // Parser dello spritesheet dell'entità
     private final SpriteSheetsAnimator animator;         // Gestore del frame rate dell'animazione
 
-    private static final String SPRITE_SHEET_PATH = "/uni/gaben/iscat/sprites/enemies/iscat.png";
+    private static final String SPRITE_SHEET_PATH = "/uni/gaben/iscat/sprites/enemies/iscat_mob.png";
 
     public IscatMobView() {
         // Imposta la scala di rendering dello sprite definita nei Settings
