@@ -21,7 +21,7 @@ public class IscatBomberView extends AbstractEntityView<IscatBomberModel>
         implements Drawable<IscatBomberModel>, DrawableSpriteSheet {
 
     // Percorso assoluto classpath — il file è in resources/uni/gaben/iscat/sprites/enemies/
-    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/enemies/IscatBomber.png";
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/enemies/iscat_bomber.png";
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
