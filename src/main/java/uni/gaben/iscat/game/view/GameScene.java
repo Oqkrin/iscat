@@ -129,6 +129,8 @@ public class GameScene extends AbstractIscatScene {
     @Override
     public void onShow() {
         super.onShow();
+        // Forziamo il gioco a tornare attivo
+        gameModel.setPaused(false);
         gameController.setDrawCall(this::renderFrame);
         gameController.startGameLoop();
 

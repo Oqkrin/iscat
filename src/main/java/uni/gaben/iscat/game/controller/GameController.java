@@ -72,13 +72,13 @@ public class GameController {
     }
 
     private void tick(double dt) {
-        if (gameModel.isPaused()) {
+        if (!gameModel.isPaused()) {
             universeController.updatev(dt, gameInputs, getCameraModel());
         }
     }
 
     public void togglePause() {
-        gameModel.setPaused(gameModel.isPaused());
+        gameModel.setPaused(!gameModel.isPaused());
     }
 
     public void startGameLoop() {

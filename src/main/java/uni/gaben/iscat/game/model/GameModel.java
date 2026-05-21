@@ -91,7 +91,7 @@ public class GameModel {
     }
 
     public boolean isPaused() {
-        return !paused.get();
+        return paused.get();
     }
 
     public void setPaused(boolean p) {
