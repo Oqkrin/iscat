@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatFxmlController;
@@ -16,16 +17,21 @@ import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.game.universe.player.PlayerSettings;
 import uni.gaben.iscat.menus.shared_components.AnimatedCanvas;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SkinMenuController implements IscatFxmlController {
 
     @FXML private GridPane skinGrid;
-    @FXML private AnimatedCanvas skinPreview;
+    @FXML private Pane previewContainer;
     @FXML private Label skinNameLabel;
     @FXML private BorderPane rootPane;
     @FXML private VBox previewBox;
 
     private StackPane contentRoot;
     private String selectedSkinPath;
+    private AnimatedCanvas previewCanvas;
+    private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
 
     private static final int TOTAL_SKINS = 9;
     private static final double BASE_SIZE = 32.0;
@@ -38,6 +44,9 @@ public class SkinMenuController implements IscatFxmlController {
 
     @FXML
     public void initialize() {
+        previewCanvas = new AnimatedCanvas(BASE_SIZE);
+        previewContainer.getChildren().add(previewCanvas);
+
         populateGrid();
         selectSkin("/uni/gaben/iscat/sprites/players/player1.png", SKIN_NAMES[0]);
 
@@ -63,7 +72,7 @@ public class SkinMenuController implements IscatFxmlController {
             }
         }
 
-        skinPreview.resize(previewDim);
+        previewCanvas.resize(previewDim);
         previewBox.setMinSize(0, 0);
         previewBox.setPrefWidth(previewDim + 100);
     }
@@ -76,6 +85,8 @@ public class SkinMenuController implements IscatFxmlController {
 
     private void populateGrid() {
         skinGrid.getChildren().clear();
+        buttonCanvases.clear();
+
         for (int i = 0; i < TOTAL_SKINS; i++) {
             int num = i + 1;
             String path = "/uni/gaben/iscat/sprites/players/player" + num + ".png";
@@ -83,6 +94,7 @@ public class SkinMenuController implements IscatFxmlController {
 
             AnimatedCanvas canvas = new AnimatedCanvas(BASE_SIZE);
             canvas.loadSkin(path);
+            buttonCanvases.add(canvas);
 
             Button btn = new Button();
             btn.getStyleClass().add("skin-button");
@@ -95,23 +107,18 @@ public class SkinMenuController implements IscatFxmlController {
     private void selectSkin(String path, String name) {
         this.selectedSkinPath = path;
         this.skinNameLabel.setText(name.toUpperCase());
-        skinPreview.loadSkin(path);
+        previewCanvas.loadSkin(path);
         updateDynamicScaling();
     }
 
-    // fermiamo i canvas per fermare eventuali memory leaks
-    private void stopAllCanvases() {
-        for (Node node : skinGrid.getChildren()) {
-            if (node instanceof Button btn && btn.getGraphic() instanceof AnimatedCanvas canvas) {
-                canvas.stop();
-            }
-        }
+    private void stopAll() {
+        buttonCanvases.forEach(AnimatedCanvas::stop);
+        previewCanvas.stop();
     }
 
     @FXML
     private void handleConfirm(ActionEvent event) {
-        stopAllCanvases();
-        skinPreview.stop();
+        stopAll();
         if (selectedSkinPath != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
             if (contentRoot != null) {
@@ -124,8 +131,7 @@ public class SkinMenuController implements IscatFxmlController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        stopAllCanvases();
-        skinPreview.stop();
+        stopAll();
         if (contentRoot != null) {
             IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
         } else {
