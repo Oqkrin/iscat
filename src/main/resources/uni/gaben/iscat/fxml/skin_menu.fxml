@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import uni.gaben.iscat.menus.shared_components.AnimatedCanvas?>
 
 <BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/skin_menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.menus.skin_menu.SkinMenuController">
    <top>
@@ -35,7 +36,7 @@
                </font>
             </Label>
 
-            <ImageView fx:id="skinPreview" pickOnBounds="true" />
+            <AnimatedCanvas fx:id="skinPreview" />
 
             <Label fx:id="skinNameLabel" ellipsisString="" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
                <font>

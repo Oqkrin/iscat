@@ -1,6 +1,7 @@
 package uni.gaben.iscat.utils.sprite;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 
 import java.util.Objects;
 
@@ -29,4 +30,9 @@ public class SpriteSheetsParser {
     public int getTotalFrames() { return columnsCount; }
     public int getTotalStates() { return rowsCount; }
 
+    public Image getFrame(int state, int frame) {
+        int x = frame * frameWidth;
+        int y = state * frameHeight;
+        return new WritableImage(sheet.getPixelReader(), x, y, frameWidth, frameHeight);
+    }
 }
