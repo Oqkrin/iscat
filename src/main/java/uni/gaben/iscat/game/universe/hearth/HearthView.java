@@ -19,7 +19,7 @@ import static uni.gaben.iscat.game.universe.hearth.HearthSettings.DIM_SPRITE;
 public class HearthView extends AbstractEntityView<HearthModel>
         implements Drawable<HearthModel>, DrawableSpriteSheet {
 
-    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/hearth.png";
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/boosts/hearth.png";
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
