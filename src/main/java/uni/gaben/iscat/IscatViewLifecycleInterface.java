@@ -10,7 +10,7 @@ package uni.gaben.iscat;
  * 5. onUnload() - chiamato quando la scena viene distrutta
  * Questo previene che scene in background consumino risorse.
  */
-public interface IscatSceneLifecycleInterface {
+public interface IscatViewLifecycleInterface {
     
     /**
      * Chiamato quando la scena sta per essere caricata e mostrata.

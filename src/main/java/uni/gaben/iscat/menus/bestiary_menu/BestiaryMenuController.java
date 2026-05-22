@@ -14,7 +14,7 @@ import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterSettings;
 import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobSettings;
 import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSettings;
-import uni.gaben.iscat.menus.shared_components.AnimatedCanvas;
+import uni.gaben.iscat.utils.components.AnimatedCanvas;
 
 import java.util.Map;
 

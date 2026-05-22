@@ -1,13 +1,12 @@
-package uni.gaben.iscat.menus.options_menu;
+package uni.gaben.iscat.menus.bestiary_menu;
 
-import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.AbstractIscatScene;
+import uni.gaben.iscat.AbstractIscatStackPane;
 
-public class OptionsMenuSceneIscatScene extends AbstractIscatScene {
-    public OptionsMenuSceneIscatScene() {
-        super(new StackPane(), true);
-        initialize("/uni/gaben/iscat/fxml/options_menu.fxml");
+public class BestiaryView extends AbstractIscatStackPane {
+    public BestiaryView() {
+        super(new StackPane(),true);
+        initialize("/uni/gaben/iscat/fxml/bestiary_menu.fxml");
     }
     @Override protected void initStyles()        {}
     @Override protected void initNodes()         {}

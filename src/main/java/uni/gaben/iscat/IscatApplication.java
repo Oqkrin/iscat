@@ -11,18 +11,18 @@ import uni.gaben.iscat.game.controller.GameController;
 
 import uni.gaben.iscat.game.universe.UniverseController;
 import uni.gaben.iscat.game.universe.UniverseModel;
-import uni.gaben.iscat.game.view.GameScene;
+import uni.gaben.iscat.game.view.GameView;
 import uni.gaben.iscat.game.view.camera.CameraModel;
-import uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuSceneIscatScene;
+import uni.gaben.iscat.menus.bestiary_menu.BestiaryView;
 import uni.gaben.iscat.menus.login_menu.controller.LoginController;
 import uni.gaben.iscat.menus.login_menu.model.LoginData;
 import uni.gaben.iscat.menus.login_menu.model.LoginModel;
-import uni.gaben.iscat.menus.login_menu.view.LoginSceneIscatScene;
+import uni.gaben.iscat.menus.login_menu.view.LoginView;
 import uni.gaben.iscat.menus.main_menu.MenuController;
-import uni.gaben.iscat.menus.main_menu.MenuSceneIscatScene;
-import uni.gaben.iscat.menus.options_menu.OptionsMenuSceneIscatScene;
-import uni.gaben.iscat.menus.score_menu.ScoreMenuSceneIscatScene;
-import uni.gaben.iscat.menus.skin_menu.SkinMenuSceneIscatScene;
+import uni.gaben.iscat.menus.main_menu.MenuView;
+import uni.gaben.iscat.menus.options_menu.OptionsMenuView;
+import uni.gaben.iscat.menus.score_menu.ScoreMenuView;
+import uni.gaben.iscat.menus.skin_menu.SkinMenuView;
 import uni.gaben.iscat.utils.ThemeColors;
 
 import java.util.EnumMap;
@@ -51,7 +51,7 @@ public class IscatApplication extends Application {
     UniverseController universeController = new UniverseController(universeModel);
     GameController gameController = new GameController(gameModel, universeController);
 
-    EnumMap<IscatScenes, AbstractIscatScene> scenes =  new EnumMap<>(IscatScenes.class);
+    EnumMap<IscatScenes, AbstractIscatStackPane> scenes =  new EnumMap<>(IscatScenes.class);
     private final StackPane mainStageRoot = new StackPane();
 
     @Override
@@ -64,13 +64,13 @@ public class IscatApplication extends Application {
     }
 
     private void putScenes() {
-        scenes.put(IscatScenes.LOGIN_MENU,    new LoginSceneIscatScene(loginModel, loginController));
-        scenes.put(IscatScenes.MAIN_MENU,     new MenuSceneIscatScene(menuController));
-        scenes.put(IscatScenes.GAMEN,         new GameScene(gameController, gameModel));
-        scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuSceneIscatScene());
-        scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuSceneIscatScene());
-        scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuSceneIscatScene());
-        scenes.put(IscatScenes.BESTIARY_MENU, new BestiaryMenuSceneIscatScene());
+        scenes.put(IscatScenes.LOGIN_MENU,    new LoginView(loginModel, loginController));
+        scenes.put(IscatScenes.MAIN_MENU,     new MenuView(menuController));
+        scenes.put(IscatScenes.GAMEN,         new GameView(gameController, gameModel));
+        scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuView());
+        scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuView());
+        scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuView());
+        scenes.put(IscatScenes.BESTIARY_MENU, new BestiaryView());
     }
 
     @Override

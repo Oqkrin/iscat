@@ -8,7 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.AbstractIscatScene;
+import uni.gaben.iscat.AbstractIscatStackPane;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.game.universe.UniverseSpawner;
 import uni.gaben.iscat.game.view.camera.CameraModel;
@@ -26,7 +26,7 @@ import java.util.Objects;
 
 import static javafx.application.Platform.runLater;
 
-public class GameScene extends AbstractIscatScene {
+public class GameView extends AbstractIscatStackPane {
 
     private GameModel gameModel;
     private GameController gameController;
@@ -37,7 +37,7 @@ public class GameScene extends AbstractIscatScene {
     private GamePauseMenu pauseMenu;
     private Button debugButton;
     private boolean debugPanelVisible = false;
-    public GameScene(GameController gameController, GameModel gameModel) {
+    public GameView(GameController gameController, GameModel gameModel) {
         super(new StackPane());
         this.gameModel = gameModel;
         this.gameController = gameController;
@@ -58,7 +58,7 @@ public class GameScene extends AbstractIscatScene {
 
     @Override
     protected void initStyles() {
-        getStylesheets().add(Objects.requireNonNull(GameScene.class.getResource("/uni/gaben/iscat/styles/game.css"))
+        getStylesheets().add(Objects.requireNonNull(GameView.class.getResource("/uni/gaben/iscat/styles/game.css"))
                 .toExternalForm());
         CssHelper.stilePulsanteMenu(debugButton);
         CssHelper.testoPrimario(debugButton);

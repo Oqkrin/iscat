@@ -17,7 +17,7 @@ import java.util.EnumMap;
 public class IscatNavigator {
     private static IscatNavigator instance;
     private IscatModel model;
-    private EnumMap<IscatScenes, AbstractIscatScene> viewMap;
+    private EnumMap<IscatScenes, AbstractIscatStackPane> viewMap;
 
     private IscatNavigator() {}
 
@@ -32,7 +32,7 @@ public class IscatNavigator {
      * Inizializza il navigator con il model e la mappa delle scene.
      * Chiamato da IscatApplication durante il bootstrap.
      */
-    public void initialize(IscatModel model, EnumMap<IscatScenes, AbstractIscatScene> viewMap) {
+    public void initialize(IscatModel model, EnumMap<IscatScenes, AbstractIscatStackPane> viewMap) {
         this.model = model;
         this.viewMap = viewMap;
     }
@@ -49,7 +49,7 @@ public class IscatNavigator {
         IscatScenes currentScene = model.getCurrentScene();
 
         if (currentScene != null && currentScene != targetScene) {
-            AbstractIscatScene view = viewMap.get(currentScene);
+            AbstractIscatStackPane view = viewMap.get(currentScene);
             if (view != null) {
                 view.setActive(false);
             }
@@ -58,18 +58,18 @@ public class IscatNavigator {
         // Questo cambierà la proprietà ascoltata da IscatController, che farà il setAll()
         model.setCurrentScene(targetScene);
 
-        AbstractIscatScene nextView = viewMap.get(targetScene);
+        AbstractIscatStackPane nextView = viewMap.get(targetScene);
         if (nextView != null) {
             nextView.setActive(true);
         }
     }
 
-    public AbstractIscatScene getScene(IscatScenes sceneType) {
+    public AbstractIscatStackPane getScene(IscatScenes sceneType) {
         return viewMap.get(sceneType);
     }
 
     public void navigateWithFade(IscatScenes target, StackPane currentContentRoot) {
-        AbstractIscatScene nextView = viewMap.get(target);
+        AbstractIscatStackPane nextView = viewMap.get(target);
         StackPane targetContentRoot = (nextView != null) ? nextView.getContentRoot() : null;
 
         if (targetContentRoot != null) {

@@ -26,10 +26,10 @@ public class IscatController {
     private final Stage      stage;
     private final Scene globalScene;
     private final StackPane mainStageRoot;
-    private final EnumMap<IscatScenes, AbstractIscatScene> viewMap;
+    private final EnumMap<IscatScenes, AbstractIscatStackPane> viewMap;
 
     public IscatController(IscatModel model, Stage stage, Scene globalScene,
-                           StackPane mainStageRoot, EnumMap<IscatScenes, AbstractIscatScene> viewMap) {
+                           StackPane mainStageRoot, EnumMap<IscatScenes, AbstractIscatStackPane> viewMap) {
         this.model = model;
         this.stage = stage;
         this.globalScene = globalScene;
@@ -50,7 +50,7 @@ public class IscatController {
      * Called by IscatApplication once per scene after it is created.
      * Wires all window-management behaviour to the scene's title bar.
      */
-    public void wireCustomDecoration(AbstractIscatScene view) {
+    public void wireCustomDecoration(AbstractIscatStackPane view) {
         IscatTitleBar bar = view.getTitleBar();
         if (bar == null) return;
 
@@ -107,7 +107,7 @@ public class IscatController {
 
         // Listener unico per la gestione fullscreen sulla vista corrente
         stage.fullScreenProperty().addListener((obs, wasFs, isFs) -> {
-            if (mainStageRoot.getChildren().getFirst() instanceof AbstractIscatScene currentView) {
+            if (mainStageRoot.getChildren().getFirst() instanceof AbstractIscatStackPane currentView) {
                 if (isFs) currentView.onEnterFullscreen();
                 else currentView.onExitFullscreen();
             }
@@ -120,13 +120,13 @@ public class IscatController {
 
     private void performSceneTransition(IscatScenes next) {
         // Gestione ciclo di vita della vecchia vista
-        if (!mainStageRoot.getChildren().isEmpty() && mainStageRoot.getChildren().getFirst() instanceof IscatSceneLifecycleInterface old) {
+        if (!mainStageRoot.getChildren().isEmpty() && mainStageRoot.getChildren().getFirst() instanceof IscatViewLifecycleInterface old) {
             old.setActive(false);
         }
 
         IscatAudioManager.getInstance().playBGM(model.getBgmPath(next), true);
 
-        AbstractIscatScene nextView = viewMap.get(next);
+        AbstractIscatStackPane nextView = viewMap.get(next);
         nextView.initialize(); // Lazy init delle view!
 
         // SCAMBIO DEI NODI NELLO STESSO STAGE/SCENE (Zero glitch grafici!)
@@ -147,7 +147,7 @@ public class IscatController {
      * Applies the current window state from the Stage and IscatModel
      * to the incoming scene's title bar so it looks consistent after a transition.
      */
-    private void syncWindowState(AbstractIscatScene view) {
+    private void syncWindowState(AbstractIscatStackPane view) {
         IscatTitleBar bar = view.getTitleBar();
         if (bar == null) return;
         bar.pinBtn.getStyleClass().removeAll("title-bar-btn-pin-active");

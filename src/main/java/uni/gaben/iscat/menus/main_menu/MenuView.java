@@ -3,18 +3,17 @@ package uni.gaben.iscat.menus.main_menu;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.javafx.FontIcon;
-import uni.gaben.iscat.AbstractIscatScene;
+import uni.gaben.iscat.AbstractIscatStackPane;
 
 /**
  * Main menu screen.
  * Offers two play buttons: one for the legacy game package,
  * one for the new game_phi architecture.
  */
-public class MenuSceneIscatScene extends AbstractIscatScene {
+public class MenuView extends AbstractIscatStackPane {
 
     private static final String CSS_MENU_BUTTON = "menu-button";
     private static final String CSS_TITLE       = "menu-title";
@@ -31,7 +30,7 @@ public class MenuSceneIscatScene extends AbstractIscatScene {
     private Button    bestiaryButton;
     private Button    quitButton;
 
-    public MenuSceneIscatScene(MenuController menuController) {
+    public MenuView(MenuController menuController) {
         super(new StackPane(), true);
         this.controller = menuController;
         this.root = getContentRoot();

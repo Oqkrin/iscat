@@ -1,13 +1,13 @@
-package uni.gaben.iscat.menus.bestiary_menu;
+package uni.gaben.iscat.menus.score_menu;
 
-import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.AbstractIscatScene;
+import uni.gaben.iscat.AbstractIscatStackPane;
 
-public class BestiaryMenuSceneIscatScene extends AbstractIscatScene {
-    public BestiaryMenuSceneIscatScene() {
-        super(new StackPane(),true);
-        initialize("/uni/gaben/iscat/fxml/bestiary_menu.fxml");
+public class ScoreMenuView extends AbstractIscatStackPane {
+
+    public ScoreMenuView() {
+        super(new StackPane(), true);
+        initialize("/uni/gaben/iscat/fxml/score_menu.fxml");
     }
     @Override protected void initStyles()        {}
     @Override protected void initNodes()         {}

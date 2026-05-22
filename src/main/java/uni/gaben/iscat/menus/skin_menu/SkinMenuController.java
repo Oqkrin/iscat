@@ -15,7 +15,7 @@ import uni.gaben.iscat.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.game.universe.player.PlayerSettings;
-import uni.gaben.iscat.menus.shared_components.AnimatedCanvas;
+import uni.gaben.iscat.utils.components.AnimatedCanvas;
 
 import java.util.ArrayList;
 import java.util.List;

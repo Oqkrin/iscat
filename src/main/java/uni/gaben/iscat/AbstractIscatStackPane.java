@@ -26,7 +26,7 @@ import java.io.IOException;
  * Pattern di inizializzazione:
  * initStyles → initNodes → initLayout → initBindings → initEventHandlers → initAnimations
  */
-public abstract class AbstractIscatScene extends StackPane implements IscatSceneLifecycleInterface {
+public abstract class AbstractIscatStackPane extends StackPane implements IscatViewLifecycleInterface {
 
     // =========================================================================
     // Constants & Fields
@@ -47,11 +47,11 @@ public abstract class AbstractIscatScene extends StackPane implements IscatScene
     // Constructors
     // =========================================================================
 
-    protected AbstractIscatScene(Parent root) {
+    protected AbstractIscatStackPane(Parent root) {
         this(root, false);
     }
 
-    protected AbstractIscatScene(Parent root, boolean withStarryBackground) {
+    protected AbstractIscatStackPane(Parent root, boolean withStarryBackground) {
         ThemeColors.ensureLoaded();
         this.chromeRoot = buildChrome(root, withStarryBackground);
         this.getChildren().add(chromeRoot);
