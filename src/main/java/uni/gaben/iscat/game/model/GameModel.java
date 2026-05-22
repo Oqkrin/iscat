@@ -1,14 +1,11 @@
 package uni.gaben.iscat.game.model;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.LongProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.*;
 
 import uni.gaben.iscat.game.universe.UniverseModel;
 import uni.gaben.iscat.game.view.camera.CameraModel;
+
+import java.util.List;
 
 /**
  * Modello dello stato globale di Gamenex.
@@ -25,8 +22,11 @@ public class GameModel {
     private LongProperty lastUpdate = new SimpleLongProperty(0);
     private DoubleProperty dt = new SimpleDoubleProperty(0);
     private LongProperty now = new SimpleLongProperty(0);
+    private LongProperty start = new SimpleLongProperty(-1);
     private DoubleProperty accumulator = new SimpleDoubleProperty(0);
     private BooleanProperty paused = new SimpleBooleanProperty(false);
+    private IntegerProperty timer = new SimpleIntegerProperty(0);
+
 
     public GameModel(UniverseModel universeModel, CameraModel cameraModel) {
         this.universeModel = universeModel;
@@ -100,5 +100,29 @@ public class GameModel {
 
     public BooleanProperty pausedProperty() {
         return paused;
+    }
+
+    public long getStart() {
+        return start.get();
+    }
+
+    public LongProperty startProperty() {
+        return start;
+    }
+
+    public void setStart(long start) {
+        this.start.set(start);
+    }
+
+    public IntegerProperty timerProperty() {
+        return timer;
+    }
+
+    public final int getTimer() {
+        return timer.get();
+    }
+
+    public final void setTimer(int value) {
+        this.timer.set(value);
     }
 }

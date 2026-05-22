@@ -1,0 +1,44 @@
+@import url('iscat-color-theme.css');
+@import url('iscat-typography.css');
+
+/* Rimuovi sfondi e bordi fissi dal wrapper, lascia che sia il bottone a dettare legge */
+.timer-wrapper {
+    -fx-alignment: center;
+    -fx-spacing: 8px;
+    -fx-padding: 8px 16px; /* Padding del pulsante */
+}
+
+.time-part {
+    /* Rimuovi -fx-background-color se vuoi che sia trasparente sul bottone */
+    -fx-background-color: transparent;
+    -fx-min-width: 20px;
+    -fx-max-width: 20px;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-alignment: center;
+}
+
+/* La striscia verticale mobile che contiene i numeri da 0 a 9 (%div.digit-wrapper) */
+.digit-wrapper {
+    -fx-spacing: 0px;
+    -fx-alignment: top-center;
+}
+
+/* La singola cifra numerica */
+.digit {
+    -fx-font-family: monospace;
+    -fx-font-size: 20px; /* Più piccolo per stare dentro il bottone */
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(from 0.0% 0.0% to 0.0% 100.0%, #ffffff00 0.0%, #ffffff00 1%, -color-warning 25%, -color-warning 75%, #00000000 100.0%); /* Usa il colore del testo del bottone */
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+}
+
+/* Separatore visivo a due punti (:) tra i blocchi temporali */
+.timer-colon {
+    -fx-font-family: monospace;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-disabled;
+    -fx-padding: 0 2px 6px 2px;
+}

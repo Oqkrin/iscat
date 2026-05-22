@@ -49,12 +49,26 @@ public class GameController {
         this.gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                if(gameModel.getStart() == -1) {
+                    gameModel.startProperty().set(now);
+                }
                 if (gameModel.getLastUpdate() == 0) {
                     gameModel.setLastUpdate(now);
                     return;
                 }
 
                 gameModel.setNow(now);
+
+                double totalSeconds = (now - gameModel.getStart()) / GameModel.ONE_SECOND_IN_NANO_SECONDS;
+
+                int hours = (int) (totalSeconds / 3600);
+                int minutes = (int) ((totalSeconds % 3600) / 60);
+                int seconds = (int) (totalSeconds % 60);
+
+                // Impacchettamento nell'intero HHMMSS
+                int packedTime = (hours * 10000) + (minutes * 100) + seconds;
+                gameModel.timerProperty().set(packedTime);
+
                 double dt = gameModel.getDt();
 
                 if (dt > GameModel.ACCUMULATORUNIT) {

@@ -1,5 +1,6 @@
 package uni.gaben.iscat.game.universe;
 
+import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.game.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.game.universe.asteroid.AsteroidModel;
 import uni.gaben.iscat.game.view.camera.CameraModel;
@@ -13,6 +14,7 @@ import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class UniverseController {
 
@@ -25,6 +27,7 @@ public class UniverseController {
     private final Cooldown asteroidCooldown = new Cooldown();
     private static final double ASTEROID_SPAWN_INTERVAL = 3.0; // check and spawn every 3 seconds
     private static final int MAX_ACTIVE_ASTEROIDS = 30; // max asteroids in the world
+    Random random = new Random();
 
     public UniverseController(UniverseModel universeModel) {
         this.universeModel = universeModel;
@@ -47,6 +50,7 @@ public class UniverseController {
         // 0. Dynamic off-camera Asteroid Spawning
         asteroidCooldown.update(dt);
         if (asteroidCooldown.isReady()) {
+
             asteroidCooldown.start(ASTEROID_SPAWN_INTERVAL);
             List<AsteroidModel> activeAsteroids =
                     universeModel.getEntitiesOfType(AsteroidModel.class);
@@ -63,7 +67,7 @@ public class UniverseController {
                 double cy = playerY + Math.sin(angle) * dist;
 
                 // Spawn a clump of 3-5 asteroids
-                int count = 3 + new java.util.Random().nextInt(3);
+                int count = 3 + random.nextInt(3);
                 for (int i = 0; i < count; i++) {
                     double offsetAngle = Math.random() * Math.PI * 2.0;
                     double offsetDist = Math.random() * 150.0;
@@ -78,13 +82,16 @@ public class UniverseController {
 
                     double driftAngle = Math.random() * Math.PI * 2.0;
                     double speed = 0.5 + Math.random() * 2.0;
-                    ast.setLinearVelocity(new org.dyn4j.geometry.Vector2(
+                    ast.setLinearVelocity(new Vector2(
                             Math.cos(driftAngle) * speed,
                             Math.sin(driftAngle) * speed
                     ));
 
                     UniverseSpawner.getInstance().spawnEntity(ast);
                 }
+                double randomX = 3000.0 + random.nextDouble() * 2000.0;
+                double randomY = 3000.0 + random.nextDouble() * 2000.0;
+                UniverseSpawner.getInstance().spawnWorm(randomX, randomY);
             }
         }
 

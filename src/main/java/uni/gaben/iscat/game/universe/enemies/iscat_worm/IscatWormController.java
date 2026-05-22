@@ -135,7 +135,8 @@ public class IscatWormController implements AiController {
     // ── UNICO ATTACCO: TEMPESTA RAPIDISSIMA A DIREZIONI CASUALI ──────────────
     private void updateTailEnraged(IscatWormSegment tail, PlayerModel player, double dt) {
         if (tailShooter == null) {
-            tailShooter = new Shooter<>(tail);
+            tailShooter = new Shooter<>(tail) {
+            };
         }
 
         Vector2 tailPos = tail.getWorldCenter();
