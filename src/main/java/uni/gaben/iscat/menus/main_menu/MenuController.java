@@ -20,7 +20,6 @@ public class MenuController {
         }
     }
 
-    //public void playLegacy()      { navigate(IscatScenes.GAME);         }
     public void playPhi()         { navigate(IscatScenes.GAMEN);        }
     public void openSkinMenu()    { navigate(IscatScenes.SKIN_MENU);    }
     public void openOptionsMenu() { navigate(IscatScenes.OPTIONS_MENU); }

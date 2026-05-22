@@ -256,17 +256,13 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     public void onShow() {
+        // Esegue la logica centralizzata (fadeIn e tracciamento mouse delle stelle)
+        super.onShow();
         // Avvia animazione cursore quando la scena diventa visibile
         if (blinkAnimation != null) {
             blinkAnimation.play();
         }
-        // Enable mouse-following mode for starry background
-        if (getStarryBackground() != null) {
-            getStarryBackground().setFollowMouse(true);
-            // Track mouse at scene level to ensure we capture all movement
-            setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
-        }
-
+        // Aggancia i listener di input globali
         if (getScene() != null) {
             getScene().addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
             getScene().addEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
@@ -275,13 +271,13 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     public void onHide() {
+        // Esegue la pulizia centralizzata dei listener del mouse
+        super.onHide();
         // Ferma animazione cursore quando la scena viene nascosta
         if (blinkAnimation != null) {
             blinkAnimation.pause();
         }
-        // Clean up mouse handler
-        setOnMouseMoved(null);
-
+        // Rimuove i filtri della tastiera
         if (getScene() != null) {
             getScene().removeEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
             getScene().removeEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);

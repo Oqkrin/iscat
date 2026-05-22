@@ -8,6 +8,8 @@ import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.AbstractIscatStackPane;
 
+import java.util.Objects;
+
 /**
  * Main menu screen.
  * Offers two play buttons: one for the legacy game package,
@@ -17,12 +19,11 @@ public class MenuView extends AbstractIscatStackPane {
 
     private static final String CSS_MENU_BUTTON = "menu-button";
     private static final String CSS_TITLE       = "menu-title";
+    private static final String CSS_MENU_ROOT   = "menu-root";
 
     private final MenuController controller;
 
-    private StackPane root;
     private Label     title;
-    //private Button    playLegacyButton;
     private Button    playButton;
     private Button    optionsButton;
     private Button    scoreButton;
@@ -33,15 +34,15 @@ public class MenuView extends AbstractIscatStackPane {
     public MenuView(MenuController menuController) {
         super(new StackPane(), true);
         this.controller = menuController;
-        this.root = getContentRoot();
-        this.controller.setContentRoot(root);
-        root.setStyle("-fx-background-color: transparent;");
+        StackPane contentRoot = getContentRoot();
+        this.controller.setContentRoot(contentRoot);
+        contentRoot.getStyleClass().add(CSS_MENU_ROOT);
         initialize();
     }
 
     @Override
     protected void initStyles() {
-        String css = getClass().getResource("/uni/gaben/iscat/styles/menu.css").toExternalForm();
+        String css = Objects.requireNonNull(getClass().getResource("/uni/gaben/iscat/styles/menu.css")).toExternalForm();
         getStylesheets().add(css);
     }
 
@@ -50,61 +51,19 @@ public class MenuView extends AbstractIscatStackPane {
         title = new Label("ISCAT");
         title.getStyleClass().add(CSS_TITLE);
 
-        // --- Play Legacy ---
-        //FontIcon legacyIcon = new FontIcon("fas-play");
-        //legacyIcon.setIconSize(32);
-        //playLegacyButton = new Button("PLAY  (legacy)", legacyIcon);
-        //playLegacyButton.getStyleClass().add(CSS_MENU_BUTTON);
-
-        // --- Play Phi ---
-        FontIcon phiIcon = new FontIcon("fas-rocket");
-        phiIcon.setIconSize(32);
-        playButton = new Button("PLAY", phiIcon);
-        playButton.getStyleClass().add(CSS_MENU_BUTTON);
-
-        // --- Options ---
-        FontIcon optionIcon = new FontIcon("fas-cog");
-        optionIcon.setIconSize(32);
-        optionsButton = new Button("OPTIONS", optionIcon);
-        optionsButton.getStyleClass().add(CSS_MENU_BUTTON);
-
-        // --- Score ---
-        FontIcon scoreIcon = new FontIcon("fas-eye");
-        scoreIcon.setIconSize(32);
-        scoreButton = new Button("VIEW SCORE", scoreIcon);
-        scoreButton.getStyleClass().add(CSS_MENU_BUTTON);
-
-        // --- Skin Button ---
-        FontIcon skinIcon = new FontIcon("fas-gift");
-        skinIcon.setIconSize(32);
-        skinButton = new Button("CHANGE SKIN", skinIcon);
-        skinButton.getStyleClass().add(CSS_MENU_BUTTON);
-
-        // --- Bestiary Button ---
-        FontIcon bestiaryIcon = new FontIcon("fas-bug");
-        bestiaryIcon.setIconSize(32);
-        bestiaryButton = new Button("BESTIARIO", bestiaryIcon);
-        bestiaryButton.getStyleClass().add(CSS_MENU_BUTTON);
-
-        // --- Quit ---
-        FontIcon quitIcon = new FontIcon("fas-door-open");
-        quitIcon.setIconSize(32);
-        quitButton = new Button("QUIT", quitIcon);
-        quitButton.getStyleClass().add(CSS_MENU_BUTTON);
+        playButton     = createMenuButton("PLAY", "fas-rocket");
+        optionsButton  = createMenuButton("OPTIONS", "fas-cog");
+        scoreButton    = createMenuButton("VIEW SCORE", "fas-eye");
+        skinButton     = createMenuButton("CHANGE SKIN", "fas-gift");
+        bestiaryButton = createMenuButton("BESTIARIO", "fas-bug");
+        quitButton     = createMenuButton("QUIT", "fas-door-open");
     }
 
     @Override
     protected void initLayout() {
-        // Two play buttons side-by-side
-        //HBox playRow = new HBox(16, playLegacyButton, playPhiButton);
-        //playRow.setAlignment(Pos.CENTER);
-
-        //VBox layout = new VBox(20, title, playRow, optionsButton, scoreButton, skinButton, bestiaryButton, quitButton);
         VBox layout = new VBox(20, title, playButton, optionsButton, scoreButton, skinButton, bestiaryButton, quitButton);
-
         layout.setAlignment(Pos.CENTER);
-
-        root.getChildren().add(layout);
+        getContentRoot().getChildren().add(layout);
     }
 
     @Override
@@ -112,27 +71,22 @@ public class MenuView extends AbstractIscatStackPane {
 
     @Override
     protected void initEventHandlers() {
-        //playLegacyButton.setOnAction(e -> controller.playLegacy());
-        playButton.setOnAction(e    -> controller.playPhi());
-        quitButton.setOnAction(e       -> controller.quit());
-        skinButton.setOnAction(e -> controller.openSkinMenu());
-        optionsButton.setOnAction(e -> controller.openOptionsMenu());
-        scoreButton.setOnAction(e -> controller.openScoreMenu());
+        playButton.setOnAction(e     -> controller.playPhi());
+        optionsButton.setOnAction(e  -> controller.openOptionsMenu());
+        scoreButton.setOnAction(e    -> controller.openScoreMenu());
+        skinButton.setOnAction(e     -> controller.openSkinMenu());
         bestiaryButton.setOnAction(e -> controller.openBestiaryMenu());
+        quitButton.setOnAction(e     -> controller.quit());
 
     }
 
-    @Override
-    public void onShow() {
-        if (getStarryBackground() != null) {
-            getStarryBackground().setFollowMouse(true);
-            setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
-            fadeIn();
-        }
-    }
+    private Button createMenuButton(String text, String iconCode) {
+        FontIcon icon = new FontIcon(iconCode);
+        icon.setIconSize(32);
 
-    @Override
-    public void onHide() {
-        setOnMouseMoved(null);
+        Button btn = new Button(text, icon);
+        btn.getStyleClass().add(CSS_MENU_BUTTON);
+        btn.setFocusTraversable(false);
+        return btn;
     }
 }

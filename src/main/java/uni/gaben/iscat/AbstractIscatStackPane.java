@@ -110,6 +110,25 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
         onUnload();
     }
 
+    @Override
+    public void onShow() {
+        // Gestione centralizzata: se la scena ha lo sfondo stellato, lo configuriamo automaticamente
+        if (starryBackground != null) {
+            starryBackground.setFollowMouse(true);
+            setOnMouseMoved(e -> starryBackground.updateMousePosition(e.getSceneX(), e.getSceneY()));
+        }
+        fadeIn();
+    }
+
+    @Override
+    public void onHide() {
+        // Pulizia centralizzata dei listener sul mouse per evitare memory leak
+        setOnMouseMoved(null);
+        if (starryBackground != null) {
+            starryBackground.setFollowMouse(false);
+        }
+    }
+
     // =========================================================================
     // Public / Package-Private API (Used by IscatController)
     // =========================================================================

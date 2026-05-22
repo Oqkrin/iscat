@@ -13,13 +13,4 @@ public class BestiaryView extends AbstractIscatStackPane {
     @Override protected void initLayout()        {}
     @Override protected void initBindings()      {}
     @Override protected void initEventHandlers() {}
-
-    @Override
-    public void onShow() {
-        if (getStarryBackground() != null) {
-            getStarryBackground().setFollowMouse(true);
-            setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
-            fadeIn();
-        }
-    }
 }
