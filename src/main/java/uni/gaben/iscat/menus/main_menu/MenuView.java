@@ -67,9 +67,6 @@ public class MenuView extends AbstractIscatStackPane {
     }
 
     @Override
-    protected void initBindings() {}
-
-    @Override
     protected void initEventHandlers() {
         playButton.setOnAction(e     -> controller.playPhi());
         optionsButton.setOnAction(e  -> controller.openOptionsMenu());
@@ -77,13 +74,11 @@ public class MenuView extends AbstractIscatStackPane {
         skinButton.setOnAction(e     -> controller.openSkinMenu());
         bestiaryButton.setOnAction(e -> controller.openBestiaryMenu());
         quitButton.setOnAction(e     -> controller.quit());
-
     }
 
     private Button createMenuButton(String text, String iconCode) {
         FontIcon icon = new FontIcon(iconCode);
         icon.setIconSize(32);
-
         Button btn = new Button(text, icon);
         btn.getStyleClass().add(CSS_MENU_BUTTON);
         btn.setFocusTraversable(false);

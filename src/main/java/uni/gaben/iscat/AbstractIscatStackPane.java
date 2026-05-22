@@ -79,11 +79,11 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
         initialized = true;
     }
 
-    protected abstract void initStyles();
-    protected abstract void initNodes();
-    protected abstract void initLayout();
-    protected abstract void initBindings();
-    protected abstract void initEventHandlers();
+    protected void initStyles() {}
+    protected void initNodes() {}
+    protected void initLayout() {}
+    protected void initBindings() {}
+    protected void initEventHandlers() {}
     protected void initAnimations() {}
 
     @Override

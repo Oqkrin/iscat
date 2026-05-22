@@ -8,10 +8,4 @@ public class ScoreMenuView extends AbstractIscatStackPane {
         super(new StackPane(), true);
         initialize("/uni/gaben/iscat/fxml/score_menu.fxml");
     }
-    @Override protected void initStyles()        {}
-    @Override protected void initNodes()         {}
-    @Override protected void initLayout()        {}
-    @Override protected void initBindings()      {}
-    @Override protected void initEventHandlers() {}
-
 }
