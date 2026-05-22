@@ -17,10 +17,6 @@ public class ScoreMenuController implements IscatFxmlController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        if (contentRoot != null) {
-            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
-        } else {
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
-        }
+        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
     }
 }

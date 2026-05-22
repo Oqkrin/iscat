@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class BestiaryMenuController implements IscatFxmlController {
 
-    private record Enemy(String name, String sprite, int frameW, int frameH, String description) {}
+    private record Enemy(String name, String sprite, int frameW, int frameH, String description) { }
 
     private static final String BASE = "/uni/gaben/iscat/sprites/enemies/";
     private static final double DISPLAY_SIZE = 160.0;
@@ -54,7 +54,6 @@ public class BestiaryMenuController implements IscatFxmlController {
                     "Descrizione Iscat Worm Tail\nIscat Worm Tail NON E' UNA TAIL! Quando Iscat Worm Body Part vede un ##@€# libero e felice, lo cattura e lo fa diventare la tail del sistema. ##@€# una vola libero spara in tutte le direzioni, questi non sono normali proiettili, sono le sue agonie e lacrime, i dolori che ha provato etc etc...\n##@€# è l'ultimo membro del sistema che riceve il cibo, pero il cibo non è mai abbastanza, a causa di questo è magro"))
     );
 
-    @FXML private BorderPane rootPane;
     @FXML private Pane previewContainer;
     @FXML private Label skinNameLabel;
     @FXML private TextArea description;
@@ -89,12 +88,7 @@ public class BestiaryMenuController implements IscatFxmlController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        previewCanvas.stop();
-        if (contentRoot != null) {
-            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
-        } else {
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
-        }
+        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
     }
 
     @Override

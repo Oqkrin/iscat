@@ -99,6 +99,7 @@ public class SkinMenuController implements IscatFxmlController {
             Button btn = new Button();
             btn.getStyleClass().add("skin-button");
             btn.setGraphic(canvas);
+            btn.setFocusTraversable(false);
             btn.setOnAction(e -> selectSkin(path, name));
             skinGrid.add(btn, i % 3, i / 3);
         }
@@ -121,22 +122,14 @@ public class SkinMenuController implements IscatFxmlController {
         stopAll();
         if (selectedSkinPath != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
-            if (contentRoot != null) {
-                IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
-            } else {
-                IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
-            }
         }
+        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
     }
 
     @FXML
     private void handleBack(ActionEvent event) {
         stopAll();
-        if (contentRoot != null) {
-            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
-        } else {
-            IscatNavigator.getInstance().navigateTo(IscatScenes.MAIN_MENU);
-        }
+        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
     }
 
     @Override
