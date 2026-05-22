@@ -1,60 +1,30 @@
-@import url('iscat-components-shared.css');
+/**
+ * ISCAT - Login Scene Styles
+ */
+
+@import url('iscat-color-theme.css');
+@import url('iscat-typography.css');
 
 /* ============================================
-   TEXT STATES & TITLES (FORZATI PER IL LOGIN)
+   TEXT STATES
    ============================================ */
 
-/* Il titolo del login ha già una specificità alta, ma la blindiamo */
-.login-title.label {
-    -fx-text-fill: -text-primary;
+.login-title {
+    -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 55px;
-    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.15), 15, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(255,255, 255, 0.5), 15, 0, 0, 0);
 }
 
-/* Concatenando .label alle tue classi (.login-text.label), diciamo a JavaFX:
-   "Applica questo stile SOLO se il nodo è una Label e ha questa classe specifica",
-   vincendo contro la regola generica del file shared.
-*/
-
-.login-text.label {
-    -fx-text-fill: -text-secondary;
-    -fx-font-size: 14px; /* Ripristina la dimensione corretta per i testi normali */
-    -fx-font-weight: normal;
-}
-
-.login-text-status.label {
-    -fx-text-fill: -text-secondary;
-    -fx-opacity: 0.55;
-    -fx-font-size: 13px;
-    -fx-font-weight: normal;
-}
-
-.login-text-empty.label {
-    -fx-text-fill: -text-primary;
-    -fx-font-size: 14px;
-}
-
-.login-text-exists.label {
-    -fx-text-fill: -color-success;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-}
-
-.login-text-missing.label {
-    -fx-text-fill: -color-warning;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-}
-
-.login-text-error.label {
-    -fx-text-fill: -color-error;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-}
+.login-text         { -fx-text-fill: -text-secondary; }
+.login-text-status  { -fx-text-fill: -text-secondary; -fx-opacity: 0.55; }
+.login-text-empty   { -fx-text-fill: -text-primary; }
+.login-text-exists  { -fx-text-fill: -color-success; }
+.login-text-missing { -fx-text-fill: -color-warning; }
+.login-text-error   { -fx-text-fill: -color-error; }
 
 /* ============================================
-   INPUT FIELDS / PLACEHOLDER
+   PLACEHOLDER
    ============================================ */
 
 .login-placeholder {
@@ -66,12 +36,10 @@
    CURSOR
    ============================================ */
 
-.login-cursor {
-    -fx-text-fill: inherit;
-}
+.login-cursor { -fx-text-fill: inherit; }
 
 /* ============================================
-   IKONLI / VECTOR ICONS COLORS
+   ICONS
    ============================================ */
 
 .login-icon         { -icon-color: -text-secondary; }
