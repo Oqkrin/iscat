@@ -14,6 +14,10 @@
    PAUSE MENU
    ============================================ */
 
+.game-pause-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.85);
+}
+
 .pause-menu {
     -fx-background-color: rgba(0, 0, 0, 0.7);
 }

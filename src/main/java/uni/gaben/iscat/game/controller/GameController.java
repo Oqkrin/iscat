@@ -1,6 +1,12 @@
 package uni.gaben.iscat.game.controller;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.layout.StackPane;
+import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.game.universe.asteroid.AsteroidModel;
 import uni.gaben.iscat.game.view.camera.CameraModel;
 import uni.gaben.iscat.game.model.GameModel;
@@ -11,25 +17,21 @@ import uni.gaben.iscat.game.universe.UniverseSpawner;
 import java.util.Random;
 
 public class GameController {
-    private GameModel gameModel;
+
+    private final GameModel gameModel;
+    private final GameInputs gameInputs = new GameInputs();
+
     private UniverseController universeController;
     private AnimationTimer gameLoop;
     private Runnable drawCall;
-    private GameInputs gameInputs = new GameInputs();
-
-    public GameInputs getInputManager() {
-        return gameInputs;
-    }
-
-    public void setDrawCall(Runnable drawCall) {
-        this.drawCall = drawCall;
-    }
+    private StackPane contentRoot;
+    private boolean showFps = false;
+    private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
 
     public GameController(GameModel gameModel, UniverseController universeController) {
         this.gameModel = gameModel;
         this.universeController = universeController;
 
-        // Inizializzazione dello Spawner e generazione del mondo iniziale
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController);
 
         double midX = getUniverseModel().getWidth() / 2.0;
@@ -37,7 +39,6 @@ public class GameController {
 
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
 
-        // Stabilize spring hooks immediately to prevent camera lens pan jitter during launch
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
 
@@ -77,10 +78,6 @@ public class GameController {
         }
     }
 
-    public void togglePause() {
-        gameModel.setPaused(!gameModel.isPaused());
-    }
-
     public void startGameLoop() {
         gameLoop.start();
     }
@@ -89,61 +86,49 @@ public class GameController {
         gameLoop.stop();
     }
 
+    public void togglePause() {
+        gameModel.setPaused(!gameModel.isPaused());
+    }
+
     public void debugSpawn(String spawnableId) {
-        // THE FIX: Drops models symmetrically balanced over the actual camera center position
         double spawnWorldX = getCameraModel().getX() + ((Math.random() - 0.5) * 400);
         double spawnWorldY = getCameraModel().getY() + ((Math.random() - 0.5) * 400);
-
         UniverseSpawner.getInstance().spawn(spawnableId, spawnWorldX, spawnWorldY);
-    }
-
-    private boolean showFps = false;
-
-    public void setShowFps(boolean show) {
-        this.showFps = show;
-    }
-
-    public boolean isFpsOn() {
-        return showFps;
-    }
-
-    public UniverseModel getUniverseModel() {
-        return gameModel.getUniverseModel();
-    }
-
-    public UniverseController getUniverseController() {
-        return universeController;
-    }
-
-    public CameraModel getCameraModel() {
-        return gameModel.getCameraModel();
     }
 
     public void resetUniverse() {
         UniverseModel newUniverse = new UniverseModel();
         gameModel.setUniverseModel(newUniverse);
-        universeController = new UniverseController(newUniverse);
+        this.universeController = new UniverseController(newUniverse);
 
         UniverseSpawner.getInstance().init(newUniverse, universeController);
+
         universeController.getStarfieldController().regenerate(
                 newUniverse.getStarfieldModel(),
                 newUniverse.getWidth(),
                 newUniverse.getHeight()
         );
+
         double midX = newUniverse.getWidth() / 2.0;
         double midY = newUniverse.getHeight() / 2.0;
 
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+        spawnInitialAsteroidBelts(newUniverse, midX, midY);
 
-        // Spawn 6 initial clumps of asteroids all around the world (mostly off-camera)
+        getCameraModel().getSpringX().setPosition(midX);
+        getCameraModel().getSpringY().setPosition(midY);
+    }
+
+    private void spawnInitialAsteroidBelts(UniverseModel universe, double centerX, double centerY) {
+        Random random = new Random();
         for (int clump = 0; clump < 6; clump++) {
             double angle = (clump * (Math.PI * 2.0 / 6.0)) + (Math.random() * 0.5);
             double dist = 600.0 + Math.random() * 1200.0;
 
-            double cx = midX + Math.cos(angle) * dist;
-            double cy = midY + Math.sin(angle) * dist;
+            double cx = centerX + Math.cos(angle) * dist;
+            double cy = centerY + Math.sin(angle) * dist;
 
-            int count = 3 + new Random().nextInt(3);
+            int count = 3 + random.nextInt(3);
             for (int i = 0; i < count; i++) {
                 double offsetAngle = Math.random() * Math.PI * 2.0;
                 double offsetDist = Math.random() * 180.0;
@@ -151,9 +136,7 @@ public class GameController {
                 double ax = cx + Math.cos(offsetAngle) * offsetDist;
                 double ay = cy + Math.sin(offsetAngle) * offsetDist;
 
-                // Larger radii (diameter up to 180px)
                 double radius = 20.0 + Math.random() * 70.0;
-
                 AsteroidModel ast = new AsteroidModel(ax, ay, radius);
 
                 double driftAngle = Math.random() * Math.PI * 2.0;
@@ -166,8 +149,64 @@ public class GameController {
                 UniverseSpawner.getInstance().spawnEntity(ast);
             }
         }
+    }
 
-        getCameraModel().getSpringX().setPosition(midX);
-        getCameraModel().getSpringY().setPosition(midY);
+    public void quitToMainMenu() {
+        setShowDebugMode(false);
+        stopGameLoop();
+        gameModel.setPaused(false);
+        resetUniverse();
+
+        if (contentRoot != null) {
+            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+        }
+    }
+
+    public void quitGame() {
+        Platform.exit();
+    }
+
+    public GameInputs getInputManager() {
+        return gameInputs;
+    }
+
+    public void setDrawCall(Runnable drawCall) {
+        this.drawCall = drawCall;
+    }
+
+    public void setContentRoot(StackPane contentRoot) {
+        this.contentRoot = contentRoot;
+    }
+
+    public void setShowFps(boolean show) {
+        this.showFps = show;
+    }
+
+    public boolean isFpsOn() {
+        return showFps;
+    }
+
+    public void setShowDebugMode(boolean show) {
+        this.showDebugMode.set(show);
+    }
+
+    public boolean isDebugModeOn() {
+        return showDebugMode.get();
+    }
+
+    public BooleanProperty debugModeProperty() {
+        return showDebugMode;
+    }
+
+    public UniverseModel getUniverseModel() {
+        return gameModel.getUniverseModel();
+    }
+
+    public UniverseController getUniverseController() {
+        return universeController;
+    }
+
+    public CameraModel getCameraModel() {
+        return gameModel.getCameraModel();
     }
 }

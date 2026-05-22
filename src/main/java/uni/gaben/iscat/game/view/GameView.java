@@ -28,22 +28,24 @@ import static javafx.application.Platform.runLater;
 
 public class GameView extends AbstractIscatStackPane {
 
-    private GameModel gameModel;
-    private GameController gameController;
-    private StackPane root;
+    private final GameModel gameModel;
+    private final GameController gameController;
+    private final StackPane root;
+
     private Canvas canvas;
     private StarfieldView starfieldView = new StarfieldView();
     private GameSpawnerToolbar spawnerToolbar;
     private GamePauseMenu pauseMenu;
     private Button debugButton;
     private boolean debugPanelVisible = false;
+
     public GameView(GameController gameController, GameModel gameModel) {
         super(new StackPane());
         this.gameModel = gameModel;
         this.gameController = gameController;
         this.root = getContentRoot();
+        this.gameController.setContentRoot(this.root);
 
-        root.setStyle("-fx-background-color: transparent;");
         initialize();
     }
 
@@ -58,6 +60,8 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initStyles() {
+        root.getStyleClass().add("game-view-container");
+
         getStylesheets().add(Objects.requireNonNull(GameView.class.getResource("/uni/gaben/iscat/styles/game.css"))
                 .toExternalForm());
         CssHelper.stilePulsanteMenu(debugButton);
@@ -84,6 +88,7 @@ public class GameView extends AbstractIscatStackPane {
 
         UniverseController universeController = gameController.getUniverseController();
         UniverseModel universe = universeController.getUniverseModel();
+
         if (universe != null) {
             universe.widthProperty().bind(canvas.widthProperty());
             universe.heightProperty().bind(canvas.heightProperty());
@@ -98,6 +103,32 @@ public class GameView extends AbstractIscatStackPane {
 
             pauseMenu.visibleProperty().bind(gameModel.pausedProperty());
             pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
+
+            gameModel.pausedProperty().addListener((obs, wasPaused, isPausedNow) -> {
+                if (!isPausedNow) {
+                    runLater(() -> canvas.requestFocus());
+                }
+            });
+
+            // GESTIONE DEL DEBUG PULITA (Senza bind problematici)
+            gameController.debugModeProperty().addListener((obs, oldV, isDebugActive) -> {
+                debugButton.setVisible(isDebugActive);
+                debugButton.setManaged(isDebugActive);
+
+                if (!isDebugActive) {
+                    spawnerToolbar.setVisible(false);
+                    spawnerToolbar.setManaged(false);
+                    debugPanelVisible = false;
+                    debugButton.setText("DEBUG");
+                }
+            });
+
+            // Configurazione iniziale basata sul controller
+            boolean initialDebug = gameController.isDebugModeOn();
+            debugButton.setVisible(initialDebug);
+            debugButton.setManaged(initialDebug);
+            spawnerToolbar.setVisible(false);
+            spawnerToolbar.setManaged(false);
         }
     }
 
@@ -112,41 +143,23 @@ public class GameView extends AbstractIscatStackPane {
             }
         });
 
-        // === DEBUG BUTTON FIX ===
         debugButton.setOnAction(event -> {
-            debugPanelVisible = !debugPanelVisible;
-
-            spawnerToolbar.setVisible(debugPanelVisible);
-
-            debugButton.setText(debugPanelVisible ? "HIDE DEBUG" : "DEBUG");
+            if (gameController.isDebugModeOn()) {
+                debugPanelVisible = !debugPanelVisible;
+                spawnerToolbar.setVisible(debugPanelVisible);
+                spawnerToolbar.setManaged(debugPanelVisible);
+                debugButton.setText(debugPanelVisible ? "HIDE DEBUG" : "DEBUG");
+            }
         });
-
-        // Force initial state
-        spawnerToolbar.setVisible(false);
-        debugButton.setText("DEBUG");
     }
+
     @Override
     public void onShow() {
         super.onShow();
-        // Forziamo il gioco a tornare attivo
         gameModel.setPaused(false);
         gameController.setDrawCall(this::renderFrame);
         gameController.getInputManager().attachToScene(this.getScene());
         gameController.startGameLoop();
-
-        //TODO DA ELIMINARE START {
-
-        UniverseController universeController = gameController.getUniverseController();
-        if (universeController != null) {
-            java.util.Random random = new java.util.Random();
-            for (int i = 0; i < 10; i++) {
-                double randomX = 3000.0 + random.nextDouble() * 2000.0;
-                double randomY = 3000.0 + random.nextDouble() * 2000.0;
-                UniverseSpawner.getInstance().spawnWorm(randomX, randomY);
-            }
-        }
-
-        //TODO DA ELIMARE END }
 
         runLater(() -> canvas.requestFocus());
     }
@@ -170,23 +183,21 @@ public class GameView extends AbstractIscatStackPane {
 
         CameraModel cameraModel = gameController.getCameraModel();
 
-        // 2. Rendering di Sfondo (Parallasse dello Starfield)
         starfieldView.setCameraX(cameraModel.getX());
         starfieldView.setCameraY(cameraModel.getY());
         starfieldView.draw(universe.getStarfieldModel(), gc);
 
         gc.save();
-
-        // Spostiamo la matrice del contesto grafico in base all'angolo in alto a sinistra della telecamera
         gc.translate(-cameraModel.getViewportLeftX(), -cameraModel.getViewportTopY());
+
+        boolean renderCollisionBoxes = debugPanelVisible && gameController.isDebugModeOn();
 
         for (var entity : universe.getEntities()) {
             Drawable renderer = ViewRegistry.getInstance().getRenderer(entity.getClass());
             if (renderer != null) {
-                // IL FIX DELLA DOPPIA ROTAZIONE: PlayerView.draw() deve invocare renderEntity(..., 0.0)
                 renderer.draw(entity, gc);
 
-                if (debugPanelVisible && renderer instanceof AbstractEntityView entityView) {
+                if (renderCollisionBoxes && renderer instanceof AbstractEntityView entityView) {
                     gc.save();
                     entityView.setPos(entity);
                     entityView.drawDebugCollision(entity, gc);
@@ -196,11 +207,10 @@ public class GameView extends AbstractIscatStackPane {
         }
         gc.restore();
 
-        // 3. UI Overlay
         drawFps(gc, w);
     }
 
-    private double[] fpsHistory = new double[30];
+    private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
 
     private void drawFps(GraphicsContext gc, double w) {
@@ -222,16 +232,14 @@ public class GameView extends AbstractIscatStackPane {
     @Override
     public void onHide() {
         super.onHide();
-        gameController.togglePause();
+        if (!gameModel.isPaused()) {
+            gameController.togglePause();
+        }
     }
 
     @Override
     public void onUnload() {
         super.onUnload();
         gameController.stopGameLoop();
-    }
-
-    public void setStarfieldView(StarfieldView starfieldView) {
-        this.starfieldView = starfieldView;
     }
 }
