@@ -29,6 +29,7 @@ public class MenuView extends AbstractIscatStackPane {
     private Button    scoreButton;
     private Button    skinButton;
     private Button    bestiaryButton;
+    private Button    logoutButton;
     private Button    quitButton;
 
     public MenuView(MenuController menuController) {
@@ -56,12 +57,13 @@ public class MenuView extends AbstractIscatStackPane {
         scoreButton    = createMenuButton("VIEW SCORE", "fas-eye");
         skinButton     = createMenuButton("CHANGE SKIN", "fas-gift");
         bestiaryButton = createMenuButton("BESTIARIO", "fas-bug");
+        logoutButton   = createMenuButton("LOG OUT", "fas-door-open");
         quitButton     = createMenuButton("QUIT", "fas-door-open");
     }
 
     @Override
     protected void initLayout() {
-        VBox layout = new VBox(20, title, playButton, optionsButton, scoreButton, skinButton, bestiaryButton, quitButton);
+        VBox layout = new VBox(20, title, playButton, optionsButton, scoreButton, skinButton, bestiaryButton,logoutButton, quitButton);
         layout.setAlignment(Pos.CENTER);
         getContentRoot().getChildren().add(layout);
     }
@@ -73,6 +75,7 @@ public class MenuView extends AbstractIscatStackPane {
         scoreButton.setOnAction(e    -> controller.openScoreMenu());
         skinButton.setOnAction(e     -> controller.openSkinMenu());
         bestiaryButton.setOnAction(e -> controller.openBestiaryMenu());
+        logoutButton.setOnAction(e   -> controller.logout());
         quitButton.setOnAction(e     -> controller.quit());
     }
 

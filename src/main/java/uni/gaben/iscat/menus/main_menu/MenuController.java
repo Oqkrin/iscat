@@ -17,10 +17,10 @@ public class MenuController {
     }
 
     public void playGame()          { navigate(IscatScenes.GAMEN);         }
-    public void openSkinMenu()     { navigate(IscatScenes.SKIN_MENU);     }
-    public void openOptionsMenu()  { navigate(IscatScenes.OPTIONS_MENU);  }
-    public void openScoreMenu()    { navigate(IscatScenes.SCORE_MENU);    }
-    public void openBestiaryMenu() { navigate(IscatScenes.BESTIARY_MENU); }
-
-    public void quit() {Platform.exit();}
+    public void openSkinMenu()      { navigate(IscatScenes.SKIN_MENU);     }
+    public void openOptionsMenu()   { navigate(IscatScenes.OPTIONS_MENU);  }
+    public void openScoreMenu()     { navigate(IscatScenes.SCORE_MENU);    }
+    public void openBestiaryMenu()  { navigate(IscatScenes.BESTIARY_MENU); }
+    public void logout()            { navigate(IscatScenes.LOGIN_MENU);    }
+    public void quit()              { Platform.exit();                     }
 }
