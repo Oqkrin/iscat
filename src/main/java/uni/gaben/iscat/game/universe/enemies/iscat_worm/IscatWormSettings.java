@@ -1,5 +1,7 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_worm;
 
+import uni.gaben.iscat.game.universe.VelocitySettings;
+
 public class IscatWormSettings {
     public static final int    INITIAL_SEGMENTS     = 11;
     public static final double DIM_SPRITE           = 64.0;
@@ -14,7 +16,7 @@ public class IscatWormSettings {
     // --- IMPOSTAZIONI TESTA (HEAD) ---
     public static final int    HEAD_HP              = 65;
     public static final double HEAD_SCALE           = 2.0;
-    public static final double HEAD_MAX_SPEED       = 25.0;
+    public static final double HEAD_MAX_SPEED       = VelocitySettings.WORM_HEAD_MAX_SPEED;
     public static final double HEAD_FORCE           = 800.0;
     public static final double HEAD_ROTATION_SPEED  = 0.45;
 

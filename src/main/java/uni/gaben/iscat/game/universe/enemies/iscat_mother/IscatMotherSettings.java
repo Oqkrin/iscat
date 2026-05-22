@@ -1,6 +1,7 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_mother;
 
 import uni.gaben.iscat.game.lib.utils.UU;
+import uni.gaben.iscat.game.universe.VelocitySettings;
 
 public final class IscatMotherSettings {
     private IscatMotherSettings() {}
@@ -15,7 +16,7 @@ public final class IscatMotherSettings {
     // --- FISICA ---
     public static final double RAGGIO_COLLISIONE_PX = (DIM_SPRITE / 2.0) * 0.9;
     public static final double DAMPING_LINEARE = 3.0;
-    public static final double MAX_VELOCITY_MS = 20.0;
+    public static final double MAX_VELOCITY_MS = VelocitySettings.MOTHER_MAX_VELOCITY;
     public static final double FORCE = 13.0;
 
     // --- AI: DISTANZE ---

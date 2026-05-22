@@ -1,5 +1,7 @@
 package uni.gaben.iscat.game.universe.enemies.fallen_star_golem;
 
+import uni.gaben.iscat.game.universe.VelocitySettings;
+
 public class FallenStarGolemSettings {
 
     public static final double AVOIDANCE_RAY_LEN = 60.0;
@@ -31,7 +33,7 @@ public class FallenStarGolemSettings {
     public static final double DISTANZA_IDEALE_PX = 75.0;
     public static final double RAMP_UP_PX = 400.0;
 
-    public static final double MAX_VELOCITY_MS = 30;
+    public static final double MAX_VELOCITY_MS = VelocitySettings.GOLEM_MAX_VELOCITY;
     public static final double FORCE = 15;
     public static final double STEERING_GAIN = 10.0;
 
@@ -47,5 +49,5 @@ public class FallenStarGolemSettings {
     public static final int COOLDOWN_SPARO_TICKS = 10;
 
     public static final double DIM_PROIETTILE = 10;
-    public static final double VEL_PROIETTILE = 20.0;
+    public static final double VEL_PROIETTILE = VelocitySettings.ENEMY_BULLET_VELOCITY;
 }

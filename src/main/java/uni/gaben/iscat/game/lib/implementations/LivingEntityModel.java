@@ -4,14 +4,14 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.game.lib.interfaces.model.Lifecycle;
+import uni.gaben.iscat.game.lib.interfaces.model.LifeDeath;
 import uni.gaben.iscat.game.universe.player.PlayerModel;
 
 /**
  * Implementazione di un'entità dotata di vita e soggetta a mortalità.
  * Gestisce i punti vita (HP), la guarigione e il danneggiamento.
  */
-public class LivingEntityModel extends AbstractEntityModel implements Lifecycle {
+public class LivingEntityModel extends AbstractEntityModel implements LifeDeath {
     protected DoubleProperty life = new SimpleDoubleProperty();
     protected double maxLife;
 

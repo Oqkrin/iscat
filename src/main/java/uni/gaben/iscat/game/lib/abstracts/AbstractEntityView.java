@@ -2,7 +2,8 @@ package uni.gaben.iscat.game.lib.abstracts;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.game.lib.interfaces.model.Lifecycle;
+import org.dyn4j.geometry.Circle;
+import uni.gaben.iscat.game.lib.interfaces.model.LifeDeath;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.player.PlayerSettings;
 import uni.gaben.iscat.game.view.ViewSettings;
@@ -69,7 +70,7 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
      */
     protected abstract void drawContent(M entity, GraphicsContext gc, double x, double y, double width, double height);
 
-    protected void drawHpBar(Lifecycle entity, GraphicsContext gc) {
+    protected void drawHpBar(LifeDeath entity, GraphicsContext gc) {
         gc.setFill(ThemeColors.getColorError());
         gc.fillRect(cx - w / 2, cy - h / 2 - PlayerSettings.HP_BAR_OFFSET_Y, w, PlayerSettings.HP_BAR_HEIGHT);
         gc.setFill(ThemeColors.getColorSuccess());
@@ -91,7 +92,7 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         gc.setLineWidth(1.5);
 
         if (e.getFixtureCount() > 0
-                && e.getFixture(0).getShape() instanceof org.dyn4j.geometry.Circle) {
+                && e.getFixture(0).getShape() instanceof Circle) {
             double radiusPx = w / 2;
             gc.strokeOval(-radiusPx, -radiusPx, w, h);
         } else {

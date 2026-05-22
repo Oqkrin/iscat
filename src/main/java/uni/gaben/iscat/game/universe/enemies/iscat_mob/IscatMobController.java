@@ -43,8 +43,7 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
     public IscatMobController(IscatMobModel iscat) {
         super(iscat);
         shooter = new Shooter<>(iscat);
-        bulletTemplate = new Projectile();
-        bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+        bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
 
         // --- COMPOSIZIONE BEHAVIORS ---
 

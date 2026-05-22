@@ -8,11 +8,12 @@ import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
+import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
 public class IscatCoreModel extends LivingEntityModel implements HasProjectile<Projectile> {
 
-    private final Projectile projectile = new Projectile();
+    private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
     private final Cooldown weaponCooldown = new Cooldown();
 
     public IscatCoreModel(double x, double y) {

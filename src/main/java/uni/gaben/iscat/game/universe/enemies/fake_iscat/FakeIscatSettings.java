@@ -1,5 +1,7 @@
 package uni.gaben.iscat.game.universe.enemies.fake_iscat;
 
+import uni.gaben.iscat.game.universe.VelocitySettings;
+
 public class FakeIscatSettings {
 
     public static final double AVOIDANCE_RAY_LEN = 60.0;
@@ -31,7 +33,7 @@ public class FakeIscatSettings {
     public static final double DISTANZA_IDEALE_PX = 75.0;
     public static final double RAMP_UP_PX = 400.0;
 
-    public static final double MAX_VELOCITY_MS = 30;
+    public static final double MAX_VELOCITY_MS = VelocitySettings.FAKE_ISCAT_MAX_VELOCITY;
     public static final double FORCE = 15;
     public static final double STEERING_GAIN = 10.0;
 

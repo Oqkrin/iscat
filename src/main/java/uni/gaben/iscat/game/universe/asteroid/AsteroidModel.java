@@ -9,6 +9,7 @@ import uni.gaben.iscat.game.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.game.universe.UniverseSpawner;
+import uni.gaben.iscat.game.universe.VelocitySettings;
 
 import java.util.Random;
 
@@ -135,8 +136,7 @@ public class AsteroidModel extends AbstractEntityModel {
 
     @Override
     public double getTerminalVelocity() {
-        // Larger asteroids have a much lower speed limit (from base 30m/s down to min 5m/s)
-        return Math.max(5.0, 30.0 - (size / 8.0));
+        return VelocitySettings.asteroidTerminalVelocity(size);
     }
 
 }

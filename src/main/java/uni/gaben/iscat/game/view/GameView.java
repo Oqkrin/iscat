@@ -17,6 +17,9 @@ import uni.gaben.iscat.game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.game.universe.UniverseController;
 import uni.gaben.iscat.game.universe.UniverseModel;
 import uni.gaben.iscat.game.universe.starfield.StarfieldView;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import uni.gaben.iscat.utils.components.StarryText;
 import uni.gaben.iscat.utils.ThemeColors;
 import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
@@ -37,6 +40,8 @@ public class GameView extends AbstractIscatStackPane {
     private GamePauseMenu pauseMenu;
     private Button debugButton;
     private boolean debugPanelVisible = false;
+    private Canvas timerCanvas;
+    private StarryText starryTimer;
 
     public GameView(GameController gameController, GameModel gameModel) {
         super(new StackPane());
@@ -55,6 +60,11 @@ public class GameView extends AbstractIscatStackPane {
         pauseMenu = new GamePauseMenu(gameController);
         debugButton = new Button("DEBUG");
         debugButton.setFocusTraversable(false);
+
+        timerCanvas = new Canvas(300, 100);
+        timerCanvas.setMouseTransparent(true);
+        timerCanvas.setFocusTraversable(false);
+        starryTimer = new StarryText(300, 100);
     }
 
     @Override
@@ -69,11 +79,14 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initLayout() {
-        root.getChildren().addAll(canvas, spawnerToolbar, pauseMenu, debugButton);
+        root.getChildren().addAll(canvas, timerCanvas, spawnerToolbar, pauseMenu, debugButton);
 
         StackPane.setAlignment(spawnerToolbar, Pos.BOTTOM_CENTER);
         StackPane.setAlignment(debugButton, Pos.TOP_LEFT);
         StackPane.setMargin(debugButton, new Insets(50, 0, 0, 50));
+
+        StackPane.setAlignment(timerCanvas, Pos.TOP_CENTER);
+        StackPane.setMargin(timerCanvas, new Insets(50, 0, 0, 0));
     }
 
     @Override
@@ -128,6 +141,12 @@ public class GameView extends AbstractIscatStackPane {
             debugButton.setManaged(initialDebug);
             spawnerToolbar.setVisible(false);
             spawnerToolbar.setManaged(false);
+
+            // Connect UI timer
+            gameModel.timerProperty().addListener((obs, oldVal, newVal) -> {
+                updateTimerText(newVal.intValue());
+            });
+            runLater(() -> updateTimerText(gameModel.getTimer()));
         }
     }
 
@@ -206,7 +225,22 @@ public class GameView extends AbstractIscatStackPane {
         }
         gc.restore();
 
+        // Draw HUD timer
+        GraphicsContext timerGc = timerCanvas.getGraphicsContext2D();
+        timerGc.clearRect(0, 0, timerCanvas.getWidth(), timerCanvas.getHeight());
+        starryTimer.updateAndDraw(timerGc);
+
         drawFps(gc, w);
+    }
+
+    private void updateTimerText(int val) {
+        int hours = val / 10000;
+        int minutes = (val % 10000) / 100;
+        int seconds = val % 100;
+        String timeStr = hours > 0 
+            ? String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            : String.format("%02d:%02d", minutes, seconds);
+        starryTimer.formText(timeStr, Font.font("Miracode", FontWeight.BOLD, 32));
     }
 
     private final double[] fpsHistory = new double[30];

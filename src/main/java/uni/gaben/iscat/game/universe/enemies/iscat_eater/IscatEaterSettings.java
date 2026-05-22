@@ -1,5 +1,7 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_eater;
 
+import uni.gaben.iscat.game.universe.VelocitySettings;
+
 public class IscatEaterSettings {
     /** Lunghezza del raggio per vedere i muri. */
     public static final double AVOIDANCE_RAY_LEN = 60.0;
@@ -31,7 +33,7 @@ public class IscatEaterSettings {
     /** Spazio di frenata/accelerazione per rendere il movimento fluido. */
     public static final double RAMP_UP_PX = 400.0;
     /** Velocità massima in metri al secondo. (25 m/s è molto veloce) */
-    public static final double MAX_VELOCITY_MS = 15;
+    public static final double MAX_VELOCITY_MS = VelocitySettings.EATER_MAX_VELOCITY;
     /** Forza massima di sterzata (maggiore = più reattivo). */
     public static final double FORCE = 15;
     /** Guadagno di sterzata per correggere la traiettoria. */

@@ -23,13 +23,4 @@ public final class UniverseSettings {
     public static final double PARALLAX_FACTOR = 0.20;
     public static final double PARALLAX_SIZE_DIVISOR = 3.0;
 
-    // --- Gravity & Suction ---
-    public static final double ORBITAL_G = 20.0;
-    public static final double SUCTION_RANGE_M = 8.0;
-    public static final double CIRCULARIZE_GAIN = 3.0;
-
-    // --- Test Configuration ---
-    public static final double TEST_ASTEROID_X = 500.0;
-    public static final double TEST_ASTEROID_Y = 300.0;
-    public static final double TEST_ASTEROID_RADIUS = 20.0;
 }

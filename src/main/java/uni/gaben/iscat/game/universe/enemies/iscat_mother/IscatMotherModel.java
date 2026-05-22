@@ -8,6 +8,7 @@ import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
+import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
 /**
@@ -23,17 +24,16 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
     public IscatMotherModel(double x, double y) {
         super(x, y, IscatMotherSettings.HP_INIZIALI, IscatMotherSettings.HP_INIZIALI);
 
+        // Hitbox: circle whose radius is 70% of the visible sprite radius
+        double visualRadiusPx = (IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE) / 2.0;
         BodyFixture fixture = addFixture(
-                Geometry.createCapsule(
-                        UU.pxToM(IscatMotherSettings.DIM_SPRITE),
-                        UU.pxToM(IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE / 2.0 * 0.75)
-                        ));
+                Geometry.createCircle(UU.pxToM(visualRadiusPx * 0.70)));
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(IscatMotherSettings.DAMPING_LINEARE);
     }
 
-    // ─── Lifecycle ──────────────────────────────────────────────────────────
+    // ─── LifeDeath ──────────────────────────────────────────────────────────
 
     public void update(double dt) {
         fireCooldown.update(dt);
@@ -68,7 +68,7 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
 
     @Override
     public Projectile getProjectile() {
-        return new Projectile();
+        return new Projectile(ProjectileType.ENEMY_BULLET);
     }
 
     @Override
@@ -100,6 +100,7 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
 
     @Override
     public double getHeightMeters() {
-        return UU.pxToM(IscatMotherSettings.DIM_SPRITE) * 2;
+        double visualRadiusPx = (IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE) / 2.0;
+        return UU.pxToM(visualRadiusPx * 0.70) * 2;
     }
 }

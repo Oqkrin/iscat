@@ -37,8 +37,7 @@ public class IscatWormSegment extends LivingEntityModel implements HasProjectile
         this.type = type;
 
         // Inizializzazione nativa del proiettile di gioco
-        this.bulletTemplate = new Projectile();
-        this.bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+        this.bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
 
         BodyFixture fixture = addFixture(Geometry.createCircle(UU.pxToM(getRadius(type))));
 

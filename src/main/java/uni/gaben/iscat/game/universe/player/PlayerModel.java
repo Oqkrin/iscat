@@ -4,12 +4,13 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
-import uni.gaben.iscat.IscatAudioManager;
+
 import uni.gaben.iscat.game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
+import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
 public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile> {
@@ -18,7 +19,7 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
     private final Cooldown dashDuration = new Cooldown();
     private final Cooldown weaponCooldown = new Cooldown();
 
-    private final Projectile projectile = new Projectile();
+    private final Projectile projectile = new Projectile(ProjectileType.PLAYER_BULLET);
 
     public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
@@ -58,9 +59,7 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
         dashDuration.start(PlayerSettings.DURATA_SCATTO_SEC);
         dashCooldown.start(PlayerSettings.COOLDOWN_SCATTO_SEC);
 
-        // Riproduce un SFX di fart casuale per lo scatto!
-        int randFart = new java.util.Random().nextInt(3) + 1;
-        IscatAudioManager.getInstance().playSFX("fart_alt" + randFart);
+
     }
 
     public boolean isScattoDisponibile() { return dashCooldown.isReady(); }
@@ -78,7 +77,7 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
 
     @Override
     public double getTerminalVelocity() {
-        return PlayerSettings.VELOCITA_MAX;
+        return PlayerSettings.VELOCITA_MAX * (isInScatto() ? 10 : 1);
     }
 
     @Override

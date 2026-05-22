@@ -1,13 +1,13 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_core;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.game.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.game.lib.interfaces.controller.AiBehavior;
+import uni.gaben.iscat.game.lib.interfaces.model.LifeDeath;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.UniverseModel;
-import uni.gaben.iscat.game.universe.UniverseSpawner;
 import uni.gaben.iscat.game.universe.player.PlayerModel;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
 import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
@@ -29,7 +29,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
     private final double maxMagnitude = 2, minMagnitude = 1;
 
     // ── COMPONENTI DI SPARO ───────────────────────────────────────────────────
-    private final Shooter<IscatCoreModel> shooter;
+    private Shooter<IscatCoreModel> shooter;
     private final Projectile bulletTemplate;
     private final Cooldown fireCooldown = new Cooldown();
 
@@ -46,8 +46,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
         super(iscat);
 
         this.shooter = new Shooter<>(iscat);
-        this.bulletTemplate = new Projectile();
-        this.bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+        this.bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
 
         // ── REGISTRAZIONE COMPORTAMENTI COMPOSITI (Sostituisce la vecchia FSM manuale) ──
 
@@ -211,8 +210,6 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
      * ognuna contenente 3 proiettili paralleli distanziati.
      */
     private void shootCoreBurst() {
-        Vector2 myPos = aiEntity.getTransform().getTranslation();
-        double velMetersS = bulletTemplate.getTerminalVelocity();
         double offsetSpacingM = UU.pxToM(24.0);
 
         double rot = aiEntity.getTransform().getRotationAngle();
@@ -220,34 +217,13 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
 
         for (double rad : directions) {
             Vector2 dir = new Vector2(Math.cos(rad), Math.sin(rad));
-            Vector2 velocity = dir.copy().multiply(velMetersS);
             Vector2 perp = new Vector2(-dir.y, dir.x); // Vettore perpendicolare per il distanziamento lineare
 
             for (int i = -1; i <= 1; i++) {
-                Vector2 bulletPos = myPos.copy().add(perp.copy().multiply(i * offsetSpacingM));
-
-                Projectile p = (Projectile) bulletTemplate.blueprint();
-                p.getTransform().setTranslation(bulletPos);
-                p.getTransform().setRotation(rad);
-                p.setLinearVelocity(velocity);
-
-                // Configurazione del ciclo di vita e dei danni del proiettile generato
-                p.setOnCollision(other -> {
-                    if (p.shouldRemove()) return;
-                    if (other instanceof uni.gaben.iscat.game.lib.interfaces.model.Lifecycle target) {
-                        target.deltaToLife(-p.getDamage());
-                    }
-                    p.kill();
-                    p.setShouldRemove(true);
-                });
-
-                // Spawna il proiettile nell'universo di gioco
-                UniverseSpawner.getInstance().spawnEntity(p);
+                Vector2 bulletTranslation = aiEntity.getTransform().getTranslation().copy().add(perp.copy().multiply(i * offsetSpacingM));
+                shooter.shoot(aiEntity.getProjectile(), bulletTranslation, rad);
             }
         }
-
-        // Feedback audio dello sparo
-        IscatAudioManager.getInstance().playSFX("shoot");
     }
 
     /**

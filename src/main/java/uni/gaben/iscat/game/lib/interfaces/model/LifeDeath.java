@@ -4,7 +4,7 @@ package uni.gaben.iscat.game.lib.interfaces.model;
  * Interfaccia per entità dotate di punti vita.
  * Fornisce metodi per leggere e modificare la salute dell'oggetto.
  */
-public interface Lifecycle {
+public interface LifeDeath {
     /** Restituisce la salute attuale. */
     double getLife();
     /** Restituisce la salute massima. */

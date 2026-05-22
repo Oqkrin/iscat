@@ -7,7 +7,6 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import uni.gaben.iscat.utils.ThemeColors;
 
@@ -22,20 +21,9 @@ public class StarryText {
     private double canvasWidth;
     private double canvasHeight;
 
-    private boolean isForming = false;
-    private final int PARTICLE_COUNT = 2000;
-
     public StarryText(double width, double height) {
         this.canvasWidth = width;
         this.canvasHeight = height;
-
-        // Inizializza le particelle sparse per lo schermo
-        for (int i = 0; i < PARTICLE_COUNT; i++) {
-            particles.add(new StarParticle(
-                    random.nextDouble() * width,
-                    random.nextDouble() * height
-            ));
-        }
     }
 
     public void updateDimensions(double width, double height) {
@@ -44,22 +32,17 @@ public class StarryText {
     }
 
     /**
-     * Rompe il testo attuale e sparge le stelle a caso.
+     * Clear particles.
      */
     public void scatter() {
-        isForming = false;
-        for (StarParticle p : particles) {
-            p.targetX = random.nextDouble() * canvasWidth;
-            p.targetY = random.nextDouble() * canvasHeight;
-            p.speed = 0.02 + (random.nextDouble() * 0.03); // Velocità casuale
-        }
+        particles.clear();
     }
 
     /**
-     * Legge i pixel del testo e comanda alle stelle di formarlo.
+     * Reads the text snapshot pixels and instantly generates particles inside the shape.
      */
     public void formText(String message, Font font) {
-        // 1. Renderizza il testo in memoria
+        // 1. Render text off-screen
         Text textNode = new Text(message);
         textNode.setFont(font);
         textNode.setFill(Color.WHITE);
@@ -68,75 +51,80 @@ public class StarryText {
         params.setFill(Color.TRANSPARENT);
         WritableImage image = textNode.snapshot(params, null);
 
-        // 2. Estrai le coordinate dei pixel non trasparenti
+        // 2. Extract non-transparent pixel coordinates
         PixelReader reader = image.getPixelReader();
         List<Point2D> targetPoints = new ArrayList<>();
 
-        int step = 4; // Leggi 1 pixel ogni 4 (per non avere troppe collisioni)
+        // Reading every 2 pixels for a denser, higher-fidelity shape representation
+        int step = 2; 
         for (int y = 0; y < image.getHeight(); y += step) {
             for (int x = 0; x < image.getWidth(); x += step) {
-                if (reader.getColor(x, y).getOpacity() > 0.1) {
+                if (reader.getColor(x, y).getOpacity() > 0.3) {
                     targetPoints.add(new Point2D(x, y));
                 }
             }
         }
 
-        // 3. Assegna i target alle particelle
-        if (targetPoints.isEmpty()) return;
+        if (targetPoints.isEmpty()) {
+            particles.clear();
+            return;
+        }
 
         double offsetX = (canvasWidth - image.getWidth()) / 2;
         double offsetY = (canvasHeight - image.getHeight()) / 2;
 
-        isForming = true;
-        for (int i = 0; i < particles.size(); i++) {
-            StarParticle p = particles.get(i);
-
-            // Se abbiamo più particelle che pixel, le extra si nascondono nel testo
-            Point2D target = targetPoints.get(i % targetPoints.size());
-
-            p.targetX = target.getX() + offsetX;
-            p.targetY = target.getY() + offsetY;
-            p.speed = 0.05 + (random.nextDouble() * 0.1); // Ease-out variation
+        // 3. Clear current particles and place new ones instantly
+        particles.clear();
+        for (Point2D target : targetPoints) {
+            // Apply a minor jitter offset so it forms a natural, starry organic cluster
+            double px = target.getX() + offsetX + (random.nextDouble() - 0.5) * 1.5;
+            double py = target.getY() + offsetY + (random.nextDouble() - 0.5) * 1.5;
+            particles.add(new StarParticle(px, py));
         }
     }
 
     public void updateAndDraw(GraphicsContext gc) {
-        for (StarParticle p : particles) {
-            // Lerp (Linear Interpolation) per un effetto Ease-Out fluido
-            p.x += (p.targetX - p.x) * p.speed;
-            p.y += (p.targetY - p.y) * p.speed;
-
-            // Tremolio (jitter) leggero per farle sembrare vive
-            double jitterX = isForming ? (random.nextDouble() - 0.5) : 0;
-            double jitterY = isForming ? (random.nextDouble() - 0.5) : 0;
-
+        ThemeColors.ensureLoaded();
+        for (StarParticle p : new ArrayList<>(particles)) {
+            p.update();
+            gc.setGlobalAlpha(p.getAlpha());
             gc.setFill(p.color);
-            gc.fillRect(p.x + jitterX, p.y + jitterY, p.size, p.size);
+            gc.fillRect(p.x, p.y, p.size, p.size);
         }
+        gc.setGlobalAlpha(1.0);
     }
 
-    // --- Classe Interna per la singola Particella ---
+    // --- Inner Class for single Star Particle ---
     private class StarParticle {
         double x, y;
-        double targetX, targetY;
-        double speed;
         double size;
+        double baseAlpha;
+        double phase;
+        double phaseSpeed;
         Color color;
 
         StarParticle(double x, double y) {
             this.x = x;
             this.y = y;
-            this.targetX = x;
-            this.targetY = y;
-            this.size = 1.5 + random.nextDouble() * 2;
+            this.size = 1.0 + random.nextDouble() * 1.5; // size between 1.0 and 2.5
+            this.baseAlpha = 0.5 + random.nextDouble() * 0.4; // base alpha between 0.5 and 0.9
+            this.phase = random.nextDouble() * Math.PI * 2;
+            this.phaseSpeed = 0.05 + random.nextDouble() * 0.05; // speed of twinkling pulse
 
-            // Palette di colori spaziali (Azzurro, Bianco, Giallo tenue)
             Color[] colors = {
                     ThemeColors.getAccentPrimary(),
                     ThemeColors.getAccentSecondary(),
                     ThemeColors.getAccentTertiary()
             };
             this.color = colors[random.nextInt(colors.length)];
+        }
+
+        void update() {
+            phase += phaseSpeed;
+        }
+
+        double getAlpha() {
+            return Math.clamp(baseAlpha + Math.sin(phase) * 0.25, 0.2, 1.0);
         }
     }
 }

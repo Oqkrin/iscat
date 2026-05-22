@@ -35,8 +35,7 @@ public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
         super(iscat);
         shooter = new Shooter<>(iscat);
 
-        bulletTemplate = new Projectile();
-        bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+        bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
     }
 
     @Override

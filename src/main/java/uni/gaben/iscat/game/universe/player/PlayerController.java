@@ -1,6 +1,7 @@
 package uni.gaben.iscat.game.universe.player;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.controller.GameInputs;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
@@ -23,8 +24,7 @@ public class PlayerController {
         this.player = player;
         this.shooter = new Shooter<>(player);
 
-        projectileTemplate = new Projectile();
-        projectileTemplate.setType(ProjectileType.PLAYER_BULLET);
+        projectileTemplate = new Projectile(ProjectileType.PLAYER_BULLET);
     }
 
     /**
@@ -97,6 +97,10 @@ public class PlayerController {
 
             player.executeScatto(finalDashAngle);
             dashBuffer.reset();
+
+            // Play random fart SFX for dash (View/Controller concern)
+            int randFart = new java.util.Random().nextInt(3) + 1;
+            IscatAudioManager.getInstance().playSFX("fart_alt" + randFart);
         }
     }
 

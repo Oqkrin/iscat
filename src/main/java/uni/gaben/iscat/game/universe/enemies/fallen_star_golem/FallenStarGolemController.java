@@ -1,13 +1,10 @@
 package uni.gaben.iscat.game.universe.enemies.fallen_star_golem;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.game.lib.interfaces.controller.AiBehavior;
-import uni.gaben.iscat.game.lib.interfaces.model.Lifecycle;
 import uni.gaben.iscat.game.universe.UniverseModel;
-import uni.gaben.iscat.game.universe.UniverseSpawner;
 import uni.gaben.iscat.game.universe.player.PlayerModel;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
 import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
@@ -48,8 +45,7 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
         super(golem);
 
         this.shooter = new Shooter<>(golem);
-        this.bulletTemplate = new Projectile();
-        this.bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+        this.bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
 
         // ── REGISTRAZIONE DEI BEHAVIORS COMPOSITI ──
 
@@ -200,31 +196,8 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
      * Istanzia, configura e lancia un singolo proiettile della traiettoria curva.
      */
     private void spawnSpiralBullet() {
-        Vector2 myPos = aiEntity.getTransform().getTranslation();
-        double velMetersS = bulletTemplate.getTerminalVelocity();
-        Vector2 velocity = Vector2.create(velMetersS, currentSpiralAngle);
-
-        Projectile p = (Projectile) bulletTemplate.blueprint();
-        p.getTransform().setTranslation(myPos.copy());
-        p.getTransform().setRotation(currentSpiralAngle);
-        p.setLinearVelocity(velocity);
-
-        // Gestione collisioni e danno
-        p.setOnCollision(other -> {
-            if (p.shouldRemove()) return;
-            if (other instanceof Lifecycle target) {
-                target.deltaToLife(-p.getDamage());
-            }
-            p.kill();
-            p.setShouldRemove(true);
-        });
-
-        // Spawna l'entità nel mondo e aggiorna l'angolo per il prossimo colpo della serie
-        UniverseSpawner.getInstance().spawnEntity(p);
+        shooter.shoot(bulletTemplate, currentSpiralAngle);
         currentSpiralAngle += SPIRAL_ANGLE_STEP;
-
-        // Effetto sonoro locale
-        IscatAudioManager.getInstance().playSFX("shoot");
     }
 
     /**

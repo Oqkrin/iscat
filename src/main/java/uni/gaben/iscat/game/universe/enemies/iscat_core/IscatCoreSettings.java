@@ -1,5 +1,7 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_core;
 
+import uni.gaben.iscat.game.universe.VelocitySettings;
+
 /**
  * Impostazioni centralizzate per l'IscatCore.
  * Definisce le costanti fisiche e i parametri dell'intelligenza artificiale.
@@ -60,7 +62,7 @@ public class IscatCoreSettings {
     public static final double RAMP_UP_PX = 400.0;
 
     /** Velocità massima in metri al secondo. */
-    public static final double MAX_VELOCITY_MS = 30;
+    public static final double MAX_VELOCITY_MS = VelocitySettings.CORE_MAX_VELOCITY;
 
     /** Forza massima di sterzata (maggiore = più reattivo). */
     public static final double FORCE = 15;
@@ -95,5 +97,5 @@ public class IscatCoreSettings {
     public static final double DIM_PROIETTILE = 10;
 
     /** Velocità del proiettile. */
-    public static final double VEL_PROIETTILE = 20.0;
+    public static final double VEL_PROIETTILE = VelocitySettings.ENEMY_BULLET_VELOCITY;
 }

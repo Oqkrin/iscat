@@ -10,6 +10,8 @@ import uni.gaben.iscat.game.universe.player.PlayerController;
 import uni.gaben.iscat.game.universe.starfield.StarfieldController;
 import uni.gaben.iscat.game.lib.interfaces.controller.AiController;
 import uni.gaben.iscat.game.lib.utils.UU;
+import uni.gaben.iscat.game.universe.asteroid.AsteroidModel;
+import uni.gaben.iscat.game.universe.VelocitySettings;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.ArrayList;
@@ -81,7 +83,8 @@ public class UniverseController {
                     AsteroidModel ast = new AsteroidModel(ax, ay, radius);
 
                     double driftAngle = Math.random() * Math.PI * 2.0;
-                    double speed = 0.5 + Math.random() * 2.0;
+                    double speed = VelocitySettings.ASTEROID_SPAWN_SPEED_MIN
+                            + Math.random() * (VelocitySettings.ASTEROID_SPAWN_SPEED_MAX - VelocitySettings.ASTEROID_SPAWN_SPEED_MIN);
                     ast.setLinearVelocity(new Vector2(
                             Math.cos(driftAngle) * speed,
                             Math.sin(driftAngle) * speed
@@ -91,7 +94,7 @@ public class UniverseController {
                 }
                 double randomX = 3000.0 + random.nextDouble() * 2000.0;
                 double randomY = 3000.0 + random.nextDouble() * 2000.0;
-                UniverseSpawner.getInstance().spawnWorm(randomX, randomY);
+                //UniverseSpawner.getInstance().spawnWorm(randomX, randomY);
             }
         }
 
@@ -112,20 +115,18 @@ public class UniverseController {
         double bottom = cameraModel.getViewportTopY() + cameraModel.getScreenHeight() + 200.0;
 
         for (AbstractProjectileModel p : new ArrayList<>(universeModel.getProjectiles())) {
-            p.setLifespan(p.getLifespan() - dt);
-            if (p.getLifespan() <= 0) {
+            p.deltaToLife(-dt);
+            if (p.shouldRemove()) continue;
+            double px = UU.mToPx(p.getTransform().getTranslationX());
+            double py = UU.mToPx(p.getTransform().getTranslationY());
+            if (px < left || px > right || py < top || py > bottom) {
                 p.kill(true);
-            } else {
-                double px = UU.mToPx(p.getTransform().getTranslationX());
-                double py = UU.mToPx(p.getTransform().getTranslationY());
-                if (px < left || px > right || py < top || py > bottom) {
-                    p.kill(true);
-                }
             }
         }
 
         // 3. Aggiornamento delle Intelligenze Artificiali degli NPC
-        for (AiController ai : aiControllers) {
+        // Snapshot the list to allow AI callbacks to add new controllers mid-loop
+        for (AiController ai : new ArrayList<>(aiControllers)) {
             ai.aiUpdate(universeModel, dt);
         }
 

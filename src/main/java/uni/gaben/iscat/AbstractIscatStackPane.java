@@ -59,7 +59,7 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     }
 
     // =========================================================================
-    // Lifecycle & Initialization Pattern
+    // LifeDeath & Initialization Pattern
     // =========================================================================
 
     protected final void initialize() {

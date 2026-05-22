@@ -7,20 +7,13 @@ import uni.gaben.iscat.game.universe.UniverseModel;
 
 public abstract class AbstractProjectileModel extends LivingEntityModel {
     protected double terminalVelocity;
-    protected double damage;
-    protected double lifespan;
     protected double baseAccelerationPerTick = 20.0;
     protected double size = 16;
-    protected AbstractProjectileModel() {
-        this(4000);
 
-    }
-
-    protected  AbstractProjectileModel(int maxPierceCount) {
+    protected  AbstractProjectileModel(double maxPierceCount) {
         this(0, 0, maxPierceCount);
     }
-
-    protected  AbstractProjectileModel(double x,  double y, int maxPierceCount) {
+    protected  AbstractProjectileModel(double x, double y, double maxPierceCount) {
         super(x, y, maxPierceCount, maxPierceCount);
         setBullet(true);
         addFixture(Geometry.createCircle(UniverseModel.getUniverseScaled(size)));
@@ -32,12 +25,5 @@ public abstract class AbstractProjectileModel extends LivingEntityModel {
         return terminalVelocity;
     }
     public void setTerminalVelocity(double v) { this.terminalVelocity = v; }
-
-    public double getDamage() { return damage; }
-    public void setDamage(double d) { this.damage = d; }
-
-    public double getLifespan() { return lifespan; }
-    public void setLifespan(double l) { this.lifespan = l; }
-
     public abstract AbstractProjectileModel blueprint();
 }

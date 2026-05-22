@@ -135,8 +135,7 @@ public class IscatWormController implements AiController {
     // ── UNICO ATTACCO: TEMPESTA RAPIDISSIMA A DIREZIONI CASUALI ──────────────
     private void updateTailEnraged(IscatWormSegment tail, PlayerModel player, double dt) {
         if (tailShooter == null) {
-            tailShooter = new Shooter<>(tail) {
-            };
+            tailShooter = new Shooter<>(tail);
         }
 
         Vector2 tailPos = tail.getWorldCenter();
@@ -181,14 +180,7 @@ public class IscatWormController implements AiController {
 
     // ── METODO DI SPARO RANDOMIZZATO ─────────────────────────────────────────
     private void executeRandomShot(IscatWormSegment tail, double randomAngle) {
-        double originalAngle = tail.getRotation();
-
-        // Forza l'angolo fisico verso la traiettoria casuale generata
-        tail.setRotation(randomAngle);
-        tailShooter.shoot(tail.getProjectile());
-
-        // Ripristina l'angolo visivo istantaneamente
-        tail.setRotation(originalAngle);
+        tailShooter.shoot(tail.getProjectile(), randomAngle);
     }
 
     private void followSegment(IscatWormSegment me, IscatWormSegment target, double force, double dt) {

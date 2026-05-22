@@ -1,5 +1,7 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_bomber;
 
+import uni.gaben.iscat.game.universe.VelocitySettings;
+
 /**
  * Impostazioni centralizzate per l'IscatBomber.
  */
@@ -23,7 +25,7 @@ public final class IscatBomberSettings {
     public static final double DISTANZA_MIN_INSEGUIMENTO = 10.0;
     public static final double SMOOTHING_ROTAZIONE = 0.12;
 
-    public static final double MAX_VELOCITY_MS = 24.0; // Piu' lento del mob normale
+    public static final double MAX_VELOCITY_MS = VelocitySettings.BOMBER_MAX_VELOCITY;
     public static final double FORCE = 40.0; // Maggiore forza dato che e' piu' pesante
     
     // --- STORDIMENTO ---

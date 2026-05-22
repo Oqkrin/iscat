@@ -2,6 +2,7 @@ package uni.gaben.iscat.game.universe.player;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import uni.gaben.iscat.game.universe.VelocitySettings;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 
 /**
@@ -21,20 +22,20 @@ public final class PlayerSettings {
     // === Core Physics ===
     public static final double MASSA = 1.0;
     public static final double LINEAR_DAMPING = 1.5;
-    public static final double VELOCITA_MAX = 120.0; // Meters per second
+    public static final double VELOCITA_MAX = VelocitySettings.PLAYER_MAX_VELOCITY;
     public static final double FORZA_SPINTA = 60.0; // Newtons
 
     // === Dash Mechanical Settings ===
-    public static final double IMPULSO_SCATTO = 30.0;
-    public static final double LINEAR_DAMPING_SCATTO = 0.7;
-    public static final double DURATA_SCATTO_SEC = 1.0/4.0;
+    public static final double IMPULSO_SCATTO = VelocitySettings.PLAYER_DASH_IMPULSE;
+    public static final double LINEAR_DAMPING_SCATTO = 0.1;
+    public static final double DURATA_SCATTO_SEC = 1.0/3.0;
     public static final double COOLDOWN_SCATTO_SEC = 0.8;
 
     // === Combat & Vitals ===
     public static final int HP_MASSIMO = 2000;
     public static final int HP_INIZIALE = 2000;
     public static final double COOLDOWN_FUOCO_SEC = 0.16; // Single source of truth for firing speed
-    public static final double VELOCITA_PROIETTILE = 800.0;
+    public static final double VELOCITA_PROIETTILE = VelocitySettings.PLAYER_BULLET_VELOCITY;
     public static final double DANNO_PROIETTILE = 10.0;
 
     // === Visuals & Dimensions ===

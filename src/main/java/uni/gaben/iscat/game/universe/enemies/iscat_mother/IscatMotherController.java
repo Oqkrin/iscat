@@ -1,7 +1,6 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_mother;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.game.lib.interfaces.controller.AiBehavior;
@@ -33,8 +32,7 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
 
         // Configura lo shooter per proiettili nemici
         shooter = new Shooter<>(mother);
-        bulletTemplate = new Projectile();
-        bulletTemplate.setType(ProjectileType.ENEMY_BULLET);
+        bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
 
         // Alla morte, spawna l'orda finale
         mother.setOnDeath(this::spawnHorde);
@@ -117,28 +115,10 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
 
         for (int i = -1; i <= 1; i++) {
             double angle = baseAngle + (i * spreadRad);
-            Vector2 velocity = Vector2.create(
-                    bulletTemplate.getTerminalVelocity(), angle);
-
-            Projectile p = (Projectile) bulletTemplate.blueprint();
-            p.setTransform(aiEntity.getTransform().copy());
-            p.translate(Vector2.create(1, angle));
-            p.setLinearVelocity(velocity);
-
-            // Callback di collisione del proiettile
-            p.setOnCollision(other -> {
-                if (p.shouldRemove()) return;
-                if (other instanceof uni.gaben.iscat.game.lib.interfaces.model.Lifecycle target) {
-                    target.deltaToLife(-p.getDamage());
-                }
-                p.kill();
-                p.setShouldRemove(true);
-            });
-
-            UniverseSpawner.getInstance().spawnEntity(p);
+            Vector2 bulletTranslation = aiEntity.getTransform().getTranslation().copy().add(Vector2.create(1.0, angle));
+            shooter.shoot(bulletTemplate, bulletTranslation, angle);
         }
 
-        IscatAudioManager.getInstance().playSFX("shoot");
         aiEntity.startFireCooldown();
     }
 

@@ -1,5 +1,7 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_mob;
 
+import uni.gaben.iscat.game.universe.VelocitySettings;
+
 /**
  * Impostazioni centralizzate per l'IscatMob.
  * Definisce le costanti fisiche e i parametri dell'intelligenza artificiale.
@@ -43,7 +45,7 @@ public class IscatMobSettings {
     /** Spazio di frenata/accelerazione per rendere il movimento fluido. */
     public static final double RAMP_UP_PX = 400.0;
     /** Velocità massima in metri al secondo. (25 m/s è molto veloce) */
-    public static final double MAX_VELOCITY_MS = 30;
+    public static final double MAX_VELOCITY_MS = VelocitySettings.MOB_MAX_VELOCITY;
     /** Forza massima di sterzata (maggiore = più reattivo). */
     public static final double FORCE = 15;
     /** Guadagno di sterzata per correggere la traiettoria. */
@@ -70,5 +72,5 @@ public class IscatMobSettings {
     /** Dimensione del proiettile sparato. */
     public static final double DIM_PROIETTILE = 10;
     /** Velocità del proiettile. */
-    public static final double VEL_PROIETTILE = 20.0;
+    public static final double VEL_PROIETTILE = VelocitySettings.ENEMY_BULLET_VELOCITY;
 }

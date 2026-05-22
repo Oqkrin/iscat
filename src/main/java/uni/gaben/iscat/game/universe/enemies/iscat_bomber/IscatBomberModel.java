@@ -35,7 +35,7 @@ public class IscatBomberModel extends LivingEntityModel {
         setLinearDamping(IscatBomberSettings.DAMPING_LINEARE);
     }
 
-    // ─── Lifecycle ──────────────────────────────────────────────────────────
+    // ─── LifeDeath ──────────────────────────────────────────────────────────
 
     /**
      * Aggiorna i cooldown interni. Chiamato dall'UniverseController ogni tick.

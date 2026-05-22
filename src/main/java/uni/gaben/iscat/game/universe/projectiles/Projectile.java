@@ -3,12 +3,19 @@ package uni.gaben.iscat.game.universe.projectiles;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
+import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.game.lib.utils.UU;
 
-public class Projectile extends AbstractProjectileModel {
+import java.util.function.Consumer;
 
-    private ProjectileType type = ProjectileType.PLAYER_BULLET;
+public class Projectile extends AbstractProjectileModel {
+    private ProjectileType type;
+
+    public Projectile(ProjectileType type) {
+        super(type.energy);
+        setType(type);
+    }
 
     /** Imposta il tipo e ricostruisce fixture + parametri fisici di conseguenza. */
     public void setType(ProjectileType type) {
@@ -23,16 +30,20 @@ public class Projectile extends AbstractProjectileModel {
 
         // Propaga i parametri balistici all'abstract base
         setTerminalVelocity(type.terminalVelocity);
-        setDamage(type.damage);
-        setLifespan(type.lifespan);
+        setMaxLife(type.energy);
+        setLife(type.energy);
     }
 
     public ProjectileType getType() { return type; }
 
     @Override
     public AbstractProjectileModel blueprint() {
-        Projectile p = new Projectile();
-        p.setType(this.type); // il clone eredita il tipo del proiettile originale
+        Projectile p = new Projectile(type);
+        p.setTerminalVelocity(this.getTerminalVelocity());
+        p.setMaxLife(this.getMaxLife());
+        p.setLife(this.getLife());
+        p.baseAccelerationPerTick = this.baseAccelerationPerTick;
+        p.size = this.size;
         return p;
     }
 }
