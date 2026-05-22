@@ -1,0 +1,107 @@
+@import url('iscat-components-shared.css');
+
+/* ============================================
+   OPTIONS MENU CONTAINER
+   ============================================ */
+
+.menu-opzioni {
+    -fx-background-color: rgba(20, 20, 20, 0.95);
+    -fx-padding: 30px;
+    -fx-border-color: -text-primary;
+    -fx-border-width: 2px;
+    -fx-max-width: 450px;
+    -fx-max-height: 600px;
+}
+
+.menu-opzioni .title-large {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 28px;
+    -fx-padding: 0 0 10px 0;
+}
+
+/* ============================================
+   SECTION HEADERS & LABELS
+   ============================================ */
+
+.sezione-opzioni {
+    -fx-alignment: center-left;
+}
+
+.titolo-sezione {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.etichetta-controllo {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 12px;
+}
+
+/* ============================================
+   SLIDERS
+   ============================================ */
+
+.slider {
+    -fx-max-width: 300px;
+}
+
+.slider .track {
+    -fx-background-color: -bg-elevated;
+}
+
+.slider .thumb {
+    -fx-background-color: -accent-primary;
+}
+
+.slider .thumb:hover {
+    -fx-background-color: -accent-secondary;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+/* ============================================
+   CHECKBOXES
+   ============================================ */
+
+.check-box {
+    -fx-text-fill: -text-primary;
+}
+
+.check-box .box {
+    -fx-background-color: -bg-secondary;
+    -fx-border-color: -text-primary;
+    -fx-border-width: 1px;
+}
+
+.check-box:selected .box {
+    -fx-background-color: -accent-primary;
+}
+
+.check-box .mark {
+    -fx-background-color: -bg-primary;
+}
+
+/* ============================================
+   OPTIONS BUTTONS
+   ============================================ */
+
+/* Il pulsante standard delle opzioni eredita le animazioni e i gradienti da .button.
+   Applichiamo solo le dimensioni fisse del tuo vecchio foglio di stile. */
+.options-button {
+    -fx-pref-width: 220px;
+    -fx-min-width: 220px;
+    -fx-max-width: 220px;
+
+    -fx-pref-height: 45px;
+    -fx-min-height: 45px;
+    -fx-max-height: 45px;
+
+    -fx-font-size: 16px;
+}
+
+/* Allineamento personalizzato per il contenitore dei pulsanti in fondo alle opzioni */
+.contenitore-pulsanti {
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+}

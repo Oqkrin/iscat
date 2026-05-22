@@ -42,7 +42,7 @@ public class MenuView extends AbstractIscatStackPane {
 
     @Override
     protected void initStyles() {
-        String css = Objects.requireNonNull(getClass().getResource("/uni/gaben/iscat/styles/menu.css")).toExternalForm();
+        String css = Objects.requireNonNull(getClass().getResource("/uni/gaben/iscat/styles/main-menu.css")).toExternalForm();
         getStylesheets().add(css);
     }
 

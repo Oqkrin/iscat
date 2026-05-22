@@ -1,0 +1,157 @@
+@import url('iscat-color-theme.css');
+@import url('iscat-typography.css');
+
+/* ============================================
+   GLOBAL LABELS (Valido per tutti i menu)
+   ============================================ */
+
+.label {
+    -fx-text-fill: -text-primary; /* Usa il bianco del tema (o sostituisci con white) */
+    -fx-font-family: "Consolas";
+    -fx-font-size: 18px;
+    -fx-font-weight: normal;
+}
+
+/* Mantieni i titoli più grandi e in grassetto se necessario */
+.title-large, .menu-title, .login-title, .bestiary-title, .score-title {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ============================================
+   GLOBAL CHECKBOXES (INVERTITE: NERO ATTIVO)
+   ============================================ */
+
+.check-box {
+    -fx-text-fill: white;
+    -fx-font-family: "Consolas";
+    -fx-font-size: 16px;
+}
+
+/* STATO BASE (NON ATTIVO / DISATTIVATO): Scatolina bianca */
+.check-box .box {
+    -fx-background-color: white;
+    -fx-border-color: white;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+
+/* Il segno di spunta quando la scatolina è bianca (non attiva) deve essere trasparente o nascosto */
+.check-box .mark {
+    -fx-background-color: transparent;
+}
+
+/* STATO ATTIVO (SELEZIONATO): Scatolina diventa nera con bordo di accento */
+.check-box:selected .box {
+    -fx-background-color: -bg-primary; /* Sfondo nero del gioco */
+    -fx-border-color: #00ffcc;         /* Bordo goblin neon per far capire che è attivo */
+}
+
+/* Il segno di spunta diventa visibile (bianco o neon) quando è selezionato */
+.check-box:selected .mark {
+    -fx-background-color: #00ffcc;     /* Spunta neon (o metti 'white' se preferisci) */
+    -fx-shape: "M0,5 L2,7 L7,2 L6,1 L2,5 L1,4 Z";
+}
+
+/* Effetto Hover visivo al passaggio del mouse */
+.check-box:hover .box {
+    -fx-border-color: #00ffcc;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 204, 0.2), 5, 0, 0, 0);
+}
+
+/* ============================================
+   BOTTONI GENERICI (STRUTTURA BASE CONDIVISA)
+   ============================================ */
+.button {
+    -fx-text-fill: -text-secondary;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 18px;
+    -fx-alignment: CENTER;
+    -fx-content-display: LEFT;
+    -fx-cursor: hand;
+
+    /* Sfondo nero sfumato usando i token del tema */
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-secondary, -bg-primary);
+
+    /* Bordi e curve */
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+
+    /* Effetti */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0.2, 0, 4);
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+/* Hover globale */
+.button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-elevated, -bg-tertiary);
+    -fx-text-fill: -text-primary;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-translate-y: -1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 16, 0.25, 0, 6);
+}
+
+/* Click globale */
+.button:pressed {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #5f7280, #425461); /* Grigio azzurro di feedback */
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+    -fx-translate-y: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.2, 0, 3);
+}
+
+/* ============================================
+   SKIN BUTTONS (Griglia / Icon-Only)
+   ============================================ */
+.skin-button {
+    /* Eredita i comportamenti di hover/pressed grazie alla sovrascrittura mirata */
+    -fx-pref-width: 80px;
+    -fx-pref-height: 80px;
+    -fx-padding: 10px;
+    -fx-content-display: graphic-only;
+    -fx-background-color: -bg-secondary;
+    -fx-border-color: -bg-elevated;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.skin-button:hover {
+    -fx-background-color: rgba(0, 255, 204, 0.2); /* Tocco goblin neon del tuo design */
+    -fx-border-color: #00ffcc;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-translate-y: -1px;
+}
+
+.skin-button:pressed {
+    -fx-background-color: rgba(0, 255, 204, 0.4);
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+    -fx-translate-y: 2px;
+}
+
+/* ============================================
+   TEXT AREA CONDIVISA
+   ============================================ */
+.text-area {
+    -fx-background-color: -bg-primary;
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 2px;
+    -fx-text-fill: -text-primary;
+}
+
+.text-area .content,
+.text-area .viewport {
+    -fx-background-color: -bg-primary;
+}
+
+.text-area .text {
+    -fx-fill: -text-primary;
+}

@@ -1,0 +1,71 @@
+@import url('iscat-components-shared.css');
+
+/* ============================================
+   BESTIARY CONTAINER & TITLES
+   ============================================ */
+
+.bestiary-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -accent-primary;
+    -fx-effect: dropshadow(gaussian, rgba(203, 203, 203, 0.3), 15, 0, 0, 0);
+}
+
+/* Nome del mostro/entità selezionata */
+#monsterNameLabel {
+    -fx-font-size: 30px;
+    -fx-text-fill: #00ffcc; /* Colore neon per il focus dell'elemento */
+}
+
+/* Sotto-etichette per le statistiche (es. HP, Danno, Tipo) */
+.bestiary-stat-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: -text-secondary;
+}
+
+.bestiary-stat-value {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-primary;
+}
+
+/* ============================================
+   GRID / LIST BUTTONS (I bottoni dei mostri)
+   ============================================ */
+
+/* Bottone per selezionare un mostro dalla griglia (usa la base dello skin-button) */
+.monster-button {
+    -fx-layout: skin-button; /* Concettualmente eredita le dimensioni 80x80 */
+    -fx-pref-width: 90px;
+    -fx-pref-height: 90px;
+    -fx-border-width: 1px;
+    -fx-border-color: -bg-tertiary;
+}
+
+/* Variante quando il mostro è selezionato nella lista */
+.monster-button:selected,
+.monster-button.active {
+    -fx-border-color: #00ffcc;
+    -fx-background-color: rgba(0, 255, 204, 0.15);
+    -fx-effect: dropshadow(gaussian, #00ffcc, 10, 0.3, 0, 0);
+}
+
+/* ============================================
+   DESCRIPTION BOX
+   ============================================ */
+
+/* La descrizione del lore/comportamento usa la struttura della text-area */
+.monster-description {
+    -fx-font-size: 14px;
+    -fx-line-spacing: 4px;
+}
+
+/* ============================================
+   NAVIGATION & BACK BUTTONS
+   ============================================ */
+
+.bestiary-nav-button {
+    -fx-pref-width: 220px;
+    -fx-pref-height: 45px;
+    /* Eredita già sfondo, hover e press da .button in shared! */
+}

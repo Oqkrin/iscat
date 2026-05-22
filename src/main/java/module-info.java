@@ -24,6 +24,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.game.model;
     exports uni.gaben.iscat.game.controller;
     exports uni.gaben.iscat.game.view;
+    exports uni.gaben.iscat.game.view.camera;
     exports uni.gaben.iscat.game.lib.abstracts;
     exports uni.gaben.iscat.game.lib.interfaces.model;
     exports uni.gaben.iscat.game.lib.interfaces.view;

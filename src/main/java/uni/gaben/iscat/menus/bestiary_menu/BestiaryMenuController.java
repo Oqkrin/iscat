@@ -29,7 +29,7 @@ public class BestiaryMenuController implements IscatFxmlController {
             Map.entry("iscat_mob", new BestiaryMenuController.Enemy("Iscat Mob", BASE + "iscat_mob.png",
                     IscatMobSettings.DIM_SPRITE, IscatMobSettings.DIM_SPRITE,
                     "Descrizione Iscat\nFiglio di Iscat Mother, ama mangiare pankakes a colazione e pizza per pranzo e cena. ASPETTA QUESTA E' LA DESCRIZIONE! SORRY!! Iscat è un nemico che naviga per lo spazio in cerca di cibo solitamente in gruppo. Ha poca vita e poca potenza d'attacco.")),
-            Map.entry("iscat_bomber", new BestiaryMenuController.Enemy("Iscat Bomber", BASE + "iscatBomber.png",
+            Map.entry("iscat_bomber", new BestiaryMenuController.Enemy("Iscat Bomber", BASE + "iscat_bomber.png",
                     32, 32, "Descrizione Iscat Bomber")),
             Map.entry("iscat_core", new BestiaryMenuController.Enemy("Iscat Core", BASE + "iscat_core.png",
                     64, 64, "Descrizione Iscat Core")),

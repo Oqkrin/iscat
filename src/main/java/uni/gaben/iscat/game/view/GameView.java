@@ -10,7 +10,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.AbstractIscatStackPane;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityView;
-import uni.gaben.iscat.game.universe.UniverseSpawner;
 import uni.gaben.iscat.game.view.camera.CameraModel;
 import uni.gaben.iscat.game.controller.GameController;
 import uni.gaben.iscat.game.model.GameModel;

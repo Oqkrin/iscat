@@ -1,0 +1,81 @@
+@import url('iscat-components-shared.css');
+
+/* ============================================
+   TEXT STATES & TITLES (FORZATI PER IL LOGIN)
+   ============================================ */
+
+/* Il titolo del login ha già una specificità alta, ma la blindiamo */
+.login-title.label {
+    -fx-text-fill: -text-primary;
+    -fx-font-weight: bold;
+    -fx-font-size: 55px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.15), 15, 0, 0, 0);
+}
+
+/* Concatenando .label alle tue classi (.login-text.label), diciamo a JavaFX:
+   "Applica questo stile SOLO se il nodo è una Label e ha questa classe specifica",
+   vincendo contro la regola generica del file shared.
+*/
+
+.login-text.label {
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 14px; /* Ripristina la dimensione corretta per i testi normali */
+    -fx-font-weight: normal;
+}
+
+.login-text-status.label {
+    -fx-text-fill: -text-secondary;
+    -fx-opacity: 0.55;
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
+}
+
+.login-text-empty.label {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 14px;
+}
+
+.login-text-exists.label {
+    -fx-text-fill: -color-success;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.login-text-missing.label {
+    -fx-text-fill: -color-warning;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.login-text-error.label {
+    -fx-text-fill: -color-error;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* ============================================
+   INPUT FIELDS / PLACEHOLDER
+   ============================================ */
+
+.login-placeholder {
+    -fx-text-fill: -text-tertiary;
+    -fx-opacity: 0.5;
+}
+
+/* ============================================
+   CURSOR
+   ============================================ */
+
+.login-cursor {
+    -fx-text-fill: inherit;
+}
+
+/* ============================================
+   IKONLI / VECTOR ICONS COLORS
+   ============================================ */
+
+.login-icon         { -icon-color: -text-secondary; }
+.login-icon-empty   { -icon-color: -text-primary; }
+.login-icon-exists  { -icon-color: -color-success; }
+.login-icon-missing { -icon-color: -color-warning; }
+.login-icon-error   { -icon-color: -color-error; }

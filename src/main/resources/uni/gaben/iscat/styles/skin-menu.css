@@ -1,0 +1,62 @@
+@import url('iscat-components-shared.css');
+
+/* ============================================
+   SKIN MENU HEADER & TITLES
+   ============================================ */
+
+.skin-menu-title {
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-primary;
+}
+
+/* Nome della skin attualmente in anteprima */
+#skinNameLabel {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #00ffcc; /* Colore goblin neon per il focus dell'elemento */
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 204, 0.25), 12, 0, 0, 0);
+}
+
+/* Riferimento per i crediti o la descrizione della skin */
+.skin-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+}
+
+/* ============================================
+   GRID SKIN BUTTONS (I quadrati delle skin)
+   ============================================ */
+
+/* Il comportamento base di .skin-button (80x80) è già nel file shared.
+   Qui aggiungiamo lo stato specifico di selezione (Skin equipaggiata) */
+.skin-button:selected,
+.skin-button.equipped {
+    -fx-border-color: #00ffcc;
+    -fx-background-color: rgba(0, 255, 204, 0.12);
+    -fx-effect: dropshadow(gaussian, #00ffcc, 12, 0.4, 0, 0);
+}
+
+/* Se all'interno delle skin usi delle icone/immagini */
+.skin-button .image-view {
+    -fx-smooth: true;
+}
+
+/* ============================================
+   NAVIGATION BUTTONS (Conferma / Indietro)
+   ============================================ */
+
+/* I bottoni rettangolari standard del menu ereditano tutto da .button.
+   Applichiamo solo le dimensioni fisse e il padding specifico richiesto */
+.skin-menu-nav-button {
+    -fx-pref-width: 220px;
+    -fx-min-width: 220px;
+    -fx-max-width: 220px;
+
+    -fx-pref-height: 45px;
+    -fx-min-height: 45px;
+    -fx-max-height: 45px;
+
+    -fx-padding: 10px;
+    -fx-font-size: 16px;
+}

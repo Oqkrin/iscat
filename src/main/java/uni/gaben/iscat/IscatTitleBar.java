@@ -61,7 +61,7 @@ public class IscatTitleBar extends HBox {
 
     private static Button makeBtn(String text, String styleClass, String tooltip) {
         Button btn = new Button(text);
-        btn.getStyleClass().addAll("title-bar-btn", styleClass);
+        btn.getStyleClass().setAll("title-bar-btn", styleClass);
         btn.setTooltip(new Tooltip(tooltip));
         btn.setFocusTraversable(false);
         return btn;
