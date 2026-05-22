@@ -1,21 +1,17 @@
 package uni.gaben.iscat;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.EnumMap;
 
-/**
- * Controller dell'applicazione.
- * Responsabilità:
- * - Transizioni di scena (osserva IscatModel.currentScene)
- * - Gestione finestra: drag, resize, pulsanti title bar, fullscreen
- * Tutto lo stato è in IscatModel. Questo controller è puro comportamento.
- */
 public class IscatController {
 
     private static final int    RESIZE_MARGIN = 3;
@@ -24,16 +20,22 @@ public class IscatController {
 
     private final IscatModel model;
     private final Stage      stage;
-    private final Scene globalScene;
-    private final StackPane mainStageRoot;
+    private final Scene iscatScene;
     private final EnumMap<IscatScenes, AbstractIscatStackPane> viewMap;
 
-    public IscatController(IscatModel model, Stage stage, Scene globalScene,
-                           StackPane mainStageRoot, EnumMap<IscatScenes, AbstractIscatStackPane> viewMap) {
+    private final StackPane iscatContentRoot;
+    private final IscatTitleBar iscatTitleBar;
+
+    private boolean barVisible = true;
+
+    public IscatController(IscatModel model, Stage stage, Scene iscatScene,
+                           StackPane iscatContentRoot, IscatTitleBar iscatTitleBar,
+                           EnumMap<IscatScenes, AbstractIscatStackPane> viewMap) {
         this.model = model;
         this.stage = stage;
-        this.globalScene = globalScene;
-        this.mainStageRoot = mainStageRoot;
+        this.iscatScene = iscatScene;
+        this.iscatContentRoot = iscatContentRoot;
+        this.iscatTitleBar = iscatTitleBar;
         this.viewMap = viewMap;
 
         model.currentSceneProperty().addListener((obs, old, next) -> performSceneTransition(next));
@@ -47,32 +49,50 @@ public class IscatController {
     }
 
     /**
-     * Called by IscatApplication once per scene after it is created.
-     * Wires all window-management behaviour to the scene's title bar.
+     * Configura il comportamento di gestione della finestra sulla decorazione personalizzata globale.
+     * Viene eseguito una sola volta all'avvio dell'applicazione.
      */
-    public void wireCustomDecoration(AbstractIscatStackPane view) {
-        IscatTitleBar bar = view.getTitleBar();
-        if (bar == null) return;
-
-        // Trascinamento della finestra tramite la TitleBar
-        bar.setOnMousePressed(e -> {
+    public void wireCustomDecoration() {
+        // Trascinamento della finestra tramite la barra del titolo globale
+        iscatTitleBar.setOnMousePressed(e -> {
             if (stage.isFullScreen() || stage.isMaximized()) return;
             model.dragOffsetX = e.getScreenX() - stage.getX();
             model.dragOffsetY = e.getScreenY() - stage.getY();
         });
-        bar.setOnMouseDragged(e -> {
+
+        iscatTitleBar.setOnMouseDragged(e -> {
             if (stage.isFullScreen() || stage.isMaximized()) return;
             stage.setX(e.getScreenX() - model.dragOffsetX);
             stage.setY(e.getScreenY() - model.dragOffsetY);
         });
 
-        globalScene.addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
-            if (stage.isFullScreen() || stage.isMaximized()) { globalScene.setCursor(Cursor.DEFAULT); return; }
-            globalScene.setCursor(resizeCursor(getResizeDir(e.getSceneX(), e.getSceneY())));
+        // Gestione unificata del movimento del mouse (Auto-hide & Resize Cursors)
+        iscatScene.addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
+            // 1. Priorità assoluta all'auto-hide se siamo in Fullscreen
+            if (stage.isFullScreen()) {
+                iscatScene.setCursor(Cursor.DEFAULT);
+
+                double barHeight = iscatTitleBar.getHeight() > 0 ? iscatTitleBar.getHeight() : 40;
+                if (e.getSceneY() < 8 && !barVisible) {
+                    slideIn(iscatTitleBar);
+                } else if (e.getSceneY() > barHeight + 8 && barVisible) {
+                    slideOut(iscatTitleBar);
+                }
+                return; // Salta il calcolo del resize dei bordi
+            }
+
+            // 2. Se è massimizzato, resetta il cursore e ignora i bordi
+            if (stage.isMaximized()) {
+                iscatScene.setCursor(Cursor.DEFAULT);
+                return;
+            }
+
+            // 3. Altrimenti, aggiorna il cursore per il ridimensionamento standard
+            iscatScene.setCursor(resizeCursor(getResizeDir(e.getSceneX(), e.getSceneY())));
         });
 
-        // Quando clicchi sul bordo, salva la posizione iniziale della finestra
-        globalScene.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+        // Intercettazione del click sul bordo per avviare il ridimensionamento
+        iscatScene.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             if (stage.isFullScreen() || stage.isMaximized()) return;
             IscatModel.ResizeDir dir = getResizeDir(e.getSceneX(), e.getSceneY());
             if (dir != IscatModel.ResizeDir.NONE) {
@@ -83,35 +103,31 @@ public class IscatController {
                 model.resizeStartH = stage.getHeight();
                 model.resizeStartStageX = stage.getX();
                 model.resizeStartStageY = stage.getY();
-                e.consume(); // Impedisce ad altri componenti di intercettare il click sul bordo
+                e.consume();
             }
         });
 
-        // Quando trascini il mouse sul bordo, ridimensiona la finestra usando applyResize
-        globalScene.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
+        // Drag sul bordo per applicare il ridimensionamento geometrico della finestra
+        iscatScene.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
             if (stage.isFullScreen() || stage.isMaximized() || model.resizeDir == IscatModel.ResizeDir.NONE) return;
             applyResize(e.getScreenX(), e.getScreenY());
             e.consume();
         });
 
-        // Quando rilasci il mouse, resetta lo stato del resize
-        globalScene.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+        // Reset dello stato al rilascio del mouse
+        iscatScene.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
             model.resizeDir = IscatModel.ResizeDir.NONE;
         });
 
+        // Mappatura delle azioni dei pulsanti nativi della barra
         stage.setFullScreenExitKeyCombination(KeyCombination.keyCombination("DELETE"));
-        bar.closeBtn.setOnAction(e -> stage.close());
-        bar.minimizeBtn.setOnAction(e -> stage.setIconified(true));
-        bar.maximizeBtn.setOnAction(e -> stage.setMaximized(!stage.isMaximized()));
-        bar.fullscreenBtn.setOnAction(e -> stage.setFullScreen(!stage.isFullScreen()));
+        iscatTitleBar.closeBtn.setOnAction(e -> stage.close());
+        iscatTitleBar.minimizeBtn.setOnAction(e -> stage.setIconified(true));
+        iscatTitleBar.maximizeBtn.setOnAction(e -> stage.setMaximized(!stage.isMaximized()));
+        iscatTitleBar.fullscreenBtn.setOnAction(e -> stage.setFullScreen(!stage.isFullScreen()));
 
-        // Listener unico per la gestione fullscreen sulla vista corrente
-        stage.fullScreenProperty().addListener((obs, wasFs, isFs) -> {
-            if (mainStageRoot.getChildren().getFirst() instanceof AbstractIscatStackPane currentView) {
-                if (isFs) currentView.onEnterFullscreen();
-                else currentView.onExitFullscreen();
-            }
-        });
+        // Listener unico per lo stato di Fullscreen della finestra
+        stage.fullScreenProperty().addListener((obs, wasFs, isFs) -> handleFullscreenBar(isFs));
     }
 
     // -------------------------------------------------------------------------
@@ -119,41 +135,65 @@ public class IscatController {
     // -------------------------------------------------------------------------
 
     private void performSceneTransition(IscatScenes next) {
-        // Gestione ciclo di vita della vecchia vista
-        if (!mainStageRoot.getChildren().isEmpty() && mainStageRoot.getChildren().getFirst() instanceof IscatViewLifecycleInterface old) {
+        // Disattivazione del ciclo di vita della vecchia vista interna
+        if (!iscatContentRoot.getChildren().isEmpty() && iscatContentRoot.getChildren().getFirst() instanceof IscatViewLifecycleInterface old) {
             old.setActive(false);
         }
 
         IscatAudioManager.getInstance().playBGM(model.getBgmPath(next), true);
 
         AbstractIscatStackPane nextView = viewMap.get(next);
-        nextView.initialize(); // Lazy init delle view!
+        nextView.initialize(); // Lazy-init specifico della vista
 
-        // SCAMBIO DEI NODI NELLO STESSO STAGE/SCENE (Zero glitch grafici!)
-        mainStageRoot.getChildren().setAll(nextView);
+        // SWAP DEI NODI: Cambia unicamente il core interno alla vista
+        iscatContentRoot.getChildren().setAll(nextView);
 
-        syncWindowState(nextView);
+        syncWindowState();
         nextView.setActive(true);
 
-        // Forza l'aggiornamento dello stato della barra se siamo già in fullscreen
-        if (stage.isFullScreen()) {
-            nextView.onEnterFullscreen();
+        // Allinea lo stato della barra se la transizione avviene a fullscreen attivo
+        handleFullscreenBar(stage.isFullScreen());
+    }
+
+    private void handleFullscreenBar(boolean isFs) {
+        if (isFs) {
+            iscatTitleBar.getStyleClass().add("title-bar-fullscreen");
+            barVisible = true;
+            slideOut(iscatTitleBar);
         } else {
-            nextView.onExitFullscreen();
+            iscatTitleBar.getStyleClass().remove("title-bar-fullscreen");
+            barVisible = true;
+            iscatTitleBar.setTranslateY(0);
+            iscatTitleBar.setOpacity(1.0);
         }
     }
 
-    /**
-     * Applies the current window state from the Stage and IscatModel
-     * to the incoming scene's title bar so it looks consistent after a transition.
-     */
-    private void syncWindowState(AbstractIscatStackPane view) {
-        IscatTitleBar bar = view.getTitleBar();
-        if (bar == null) return;
-        bar.pinBtn.getStyleClass().removeAll("title-bar-btn-pin-active");
+    private void syncWindowState() {
+        iscatTitleBar.pinBtn.getStyleClass().removeAll("title-bar-btn-pin-active");
         if (model.isPinned()) {
-            bar.pinBtn.getStyleClass().add("title-bar-btn-pin-active");
+            iscatTitleBar.pinBtn.getStyleClass().add("title-bar-btn-pin-active");
         }
+    }
+
+    private void slideIn(IscatTitleBar bar) {
+        barVisible = true;
+        TranslateTransition t = new TranslateTransition(Duration.millis(150), bar);
+        t.setToY(0);
+        FadeTransition f = new FadeTransition(Duration.millis(150), bar);
+        f.setToValue(1.0);
+        t.play();
+        f.play();
+    }
+
+    private void slideOut(IscatTitleBar bar) {
+        barVisible = false;
+        TranslateTransition t = new TranslateTransition(Duration.millis(200), bar);
+        double h = bar.getHeight() > 0 ? bar.getHeight() : 40;
+        t.setToY(-h - 4);
+        FadeTransition f = new FadeTransition(Duration.millis(200), bar);
+        f.setToValue(0.0);
+        t.play();
+        f.play();
     }
 
     // -------------------------------------------------------------------------

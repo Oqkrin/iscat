@@ -1,13 +1,11 @@
 package uni.gaben.iscat;
 
 import javafx.animation.FadeTransition;
-import javafx.animation.TranslateTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import uni.gaben.iscat.utils.ThemeColors;
 import uni.gaben.iscat.utils.components.StarryBackgroundCanvas;
@@ -15,37 +13,23 @@ import uni.gaben.iscat.utils.components.StarryBackgroundCanvas;
 import java.io.IOException;
 
 /**
- * Classe base per scene ISCAT — responsabilità SOLO view.
+ * Classe base per scene ISCAT — responsabilità SOLO del contenuto interno della vista.
  * <p>
- * Costruisce il chrome della finestra (title bar + content wrapper + border overlay),
- * applica il clip arrotondato e gestisce l'animazione della title bar in fullscreen.
+ * Non si occupa più della generazione strutturale di bordi, clip e titlebar.
+ * Esegue facoltativamente il rendering dello sfondo stellato come layer inferiore diretto.
  * <p>
- * Tutto il comportamento della finestra (drag, resize, pulsanti, fullscreen key)
- * è gestito da IscatController tramite wireScene().
- * <p>
- * Pattern di inizializzazione:
+ * Pattern di inizializzazione :
  * initStyles → initNodes → initLayout → initBindings → initEventHandlers → initAnimations
  */
 public abstract class AbstractIscatStackPane extends StackPane implements IscatViewLifecycleInterface {
 
-    // =========================================================================
-    // Constants & Fields
-    // =========================================================================
-
-    private static final double CORNER_RADIUS = 16.0;
-
     private boolean active = false;
     private boolean initialized = false;
-    private boolean barVisible = true;
-
     private StarryBackgroundCanvas starryBackground;
 
-    // Riferimento al wrapper interno creato da buildChrome
-    private final StackPane chromeRoot;
-
-    // =========================================================================
-    // Constructors
-    // =========================================================================
+    protected AbstractIscatStackPane() {
+        this(null, false);
+    }
 
     protected AbstractIscatStackPane(Parent root) {
         this(root, false);
@@ -53,11 +37,24 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
 
     protected AbstractIscatStackPane(Parent root, boolean withStarryBackground) {
         ThemeColors.ensureLoaded();
-        this.chromeRoot = buildChrome(root, withStarryBackground);
-        this.getChildren().add(chromeRoot);
-        applyRoundedClip();
+
+        // Applica gli stili di base del pannello di contenuto
+        this.getStyleClass().add(withStarryBackground ? "window-content-transparent" : "window-content");
+        this.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        this.setMinSize(0, 0);
+
+        // Se lo sfondo stellato è richiesto, viene iniettato sul fondo del layout di questa vista
         if (withStarryBackground) {
-            starryBackground = extractStarryBackground();
+            starryBackground = new StarryBackgroundCanvas();
+            starryBackground.widthProperty().bind(this.widthProperty());
+            starryBackground.heightProperty().bind(this.heightProperty());
+            starryBackground.setMouseTransparent(true);
+            this.getChildren().add(starryBackground);
+        }
+
+        if (root != null) {
+            this.getChildren().add(root);
+            StackPane.setAlignment(root, Pos.CENTER);
         }
     }
 
@@ -65,9 +62,6 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     // Lifecycle & Initialization Pattern
     // =========================================================================
 
-    /**
-     * Inizializza la scena chiamando i metodi di costruzione nell'ordine corretto.
-     */
     protected final void initialize() {
         if (initialized) return;
         initNodes();
@@ -112,66 +106,19 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
 
     @Override
     public void onShow() {
-        // Gestione centralizzata: se la scena ha lo sfondo stellato, lo configuriamo automaticamente
         if (starryBackground != null) {
             starryBackground.setFollowMouse(true);
-            setOnMouseMoved(e -> starryBackground.updateMousePosition(e.getSceneX(), e.getSceneY()));
+            this.setOnMouseMoved(e -> starryBackground.updateMousePosition(e.getSceneX(), e.getSceneY()));
         }
         fadeIn();
     }
 
     @Override
     public void onHide() {
-        // Pulizia centralizzata dei listener sul mouse per evitare memory leak
-        setOnMouseMoved(null);
+        this.setOnMouseMoved(null);
         if (starryBackground != null) {
             starryBackground.setFollowMouse(false);
         }
-    }
-
-    // =========================================================================
-    // Public / Package-Private API (Used by IscatController)
-    // =========================================================================
-
-    /**
-     * Package-visible so IscatController can wire button actions and drag.
-     */
-    public IscatTitleBar getTitleBar() {
-        if (chromeRoot.getChildren().getFirst() instanceof StackPane chrome) {
-            for (var child : chrome.getChildren()) {
-                if (child instanceof IscatTitleBar tb) return tb;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Called by IscatController when the stage enters fullscreen.
-     */
-    public void onEnterFullscreen() {
-        IscatTitleBar bar = getTitleBar();
-        if (bar == null) return;
-        bar.getStyleClass().add("title-bar-fullscreen");
-        barVisible = true;
-        slideOut(bar);
-
-        this.setOnMouseMoved(e -> {
-            if (e.getSceneY() < 8 && !barVisible) slideIn(bar);
-            else if (e.getSceneY() > bar.getPrefHeight() + 8 && barVisible) slideOut(bar);
-        });
-    }
-
-    /**
-     * Called by IscatController when the stage exits fullscreen.
-     */
-    public void onExitFullscreen() {
-        IscatTitleBar bar = getTitleBar();
-        if (bar == null) return;
-
-        bar.getStyleClass().remove("title-bar-fullscreen");
-        barVisible = true;
-        bar.setTranslateY(0);
-        bar.setOpacity(1.0);
     }
 
     // =========================================================================
@@ -179,14 +126,10 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     // =========================================================================
 
     /**
-     * Returns the content root passed by the subclass to super().
+     * Il componente stesso funge da ContentRoot nelle gerarchie delle sottoclassi.
      */
     public StackPane getContentRoot() {
-        if (chromeRoot.getChildren().getFirst() instanceof StackPane chrome
-                && chrome.getChildren().getFirst() instanceof StackPane wrapper) {
-            return wrapper;
-        }
-        return null;
+        return this;
     }
 
     protected StarryBackgroundCanvas getStarryBackground() {
@@ -194,8 +137,7 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     }
 
     /**
-     * Carica un FXML nella contentRoot e inietta il contentRoot nel controller
-     * se implementa IscatFxmlController.
+     * Carica un FXML all'interno di questo StackPane e inietta il riferimento al controller FXML.
      */
     protected void initialize(String fxmlPath) {
         try {
@@ -203,18 +145,16 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
             Parent fxmlContent = loader.load();
 
             if (loader.getController() instanceof IscatFxmlController controller) {
-                controller.setContentRoot(getContentRoot());
+                controller.setContentRoot(this);
             }
 
             if (fxmlContent instanceof Region region) {
                 region.setMinSize(0, 0);
-                StackPane contentRoot = getContentRoot();
-                region.prefWidthProperty().bind(contentRoot.widthProperty());
-                region.prefHeightProperty().bind(contentRoot.heightProperty());
+                region.prefWidthProperty().bind(this.widthProperty());
+                region.prefHeightProperty().bind(this.heightProperty());
             }
 
-            StackPane contentRoot = getContentRoot();
-            contentRoot.getChildren().add(fxmlContent);
+            this.getChildren().add(fxmlContent);
             StackPane.setAlignment(fxmlContent, Pos.CENTER);
 
         } catch (IOException e) {
@@ -223,11 +163,8 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     }
 
     protected void fadeIn(Duration duration) {
-        StackPane contentRoot = getContentRoot();
-        if (contentRoot == null) return;
-
-        contentRoot.setOpacity(0.0);
-        FadeTransition fade = new FadeTransition(duration, contentRoot);
+        this.setOpacity(0.0);
+        FadeTransition fade = new FadeTransition(duration, this);
         fade.setFromValue(0.0);
         fade.setToValue(1.0);
         fade.play();
@@ -235,87 +172,5 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
 
     protected void fadeIn() {
         fadeIn(Duration.millis(300));
-    }
-
-    // =========================================================================
-    // Private Helpers (Chrome & Animations)
-    // =========================================================================
-
-    private StackPane buildChrome(Parent content, boolean withStarryBackground) {
-        StackPane contentWrapper = new StackPane();
-        contentWrapper.getStyleClass().add(withStarryBackground ? "window-content-transparent" : "window-content");
-        contentWrapper.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        contentWrapper.setMinSize(0, 0);
-
-        if (withStarryBackground) {
-            StarryBackgroundCanvas starryBg = new StarryBackgroundCanvas();
-            starryBg.widthProperty().bind(contentWrapper.widthProperty());
-            starryBg.heightProperty().bind(contentWrapper.heightProperty());
-            starryBg.setMouseTransparent(true);
-            contentWrapper.getChildren().add(starryBg);
-        }
-
-        contentWrapper.getChildren().add(content);
-
-        Rectangle contentClip = new Rectangle();
-        contentClip.widthProperty().bind(contentWrapper.widthProperty());
-        contentClip.heightProperty().bind(contentWrapper.heightProperty());
-        contentWrapper.setClip(contentClip);
-
-        IscatTitleBar titleBar = new IscatTitleBar();
-        titleBar.setMaxHeight(Region.USE_PREF_SIZE);
-        titleBar.setMouseTransparent(false);
-
-        StackPane chrome = new StackPane();
-        chrome.getStyleClass().add("window-chrome");
-        StackPane.setAlignment(contentWrapper, Pos.CENTER);
-        StackPane.setAlignment(titleBar, Pos.TOP_LEFT);
-        chrome.getChildren().addAll(contentWrapper, titleBar);
-
-        Region borderOverlay = new Region();
-        borderOverlay.getStyleClass().add("window-border-overlay");
-        borderOverlay.setMouseTransparent(true);
-
-        return new StackPane(chrome, borderOverlay);
-    }
-
-    private StarryBackgroundCanvas extractStarryBackground() {
-        if (chromeRoot.getChildren().getFirst() instanceof StackPane chrome
-                && chrome.getChildren().getFirst() instanceof StackPane wrapper
-                && !wrapper.getChildren().isEmpty()
-                && wrapper.getChildren().getFirst() instanceof StarryBackgroundCanvas bg) {
-            return bg;
-        }
-        return null;
-    }
-
-    private void applyRoundedClip() {
-        StackPane chrome = (StackPane) chromeRoot.getChildren().getFirst();
-        Rectangle clip = new Rectangle();
-        clip.setArcWidth(CORNER_RADIUS * 2);
-        clip.setArcHeight(CORNER_RADIUS * 2);
-        clip.widthProperty().bind(chrome.widthProperty());
-        clip.heightProperty().bind(chrome.heightProperty());
-        chrome.setClip(clip);
-    }
-
-    private void slideIn(IscatTitleBar bar) {
-        barVisible = true;
-        TranslateTransition t = new TranslateTransition(Duration.millis(150), bar);
-        t.setToY(0);
-        FadeTransition f = new FadeTransition(Duration.millis(150), bar);
-        f.setToValue(1.0);
-        t.play();
-        f.play();
-    }
-
-    private void slideOut(IscatTitleBar bar) {
-        barVisible = false;
-        TranslateTransition t = new TranslateTransition(Duration.millis(200), bar);
-        t.setToY(-bar.getHeight() - 4);
-        FadeTransition f = new FadeTransition(Duration.millis(200), bar);
-        f.setToValue(0.0);
-        t.play();
-        f.play();
     }
 }

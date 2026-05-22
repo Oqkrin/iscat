@@ -1,8 +1,11 @@
 package uni.gaben.iscat;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -52,13 +55,14 @@ public class IscatApplication extends Application {
     GameController gameController = new GameController(gameModel, universeController);
 
     EnumMap<IscatScenes, AbstractIscatStackPane> scenes =  new EnumMap<>(IscatScenes.class);
-    private final StackPane mainStageRoot = new StackPane();
+    private final StackPane iscatApplicationRoot = new StackPane();
+    private final StackPane isactContentRoot = new StackPane(); // The new dynamic inner container
+    private IscatTitleBar iscatTitleBar;
 
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
         putScenes();
-
         IscatNavigator.getInstance().initialize(iscatModel, scenes);
         IscatAudioManager.getInstance().loadDefaultAudio();
     }
@@ -75,25 +79,43 @@ public class IscatApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-        // CREIAMO L'UNICA VERA SCENA DELL'APPLICAZIONE
-        Scene globalScene = new Scene(mainStageRoot);
-        globalScene.setFill(ThemeColors.parsedColors.get("bg-primary")); // Spostato qui il fill globale
+        Scene iscatScene = new Scene(iscatApplicationRoot);
+        iscatScene.setFill(ThemeColors.parsedColors.get("bg-primary"));
+
+        iscatTitleBar = new IscatTitleBar();
+        iscatTitleBar.setMaxHeight(Region.USE_PREF_SIZE);
+
+        Region iscatWindowBorderOverlay = new Region();
+        iscatWindowBorderOverlay.getStyleClass().add("window-border-overlay");
+        iscatWindowBorderOverlay.setMouseTransparent(true);
+        StackPane.setAlignment(iscatTitleBar, Pos.TOP_CENTER);
+        iscatApplicationRoot.getChildren().addAll(isactContentRoot, iscatTitleBar, iscatWindowBorderOverlay);
+
+        // 3. Apply global rounded clips to the master root once
+        Rectangle clip = new Rectangle();
+        clip.setArcWidth(32.0);
+        clip.setArcHeight(32.0);
+        clip.widthProperty().bind(iscatApplicationRoot.widthProperty());
+        clip.heightProperty().bind(iscatApplicationRoot.heightProperty());
+        iscatApplicationRoot.setClip(clip);
 
         String colorTheme = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-color-theme.css")).toExternalForm();
         String typography = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-typography.css")).toExternalForm();
+        String components = Objects.requireNonNull(
+                IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-components-shared.css")).toExternalForm();
 
-        globalScene.getStylesheets().addAll(colorTheme, typography);
+        iscatScene.getStylesheets().addAll(colorTheme, typography, components);
 
-        IscatController iscatController = new IscatController(iscatModel, stage, globalScene, mainStageRoot, scenes);
+        IscatController iscatController = new IscatController(
+                iscatModel, stage, iscatScene, isactContentRoot, iscatTitleBar, scenes
+        );
 
-        scenes.values().forEach(iscatController::wireCustomDecoration);
+        iscatController.wireCustomDecoration();
 
-        stage.setTitle("ISCAT");
         stage.initStyle(StageStyle.UNDECORATED);
-        stage.setScene(globalScene); // Impostata una volta e mai più toccata!
-
+        stage.setScene(iscatScene);
         iscatController.initializeScene();
         stage.show();
         stage.centerOnScreen();
