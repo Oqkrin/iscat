@@ -28,7 +28,7 @@ import java.io.IOException;
  * Pattern di inizializzazione:
  * initStyles → initNodes → initLayout → initBindings → initEventHandlers → initAnimations
  */
-public abstract class AbstractIscatScene extends Scene implements IscatSceneLifecycleInterface {
+public abstract class AbstractIscatScene extends StackPane implements IscatSceneLifecycleInterface {
 
     // =========================================================================
     // Constants & Fields
@@ -42,6 +42,9 @@ public abstract class AbstractIscatScene extends Scene implements IscatSceneLife
 
     private StarryBackgroundCanvas starryBackground;
 
+    // Riferimento al wrapper interno creato da buildChrome
+    private final StackPane chromeRoot;
+
     // =========================================================================
     // Constructors
     // =========================================================================
@@ -51,31 +54,13 @@ public abstract class AbstractIscatScene extends Scene implements IscatSceneLife
     }
 
     protected AbstractIscatScene(Parent root, boolean withStarryBackground) {
-        super(buildChrome(root, withStarryBackground));
         ThemeColors.ensureLoaded();
-        setFill(ThemeColors.parsedColors.get("bg-primary"));
+        this.chromeRoot = buildChrome(root, withStarryBackground);
+        this.getChildren().add(chromeRoot);
         applyRoundedClip();
         if (withStarryBackground) {
             starryBackground = extractStarryBackground();
         }
-    }
-
-    protected AbstractIscatScene(Parent root, double width, double height) {
-        this(root, width, height, false, SceneAntialiasing.BALANCED);
-    }
-
-    protected AbstractIscatScene(Parent root, double width, double height, boolean withStarryBackground, SceneAntialiasing ant) {
-        super(buildChrome(root, withStarryBackground), width, height, false, ant);
-        ThemeColors.ensureLoaded();
-        setFill(ThemeColors.parsedColors.get("bg-primary"));
-        applyRoundedClip();
-        if (withStarryBackground) {
-            starryBackground = extractStarryBackground();
-        }
-    }
-
-    public AbstractIscatScene(StackPane root, boolean starry, SceneAntialiasing ant) {
-        this(root, 0, 0, starry, ant);
     }
 
     // =========================================================================
@@ -134,9 +119,8 @@ public abstract class AbstractIscatScene extends Scene implements IscatSceneLife
     /**
      * Package-visible so IscatController can wire button actions and drag.
      */
-    IscatTitleBar getTitleBar() {
-        if (getRoot() instanceof StackPane root
-                && root.getChildren().get(0) instanceof StackPane chrome) {
+    public IscatTitleBar getTitleBar() {
+        if (chromeRoot.getChildren().get(0) instanceof StackPane chrome) {
             for (var child : chrome.getChildren()) {
                 if (child instanceof IscatTitleBar tb) return tb;
             }
@@ -155,10 +139,7 @@ public abstract class AbstractIscatScene extends Scene implements IscatSceneLife
         barVisible = true;
         slideOut(bar);
 
-        var existingHandler = getRoot().getOnMouseMoved();
-        getRoot().setOnMouseMoved(e -> {
-            if (existingHandler != null) existingHandler.handle(e);
-
+        this.setOnMouseMoved(e -> {
             if (e.getSceneY() < 8 && !barVisible) slideIn(bar);
             else if (e.getSceneY() > bar.getPrefHeight() + 8 && barVisible) slideOut(bar);
         });
@@ -185,11 +166,10 @@ public abstract class AbstractIscatScene extends Scene implements IscatSceneLife
      * Returns the content root passed by the subclass to super().
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Parent> T getContentRoot() {
-        if (getRoot() instanceof StackPane root
-                && root.getChildren().get(0) instanceof StackPane chrome
+    public StackPane getContentRoot() {
+        if (chromeRoot.getChildren().get(0) instanceof StackPane chrome
                 && chrome.getChildren().get(0) instanceof StackPane wrapper) {
-            return (T) wrapper.getChildren().get(wrapper.getChildren().size() - 1);
+            return wrapper;
         }
         return null;
     }
@@ -246,7 +226,7 @@ public abstract class AbstractIscatScene extends Scene implements IscatSceneLife
     // Private Helpers (Chrome & Animations)
     // =========================================================================
 
-    private static StackPane buildChrome(Parent content, boolean withStarryBackground) {
+    private StackPane buildChrome(Parent content, boolean withStarryBackground) {
         StackPane contentWrapper = new StackPane();
         contentWrapper.getStyleClass().add(withStarryBackground ? "window-content-transparent" : "window-content");
         contentWrapper.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -285,8 +265,7 @@ public abstract class AbstractIscatScene extends Scene implements IscatSceneLife
     }
 
     private StarryBackgroundCanvas extractStarryBackground() {
-        if (getRoot() instanceof StackPane root
-                && root.getChildren().get(0) instanceof StackPane chrome
+        if (chromeRoot.getChildren().get(0) instanceof StackPane chrome
                 && chrome.getChildren().get(0) instanceof StackPane wrapper
                 && !wrapper.getChildren().isEmpty()
                 && wrapper.getChildren().get(0) instanceof StarryBackgroundCanvas bg) {
@@ -296,8 +275,7 @@ public abstract class AbstractIscatScene extends Scene implements IscatSceneLife
     }
 
     private void applyRoundedClip() {
-        StackPane rootWrapper = (StackPane) getRoot();
-        StackPane chrome = (StackPane) rootWrapper.getChildren().get(0);
+        StackPane chrome = (StackPane) chromeRoot.getChildren().get(0);
         Rectangle clip = new Rectangle();
         clip.setArcWidth(CORNER_RADIUS * 2);
         clip.setArcHeight(CORNER_RADIUS * 2);

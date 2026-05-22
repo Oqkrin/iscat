@@ -7,7 +7,7 @@ import uni.gaben.iscat.AbstractIscatScene;
 public class ScoreMenuSceneIscatScene extends AbstractIscatScene {
 
     public ScoreMenuSceneIscatScene() {
-        super(new StackPane(), true, SceneAntialiasing.DISABLED);
+        super(new StackPane(), true);
         initialize("/uni/gaben/iscat/fxml/score_menu.fxml");
     }
     @Override protected void initStyles()        {}

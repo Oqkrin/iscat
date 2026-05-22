@@ -103,7 +103,6 @@ public class GameScene extends AbstractIscatScene {
 
     @Override
     protected void initEventHandlers() {
-        gameController.getInputManager().attachToScene(this);
         gameController.getInputManager().attachToCanvas(canvas);
 
         this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
@@ -132,6 +131,7 @@ public class GameScene extends AbstractIscatScene {
         // Forziamo il gioco a tornare attivo
         gameModel.setPaused(false);
         gameController.setDrawCall(this::renderFrame);
+        gameController.getInputManager().attachToScene(this.getScene());
         gameController.startGameLoop();
 
         //TODO DA ELIMINARE START {

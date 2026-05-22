@@ -6,7 +6,7 @@ import uni.gaben.iscat.AbstractIscatScene;
 
 public class SkinMenuSceneIscatScene extends AbstractIscatScene {
     public SkinMenuSceneIscatScene() {
-        super(new StackPane(), true, SceneAntialiasing.DISABLED);
+        super(new StackPane(), true);
         initialize("/uni/gaben/iscat/fxml/skin_menu.fxml");
     }
 

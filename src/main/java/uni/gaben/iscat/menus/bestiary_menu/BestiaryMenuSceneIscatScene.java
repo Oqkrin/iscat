@@ -6,7 +6,7 @@ import uni.gaben.iscat.AbstractIscatScene;
 
 public class BestiaryMenuSceneIscatScene extends AbstractIscatScene {
     public BestiaryMenuSceneIscatScene() {
-        super(new StackPane(), true, SceneAntialiasing.DISABLED);
+        super(new StackPane(),true);
         initialize("/uni/gaben/iscat/fxml/bestiary_menu.fxml");
     }
     @Override protected void initStyles()        {}

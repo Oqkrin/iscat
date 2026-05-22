@@ -212,8 +212,7 @@ public class LoginSceneIscatScene extends AbstractIscatScene {
 
     @Override
     protected void initEventHandlers() {
-        addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
-        addEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
+        // visto che ora la classe extende StackPane non possiamo assegnare qui ma in onShow
     }
 
     @Override
@@ -267,6 +266,11 @@ public class LoginSceneIscatScene extends AbstractIscatScene {
             // Track mouse at scene level to ensure we capture all movement
             setOnMouseMoved(e -> getStarryBackground().updateMousePosition(e.getSceneX(), e.getSceneY()));
         }
+
+        if (getScene() != null) {
+            getScene().addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
+            getScene().addEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
+        }
     }
 
     @Override
@@ -277,6 +281,11 @@ public class LoginSceneIscatScene extends AbstractIscatScene {
         }
         // Clean up mouse handler
         setOnMouseMoved(null);
+
+        if (getScene() != null) {
+            getScene().removeEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
+            getScene().removeEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
+        }
     }
 
     // --- Helper methods ---
