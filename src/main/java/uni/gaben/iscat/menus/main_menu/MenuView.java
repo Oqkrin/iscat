@@ -68,7 +68,7 @@ public class MenuView extends AbstractIscatStackPane {
 
     @Override
     protected void initEventHandlers() {
-        playButton.setOnAction(e     -> controller.playPhi());
+        playButton.setOnAction(e     -> controller.playGame());
         optionsButton.setOnAction(e  -> controller.openOptionsMenu());
         scoreButton.setOnAction(e    -> controller.openScoreMenu());
         skinButton.setOnAction(e     -> controller.openSkinMenu());
