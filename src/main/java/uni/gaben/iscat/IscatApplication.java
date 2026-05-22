@@ -88,6 +88,8 @@ public class IscatApplication extends Application {
 
         IscatController iscatController = new IscatController(iscatModel, stage, globalScene, mainStageRoot, scenes);
 
+        scenes.values().forEach(iscatController::wireCustomDecoration);
+
         stage.setTitle("ISCAT");
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(globalScene); // Impostata una volta e mai più toccata!

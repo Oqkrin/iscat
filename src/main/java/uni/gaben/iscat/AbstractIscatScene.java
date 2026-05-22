@@ -5,8 +5,6 @@ import javafx.animation.TranslateTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.SceneAntialiasing;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
@@ -120,7 +118,7 @@ public abstract class AbstractIscatScene extends StackPane implements IscatScene
      * Package-visible so IscatController can wire button actions and drag.
      */
     public IscatTitleBar getTitleBar() {
-        if (chromeRoot.getChildren().get(0) instanceof StackPane chrome) {
+        if (chromeRoot.getChildren().getFirst() instanceof StackPane chrome) {
             for (var child : chrome.getChildren()) {
                 if (child instanceof IscatTitleBar tb) return tb;
             }
@@ -134,7 +132,6 @@ public abstract class AbstractIscatScene extends StackPane implements IscatScene
     public void onEnterFullscreen() {
         IscatTitleBar bar = getTitleBar();
         if (bar == null) return;
-
         bar.getStyleClass().add("title-bar-fullscreen");
         barVisible = true;
         slideOut(bar);
@@ -165,10 +162,9 @@ public abstract class AbstractIscatScene extends StackPane implements IscatScene
     /**
      * Returns the content root passed by the subclass to super().
      */
-    @SuppressWarnings("unchecked")
     public StackPane getContentRoot() {
-        if (chromeRoot.getChildren().get(0) instanceof StackPane chrome
-                && chrome.getChildren().get(0) instanceof StackPane wrapper) {
+        if (chromeRoot.getChildren().getFirst() instanceof StackPane chrome
+                && chrome.getChildren().getFirst() instanceof StackPane wrapper) {
             return wrapper;
         }
         return null;
@@ -265,17 +261,17 @@ public abstract class AbstractIscatScene extends StackPane implements IscatScene
     }
 
     private StarryBackgroundCanvas extractStarryBackground() {
-        if (chromeRoot.getChildren().get(0) instanceof StackPane chrome
-                && chrome.getChildren().get(0) instanceof StackPane wrapper
+        if (chromeRoot.getChildren().getFirst() instanceof StackPane chrome
+                && chrome.getChildren().getFirst() instanceof StackPane wrapper
                 && !wrapper.getChildren().isEmpty()
-                && wrapper.getChildren().get(0) instanceof StarryBackgroundCanvas bg) {
+                && wrapper.getChildren().getFirst() instanceof StarryBackgroundCanvas bg) {
             return bg;
         }
         return null;
     }
 
     private void applyRoundedClip() {
-        StackPane chrome = (StackPane) chromeRoot.getChildren().get(0);
+        StackPane chrome = (StackPane) chromeRoot.getChildren().getFirst();
         Rectangle clip = new Rectangle();
         clip.setArcWidth(CORNER_RADIUS * 2);
         clip.setArcHeight(CORNER_RADIUS * 2);

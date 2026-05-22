@@ -11,11 +11,9 @@ import java.util.EnumMap;
 
 /**
  * Controller dell'applicazione.
- *
  * Responsabilità:
  * - Transizioni di scena (osserva IscatModel.currentScene)
  * - Gestione finestra: drag, resize, pulsanti title bar, fullscreen
- *
  * Tutto lo stato è in IscatModel. Questo controller è puro comportamento.
  */
 public class IscatController {
@@ -56,7 +54,7 @@ public class IscatController {
         IscatTitleBar bar = view.getTitleBar();
         if (bar == null) return;
 
-        // I filtri per il drag e il resize vanno messi sulla view o sulla globalScene
+        // Trascinamento della finestra tramite la TitleBar
         bar.setOnMousePressed(e -> {
             if (stage.isFullScreen() || stage.isMaximized()) return;
             model.dragOffsetX = e.getScreenX() - stage.getX();
@@ -68,14 +66,38 @@ public class IscatController {
             stage.setY(e.getScreenY() - model.dragOffsetY);
         });
 
-        // Applichiamo i filtri di resize alla globalScene, così funzionano sempre a prescindere dalla vista attiva!
         globalScene.addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
-            if (stage.isFullScreen()) { globalScene.setCursor(Cursor.DEFAULT); return; }
+            if (stage.isFullScreen() || stage.isMaximized()) { globalScene.setCursor(Cursor.DEFAULT); return; }
             globalScene.setCursor(resizeCursor(getResizeDir(e.getSceneX(), e.getSceneY())));
         });
 
-        // ... Il resto dei tuoi event filter per i pulsanti (close, minimize, maximize) rimane uguale,
-        // ma usa globalScene anziché l'istanza passata.
+        // Quando clicchi sul bordo, salva la posizione iniziale della finestra
+        globalScene.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            if (stage.isFullScreen() || stage.isMaximized()) return;
+            IscatModel.ResizeDir dir = getResizeDir(e.getSceneX(), e.getSceneY());
+            if (dir != IscatModel.ResizeDir.NONE) {
+                model.resizeDir = dir;
+                model.resizeStartX = e.getScreenX();
+                model.resizeStartY = e.getScreenY();
+                model.resizeStartW = stage.getWidth();
+                model.resizeStartH = stage.getHeight();
+                model.resizeStartStageX = stage.getX();
+                model.resizeStartStageY = stage.getY();
+                e.consume(); // Impedisce ad altri componenti di intercettare il click sul bordo
+            }
+        });
+
+        // Quando trascini il mouse sul bordo, ridimensiona la finestra usando applyResize
+        globalScene.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
+            if (stage.isFullScreen() || stage.isMaximized() || model.resizeDir == IscatModel.ResizeDir.NONE) return;
+            applyResize(e.getScreenX(), e.getScreenY());
+            e.consume();
+        });
+
+        // Quando rilasci il mouse, resetta lo stato del resize
+        globalScene.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+            model.resizeDir = IscatModel.ResizeDir.NONE;
+        });
 
         stage.setFullScreenExitKeyCombination(KeyCombination.keyCombination("DELETE"));
         bar.closeBtn.setOnAction(e -> stage.close());
@@ -85,7 +107,7 @@ public class IscatController {
 
         // Listener unico per la gestione fullscreen sulla vista corrente
         stage.fullScreenProperty().addListener((obs, wasFs, isFs) -> {
-            if (mainStageRoot.getChildren().get(0) instanceof AbstractIscatScene currentView) {
+            if (mainStageRoot.getChildren().getFirst() instanceof AbstractIscatScene currentView) {
                 if (isFs) currentView.onEnterFullscreen();
                 else currentView.onExitFullscreen();
             }
@@ -98,7 +120,7 @@ public class IscatController {
 
     private void performSceneTransition(IscatScenes next) {
         // Gestione ciclo di vita della vecchia vista
-        if (!mainStageRoot.getChildren().isEmpty() && mainStageRoot.getChildren().get(0) instanceof IscatSceneLifecycleInterface old) {
+        if (!mainStageRoot.getChildren().isEmpty() && mainStageRoot.getChildren().getFirst() instanceof IscatSceneLifecycleInterface old) {
             old.setActive(false);
         }
 

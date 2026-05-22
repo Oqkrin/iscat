@@ -7,7 +7,6 @@ import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * Model dell'applicazione: stato globale condiviso.
- *
  * Contiene:
  * - scena corrente (navigazione)
  * - metadati di scena (BGM)

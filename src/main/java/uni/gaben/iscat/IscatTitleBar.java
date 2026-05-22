@@ -11,7 +11,7 @@ import javafx.scene.layout.Region;
 /**
  * The type Title bar.
  */
-class IscatTitleBar extends HBox {
+public class IscatTitleBar extends HBox {
 
     /**
      * The Close btn.
