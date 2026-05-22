@@ -31,6 +31,7 @@ public class IscatAudioManager {
     // --- Stato interno ---
 
     private MediaPlayer bgmPlayer;
+    private String currentBgmPath = "";
     private final Map<String, AudioClip> sfxMap = new HashMap<>();
 
     private double bgmVolume = AudioSettings.VOLUME_BGM;
@@ -72,6 +73,10 @@ public class IscatAudioManager {
      * @param loop {@code true} per riproduzione in loop
      */
     public void playBGM(String path, boolean loop) {
+        // controlliamo se deve venir riprodotto lo stesso brano, se è lo stesso non facciamo nulla
+        if (currentBgmPath != null && currentBgmPath.equals(path) && bgmPlayer != null) {
+            return;
+        }
         stopBGM();
         try {
             var url = Objects.requireNonNull(
@@ -84,6 +89,7 @@ public class IscatAudioManager {
                 bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
             }
             bgmPlayer.play();
+            currentBgmPath = path;
         } catch (NullPointerException e) {
             System.err.println("[AudioManager] BGM non trovato: " + path);
         } catch (Exception e) {
@@ -97,6 +103,7 @@ public class IscatAudioManager {
             bgmPlayer.stop();
             bgmPlayer.dispose();
             bgmPlayer = null;
+            currentBgmPath = "";
         }
     }
 
