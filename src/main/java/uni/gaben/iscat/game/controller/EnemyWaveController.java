@@ -15,7 +15,6 @@ public class EnemyWaveController {
     private double spawnTimer = 0.0;
     private final Random random = new Random();
 
-    private boolean bossActive = false;
     private boolean bossSpawned = false;
 
     private static final double SPAWN_RADIUS  = 800.0;
@@ -23,8 +22,6 @@ public class EnemyWaveController {
 
     public void update(double dt, CameraModel camera) {
         timeElapsedSec += dt;
-
-        if (bossActive) return; // blocca spawn normali durante il boss
 
         spawnTimer -= dt;
         if (spawnTimer <= 0) {
@@ -111,13 +108,11 @@ public class EnemyWaveController {
     }
 
     public void notifyBossSpawned() {
-        bossActive = true;
         bossSpawned = true;
         IscatAudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/boss.wav", true);
     }
 
     public void notifyBossDead() {
-        bossActive = false;
         IscatAudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
     }
 }
