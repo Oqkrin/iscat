@@ -12,7 +12,6 @@ public class GameInputs {
     private boolean dashMouseRequested = false;
 
     public boolean shooting;
-    public boolean suction;
     public double mouseX, mouseY;
 
     public void attachToScene(Scene scene) {
@@ -23,7 +22,6 @@ public class GameInputs {
                 case S, DOWN  -> down = true;
                 case D, RIGHT -> right = true;
                 case SPACE    -> dashRequested = true; // Salva la richiesta discreta
-                case Q        -> suction = true;
             }
         });
         scene.setOnKeyReleased(e -> {
@@ -32,7 +30,6 @@ public class GameInputs {
                 case A, LEFT  -> left = false;
                 case S, DOWN  -> down = false;
                 case D, RIGHT -> right = false;
-                case Q        -> suction = false;
             }
         });
     }
