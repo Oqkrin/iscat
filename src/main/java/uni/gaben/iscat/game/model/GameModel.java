@@ -27,6 +27,12 @@ public class GameModel {
     private BooleanProperty paused = new SimpleBooleanProperty(false);
     private IntegerProperty timer = new SimpleIntegerProperty(0);
 
+    private final BooleanProperty gameOver = new SimpleBooleanProperty(false);
+
+    public BooleanProperty gameOverProperty() { return gameOver; }
+    public boolean isGameOver() { return gameOver.get(); }
+    public void setGameOver(boolean value) { gameOver.set(value); }
+
 
     public GameModel(UniverseModel universeModel, CameraModel cameraModel) {
         this.universeModel = universeModel;

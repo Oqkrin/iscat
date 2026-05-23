@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.StackPane;
+import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.game.universe.asteroid.AsteroidModel;
@@ -41,6 +42,7 @@ public class GameController {
         double midY = getUniverseModel().getHeight() / 2.0;
 
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+        getUniverseModel().getPlayer().setOnDeathCallback(this::onPlayerDeath);
 
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
@@ -118,6 +120,10 @@ public class GameController {
     }
 
     public void resetUniverse() {
+        IscatAudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
+        gameModel.setGameOver(false);
+        gameModel.setPaused(false);
+
         UniverseModel newUniverse = new UniverseModel();
         gameModel.setUniverseModel(newUniverse);
         this.universeController = new UniverseController(newUniverse);
@@ -135,10 +141,16 @@ public class GameController {
         double midY = newUniverse.getHeight() / 2.0;
 
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+        newUniverse.getPlayer().setOnDeathCallback(this::onPlayerDeath);
+
         spawnInitialAsteroidBelts(newUniverse, midX, midY);
 
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
+
+        // Reset timer
+        gameModel.startProperty().set(-1);
+        gameModel.setLastUpdate(0);
     }
 
     private void spawnInitialAsteroidBelts(UniverseModel universe, double centerX, double centerY) {
@@ -178,6 +190,7 @@ public class GameController {
         stopGameLoop();
         gameModel.setPaused(false);
         resetUniverse();
+        IscatAudioManager.getInstance().stopBGM();
 
         if (contentRoot != null) {
             IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
@@ -230,5 +243,17 @@ public class GameController {
 
     public CameraModel getCameraModel() {
         return gameModel.getCameraModel();
+    }
+
+    public void retryGame() {
+        resetUniverse();
+    }
+
+    private void onPlayerDeath() {
+        javafx.application.Platform.runLater(() -> {
+            IscatAudioManager.getInstance().stopBGM();
+            gameModel.setGameOver(true);
+            gameModel.setPaused(true);
+        });
     }
 }

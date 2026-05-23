@@ -29,6 +29,12 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
     private final Cooldown dashDuration = new Cooldown();
     private final Cooldown weaponCooldown = new Cooldown();
 
+    private Runnable onDeathCallback;
+
+    public void setOnDeathCallback(Runnable callback) {
+        this.onDeathCallback = callback;
+    }
+
     private final Projectile projectile = new Projectile(ProjectileType.PLAYER_BULLET);
 
     public PlayerModel(double x, double y) {
@@ -125,7 +131,7 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
 
     @Override
     public void onDeath() {
-        // Managed downstream via spatial listeners
+        if (onDeathCallback != null) onDeathCallback.run();
     }
 
     /**

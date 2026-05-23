@@ -36,6 +36,7 @@ public class GameView extends AbstractIscatStackPane {
     private final GameModel gameModel;
     private final GameController gameController;
     private final StackPane root;
+    private GameOverMenu gameOverMenu;
 
     private Canvas canvas;
     private StarfieldView starfieldView = new StarfieldView();
@@ -73,6 +74,8 @@ public class GameView extends AbstractIscatStackPane {
         levelLabel = new javafx.scene.control.Label("LEVEL 1");
         levelLabel.setFocusTraversable(false);
         levelLabel.setMouseTransparent(true);
+
+        gameOverMenu = new GameOverMenu(gameController);
     }
 
     @Override
@@ -91,7 +94,7 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initLayout() {
-        root.getChildren().addAll(canvas, timerCanvas, spawnerToolbar, pauseMenu, debugButton, levelLabel);
+        root.getChildren().addAll(canvas, timerCanvas, spawnerToolbar, pauseMenu, gameOverMenu, debugButton, levelLabel);
 
         StackPane.setAlignment(spawnerToolbar, Pos.BOTTOM_CENTER);
         StackPane.setAlignment(debugButton, Pos.TOP_LEFT);
@@ -119,6 +122,11 @@ public class GameView extends AbstractIscatStackPane {
         UniverseController universeController = gameController.getUniverseController();
         UniverseModel universe = universeController.getUniverseModel();
 
+        gameOverMenu.visibleProperty().bind(gameModel.gameOverProperty());
+        gameOverMenu.managedProperty().bind(gameOverMenu.visibleProperty());
+
+        pauseMenu.visibleProperty().bind(gameModel.pausedProperty().and(gameModel.gameOverProperty().not()));
+
         if (universe != null) {
             universe.widthProperty().bind(canvas.widthProperty());
             universe.heightProperty().bind(canvas.heightProperty());
@@ -131,7 +139,7 @@ public class GameView extends AbstractIscatStackPane {
             starfieldView.wProperty().bind(canvas.widthProperty());
             starfieldView.hProperty().bind(canvas.heightProperty());
 
-            pauseMenu.visibleProperty().bind(gameModel.pausedProperty());
+            pauseMenu.visibleProperty().bind(gameModel.pausedProperty().and(gameModel.gameOverProperty().not()));
             pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
 
             gameModel.pausedProperty().addListener((obs, wasPaused, isPausedNow) -> {
