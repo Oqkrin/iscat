@@ -18,7 +18,8 @@ public class HeartController extends AiBehaviours<HeartModel> {
         this.hearth.setOnCollision(otherEntity -> {
             if (otherEntity instanceof PlayerModel player && !collected) {
                 collected = true;
-                player.deltaToLife(HeartSettings.HP_BOOST); // Cura il giocatore
+                double halfMaxLife = player.getMaxLife() / 2.0;
+                player.deltaToLife(halfMaxLife);
                 hearth.setLife(0);
                 hearth.kill();
                 hearth.setShouldRemove(true);// Chiamata diretta a kill(): svanisce l'entità

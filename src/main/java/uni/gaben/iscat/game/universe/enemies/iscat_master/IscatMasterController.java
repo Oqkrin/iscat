@@ -19,7 +19,6 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
     public IscatMasterController(IscatMasterModel iscat) {
         super(iscat);
 
-
         // Evita assembramenti (parallelo, sempre attivo)
         this.addBehavior(new SeparationBehavior(UU.pxToM(32.0), IscatMasterSettings.FORCE * 0.8));
 
