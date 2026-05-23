@@ -26,9 +26,6 @@ public class ProjectileView extends AbstractEntityView<Projectile> implements Dr
 
     @Override
     protected void drawContent(Projectile p, GraphicsContext gc, double x, double y, double width, double height) {
-        // Applica il colore dell'accento globale impostato nel tema
-        gc.setFill(ThemeColors.getAccentPrimary());
-
         // IL FIX: x e y arrivano precalcolate come (-width/2, -height/2).
         // Disegnando qui, il cerchio grafico si allinea millimetricamente
         // alla fixture fisica di Dyn4j invece di sporgere dall'angolo (0,0).

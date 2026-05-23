@@ -5,11 +5,12 @@ import org.dyn4j.collision.CategoryFilter;
 import uni.gaben.iscat.game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.game.universe.VelocitySettings;
 import uni.gaben.iscat.game.universe.player.PlayerSettings;
+import uni.gaben.iscat.utils.ThemeColors;
 
 public enum ProjectileType {
 
-    PLAYER_BULLET(VelocitySettings.PLAYER_BULLET_VELOCITY, 8.0, PlayerSettings.DANNO_PROIETTILE, UniverseCollisionLayers.PROJECTILE_FILTER,       Color.CYAN),
-    ENEMY_BULLET (VelocitySettings.ENEMY_BULLET_VELOCITY,  8.0, 4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, Color.ORANGERED);
+    PLAYER_BULLET(VelocitySettings.PLAYER_BULLET_VELOCITY, 7.0, PlayerSettings.DANNO_PROIETTILE, UniverseCollisionLayers.PROJECTILE_FILTER, ThemeColors.getColorWarning()),
+    ENEMY_BULLET (VelocitySettings.ENEMY_BULLET_VELOCITY,  7.0, 4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeColors.getColorError());
 
     public final double         terminalVelocity;
     public final double         radiusPx;

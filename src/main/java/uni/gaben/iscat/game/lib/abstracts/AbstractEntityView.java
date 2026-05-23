@@ -6,6 +6,7 @@ import org.dyn4j.geometry.Circle;
 import uni.gaben.iscat.game.lib.interfaces.model.LifeDeath;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.player.PlayerSettings;
+import uni.gaben.iscat.game.universe.projectiles.Projectile;
 import uni.gaben.iscat.game.view.ViewSettings;
 import uni.gaben.iscat.utils.ThemeColors;
 
@@ -54,6 +55,9 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
 
         gc.save();
 
+        if(entity instanceof Projectile p) {
+            gc.setFill(p.getType().color);
+        }
         // Trasla l'origine del Canvas esattamente al centro dell'entità
         gc.translate(cx, cy);
         gc.rotate(rotDeg + assetAngularOffsetDeg);
