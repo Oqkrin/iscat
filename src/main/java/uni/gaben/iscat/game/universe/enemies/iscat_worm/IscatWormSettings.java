@@ -28,12 +28,12 @@ public class IscatWormSettings {
     // --- IMPOSTAZIONI CORPO (BODY) ---
     public static final int    BODY_HP              = 50;
     public static final double BODY_SCALE           = 2.0;
-    public static final double BODY_FOLLOW_FORCE    = 950.0;
+    public static final double BODY_FOLLOW_FORCE    = 100;
 
     // --- IMPOSTAZIONI CODA (TAIL) ---
     public static final int    TAIL_HP              = 100;
     public static final double TAIL_SCALE           = 2.0;
-    public static final double TAIL_FOLLOW_FORCE    = 950.0;
+    public static final double TAIL_FOLLOW_FORCE    = 100;
 
     public static final double XP_REWARD = 50.0;
 }
