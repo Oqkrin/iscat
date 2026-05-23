@@ -28,7 +28,7 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
 
     @Override
     public void shoot(AbstractProjectileModel template) {
-        shoot(template, (Consumer<Projectile>) null);
+        shoot(template, null);
     }
 
     public void shoot(AbstractProjectileModel template, Consumer<Projectile> customizer) {
@@ -81,6 +81,7 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
             if (p.shouldRemove()) return; // guard: evita doppia collisione nello stesso tick
 
             if (otherEntity instanceof AbstractProjectileModel otherProj) {
+                /*
                 // Symmetrical projectile-to-projectile collision:
                 // Damage is calculated proportionally, allowing stronger projectiles to damage weaker ones
                 // while both bounce/reflect without instant annihilation.
@@ -88,7 +89,7 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
                 double otherLife = otherProj.getLife();
 
                 // Compute self-damage based on the other's life relative to self life
-                double damageToSelf = 1.0 * (otherLife / Math.max(0.1, selfLife));
+                double damageToSelf = (otherLife / Math.max(0.1, selfLife));
                 p.deltaToLife(-damageToSelf);
 
                 // Symmetrical bounce reflection: reflect the incoming angle over the other's angle
@@ -97,6 +98,7 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
                 double reflected = 2 * otherAngle - incoming;
                 p.getTransform().setRotation(reflected);
                 p.setLinearVelocity(Vector2.create(p.getTerminalVelocity(), reflected));
+                */
             } else {
                 // Standard projectile-to-non-projectile collision:
                 if (otherEntity instanceof LifeDeath target) {

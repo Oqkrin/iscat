@@ -35,9 +35,9 @@ public final class UniverseCollisionLayers {
             PLAYER );
 
     public static final CategoryFilter ENEMY_PROJECTILE_FILTER = new CategoryFilter(ENEMY_PROJECTILE,
-            PLAYER | ASTEROID | PROJECTILE);
+            PLAYER | ASTEROID );
 
     // FIX CRITICO: Il proiettile deve avere il bit WORM_BODY nella maschera, altrimenti lo trapassa!
     public static final CategoryFilter PROJECTILE_FILTER = new CategoryFilter(PROJECTILE,
-            ASTEROID | ENEMY | WORM_BODY | ENEMY_PROJECTILE);
+            ASTEROID | ENEMY | WORM_BODY);
 }

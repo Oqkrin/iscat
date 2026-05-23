@@ -142,8 +142,8 @@ public class UniverseController {
             double targetX = UU.mToPx(player.getTransform().getTranslationX());
             double targetY = UU.mToPx(player.getTransform().getTranslationY());
 
-            cameraModel.getSpringX().setTarget(targetX);
-            cameraModel.getSpringY().setTarget(targetY);
+            cameraModel.getSpringX().setTarget(targetX + Math.sin(player.getTransform().getRotationAngle())*player.getLinearVelocity().getMagnitude());
+            cameraModel.getSpringY().setTarget(targetY + Math.cos(player.getTransform().getRotationAngle()*player.getLinearVelocity().getMagnitude()));
         }
 
         cameraModel.getSpringX().update(dt);

@@ -7,8 +7,8 @@ import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
 import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.game.universe.projectiles.Shooter;
-import uni.gaben.iscat.utils.Interpolator;
 import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.Interpolator;
 
 import java.util.Random;
 import java.util.function.Consumer;
@@ -80,6 +80,8 @@ public class PlayerController {
                     ? Math.atan2(dy, dx)
                     : nextAngle;
 
+            player.getTransform().setRotation(finalDashAngle);
+            player.setAngularVelocity(0);
             player.executeScatto(finalDashAngle);
             dashBuffer.reset();
 
@@ -112,8 +114,8 @@ public class PlayerController {
 
             int level = player.getLevel();
 
+            // (Shooting logic remains exactly the same)
             if (level >= 9) {
-                // Livello 9-11: 5 Proiettili ad arco continuo ampio
                 double spread = Math.toRadians(15);
                 shooter.shoot(projectileTemplate, angle - spread * 2, customizer);
                 shooter.shoot(projectileTemplate, angle - spread, customizer);
@@ -121,20 +123,18 @@ public class PlayerController {
                 shooter.shoot(projectileTemplate, angle + spread, customizer);
                 shooter.shoot(projectileTemplate, angle + spread * 2, customizer);
             } else if (level >= 6) {
-                // Livello 6-8: 3 Proiettili ad arco stretto frontale
                 double spread = Math.toRadians(12);
                 shooter.shoot(projectileTemplate, angle - spread, customizer);
                 shooter.shoot(projectileTemplate, angle, customizer);
                 shooter.shoot(projectileTemplate, angle + spread, customizer);
             } else if (level >= 3) {
-                // Livello 3-5: 2 Proiettili paralleli con distacco asse X/Y locale
                 double cx = player.getTransform().getTranslationX();
                 double cy = player.getTransform().getTranslationY();
                 double dist = player.getHeightMeters() / 2.0;
                 if (dist <= 0) dist = 0.2;
 
                 double perpAngle = angle + Math.PI / 2.0;
-                double lateralOffset = 0.15; // Distanza
+                double lateralOffset = 0.15;
 
                 Vector2 posLeft = new Vector2(
                         cx + Math.cos(angle) * dist + Math.cos(perpAngle) * lateralOffset,
@@ -148,7 +148,6 @@ public class PlayerController {
                 shooter.shoot(projectileTemplate, posLeft, angle, customizer);
                 shooter.shoot(projectileTemplate, posRight, angle, customizer);
             } else {
-                // Livello 1-2: Sparo singolo
                 shooter.shoot(projectileTemplate, customizer);
             }
 

@@ -19,7 +19,7 @@ public class CameraModel {
 
     public CameraModel() {
         this.springX = Spring.critico(0, CameraSettings.SPRING_STIFFNESS, CameraSettings.SPRING_MASS);
-        this.springY = Spring.critico(0, CameraSettings.SPRING_STIFFNESS, CameraSettings.SPRING_MASS);
+        this.springY = Spring.critico(0, CameraSettings.SPRING_STIFFNESS*3, CameraSettings.SPRING_MASS);
     }
 
     public Spring getSpringX() { return springX; }
