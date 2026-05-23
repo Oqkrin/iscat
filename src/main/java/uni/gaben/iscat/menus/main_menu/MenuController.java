@@ -16,7 +16,7 @@ public class MenuController {
         IscatNavigator.getInstance().navigateWithFade(scene, contentRoot);
     }
 
-    public void playGame()          { navigate(IscatScenes.GAMEN);         }
+    public void playGame()          { navigate(IscatScenes.GAME);         }
     public void openSkinMenu()      { navigate(IscatScenes.SKIN_MENU);     }
     public void openOptionsMenu()   { navigate(IscatScenes.OPTIONS_MENU);  }
     public void openScoreMenu()     { navigate(IscatScenes.SCORE_MENU);    }

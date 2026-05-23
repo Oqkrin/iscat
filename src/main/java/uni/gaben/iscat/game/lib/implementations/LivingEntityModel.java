@@ -92,7 +92,7 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
             }
 
             // Se muore un nemico 25% di chance di spawnare un heart
-            if (!isHeart && !isProjectile && !isPlayer && Math.random() < 0.25) {
+            if (!isHeart && !isProjectile && !isPlayer && Math.random() < 0.25 && killedByProjectile) {
                 double pixelX = UU.mToPx(this.getTransform().getTranslationX());
                 double pixelY = UU.mToPx(this.getTransform().getTranslationY());
                 UniverseSpawner.getInstance().spawn("HEART", pixelX, pixelY);

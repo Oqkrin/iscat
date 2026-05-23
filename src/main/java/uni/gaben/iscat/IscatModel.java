@@ -34,8 +34,7 @@ public class IscatModel {
                  BESTIARY_MENU,
                  SCORE_MENU,
                  OPTIONS_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
-            case GAME,
-                 GAMEN -> "/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav";
+            case GAME -> "/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav";
         };
     }
 

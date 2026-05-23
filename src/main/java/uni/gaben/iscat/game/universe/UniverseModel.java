@@ -231,6 +231,9 @@ public class UniverseModel extends World<Body> {
     public double getHeight() { return height.get(); }
     public DoubleProperty widthProperty() { return width; }
     public DoubleProperty heightProperty() { return height; }
-    public PlayerModel getPlayer() { return player; }
+    public PlayerModel getPlayer() {
+        if (player != null && player.shouldRemove()) return null;
+        return player;
+    }
     public StarfieldModel getStarfieldModel() { return starfieldModel; }
 }

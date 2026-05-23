@@ -69,7 +69,7 @@ public class IscatApplication extends Application {
     private void putScenes() {
         scenes.put(IscatScenes.LOGIN_MENU,    new LoginView(loginModel, loginController));
         scenes.put(IscatScenes.MAIN_MENU,     new MenuView(menuController));
-        scenes.put(IscatScenes.GAMEN,         new GameView(gameController, gameModel));
+        scenes.put(IscatScenes.GAME,         new GameView(gameController, gameModel));
         scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuView());
         scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuView());
         scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuView());
