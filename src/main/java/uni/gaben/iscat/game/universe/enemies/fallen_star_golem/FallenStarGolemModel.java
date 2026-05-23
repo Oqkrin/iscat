@@ -18,6 +18,7 @@ public class FallenStarGolemModel extends LivingEntityModel implements HasProjec
 
     public FallenStarGolemModel(double x, double y) {
         super(x, y, FallenStarGolemSettings.HP_INIZIALI, FallenStarGolemSettings.HP_INIZIALI);
+        setXpReward(FallenStarGolemSettings.XP_REWARD);
 
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(

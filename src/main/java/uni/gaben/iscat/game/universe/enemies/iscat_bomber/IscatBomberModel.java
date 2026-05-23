@@ -10,11 +10,9 @@ import uni.gaben.iscat.utils.Cooldown;
 
 /**
  * Modello fisico dell'entità IscatBomber.
- *
  * Differisce dall'IscatMob normale per:
  * - elevato damping lineare (più "pesante" nella sua inerzia)
  * - meccanica di stordimento quando colpito dal giocatore
- *
  * Il callback di collisione che innesca lo stun è registrato
  * esternamente (da UniverseSpawner), non qui dentro.
  * Il modello espone solo i predicati di stato: {@link #isStunned()}.
@@ -25,6 +23,7 @@ public class IscatBomberModel extends LivingEntityModel {
 
     public IscatBomberModel(double x, double y) {
         super(x, y, IscatBomberSettings.HP_INIZIALI, IscatBomberSettings.HP_INIZIALI);
+        setXpReward(IscatBomberSettings.XP_REWARD);
 
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(

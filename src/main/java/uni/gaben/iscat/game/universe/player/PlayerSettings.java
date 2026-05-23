@@ -51,4 +51,6 @@ public final class PlayerSettings {
     public static final double THRUST_SPREAD_X_FACTOR = 0.45;       // Triplicata la larghezza del cono (da 0.15)
     public static final double THRUST_MIN_PARTICLE_SIZE = 1.0;      // Particelle base più grandi (da 1.0)
     public static final double THRUST_PARTICLE_SIZE_VARIATION = 7.0; // Maggiore escursione di volume (da 7.0)
+
+    public static final double XP_BASE_NECESSARIA = 100.0;
 }

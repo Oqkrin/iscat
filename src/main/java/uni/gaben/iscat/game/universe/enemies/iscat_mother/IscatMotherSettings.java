@@ -43,4 +43,6 @@ public final class IscatMotherSettings {
     public static final int HORDE_SIZE = 40;
     public static final double HORDE_RADIUS = UU.pxToM(130.0);
     public static final double HORDE_RADIUS_VARIANCE = UU.pxToM(60.0);
+
+    public static final double XP_REWARD = 50.0;
 }

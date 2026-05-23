@@ -192,6 +192,13 @@ public class UniverseModel extends World<Body> {
 
             if (shouldDeadClean) {
                 toRemove.add(e);
+
+                // SISTEMA DI ASSEGNAZIONE XP
+                if (e instanceof LivingEntityModel living && living != player) {
+                    if (living.getXpReward() > 0 && player != null) {
+                        player.addXp(living.getXpReward());
+                    }
+                }
             }
         }
 

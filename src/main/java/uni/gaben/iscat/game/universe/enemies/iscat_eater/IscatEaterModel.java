@@ -14,6 +14,7 @@ public class IscatEaterModel extends LivingEntityModel {
 
     public IscatEaterModel(double x, double y) {
         super(x, y, IscatEaterSettings.HP_INIZIALI, IscatEaterSettings.HP_INIZIALI);
+        setXpReward(IscatEaterSettings.XP_REWARD);
 
         // Creazione della forma di collisione circolare scalata in metri
         BodyFixture fixture = addFixture(

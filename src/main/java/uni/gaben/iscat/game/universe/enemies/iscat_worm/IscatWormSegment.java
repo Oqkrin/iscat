@@ -35,6 +35,7 @@ public class IscatWormSegment extends LivingEntityModel implements HasProjectile
     public IscatWormSegment(Type type, double x, double y) {
         super(x, y, getHp(type), getHp(type));
         this.type = type;
+        setXpReward(IscatWormSettings.XP_REWARD);
 
         // Inizializzazione nativa del proiettile di gioco
         this.bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);

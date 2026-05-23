@@ -1,10 +1,15 @@
 package uni.gaben.iscat.game.universe.player;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
+import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.game.lib.utils.UU;
@@ -14,6 +19,11 @@ import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
 public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile> {
+
+    // LEVEL SYSTEM VARIABLES
+    private final IntegerProperty level = new SimpleIntegerProperty(1);
+    private final DoubleProperty xp = new SimpleDoubleProperty(0);
+    private double xpNeeded = PlayerSettings.XP_BASE_NECESSARIA;
 
     private final Cooldown dashCooldown = new Cooldown();
     private final Cooldown dashDuration = new Cooldown();
@@ -62,6 +72,14 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
 
     }
 
+    // LEVEL SYSTEM GETTERS
+    public IntegerProperty levelProperty() { return level; }
+    public int getLevel() { return level.get(); }
+
+    public DoubleProperty xpProperty() { return xp; }
+    public double getXp() { return xp.get(); }
+    public double getXpNeeded() { return xpNeeded; }
+
     public boolean isScattoDisponibile() { return dashCooldown.isReady(); }
     public boolean isInScatto() { return dashDuration.isCoolingDown(); }
     public boolean isSparoDisponibile() { return weaponCooldown.isReady(); }
@@ -108,5 +126,37 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
     @Override
     public void onDeath() {
         // Managed downstream via spatial listeners
+    }
+
+    /**
+     * Aggiunge XP al giocatore e gestisce l'eventuale Level Up a catena.
+     */
+    public void addXp(double amount) {
+        if (amount <= 0) return;
+
+        this.xp.set(this.xp.get() + amount);
+
+        if (this.xpNeeded <= 0) {
+            this.xpNeeded = 100.0;
+        }
+
+        // Loop nel caso in cui l'XP ricevuta sia talmente tanta da fare più di un livello
+        while (this.xp.get() >= xpNeeded) {
+            levelUp();
+        }
+    }
+
+    private void levelUp() {
+        this.xp.set(this.xp.get() - xpNeeded);
+        this.level.set(this.level.get() + 1);
+        this.xpNeeded = this.xpNeeded * 1.2;
+
+        IscatAudioManager.getInstance().playSFX("levelup");
+
+        // Aumento di statistiche + cura totale
+        setMaxLife(getMaxLife() + 100);
+        setLife(getMaxLife());
+
+        System.out.println("[LEVEL UP] Nuovo Livello: " + getLevel() + " | Prossimo livello a: " + this.xpNeeded + " XP");
     }
 }

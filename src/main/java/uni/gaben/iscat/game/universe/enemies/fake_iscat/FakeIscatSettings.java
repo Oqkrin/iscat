@@ -50,4 +50,6 @@ public class FakeIscatSettings {
 
     public static final double DIM_PROIETTILE = 10;
     public static final double VEL_PROIETTILE = 20.0;
+
+    public static final double XP_REWARD = 50.0;
 }

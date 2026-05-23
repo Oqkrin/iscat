@@ -98,4 +98,6 @@ public class IscatCoreSettings {
 
     /** Velocità del proiettile. */
     public static final double VEL_PROIETTILE = VelocitySettings.ENEMY_BULLET_VELOCITY;
+
+    public static final double XP_REWARD = 50.0;
 }

@@ -14,6 +14,7 @@ import uni.gaben.iscat.game.universe.player.PlayerModel;
 public class LivingEntityModel extends AbstractEntityModel implements LifeDeath {
     protected DoubleProperty life = new SimpleDoubleProperty();
     protected double maxLife;
+    protected double xpReward = 0.0;
 
     private Runnable onHurt;
     private Runnable onDeath;
@@ -78,4 +79,13 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
 
     @Override public void onDeath() {}
     @Override public double getBaseAccelerationPerTick() { return 0; }
+
+    public double getXpReward() {
+        return xpReward;
+    }
+    public void setXpReward(double xpReward) {
+        this.xpReward = xpReward;
+    }
+
+
 }

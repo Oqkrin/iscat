@@ -23,6 +23,7 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
 
     public IscatMotherModel(double x, double y) {
         super(x, y, IscatMotherSettings.HP_INIZIALI, IscatMotherSettings.HP_INIZIALI);
+        setXpReward(IscatMotherSettings.XP_REWARD);
 
         // Hitbox: circle whose radius is 70% of the visible sprite radius
         double visualRadiusPx = (IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE) / 2.0;

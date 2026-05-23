@@ -18,15 +18,15 @@ public final class VelocitySettings {
     // ─── PROJECTILES ──────────────────────────────────────────────────────────
 
     /** Velocity of a player bullet (m/s). */
-    public static final double PLAYER_BULLET_VELOCITY = 10.0;
+    public static final double PLAYER_BULLET_VELOCITY = 30.0;
 
     /** Velocity of a generic enemy bullet (m/s). */
-    public static final double ENEMY_BULLET_VELOCITY  = 10.0;
+    public static final double ENEMY_BULLET_VELOCITY  = 20.0;
 
     // ─── PLAYER ───────────────────────────────────────────────────────────────
 
     /** Top speed the player ship can reach under thrust (m/s). */
-    public static final double PLAYER_MAX_VELOCITY    = 8.0;
+    public static final double PLAYER_MAX_VELOCITY    = 16.0;
 
     /** Impulse magnitude of the player dash (m/s added instantly). */
     public static final double PLAYER_DASH_IMPULSE    = 20.0;
@@ -57,7 +57,7 @@ public final class VelocitySettings {
     public static final double MOTHER_MAX_VELOCITY    = 8.0;
 
     /** IscatWorm head max movement speed (m/s). */
-    public static final double WORM_HEAD_MAX_SPEED    = 10.0;
+    public static final double WORM_HEAD_MAX_SPEED    = 15.0;
 
     // ─── ASTEROIDS ────────────────────────────────────────────────────────────
 

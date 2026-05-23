@@ -1,9 +1,6 @@
 package uni.gaben.iscat.game.universe.enemies.iscat_worm;
 
-import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.game.lib.utils.UU;
-
 import java.util.ArrayList;
 import java.util.List;
 

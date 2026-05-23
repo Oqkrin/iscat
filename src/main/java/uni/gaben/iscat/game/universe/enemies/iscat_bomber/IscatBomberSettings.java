@@ -30,4 +30,6 @@ public final class IscatBomberSettings {
     
     // --- STORDIMENTO ---
     public static final double DURATA_STORDIMENTO_SEC = 0.5; // 30 tick a 60fps
+
+    public static final double XP_REWARD = 100.0;
 }

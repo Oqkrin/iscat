@@ -18,6 +18,7 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
 
     public IscatCoreModel(double x, double y) {
         super(x, y, IscatCoreSettings.HP_INIZIALI, IscatCoreSettings.HP_INIZIALI);
+        setXpReward(IscatCoreSettings.XP_REWARD);
 
         BodyFixture fixture = addFixture(
                 Geometry.createSquare(

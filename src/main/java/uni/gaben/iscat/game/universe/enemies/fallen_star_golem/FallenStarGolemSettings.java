@@ -50,4 +50,6 @@ public class FallenStarGolemSettings {
 
     public static final double DIM_PROIETTILE = 10;
     public static final double VEL_PROIETTILE = VelocitySettings.ENEMY_BULLET_VELOCITY;
+
+    public static final double XP_REWARD = 50.0;
 }

@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
@@ -42,6 +43,7 @@ public class GameView extends AbstractIscatStackPane {
     private boolean debugPanelVisible = false;
     private Canvas timerCanvas;
     private StarryText starryTimer;
+    private Label levelLabel;
 
     public GameView(GameController gameController, GameModel gameModel) {
         super(new StackPane());
@@ -65,6 +67,10 @@ public class GameView extends AbstractIscatStackPane {
         timerCanvas.setMouseTransparent(true);
         timerCanvas.setFocusTraversable(false);
         starryTimer = new StarryText(300, 100);
+
+        levelLabel = new javafx.scene.control.Label("LEVEL 1");
+        levelLabel.setFocusTraversable(false);
+        levelLabel.setMouseTransparent(true);
     }
 
     @Override
@@ -75,11 +81,15 @@ public class GameView extends AbstractIscatStackPane {
                 .toExternalForm());
         CssHelper.stilePulsanteMenu(debugButton);
         CssHelper.testoPrimario(debugButton);
+
+        levelLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 24));
+        levelLabel.setTextFill(ThemeColors.getColorSuccess());
+        levelLabel.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 0);");
     }
 
     @Override
     protected void initLayout() {
-        root.getChildren().addAll(canvas, timerCanvas, spawnerToolbar, pauseMenu, debugButton);
+        root.getChildren().addAll(canvas, timerCanvas, spawnerToolbar, pauseMenu, debugButton, levelLabel);
 
         StackPane.setAlignment(spawnerToolbar, Pos.BOTTOM_CENTER);
         StackPane.setAlignment(debugButton, Pos.TOP_LEFT);
@@ -87,6 +97,9 @@ public class GameView extends AbstractIscatStackPane {
 
         StackPane.setAlignment(timerCanvas, Pos.TOP_CENTER);
         StackPane.setMargin(timerCanvas, new Insets(50, 0, 0, 0));
+
+        StackPane.setAlignment(levelLabel, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(levelLabel, new Insets(0, 50, 50, 0));
     }
 
     @Override
@@ -147,6 +160,14 @@ public class GameView extends AbstractIscatStackPane {
                 updateTimerText(newVal.intValue());
             });
             runLater(() -> updateTimerText(gameModel.getTimer()));
+
+            // Level Label
+            var player = universe.getPlayer();
+            if (player != null) {
+                levelLabel.textProperty().bind(
+                        javafx.beans.binding.Bindings.concat("LEVEL ", player.levelProperty().asString())
+                );
+            }
         }
     }
 

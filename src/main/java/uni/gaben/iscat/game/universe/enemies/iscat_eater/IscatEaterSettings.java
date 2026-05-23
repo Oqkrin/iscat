@@ -56,4 +56,6 @@ public class IscatEaterSettings {
     public static final double AI_ACCURACY = 0.7;
 
     public static final int ATTACK_POWER = 30;
+
+    public static final double XP_REWARD = 50.0;
 }

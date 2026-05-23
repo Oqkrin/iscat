@@ -34,4 +34,6 @@ public class IscatWormSettings {
     public static final int    TAIL_HP              = 22;
     public static final double TAIL_SCALE           = 2.0;
     public static final double TAIL_FOLLOW_FORCE    = 950.0;
+
+    public static final double XP_REWARD = 50.0;
 }

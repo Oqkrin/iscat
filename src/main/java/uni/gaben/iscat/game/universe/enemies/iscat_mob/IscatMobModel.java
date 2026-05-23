@@ -18,6 +18,7 @@ public class IscatMobModel extends LivingEntityModel implements HasProjectile<Pr
 
     public IscatMobModel(double x, double y) {
         super(x, y, IscatMobSettings.HP_INIZIALI, IscatMobSettings.HP_INIZIALI);
+        setXpReward(IscatMobSettings.XP_REWARD);
 
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(

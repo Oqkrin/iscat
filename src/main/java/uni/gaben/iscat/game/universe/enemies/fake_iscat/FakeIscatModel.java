@@ -18,6 +18,7 @@ public class FakeIscatModel extends LivingEntityModel implements HasProjectile<P
 
     public FakeIscatModel(double x, double y) {
         super(x, y, FakeIscatSettings.HP_INIZIALI, FakeIscatSettings.HP_INIZIALI);
+        setXpReward(FakeIscatSettings.XP_REWARD);
 
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(
