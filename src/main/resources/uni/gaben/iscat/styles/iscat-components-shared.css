@@ -2,22 +2,6 @@
 @import url('iscat-typography.css');
 
 /* ============================================
-   GLOBAL LABELS (Valido per tutti i menu)
-   ============================================ */
-
-/*.label {
-    -fx-text-fill: -text-primary;
-    -fx-font-family: "Consolas";
-    -fx-font-size: 18px;
-    -fx-font-weight: normal;
-}
-
-.title-large, .menu-title, .login-title, .bestiary-title, .score-title {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-} */
-
-/* ============================================
    GLOBAL CHECKBOXES (INVERTITE: NERO ATTIVO)
    ============================================ */
 

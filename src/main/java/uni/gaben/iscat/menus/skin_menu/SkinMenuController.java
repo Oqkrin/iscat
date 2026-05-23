@@ -1,5 +1,6 @@
 package uni.gaben.iscat.menus.skin_menu;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -36,6 +37,8 @@ public class SkinMenuController implements IscatFxmlController {
     private static final int TOTAL_SKINS = 9;
     private static final double BASE_SIZE = 32.0;
 
+    private boolean isScaling = false;
+
     private static final String[] SKIN_NAMES = {
             "Battle Ship", "Simple Battle Ship", "Friendly Ship",
             "Iscat Traitor", "Cubism Lover", "Space Goblin",
@@ -48,33 +51,46 @@ public class SkinMenuController implements IscatFxmlController {
         previewContainer.getChildren().add(previewCanvas);
 
         populateGrid();
-        selectSkin("/uni/gaben/iscat/sprites/players/player1.png", SKIN_NAMES[0]);
+
+        this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
+        this.skinNameLabel.setText(SKIN_NAMES[0].toUpperCase());
+        previewCanvas.loadSkin(selectedSkinPath);
 
         ChangeListener<Number> sizeListener = (obs, oldVal, newVal) -> updateDynamicScaling();
         rootPane.widthProperty().addListener(sizeListener);
         rootPane.heightProperty().addListener(sizeListener);
+
+        // Calcola lo scaling dinamico iniziale dopo che la finestra è pronta e stabile
+        Platform.runLater(this::updateDynamicScaling);
     }
 
     private void updateDynamicScaling() {
+        if (isScaling) return;
         double w = rootPane.getWidth();
         double h = rootPane.getHeight();
-        if (w <= 0 || h <= 0) return;
+        if (w < 200 || h < 200) return;
+
+        isScaling = true;
 
         double iconDim = getIconDim(w, h);
         double previewDim = iconDim * 3.5;
+        double btnDim = iconDim + 30;
 
         for (Node node : skinGrid.getChildren()) {
             if (node instanceof Button btn && btn.getGraphic() instanceof AnimatedCanvas canvas) {
-                btn.setMinSize(0, 0);
-                btn.setPrefSize(iconDim + 30, iconDim + 30);
-                btn.setMaxSize(iconDim + 30, iconDim + 30);
+                btn.setMinSize(btnDim, btnDim);
+                btn.setPrefSize(btnDim, btnDim);
+                btn.setMaxSize(btnDim, btnDim);
                 canvas.resize(iconDim);
             }
         }
 
         previewCanvas.resize(previewDim);
-        previewBox.setMinSize(0, 0);
+        previewBox.setMinSize(previewDim + 100, previewDim + 150);
         previewBox.setPrefWidth(previewDim + 100);
+
+        // Rilascia il blocco alla fine dell'evento di rendering corrente
+        Platform.runLater(() -> isScaling = false);
     }
 
     private static double getIconDim(double w, double h) {
@@ -86,6 +102,7 @@ public class SkinMenuController implements IscatFxmlController {
     private void populateGrid() {
         skinGrid.getChildren().clear();
         buttonCanvases.clear();
+        double initialDim = 80.0;
 
         for (int i = 0; i < TOTAL_SKINS; i++) {
             int num = i + 1;
@@ -100,6 +117,11 @@ public class SkinMenuController implements IscatFxmlController {
             btn.getStyleClass().add("skin-button");
             btn.setGraphic(canvas);
             btn.setFocusTraversable(false);
+
+            btn.setMinSize(initialDim, initialDim);
+            btn.setPrefSize(initialDim, initialDim);
+            btn.setMaxSize(initialDim, initialDim);
+
             btn.setOnAction(e -> selectSkin(path, name));
             skinGrid.add(btn, i % 3, i / 3);
         }
