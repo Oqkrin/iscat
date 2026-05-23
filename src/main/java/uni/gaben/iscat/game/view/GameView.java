@@ -11,6 +11,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.AbstractIscatStackPane;
+import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.game.view.camera.CameraModel;
 import uni.gaben.iscat.game.controller.GameController;
@@ -39,7 +40,7 @@ public class GameView extends AbstractIscatStackPane {
     private GameOverMenu gameOverMenu;
 
     private Canvas canvas;
-    private StarfieldView starfieldView = new StarfieldView();
+    private final StarfieldView starfieldView = new StarfieldView();
     private GameSpawnerToolbar spawnerToolbar;
     private GamePauseMenu pauseMenu;
     private Button debugButton;
@@ -169,9 +170,7 @@ public class GameView extends AbstractIscatStackPane {
             spawnerToolbar.setManaged(false);
 
             // Connect UI timer
-            gameModel.timerProperty().addListener((obs, oldVal, newVal) -> {
-                updateTimerText(newVal.intValue());
-            });
+            gameModel.timerProperty().addListener((obs, oldVal, newVal) -> updateTimerText(newVal.intValue()));
             runLater(() -> updateTimerText(gameModel.getTimer()));
 
             // Level Label
@@ -245,17 +244,7 @@ public class GameView extends AbstractIscatStackPane {
         boolean renderCollisionBoxes = debugPanelVisible && gameController.isDebugModeOn();
 
         for (var entity : universe.getEntities()) {
-            Drawable renderer = ViewRegistry.getInstance().getRenderer(entity.getClass());
-            if (renderer != null) {
-                renderer.draw(entity, gc);
-
-                if (renderCollisionBoxes && renderer instanceof AbstractEntityView entityView) {
-                    gc.save();
-                    entityView.setPos(entity);
-                    entityView.drawDebugCollision(entity, gc);
-                    gc.restore();
-                }
-            }
+            drawEntity(entity, gc, renderCollisionBoxes);
         }
         gc.restore();
 
@@ -265,6 +254,22 @@ public class GameView extends AbstractIscatStackPane {
         starryTimer.updateAndDraw(timerGc);
 
         drawFps(gc, w);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends AbstractEntityModel> void drawEntity(T entity, GraphicsContext gc, boolean renderCollisionBoxes) {
+        Drawable<T> renderer = (Drawable<T>) ViewRegistry.getInstance().getRenderer(entity.getClass());
+        if (renderer == null) return;
+
+        renderer.draw(entity, gc);
+
+        if (renderCollisionBoxes && renderer instanceof AbstractEntityView) {
+            AbstractEntityView<T> entityView = (AbstractEntityView<T>) renderer;
+            gc.save();
+            entityView.setPos(entity);
+            entityView.drawDebugCollision(entity, gc);
+            gc.restore();
+        }
     }
 
     private void updateTimerText(int val) {
