@@ -1,5 +1,6 @@
 package uni.gaben.iscat.game.view;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -23,6 +24,7 @@ import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.utils.components.StarryText;
 import uni.gaben.iscat.utils.ThemeColors;
 import uni.gaben.iscat.utils.design.CssHelper;
+import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 import java.util.Objects;
@@ -107,6 +109,9 @@ public class GameView extends AbstractIscatStackPane {
         canvas.widthProperty().bind(root.widthProperty());
         canvas.heightProperty().bind(root.heightProperty());
 
+        spawnerToolbar.maxHeightProperty().bind(root.heightProperty().divide(5));
+        spawnerToolbar.maxWidthProperty().bind(root.widthProperty().multiply(ScalareAureo.IPHI_D));
+
         CameraModel camera = gameController.getCameraModel();
         camera.screenWidthProperty().bind(canvas.widthProperty());
         camera.screenHeightProperty().bind(canvas.heightProperty());
@@ -165,7 +170,7 @@ public class GameView extends AbstractIscatStackPane {
             var player = universe.getPlayer();
             if (player != null) {
                 levelLabel.textProperty().bind(
-                        javafx.beans.binding.Bindings.concat("LEVEL ", player.levelProperty().asString())
+                        Bindings.concat("LEVEL ", player.levelProperty().asString())
                 );
             }
         }

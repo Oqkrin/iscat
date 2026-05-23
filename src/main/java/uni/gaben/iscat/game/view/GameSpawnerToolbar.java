@@ -40,9 +40,8 @@ public class GameSpawnerToolbar extends StackPane {
 
         // FlowPane: va a capo automaticamente, nessuna riga/colonna fissa
         spawnContainer = new FlowPane(10, 10); // hgap, vgap
-        spawnContainer.setAlignment(Pos.CENTER);
+        spawnContainer.setAlignment(Pos.BOTTOM_CENTER);
         spawnContainer.setPadding(new Insets(10, 20, 10, 20));
-
         // SPAWNERS BUTTONS
         for (UniverseSpawnable spawnable : UniverseSpawnable.values()) {
             if (HIDDEN_SPAWNABLES.contains(spawnable)) continue;
@@ -55,8 +54,6 @@ public class GameSpawnerToolbar extends StackPane {
         getChildren().addAll(scroll);
 
         // Style
-        setMaxWidth(900);
-        setMaxHeight(160);
         CssHelper.sfondoScuro(this);
         CssHelper.bordoArrotondato(this);
         CssHelper.ombra3(this);
