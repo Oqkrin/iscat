@@ -16,7 +16,10 @@ import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobSettings;
 import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSettings;
 import uni.gaben.iscat.utils.components.AnimatedCanvas;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class BestiaryMenuController implements IscatFxmlController {
 
@@ -91,6 +94,15 @@ public class BestiaryMenuController implements IscatFxmlController {
     @FXML
     private void handleBack(ActionEvent event) {
         IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+    }
+
+    @FXML
+    private void selectRandom() {
+        List<String> enemyIds = new ArrayList<>(ENEMIES.keySet());
+        if (enemyIds.isEmpty()) return;
+        int randomIndex = ThreadLocalRandom.current().nextInt(enemyIds.size());
+        String randomId = enemyIds.get(randomIndex);
+        showEnemyById(randomId);
     }
 
     @Override

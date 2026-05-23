@@ -56,6 +56,7 @@
             </Label>
 
             <VBox alignment="CENTER" spacing="15.0">
+               <Button ellipsisString="" onAction="#selectRandom" styleClass="confirm-button" text="RANDOM" />
                <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
             </VBox>
 
