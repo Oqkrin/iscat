@@ -119,7 +119,16 @@ public class PlayerController {
         if (player == null || shooter == null) return;
 
         if (input.shooting && player.isSparoDisponibile()) {
-            shooter.shoot(projectileTemplate);
+            // danno extra in base al livello
+            double extraDamage = (player.getLevel() - 1) * 2.0;
+
+            // potenziamo il proiettile prima che parta
+            shooter.shoot(projectileTemplate, bullet -> {
+                double newDamage = bullet.getLife() + extraDamage;
+                bullet.setMaxLife(newDamage);
+                bullet.setLife(newDamage);
+            });
+
             player.startCooldownFuoco();
         }
     }
