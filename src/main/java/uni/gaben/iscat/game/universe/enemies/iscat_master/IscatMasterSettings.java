@@ -21,7 +21,6 @@ public class IscatMasterSettings {
     // ── SPRITE ────────────────────────────────────────────────────────────────
     public static final int    HP_INIZIALI       = 10000;
     public static final int    DIM_SPRITE        = 128;
-    public static final int    NUMERO_FRAMES     = 4;
     public static final double SCALE             = 5.0;
 
     // ── RICOMPENSE ────────────────────────────────────────────────────────────

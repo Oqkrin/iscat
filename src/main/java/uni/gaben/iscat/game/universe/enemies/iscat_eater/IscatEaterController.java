@@ -30,10 +30,4 @@ public class IscatEaterController extends AiBehaviours<IscatEaterModel> {
             }
         });
     }
-
-    @Override
-    public void aiUpdate(UniverseModel universeModel, double dt) {
-        // Execute modular behaviors added in constructor
-        super.aiUpdate(universeModel, dt);
-    }
 }

@@ -14,7 +14,6 @@ public final class IscatMotherSettings {
     public static final double SCALE = 4.0;
 
     // --- FISICA ---
-    public static final double RAGGIO_COLLISIONE_PX = (DIM_SPRITE / 2.0) * 0.9;
     public static final double DAMPING_LINEARE = 3.0;
     public static final double MAX_VELOCITY_MS = VelocitySettings.MOTHER_MAX_VELOCITY;
     public static final double FORCE = 13.0;
@@ -31,7 +30,6 @@ public final class IscatMotherSettings {
     // --- SPARO ---
     public static final double COOLDOWN_SPARO_SEC = 1.0;
     public static final double SPREAD_ANGLE_DEG = 15.0;
-    public static final int BURST_COUNT = 3; // spara 3 proiettili a ventaglio
 
     // --- MINIONI ---
     public static final double MINION_SPAWN_HP_THRESHOLD = 0.5; // al 50% HP

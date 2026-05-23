@@ -57,7 +57,6 @@ public class IscatApplication extends Application {
     EnumMap<IscatScenes, AbstractIscatStackPane> scenes =  new EnumMap<>(IscatScenes.class);
     private final StackPane iscatApplicationRoot = new StackPane();
     private final StackPane isactContentRoot = new StackPane(); // The new dynamic inner container
-    private IscatTitleBar iscatTitleBar;
 
     @Override
     public void init() {
@@ -82,7 +81,7 @@ public class IscatApplication extends Application {
         Scene iscatScene = new Scene(iscatApplicationRoot);
         iscatScene.setFill(ThemeColors.parsedColors.get("bg-primary"));
 
-        iscatTitleBar = new IscatTitleBar();
+        IscatTitleBar iscatTitleBar = new IscatTitleBar();
         iscatTitleBar.setMaxHeight(Region.USE_PREF_SIZE);
 
         Region iscatWindowBorderOverlay = new Region();

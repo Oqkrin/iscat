@@ -10,18 +10,15 @@ public final class IscatBomberSettings {
 
     // --- PROPRIETA FISICHE E VITA ---
     public static final int HP_INIZIALI = 100;
-    public static final double MASSA = 8.0;
     public static final double DAMPING_LINEARE = 3.0;
     
     // --- RENDERING ---
     public static final int DIM_SPRITE = 32;
     public static final double SCALE = 4.0;
-    public static final double RAGGIO_COLLISIONE_PX = (DIM_SPRITE / 2.0) * 0.80; // 24px
 
     // --- AI e INSEGUIMENTO ---
     public static final int LUNGHEZZA_TRAIL = 120;
     public static final int RITARDO_TRAIL = 40;
-    public static final double VELOCITA_INSEGUIMENTO = 50.0;
     public static final double DISTANZA_MIN_INSEGUIMENTO = 10.0;
     public static final double SMOOTHING_ROTAZIONE = 0.12;
 

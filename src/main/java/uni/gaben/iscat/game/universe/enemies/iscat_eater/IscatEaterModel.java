@@ -9,9 +9,6 @@ import uni.gaben.iscat.game.universe.UniverseCollisionLayers;
 
 public class IscatEaterModel extends LivingEntityModel {
 
-    // Eater attacca una sola volta
-    private boolean consumed = false;
-
     public IscatEaterModel(double x, double y) {
         super(x, y, IscatEaterSettings.HP_INIZIALI, IscatEaterSettings.HP_INIZIALI);
         setXpReward(IscatEaterSettings.XP_REWARD);
@@ -40,13 +37,5 @@ public class IscatEaterModel extends LivingEntityModel {
     @Override
     public double getTerminalVelocity() {
         return IscatEaterSettings.MAX_VELOCITY_MS;
-    }
-
-    public boolean isConsumed() {
-        return consumed;
-    }
-
-    public void consume() {
-        this.consumed = true;
     }
 }

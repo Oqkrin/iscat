@@ -6,6 +6,7 @@ import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.game.lib.abstracts.AbstractShooterController;
+import uni.gaben.iscat.game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.game.lib.interfaces.model.LifeDeath;
 import uni.gaben.iscat.game.universe.UniverseSpawner;
@@ -102,6 +103,9 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
             } else {
                 // Standard projectile-to-non-projectile collision:
                 if (otherEntity instanceof LifeDeath target) {
+                    if (target instanceof LivingEntityModel lem) {
+                        lem.setKilledByProjectile(true);
+                    }
                     target.deltaToLife(-p.getLife());
                 }
                 p.kill(true);

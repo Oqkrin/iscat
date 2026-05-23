@@ -195,7 +195,7 @@ public class UniverseModel extends World<Body> {
 
                 // SISTEMA DI ASSEGNAZIONE XP
                 if (e instanceof LivingEntityModel living && living != player) {
-                    if (living.getXpReward() > 0 && player != null) {
+                    if (living.getXpReward() > 0 && player != null && living.isKilledByProjectile()) {
                         player.addXp(living.getXpReward());
                     }
                 }

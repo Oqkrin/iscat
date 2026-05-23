@@ -21,7 +21,6 @@ public class FakeIscatSettings {
     // ── SPRITE ────────────────────────────────────────────────────────────────
     public static final int    HP_INIZIALI       = 30;
     public static final int    DIM_SPRITE        = 32;
-    public static final int    NUMERO_FRAMES     = 19;
     public static final double SCALE             = 2.0;
 
     // ── RICOMPENSE ────────────────────────────────────────────────────────────

@@ -29,6 +29,11 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
         this.maxLife = maxLife;
     }
 
+    private boolean killedByProjectile = false;
+
+    public void setKilledByProjectile(boolean value) { this.killedByProjectile = value; }
+    public boolean isKilledByProjectile() { return killedByProjectile; }
+
     public DoubleProperty lifeProperty() { return life; }
     public double getLife() { return life.get(); }
     public double getMaxLife() { return maxLife; }

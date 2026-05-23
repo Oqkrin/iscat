@@ -21,7 +21,6 @@ public class IscatWormSettings {
     public static final double HEAD_ROTATION_SPEED  = 0.45;
 
     // --- ATTACCO ---
-    public static final double HEAD_ATTACK_RADIUS   = 55.0;
     public static final int    HEAD_ATTACK_POWER    = 25;
     public static final double HEAD_ATTACK_COOLDOWN = 1.2;
 

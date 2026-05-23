@@ -2,16 +2,13 @@ package uni.gaben.iscat.utils;
 
 /**
  * Molla smorzata 1D simulata fisicamente.
- *
  * Ogni tick applica:
  *   F = -stiffness*(posizione - target) - damping*velocità
  *   a = F / massa
  *   v += a * dt
  *   x += v * dt
- *
  * Con damping critico (damping = 2*sqrt(stiffness*massa)) non oscilla.
  * Sotto-smorzata → oscillazione; sovra-smorzata → ritorno lento senza rimbalzo.
- *
  * Usare {@link #impulse} per applicare una spinta istantanea (es. dodge).
  */
 public final class Spring {

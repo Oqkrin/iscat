@@ -6,7 +6,6 @@ import uni.gaben.iscat.game.lib.implementations.behaviors.WanderBehavior;
 import uni.gaben.iscat.game.lib.implementations.behaviors.ChaseBehavior;
 import uni.gaben.iscat.game.lib.implementations.behaviors.ShooterBehaviour;
 import uni.gaben.iscat.game.lib.utils.UU;
-import uni.gaben.iscat.game.universe.UniverseModel;
 import uni.gaben.iscat.game.universe.attacks.BurstArcAttack;
 import uni.gaben.iscat.game.universe.attacks.RadialNovaAttack;
 import uni.gaben.iscat.game.universe.attacks.SingleBurstAttack;

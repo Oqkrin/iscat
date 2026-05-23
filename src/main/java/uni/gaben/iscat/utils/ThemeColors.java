@@ -1,7 +1,6 @@
 package uni.gaben.iscat.utils;
 
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 import java.util.Map;
 
