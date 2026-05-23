@@ -14,7 +14,7 @@ public class IscatWormSettings {
     public static final int    SEGMENT_SPACING_PX   = (int)(50.0 * 2.0);
 
     // --- IMPOSTAZIONI TESTA (HEAD) ---
-    public static final int    HEAD_HP              = 65;
+    public static final int    HEAD_HP              = 100;
     public static final double HEAD_SCALE           = 2.0;
     public static final double HEAD_MAX_SPEED       = VelocitySettings.WORM_HEAD_MAX_SPEED;
     public static final double HEAD_FORCE           = 800.0;
@@ -26,12 +26,12 @@ public class IscatWormSettings {
     public static final double HEAD_ATTACK_COOLDOWN = 1.2;
 
     // --- IMPOSTAZIONI CORPO (BODY) ---
-    public static final int    BODY_HP              = 28;
+    public static final int    BODY_HP              = 50;
     public static final double BODY_SCALE           = 2.0;
     public static final double BODY_FOLLOW_FORCE    = 950.0;
 
     // --- IMPOSTAZIONI CODA (TAIL) ---
-    public static final int    TAIL_HP              = 22;
+    public static final int    TAIL_HP              = 100;
     public static final double TAIL_SCALE           = 2.0;
     public static final double TAIL_FOLLOW_FORCE    = 950.0;
 

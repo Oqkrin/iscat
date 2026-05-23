@@ -21,7 +21,6 @@ public class EnemyWaveController {
         timeElapsedSec += dt;
         spawnTimer -= dt;
 
-        // Se il timer scade, facciamo partorire i nemici dell'ondata
         if (spawnTimer <= 0) {
             spawnWaveOffScreen(camera);
             spawnTimer = SPAWN_COOLDOWN;
@@ -31,31 +30,47 @@ public class EnemyWaveController {
     private void spawnWaveOffScreen(CameraModel camera) {
         if (camera == null) return;
 
-        // 1. Calcola quanti nemici spawnare in base alla formula dei 30 secondi:
-        // A 0s: 1 + (0/30) = 1
-        // A 20s: 1 + (30/30) = 2
-        // A 40s: 1 + (60/30) = 3
-        // A 60s: 1 + (90/30) = 4, ecc.
-        int enemiesToSpawn = 1 + ((int) (timeElapsedSec / 30.0));
+        // Determina quanti gruppi/ondate lanciare contemporaneamente (aumenta ogni 30 secondi)
+        int waveMultiplier = 1 + ((int) (timeElapsedSec / 30.0));
 
-        // Ciclo per spawnare la quantità di nemici calcolata
-        for (int i = 0; i < enemiesToSpawn; i++) {
-            // Scegliamo un angolo casuale per ciascun nemico della stessa ondata
-            double angle = random.nextDouble() * Math.PI * 2.0;
-            double spawnX = camera.getX() + Math.cos(angle) * SPAWN_RADIUS;
-            double spawnY = camera.getY() + Math.sin(angle) * SPAWN_RADIUS;
+        for (int w = 0; w < waveMultiplier; w++) {
 
-            // Scegli il tipo di nemico dal pool sbloccato
+            // Estrai il tipo di nemico per questo gruppo
             UniverseSpawnable enemyToSpawn = chooseEnemyTypeByTime();
 
-            // Evoca il nemico
-            UniverseSpawner.getInstance().spawn(enemyToSpawn, spawnX, spawnY);
+            // Determina la dimensione del gruppo per questo specifico nemico
+            int groupSize = getGroupSize(enemyToSpawn);
+
+            // Spawna l'intero gruppo in un punto coordinato della mappa
+            for (int i = 0; i < groupSize; i++) {
+                double angle = random.nextDouble() * Math.PI * 2.0;
+                double spawnX = camera.getX() + Math.cos(angle) * SPAWN_RADIUS;
+                double spawnY = camera.getY() + Math.sin(angle) * SPAWN_RADIUS;
+
+                UniverseSpawner.getInstance().spawn(enemyToSpawn, spawnX, spawnY);
+            }
         }
     }
 
-    /**
-     * Ogni 30 secondi si sblocca un nuovo nemico
-     */
+    private int getGroupSize(UniverseSpawnable type) {
+        return switch (type) {
+            case ISCAT_MOB -> {
+                if (timeElapsedSec >= 120.0) yield 5;
+                if (timeElapsedSec >= 30.0) yield 3;
+                yield 1;
+            }
+            case EATER -> {
+                if (timeElapsedSec >= 120.0) yield 7;
+                if (timeElapsedSec >= 60.0) yield 5;
+                yield 1;
+            }
+            case FAKE_ISCAT -> (timeElapsedSec >= 90.0) ? 3 : 1;
+            case ISCAT_BOMBER -> 2;
+            case FALLEN_STAR_GOLEM, ISCAT_CORE, ISCAT_MOTHER, WORM -> 1;
+            default -> 1;
+        };
+    }
+
     private UniverseSpawnable chooseEnemyTypeByTime() {
         List<UniverseSpawnable> unlockedEnemies = new ArrayList<>();
 
@@ -64,28 +79,24 @@ public class EnemyWaveController {
         if (timeElapsedSec >= 30.0) {
             unlockedEnemies.add(UniverseSpawnable.EATER);
         }
-
         if (timeElapsedSec >= 60.0) {
             unlockedEnemies.add(UniverseSpawnable.ISCAT_BOMBER);
         }
-
         if (timeElapsedSec >= 90.0) {
             unlockedEnemies.add(UniverseSpawnable.FALLEN_STAR_GOLEM);
+            unlockedEnemies.add(UniverseSpawnable.FAKE_ISCAT);
         }
-
         if (timeElapsedSec >= 120.0) {
             unlockedEnemies.add(UniverseSpawnable.ISCAT_CORE);
         }
-
-        if (timeElapsedSec >= 150.0) {
+        if (timeElapsedSec >= 200.0) {
             unlockedEnemies.add(UniverseSpawnable.WORM);
         }
 
-        if (timeElapsedSec >= 150.0) {
+        if (timeElapsedSec >= 300.0) {
             unlockedEnemies.add(UniverseSpawnable.ISCAT_MOTHER);
         }
 
-        // Estrae un indice a caso tra tutti i nemici correntemente sbloccati
         int randomIndex = random.nextInt(unlockedEnemies.size());
         return unlockedEnemies.get(randomIndex);
     }

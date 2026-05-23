@@ -21,7 +21,7 @@ public class IscatEaterSettings {
     /** Numero di frame dell'animazione. */
     public static final int NUMERO_FRAMES = 2;
     /** Scala di rendering. */
-    public static final double SCALE = 2;
+    public static final double SCALE = 2.5;
     /** Raggio della collisione fisica. */
     public static final double RAGGIO_COLLISIONE_PX = (DIM_SPRITE / 2.0) * 0.9;
     /** Attrito lineare: valori bassi permettono più scivolamento e inerzia. Default consigliato: 2.0 */

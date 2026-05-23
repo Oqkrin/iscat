@@ -27,13 +27,13 @@ public class IscatMobSettings {
     public static final double SEPARATION_FORCE = 100.0;
     // --- PROPRIETÀ FISICHE ---
     /** Punti vita iniziali del mob. */
-    public static final int HP_INIZIALI = 30;
+    public static final int HP_INIZIALI = 15;
     /** Dimensione base dello sprite in pixel. */
     public static final int DIM_SPRITE = 32;
     /** Numero di frame dell'animazione. */
     public static final int NUMERO_FRAMES = 1;
     /** Scala di rendering. */
-    public static final double SCALE = 1.5;
+    public static final double SCALE = 2.0;
     /** Raggio della collisione fisica. */
     public static final double RAGGIO_COLLISIONE_PX = (DIM_SPRITE / 2.0) * 0.9;
     /** Attrito lineare: valori bassi permettono più scivolamento e inerzia. Default consigliato: 2.0 */
