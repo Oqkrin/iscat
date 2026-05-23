@@ -69,7 +69,7 @@ public class IscatAudioManager {
     /**
      * Avvia una traccia BGM. Ferma e libera l'eventuale traccia precedente.
      *
-     * @param path path della risorsa (es. "/uni/gaben/iscat/audio/bgm/main.mp3")
+     * @param path path della risorsa (es. "/uni/gaben/iscat/audio/bgm/main.wav")
      * @param loop {@code true} per riproduzione in loop
      */
     public void playBGM(String path, boolean loop) {

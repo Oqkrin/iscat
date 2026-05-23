@@ -119,6 +119,9 @@ public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? ex
         } else if (!fireCooldown.isCoolingDown() && attackPool.length > 0) {
             activeAttack = attackPool[rand.nextInt(attackPool.length)];
             activeAttack.reset(); // ← QUI, subito dopo aver scelto l'attacco
+            activeAttack = attackPool[rand.nextInt(attackPool.length)];
+            activeAttack.reset();
+            activeAttack.onStart(entity); // ← triggers animation
             fireCooldown.start(cooldownSupplier.getAsDouble());
         }
     }

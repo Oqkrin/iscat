@@ -96,4 +96,16 @@ public class SpriteSheetsAnimator {
     public int getCurrentState() { return currentState; }
     public void setSpeed(double speed) { this.speedMultiplier = speed; }
     public void reset() { this.internalTime = 0; }
+
+    public boolean hasCompletedCycle() {
+        if (frameDurations == null || frameDurations.length == 0) return true;
+
+        DoubleProperty[] currentDurations = frameDurations[currentState];
+        double totalStateDuration = 0;
+        for (DoubleProperty prop : currentDurations) {
+            totalStateDuration += prop.get();
+        }
+
+        return internalTime >= totalStateDuration;
+    }
 }

@@ -59,6 +59,8 @@ public final class VelocitySettings {
     /** IscatWorm head max movement speed (m/s). */
     public static final double WORM_HEAD_MAX_SPEED    = ENEMY_BULLET_VELOCITY*2;
 
+    public static final double ISCAT_MASTER_MAX_VELOCITY = ENEMY_BULLET_VELOCITY;
+
     // ─── ASTEROIDS ────────────────────────────────────────────────────────────
 
     /** Initial random drift assigned to newly spawned asteroids (m/s range). */

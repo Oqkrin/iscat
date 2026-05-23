@@ -14,4 +14,6 @@ public interface AttackPattern<T extends AbstractEntityModel & HasProjectile<?>>
 
     /** Resetta lo stato interno per permettere il riuso dell'istanza. */
     void reset();
+
+    default void onStart(AbstractEntityModel entity) {}
 }

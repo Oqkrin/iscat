@@ -2,6 +2,7 @@ package uni.gaben.iscat.game.universe.attacks;
 
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
+import uni.gaben.iscat.game.universe.enemies.iscat_master.IscatMasterModel;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
 import uni.gaben.iscat.game.universe.projectiles.Shooter;
 
@@ -32,4 +33,10 @@ public class RadialNovaAttack<T extends AbstractEntityModel & HasProjectile<?>> 
 
     @Override
     public void reset() {}
+
+    @Override
+    public void onStart(AbstractEntityModel entity) {
+        if (entity instanceof IscatMasterModel m)
+            m.setAnimationState(IscatMasterModel.AnimationState.ATTACK3);
+    }
 }

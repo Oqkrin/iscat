@@ -1,5 +1,6 @@
 package uni.gaben.iscat.game.universe;
 
+import uni.gaben.iscat.game.controller.EnemyWaveController;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.controller.AiController;
 import uni.gaben.iscat.game.universe.asteroid.AsteroidModel;
@@ -9,6 +10,8 @@ import uni.gaben.iscat.game.universe.enemies.fallen_star_golem.FallenStarGolemCo
 import uni.gaben.iscat.game.universe.enemies.fallen_star_golem.FallenStarGolemModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreController;
 import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreModel;
+import uni.gaben.iscat.game.universe.enemies.iscat_master.IscatMasterController;
+import uni.gaben.iscat.game.universe.enemies.iscat_master.IscatMasterModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherController;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherModel;
 import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormController;
@@ -32,6 +35,7 @@ public class UniverseSpawner {
 
     private UniverseModel model;
     private UniverseController controller;
+    private EnemyWaveController waveController;
 
     private UniverseSpawner() {}
 
@@ -40,9 +44,10 @@ public class UniverseSpawner {
         return instance;
     }
 
-    public void init(UniverseModel model, UniverseController controller) {
+    public void init(UniverseModel model, UniverseController controller, EnemyWaveController waveController) {
         this.model = model;
         this.controller = controller;
+        this.waveController = waveController;
     }
 
     /**
@@ -77,10 +82,18 @@ public class UniverseSpawner {
             case ISCAT_CORE -> spawnStandard(IscatCoreModel::new, IscatCoreController:: new, x, y);
             case FAKE_ISCAT -> spawnStandard(FakeIscatModel::new, FakeIscatController::new, x, y);
             case FALLEN_STAR_GOLEM -> spawnStandard(FallenStarGolemModel::new, FallenStarGolemController::new, x, y);
+            case ISCAT_MASTER -> spawnIscatMaster(x, y);
             case WORM -> spawnWorm(x, y);
 
             case PROJECTILE -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");
         };
+    }
+
+    public IscatMasterModel spawnIscatMaster(double x, double y) {
+        IscatMasterModel master = new IscatMasterModel(x, y, waveController);
+        model.addEntity(master);
+        controller.addAiController(new IscatMasterController(master));
+        return master;
     }
 
     /**

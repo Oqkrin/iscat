@@ -7,6 +7,7 @@ import uni.gaben.iscat.game.universe.asteroid.AsteroidView;
 import uni.gaben.iscat.game.universe.enemies.fake_iscat.FakeIscatView;
 import uni.gaben.iscat.game.universe.enemies.fallen_star_golem.FallenStarGolemView;
 import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreView;
+import uni.gaben.iscat.game.universe.enemies.iscat_master.IscatMasterView;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherView;
 import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSegment;
 import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormView;
@@ -61,6 +62,7 @@ public class ViewRegistry {
             case ISCAT_CORE -> new IscatCoreView();
             case FAKE_ISCAT -> new FakeIscatView();
             case FALLEN_STAR_GOLEM -> new FallenStarGolemView();
+            case ISCAT_MASTER -> new IscatMasterView();
             case WORM -> (Drawable<IscatWormSegment>) (segment, gc) ->
                     IscatWormView.forType(segment.getType()).draw(segment, gc);
         };

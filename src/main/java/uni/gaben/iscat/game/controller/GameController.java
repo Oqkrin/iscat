@@ -33,9 +33,9 @@ public class GameController {
         this.gameModel = gameModel;
         this.universeController = universeController;
 
-        UniverseSpawner.getInstance().init(getUniverseModel(), universeController);
-
         this.waveController = new EnemyWaveController();
+
+        UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
 
         double midX = getUniverseModel().getWidth() / 2.0;
         double midY = getUniverseModel().getHeight() / 2.0;
@@ -122,8 +122,8 @@ public class GameController {
         gameModel.setUniverseModel(newUniverse);
         this.universeController = new UniverseController(newUniverse);
 
-        UniverseSpawner.getInstance().init(newUniverse, universeController);
         this.waveController = new EnemyWaveController();
+        UniverseSpawner.getInstance().init(newUniverse, universeController, waveController);
 
         universeController.getStarfieldController().regenerate(
                 newUniverse.getStarfieldModel(),
