@@ -46,6 +46,7 @@ public class AiBehaviours<T extends AbstractEntityModel> implements AiController
      */
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
+        if (aiEntity.shouldRemove()) return;
         if (behaviors.isEmpty()) return;
 
         // Tick globale: avanza timer/cooldown di tutti i behavior ogni frame

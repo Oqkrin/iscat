@@ -42,7 +42,6 @@ public class BestiaryMenuController implements IscatFxmlController {
             Map.entry("eater", new BestiaryMenuController.Enemy("Eater", BASE + "eater.png",
                     IscatEaterSettings.DIM_SPRITE, IscatEaterSettings.DIM_SPRITE,
                     "Descrizione Eater")),
-            // ISCAT WORM
             Map.entry("iscat_worm_head", new BestiaryMenuController.Enemy("Iscat Worm Head", BASE + "iscat_worm_head.png",
                     (int) IscatWormSettings.DIM_SPRITE, (int) IscatWormSettings.DIM_SPRITE,
                     "Descrizione Iscat Worm Head\nIl comandante del sistema ISCAT_WORM.EXE, Iscat Worm Head si occupa di dirigere le parti del corpo e la coda nella direzione che vuole percorrere. Viaggia per lo spazio senza meta, e attacca chi definisce come possibile fonte di cibo, purtroppo per lui, è costretto di dividere il cibo con tutti i membri del sistema")),

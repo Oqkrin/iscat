@@ -60,7 +60,6 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
      */
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
-        if (!aiEntity.isEntranceDone()) return;
         if (aiEntity.getAnimationState() == IscatMasterModel.AnimationState.DEATH) return;
         super.aiUpdate(universeModel, dt);
     }
