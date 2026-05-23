@@ -134,6 +134,15 @@ public class SkinMenuController implements IscatFxmlController {
         updateDynamicScaling();
     }
 
+    @FXML
+    private void selectRandom() {
+        int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(TOTAL_SKINS);
+        int num = randomIndex + 1;
+        String path = "/uni/gaben/iscat/sprites/players/player" + num + ".png";
+        String name = SKIN_NAMES[randomIndex];
+        selectSkin(path, name);
+    }
+
     private void stopAll() {
         buttonCanvases.forEach(AnimatedCanvas::stop);
         previewCanvas.stop();
