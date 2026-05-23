@@ -55,7 +55,7 @@ public class BestiaryMenuController implements IscatFxmlController {
                     128, 128, "Descrizione Iscat Master\nIl creatore di IscatMother, questa creatura misteriosa ha studiato per anni come diventare DIO, durante le sue ricerche ha creato una nuova forma di vita: gli Iscat.\nCon il loro potere IscatMaster ha inziato a portare distruzione e chaos in tutto il mondo"))
     );
 
-    @FXML private Pane previewContainer;
+    @FXML private StackPane previewContainer;
     @FXML private Label skinNameLabel;
     @FXML private TextArea description;
 

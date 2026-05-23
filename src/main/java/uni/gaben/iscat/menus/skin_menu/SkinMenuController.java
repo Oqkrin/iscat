@@ -23,7 +23,7 @@ import java.util.List;
 public class SkinMenuController implements IscatFxmlController {
 
     @FXML private GridPane skinGrid;
-    @FXML private Pane previewContainer;
+    @FXML private StackPane previewContainer;
     @FXML private Label skinNameLabel;
     @FXML private BorderPane rootPane;
     @FXML private VBox previewBox;
