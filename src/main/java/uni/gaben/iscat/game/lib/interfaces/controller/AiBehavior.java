@@ -25,4 +25,6 @@ public interface AiBehavior {
      * @param dt Il tempo trascorso (Delta Time).
      */
     void execute(AbstractEntityModel npc, UniverseModel universe, double dt);
+
+    default void tick(AbstractEntityModel enemy, UniverseModel universe, double dt) {}
 }

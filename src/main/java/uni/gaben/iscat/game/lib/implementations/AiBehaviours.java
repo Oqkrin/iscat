@@ -48,21 +48,23 @@ public class AiBehaviours<T extends AbstractEntityModel> implements AiController
     public void aiUpdate(UniverseModel universeModel, double dt) {
         if (behaviors.isEmpty()) return;
 
-        // Ordina i behavior in base alla loro priorità corrente
-        PriorityQueue<AiBehavior> queue = new PriorityQueue<>((a, b) -> 
-            Double.compare(b.getPriority(aiEntity, universeModel), a.getPriority(aiEntity, universeModel))
+        // Tick globale: avanza timer/cooldown di tutti i behavior ogni frame
+        for (AiBehavior behavior : behaviors) {
+            behavior.tick(aiEntity, universeModel, dt);
+        }
+
+        // Selezione e esecuzione del behavior con priorità più alta
+        PriorityQueue<AiBehavior> queue = new PriorityQueue<>((a, b) ->
+                Double.compare(b.getPriority(aiEntity, universeModel), a.getPriority(aiEntity, universeModel))
         );
         queue.addAll(behaviors);
 
-        // Prendi il task/comportamento corrente più prioritario
         AiBehavior currentTask = queue.peek();
-        
-        // Se c'è un task valido da eseguire (priorità > 0), eseguilo
         if (currentTask != null && currentTask.getPriority(aiEntity, universeModel) > 0) {
             currentTask.execute(aiEntity, universeModel, dt);
         }
 
-        // Esegui anche tutti i comportamenti additivi/paralleli (es. priorità -1.0)
+        // Behavior paralleli (priorità -1.0)
         for (AiBehavior behavior : behaviors) {
             if (behavior.getPriority(aiEntity, universeModel) == -1.0) {
                 behavior.execute(aiEntity, universeModel, dt);

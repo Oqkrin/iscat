@@ -33,14 +33,6 @@ public class FakeIscatModel extends LivingEntityModel implements HasProjectile<P
         weaponCooldown.update(dt);
     }
 
-    public boolean isSparoDisponibile() {
-        return weaponCooldown.isReady();
-    }
-
-    public void startCooldownFuoco() {
-        weaponCooldown.start(FakeIscatSettings.COOLDOWN_FUOCO_SEC);
-    }
-
     @Override
     public Projectile getProjectile() {
         return projectile;
@@ -58,7 +50,7 @@ public class FakeIscatModel extends LivingEntityModel implements HasProjectile<P
 
     @Override
     public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(FakeIscatSettings.COOLDOWN_FUOCO_SEC);
+        return 0;
     }
 
     @Override
@@ -68,6 +60,6 @@ public class FakeIscatModel extends LivingEntityModel implements HasProjectile<P
 
     @Override
     public double getTerminalVelocity() {
-        return FakeIscatSettings.MAX_VELOCITY_MS;
+        return 0;
     }
 }
