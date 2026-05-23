@@ -27,12 +27,15 @@ public class GameController {
     private StackPane contentRoot;
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
+    private EnemyWaveController waveController;
 
     public GameController(GameModel gameModel, UniverseController universeController) {
         this.gameModel = gameModel;
         this.universeController = universeController;
 
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController);
+
+        this.waveController = new EnemyWaveController();
 
         double midX = getUniverseModel().getWidth() / 2.0;
         double midY = getUniverseModel().getHeight() / 2.0;
@@ -89,6 +92,10 @@ public class GameController {
     private void tick(double dt) {
         if (!gameModel.isPaused()) {
             universeController.updatev(dt, gameInputs, getCameraModel());
+
+            if (waveController != null) {
+                waveController.update(dt, getCameraModel());
+            }
         }
     }
 
@@ -116,6 +123,7 @@ public class GameController {
         this.universeController = new UniverseController(newUniverse);
 
         UniverseSpawner.getInstance().init(newUniverse, universeController);
+        this.waveController = new EnemyWaveController();
 
         universeController.getStarfieldController().regenerate(
                 newUniverse.getStarfieldModel(),
