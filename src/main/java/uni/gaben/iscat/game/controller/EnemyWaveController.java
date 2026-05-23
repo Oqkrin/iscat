@@ -89,11 +89,11 @@ public class EnemyWaveController {
         if (timeElapsedSec >= 120.0) {
             unlockedEnemies.add(UniverseSpawnable.ISCAT_CORE);
         }
-        if (timeElapsedSec >= 200.0) {
+        if (timeElapsedSec >= 150.0) {
             unlockedEnemies.add(UniverseSpawnable.WORM);
         }
 
-        if (timeElapsedSec >= 300.0) {
+        if (timeElapsedSec >= 200.0) {
             unlockedEnemies.add(UniverseSpawnable.ISCAT_MOTHER);
         }
 

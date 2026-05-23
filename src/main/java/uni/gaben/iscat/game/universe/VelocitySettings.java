@@ -37,7 +37,7 @@ public final class VelocitySettings {
     public static final double MOB_MAX_VELOCITY       = 12.0;
 
     /** IscatEater max movement speed (m/s). */
-    public static final double EATER_MAX_VELOCITY     = 8.0;
+    public static final double EATER_MAX_VELOCITY     = 60.0;
 
     /** IscatCore max movement speed (m/s). */
     public static final double CORE_MAX_VELOCITY      = 12.0;

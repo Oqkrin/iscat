@@ -9,43 +9,33 @@ import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.game.universe.projectiles.Shooter;
 import uni.gaben.iscat.utils.Interpolator;
 import uni.gaben.iscat.utils.Cooldown;
+import java.util.function.Consumer;
 
 public class PlayerController {
     private PlayerModel player;
     private Shooter<PlayerModel> shooter;
 
-    // Template riusabile: blueprint() ne crea una copia ad ogni sparo
     private final Projectile projectileTemplate;
-
     private final Cooldown dashBuffer = new Cooldown();
     private boolean bufferedDashIsWASD = false;
 
     public PlayerController(PlayerModel player) {
         this.player = player;
         this.shooter = new Shooter<>(player);
-
-        projectileTemplate = new Projectile(ProjectileType.PLAYER_BULLET);
+        this.projectileTemplate = new Projectile(ProjectileType.PLAYER_BULLET);
     }
 
-    /**
-     * @param input         The clean input payload
-     * @param viewportLeftX Explicit cameraModel.getViewportLeftX()
-     * @param viewportTopY  Explicit cameraModel.getViewportTopY()
-     * @param dt            Delta time seconds
-     */
     public void processInput(GameInputs input, double viewportLeftX, double viewportTopY, double dt) {
         if (player == null) return;
 
         dashBuffer.update(dt);
 
-        // --- 1. DIRECTIONAL INPUTS ---
         double dx = 0, dy = 0;
         if (input.up)    dy -= 1;
         if (input.down)  dy += 1;
         if (input.left)  dx -= 1;
         if (input.right) dx += 1;
 
-        // --- 2. MOVEMENT & ROTATION SYSTEM ---
         double currentAngle = player.getTransform().getRotationAngle();
         double nextAngle = currentAngle;
 
@@ -55,31 +45,24 @@ public class PlayerController {
                 player.applyForce(dir.multiply(PlayerSettings.FORZA_SPINTA * player.getMass().getMass()));
             }
 
-            // 1. Convert player physical coordinates from meters to world pixels
             double playerWorldPxX = UU.mToPx(player.getTransform().getTranslationX());
             double playerWorldPxY = UU.mToPx(player.getTransform().getTranslationY());
-
-            // 2. Map mouse coordinates to world pixels by adding the viewport top-left bounds
             double mouseWorldPxX = input.mouseX + viewportLeftX;
             double mouseWorldPxY = input.mouseY + viewportTopY;
 
-            // 3. Compute absolute precise delta angle tracking
             double targetAngle = Math.atan2(mouseWorldPxY - playerWorldPxY, mouseWorldPxX - playerWorldPxX);
             double diff = targetAngle - currentAngle;
 
-            // Shortest path arc interpolation wrap arounds
             while (diff < -Math.PI) diff += Math.PI * 2;
             while (diff > Math.PI)  diff -= Math.PI * 2;
 
             nextAngle = Interpolator.lerp(currentAngle, currentAngle + diff, Math.min(15.0 * dt, 1.0));
             player.getTransform().setRotation(nextAngle);
-
             player.setAngularVelocity(Interpolator.lerp(player.getAngularVelocity(), 0, Math.min(20.0 * dt, 1.0)));
         } else {
             player.setAngularVelocity(0);
         }
 
-        // --- 3. EXECUTE DISCRETE ACTIONS ---
         handleDash(input, dx, dy, nextAngle);
         handleShooting(input);
     }
@@ -98,7 +81,6 @@ public class PlayerController {
             player.executeScatto(finalDashAngle);
             dashBuffer.reset();
 
-            // Play random fart SFX for dash (View/Controller concern)
             int randFart = new java.util.Random().nextInt(3) + 1;
             IscatAudioManager.getInstance().playSFX("fart_alt" + randFart);
         }
@@ -106,7 +88,6 @@ public class PlayerController {
 
     public void setPlayer(PlayerModel player) {
         this.player = player;
-        // CRITICAL GUARD: Only initialize the shooter system if we have a real entity model
         if (player != null) {
             this.shooter = new Shooter<>(player);
         } else {
@@ -115,19 +96,59 @@ public class PlayerController {
     }
 
     private void handleShooting(GameInputs input) {
-        // Structural Guard: Ensure BOTH player and shooter instances are active and ready
         if (player == null || shooter == null) return;
 
         if (input.shooting && player.isSparoDisponibile()) {
-            // danno extra in base al livello
+            double angle = player.getTransform().getRotationAngle();
             double extraDamage = (player.getLevel() - 1) * 2.0;
 
-            // potenziamo il proiettile prima che parta
-            shooter.shoot(projectileTemplate, bullet -> {
+            Consumer<Projectile> customizer = bullet -> {
                 double newDamage = bullet.getLife() + extraDamage;
                 bullet.setMaxLife(newDamage);
                 bullet.setLife(newDamage);
-            });
+            };
+
+            int level = player.getLevel();
+
+            if (level >= 9) {
+                // Livello 9-11: 5 Proiettili ad arco continuo ampio
+                double spread = Math.toRadians(15);
+                shooter.shoot(projectileTemplate, angle - spread * 2, customizer);
+                shooter.shoot(projectileTemplate, angle - spread, customizer);
+                shooter.shoot(projectileTemplate, angle, customizer);
+                shooter.shoot(projectileTemplate, angle + spread, customizer);
+                shooter.shoot(projectileTemplate, angle + spread * 2, customizer);
+            } else if (level >= 6) {
+                // Livello 6-8: 3 Proiettili ad arco stretto frontale
+                double spread = Math.toRadians(12);
+                shooter.shoot(projectileTemplate, angle - spread, customizer);
+                shooter.shoot(projectileTemplate, angle, customizer);
+                shooter.shoot(projectileTemplate, angle + spread, customizer);
+            } else if (level >= 3) {
+                // Livello 3-5: 2 Proiettili paralleli con distacco asse X/Y locale
+                double cx = player.getTransform().getTranslationX();
+                double cy = player.getTransform().getTranslationY();
+                double dist = player.getHeightMeters() / 2.0;
+                if (dist <= 0) dist = 0.2;
+
+                double perpAngle = angle + Math.PI / 2.0;
+                double lateralOffset = 0.15; // Distanza
+
+                Vector2 posLeft = new Vector2(
+                        cx + Math.cos(angle) * dist + Math.cos(perpAngle) * lateralOffset,
+                        cy + Math.sin(angle) * dist + Math.sin(perpAngle) * lateralOffset
+                );
+                Vector2 posRight = new Vector2(
+                        cx + Math.cos(angle) * dist - Math.cos(perpAngle) * lateralOffset,
+                        cy + Math.sin(angle) * dist - Math.sin(perpAngle) * lateralOffset
+                );
+
+                shooter.shoot(projectileTemplate, posLeft, angle, customizer);
+                shooter.shoot(projectileTemplate, posRight, angle, customizer);
+            } else {
+                // Livello 1-2: Sparo singolo
+                shooter.shoot(projectileTemplate, customizer);
+            }
 
             player.startCooldownFuoco();
         }
@@ -136,5 +157,4 @@ public class PlayerController {
     public PlayerModel getPlayer() {
         return player;
     }
-
 }

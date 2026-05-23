@@ -15,7 +15,7 @@ public class IscatEaterSettings {
     public static final double SEPARATION_FORCE = 100.0;
     // --- PROPRIETÀ FISICHE ---
     /** Punti vita iniziali del mob. */
-    public static final int HP_INIZIALI = 15;
+    public static final int HP_INIZIALI = 30;
     /** Dimensione base dello sprite in pixel. */
     public static final int DIM_SPRITE = 32;
     /** Numero di frame dell'animazione. */
@@ -35,7 +35,7 @@ public class IscatEaterSettings {
     /** Velocità massima in metri al secondo. (25 m/s è molto veloce) */
     public static final double MAX_VELOCITY_MS = VelocitySettings.EATER_MAX_VELOCITY;
     /** Forza massima di sterzata (maggiore = più reattivo). */
-    public static final double FORCE = 15;
+    public static final double FORCE = 60;
     /** Guadagno di sterzata per correggere la traiettoria. */
     public static final double STEERING_GAIN = 10.0;
     /** Se il nemico puo rotarsi verso il player */
