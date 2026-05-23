@@ -5,7 +5,10 @@ import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.LifeDeath;
+import uni.gaben.iscat.game.lib.utils.UU;
+import uni.gaben.iscat.game.universe.UniverseSpawner;
 import uni.gaben.iscat.game.universe.player.PlayerModel;
+import uni.gaben.iscat.game.universe.projectiles.Projectile;
 
 /**
  * Implementazione di un'entità dotata di vita e soggetta a mortalità.
@@ -69,13 +72,21 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
             if (onDeath != null) {
                 onDeath.run();
             }
-            // Controlla se l'entità è un proiettile tramite il nome della classe
-            boolean isProjectile = this.getClass().getSimpleName().equalsIgnoreCase("Projectile");
+            boolean isProjectile = this instanceof Projectile;
+            boolean isPlayer = this instanceof PlayerModel;
 
             // Se sei un proiettile, allora non fare nessun suono quando muori
             if (!silent && !isProjectile) {
                 IscatAudioManager.getInstance().playSFX("explosion");
             }
+
+            // Se muore un nemico 25% di chance di spawnare un heart
+            if (!isProjectile && !isPlayer && Math.random() < 0.25) {
+                double pixelX = UU.mToPx(this.getTransform().getTranslationX());
+                double pixelY = UU.mToPx(this.getTransform().getTranslationY());
+                UniverseSpawner.getInstance().spawn("HEART", pixelX, pixelY);
+            }
+
             onDeath();
         }
     }

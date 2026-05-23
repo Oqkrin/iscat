@@ -10,7 +10,7 @@ import uni.gaben.iscat.game.universe.enemies.iscat_core.IscatCoreView;
 import uni.gaben.iscat.game.universe.enemies.iscat_mother.IscatMotherView;
 import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSegment;
 import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormView;
-import uni.gaben.iscat.game.universe.hearth.HearthView;
+import uni.gaben.iscat.game.universe.heart.HeartView;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterView;
 import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobView;
 import uni.gaben.iscat.game.universe.enemies.iscat_bomber.IscatBomberView;
@@ -55,7 +55,7 @@ public class ViewRegistry {
             case ISCAT_MOB -> new IscatMobView();
             case ISCAT_BOMBER -> new IscatBomberView();
             case ISCAT_MOTHER -> new IscatMotherView();
-            case HEARTH -> new HearthView();
+            case HEART -> new HeartView();
             case EATER -> new IscatEaterView();
             case PROJECTILE -> new ProjectileView();
             case ISCAT_CORE -> new IscatCoreView();

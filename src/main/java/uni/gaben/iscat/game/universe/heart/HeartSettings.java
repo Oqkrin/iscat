@@ -1,8 +1,8 @@
-package uni.gaben.iscat.game.universe.hearth;
+package uni.gaben.iscat.game.universe.heart;
 
 import uni.gaben.iscat.game.lib.utils.UU;
 
-public class HearthSettings {
+public class HeartSettings {
 
     /** Dimensione base dello sprite in pixel. */
     public static final int DIM_SPRITE = 32;

@@ -1,16 +1,16 @@
-package uni.gaben.iscat.game.universe.hearth;
+package uni.gaben.iscat.game.universe.heart;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.game.universe.UniverseModel;
 import uni.gaben.iscat.game.universe.player.PlayerModel;
 
-public class HearthController extends AiBehaviours<HearthModel> {
+public class HeartController extends AiBehaviours<HeartModel> {
 
-    private final HearthModel hearth;
+    private final HeartModel hearth;
     private boolean collected = false; // Flag locale per evitare calcoli duplicati in un singolo frame
 
-    public HearthController(HearthModel hearth) {
+    public HeartController(HeartModel hearth) {
         super(hearth);
         this.hearth = hearth;
 
@@ -18,7 +18,7 @@ public class HearthController extends AiBehaviours<HearthModel> {
         this.hearth.setOnCollision(otherEntity -> {
             if (otherEntity instanceof PlayerModel player && !collected) {
                 collected = true;
-                player.deltaToLife(HearthSettings.HP_BOOST); // Cura il giocatore
+                player.deltaToLife(HeartSettings.HP_BOOST); // Cura il giocatore
                 hearth.setLife(0);
                 hearth.kill();
                 hearth.setShouldRemove(true);// Chiamata diretta a kill(): svanisce l'entità
@@ -40,8 +40,8 @@ public class HearthController extends AiBehaviours<HearthModel> {
                 Vector2 diff = pPos.copy().subtract(hPos);
                 double dist = diff.getMagnitude();
 
-                if (dist < HearthSettings.RANGE_ATTIVAZIONE) {
-                    Vector2 desired = diff.getNormalized().multiply(HearthSettings.VELOCITA_INSEGUIMENTO);
+                if (dist < HeartSettings.RANGE_ATTIVAZIONE) {
+                    Vector2 desired = diff.getNormalized().multiply(HeartSettings.VELOCITA_INSEGUIMENTO);
                     Vector2 steering = desired.copy().subtract(hearth.getLinearVelocity());
 
                     if (steering.getMagnitude() > 0.8) {

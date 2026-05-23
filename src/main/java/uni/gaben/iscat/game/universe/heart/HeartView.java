@@ -1,4 +1,4 @@
-package uni.gaben.iscat.game.universe.hearth;
+package uni.gaben.iscat.game.universe.heart;
 
 import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityView;
@@ -9,24 +9,24 @@ import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary; // Adjusted to match your library package path
 
-import static uni.gaben.iscat.game.universe.hearth.HearthSettings.DIM_SPRITE;
+import static uni.gaben.iscat.game.universe.heart.HeartSettings.DIM_SPRITE;
 
 /**
  * Vista standardizzata per l'entità Hearth.
  * Utilizza la SpritesLibrary e l'interfaccia DrawableSpriteSheet per eliminare
  * la gestione manuale del pixel reading e della cache dei frame.
  */
-public class HearthView extends AbstractEntityView<HearthModel>
-        implements Drawable<HearthModel>, DrawableSpriteSheet {
+public class HeartView extends AbstractEntityView<HeartModel>
+        implements Drawable<HeartModel>, DrawableSpriteSheet {
 
-    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/boosts/hearth.png";
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/boosts/heart.png";
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
 
-    public HearthView() {
+    public HeartView() {
         // 1. Carica lo spritesheet delegando il parsing e il caching alla libreria globale
-        spriteScale = HearthSettings.SCALE;
+        spriteScale = HeartSettings.SCALE;
         this.spriteSheet = SpritesLibrary.getInstance().getSprite(
                 SPRITE_PATH,
                 (int) DIM_SPRITE,
@@ -50,7 +50,7 @@ public class HearthView extends AbstractEntityView<HearthModel>
     public SpriteSheetsAnimator getAnimator() { return animator; }
 
     @Override
-    public void draw(HearthModel entity, GraphicsContext gc) {
+    public void draw(HeartModel entity, GraphicsContext gc) {
         // 3. Fai avanzare il timer dell'animazione secondo i tick di gioco
         animator.update(UU.UNIVERSE_TICK);
 
@@ -59,7 +59,7 @@ public class HearthView extends AbstractEntityView<HearthModel>
     }
 
     @Override
-    protected void drawContent(HearthModel entity, GraphicsContext gc, double x, double y, double width, double height) {
+    protected void drawContent(HeartModel entity, GraphicsContext gc, double x, double y, double width, double height) {
         // 5. drawSprite calcola in automatico riga, colonna, tinting globale e disegna nel centro local space
         drawSprite(gc, x, y, width, height);
     }

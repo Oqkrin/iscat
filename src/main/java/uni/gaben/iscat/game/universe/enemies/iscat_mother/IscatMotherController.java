@@ -163,7 +163,7 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
             double py = uni.gaben.iscat.game.lib.utils.UU.mToPx(y);
 
             if (i % 2 == 0) {
-                UniverseSpawner.getInstance().spawn(UniverseSpawnable.HEARTH.name(), px, py);
+                UniverseSpawner.getInstance().spawn(UniverseSpawnable.HEART.name(), px, py);
             } else {
                 UniverseSpawner.getInstance().spawn(UniverseSpawnable.EATER.name(), px, py);
             }

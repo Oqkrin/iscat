@@ -31,7 +31,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.game.lib.interfaces.controller;
     exports uni.gaben.iscat.game.universe;
     exports uni.gaben.iscat.game.universe.player;
-    exports uni.gaben.iscat.game.universe.hearth;
+    exports uni.gaben.iscat.game.universe.heart;
     exports uni.gaben.iscat.game.universe.asteroid;
     exports uni.gaben.iscat.game.universe.starfield;
     exports uni.gaben.iscat.game.universe.projectiles;
