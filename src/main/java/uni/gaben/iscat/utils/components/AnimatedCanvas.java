@@ -18,6 +18,9 @@ public class AnimatedCanvas extends Canvas {
     private AnimationTimer timer;
     private long lastTime = 0;
 
+    // Variabile per gestire la durata del frame (default 0.1 secondi)
+    private double currentFrameDuration = 0.1;
+
     // Costruttore no-arg richiesto da FXML e SceneBuilder
     public AnimatedCanvas() {
         super(0, 0);
@@ -26,6 +29,15 @@ public class AnimatedCanvas extends Canvas {
     // crea un canvas quadrato
     public AnimatedCanvas(double size) {
         super(size, size);
+    }
+
+    /**
+     * Imposta la durata di ogni singolo frame in secondi.
+     * Più il valore è alto, più l'animazione risulterà lenta.
+     * Va chiamato PRIMA di loadSkin().
+     */
+    public void setFrameDuration(double duration) {
+        this.currentFrameDuration = duration;
     }
 
     // prepariamo il caricamento della skin passando path, height e width
@@ -39,8 +51,9 @@ public class AnimatedCanvas extends Canvas {
         spriteSheet = SpritesLibrary.getInstance().getSprite(path, frameW, frameH);
         if (spriteSheet == null) return;
 
-        animator = new SpriteSheetsAnimator(0.1, 1, 1);
-        animator.constantDurationFiller(0.1, spriteSheet.getTotalFrames(), spriteSheet.getTotalStates());
+        // Usiamo la variabile dinamica currentFrameDuration al posto del valore fisso 0.1
+        animator = new SpriteSheetsAnimator(currentFrameDuration, 1, 1);
+        animator.constantDurationFiller(currentFrameDuration, spriteSheet.getTotalFrames(), spriteSheet.getTotalStates());
 
         timer = new AnimationTimer() {
             @Override

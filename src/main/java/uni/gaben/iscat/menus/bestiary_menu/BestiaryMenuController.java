@@ -83,6 +83,7 @@ public class BestiaryMenuController implements IscatFxmlController {
         if (enemy == null) return;
         skinNameLabel.setText(enemy.name().toUpperCase());
         description.setText(enemy.description());
+        previewCanvas.setFrameDuration(0.20);
         previewCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
         previewCanvas.resize(DISPLAY_SIZE);
     }
