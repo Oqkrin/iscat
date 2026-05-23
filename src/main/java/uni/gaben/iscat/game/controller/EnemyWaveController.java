@@ -15,7 +15,7 @@ public class EnemyWaveController {
     private final Random random = new Random();
 
     private static final double SPAWN_RADIUS = 800.0;
-    private static final double SPAWN_COOLDOWN = 5.0;
+    private static final double SPAWN_COOLDOWN = 15.0;
 
     public void update(double dt, CameraModel camera) {
         timeElapsedSec += dt;
