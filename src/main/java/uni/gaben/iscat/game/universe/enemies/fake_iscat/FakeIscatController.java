@@ -42,6 +42,7 @@ public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
                 FakeIscatSettings.FORCE,
                 FakeIscatSettings.ROTATION_SPEED,
                 FakeIscatSettings.FIRE_COOLDOWN_S,
+                false,
                 ProjectileType.ENEMY_BULLET,
                 new SingleBurstAttack<>(3, 0.12),
                 new RadialNovaAttack<>(15),

@@ -35,14 +35,6 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
 
     // ==================== SHOOTING ====================
 
-    public boolean isSparoDisponibile() {
-        return weaponCooldown.isReady();
-    }
-
-    public void startCooldownFuoco() {
-        weaponCooldown.start(IscatCoreSettings.COOLDOWN_FUOCO_SEC);
-    }
-
     @Override
     public Projectile getProjectile() {
         return projectile;
@@ -60,7 +52,7 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
 
     @Override
     public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(IscatCoreSettings.COOLDOWN_FUOCO_SEC);
+        return 0;
     }
 
     @Override
@@ -68,8 +60,4 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
         weaponCooldown.start(UU.ticksToS(tickCount));
     }
 
-    @Override
-    public double getTerminalVelocity() {
-        return IscatCoreSettings.MAX_VELOCITY_MS;
-    }
 }

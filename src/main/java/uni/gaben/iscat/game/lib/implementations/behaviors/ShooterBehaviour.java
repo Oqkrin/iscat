@@ -14,6 +14,7 @@ import uni.gaben.iscat.game.universe.projectiles.Shooter;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.Interpolator;
 import java.util.Random;
+import java.util.function.DoubleSupplier;
 
 public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? extends AbstractProjectileModel>> implements AiBehavior {
 
@@ -23,6 +24,8 @@ public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? ex
     private final double force;
     private final double rotationSpeed;
     private final double globalCooldownS;
+    private final boolean rotateTowardsPlayer;
+    private final DoubleSupplier cooldownSupplier;
 
     private Shooter<T> shooter = null;
     private final Projectile bulletTemplate;
@@ -34,7 +37,7 @@ public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? ex
 
     @SafeVarargs
     public ShooterBehaviour(double priorityValue, double combatRange, double preferredRange,
-                            double force, double rotationSpeed, double globalCooldownS,
+                            double force, double rotationSpeed, double globalCooldownS, boolean rotateTowardsPlayer,
                             ProjectileType bulletType, AttackPattern<T>... attacks) {
         this.priorityValue = priorityValue;
         this.combatRange = combatRange;
@@ -44,6 +47,25 @@ public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? ex
         this.globalCooldownS = globalCooldownS;
         this.bulletTemplate = new Projectile(bulletType);
         this.attackPool = attacks;
+        this.rotateTowardsPlayer = rotateTowardsPlayer;
+        this.cooldownSupplier = () -> globalCooldownS;
+    }
+
+    // costruttore per nemici che aumentano la frequenza d'attacco in base agli hp
+    @SafeVarargs
+    public ShooterBehaviour(double priorityValue, double combatRange, double preferredRange,
+                            double force, double rotationSpeed,DoubleSupplier cooldownSupplier, boolean rotateTowardsPlayer,
+                            ProjectileType bulletType, AttackPattern<T>... attacks) {
+        this.priorityValue = priorityValue;
+        this.combatRange = combatRange;
+        this.preferredRange = preferredRange;
+        this.force = force;
+        this.rotationSpeed = rotationSpeed;
+        this.bulletTemplate = new Projectile(bulletType);
+        this.attackPool = attacks;
+        this.rotateTowardsPlayer = rotateTowardsPlayer;
+        this.cooldownSupplier = cooldownSupplier;
+        this.globalCooldownS = 0.0;
     }
 
     @Override
@@ -59,7 +81,6 @@ public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? ex
     @Override
     public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
         T entity = (T) npc;
-        fireCooldown.update(dt);
 
         if (shooter == null) {
             this.shooter = new Shooter<>(entity);
@@ -79,13 +100,16 @@ public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? ex
         }
 
         // Rotazione
-        entity.setAngularVelocity(0.0);
-        double current = entity.getTransform().getRotationAngle();
-        double diff = toPlayer.getDirection() - current;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        while (diff >  Math.PI) diff -= Math.PI * 2;
-        entity.getTransform().setRotation(Interpolator.lerp(current, current + diff, Math.min(rotationSpeed * dt, 1.0)));
-
+        if (rotateTowardsPlayer) {
+            entity.setAngularVelocity(0.0);
+            double current = entity.getTransform().getRotationAngle();
+            double diff = toPlayer.getDirection() - current;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            while (diff >  Math.PI) diff -= Math.PI * 2;
+            entity.getTransform().setRotation(
+                    Interpolator.lerp(current, current + diff, Math.min(rotationSpeed * dt, 1.0))
+            );
+        }
         // Pattern di attacco
         double angleToPlayer = toPlayer.getDirection();
         if (activeAttack != null) {
@@ -95,7 +119,7 @@ public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? ex
         } else if (!fireCooldown.isCoolingDown() && attackPool.length > 0) {
             activeAttack = attackPool[rand.nextInt(attackPool.length)];
             activeAttack.reset(); // ← QUI, subito dopo aver scelto l'attacco
-            fireCooldown.start(globalCooldownS);
+            fireCooldown.start(cooldownSupplier.getAsDouble());
         }
     }
 
