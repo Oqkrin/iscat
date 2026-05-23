@@ -1,4 +1,4 @@
-package uni.gaben.iscat.menus.login_menu.model;
+package uni.gaben.iscat.menus.login_menu;
 
 import javafx.beans.property.*;
 
@@ -56,4 +56,14 @@ public class LoginModel {
     public BooleanProperty isLoggedInProperty() { return isLoggedIn; }
     public boolean isLoggedIn() { return isLoggedIn.get(); }
     public void setLoggedIn(boolean v) { isLoggedIn.set(v); }
+
+    public void reset() {
+        username.set("");
+        password.set("");
+        status.set("");
+        loginState.set(false);
+        userExists.set(false);
+        wrongCredentials.set(false);
+        isLoggedIn.set(false);
+    }
 }

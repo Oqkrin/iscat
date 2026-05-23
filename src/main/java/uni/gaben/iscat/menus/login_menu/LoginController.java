@@ -1,9 +1,6 @@
-package uni.gaben.iscat.menus.login_menu.controller;
+package uni.gaben.iscat.menus.login_menu;
 
 import javafx.scene.input.KeyEvent;
-import uni.gaben.iscat.menus.login_menu.model.LoginData;
-import uni.gaben.iscat.menus.login_menu.model.LoginModel;
-import uni.gaben.iscat.menus.login_menu.model.LoginState;
 
 /**
  * Controller per la schermata di login.
@@ -137,5 +134,12 @@ public class LoginController {
     private void updateDisplay() {
         model.setUsername(usernameBuffer.toString());
         model.setPassword("*".repeat(passwordBuffer.length()));
+    }
+
+    public void reset() {
+        usernameBuffer.setLength(0);
+        passwordBuffer.setLength(0);
+        currentLoginState = LoginState.USERNAME;
+        model.reset();
     }
 }

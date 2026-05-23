@@ -1,4 +1,4 @@
-package uni.gaben.iscat.menus.login_menu.view;
+package uni.gaben.iscat.menus.login_menu;
 
 import javafx.animation.*;
 import javafx.geometry.Insets;
@@ -13,8 +13,6 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.AbstractIscatStackPane;
 import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.menus.login_menu.controller.LoginController;
-import uni.gaben.iscat.menus.login_menu.model.LoginModel;
 import uni.gaben.iscat.utils.components.AutoFittingLabel;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
@@ -253,13 +251,15 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     public void onShow() {
-        // Esegue la logica centralizzata (fadeIn e tracciamento mouse delle stelle)
+        controller.reset();
+        usernameField.setOpacity(1);
+        passwordField.setOpacity(1);
+        statusLabel.setOpacity(1);
+        loggedInUserLabel.setOpacity(0);
+        welcomeTitle.setTranslateY(0);
+        loggedInUserLabel.setTranslateY(0);
         super.onShow();
-        // Avvia animazione cursore quando la scena diventa visibile
-        if (blinkAnimation != null) {
-            blinkAnimation.play();
-        }
-        // Aggancia i listener di input globali
+        if (blinkAnimation != null) blinkAnimation.play();
         if (getScene() != null) {
             getScene().addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
             getScene().addEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
