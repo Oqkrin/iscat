@@ -50,6 +50,9 @@
             <Button fx:id="iscat_worm_tail" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0"
                     mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0"
                     text="Iscat Worm Tail"/>
+            <Button fx:id="iscat_master" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0"
+                    mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0"
+                    text="Iscat Master"/>
          </VBox>            <VBox fx:id="previewBox" alignment="CENTER" prefWidth="303.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
             <padding>
                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
