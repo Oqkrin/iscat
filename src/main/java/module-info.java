@@ -18,9 +18,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat;
     exports uni.gaben.iscat.utils;
     exports uni.gaben.iscat.utils.components;
-    exports uni.gaben.iscat.menus.login_menu.controller;
-    exports uni.gaben.iscat.menus.login_menu.model;
-    exports uni.gaben.iscat.menus.login_menu.view;
     exports uni.gaben.iscat.game.model;
     exports uni.gaben.iscat.game.controller;
     exports uni.gaben.iscat.game.view;
