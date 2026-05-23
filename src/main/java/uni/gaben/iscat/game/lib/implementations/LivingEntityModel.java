@@ -69,8 +69,11 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
             if (onDeath != null) {
                 onDeath.run();
             }
-            if (!silent) {
-                // Riproduci SFX di esplosione per tutte le morti
+            // Controlla se l'entità è un proiettile tramite il nome della classe
+            boolean isProjectile = this.getClass().getSimpleName().equalsIgnoreCase("Projectile");
+
+            // Se sei un proiettile, allora non fare nessun suono quando muori
+            if (!silent && !isProjectile) {
                 IscatAudioManager.getInstance().playSFX("explosion");
             }
             onDeath();
