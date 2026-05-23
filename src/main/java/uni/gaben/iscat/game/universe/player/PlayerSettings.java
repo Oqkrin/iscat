@@ -21,7 +21,7 @@ public final class PlayerSettings {
 
     // === Core Physics ===
     public static final double MASSA = 1.0;
-    public static final double LINEAR_DAMPING = 1.5;
+    public static final double LINEAR_DAMPING = .5;
     public static final double VELOCITA_MAX = VelocitySettings.PLAYER_MAX_VELOCITY;
     public static final double FORZA_SPINTA = 60.0; // Newtons
 
@@ -34,13 +34,13 @@ public final class PlayerSettings {
     // === Combat & Vitals ===
     public static final int HP_MASSIMO = 2000;
     public static final int HP_INIZIALE = 2000;
-    public static final double COOLDOWN_FUOCO_SEC = 0.16; // Single source of truth for firing speed
+    public static final double COOLDOWN_FUOCO_SEC = 1/4.0; // Single source of truth for firing speed
     public static final double VELOCITA_PROIETTILE = VelocitySettings.PLAYER_BULLET_VELOCITY;
     public static final double DANNO_PROIETTILE = 10.0;
 
     // === Visuals & Dimensions ===
     public static final double DIMENSIONE_DA_DISEGNARE = 64.0; // Render box size (pixels)
-    public static final double RAGGIO_COLLISIONE = 32.0;       // Collision boundary radius (pixels)
+    public static final double RAGGIO_COLLISIONE = 24.0;       // Collision boundary radius (pixels)
     public static final double HP_BAR_OFFSET_Y = 10.0;
     public static final double HP_BAR_HEIGHT = 4.0;
 
@@ -48,7 +48,7 @@ public final class PlayerSettings {
     public static final int THRUST_MIN_PARTICLES = 12;              // Raddoppiate le particelle minime (da 12)
     public static final int THRUST_EXTRA_PARTICLES = 48;            // Aumentate le particelle massime (da 48)
     public static final double THRUST_HEIGHT_FACTOR = ScalareAureo.IPHI;         // Coda leggermente più lunga (da 0.65)
-    public static final double THRUST_SPREAD_X_FACTOR = 0.45;       // Triplicata la larghezza del cono (da 0.15)
+    public static final double THRUST_SPREAD_X_FACTOR = 1;       // Triplicata la larghezza del cono (da 0.15)
     public static final double THRUST_MIN_PARTICLE_SIZE = 1.0;      // Particelle base più grandi (da 1.0)
     public static final double THRUST_PARTICLE_SIZE_VARIATION = 7.0; // Maggiore escursione di volume (da 7.0)
 

@@ -9,6 +9,8 @@ import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.game.universe.projectiles.Shooter;
 import uni.gaben.iscat.utils.Interpolator;
 import uni.gaben.iscat.utils.Cooldown;
+
+import java.util.Random;
 import java.util.function.Consumer;
 
 public class PlayerController {
@@ -81,7 +83,7 @@ public class PlayerController {
             player.executeScatto(finalDashAngle);
             dashBuffer.reset();
 
-            int randFart = new java.util.Random().nextInt(3) + 1;
+            int randFart = new Random().nextInt(3) + 1;
             IscatAudioManager.getInstance().playSFX("fart_alt" + randFart);
         }
     }

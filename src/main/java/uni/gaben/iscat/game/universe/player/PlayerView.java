@@ -57,15 +57,13 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
         Vector2 worldVelocity = entity.getLinearVelocity();
         double speedMps = worldVelocity.getMagnitude();
         double intensity = Math.min(speedMps / PlayerSettings.VELOCITA_MAX, 1.0);
-        intensity *= 3;
 
-        if (intensity < 0.02) return;
+        // Keep a subtle idling flame even when stationary
+        if (intensity < 0.05) intensity = 0.05;
 
         Vector2 localDrift = calculateLocalDrift(worldVelocity);
-
         int particleCount = (int) (PlayerSettings.THRUST_MIN_PARTICLES + intensity * PlayerSettings.THRUST_EXTRA_PARTICLES);
-
-        double maxThrustHeight = ScalareAureo.phiMaggiore(h);
+        double maxThrustHeight = ScalareAureo.phiMaggiore(h) * 1.2;
 
         Color accent = ThemeManager.getInstance().getColor("accent-primary", Color.CYAN);
 
@@ -75,26 +73,28 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
         for (int i = 0; i < particleCount; i++) {
             double distRatio = RANDOM.nextDouble();
 
-            // Cono rimodellato: compatto all'inizio, si apre stabilmente a ventaglio senza disperdersi
+            // Calculate tight cone expansion and particle sizes
             double spreadX = calculateConeSpread(w, distRatio);
             double size = calculateParticleSize(distRatio, intensity);
 
-            // Ottimizzazione Curva: Spostamento dinamico reattivo
-            double whipX = calculateWhipCurveX(distRatio, localDrift.x, maxThrustHeight);
-            double dragY = localDrift.y * distRatio * (h * 0.15);
+            // Sane trailing drift interpolation (prevents detaching from nozzles)
+            double whipX = calculateWhipCurveX(distRatio, localDrift.x, w);
+            double dragY = localDrift.y * distRatio * (h * 0.1);
 
-            // Distribuzione gaussiana focalizzata per massimizzare la densità al centro della curva
-            double offsetX = (RANDOM.nextGaussian() * 0.28) * spreadX + whipX;
-            double offsetY = (h/2)  + (distRatio * maxThrustHeight) + dragY;
+            // Refined Gaussian layout focused heavily down the center line
+            double offsetX = (RANDOM.nextGaussian() * 0.22) * spreadX + whipX;
+            double offsetY = (h / 2) + (distRatio * maxThrustHeight) + dragY;
 
-            // Evita che le particelle fluttuino avanti nella navicella
-            offsetY = Math.max(offsetY, (h/2) + distRatio * (h * 0.1));
+            // Clamp particle spawn origin so they don't leak inside the ship model
+            offsetY = Math.max(offsetY, (h / 2));
 
             gc.setFill(getParticleColor(distRatio, intensity, RANDOM.nextDouble(), accent));
-            gc.fillRect(offsetX - size / 2, offsetY - size / 2, size, size);
+
+            // Render smooth circles instead of harsh blocky squares
+            gc.fillOval(offsetX - size / 2, offsetY - size / 2, size, size);
         }
 
-        // JavaFX gc.restore() doesn't restore BlendMode! Must be reset manually.
+        // Explicitly clear blend mode before popping the graphics stack
         gc.setGlobalBlendMode(BlendMode.SRC_OVER);
         gc.restore();
     }
@@ -106,6 +106,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
         double cos = Math.cos(rotRad);
         double sin = Math.sin(rotRad);
 
+        // Map global velocity vector to the local relative coordinate space of the ship orientation
         double localDriftX = -normVx * cos - normVy * sin;
         double localDriftY =  normVx * sin - normVy * cos;
 
@@ -113,65 +114,54 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
     }
 
     private double calculateConeSpread(double shipWidth, double distRatio) {
-        // Base d'uscita solida e progressione a imbuto proporzionale senza sgranature laterali
-        return shipWidth * (0.12 + Math.pow(distRatio, 1.3) * PlayerSettings.THRUST_SPREAD_X_FACTOR * 5);
+        // Keeps the nozzle base narrow and tapers out smoothly near the exhaust tip
+        return shipWidth * (0.15 + Math.pow(distRatio, 1.5) * PlayerSettings.THRUST_SPREAD_X_FACTOR);
     }
 
-    private double calculateWhipCurveX(double distRatio, double localDriftX, double maxThrustHeight) {
-        // Blocco del primo h/3 (0.33) fisso per andare dritti
-        double curveStartPoint = 0.33;
-
-        if (distRatio <= curveStartPoint) {
-            return 0.0;
+    private double calculateWhipCurveX(double distRatio, double localDriftX, double shipWidth) {
+        if (distRatio <= 0.7) {
+            return 0.0; // Keep the core anchored straight out of the physical nozzle
         }
-
-        double curveRatio = (distRatio - curveStartPoint) / (1.0 - curveStartPoint);
-
-        // Curva iper-visibile: moltiplicatore aumentato e curva quasi lineare (1.05) per accentuare la sbandata
-        return localDriftX * Math.pow(curveRatio, 1.05) * (maxThrustHeight * 3.4);
+        double curveRatio = (distRatio - 0.15) / (1.0 - 0.15);
+        // Uses ship width as base scaling instead of an infinite multiplier to prevent tearing
+        return localDriftX * Math.pow(curveRatio, 5) * (shipWidth * 2);
     }
 
     private double calculateParticleSize(double distRatio, double intensity) {
-        return (PlayerSettings.THRUST_MIN_PARTICLE_SIZE + RANDOM.nextDouble() * PlayerSettings.THRUST_PARTICLE_SIZE_VARIATION)
-                * (1.45 - distRatio)
-                * (0.85 + intensity * 0.4);
+        double baseSize = PlayerSettings.THRUST_MIN_PARTICLE_SIZE + RANDOM.nextDouble() * PlayerSettings.THRUST_PARTICLE_SIZE_VARIATION;
+        // High intensity swells the flame, particles shrink down to a fine tip at the tail end
+        return baseSize * (1.2 - distRatio * 0.9) * (0.7 + intensity * 0.5);
     }
 
     private static Color getParticleColor(double distanceRatio, double intensity, double colorMix, Color accent) {
-        double baseAlpha = (1.0 - distanceRatio) * intensity;
-        double alpha = Math.min(1.0, baseAlpha * (0.85 + colorMix * 0.3));
+        double alpha = (1.0 - distanceRatio) * (0.4 + intensity * 0.6);
 
-        if (distanceRatio < 0.45) {
-            // ZONE 1: NEBULA BRIGHT CORE
-            // Forte sovraccarico di bianco per dare l'effetto di emissione energetica luminosa
-            double t = 1-distanceRatio;
+        if (distanceRatio < 0.25) {
+            // ZONE 1: CORE EMISSION - Bright white-hot plasma heart
+            double t = distanceRatio / 0.25;
             return Color.color(
-                    Math.min(1.0, 1.0 + accent.getRed() * t),
-                    Math.min(1.0, 1.0 + accent.getGreen() * t),
-                    Math.min(1.0, 1.0 + accent.getBlue() * t),
-                    Math.max(0.0, Math.min(1.0, intensity * 0.98))
+                    1.0,
+                    Math.min(1.0, 0.9 + accent.getGreen() * t),
+                    Math.min(1.0, 0.8 + accent.getBlue() * t),
+                    alpha
             );
-
-        } else if (distanceRatio < 0.85) {
-            // ZONE 2: SATURATED ACCENT FLAME
-            // Incrementata la brillantezza a 1.8 per far risaltare il colore primario in ADD mode
-            double brightness = 1.8;
+        } else if (distanceRatio < 0.7) {
+            // ZONE 2: ACCENT ENGINE FLAME - Saturated primary energy color
             return Color.color(
-                    Math.min(1.0, accent.getRed() * brightness),
-                    Math.min(1.0, accent.getGreen() * brightness),
-                    Math.min(1.0, accent.getBlue() * brightness),
-                    Math.max(0.0, Math.min(1.0, alpha * 0.9))
+                    accent.getRed(),
+                    accent.getGreen(),
+                    accent.getBlue(),
+                    alpha * 0.85
             );
-
         } else {
-            // ZONE 3: TAIL COLD FADE
-            double t = (distanceRatio - 0.72) / 0.28;
-            double cooling = 1.0 - (t * 0.4);
+            // ZONE 3: TAIL COLD FADE - Thermal dissipation into deep vacuum
+            double t = (distanceRatio - 0.7) / 0.3;
+            double cooling = 1.0 - (t * 0.5);
             return Color.color(
                     accent.getRed() * cooling,
                     accent.getGreen() * cooling,
                     accent.getBlue() * cooling,
-                    Math.max(0.0, Math.min(1.0, alpha * 0.7))
+                    alpha * (1.0 - t)
             );
         }
     }
