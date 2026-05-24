@@ -17,7 +17,6 @@ import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
-
 public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile> {
 
     // LEVEL SYSTEM VARIABLES

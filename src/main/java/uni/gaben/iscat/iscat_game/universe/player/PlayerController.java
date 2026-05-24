@@ -17,14 +17,12 @@ public class PlayerController {
     private PlayerModel player;
     private Shooter<PlayerModel> shooter;
 
-    private final Projectile projectileTemplate;
+    private Projectile projectileTemplate;
     private final Cooldown dashBuffer = new Cooldown();
     private boolean bufferedDashIsWASD = false;
 
     public PlayerController(PlayerModel player) {
-        this.player = player;
-        this.shooter = new Shooter<>(player);
-        this.projectileTemplate = new Projectile(ProjectileType.PLAYER_BULLET);
+        setPlayer(player);
     }
 
     public void processInput(GameInputs input, double viewportLeftX, double viewportTopY, double dt) {
@@ -33,9 +31,9 @@ public class PlayerController {
         dashBuffer.update(dt);
 
         double dx = 0, dy = 0;
-        if (input.up)    dy -= 1;
-        if (input.down)  dy += 1;
-        if (input.left)  dx -= 1;
+        if (input.up) dy -= 1;
+        if (input.down) dy += 1;
+        if (input.left) dx -= 1;
         if (input.right) dx += 1;
 
         double currentAngle = player.getTransform().getRotationAngle();
@@ -56,17 +54,19 @@ public class PlayerController {
             double diff = targetAngle - currentAngle;
 
             while (diff < -Math.PI) diff += Math.PI * 2;
-            while (diff > Math.PI)  diff -= Math.PI * 2;
+            while (diff > Math.PI) diff -= Math.PI * 2;
 
             nextAngle = Interpolator.lerp(currentAngle, currentAngle + diff, Math.min(15.0 * dt, 1.0));
             player.getTransform().setRotation(nextAngle);
             player.setAngularVelocity(Interpolator.lerp(player.getAngularVelocity(), 0, Math.min(20.0 * dt, 1.0)));
+            handleShooting(input);
         } else {
             player.setAngularVelocity(0);
         }
 
         handleDash(input, dx, dy, nextAngle);
-        handleShooting(input);
+
+
     }
 
     private void handleDash(GameInputs input, double dx, double dy, double nextAngle) {
@@ -94,6 +94,11 @@ public class PlayerController {
         this.player = player;
         if (player != null) {
             this.shooter = new Shooter<>(player);
+            this.projectileTemplate = new Projectile(ProjectileType.PLAYER_BULLET);
+            this.player.lifeProperty().addListener((observable, oldValue, newValue) -> {
+                if(oldValue.doubleValue() > newValue.doubleValue()) {
+                AudioManager.getInstance().playSFX("hurt"); }
+            });
         } else {
             this.shooter = null;
         }
@@ -114,20 +119,27 @@ public class PlayerController {
 
             int level = player.getLevel();
 
-            // (Shooting logic remains exactly the same)
             if (level >= 9) {
-                double spread = Math.toRadians(15);
-                shooter.shoot(projectileTemplate, angle - spread * 2, customizer);
-                shooter.shoot(projectileTemplate, angle - spread, customizer);
-                shooter.shoot(projectileTemplate, angle, customizer);
-                shooter.shoot(projectileTemplate, angle + spread, customizer);
-                shooter.shoot(projectileTemplate, angle + spread * 2, customizer);
+                // PENTA SHOT: 5 bullets total. Max spread is 15°.
+                // 2 side steps to reach the edge, so step = 15° / 2 = 7.5°
+                double step = Math.toRadians(7.5);
+                shooter.shoot(projectileTemplate, angle - step * 2, customizer); // -15.0° (Far Left)
+                shooter.shoot(projectileTemplate, angle - step, customizer);     // -7.5°  (Mid Left)
+                shooter.shoot(projectileTemplate, angle, customizer);             //  0.0°  (Center)
+                shooter.shoot(projectileTemplate, angle + step, customizer);     //  +7.5°  (Mid Right)
+                shooter.shoot(projectileTemplate, angle + step * 2, customizer); // +15.0° (Far Right)
+
             } else if (level >= 6) {
-                double spread = Math.toRadians(12);
-                shooter.shoot(projectileTemplate, angle - spread, customizer);
-                shooter.shoot(projectileTemplate, angle, customizer);
-                shooter.shoot(projectileTemplate, angle + spread, customizer);
+                // TRIPLE FAN SHOT: 3 bullets total. Max spread is 15°.
+                // 1 side step to reach the edge, so step = 15°
+                double step = Math.toRadians(15.0);
+                shooter.shoot(projectileTemplate, angle - step, customizer);     // -15.0° (Left)
+                shooter.shoot(projectileTemplate, angle, customizer);             //  0.0°  (Center)
+                shooter.shoot(projectileTemplate, angle + step, customizer);     // +15.0° (Right)
+
             } else if (level >= 3) {
+                // DUAL PARALLEL + CENTER: 3 bullets firing perfectly straight.
+                // Spatially offset across the wings, keeping the center laser active.
                 double cx = player.getTransform().getTranslationX();
                 double cy = player.getTransform().getTranslationY();
                 double dist = player.getHeightMeters() / 2.0;
@@ -145,9 +157,12 @@ public class PlayerController {
                         cy + Math.sin(angle) * dist - Math.sin(perpAngle) * lateralOffset
                 );
 
-                shooter.shoot(projectileTemplate, posLeft, angle, customizer);
-                shooter.shoot(projectileTemplate, posRight, angle, customizer);
+                shooter.shoot(projectileTemplate, posLeft, angle, customizer);  // Left Wing (0° Angle)
+                shooter.shoot(projectileTemplate, posRight, angle, customizer); // Right Wing (0° Angle)
+                shooter.shoot(projectileTemplate, angle, customizer);           // Nose Cannon (0° Angle)
+
             } else {
+                // STANDARD: 1 clean center-aimed bullet
                 shooter.shoot(projectileTemplate, customizer);
             }
 

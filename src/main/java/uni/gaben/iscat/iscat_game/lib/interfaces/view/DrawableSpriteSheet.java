@@ -12,6 +12,10 @@ public interface DrawableSpriteSheet {
     SpriteSheetsParser getSpriteSheet();
     SpriteSheetsAnimator getAnimator();
 
+    default Color getTint() {
+        return ThemeManager.getInstance().globalTintProperty().get();
+    }
+
     default void drawSprite(GraphicsContext gc, double x, double y, double w, double h) {
         SpriteSheetsParser sheet = getSpriteSheet();
         SpriteSheetsAnimator anim = getAnimator();
@@ -22,8 +26,7 @@ public interface DrawableSpriteSheet {
         int currentState = anim.getCurrentState();
         int currentFrame = anim.getCurrentFrame(); // Allineato con SpriteSheetsAnimator
 
-        Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
-        Image renderedImage = ThemeManager.getInstance().getTintedImage(sheet.getSheet(), currentTint);
+        Image renderedImage = ThemeManager.getInstance().getTintedImage(sheet.getSheet(), getTint());
 
         int sheetRow = Math.clamp(currentState, 0, sheet.getTotalStates() - 1);
         int sheetColumn = Math.clamp(currentFrame, 0, sheet.getTotalFrames() - 1);

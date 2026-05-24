@@ -8,6 +8,8 @@ import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.iscat_game.utils.UU;
+import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.ThemeColors;
 import uni.gaben.iscat.utils.ThemeManager;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -21,6 +23,9 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
 
     private static final Random RANDOM = new Random();
 
+    private final Cooldown hurt = new Cooldown();
+    private double lastLife = 0.0;
+
     private SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator = new SpriteSheetsAnimator(0.1, 1, 1);
 
@@ -28,6 +33,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
         spriteScale = PlayerSettings.MASSA;
         updateSprite(PlayerSettings.getPlayerSkin());
         PlayerSettings.playerSkinProperty().addListener((obs, old, nv) -> updateSprite(nv));
+
     }
 
     private void updateSprite(String path) {
@@ -42,15 +48,23 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
 
     @Override
     public void draw(PlayerModel entity, GraphicsContext gc) {
+        if(lastLife >= 0.0 && lastLife > entity.getLife()) {
+            hurt.start(.1);
+        }
+
         animator.update(UU.UNIVERSE_TICK);
+        hurt.update(UU.UNIVERSE_TICK);
         setupGraphicsContextAndDrawContent(entity, gc, 0.0);
         drawHpBar(entity, gc);
+        lastLife = entity.getLife();
     }
 
     @Override
     protected void drawContent(PlayerModel entity, GraphicsContext gc, double x, double y, double width, double height) {
+
         drawSprite(gc, x, y, width, height);
         drawThrustEffect(gc, entity, width, height);
+
     }
 
     private void drawThrustEffect(GraphicsContext gc, PlayerModel entity, double w, double h) {
@@ -164,5 +178,10 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
                     alpha * (1.0 - t)
             );
         }
+    }
+
+    @Override
+    public Color getTint() {
+        return hurt.isCoolingDown() ? ThemeColors.getColorError() : DrawableSpriteSheet.super.getTint();
     }
 }

@@ -24,7 +24,7 @@ public final class PlayerSettings {
     // === Dash Mechanical Settings ===
     public static final double IMPULSO_SCATTO = VelocitySettings.PLAYER_DASH_IMPULSE;
     public static final double LINEAR_DAMPING_SCATTO = .1 ; // Higher friction during dash so it doesn't slide forever
-    public static final double DURATA_SCATTO_SEC = 1.0 / 2.0; // Slightly shorter, snappier dash
+    public static final double DURATA_SCATTO_SEC = 1.0 / 1.5; // Slightly shorter, snappier dash
     public static final double COOLDOWN_SCATTO_SEC = 0.8;
 
     // === Combat & Vitals ===

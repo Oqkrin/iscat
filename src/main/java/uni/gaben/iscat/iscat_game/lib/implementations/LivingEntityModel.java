@@ -50,11 +50,6 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
 
     @Override
     public void deltaToLife(double delta) {
-        if (delta < 0) {
-            if (this instanceof PlayerModel) {
-                AudioManager.getInstance().playSFX("hurt");
-            }
-        }
         setLife(getLife() + delta);
     }
 
