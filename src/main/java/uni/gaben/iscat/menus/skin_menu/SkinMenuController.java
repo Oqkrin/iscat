@@ -136,11 +136,14 @@ public class SkinMenuController implements IscatFxmlController {
 
     @FXML
     private void selectRandom() {
-        int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(TOTAL_SKINS);
-        int num = randomIndex + 1;
-        String path = "/uni/gaben/iscat/sprites/players/player" + num + ".png";
-        String name = SKIN_NAMES[randomIndex];
-        selectSkin(path, name);
+        int idx;
+        String path;
+        do {
+            idx = java.util.concurrent.ThreadLocalRandom.current().nextInt(TOTAL_SKINS);
+            path = "/uni/gaben/iscat/sprites/players/player" + (idx + 1) + ".png";
+        } while (path.equals(selectedSkinPath));
+
+        selectSkin(path, SKIN_NAMES[idx]);
     }
 
     private void stopAll() {

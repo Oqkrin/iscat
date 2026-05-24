@@ -98,10 +98,11 @@ public class BestiaryMenuController implements IscatFxmlController {
 
     @FXML
     private void selectRandom() {
-        List<String> enemyIds = new ArrayList<>(ENEMIES.keySet());
-        if (enemyIds.isEmpty()) return;
-        int randomIndex = ThreadLocalRandom.current().nextInt(enemyIds.size());
-        String randomId = enemyIds.get(randomIndex);
+        var validIds = ENEMIES.keySet().stream()
+                .filter(id -> !ENEMIES.get(id).name().toUpperCase().equals(skinNameLabel.getText()))
+                .toList();
+        if (validIds.isEmpty()) return;
+        String randomId = validIds.get(ThreadLocalRandom.current().nextInt(validIds.size()));
         showEnemyById(randomId);
     }
 
