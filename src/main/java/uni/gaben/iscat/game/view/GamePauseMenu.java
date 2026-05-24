@@ -6,7 +6,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.VBox;
-import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.AudioSettings;
 import uni.gaben.iscat.game.controller.GameController;
 
@@ -27,10 +27,10 @@ public class GamePauseMenu extends VBox {
         settingsBox.getStyleClass().add("pause-settings-box");
 
         createLabeledSlider(settingsBox, "MUSIC VOLUME", 0, 1, AudioSettings.VOLUME_BGM,
-                IscatAudioManager.getInstance()::setBgmVolume);
+                AudioManager.getInstance()::setBgmVolume);
 
         createLabeledSlider(settingsBox, "SFX VOLUME", 0, 1, AudioSettings.VOLUME_SFX,
-                IscatAudioManager.getInstance()::setSfxVolume);
+                AudioManager.getInstance()::setSfxVolume);
 
         CheckBox fpsCheck = new CheckBox("SHOW FPS COUNTER");
         fpsCheck.getStyleClass().add("check-box");

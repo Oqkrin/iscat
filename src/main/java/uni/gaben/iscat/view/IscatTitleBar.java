@@ -1,4 +1,4 @@
-package uni.gaben.iscat;
+package uni.gaben.iscat.view;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,28 +16,28 @@ public class IscatTitleBar extends HBox {
     /**
      * The Close btn.
      */
-    final Button closeBtn      = makeBtn("✕",  "title-bar-btn-close",      "Close");
+    public final Button closeBtn      = makeBtn("✕",  "title-bar-btn-close",      "Close");
     /**
      * The Maximize btn.
      */
-    final Button maximizeBtn   = makeBtn("⬜",  "title-bar-btn-maximize",   "Maximize");
+    public final Button maximizeBtn   = makeBtn("⬜",  "title-bar-btn-maximize",   "Maximize");
     /**
      * The Fullscreen btn.
      */
-    final Button fullscreenBtn = makeBtn("⛶",  "title-bar-btn-fullscreen", "Fullscreen");
+    public final Button fullscreenBtn = makeBtn("⛶",  "title-bar-btn-fullscreen", "Fullscreen");
     /**
      * The Minimize btn.
      */
-    final Button minimizeBtn   = makeBtn("—",  "title-bar-btn-minimize",   "Minimize");
+    public final Button minimizeBtn   = makeBtn("—",  "title-bar-btn-minimize",   "Minimize");
     /**
      * The Pin btn.
      */
-    final Button pinBtn        = makeBtn("📌", "title-bar-btn-pin",        "Always on top");
+    public final Button pinBtn        = makeBtn("📌", "title-bar-btn-pin",        "Always on top");
 
     /**
      * Instantiates a new Title bar.
      */
-    IscatTitleBar() {
+    public IscatTitleBar() {
         getStyleClass().add("title-bar");
         setAlignment(Pos.CENTER);
         setPadding(new Insets(5, 10, 5, 10));

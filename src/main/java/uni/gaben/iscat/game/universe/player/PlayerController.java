@@ -1,7 +1,7 @@
 package uni.gaben.iscat.game.universe.player;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.game.controller.GameInputs;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
@@ -86,7 +86,7 @@ public class PlayerController {
             dashBuffer.reset();
 
             int randFart = new Random().nextInt(3) + 1;
-            IscatAudioManager.getInstance().playSFX("fart_alt" + randFart);
+            AudioManager.getInstance().playSFX("fart_alt" + randFart);
         }
     }
 

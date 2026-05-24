@@ -11,9 +11,9 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
-import uni.gaben.iscat.IscatScenes;
-import uni.gaben.iscat.utils.components.AutoFittingLabel;
+import uni.gaben.iscat.view.AbstractIscatStackPane;
+import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.view.AutoFittingLabel;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
@@ -347,9 +347,7 @@ public class LoginView extends AbstractIscatStackPane {
                 fadeOutU, fadeOutP, fadeOutS, moveTitle, moveLabel, fadeInUser
         );
 
-        successAnim.setOnFinished(e -> {
-            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, root);
-        });
+        successAnim.setOnFinished(e -> IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU));
 
         successAnim.play();
     }

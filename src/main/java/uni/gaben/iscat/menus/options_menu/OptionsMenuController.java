@@ -9,10 +9,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import uni.gaben.iscat.IscatAudioManager;
-import uni.gaben.iscat.IscatFxmlController;
+import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.IscatScenes;
+import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.game.lib.utils.UU;
 
 public class OptionsMenuController implements IscatFxmlController {
@@ -43,11 +43,11 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML
     public void initialize(){
         BGMSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            IscatAudioManager.getInstance().setBgmVolume(newValue.doubleValue());
+            AudioManager.getInstance().setBgmVolume(newValue.doubleValue());
         });
 
         SFXSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            IscatAudioManager.getInstance().setSfxVolume(newValue.doubleValue());
+            AudioManager.getInstance().setSfxVolume(newValue.doubleValue());
         });
     }
 
@@ -61,7 +61,7 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void handleBack(ActionEvent event) {
-        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
     @FXML

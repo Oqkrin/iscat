@@ -2,7 +2,7 @@ package uni.gaben.iscat.game.lib.implementations;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.LifeDeath;
 import uni.gaben.iscat.game.lib.utils.UU;
@@ -52,7 +52,7 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
     public void deltaToLife(double delta) {
         if (delta < 0) {
             if (this instanceof PlayerModel) {
-                uni.gaben.iscat.IscatAudioManager.getInstance().playSFX("hurt");
+                AudioManager.getInstance().playSFX("hurt");
             }
         }
         setLife(getLife() + delta);
@@ -84,11 +84,11 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
 
             // Se sei un proiettile, allora non fare nessun suono quando muori
             if (!silent && !isProjectile && !isHeart) {
-                IscatAudioManager.getInstance().playSFX("explosion");
+                AudioManager.getInstance().playSFX("explosion");
             }
 
             if(isHeart){
-                IscatAudioManager.getInstance().playSFX("heal");
+                AudioManager.getInstance().playSFX("heal");
             }
 
             // Se muore un nemico 25% di chance di spawnare un heart

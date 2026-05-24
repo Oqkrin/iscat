@@ -17,7 +17,7 @@ module uni.gaben.iscat {
 
     exports uni.gaben.iscat;
     exports uni.gaben.iscat.utils;
-    exports uni.gaben.iscat.utils.components;
+    exports uni.gaben.iscat.view;
     exports uni.gaben.iscat.game.model;
     exports uni.gaben.iscat.game.controller;
     exports uni.gaben.iscat.game.view;
@@ -41,5 +41,9 @@ module uni.gaben.iscat {
 
     opens uni.gaben.iscat.utils.sprite to javafx.fxml;
     exports uni.gaben.iscat.menus.login_menu;
-    opens uni.gaben.iscat.utils.components to javafx.fxml;
+    opens uni.gaben.iscat.view to javafx.fxml;
+    exports uni.gaben.iscat.controller;
+    opens uni.gaben.iscat.controller to javafx.fxml;
+    exports uni.gaben.iscat.model;
+    opens uni.gaben.iscat.model to javafx.fxml;
 }

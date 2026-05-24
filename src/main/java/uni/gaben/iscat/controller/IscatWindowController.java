@@ -1,4 +1,4 @@
-package uni.gaben.iscat;
+package uni.gaben.iscat.controller;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
@@ -6,12 +6,12 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
+import uni.gaben.iscat.model.IscatModel;
+import uni.gaben.iscat.view.IscatTitleBar;
 
-public class IscatController {
+public class IscatWindowController {
 
     private static final int    RESIZE_MARGIN = 3;
     private static final double MIN_W         = 1280;
@@ -36,27 +36,22 @@ public class IscatController {
     private final IscatModel model;
     private final Stage      stage;
     private final Scene iscatScene;
-    private final StackPane iscatContentRoot;
     private final IscatTitleBar iscatTitleBar;
-
     private boolean barVisible = true;
 
-    public IscatController(IscatModel model, Stage stage, Scene iscatScene,
-                           StackPane iscatContentRoot, IscatTitleBar iscatTitleBar) {
+    public IscatWindowController(IscatModel model, Stage stage, Scene iscatScene, IscatTitleBar iscatTitleBar) {
         this.model = model;
         this.stage = stage;
         this.iscatScene = iscatScene;
-        this.iscatContentRoot = iscatContentRoot;
         this.iscatTitleBar = iscatTitleBar;
 
-        model.currentSceneProperty().addListener((obs, old, next) -> performSceneTransition(next));
+        // Listen to pin state to update the title bar button
+        model.pinnedProperty().addListener((obs, old, isPinned) -> syncWindowState());
     }
 
-    /** Called by IscatApplication after the stage is shown. */
-    public void initializeScene() {
+    public void initializeWindow() {
         stage.setWidth(MIN_W);
         stage.setHeight(MIN_H);
-        performSceneTransition(model.getCurrentScene());
     }
 
     /**
@@ -139,31 +134,6 @@ public class IscatController {
 
         // Listener unico per lo stato di Fullscreen della finestra
         stage.fullScreenProperty().addListener((obs, wasFs, isFs) -> handleFullscreenBar(isFs));
-    }
-
-    // -------------------------------------------------------------------------
-    // Scene transition
-    // -------------------------------------------------------------------------
-
-    private void performSceneTransition(IscatScenes next) {
-        // Disattivazione del ciclo di vita della vecchia vista interna
-        if (!iscatContentRoot.getChildren().isEmpty() && iscatContentRoot.getChildren().getFirst() instanceof IscatViewLifecycleInterface old) {
-            old.setActive(false);
-        }
-
-        IscatAudioManager.getInstance().playBGM(model.getBgmPath(next), true);
-
-        AbstractIscatStackPane nextView = IscatNavigator.getInstance().getScene(next);
-        nextView.initialize(); // Lazy-init specifico della vista
-
-        // SWAP DEI NODI: Cambia unicamente il core interno alla vista
-        iscatContentRoot.getChildren().setAll(nextView);
-
-        syncWindowState();
-        nextView.setActive(true);
-
-        // Allinea lo stato della barra se la transizione avviene a fullscreen attivo
-        handleFullscreenBar(stage.isFullScreen());
     }
 
     private void handleFullscreenBar(boolean isFs) {

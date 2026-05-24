@@ -1,6 +1,6 @@
 package uni.gaben.iscat.game.controller;
 
-import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.game.universe.UniverseSpawnable;
 import uni.gaben.iscat.game.universe.UniverseSpawner;
 import uni.gaben.iscat.game.view.camera.CameraModel;
@@ -109,10 +109,10 @@ public class EnemyWaveController {
 
     public void notifyBossSpawned() {
         bossSpawned = true;
-        IscatAudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/boss.wav", true);
+        AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/boss.wav", true);
     }
 
     public void notifyBossDead() {
-        IscatAudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
+        AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
     }
 }

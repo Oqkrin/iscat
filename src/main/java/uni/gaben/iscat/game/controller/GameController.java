@@ -5,9 +5,9 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.IscatScenes;
+import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.game.universe.asteroid.AsteroidModel;
 import uni.gaben.iscat.game.view.camera.CameraModel;
 import uni.gaben.iscat.game.model.GameModel;
@@ -121,7 +121,7 @@ public class GameController {
     }
 
     public void resetUniverse() {
-        IscatAudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
+        AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
         gameModel.setGameOver(false);
         gameModel.setPaused(false);
 
@@ -191,10 +191,10 @@ public class GameController {
         stopGameLoop();
         gameModel.setPaused(false);
         resetUniverse();
-        IscatAudioManager.getInstance().stopBGM();
+        AudioManager.getInstance().stopBGM();
 
         if (contentRoot != null) {
-            IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+            IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
         }
     }
 
@@ -252,7 +252,7 @@ public class GameController {
 
     private void onPlayerDeath() {
         javafx.application.Platform.runLater(() -> {
-            IscatAudioManager.getInstance().stopBGM();
+            AudioManager.getInstance().stopBGM();
             gameModel.setGameOver(true);
             gameModel.setPaused(true);
         });

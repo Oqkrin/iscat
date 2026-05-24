@@ -9,7 +9,7 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
-import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.game.lib.utils.UU;
@@ -157,7 +157,7 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
         this.level.set(this.level.get() + 1);
         this.xpNeeded = this.xpNeeded * 1.2;
 
-        IscatAudioManager.getInstance().playSFX("levelup");
+        AudioManager.getInstance().playSFX("levelup");
 
         // Aumento di statistiche + cura totale
         setMaxLife(getMaxLife() + 100);

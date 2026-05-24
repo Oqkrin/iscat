@@ -2,7 +2,7 @@ package uni.gaben.iscat.game.universe.projectiles;
 
 import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.IscatAudioManager;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.game.lib.abstracts.AbstractShooterController;
@@ -111,7 +111,7 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
                 p.kill(true);
             }
         });
-        IscatAudioManager.getInstance().playSFX("shoot");
+        AudioManager.getInstance().playSFX("shoot");
         UniverseSpawner.getInstance().spawnEntity(p);
     }
 

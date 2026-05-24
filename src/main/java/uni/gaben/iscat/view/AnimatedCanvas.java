@@ -1,4 +1,4 @@
-package uni.gaben.iscat.utils.components;
+package uni.gaben.iscat.view;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;

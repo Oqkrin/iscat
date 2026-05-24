@@ -5,19 +5,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.IscatFxmlController;
+import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.IscatScenes;
+import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.game.universe.enemies.iscat_eater.IscatEaterSettings;
 import uni.gaben.iscat.game.universe.enemies.iscat_mob.IscatMobSettings;
 import uni.gaben.iscat.game.universe.enemies.iscat_worm.IscatWormSettings;
-import uni.gaben.iscat.utils.components.AnimatedCanvas;
+import uni.gaben.iscat.view.AnimatedCanvas;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -93,7 +89,7 @@ public class BestiaryMenuController implements IscatFxmlController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
     @FXML

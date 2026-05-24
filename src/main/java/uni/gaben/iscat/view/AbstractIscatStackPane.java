@@ -1,4 +1,4 @@
-package uni.gaben.iscat.utils.components;
+package uni.gaben.iscat.view;
 
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
@@ -7,8 +7,8 @@ import javafx.scene.Parent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import uni.gaben.iscat.IscatFxmlController;
-import uni.gaben.iscat.IscatViewLifecycleInterface;
+import uni.gaben.iscat.controller.IscatFxmlController;
+import uni.gaben.iscat.model.IscatViewLifecycle;
 import uni.gaben.iscat.utils.ThemeColors;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ import java.io.IOException;
  * Pattern di inizializzazione :
  * initStyles → initNodes → initLayout → initBindings → initEventHandlers → initAnimations
  */
-public abstract class AbstractIscatStackPane extends StackPane implements IscatViewLifecycleInterface {
+public abstract class AbstractIscatStackPane extends StackPane implements IscatViewLifecycle {
 
     private boolean active = false;
     private boolean initialized = false;

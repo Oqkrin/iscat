@@ -1,4 +1,4 @@
-package uni.gaben.iscat;
+package uni.gaben.iscat.controller;
 
 import javafx.scene.layout.StackPane;
 

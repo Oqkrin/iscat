@@ -1,4 +1,4 @@
-package uni.gaben.iscat.utils.components;
+package uni.gaben.iscat.view;
 
 import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;

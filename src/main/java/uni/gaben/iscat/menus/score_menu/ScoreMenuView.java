@@ -1,7 +1,7 @@
 package uni.gaben.iscat.menus.score_menu;
 
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
+import uni.gaben.iscat.view.AbstractIscatStackPane;
 
 public class ScoreMenuView extends AbstractIscatStackPane {
     public ScoreMenuView() {

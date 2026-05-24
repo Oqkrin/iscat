@@ -9,14 +9,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import uni.gaben.iscat.IscatFxmlController;
+import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.IscatScenes;
+import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.game.universe.player.PlayerSettings;
-import uni.gaben.iscat.utils.components.AnimatedCanvas;
+import uni.gaben.iscat.view.AnimatedCanvas;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,13 +156,13 @@ public class SkinMenuController implements IscatFxmlController {
         if (selectedSkinPath != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
         }
-        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
     @FXML
     private void handleBack(ActionEvent event) {
         stopAll();
-        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
     @Override

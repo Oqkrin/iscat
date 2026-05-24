@@ -9,27 +9,14 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-import uni.gaben.iscat.game.controller.GameController;
-
-import uni.gaben.iscat.game.model.GameModel;
-import uni.gaben.iscat.game.universe.UniverseController;
-import uni.gaben.iscat.game.universe.UniverseModel;
-import uni.gaben.iscat.game.view.GameView;
-import uni.gaben.iscat.game.view.camera.CameraModel;
-import uni.gaben.iscat.menus.bestiary_menu.BestiaryView;
-import uni.gaben.iscat.menus.login_menu.LoginController;
-import uni.gaben.iscat.menus.login_menu.LoginData;
-import uni.gaben.iscat.menus.login_menu.LoginModel;
-import uni.gaben.iscat.menus.login_menu.LoginView;
-import uni.gaben.iscat.menus.main_menu.MenuController;
-import uni.gaben.iscat.menus.main_menu.MenuView;
-import uni.gaben.iscat.menus.options_menu.OptionsMenuView;
-import uni.gaben.iscat.menus.score_menu.ScoreMenuView;
-import uni.gaben.iscat.menus.skin_menu.SkinMenuView;
+import uni.gaben.iscat.controller.IscatViewController;
+import uni.gaben.iscat.controller.IscatWindowController;
+import uni.gaben.iscat.model.IscatModel;
+import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.view.IscatTitleBar;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.ThemeColors;
 
-import java.util.EnumMap;
 import java.util.Objects;
 
 /**
@@ -38,17 +25,15 @@ import java.util.Objects;
  */
 public class IscatApplication extends Application {
 
-    IscatModel iscatModel = new IscatModel();
-
-
+    private final IscatModel iscatModel = new IscatModel();
     private final StackPane iscatApplicationRoot = new StackPane();
-    private StackPane iscatContentRoot; // The new dynamic inner container
+    private StackPane iscatContentRoot;
 
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
         IscatNavigator.getInstance().initialize(iscatModel);
-        IscatAudioManager.getInstance().loadDefaultAudio();
+        AudioManager.getInstance().loadDefaultAudio();
         ThemeColors.ensureLoaded();
     }
 
@@ -69,7 +54,7 @@ public class IscatApplication extends Application {
 
         iscatApplicationRoot.getChildren().addAll(iscatContentRoot, iscatTitleBar, iscatWindowBorderOverlay);
 
-        // 3. Apply global rounded clips to the master root once
+        // Apply global rounded clips to the master root once
         Rectangle clip = new Rectangle();
         clip.setArcWidth(32.0);
         clip.setArcHeight(32.0);
@@ -86,13 +71,19 @@ public class IscatApplication extends Application {
 
         iscatRootScene.getStylesheets().addAll(colorTheme, typography, components);
 
-        IscatController iscatController = new IscatController(iscatModel, stage, iscatRootScene, iscatContentRoot, iscatTitleBar);
+        // 1. Initialize Window Math/Decorations
+        IscatWindowController windowController = new IscatWindowController(iscatModel, stage, iscatRootScene, iscatTitleBar);
+        windowController.wireCustomDecoration();
+        windowController.initializeWindow();
 
-        iscatController.wireCustomDecoration();
+        // 2. Initialize the View Manager (Takes control of transitions)
+        IscatViewController viewController = new IscatViewController(iscatModel, iscatContentRoot);
+
+        // 3. Boot up the system explicitly to guarantee display on first layout pass
+        viewController.showInitialView(IscatViews.LOGIN_MENU);
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(iscatRootScene);
-        iscatController.initializeScene();
         stage.show();
         stage.centerOnScreen();
     }

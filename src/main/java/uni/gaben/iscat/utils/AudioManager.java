@@ -1,9 +1,8 @@
-package uni.gaben.iscat;
+package uni.gaben.iscat.utils;
 
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import uni.gaben.iscat.utils.AudioSettings;
 
 import java.net.URI;
 import java.nio.file.*;
@@ -14,17 +13,17 @@ import java.util.stream.Stream;
  * Gestione centralizzata dell'audio (BGM + SFX) per ISCAT.
  * Singleton thread-safe tramite initialization-on-demand holder.
  */
-public class IscatAudioManager {
+public class AudioManager {
 
     // --- Singleton ---
 
-    private IscatAudioManager() {}
+    private AudioManager() {}
 
     private static final class Holder {
-        private static final IscatAudioManager INSTANCE = new IscatAudioManager();
+        private static final AudioManager INSTANCE = new AudioManager();
     }
 
-    public static IscatAudioManager getInstance() {
+    public static AudioManager getInstance() {
         return Holder.INSTANCE;
     }
 

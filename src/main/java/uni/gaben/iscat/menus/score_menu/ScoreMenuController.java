@@ -3,9 +3,9 @@ package uni.gaben.iscat.menus.score_menu;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.IscatFxmlController;
+import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.IscatScenes;
+import uni.gaben.iscat.model.IscatViews;
 
 public class ScoreMenuController implements IscatFxmlController {
     private StackPane contentRoot;
@@ -17,6 +17,6 @@ public class ScoreMenuController implements IscatFxmlController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        IscatNavigator.getInstance().navigateWithFade(IscatScenes.MAIN_MENU, contentRoot);
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 }

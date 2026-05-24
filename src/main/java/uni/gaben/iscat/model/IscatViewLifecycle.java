@@ -1,4 +1,4 @@
-package uni.gaben.iscat;
+package uni.gaben.iscat.model;
 
 /**
  * Interfaccia per gestire il ciclo di vita delle scene in ISCAT.
@@ -10,7 +10,7 @@ package uni.gaben.iscat;
  * 5. onUnload() - chiamato quando la scena viene distrutta
  * Questo previene che scene in background consumino risorse.
  */
-public interface IscatViewLifecycleInterface {
+public interface IscatViewLifecycle {
     
     /**
      * Chiamato quando la scena sta per essere caricata e mostrata.

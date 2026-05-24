@@ -1,10 +1,9 @@
-package uni.gaben.iscat.utils.components;
+package uni.gaben.iscat.view;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.game.universe.UniverseSettings;
 import uni.gaben.iscat.game.universe.starfield.StarfieldModel;
 import uni.gaben.iscat.game.universe.starfield.StarfieldView;
 import uni.gaben.iscat.game.universe.starfield.StarModel;
