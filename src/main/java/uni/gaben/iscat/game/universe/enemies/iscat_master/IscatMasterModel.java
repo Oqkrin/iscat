@@ -46,9 +46,6 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
 
     public void update(double dt) {
         weaponCooldown.update(dt);
-        System.out.println("velocity=" + getLinearVelocity().getMagnitude()
-                + " terminalVelocity=" + getTerminalVelocity()
-                + " enabled=" + isEnabled());
     }
 
     // ── ANIMATION STATE ───────────────────────────────────────────────────────

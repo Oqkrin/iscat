@@ -21,7 +21,7 @@ public final class VelocitySettings {
     public static final double PLAYER_BULLET_VELOCITY = 10.0;
 
     /** Velocity of a generic enemy bullet (m/s). */
-    public static final double ENEMY_BULLET_VELOCITY  = PLAYER_BULLET_VELOCITY * .5;
+    public static final double ENEMY_BULLET_VELOCITY  = PLAYER_BULLET_VELOCITY * .8;
 
     // ─── PLAYER ───────────────────────────────────────────────────────────────
 
@@ -59,7 +59,7 @@ public final class VelocitySettings {
     /** IscatWorm head max movement speed (m/s). */
     public static final double WORM_HEAD_MAX_SPEED    = ENEMY_BULLET_VELOCITY/2;
 
-    public static final double ISCAT_MASTER_MAX_VELOCITY = ENEMY_BULLET_VELOCITY*2;
+    public static final double ISCAT_MASTER_MAX_VELOCITY = ENEMY_BULLET_VELOCITY*10;
 
     // ─── ASTEROIDS ────────────────────────────────────────────────────────────
 
