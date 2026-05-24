@@ -60,4 +60,7 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
         weaponCooldown.start(UU.ticksToS(tickCount));
     }
 
+    public double getTerminalVelocity() {
+        return IscatCoreSettings.MAX_VELOCITY;
+    }
 }

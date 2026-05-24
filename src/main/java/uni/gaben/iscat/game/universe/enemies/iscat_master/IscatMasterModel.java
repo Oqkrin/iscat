@@ -8,6 +8,7 @@ import uni.gaben.iscat.game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.game.lib.utils.UU;
 import uni.gaben.iscat.game.universe.UniverseCollisionLayers;
+import uni.gaben.iscat.game.universe.enemies.fake_iscat.FakeIscatSettings;
 import uni.gaben.iscat.game.universe.projectiles.Projectile;
 import uni.gaben.iscat.game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
@@ -45,6 +46,9 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
 
     public void update(double dt) {
         weaponCooldown.update(dt);
+        System.out.println("velocity=" + getLinearVelocity().getMagnitude()
+                + " terminalVelocity=" + getTerminalVelocity()
+                + " enabled=" + isEnabled());
     }
 
     // ── ANIMATION STATE ───────────────────────────────────────────────────────
@@ -101,5 +105,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
     }
 
     @Override
-    public double getTerminalVelocity() { return 0; }
+    public double getTerminalVelocity() {
+        return IscatMasterSettings.MAX_VELOCITY;
+    }
 }

@@ -93,6 +93,10 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
     @Override
     public void draw(IscatMasterModel entity, GraphicsContext gc) {
+        System.out.println("entrance frame=" + entranceAnimator.getCurrentFrame()
+                + " hasCompletedCycle=" + entranceAnimator.hasCompletedCycle()
+                + " entranceDone=" + entity.isEntranceDone());
+
         if (entity == null) return;
 
         if (!entity.isEntranceDone()) {
