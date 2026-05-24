@@ -101,5 +101,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
     }
 
     @Override
-    public double getTerminalVelocity() { return 0; }
+    public double getTerminalVelocity() {
+        return IscatMasterSettings.MAX_VELOCITY;
+    }
 }

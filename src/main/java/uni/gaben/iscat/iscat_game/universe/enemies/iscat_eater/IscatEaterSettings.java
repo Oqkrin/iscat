@@ -15,7 +15,7 @@ public class IscatEaterSettings {
     /** Velocità massima in metri al secondo. (25 m/s è molto veloce) */
     public static final double MAX_VELOCITY_MS = VelocitySettings.EATER_MAX_VELOCITY;
     /** Forza massima di sterzata (maggiore = più reattivo). */
-    public static final double FORCE = 60;
+    public static final double FORCE = 45;
     /** Se il nemico puo rotarsi verso il player */
     public static final boolean ROTATION_TOWARDS_PLAYER = false;
 

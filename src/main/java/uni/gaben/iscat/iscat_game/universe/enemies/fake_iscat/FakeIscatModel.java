@@ -60,6 +60,6 @@ public class FakeIscatModel extends LivingEntityModel implements HasProjectile<P
 
     @Override
     public double getTerminalVelocity() {
-        return 0;
+        return FakeIscatSettings.MAX_VELOCITY;
     }
 }
