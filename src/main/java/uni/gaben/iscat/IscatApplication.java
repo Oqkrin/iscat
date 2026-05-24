@@ -12,6 +12,7 @@ import javafx.stage.StageStyle;
 
 import uni.gaben.iscat.game.controller.GameController;
 
+import uni.gaben.iscat.game.model.GameModel;
 import uni.gaben.iscat.game.universe.UniverseController;
 import uni.gaben.iscat.game.universe.UniverseModel;
 import uni.gaben.iscat.game.view.GameView;
@@ -47,16 +48,16 @@ public class IscatApplication extends Application {
     // --- Main Menu ---
     MenuController menuController = new MenuController();
 
-    // --- Gamenex game ---
+    // --- game ---
     UniverseModel     universeModel     = new UniverseModel();
     CameraModel       cameraModel       = new CameraModel();
-    uni.gaben.iscat.game.model.GameModel gameModel = new uni.gaben.iscat.game.model.GameModel(universeModel, cameraModel);
+    GameModel gameModel = new GameModel(universeModel, cameraModel);
     UniverseController universeController = new UniverseController(universeModel);
     GameController gameController = new GameController(gameModel, universeController);
 
     EnumMap<IscatScenes, AbstractIscatStackPane> scenes =  new EnumMap<>(IscatScenes.class);
     private final StackPane iscatApplicationRoot = new StackPane();
-    private final StackPane isactContentRoot = new StackPane(); // The new dynamic inner container
+    private final StackPane iscatContentRoot = new StackPane(); // The new dynamic inner container
 
     @Override
     public void init() {
@@ -88,7 +89,7 @@ public class IscatApplication extends Application {
         iscatWindowBorderOverlay.getStyleClass().add("window-border-overlay");
         iscatWindowBorderOverlay.setMouseTransparent(true);
         StackPane.setAlignment(iscatTitleBar, Pos.TOP_CENTER);
-        iscatApplicationRoot.getChildren().addAll(isactContentRoot, iscatTitleBar, iscatWindowBorderOverlay);
+        iscatApplicationRoot.getChildren().addAll(iscatContentRoot, iscatTitleBar, iscatWindowBorderOverlay);
 
         // 3. Apply global rounded clips to the master root once
         Rectangle clip = new Rectangle();
@@ -108,7 +109,7 @@ public class IscatApplication extends Application {
         iscatScene.getStylesheets().addAll(colorTheme, typography, components);
 
         IscatController iscatController = new IscatController(
-                iscatModel, stage, iscatScene, isactContentRoot, iscatTitleBar, scenes
+                iscatModel, stage, iscatScene, iscatContentRoot, iscatTitleBar, scenes
         );
 
         iscatController.wireCustomDecoration();
