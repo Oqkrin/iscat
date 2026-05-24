@@ -1,4 +1,4 @@
-package uni.gaben.iscat;
+package uni.gaben.iscat.utils.components;
 
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
@@ -7,8 +7,9 @@ import javafx.scene.Parent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import uni.gaben.iscat.IscatFxmlController;
+import uni.gaben.iscat.IscatViewLifecycleInterface;
 import uni.gaben.iscat.utils.ThemeColors;
-import uni.gaben.iscat.utils.components.StarryBackgroundCanvas;
 
 import java.io.IOException;
 
@@ -62,7 +63,7 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     // LifeDeath & Initialization Pattern
     // =========================================================================
 
-    protected final void initialize() {
+    public final void initialize() {
         if (initialized) return;
         initNodes();
         initStyles();

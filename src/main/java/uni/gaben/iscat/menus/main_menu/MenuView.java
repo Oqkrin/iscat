@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.javafx.FontIcon;
-import uni.gaben.iscat.AbstractIscatStackPane;
+import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
 
 import java.util.Objects;
 

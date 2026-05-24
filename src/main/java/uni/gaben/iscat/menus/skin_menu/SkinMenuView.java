@@ -1,7 +1,7 @@
 package uni.gaben.iscat.menus.skin_menu;
 
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.AbstractIscatStackPane;
+import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
 
 public class SkinMenuView extends AbstractIscatStackPane {
     public SkinMenuView() {

@@ -1,7 +1,7 @@
 package uni.gaben.iscat.menus.options_menu;
 
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.AbstractIscatStackPane;
+import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
 
 public class OptionsMenuView extends AbstractIscatStackPane {
     public OptionsMenuView() {

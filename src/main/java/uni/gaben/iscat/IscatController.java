@@ -9,8 +9,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.util.EnumMap;
+import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
 
 public class IscatController {
 
@@ -18,25 +17,37 @@ public class IscatController {
     private static final double MIN_W         = 1280;
     private static final double MIN_H         = 720;
 
+    // -------------------------------------------------------------------------
+    // Local Window Math State (Moved from Model)
+    // -------------------------------------------------------------------------
+    private double dragOffsetX = 0;
+    private double dragOffsetY = 0;
+
+    private enum ResizeDir { NONE, N, S, E, W, NE, NW, SE, SW }
+    private ResizeDir resizeDir = ResizeDir.NONE;
+
+    private double resizeStartX, resizeStartY;
+    private double resizeStartW, resizeStartH;
+    private double resizeStartStageX, resizeStartStageY;
+
+    // -------------------------------------------------------------------------
+    // Core Dependencies
+    // -------------------------------------------------------------------------
     private final IscatModel model;
     private final Stage      stage;
     private final Scene iscatScene;
-    private final EnumMap<IscatScenes, AbstractIscatStackPane> viewMap;
-
     private final StackPane iscatContentRoot;
     private final IscatTitleBar iscatTitleBar;
 
     private boolean barVisible = true;
 
     public IscatController(IscatModel model, Stage stage, Scene iscatScene,
-                           StackPane iscatContentRoot, IscatTitleBar iscatTitleBar,
-                           EnumMap<IscatScenes, AbstractIscatStackPane> viewMap) {
+                           StackPane iscatContentRoot, IscatTitleBar iscatTitleBar) {
         this.model = model;
         this.stage = stage;
         this.iscatScene = iscatScene;
         this.iscatContentRoot = iscatContentRoot;
         this.iscatTitleBar = iscatTitleBar;
-        this.viewMap = viewMap;
 
         model.currentSceneProperty().addListener((obs, old, next) -> performSceneTransition(next));
     }
@@ -56,14 +67,14 @@ public class IscatController {
         // Trascinamento della finestra tramite la barra del titolo globale
         iscatTitleBar.setOnMousePressed(e -> {
             if (stage.isFullScreen() || stage.isMaximized()) return;
-            model.dragOffsetX = e.getScreenX() - stage.getX();
-            model.dragOffsetY = e.getScreenY() - stage.getY();
+            dragOffsetX = e.getScreenX() - stage.getX();
+            dragOffsetY = e.getScreenY() - stage.getY();
         });
 
         iscatTitleBar.setOnMouseDragged(e -> {
             if (stage.isFullScreen() || stage.isMaximized()) return;
-            stage.setX(e.getScreenX() - model.dragOffsetX);
-            stage.setY(e.getScreenY() - model.dragOffsetY);
+            stage.setX(e.getScreenX() - dragOffsetX);
+            stage.setY(e.getScreenY() - dragOffsetY);
         });
 
         // Gestione unificata del movimento del mouse (Auto-hide & Resize Cursors)
@@ -94,29 +105,29 @@ public class IscatController {
         // Intercettazione del click sul bordo per avviare il ridimensionamento
         iscatScene.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             if (stage.isFullScreen() || stage.isMaximized()) return;
-            IscatModel.ResizeDir dir = getResizeDir(e.getSceneX(), e.getSceneY());
-            if (dir != IscatModel.ResizeDir.NONE) {
-                model.resizeDir = dir;
-                model.resizeStartX = e.getScreenX();
-                model.resizeStartY = e.getScreenY();
-                model.resizeStartW = stage.getWidth();
-                model.resizeStartH = stage.getHeight();
-                model.resizeStartStageX = stage.getX();
-                model.resizeStartStageY = stage.getY();
+            ResizeDir dir = getResizeDir(e.getSceneX(), e.getSceneY());
+            if (dir != ResizeDir.NONE) {
+                resizeDir = dir;
+                resizeStartX = e.getScreenX();
+                resizeStartY = e.getScreenY();
+                resizeStartW = stage.getWidth();
+                resizeStartH = stage.getHeight();
+                resizeStartStageX = stage.getX();
+                resizeStartStageY = stage.getY();
                 e.consume();
             }
         });
 
         // Drag sul bordo per applicare il ridimensionamento geometrico della finestra
         iscatScene.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
-            if (stage.isFullScreen() || stage.isMaximized() || model.resizeDir == IscatModel.ResizeDir.NONE) return;
+            if (stage.isFullScreen() || stage.isMaximized() || resizeDir == ResizeDir.NONE) return;
             applyResize(e.getScreenX(), e.getScreenY());
             e.consume();
         });
 
         // Reset dello stato al rilascio del mouse
         iscatScene.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
-            model.resizeDir = IscatModel.ResizeDir.NONE;
+            resizeDir = ResizeDir.NONE;
         });
 
         // Mappatura delle azioni dei pulsanti nativi della barra
@@ -142,7 +153,7 @@ public class IscatController {
 
         IscatAudioManager.getInstance().playBGM(model.getBgmPath(next), true);
 
-        AbstractIscatStackPane nextView = viewMap.get(next);
+        AbstractIscatStackPane nextView = IscatNavigator.getInstance().getScene(next);
         nextView.initialize(); // Lazy-init specifico della vista
 
         // SWAP DEI NODI: Cambia unicamente il core interno alla vista
@@ -201,23 +212,23 @@ public class IscatController {
     // -------------------------------------------------------------------------
 
     private void applyResize(double screenX, double screenY) {
-        double dx   = screenX - model.resizeStartX;
-        double dy   = screenY - model.resizeStartY;
+        double dx   = screenX - resizeStartX;
+        double dy   = screenY - resizeStartY;
         double minW = stage.getMinWidth()  > 0 ? stage.getMinWidth()  : MIN_W;
         double minH = stage.getMinHeight() > 0 ? stage.getMinHeight() : MIN_H;
 
-        double newW = model.resizeStartW, newH = model.resizeStartH;
-        double newX = model.resizeStartStageX, newY = model.resizeStartStageY;
+        double newW = resizeStartW, newH = resizeStartH;
+        double newX = resizeStartStageX, newY = resizeStartStageY;
 
-        switch (model.resizeDir) {
-            case E  -> newW = Math.max(minW, model.resizeStartW + dx);
-            case S  -> newH = Math.max(minH, model.resizeStartH + dy);
-            case W  -> { newW = Math.max(minW, model.resizeStartW - dx); newX = model.resizeStartStageX + (model.resizeStartW - newW); }
-            case N  -> { newH = Math.max(minH, model.resizeStartH - dy); newY = model.resizeStartStageY + (model.resizeStartH - newH); }
-            case SE -> { newW = Math.max(minW, model.resizeStartW + dx); newH = Math.max(minH, model.resizeStartH + dy); }
-            case SW -> { newW = Math.max(minW, model.resizeStartW - dx); newX = model.resizeStartStageX + (model.resizeStartW - newW); newH = Math.max(minH, model.resizeStartH + dy); }
-            case NE -> { newW = Math.max(minW, model.resizeStartW + dx); newH = Math.max(minH, model.resizeStartH - dy); newY = model.resizeStartStageY + (model.resizeStartH - newH); }
-            case NW -> { newW = Math.max(minW, model.resizeStartW - dx); newX = model.resizeStartStageX + (model.resizeStartW - newW); newH = Math.max(minH, model.resizeStartH - dy); newY = model.resizeStartStageY + (model.resizeStartH - newH); }
+        switch (resizeDir) {
+            case E  -> newW = Math.max(minW, resizeStartW + dx);
+            case S  -> newH = Math.max(minH, resizeStartH + dy);
+            case W  -> { newW = Math.max(minW, resizeStartW - dx); newX = resizeStartStageX + (resizeStartW - newW); }
+            case N  -> { newH = Math.max(minH, resizeStartH - dy); newY = resizeStartStageY + (resizeStartH - newH); }
+            case SE -> { newW = Math.max(minW, resizeStartW + dx); newH = Math.max(minH, resizeStartH + dy); }
+            case SW -> { newW = Math.max(minW, resizeStartW - dx); newX = resizeStartStageX + (resizeStartW - newW); newH = Math.max(minH, resizeStartH + dy); }
+            case NE -> { newW = Math.max(minW, resizeStartW + dx); newH = Math.max(minH, resizeStartH - dy); newY = resizeStartStageY + (resizeStartH - newH); }
+            case NW -> { newW = Math.max(minW, resizeStartW - dx); newX = resizeStartStageX + (resizeStartW - newW); newH = Math.max(minH, resizeStartH - dy); newY = resizeStartStageY + (resizeStartH - newH); }
             default -> {}
         }
 
@@ -225,22 +236,24 @@ public class IscatController {
         stage.setWidth(newW); stage.setHeight(newH);
     }
 
-    private IscatModel.ResizeDir getResizeDir(double x, double y) {
+    private ResizeDir getResizeDir(double x, double y) {
         double w = stage.getWidth(), h = stage.getHeight();
         int m = RESIZE_MARGIN;
         boolean onN = y < m, onS = y > h - m, onW = x < m, onE = x > w - m;
-        if (onN && onW) return IscatModel.ResizeDir.NW;
-        if (onN && onE) return IscatModel.ResizeDir.NE;
-        if (onS && onW) return IscatModel.ResizeDir.SW;
-        if (onS && onE) return IscatModel.ResizeDir.SE;
-        if (onN) return IscatModel.ResizeDir.N;
-        if (onS) return IscatModel.ResizeDir.S;
-        if (onW) return IscatModel.ResizeDir.W;
-        if (onE) return IscatModel.ResizeDir.E;
-        return IscatModel.ResizeDir.NONE;
+
+        if (onN && onW) return ResizeDir.NW;
+        if (onN && onE) return ResizeDir.NE;
+        if (onS && onW) return ResizeDir.SW;
+        if (onS && onE) return ResizeDir.SE;
+        if (onN) return ResizeDir.N;
+        if (onS) return ResizeDir.S;
+        if (onW) return ResizeDir.W;
+        if (onE) return ResizeDir.E;
+
+        return ResizeDir.NONE;
     }
 
-    private static Cursor resizeCursor(IscatModel.ResizeDir dir) {
+    private static Cursor resizeCursor(ResizeDir dir) {
         return switch (dir) {
             case N  -> Cursor.N_RESIZE;
             case S  -> Cursor.S_RESIZE;

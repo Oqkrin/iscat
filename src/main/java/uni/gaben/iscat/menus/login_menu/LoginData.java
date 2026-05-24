@@ -30,7 +30,7 @@ public class LoginData {
      * Factory for the default development seed account.
      * Keeps hardcoded credentials out of the Application class.
      */
-    public static LoginData withDefaults() {
+    public static LoginData withPlaceholder() {
         return new LoginData(Map.of("gaben", "iscat"));
     }
 

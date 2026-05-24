@@ -142,4 +142,8 @@ public class LoginController {
         currentLoginState = LoginState.USERNAME;
         model.reset();
     }
+
+    public LoginModel getLoginModel() {
+        return model;
+    }
 }

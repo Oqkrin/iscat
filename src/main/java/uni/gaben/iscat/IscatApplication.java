@@ -40,47 +40,22 @@ public class IscatApplication extends Application {
 
     IscatModel iscatModel = new IscatModel();
 
-    // --- Login Menu ---
-    LoginData       loginData       = LoginData.withDefaults();
-    LoginModel      loginModel      = new LoginModel();
-    LoginController loginController = new LoginController(loginModel, loginData);
 
-    // --- Main Menu ---
-    MenuController menuController = new MenuController();
-
-    // --- game ---
-    UniverseModel     universeModel     = new UniverseModel();
-    CameraModel       cameraModel       = new CameraModel();
-    GameModel gameModel = new GameModel(universeModel, cameraModel);
-    UniverseController universeController = new UniverseController(universeModel);
-    GameController gameController = new GameController(gameModel, universeController);
-
-    EnumMap<IscatScenes, AbstractIscatStackPane> scenes =  new EnumMap<>(IscatScenes.class);
     private final StackPane iscatApplicationRoot = new StackPane();
-    private final StackPane iscatContentRoot = new StackPane(); // The new dynamic inner container
+    private StackPane iscatContentRoot; // The new dynamic inner container
 
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
-        putScenes();
-        IscatNavigator.getInstance().initialize(iscatModel, scenes);
+        IscatNavigator.getInstance().initialize(iscatModel);
         IscatAudioManager.getInstance().loadDefaultAudio();
-    }
-
-    private void putScenes() {
-        scenes.put(IscatScenes.LOGIN_MENU,    new LoginView(loginModel, loginController));
-        scenes.put(IscatScenes.MAIN_MENU,     new MenuView(menuController));
-        scenes.put(IscatScenes.GAME,         new GameView(gameController, gameModel));
-        scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuView());
-        scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuView());
-        scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuView());
-        scenes.put(IscatScenes.BESTIARY_MENU, new BestiaryView());
+        ThemeColors.ensureLoaded();
     }
 
     @Override
     public void start(Stage stage) {
-        Scene iscatScene = new Scene(iscatApplicationRoot);
-        iscatScene.setFill(ThemeColors.parsedColors.get("bg-primary"));
+        Scene iscatRootScene = new Scene(iscatApplicationRoot);
+        iscatRootScene.setFill(ThemeColors.parsedColors.get("bg-primary"));
 
         IscatTitleBar iscatTitleBar = new IscatTitleBar();
         iscatTitleBar.setMaxHeight(Region.USE_PREF_SIZE);
@@ -89,6 +64,9 @@ public class IscatApplication extends Application {
         iscatWindowBorderOverlay.getStyleClass().add("window-border-overlay");
         iscatWindowBorderOverlay.setMouseTransparent(true);
         StackPane.setAlignment(iscatTitleBar, Pos.TOP_CENTER);
+
+        iscatContentRoot = new StackPane();
+
         iscatApplicationRoot.getChildren().addAll(iscatContentRoot, iscatTitleBar, iscatWindowBorderOverlay);
 
         // 3. Apply global rounded clips to the master root once
@@ -106,22 +84,16 @@ public class IscatApplication extends Application {
         String components = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-components-shared.css")).toExternalForm();
 
-        iscatScene.getStylesheets().addAll(colorTheme, typography, components);
+        iscatRootScene.getStylesheets().addAll(colorTheme, typography, components);
 
-        IscatController iscatController = new IscatController(
-                iscatModel, stage, iscatScene, iscatContentRoot, iscatTitleBar, scenes
-        );
+        IscatController iscatController = new IscatController(iscatModel, stage, iscatRootScene, iscatContentRoot, iscatTitleBar);
 
         iscatController.wireCustomDecoration();
 
         stage.initStyle(StageStyle.UNDECORATED);
-        stage.setScene(iscatScene);
+        stage.setScene(iscatRootScene);
         iscatController.initializeScene();
         stage.show();
         stage.centerOnScreen();
     }
-
-
-
-
 }

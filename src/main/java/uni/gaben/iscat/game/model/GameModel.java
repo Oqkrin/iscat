@@ -16,8 +16,8 @@ public class GameModel {
     public static final double ONE_SECOND_IN_NANO_SECONDS = 1_000_000_000.0;
     public static final double ACCUMULATORUNIT = 0.25;
 
-    private UniverseModel universeModel;
-    private final CameraModel cameraModel;
+    private UniverseModel universeModel = new UniverseModel();
+    private final CameraModel cameraModel = new CameraModel();
 
     private LongProperty lastUpdate = new SimpleLongProperty(0);
     private DoubleProperty dt = new SimpleDoubleProperty(0);
@@ -34,9 +34,7 @@ public class GameModel {
     public void setGameOver(boolean value) { gameOver.set(value); }
 
 
-    public GameModel(UniverseModel universeModel, CameraModel cameraModel) {
-        this.universeModel = universeModel;
-        this.cameraModel = cameraModel;
+    public GameModel() {
         dt.bind(now.subtract(lastUpdate).divide(ONE_SECOND_IN_NANO_SECONDS));
     }
 

@@ -2,7 +2,6 @@ package uni.gaben.iscat.menus.main_menu;
 
 import javafx.application.Platform;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.IscatAudioManager;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatScenes;
 

@@ -11,7 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.AbstractIscatStackPane;
+import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
 import uni.gaben.iscat.IscatScenes;
 import uni.gaben.iscat.utils.components.AutoFittingLabel;
 import uni.gaben.iscat.utils.design.ScalareAureo;
@@ -55,10 +55,10 @@ public class LoginView extends AbstractIscatStackPane {
     private HBox usernameField;
     private HBox passwordField;
 
-    public LoginView(LoginModel loginModel, LoginController loginController) {
+    public LoginView(LoginController loginController) {
         super(new StackPane(), true); // Enable starry background
-        this.model = loginModel;
         this.controller = loginController;
+        this.model = loginController.getLoginModel();
         this.root = getContentRoot();
 
         // Make root transparent so stars show through

@@ -10,7 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.AbstractIscatStackPane;
+import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.game.view.camera.CameraModel;
@@ -49,10 +49,10 @@ public class GameView extends AbstractIscatStackPane {
     private StarryText starryTimer;
     private Label levelLabel;
 
-    public GameView(GameController gameController, GameModel gameModel) {
+    public GameView(GameController gameController) {
         super(new StackPane());
-        this.gameModel = gameModel;
         this.gameController = gameController;
+        this.gameModel = gameController.getGameModel();
         this.root = getContentRoot();
         this.gameController.setContentRoot(this.root);
 

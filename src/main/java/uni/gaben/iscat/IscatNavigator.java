@@ -3,6 +3,7 @@ package uni.gaben.iscat;
 import javafx.animation.FadeTransition;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import uni.gaben.iscat.utils.components.AbstractIscatStackPane;
 
 import java.util.EnumMap;
 
@@ -17,7 +18,7 @@ import java.util.EnumMap;
 public class IscatNavigator {
     private static IscatNavigator instance;
     private IscatModel model;
-    private EnumMap<IscatScenes, AbstractIscatStackPane> viewMap;
+    EnumMap<IscatScenes, AbstractIscatStackPane> scenes = new EnumMap<>(IscatScenes.class);
 
     private IscatNavigator() {}
 
@@ -32,44 +33,34 @@ public class IscatNavigator {
      * Inizializza il navigator con il model e la mappa delle scene.
      * Chiamato da IscatApplication durante il bootstrap.
      */
-    public void initialize(IscatModel model, EnumMap<IscatScenes, AbstractIscatStackPane> viewMap) {
+    public void initialize(IscatModel model) {
         this.model = model;
-        this.viewMap = viewMap;
+        for (IscatScenes scene : IscatScenes.values()) {
+            scenes.put(scene, IscatMVCRegistry.getMVC(scene));
+        }
     }
 
     /**
      * Naviga alla scena specificata.
-     * Gestisce il ciclo di vita delle scene se implementano IscatSceneLifecycleInterface.
+     * Delega la gestione del ciclo di vita e della UI interamente a IscatController
+     * tramite l'aggiornamento reattivo dello stato del Model.
      */
     public void navigateTo(IscatScenes targetScene) {
-        if (model == null || viewMap == null) {
+        if (model == null || scenes == null) {
             throw new IllegalStateException("IscatNavigator non inizializzato.");
         }
 
-        IscatScenes currentScene = model.getCurrentScene();
-
-        if (currentScene != null && currentScene != targetScene) {
-            AbstractIscatStackPane view = viewMap.get(currentScene);
-            if (view != null) {
-                view.setActive(false);
-            }
-        }
-
-        // Questo cambierà la proprietà ascoltata da IscatController, che farà il setAll()
+        // Questo cambierà la proprietà ascoltata da IscatController,
+        // che farà il setAll() e gestirà le chiamate setActive()
         model.setCurrentScene(targetScene);
-
-        AbstractIscatStackPane nextView = viewMap.get(targetScene);
-        if (nextView != null) {
-            nextView.setActive(true);
-        }
     }
 
     public AbstractIscatStackPane getScene(IscatScenes sceneType) {
-        return viewMap.get(sceneType);
+        return scenes.get(sceneType);
     }
 
     public void navigateWithFade(IscatScenes target, StackPane currentContentRoot) {
-        AbstractIscatStackPane nextView = viewMap.get(target);
+        AbstractIscatStackPane nextView = scenes.get(target);
         StackPane targetContentRoot = (nextView != null) ? nextView.getContentRoot() : null;
 
         if (targetContentRoot != null) {

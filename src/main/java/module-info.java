@@ -41,4 +41,5 @@ module uni.gaben.iscat {
 
     opens uni.gaben.iscat.utils.sprite to javafx.fxml;
     exports uni.gaben.iscat.menus.login_menu;
+    opens uni.gaben.iscat.utils.components to javafx.fxml;
 }

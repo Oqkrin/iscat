@@ -30,9 +30,10 @@ public class GameController {
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
     private EnemyWaveController waveController;
 
-    public GameController(GameModel gameModel, UniverseController universeController) {
+    public GameController(GameModel gameModel) {
+
         this.gameModel = gameModel;
-        this.universeController = universeController;
+        this.universeController = new UniverseController(gameModel.getUniverseModel());
 
         this.waveController = new EnemyWaveController();
 
@@ -255,5 +256,9 @@ public class GameController {
             gameModel.setGameOver(true);
             gameModel.setPaused(true);
         });
+    }
+
+    public GameModel getGameModel() {
+        return gameModel;
     }
 }

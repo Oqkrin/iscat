@@ -5,6 +5,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
+import java.util.EnumMap;
+
 /**
  * Model dell'applicazione: stato globale condiviso.
  * Contiene:
@@ -13,11 +15,6 @@ import javafx.beans.property.SimpleObjectProperty;
  * - stato finestra (drag, resize, pin, fullscreen bar)
  */
 public class IscatModel {
-
-    // -------------------------------------------------------------------------
-    // Scene navigation
-    // -------------------------------------------------------------------------
-
     private final ObjectProperty<IscatScenes> currentScene =
             new SimpleObjectProperty<>(IscatScenes.LOGIN_MENU);
 
@@ -39,33 +36,11 @@ public class IscatModel {
     }
 
     // -------------------------------------------------------------------------
-    // Window drag state
-    // -------------------------------------------------------------------------
-
-    double dragOffsetX = 0;
-    double dragOffsetY = 0;
-
-    // -------------------------------------------------------------------------
-    // Window resize state
-    // -------------------------------------------------------------------------
-
-    enum ResizeDir { NONE, N, S, E, W, NE, NW, SE, SW }
-
-    ResizeDir resizeDir = ResizeDir.NONE;
-    double resizeStartX, resizeStartY;
-    double resizeStartW, resizeStartH;
-    double resizeStartStageX, resizeStartStageY;
-
-    // -------------------------------------------------------------------------
     // Window decoration state
     // -------------------------------------------------------------------------
 
-    /** Whether the title bar is currently visible (used during fullscreen). */
-    boolean barVisible = true;
-
     /** Whether the window is pinned always-on-top. */
     private final BooleanProperty pinned = new SimpleBooleanProperty(false);
-
     public boolean isPinned()                          { return pinned.get(); }
     public void setPinned(boolean value)               { pinned.set(value); }
     public BooleanProperty pinnedProperty()            { return pinned; }
