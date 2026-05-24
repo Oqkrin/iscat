@@ -1,7 +1,7 @@
 package uni.gaben.iscat;
 
-import uni.gaben.iscat.model.IscatModel;
-import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.iscat_model_vc.IscatModel;
+import uni.gaben.iscat.iscat_model_vc.IscatViews;
 
 /**
  * Pure intent dispatcher.

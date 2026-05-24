@@ -1,20 +1,20 @@
 package uni.gaben.iscat;
 
-import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.game.controller.GameController;
-import uni.gaben.iscat.game.model.GameModel;
-import uni.gaben.iscat.game.view.GameView;
-import uni.gaben.iscat.menus.bestiary_menu.BestiaryView;
-import uni.gaben.iscat.menus.login_menu.LoginController;
-import uni.gaben.iscat.menus.login_menu.LoginData;
-import uni.gaben.iscat.menus.login_menu.LoginModel;
-import uni.gaben.iscat.menus.login_menu.LoginView;
-import uni.gaben.iscat.menus.main_menu.MenuController;
-import uni.gaben.iscat.menus.main_menu.MenuView;
-import uni.gaben.iscat.menus.options_menu.OptionsMenuView;
-import uni.gaben.iscat.menus.score_menu.ScoreMenuView;
-import uni.gaben.iscat.menus.skin_menu.SkinMenuView;
-import uni.gaben.iscat.view.AbstractIscatStackPane;
+import uni.gaben.iscat.iscat_model_vc.IscatViews;
+import uni.gaben.iscat.iscat_screens.game.controller.GameController;
+import uni.gaben.iscat.iscat_screens.game.model.GameModel;
+import uni.gaben.iscat.iscat_screens.game.view.GameView;
+import uni.gaben.iscat.iscat_screens.bestiary.BestiaryView;
+import uni.gaben.iscat.iscat_screens.login.LoginController;
+import uni.gaben.iscat.iscat_screens.login.LoginData;
+import uni.gaben.iscat.iscat_screens.login.LoginModel;
+import uni.gaben.iscat.iscat_screens.login.LoginView;
+import uni.gaben.iscat.iscat_screens.main_menu.MenuController;
+import uni.gaben.iscat.iscat_screens.main_menu.MenuView;
+import uni.gaben.iscat.iscat_screens.options.OptionsMenuView;
+import uni.gaben.iscat.iscat_screens.scores.ScoreMenuView;
+import uni.gaben.iscat.iscat_screens.skin_selection.SkinMenuView;
+import uni.gaben.iscat.iscat_m_view_c.AbstractIscatStackPane;
 
 public class IscatMVCRegistry {
     private IscatMVCRegistry() {
