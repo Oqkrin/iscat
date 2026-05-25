@@ -134,14 +134,13 @@ public class PlayerController {
             this.currentAttack = new SpreadAttack(5, 30.0);
             player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.4);
         } else if (level >= 6) {
-            // Spara a ventaglio tre colpi molto rapidamente
             this.currentAttack = new SpreadAttack(3, 30.0);
             player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.6);
         } else if (level >= 3) {
             this.currentAttack = new ParallelLineAttack(3, 15.0);
             player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.8);
         } else {
-            this.currentAttack = new RingAttack(3);
+            this.currentAttack = new FigureAttack(255, FigureAttack.FigureType.STAR);
             player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC);
         }
     }
