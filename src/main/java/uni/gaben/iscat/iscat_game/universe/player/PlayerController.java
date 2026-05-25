@@ -137,8 +137,8 @@ public class PlayerController {
             this.currentAttack = new SpreadAttack(3, 30.0);
             player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.6);
         } else if (level >= 3) {
-            this.currentAttack = new ParallelLineAttack(3, 15.0);
-            player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.8);
+            this.currentAttack = new MultiDirectionAttack(16, 100, new SpreadAttack(7, 10));
+            player.setCooldownFuocoSec(0);
         } else {
             this.currentAttack = new MultiDirectionAttack(16, 100, new SpreadAttack(7, 10));
             player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC);
