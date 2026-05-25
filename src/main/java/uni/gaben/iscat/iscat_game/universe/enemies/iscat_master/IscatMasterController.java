@@ -58,8 +58,8 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
                 ProjectileType.ENEMY_BULLET,
                 new SingleBurstAttack<>(5, 0.05),
                 new RadialNovaAttack<>(20),
-                new BurstArcAttack<>(10, 0.05, 15),
-                new SummonAttack<>(5, UniverseSpawnable.EATER, 80.0)
+                new BurstArcAttack<>(10, 0.05, 15)//,
+                //new SummonAttack<>(5, UniverseSpawnable.EATER, 80.0)
         );
         this.addBehavior(shooterBehaviur);
 

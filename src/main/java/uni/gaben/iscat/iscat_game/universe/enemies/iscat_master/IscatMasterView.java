@@ -6,9 +6,11 @@ import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.iscat_game.utils.UU;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
+import java.util.Random;
 
 import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterSettings.*;
 import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterModel.AnimationState;
@@ -43,14 +45,18 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     private SpriteSheetsParser activeSheet;
     private SpriteSheetsAnimator activeAnimator;
 
-    // SHOCKWAVE
+    // SHOCKWAVE & SCREEN SHAKE
     private boolean shockwaveActive = false;
     private double shockwaveRadius = 0.0;
     private double shockwaveAlpha = 1.0;
 
-    private static final double SHOCKWAVE_MAX_RADIUS = 500.0;
+    private final Random random = new Random();
+    private double shakeIntensity = 10.0;
+
+    private static final double SHOCKWAVE_MAX_RADIUS = 5000.0;
     private static final double SHOCKWAVE_EXPANSION_SPEED = 650.0;
     private static final double SHOCKWAVE_LINE_WIDTH = 15.0;
+    private static final double MAX_SHAKE_INTENSITY = 24.0; // Forza massima dello shake (in pixel)
 
     public IscatMasterView() {
         spriteScale = IscatMasterSettings.ISCATMASTER.scale;
@@ -110,6 +116,10 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
                 this.shockwaveActive = true;
                 this.shockwaveRadius = 0.0;
                 this.shockwaveAlpha = 1.0;
+                this.shakeIntensity = MAX_SHAKE_INTENSITY;
+
+                AudioManager.getInstance().playSFX("shockwave");
+                AudioManager.getInstance().playSFX("laugh");
             }
 
         } else {
@@ -137,6 +147,16 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             }
         }
 
+        // APPLICAZIONE DELLO SCREEN SHAKE
+        gc.save(); // Salva lo stato globale prima di traslare la telecamera
+        if (shockwaveActive && shakeIntensity > 0.1) {
+            // Genera uno spostamento casuale X e Y proporzionale all'intensità rimasta
+            double shakeX = (random.nextDouble() * 2.0 - 1.0) * shakeIntensity;
+            double shakeY = (random.nextDouble() * 2.0 - 1.0) * shakeIntensity;
+            gc.translate(shakeX, shakeY);
+        }
+
+        // Tutto quello che viene disegnato qui dentro tremerà (Boss, Sprite, Bounding Box)
         setPos(entity);
         setAngle(entity);
         setupGraphicsContextAndDrawContent(entity, gc, 270.0);
@@ -147,7 +167,10 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
         if (shockwaveActive) {
             drawShockwave(entity, gc);
+            drawShockwave(entity, gc);
         }
+
+        gc.restore(); // Ripristina la telecamera normale a fine frame, azzerando lo shake per la UI globale
     }
 
     /** Gestisce il disegno di un'onda d'urto potenziata con effetto Glow ed energia interna */
@@ -157,8 +180,12 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         double progress = shockwaveRadius / SHOCKWAVE_MAX_RADIUS;
         shockwaveAlpha = Math.max(0.0, 1.0 - progress);
 
+        // Abbassa gradualmente l'intensità dello shake man mano che l'onda si allontana
+        shakeIntensity = MAX_SHAKE_INTENSITY * (1.0 - progress);
+
         if (progress >= 1.0) {
             shockwaveActive = false;
+            shakeIntensity = 0.0;
         } else {
             gc.save();
 
@@ -170,7 +197,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             double topLeftY = centerY - shockwaveRadius;
 
             // Crea un riempimento interno che svanisce molto velocemente rispetto al bordo
-            double fillAlpha = shockwaveAlpha * 0.15; // Molto leggero per non coprire tutto
+            double fillAlpha = shockwaveAlpha * 0.15;
             gc.setFill(Color.rgb(255, 255, 255, fillAlpha));
             gc.fillOval(topLeftX, topLeftY, diameter, diameter);
 
