@@ -40,7 +40,7 @@ public class EnemyWaveController {
     private boolean unlockedMother = false;
     private boolean unlockedMaster = false;
 
-    public boolean forceBossSpawn = true;
+    public boolean forceBossSpawn = false;
 
     private double spawnTimer = 0.0;
     private final Random random = new Random();

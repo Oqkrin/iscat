@@ -108,6 +108,12 @@ public class AudioManager {
 
     // --- SFX ---
 
+    // Mappa per tracciare il timestamp (in millisecondi) dell'ultima riproduzione di ogni SFX
+    private final Map<String, Long> lastPlayedMap = new HashMap<>();
+
+    // Cooldown minimo di default tra due SFX identici (in millisecondi) per evitare clipping
+    private static final long DEFAULT_COOLDOWN_MS = 30;
+
     /**
      * Carica tutti i file .wav presenti nella cartella delle risorse indicata.
      * Il nome del file (senza estensione) viene usato come chiave nella mappa SFX.
@@ -122,7 +128,6 @@ public class AudioManager {
             ).toURI();
 
             if (uri.getScheme().equals("jar")) {
-                // Esecuzione da JAR: il FileSystem viene chiuso dopo l'uso
                 try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
                     scanAndLoadSFX(fs.getPath(directoryPath), directoryPath);
                 }
@@ -131,7 +136,7 @@ public class AudioManager {
             }
 
         } catch (NullPointerException e) {
-            System.err.println("[AudioManager] Cartella SFX non trovata: " + directoryPath);
+            System.err.println("[AudioManager] Cartella SFX non trovato: " + directoryPath);
         } catch (Exception e) {
             System.err.println("[AudioManager] Errore scansione cartella SFX: " + e.getMessage());
             e.printStackTrace();
@@ -145,7 +150,6 @@ public class AudioManager {
                         String fileName = p.getFileName().toString();
                         String sfxName  = stripExtension(fileName);
                         loadSFX(sfxName, resourceBase + "/" + fileName);
-                        //DEBUG: System.out.println("[AudioManager] SFX caricato: " + sfxName);
                     });
         } catch (Exception e) {
             System.err.println("[AudioManager] Errore durante la scansione: " + e.getMessage());
@@ -154,9 +158,6 @@ public class AudioManager {
 
     /**
      * Carica un singolo file SFX e lo registra con il nome indicato.
-     *
-     * @param name chiave identificativa dell'SFX
-     * @param path path della risorsa
      */
     public void loadSFX(String name, String path) {
         var url = getClass().getResource(path);
@@ -167,9 +168,7 @@ public class AudioManager {
         try {
             sfxMap.put(name, new AudioClip(url.toExternalForm()));
         } catch (UnsupportedOperationException e) {
-            System.err.printf(
-                    "[AudioManager] Formato non supportato: %s%n", path
-            );
+            System.err.printf("[AudioManager] Formato non supportato: %s%n", path);
         } catch (Exception e) {
             System.err.println("[AudioManager] Errore nel caricamento SFX: " + path);
             e.printStackTrace();
@@ -177,22 +176,32 @@ public class AudioManager {
     }
 
     /**
-     * Riproduce un SFX precedentemente caricato.
+     * Riproduce un SFX applicando un filtro anti-baccano (Throttling)
      *
-     * @param name chiave identificativa dell'SFX
+     * @param name chiave identificativa dell'SFX (es. "shoot")
      */
     public void playSFX(String name) {
         AudioClip clip = sfxMap.get(name);
-        if (clip != null) {
-            clip.play(sfxVolume);
-        } else {
+        if (clip == null) {
             System.err.println("[AudioManager] SFX non trovato in mappa: " + name);
+            return;
         }
+
+        long now = System.currentTimeMillis();
+        long lastPlayed = lastPlayedMap.getOrDefault(name, 0L);
+
+        long requiredCooldown = name.equalsIgnoreCase("shoot") ? 90 : DEFAULT_COOLDOWN_MS;
+
+        if (now - lastPlayed < requiredCooldown) {
+            return;
+        }
+
+        lastPlayedMap.put(name, now);
+        clip.play(sfxVolume);
     }
 
     /**
      * Carica tutti gli SFX dalla cartella di default.
-     * Da chiamare all'avvio del gioco.
      */
     public void loadDefaultAudio() {
         loadAllSFX("/uni/gaben/iscat/audio/SFX");
@@ -200,7 +209,7 @@ public class AudioManager {
 
     // --- Utility ---
 
-    /** Rimuove l'estensione da un nome di file (es. "boom.wav" → "boom"). */
+    /** Rimuove l'estensione da un nome di file. */
     private static String stripExtension(String fileName) {
         int dot = fileName.lastIndexOf('.');
         return dot > 0 ? fileName.substring(0, dot) : fileName;
