@@ -1,16 +1,46 @@
 package uni.gaben.iscat.iscat_game.universe;
 
+import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.iscat_game.camera.CameraModel;
 import uni.gaben.iscat.iscat_screens.game.model.GameModel;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-/**
- * Advanced Wave Controller utilizing mathematical time-based and level-based probability curves
- * with an exponential scaling multiplier based on the player's level.
- */
 public class EnemyWaveController {
+
+    // Record interno di supporto per tracciare il tipo associato a ciascuna istanza generata
+    private static class ActiveEnemy {
+        Object entity;
+        UniverseSpawnable type;
+
+        ActiveEnemy(Object entity, UniverseSpawnable type) {
+            this.entity = entity;
+            this.type = type;
+        }
+    }
+
+    // STATISTICHE GLOBALI
+    public static int totalKills = 0;
+    public static void incrementKills() { totalKills++; }
+
+    // TRACCIAMENTO ISTANZE ATTIVE
+    private final List<ActiveEnemy> activeEnemies = new ArrayList<>();
+
+    // FLAG PER GESTIONE DELLE NOTIFICHE DI SBLOCCO
+    private boolean unlockedEater = false;
+    private boolean unlockedFake = false;
+    private boolean unlockedBomber = false;
+    private boolean unlockedDasher = false;
+    private boolean unlockedHealer = false;
+    private boolean unlockedGolem = false;
+    private boolean unlockedCore = false;
+    private boolean unlockedWorm = false;
+    private boolean unlockedMother = false;
+    private boolean unlockedMaster = false;
+
+    public boolean forceBossSpawn = true;
 
     private double spawnTimer = 0.0;
     private final Random random = new Random();
@@ -18,116 +48,202 @@ public class EnemyWaveController {
     private boolean bossSpawned = false;
     private boolean bossDead = false;
 
-    // Configuration Constants
-    private static final double SPAWN_RADIUS = 1200.0;
-    private static final double INITIAL_SPAWN_COOLDOWN = 10.0;
+    private static final double INITIAL_SPAWN_COOLDOWN = 6.0;
 
-    /**
-     * Main update tick fueled directly by the shared GameModel timer state.
-     */
     public void update(double dt, CameraModel camera, GameModel gameModel) {
         if (gameModel == null) return;
 
-        double masterTimeSec = gameModel.getTotalElapsedSeconds();
-
-        // Count down the local pacing interval timer
-        spawnTimer -= dt;
-        if (spawnTimer <= 0) {
-            // Extract player level safely with structural fallbacks
-            int playerLevel = 1;
-            if (gameModel.getUniverseModel() != null && gameModel.getUniverseModel().getPlayer() != null) {
-                playerLevel = gameModel.getUniverseModel().getPlayer().getLevel();
+        // Rimuove istantaneamente i nemici distrutti dal motore grafico
+        activeEnemies.removeIf(ae -> {
+            if (ae.entity instanceof AbstractEntityModel entityModel) {
+                return entityModel.shouldRemove();
             }
+            return true;
+        });
 
-            spawnDynamicWaveOffScreen(camera, masterTimeSec, playerLevel);
+        // CONTROLLO E PRINT DEI NUOVI SBLOCCHI DI NEMICI
+        checkUnlockPrints();
 
-            // Scale spawn frequencies up slightly over time (down to a minimum of 4 seconds)
-            spawnTimer = Math.max(4.0, INITIAL_SPAWN_COOLDOWN - (masterTimeSec / 60.0));
+        double masterTimeSec = gameModel.getTotalElapsedSeconds();
+        int maxAllowedGlobal = getMaxEnemiesByTime(masterTimeSec);
+
+        // Se siamo sotto la soglia massima consentita dal tempo, azzeriamo il timer per forzare lo spawn
+        if (activeEnemies.size() < maxAllowedGlobal) {
+            spawnTimer = 0.0;
+        } else {
+            spawnTimer -= dt;
+        }
+
+        if (spawnTimer <= 0) {
+            boolean spawnedAtLeastOne = spawnDynamicWaveOffScreen(camera, masterTimeSec, maxAllowedGlobal);
+
+            if (spawnedAtLeastOne) {
+                // Calcola il prossimo cooldown standard (si riduce man mano che aumentano le kill)
+                spawnTimer = Math.max(2.0, INITIAL_SPAWN_COOLDOWN - (totalKills / 50.0));
+            } else {
+                // Se i caps o i limiti specifici bloccano lo spawn, ricontrolla quasi subito
+                spawnTimer = 0.2;
+            }
         }
     }
 
     /**
-     * Handles spawning calculated arrays of entities just outside the viewport camera bounds.
+     * Ciclo di spawn dinamico ottimizzato con controllo While per evitare stalli
      */
-    private void spawnDynamicWaveOffScreen(CameraModel camera, double currentSessionTime, int playerLevel) {
-        if (camera == null) return;
+    private boolean spawnDynamicWaveOffScreen(CameraModel camera, double currentSessionTime, int maxAllowedGlobal) {
+        if (camera == null) return false;
 
-        // Exponential budget rule: level * level total spawns (Level 10 = 100 enemies!)
-        int totalEnemiesToSpawn = (int) (playerLevel * (1+Math.log(playerLevel)));
-        boolean bossSpawnedThisWave = false;
+        int totalEnemiesToSpawn = 3 + (totalKills / 15);
+        int spawnedInThisBatch = 0;
+        boolean successfullySpawned = false;
 
-        for (int i = 0; i < totalEnemiesToSpawn; i++) {
-            // FIX: Now passing player level into probability calculations
-            UniverseSpawnable enemyToSpawn = rollWeightProbability(currentSessionTime, playerLevel);
+        // Il ciclo continua a girare finché c'è spazio nel cap globale e non abbiamo esaurito il batch della wave
+        while (activeEnemies.size() < maxAllowedGlobal && spawnedInThisBatch < totalEnemiesToSpawn) {
+            UniverseSpawnable enemyToSpawn = rollWeightProbability();
 
-            // Boss Check: Safely downscale duplicated master triggers to preserve balance
-            if (enemyToSpawn == UniverseSpawnable.ISCAT_MASTER) {
-                if (bossSpawned || bossSpawnedThisWave) {
+            // Controllo dei tetti massimi specifici richiesti
+            if (!canSpawnEnemyType(enemyToSpawn)) {
+                // Se un nemico speciale ha raggiunto il suo tetto massimo, ripiega sul mob base (se ha spazio)
+                if (enemyToSpawn != UniverseSpawnable.ISCAT_MOB && canSpawnEnemyType(UniverseSpawnable.ISCAT_MOB)) {
                     enemyToSpawn = UniverseSpawnable.ISCAT_MOB;
                 } else {
-                    bossSpawnedThisWave = true;
+                    // Se anche il mob base è saturo, interrompiamo il riempimento per questo frame
+                    break;
                 }
             }
 
-            // Calculate precise circular spawn trajectories outside the camera frame
-            double angle = random.nextDouble() * Math.PI * 2.0;
-            double spawnX = camera.getX() + Math.cos(angle) * SPAWN_RADIUS;
-            double spawnY = camera.getY() + Math.sin(angle) * SPAWN_RADIUS;
+            // CALCOLO DELLE COORDINATE DI SPAWN
+            // margine di sicurezza oltre il bordo dello schermo
+            double margin = 80.0;
 
-            UniverseSpawner.getInstance().spawn(enemyToSpawn, spawnX, spawnY);
+            // Calcolo confini della camera
+            double halfWidth = (camera.getScreenWidth() / 2.0) + margin;
+            double halfHeight = (camera.getScreenHeight() / 2.0) + margin;
 
-            // Notify environmental sound system if the final boss is selected
-            if (enemyToSpawn == UniverseSpawnable.ISCAT_MASTER && !bossSpawned) {
-                notifyBossSpawned();
+            // Scegliamo random una side
+            int side = random.nextInt(4);
+            double spawnX = camera.getX();
+            double spawnY = camera.getY();
+
+            switch (side) {
+                case 0: // SOPRA
+                    spawnX = camera.getX() - halfWidth + (random.nextDouble() * halfWidth * 2);
+                    spawnY = camera.getY() - halfHeight;
+                    break;
+                case 1: // SOTTO
+                    spawnX = camera.getX() - halfWidth + (random.nextDouble() * halfWidth * 2);
+                    spawnY = camera.getY() + halfHeight;
+                    break;
+                case 2: // SINISTRA
+                    spawnX = camera.getX() - halfWidth;
+                    spawnY = camera.getY() - halfHeight + (random.nextDouble() * halfHeight * 2);
+                    break;
+                case 3: // DESTRA
+                    spawnX = camera.getX() + halfWidth;
+                    spawnY = camera.getY() - halfHeight + (random.nextDouble() * halfHeight * 2);
+                    break;
+            }
+
+            Object spawnedObject = UniverseSpawner.getInstance().spawn(enemyToSpawn, spawnX, spawnY);
+
+            if (spawnedObject != null) {
+                activeEnemies.add(new ActiveEnemy(spawnedObject, enemyToSpawn));
+                spawnedInThisBatch++;
+                successfullySpawned = true;
+
+                //System.out.println("[Spawn] Generato nemico: " + enemyToSpawn + " a coordinate (" + (int)spawnX + ", " + (int)spawnY + ")");
+
+                if (enemyToSpawn == UniverseSpawnable.ISCAT_MASTER && !bossSpawned) {
+                    notifyBossSpawned();
+                }
+            } else {
+                break;
             }
         }
+
+        return successfullySpawned;
     }
 
     /**
-     * Dual-layered scaling system. Enemies unlock if EITHER the time threshold is reached
-     * OR the player's level is high enough.
+     * Verifica e applica i tetti massimi specifici per ogni tipologia di nemico
      */
-    private UniverseSpawnable rollWeightProbability(double time, int level) {
-        // Base mob drops in priority as the run escalates
-        double mobWeight = Math.max(10.0, 100.0 - (time * 0.5) - (level * 4.0));
+    private boolean canSpawnEnemyType(UniverseSpawnable type) {
+        if (type == UniverseSpawnable.ISCAT_MASTER) {
+            return !bossSpawned; // Il Master può essere al massimo 1 alla volta
+            //TODO il Master facciamo che respawna in endless mode magari
+        }
 
-        // FIX: Unlock based on Time OR Player Level thresholds
-        double eaterWeight  = (time >= 20.0  || level >= 2) ? Math.min(45.0, (time - 20.0) * 1.5 + (level * 3.0)) : 0.0;
-        double fakeWeight   = (time >= 45.0  || level >= 3) ? Math.min(40.0, (time - 45.0) * 1.5 + (level * 3.5)) : 0.0;
-        double bomberWeight = (time >= 7000.0  || level >= 4) ? Math.min(35.0, (time - 70.0) * 1.2 + (level * 4.0)) : 0.0;
-        double dasherWeight = (time >= 50.0  || level >= 3) ? Math.min(30.0, (time - 50.0) * 1.5 + (level * 3.0)) : 0.0;
-        double healerWeight = (time >= 90.0  || level >= 5) ? Math.min(25.0, (time - 90.0) * 1.0 + (level * 3.0)) : 0.0;
-        double golemWeight  = (time >= 100.0 || level >= 5) ? Math.min(30.0, (time - 100.0) * 1.0 + (level * 4.5)) : 0.0;
-        double coreWeight   = (time >= 130.0 || level >= 6) ? Math.min(30.0, (time - 130.0) * 1.0 + (level * 5.0)) : 0.0;
-        double wormWeight   = (time >= 160.0 || level >= 7) ? Math.min(25.0, (time - 160.0) * 0.8 + (level * 5.5)) : 0.0;
-        double motherWeight = (time >= 190.0 || level >= 8) ? Math.min(25.0, (time - 190.0) * 0.8 + (level * 6.0)) : 0.0;
+        // Filtra e conta quanti nemici di questo tipo specifico sono registrati e vivi nell'ondata
+        long count = activeEnemies.stream().filter(ae -> ae.type == type).count();
 
-        // Final Boss threshold opens at 4 minutes OR Level 10
-        double masterWeight = (!bossSpawned && (time >= 240.0 || level >= 10))
-                ? Math.min(20.0, (time - 240.0) * 0.5 + (level * 2.0))
-                : 0.0;
+        return switch (type) {
+            case WORM -> count < 5;          // Iscatworm: max 5
+            case ISCAT_MOTHER -> count < 2;  // Iscat Mother: max 2
+            default -> count < 10;           // Tutti gli altri nemici standard: max 10
+        };
+    }
 
-        // Sum complete active weight profile boundaries
-        double totalWeightSum = mobWeight + eaterWeight + fakeWeight + bomberWeight + dasherWeight + healerWeight
-                + golemWeight + coreWeight + wormWeight + motherWeight + masterWeight;
+    /**
+     * Ritorna il tetto massimo globale di nemici attivi contemporaneamente in base al tempo
+     */
+    private int getMaxEnemiesByTime(double timeSec) {
+        if (timeSec >= 210.0) return 20; // 3:30 min -> max 20
+        if (timeSec >= 150.0) return 15; // 2:30 min -> max 15
+        if (timeSec >= 60.0)  return 10; // 1:00 min -> max 10
+        if (timeSec >= 30.0)  return 5;  // 30 secondi -> max 5
+        return 3;                        // Inizio partita (0-30s) -> max 3
+    }
 
-        // Roll pointer index inside range space
+    /**
+     * Stampa in console lo sblocco del nemico non appena si superano le soglie di kill
+     */
+    private void checkUnlockPrints() {
+        if (totalKills >= 5 && !unlockedEater) { unlockedEater = true; System.out.println("[EnemyWave] Ora EATER può spawnare!"); }
+        if (totalKills >= 15 && !unlockedFake) { unlockedFake = true; System.out.println("[EnemyWave] Ora FAKE_ISCAT può spawnare!"); }
+        if (totalKills >= 25 && !unlockedBomber) { unlockedBomber = true; System.out.println("[EnemyWave] Ora ISCAT_BOMBER può spawnare!"); }
+        if (totalKills >= 40 && !unlockedDasher) { unlockedDasher = true; System.out.println("[EnemyWave] Ora ISCAT_DASHER può spawnare!"); }
+        if (totalKills >= 60 && !unlockedHealer) { unlockedHealer = true; System.out.println("[EnemyWave] Ora ISCAT_HEALER può spawnare!"); }
+        if (totalKills >= 80 && !unlockedGolem) { unlockedGolem = true; System.out.println("[EnemyWave] Ora FALLEN_STAR_GOLEM può spawnare!"); }
+        if (totalKills >= 100 && !unlockedCore) { unlockedCore = true; System.out.println("[EnemyWave] Ora ISCAT_CORE può spawnare!"); }
+        if (totalKills >= 120 && !unlockedWorm) { unlockedWorm = true; System.out.println("[EnemyWave] Ora WORM può spawnare!"); }
+        if (totalKills >= 150 && !unlockedMother) { unlockedMother = true; System.out.println("[EnemyWave] Ora ISCAT_MOTHER può spawnare!"); }
+        if (totalKills >= 200 && !unlockedMaster) { unlockedMaster = true; System.out.println("[EnemyWave] Ora ISCAT_MASTER può spawnare!"); }
+    }
+
+    private UniverseSpawnable rollWeightProbability() {
+        if (!bossSpawned && (forceBossSpawn || totalKills >= 200)) {
+            return UniverseSpawnable.ISCAT_MASTER;
+        }
+
+        double mobWeight = Math.max(10.0, 100.0 - (totalKills * 0.5));
+        double eaterWeight  = (totalKills >= 5)   ? Math.min(40.0, (totalKills - 5) * 1.5) : 0.0;
+        double fakeWeight   = (totalKills >= 15)  ? Math.min(35.0, (totalKills - 15) * 1.5) : 0.0;
+        double bomberWeight = (totalKills >= 25)  ? Math.min(30.0, (totalKills - 25) * 1.5) : 0.0;
+        double dasherWeight = (totalKills >= 40)  ? Math.min(30.0, (totalKills - 40) * 1.5) : 0.0;
+        double healerWeight = (totalKills >= 60)  ? Math.min(25.0, (totalKills - 60) * 1.5) : 0.0;
+        double golemWeight  = (totalKills >= 80)  ? Math.min(30.0, (totalKills - 80) * 1.5) : 0.0;
+        double coreWeight   = (totalKills >= 100) ? Math.min(30.0, (totalKills - 100) * 1.5) : 0.0;
+        double wormWeight   = (totalKills >= 120) ? Math.min(25.0, (totalKills - 120) * 1.5) : 0.0;
+        double motherWeight = (totalKills >= 150) ? Math.min(25.0, (totalKills - 150) * 1.5) : 0.0;
+
+        double totalWeightSum = mobWeight + eaterWeight + fakeWeight + bomberWeight + dasherWeight
+                + healerWeight + golemWeight + coreWeight + wormWeight + motherWeight;
+
         double rollValue = random.nextDouble() * totalWeightSum;
-        double currentInspectedSum = 0.0;
+        double currentSum = 0.0;
 
-        if ((currentInspectedSum += mobWeight) >= rollValue)    return UniverseSpawnable.ISCAT_MOB;
-        if ((currentInspectedSum += eaterWeight) >= rollValue)  return UniverseSpawnable.EATER;
-        if ((currentInspectedSum += fakeWeight) >= rollValue)   return UniverseSpawnable.FAKE_ISCAT;
-        if ((currentInspectedSum += bomberWeight) >= rollValue) return UniverseSpawnable.ISCAT_BOMBER;
-        if ((currentInspectedSum += dasherWeight) >= rollValue) return UniverseSpawnable.ISCAT_DASHER;
-        if ((currentInspectedSum += healerWeight) >= rollValue) return UniverseSpawnable.ISCAT_HEALER;
-        if ((currentInspectedSum += golemWeight) >= rollValue)  return UniverseSpawnable.FALLEN_STAR_GOLEM;
-        if ((currentInspectedSum += coreWeight) >= rollValue)   return UniverseSpawnable.ISCAT_CORE;
-        if ((currentInspectedSum += wormWeight) >= rollValue)   return UniverseSpawnable.WORM;
-        if ((currentInspectedSum += motherWeight) >= rollValue) return UniverseSpawnable.ISCAT_MOTHER;
-        if ((currentInspectedSum += masterWeight) >= rollValue) return UniverseSpawnable.ISCAT_MASTER;
+        if ((currentSum += mobWeight) >= rollValue)    return UniverseSpawnable.ISCAT_MOB;
+        if ((currentSum += eaterWeight) >= rollValue)  return UniverseSpawnable.EATER;
+        if ((currentSum += fakeWeight) >= rollValue)   return UniverseSpawnable.FAKE_ISCAT;
+        if ((currentSum += bomberWeight) >= rollValue) return UniverseSpawnable.ISCAT_BOMBER;
+        if ((currentSum += dasherWeight) >= rollValue) return UniverseSpawnable.ISCAT_DASHER;
+        if ((currentSum += healerWeight) >= rollValue) return UniverseSpawnable.ISCAT_HEALER;
+        if ((currentSum += golemWeight) >= rollValue)  return UniverseSpawnable.FALLEN_STAR_GOLEM;
+        if ((currentSum += coreWeight) >= rollValue)   return UniverseSpawnable.ISCAT_CORE;
+        if ((currentSum += wormWeight) >= rollValue)   return UniverseSpawnable.WORM;
+        if ((currentSum += motherWeight) >= rollValue) return UniverseSpawnable.ISCAT_MOTHER;
 
-        return UniverseSpawnable.ISCAT_MOB; // Absolute safety line fallback
+        return UniverseSpawnable.ISCAT_MOB;
     }
 
     public void notifyBossSpawned() {
@@ -149,5 +265,17 @@ public class EnemyWaveController {
         this.spawnTimer = 0.0;
         this.bossSpawned = false;
         this.bossDead = false;
+        totalKills = 0;
+        activeEnemies.clear();
+        unlockedEater = false;
+        unlockedFake = false;
+        unlockedBomber = false;
+        unlockedDasher = false;
+        unlockedHealer = false;
+        unlockedGolem = false;
+        unlockedCore = false;
+        unlockedWorm = false;
+        unlockedMother = false;
+        unlockedMaster = false;
     }
 }

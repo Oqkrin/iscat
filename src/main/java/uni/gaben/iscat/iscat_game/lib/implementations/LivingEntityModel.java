@@ -10,11 +10,8 @@ import uni.gaben.iscat.iscat_game.universe.UniverseSpawner;
 import uni.gaben.iscat.iscat_game.universe.heart.HeartModel;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
+import uni.gaben.iscat.iscat_game.universe.EnemyWaveController;
 
-/**
- * Implementazione di un'entità dotata di vita e soggetta a mortalità.
- * Gestisce i punti vita (HP), la guarigione e il danneggiamento.
- */
 public class LivingEntityModel extends AbstractEntityModel implements LifeDeath {
     protected DoubleProperty life = new SimpleDoubleProperty();
     protected double maxLife;
@@ -23,13 +20,13 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
     private Runnable onHurt;
     private Runnable onDeath;
 
+    private boolean killedByProjectile = false;
+
     public LivingEntityModel(double x, double y, double life, double maxLife) {
         super(x, y);
         this.life.set(life);
         this.maxLife = maxLife;
     }
-
-    private boolean killedByProjectile = false;
 
     public void setKilledByProjectile(boolean value) { this.killedByProjectile = value; }
     public boolean isKilledByProjectile() { return killedByProjectile; }
@@ -42,7 +39,6 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
         double clampedLife = Math.clamp(life, 0, maxLife);
         this.life.set(clampedLife);
 
-        // Se la salute scende a zero, forziamo l'istantanea esecuzione delle routine di morte
         if (clampedLife <= 0 && !shouldRemove()) {
             kill();
         }
@@ -77,20 +73,23 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
             boolean isPlayer = this instanceof PlayerModel;
             boolean isHeart = this instanceof HeartModel;
 
-            // Se sei un proiettile, allora non fare nessun suono quando muori
             if (!silent && !isProjectile && !isHeart) {
                 AudioManager.getInstance().playSFX("explosion");
             }
 
-            if(isHeart){
+            if (isHeart) {
                 AudioManager.getInstance().playSFX("heal");
             }
 
-            // Se muore un nemico 25% di chance di spawnare un heart
-            if (!isHeart && !isProjectile && !isPlayer && Math.random() < 0.25 && killedByProjectile) {
-                double pixelX = UU.mToPx(this.getTransform().getTranslationX());
-                double pixelY = UU.mToPx(this.getTransform().getTranslationY());
-                UniverseSpawner.getInstance().spawn("HEART", pixelX, pixelY);
+            // CONTROLLO NEMICI
+            if (!isHeart && !isProjectile && !isPlayer) {
+                EnemyWaveController.incrementKills();
+
+                if (Math.random() < 0.25 && killedByProjectile) {
+                    double pixelX = UU.mToPx(this.getTransform().getTranslationX());
+                    double pixelY = UU.mToPx(this.getTransform().getTranslationY());
+                    UniverseSpawner.getInstance().spawn("HEART", pixelX, pixelY);
+                }
             }
 
             onDeath();
@@ -106,6 +105,4 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
     public void setXpReward(double xpReward) {
         this.xpReward = xpReward;
     }
-
-
 }

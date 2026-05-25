@@ -107,8 +107,7 @@ public class UniverseSpawner {
         // TODO: Quando implementerai il database:
         // 1. ArchetipoCustom arch = Database.getArchetipo(id);
         // 2. CustomModel model = new CustomModel(arch, x, y);
-        // 3. questoSpawer.model.addEntity(model);
-        System.out.println("[Runtime Spawner] Identificata entità custom non presente nell'Enum: " + id + " a coordinate (" + x + "," + y + ")");
+        // 3. questoSpawer.model.addEntity(model);System.out.println("[Runtime Spawner] Identificata entità custom non presente nell'Enum: " + id + " a coordinate (" + x + "," + y + ")");
         return null;
     }
 
