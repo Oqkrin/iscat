@@ -23,7 +23,7 @@ public class GameModel {
     private LongProperty start = new SimpleLongProperty(-1);
     private DoubleProperty accumulator = new SimpleDoubleProperty(0);
     private BooleanProperty paused = new SimpleBooleanProperty(false);
-    private BooleanProperty wave = new SimpleBooleanProperty(false);
+    private BooleanProperty wave = new SimpleBooleanProperty(true);
     private IntegerProperty timer = new SimpleIntegerProperty(0);
     private final BooleanProperty gameOver = new SimpleBooleanProperty(false);
 
