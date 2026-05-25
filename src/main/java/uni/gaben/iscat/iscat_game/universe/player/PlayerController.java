@@ -140,7 +140,7 @@ public class PlayerController {
             this.currentAttack = new ParallelLineAttack(3, 15.0);
             player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.8);
         } else {
-            this.currentAttack = new FigureAttack(255, FigureAttack.FigureType.STAR);
+            this.currentAttack = new MultiDirectionAttack(16, 100, new SpreadAttack(7, 10));
             player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC);
         }
     }
