@@ -22,14 +22,13 @@ public class FakeIscatView extends AbstractEntityView<FakeIscatModel>
 
     public FakeIscatView() {
 
-        spriteScale = FakeIscatSettings.SCALE;
+        spriteScale = FAKEISCAT.scale;
 
         this.spriteSheetsParser = SpritesLibrary.getInstance()
                 .getSprite(
                         SPRITE_SHEET_PATH,
-                        DIM_SPRITE,
-                        DIM_SPRITE
-                );
+                        (int) FAKEISCAT.dimSprite,
+                        (int) FAKEISCAT.dimSprite);
 
         this.animator = new SpriteSheetsAnimator(
                 1.0 / 24.0,

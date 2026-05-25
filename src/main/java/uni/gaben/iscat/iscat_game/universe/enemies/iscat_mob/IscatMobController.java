@@ -3,6 +3,7 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.DodgeProjectileBehavior;
 import uni.gaben.iscat.iscat_game.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel;
@@ -16,6 +17,8 @@ import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.SeparationBehavi
 import uni.gaben.iscat.iscat_game.utils.UU;
 
 import java.util.Random;
+
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobSettings.ISCATMOB;
 
 /**
  * Controller di Intelligenza Artificiale per l'IscatMob.
@@ -48,7 +51,9 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
         // --- COMPOSIZIONE BEHAVIORS ---
 
         // Comportamento parallelo di separazione per evitare clumping (raggio 32px, forza bilanciata)
-        this.addBehavior(new SeparationBehavior(UU.pxToM(32.0), IscatMobSettings.FORCE * 0.8));
+        this.addBehavior(new SeparationBehavior(UU.pxToM(32.0), ISCATMOB.force * 0.8));
+
+        this.addBehavior(new DodgeProjectileBehavior(ISCATMOB.force * 1.5, 2.0));
 
         // 1. WANDER: Priorità base (10.0). Se nient'altro si attiva, pattuglia.
         addBehavior(new AiBehavior() {
@@ -69,7 +74,7 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
                 PlayerModel player = universe.getPlayer();
                 if (player == null) return 0.0;
                 double dist = aiEntity.getTransform().getTranslation().distance(player.getTransform().getTranslation());
-                if (dist > IscatMobSettings.COMBAT_RANGE && dist <= IscatMobSettings.DETECTION_RANGE) return 50.0;
+                if (dist > ISCATMOB.combatRange && dist <= ISCATMOB.detectionRange) return 50.0;
                 return 0.0;
             }
             @Override
@@ -85,7 +90,7 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
                 PlayerModel player = universe.getPlayer();
                 if (player == null) return 0.0;
                 double dist = aiEntity.getTransform().getTranslation().distance(player.getTransform().getTranslation());
-                if (dist <= IscatMobSettings.COMBAT_RANGE) return 80.0;
+                if (dist <= ISCATMOB.combatRange) return 80.0;
                 return 0.0;
             }
             @Override
@@ -124,7 +129,7 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
         rotateTo(wanderTarget.getDirection(), dt);
 
         // Applica una forza fisica per spingere il mob verso la direzione del target
-        aiEntity.applyForce(wanderTarget.getNormalized().multiply(IscatMobSettings.FORCE));
+        aiEntity.applyForce(wanderTarget.getNormalized().multiply(ISCATMOB.force));
 
         // Se il mob ha raggiunto il punto (ci si trova sopra), resetta il target per calcolarne uno nuovo
         if (aiEntity.contains(wanderTarget)) wanderTarget = null;
@@ -143,7 +148,7 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
         rotateTo(toPlayer.getDirection(), dt);
 
         // Spinge fisicamente il mob in avanti verso il giocatore
-        aiEntity.applyForce(toPlayer.getNormalized().multiply(IscatMobSettings.FORCE));
+        aiEntity.applyForce(toPlayer.getNormalized().multiply(ISCATMOB.force));
     }
 
     /**
@@ -157,12 +162,12 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
         double dist = toPlayer.getMagnitude();
 
         // GESTIONE DELLA DISTANZA DI SICUREZZA (Evita che il player si avvicini troppo)
-        if (dist < IscatMobSettings.PREFERRED_RANGE) {
+        if (dist < ISCATMOB.preferredRange) {
             // Se il player è troppo vicino, applica una forza contraria per indietreggiare (retrofront)
-            aiEntity.applyForce(toPlayer.getNormalized().multiply(-IscatMobSettings.FORCE * 0.6));
-        } else if (dist > IscatMobSettings.PREFERRED_RANGE * 1.2) {
+            aiEntity.applyForce(toPlayer.getNormalized().multiply(-ISCATMOB.force * 0.6));
+        } else if (dist > ISCATMOB.preferredRange * 1.2) {
             // Se si sta allontanando troppo, riavvicinati lentamente
-            aiEntity.applyForce(toPlayer.getNormalized().multiply(IscatMobSettings.FORCE * 0.4));
+            aiEntity.applyForce(toPlayer.getNormalized().multiply(ISCATMOB.force * 0.4));
         }
 
         // Resta sempre puntato verso il giocatore durante il combattimento
@@ -171,7 +176,7 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
         // LOGICA DI SPARO: Se il cooldown è terminato, fai fuoco
         if (!fireCooldown.isCoolingDown()) {
             shooter.shoot(bulletTemplate); // Spara il proiettile
-            fireCooldown.start(IscatMobSettings.FIRE_COOLDOWN_S); // Avvia il timer di ricarica
+            fireCooldown.start(ISCATMOB.fireCooldownS); // Avvia il timer di ricarica
         }
     }
 
@@ -200,7 +205,7 @@ public class IscatMobController extends AiBehaviours<IscatMobModel> {
         while (diff >  Math.PI) diff -= Math.PI * 2;
 
         // Calcola l'angolo intermedio tramite interpolazione lineare (movimento fluido dell'asse)
-        double next = Interpolator.lerp(current, current + diff, Math.min(IscatMobSettings.ROTATION_SPEED * dt, 1.0));
+        double next = Interpolator.lerp(current, current + diff, Math.min(ISCATMOB.rotationSpeed * dt, 1.0));
 
         // Applica la rotazione calcolata al corpo fisico
         aiEntity.getTransform().setRotation(next);

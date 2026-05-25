@@ -1,13 +1,19 @@
 package uni.gaben.iscat.iscat_game.universe.enemies.iscat_bomber;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.DodgeProjectileBehavior;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.SeparationBehavior;
+import uni.gaben.iscat.iscat_game.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel;
 import uni.gaben.iscat.utils.Interpolator;
 
 import java.util.LinkedList;
+
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_bomber.IscatBomberSettings.ISCATBOMBER;
 
 /**
  * Controller AI per IscatBomber.
@@ -33,12 +39,14 @@ public class IscatBomberController extends AiBehaviours<IscatBomberModel> {
             }
         });
 
-        this.addBehavior(new uni.gaben.iscat.iscat_game.lib.implementations.behaviors.SeparationBehavior(
-                uni.gaben.iscat.iscat_game.utils.UU.pxToM(48.0), IscatBomberSettings.FORCE * 0.8));
+        this.addBehavior(new SeparationBehavior(
+                uni.gaben.iscat.iscat_game.utils.UU.pxToM(48.0), ISCATBOMBER.force * 0.8));
 
-        addBehavior(new uni.gaben.iscat.iscat_game.lib.interfaces.controller.AiBehavior() {
+        this.addBehavior(new DodgeProjectileBehavior(ISCATBOMBER.force * 1.5, 2.0));
+
+        addBehavior(new AiBehavior() {
             @Override
-            public double getPriority(uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel npc, UniverseModel universe) {
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
                 // Se stordito priorità 0, altrimenti 50
                 return aiEntity.isStunned() || universe.getPlayer() == null ? 0.0 : 50.0;
             }
@@ -67,7 +75,7 @@ public class IscatBomberController extends AiBehaviours<IscatBomberModel> {
                     double minDistMeters = UU.pxToM(IscatBomberSettings.DISTANZA_MIN_INSEGUIMENTO);
                     if (dist > minDistMeters) {
                         toTarget.normalize();
-                        aiEntity.applyForce(toTarget.multiply(IscatBomberSettings.FORCE * aiEntity.getMass().getMass()));
+                        aiEntity.applyForce(toTarget.multiply(ISCATBOMBER.force * aiEntity.getMass().getMass()));
                     }
                 }
 

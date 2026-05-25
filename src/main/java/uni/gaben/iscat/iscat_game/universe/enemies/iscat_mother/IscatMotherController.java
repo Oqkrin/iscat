@@ -13,6 +13,8 @@ import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Shooter;
 import uni.gaben.iscat.utils.Interpolator;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother.IscatMotherSettings.ISCATMOTHER;
+
 /**
  * Controller AI per IscatMother (boss).
  *
@@ -98,11 +100,11 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
 
         if (dist < idealDist - IscatMotherSettings.DISTANZA_TOLLERANZA_VICINO) {
             // Troppo vicino → indietreggia
-            Vector2 away = toPlayer.copy().getNormalized().multiply(-IscatMotherSettings.FORCE);
+            Vector2 away = toPlayer.copy().getNormalized().multiply(-ISCATMOTHER.force);
             aiEntity.applyForce(away);
         } else if (dist > idealDist + IscatMotherSettings.DISTANZA_TOLLERANZA_LONTANO) {
             // Troppo lontano → avvicinati
-            Vector2 toward = toPlayer.copy().getNormalized().multiply(IscatMotherSettings.FORCE);
+            Vector2 toward = toPlayer.copy().getNormalized().multiply(ISCATMOTHER.force);
             aiEntity.applyForce(toward);
         }
     }
@@ -184,7 +186,7 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
 
         double next = Interpolator.lerp(
                 current, current + diff,
-                Math.min(IscatMotherSettings.ROTATION_SPEED * dt, 1.0));
+                Math.min(ISCATMOTHER.rotationSpeed * dt, 1.0));
         aiEntity.getTransform().setRotation(next);
     }
 }

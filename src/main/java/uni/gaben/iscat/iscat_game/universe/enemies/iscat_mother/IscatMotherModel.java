@@ -3,6 +3,7 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
+import uni.gaben.iscat.iscat_game.lib.abstracts.BaseEntitySettings;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.iscat_game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.iscat_game.utils.UU;
@@ -10,6 +11,8 @@ import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
+
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother.IscatMotherSettings.ISCATMOTHER;
 
 /**
  * Modello fisico puro dell'IscatMother (boss).
@@ -22,16 +25,16 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
     private boolean hasSpawnedMinions = false;
 
     public IscatMotherModel(double x, double y) {
-        super(x, y, IscatMotherSettings.HP_INIZIALI, IscatMotherSettings.HP_INIZIALI);
-        setXpReward(IscatMotherSettings.XP_REWARD);
+        super(x, y, ISCATMOTHER.initLife, ISCATMOTHER.initLife);
+        setXpReward(ISCATMOTHER.xpReward);
 
         // Hitbox: circle whose radius is 70% of the visible sprite radius
-        double visualRadiusPx = (IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE) / 2.0;
+        double visualRadiusPx = (ISCATMOTHER.dimSprite * ISCATMOTHER.scale) / 2.0;
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(UU.pxToM(visualRadiusPx * 0.70)));
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
-        setLinearDamping(IscatMotherSettings.DAMPING_LINEARE);
+        setLinearDamping(ISCATMOTHER.dampingLineare);
     }
 
     // ─── LifeDeath ──────────────────────────────────────────────────────────
@@ -47,7 +50,7 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
     }
 
     public void startFireCooldown() {
-        fireCooldown.start(IscatMotherSettings.COOLDOWN_SPARO_SEC);
+        fireCooldown.start(ISCATMOTHER.fireCooldownS);
     }
 
     // ─── Minion spawn state ─────────────────────────────────────────────────
@@ -84,7 +87,7 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
 
     @Override
     public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(IscatMotherSettings.COOLDOWN_SPARO_SEC);
+        return (int) UU.sToTicks(ISCATMOTHER.fireCooldownS);
     }
 
     @Override
@@ -96,12 +99,12 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
 
     @Override
     public double getTerminalVelocity() {
-        return IscatMotherSettings.MAX_VELOCITY_MS;
+        return ISCATMOTHER.maxVelocity;
     }
 
     @Override
     public double getHeightMeters() {
-        double visualRadiusPx = (IscatMotherSettings.DIM_SPRITE * IscatMotherSettings.SCALE) / 2.0;
+        double visualRadiusPx = (ISCATMOTHER.dimSprite * ISCATMOTHER.scale) / 2.0;
         return UU.pxToM(visualRadiusPx * 0.70) * 2;
     }
 }

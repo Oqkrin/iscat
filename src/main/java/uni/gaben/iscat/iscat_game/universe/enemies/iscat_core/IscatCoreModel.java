@@ -11,22 +11,24 @@ import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreSettings.ISCATCORE;
+
 public class IscatCoreModel extends LivingEntityModel implements HasProjectile<Projectile> {
 
     private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
     private final Cooldown weaponCooldown = new Cooldown();
 
     public IscatCoreModel(double x, double y) {
-        super(x, y, IscatCoreSettings.HP_INIZIALI, IscatCoreSettings.HP_INIZIALI);
-        setXpReward(IscatCoreSettings.XP_REWARD);
+        super(x, y, ISCATCORE.initLife, ISCATCORE.initLife);
+        setXpReward(ISCATCORE.xpReward);
 
         BodyFixture fixture = addFixture(
                 Geometry.createSquare(
-                        UU.pxToM(IscatCoreSettings.DIM_SPRITE * IscatCoreSettings.SCALE * 0.9)));
+                        UU.pxToM(ISCATCORE.dimSprite * ISCATCORE.scale * 0.9)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
-        setLinearDamping(IscatCoreSettings.DAMPING_LINEARE);
+        setLinearDamping(ISCATCORE.dampingLineare);
     }
 
     public void update(double dt) {
@@ -61,6 +63,6 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
     }
 
     public double getTerminalVelocity() {
-        return IscatCoreSettings.MAX_VELOCITY;
+        return ISCATCORE.maxVelocity;
     }
 }

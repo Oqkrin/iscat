@@ -22,13 +22,13 @@ public class FallenStarGolemView extends AbstractEntityView<FallenStarGolemModel
 
     public FallenStarGolemView() {
 
-        spriteScale = FallenStarGolemSettings.SCALE;
+        spriteScale = FALLENSTARGOLEM.scale;
 
         this.spriteSheetsParser = SpritesLibrary.getInstance()
                 .getSprite(
                         SPRITE_SHEET_PATH,
-                        DIM_SPRITE,
-                        DIM_SPRITE
+                        (int) FALLENSTARGOLEM.dimSprite,
+                        (int) FALLENSTARGOLEM.dimSprite
                 );
 
         this.animator = new SpriteSheetsAnimator(

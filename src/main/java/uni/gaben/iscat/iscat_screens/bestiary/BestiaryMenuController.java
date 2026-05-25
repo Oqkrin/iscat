@@ -17,6 +17,9 @@ import uni.gaben.iscat.iscat_m_view_c.AnimatedCanvas;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterSettings.ISCATEATER;
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobSettings.ISCATMOB;
+
 public class BestiaryMenuController implements IscatFxmlController {
 
     private record Enemy(String name, String sprite, int frameW, int frameH, String description) { }
@@ -26,7 +29,7 @@ public class BestiaryMenuController implements IscatFxmlController {
 
     private static final Map<String, BestiaryMenuController.Enemy> ENEMIES = Map.ofEntries(
             Map.entry("iscat_mob", new BestiaryMenuController.Enemy("Iscat Mob", BASE + "iscat_mob.png",
-                    IscatMobSettings.DIM_SPRITE, IscatMobSettings.DIM_SPRITE,
+                    (int) ISCATMOB.dimSprite, (int) ISCATMOB.dimSprite,
                     "Descrizione Iscat\nFiglio di Iscat Mother, ama mangiare pankakes a colazione e pizza per pranzo e cena. ASPETTA QUESTA E' LA DESCRIZIONE! SORRY!! Iscat è un nemico che naviga per lo spazio in cerca di cibo solitamente in gruppo. Ha poca vita e poca potenza d'attacco.")),
             Map.entry("iscat_bomber", new BestiaryMenuController.Enemy("Iscat Bomber", BASE + "iscat_bomber.png",
                     32, 32, "Descrizione Iscat Bomber")),
@@ -39,7 +42,7 @@ public class BestiaryMenuController implements IscatFxmlController {
             Map.entry("fallen_star_golem", new BestiaryMenuController.Enemy("Fallen Star Golem", BASE + "fallen_star_golem.png",
                     64, 64, "Descrizione Fallen Star Golem\nSpiraleggianti creature? o rocce?\nsembrano arrivare come una stella cadente dallo spazio profondo quando gli iscat sono in pericolo ma perché?")),
             Map.entry("eater", new BestiaryMenuController.Enemy("Eater", BASE + "eater.png",
-                    IscatEaterSettings.DIM_SPRITE, IscatEaterSettings.DIM_SPRITE,
+                    (int) ISCATEATER.dimSprite, (int) ISCATEATER.dimSprite,
                     "Descrizione Eater")),
             Map.entry("iscat_worm_head", new BestiaryMenuController.Enemy("Iscat Worm Head", BASE + "iscat_worm_head.png",
                     (int) IscatWormSettings.DIM_SPRITE, (int) IscatWormSettings.DIM_SPRITE,

@@ -8,6 +8,8 @@ import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_bomber.IscatBomberSettings.ISCATBOMBER;
+
 /**
  * Modello fisico dell'entità IscatBomber.
  * Differisce dall'IscatMob normale per:
@@ -22,16 +24,16 @@ public class IscatBomberModel extends LivingEntityModel {
     private final Cooldown stunCooldown = new Cooldown();
 
     public IscatBomberModel(double x, double y) {
-        super(x, y, IscatBomberSettings.HP_INIZIALI, IscatBomberSettings.HP_INIZIALI);
-        setXpReward(IscatBomberSettings.XP_REWARD);
+        super(x, y, ISCATBOMBER.initLife, ISCATBOMBER.initLife);
+        setXpReward(ISCATBOMBER.xpReward);
 
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(
-                        UU.pxToM(IscatBomberSettings.DIM_SPRITE * IscatBomberSettings.SCALE / 2.0 * 0.9)));
+                        UU.pxToM(ISCATBOMBER.dimSprite * ISCATBOMBER.scale / 2.0 * 0.9)));
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
 
         setMass(MassType.NORMAL);
-        setLinearDamping(IscatBomberSettings.DAMPING_LINEARE);
+        setLinearDamping(ISCATBOMBER.dampingLineare);
     }
 
     // ─── LifeDeath ──────────────────────────────────────────────────────────
@@ -59,6 +61,6 @@ public class IscatBomberModel extends LivingEntityModel {
 
     @Override
     public double getTerminalVelocity() {
-        return IscatBomberSettings.MAX_VELOCITY_MS;
+        return ISCATBOMBER.maxVelocity;
     }
 }

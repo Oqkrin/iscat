@@ -27,11 +27,11 @@ public class IscatBomberView extends AbstractEntityView<IscatBomberModel>
     private final SpriteSheetsAnimator animator;
 
     public IscatBomberView() {
-        spriteScale = SCALE;
+        spriteScale = ISCATBOMBER.scale;
 
         // Carica lo spritesheet tramite la libreria centrale (cache automatica)
         this.spriteSheet = SpritesLibrary.getInstance()
-                .getSprite(SPRITE_PATH, DIM_SPRITE, DIM_SPRITE);
+                .getSprite(SPRITE_PATH, (int) ISCATBOMBER.dimSprite, (int) ISCATBOMBER.dimSprite);
 
         // Configura l'animatore con i frame del foglio
         this.animator = new SpriteSheetsAnimator(

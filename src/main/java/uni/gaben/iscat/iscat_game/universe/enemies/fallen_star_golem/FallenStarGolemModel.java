@@ -11,22 +11,24 @@ import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.fallen_star_golem.FallenStarGolemSettings.FALLENSTARGOLEM;
+
 public class FallenStarGolemModel extends LivingEntityModel implements HasProjectile<Projectile> {
 
     private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
     private final Cooldown weaponCooldown = new Cooldown();
 
     public FallenStarGolemModel(double x, double y) {
-        super(x, y, FallenStarGolemSettings.HP_INIZIALI, FallenStarGolemSettings.HP_INIZIALI);
-        setXpReward(FallenStarGolemSettings.XP_REWARD);
+        super(x, y, FALLENSTARGOLEM.initLife, FALLENSTARGOLEM.initLife);
+        setXpReward(FALLENSTARGOLEM.xpReward);
 
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(
-                        UU.pxToM(FallenStarGolemSettings.DIM_SPRITE * FallenStarGolemSettings.SCALE / 2.0 * 0.9)));
+                        UU.pxToM(FALLENSTARGOLEM.dimSprite * FALLENSTARGOLEM.scale / 2.0 * 0.9)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
-        setLinearDamping(FallenStarGolemSettings.DAMPING_LINEARE);
+        setLinearDamping(FALLENSTARGOLEM.dampingLineare);
     }
 
     public void update(double dt) {
@@ -38,7 +40,7 @@ public class FallenStarGolemModel extends LivingEntityModel implements HasProjec
     }
 
     public void startCooldownFuoco() {
-        weaponCooldown.start(FallenStarGolemSettings.COOLDOWN_FUOCO_SEC);
+        weaponCooldown.start(FALLENSTARGOLEM.fireCooldownS);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class FallenStarGolemModel extends LivingEntityModel implements HasProjec
 
     @Override
     public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(FallenStarGolemSettings.COOLDOWN_FUOCO_SEC);
+        return (int) UU.sToTicks(FALLENSTARGOLEM.fireCooldownS);
     }
 
     @Override
@@ -68,6 +70,6 @@ public class FallenStarGolemModel extends LivingEntityModel implements HasProjec
 
     @Override
     public double getTerminalVelocity() {
-        return FallenStarGolemSettings.MAX_VELOCITY_MS;
+        return FALLENSTARGOLEM.maxVelocity;
     }
 }

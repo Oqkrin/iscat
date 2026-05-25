@@ -2,9 +2,12 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater;
 
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.ChaseBehavior;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.DodgeProjectileBehavior;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.SeparationBehavior;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel;
+
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterSettings.ISCATEATER;
 
 public class IscatEaterController extends AiBehaviours<IscatEaterModel> {
 
@@ -12,9 +15,10 @@ public class IscatEaterController extends AiBehaviours<IscatEaterModel> {
         super(eater);
 
         // Add modular behaviors
-        this.addBehavior(new ChaseBehavior(IscatEaterSettings.FORCE, IscatEaterSettings.MAX_VELOCITY_MS));
+        this.addBehavior(new ChaseBehavior(ISCATEATER.force, ISCATEATER.maxVelocity));
         this.addBehavior(new SeparationBehavior(
-                UU.pxToM(24.0), IscatEaterSettings.FORCE * 0.8));
+                UU.pxToM(24.0), ISCATEATER.force * 0.8));
+        this.addBehavior(new DodgeProjectileBehavior(ISCATEATER.force * 1.5, 2.0));
 
         // COSA SUCCEDE SE COLLIDO? Definito in modo indipendente.
         eater.setOnCollision(otherEntity -> {

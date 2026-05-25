@@ -95,6 +95,8 @@ public class EnemyWaveController {
         double eaterWeight  = (time >= 20.0  || level >= 2) ? Math.min(45.0, (time - 20.0) * 1.5 + (level * 3.0)) : 0.0;
         double fakeWeight   = (time >= 45.0  || level >= 3) ? Math.min(40.0, (time - 45.0) * 1.5 + (level * 3.5)) : 0.0;
         double bomberWeight = (time >= 7000.0  || level >= 4) ? Math.min(35.0, (time - 70.0) * 1.2 + (level * 4.0)) : 0.0;
+        double dasherWeight = (time >= 50.0  || level >= 3) ? Math.min(30.0, (time - 50.0) * 1.5 + (level * 3.0)) : 0.0;
+        double healerWeight = (time >= 90.0  || level >= 5) ? Math.min(25.0, (time - 90.0) * 1.0 + (level * 3.0)) : 0.0;
         double golemWeight  = (time >= 100.0 || level >= 5) ? Math.min(30.0, (time - 100.0) * 1.0 + (level * 4.5)) : 0.0;
         double coreWeight   = (time >= 130.0 || level >= 6) ? Math.min(30.0, (time - 130.0) * 1.0 + (level * 5.0)) : 0.0;
         double wormWeight   = (time >= 160.0 || level >= 7) ? Math.min(25.0, (time - 160.0) * 0.8 + (level * 5.5)) : 0.0;
@@ -106,7 +108,7 @@ public class EnemyWaveController {
                 : 0.0;
 
         // Sum complete active weight profile boundaries
-        double totalWeightSum = mobWeight + eaterWeight + fakeWeight + bomberWeight
+        double totalWeightSum = mobWeight + eaterWeight + fakeWeight + bomberWeight + dasherWeight + healerWeight
                 + golemWeight + coreWeight + wormWeight + motherWeight + masterWeight;
 
         // Roll pointer index inside range space
@@ -117,6 +119,8 @@ public class EnemyWaveController {
         if ((currentInspectedSum += eaterWeight) >= rollValue)  return UniverseSpawnable.EATER;
         if ((currentInspectedSum += fakeWeight) >= rollValue)   return UniverseSpawnable.FAKE_ISCAT;
         if ((currentInspectedSum += bomberWeight) >= rollValue) return UniverseSpawnable.ISCAT_BOMBER;
+        if ((currentInspectedSum += dasherWeight) >= rollValue) return UniverseSpawnable.ISCAT_DASHER;
+        if ((currentInspectedSum += healerWeight) >= rollValue) return UniverseSpawnable.ISCAT_HEALER;
         if ((currentInspectedSum += golemWeight) >= rollValue)  return UniverseSpawnable.FALLEN_STAR_GOLEM;
         if ((currentInspectedSum += coreWeight) >= rollValue)   return UniverseSpawnable.ISCAT_CORE;
         if ((currentInspectedSum += wormWeight) >= rollValue)   return UniverseSpawnable.WORM;

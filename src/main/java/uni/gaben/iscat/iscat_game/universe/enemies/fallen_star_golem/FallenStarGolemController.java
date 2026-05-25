@@ -14,6 +14,8 @@ import uni.gaben.iscat.utils.Interpolator;
 
 import java.util.Random;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.fallen_star_golem.FallenStarGolemSettings.FALLENSTARGOLEM;
+
 /**
  * Controller per il FallenStarGolem.
  * Utilizza un sistema a comportamenti compositi (AiBehavior) con priorità dinamiche.
@@ -69,7 +71,7 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
                 if (player == null) return 0.0;
 
                 double dist = aiEntity.getTransform().getTranslation().distance(player.getTransform().getTranslation());
-                if (dist > FallenStarGolemSettings.COMBAT_RANGE && dist <= FallenStarGolemSettings.DETECTION_RANGE) {
+                if (dist > FALLENSTARGOLEM.combatRange && dist <= FALLENSTARGOLEM.detectionRange) {
                     return 50.0;
                 }
                 return 0.0;
@@ -88,7 +90,7 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
                 if (player == null) return 0.0;
 
                 double dist = aiEntity.getTransform().getTranslation().distance(player.getTransform().getTranslation());
-                if (dist <= FallenStarGolemSettings.COMBAT_RANGE) {
+                if (dist <= FALLENSTARGOLEM.combatRange) {
                     return 80.0;
                 }
                 return 0.0;
@@ -139,7 +141,7 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
         // Rimuovi il commento sotto se desideri che il Golem ruoti fisicamente mentre vaga
         // rotateTo(wanderTarget.getDirection(), dt);
 
-        aiEntity.applyForce(wanderTarget.getNormalized().multiply(FallenStarGolemSettings.FORCE));
+        aiEntity.applyForce(wanderTarget.getNormalized().multiply(FALLENSTARGOLEM.force));
 
         if (aiEntity.contains(wanderTarget)) {
             wanderTarget = null;
@@ -155,7 +157,7 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
 
         // rotateTo(toPlayer.getDirection(), dt);
 
-        aiEntity.applyForce(toPlayer.getNormalized().multiply(FallenStarGolemSettings.FORCE));
+        aiEntity.applyForce(toPlayer.getNormalized().multiply(FALLENSTARGOLEM.force));
     }
 
     /**
@@ -167,10 +169,10 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
         double dist = toPlayer.getMagnitude();
 
         // Mantenimento della distanza di sicurezza dal bersaglio
-        if (dist < FallenStarGolemSettings.PREFERRED_RANGE) {
-            aiEntity.applyForce(toPlayer.getNormalized().multiply(-FallenStarGolemSettings.FORCE * 0.6));
-        } else if (dist > FallenStarGolemSettings.PREFERRED_RANGE * 1.2) {
-            aiEntity.applyForce(toPlayer.getNormalized().multiply(FallenStarGolemSettings.FORCE * 0.4));
+        if (dist < FALLENSTARGOLEM.preferredRange) {
+            aiEntity.applyForce(toPlayer.getNormalized().multiply(-FALLENSTARGOLEM.force * 0.6));
+        } else if (dist > FALLENSTARGOLEM.preferredRange * 1.2) {
+            aiEntity.applyForce(toPlayer.getNormalized().multiply(FALLENSTARGOLEM.force * 0.4));
         }
 
         // Ruota costantemente il Golem verso il giocatore durante il combattimento
@@ -179,7 +181,7 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
         // Innesco dell'attacco speciale se pronto
         if (!fireCooldown.isCoolingDown()) {
             startSpiralBurst();
-            fireCooldown.start(FallenStarGolemSettings.FIRE_COOLDOWN_S);
+            fireCooldown.start(FALLENSTARGOLEM.fireCooldownS);
         }
     }
 
@@ -225,7 +227,7 @@ public class FallenStarGolemController extends AiBehaviours<FallenStarGolemModel
         double next = Interpolator.lerp(
                 current,
                 current + diff,
-                Math.min(FallenStarGolemSettings.ROTATION_SPEED * dt, 1.0)
+                Math.min(FALLENSTARGOLEM.rotationSpeed * dt, 1.0)
         );
 
         aiEntity.getTransform().setRotation(next);

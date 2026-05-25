@@ -24,9 +24,9 @@ public class IscatEaterView extends AbstractEntityView<IscatEaterModel>
     private static final String SPRITE_SHEET_PATH = "/uni/gaben/iscat/sprites/enemies/eater.png";
 
     public IscatEaterView() {
-        spriteScale = IscatEaterSettings.SCALE;
+        spriteScale = ISCATEATER.scale;
         // 1. Inizializzazione dello spritesheet tramite la libreria globale
-        this.spriteSheetsParser = SpritesLibrary.getInstance().getSprite(SPRITE_SHEET_PATH, DIM_SPRITE, DIM_SPRITE);
+        this.spriteSheetsParser = SpritesLibrary.getInstance().getSprite(SPRITE_SHEET_PATH, (int) ISCATEATER.dimSprite, (int) ISCATEATER.dimSprite);
 
         // 2. Inizializzazione dell'animatore con frame rate standard (~24 FPS)
         this.animator = new SpriteSheetsAnimator(
@@ -55,7 +55,7 @@ public class IscatEaterView extends AbstractEntityView<IscatEaterModel>
         // 4. Determina l'angolo finale: se ROTATION_TOWARDS_PLAYER è disattivato,
         // calcoliamo l'offset inverso all'angolo base in modo da forzare il disegno dritto (0.0°).
         setAngle(entity);
-        double structuralOffset = ROTATION_TOWARDS_PLAYER ? 0.0 : -rotDeg;
+        double structuralOffset = false ? 0.0 : -rotDeg;
 
         // 5. Invia l'entità alla pipeline standard dell'engine
         setupGraphicsContextAndDrawContent(entity, gc, structuralOffset);

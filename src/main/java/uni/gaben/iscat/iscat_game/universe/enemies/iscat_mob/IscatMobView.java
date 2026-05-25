@@ -24,11 +24,11 @@ public class IscatMobView extends AbstractEntityView<IscatMobModel>
 
     public IscatMobView() {
         // Imposta la scala di rendering dello sprite definita nei Settings
-        spriteScale = IscatMobSettings.SCALE;
+        spriteScale = ISCATMOB.scale;
 
         // Carica l'immagine tramite la libreria centrale dei file multimediali
         this.spriteSheetsParser = SpritesLibrary.getInstance()
-                .getSprite(SPRITE_SHEET_PATH, DIM_SPRITE, DIM_SPRITE);
+                .getSprite(SPRITE_SHEET_PATH, (int) ISCATMOB.dimSprite, (int) ISCATMOB.dimSprite);
 
         // Configura la velocità di riproduzione dei fotogrammi (24 FPS standard)
         this.animator = new SpriteSheetsAnimator(

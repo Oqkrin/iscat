@@ -44,7 +44,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     private SpriteSheetsAnimator activeAnimator;
 
     public IscatMasterView() {
-        spriteScale = SCALE;
+        spriteScale = IscatMasterSettings.ISCATMASTER.scale;
 
         mainSheet     = load(PATH_MAIN);
         entranceSheet = load(PATH_ENTRANCE);
@@ -70,7 +70,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     // ── HELPERS ───────────────────────────────────────────────────────────────
 
     private SpriteSheetsParser load(String path) {
-        return SpritesLibrary.getInstance().getSprite(path, DIM_SPRITE, DIM_SPRITE);
+        return SpritesLibrary.getInstance().getSprite(path, (int) ISCATMASTER.dimSprite, (int) ISCATMASTER.dimSprite);
     }
 
     private SpriteSheetsAnimator animator(SpriteSheetsParser sheet) {

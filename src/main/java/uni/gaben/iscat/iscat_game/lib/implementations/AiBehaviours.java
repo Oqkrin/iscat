@@ -36,9 +36,13 @@ public class AiBehaviours<T extends AbstractEntityModel> implements AiController
      * @param behavior Il comportamento (es. ChaseBehavior) da aggiungere.
      */
     public void addBehavior(AiBehavior behavior) {
+        if (this.behaviors.contains(behavior)) return;
         this.behaviors.add(behavior);
     }
-
+    public void removeBehavior(AiBehavior behavior) {
+        if (!this.behaviors.contains(behavior)) return;
+        this.behaviors.remove(behavior);
+    }
     /**
      * Aggiorna lo stato logico dell'entità eseguendo il comportamento con priorità più alta.
      * @param universeModel Il modello dell'universo per dati ambientali.

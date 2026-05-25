@@ -1,4 +1,4 @@
-package uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother;
+package uni.gaben.iscat.iscat_game.universe.enemies.iscat_healer;
 
 import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityView;
@@ -9,30 +9,28 @@ import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
-import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother.IscatMotherSettings.*;
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_healer.IscatHealerSettings.*;
 
-public class IscatMotherView extends AbstractEntityView<IscatMotherModel>
-        implements Drawable<IscatMotherModel>, DrawableSpriteSheet {
+public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
+        implements Drawable<IscatHealerModel>, DrawableSpriteSheet {
 
-    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/enemies/iscat_mother.png";
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/enemies/iscat_healer.png";
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
 
-    public IscatMotherView() {
-        spriteScale = ISCATMOTHER.scale;
+    public IscatHealerView() {
+        spriteScale = ISCATHEALER.scale;
 
         this.spriteSheet = SpritesLibrary.getInstance()
-                .getSprite(SPRITE_PATH, (int) ISCATMOTHER.dimSprite, (int) ISCATMOTHER.dimSprite);
+                .getSprite(SPRITE_PATH, (int) ISCATHEALER.dimSprite, (int) ISCATHEALER.dimSprite);
 
         this.animator = new SpriteSheetsAnimator(
-                0.4,  // 2.5 FPS — animazione lenta per boss grande
+                UU.UNIVERSE_TICK * 2,
                 spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
                 spriteSheet != null ? spriteSheet.getTotalStates() : 1
         );
     }
-
-    // --- DrawableSpriteSheet ---
 
     @Override
     public SpriteSheetsParser getSpriteSheet() { return spriteSheet; }
@@ -40,16 +38,14 @@ public class IscatMotherView extends AbstractEntityView<IscatMotherModel>
     @Override
     public SpriteSheetsAnimator getAnimator() { return animator; }
 
-
     @Override
-    public void draw(IscatMotherModel entity, GraphicsContext gc) {
+    public void draw(IscatHealerModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
-        setupGraphicsContextAndDrawContent(entity, gc, 180.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 90.0);
     }
 
-
     @Override
-    protected void drawContent(IscatMotherModel entity, GraphicsContext gc,
+    protected void drawContent(IscatHealerModel entity, GraphicsContext gc,
                                double x, double y, double width, double height) {
         drawSprite(gc, x, y, width, height);
         drawHpBar(entity, gc);

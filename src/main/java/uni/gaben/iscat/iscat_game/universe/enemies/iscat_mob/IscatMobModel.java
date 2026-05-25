@@ -11,22 +11,24 @@ import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobSettings.ISCATMOB;
+
 public class IscatMobModel extends LivingEntityModel implements HasProjectile<Projectile> {
 
     private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
     private final Cooldown weaponCooldown = new Cooldown();
 
     public IscatMobModel(double x, double y) {
-        super(x, y, IscatMobSettings.HP_INIZIALI, IscatMobSettings.HP_INIZIALI);
-        setXpReward(IscatMobSettings.XP_REWARD);
+        super(x, y, ISCATMOB.initLife, ISCATMOB.initLife);
+        setXpReward(ISCATMOB.xpReward);
 
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(
-                        UU.pxToM(IscatMobSettings.DIM_SPRITE * IscatMobSettings.SCALE / 2.0 * 0.9)));
+                        UU.pxToM(ISCATMOB.dimSprite * ISCATMOB.scale / 2.0 * 0.9)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
-        setLinearDamping(IscatMobSettings.DAMPING_LINEARE);
+        setLinearDamping(ISCATMOB.dampingLineare);
     }
 
     public void update(double dt) {
@@ -40,7 +42,7 @@ public class IscatMobModel extends LivingEntityModel implements HasProjectile<Pr
     }
 
     public void startCooldownFuoco() {
-        weaponCooldown.start(IscatMobSettings.COOLDOWN_FUOCO_SEC);
+        weaponCooldown.start(ISCATMOB.fireCooldownS);
     }
 
     @Override
@@ -60,7 +62,7 @@ public class IscatMobModel extends LivingEntityModel implements HasProjectile<Pr
 
     @Override
     public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(IscatMobSettings.COOLDOWN_FUOCO_SEC);
+        return (int) UU.sToTicks(ISCATMOB.fireCooldownS);
     }
 
     @Override
@@ -70,6 +72,6 @@ public class IscatMobModel extends LivingEntityModel implements HasProjectile<Pr
 
     @Override
     public double getTerminalVelocity() {
-        return IscatMobSettings.MAX_VELOCITY_MS;
+        return ISCATMOB.maxVelocity;
     }
 }

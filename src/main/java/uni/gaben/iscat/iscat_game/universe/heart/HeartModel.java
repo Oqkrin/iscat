@@ -9,6 +9,9 @@ import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobSettings;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.fake_iscat.FakeIscatSettings.FAKEISCAT;
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobSettings.ISCATMOB;
+
 public class HeartModel extends LivingEntityModel {
     public HeartModel(double x, double y) {
         super(x, y, 1, 1);
@@ -22,11 +25,11 @@ public class HeartModel extends LivingEntityModel {
         // Hearth si muove se c'è il player nel suo raggio
         this.setMass(MassType.NORMAL);
         // Applica l'attrito lineare per simulare la resistenza al movimento nel vuoto
-        setLinearDamping(IscatMobSettings.DAMPING_LINEARE);
+        setLinearDamping(ISCATMOB.dampingLineare);
     }
 
     @Override
     public double getTerminalVelocity() {
-        return IscatMobSettings.MAX_VELOCITY_MS;
+        return ISCATMOB.maxVelocity;
     }
 }

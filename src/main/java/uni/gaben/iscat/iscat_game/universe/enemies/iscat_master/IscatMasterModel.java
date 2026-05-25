@@ -12,6 +12,8 @@ import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterSettings.ISCATMASTER;
+
 public class IscatMasterModel extends LivingEntityModel implements HasProjectile<Projectile> {
 
     private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
@@ -26,18 +28,18 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
     private final EnemyWaveController waveController;
 
     public IscatMasterModel(double x, double y, EnemyWaveController waveController) {
-        super(x, y, IscatMasterSettings.HP_INIZIALI, IscatMasterSettings.HP_INIZIALI);
+        super(x, y, ISCATMASTER.initLife, ISCATMASTER.initLife);
         this.waveController = waveController;
-        setXpReward(IscatMasterSettings.XP_REWARD);
+        setXpReward(ISCATMASTER.xpReward);
 
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(
-                        UU.pxToM(IscatMasterSettings.DIM_SPRITE
-                                * IscatMasterSettings.SCALE / 2.0 * 0.9)));
+                        UU.pxToM(ISCATMASTER.dimSprite
+                                * ISCATMASTER.scale / 2.0 * 0.9)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
-        setLinearDamping(IscatMasterSettings.DAMPING_LINEARE);
+        setLinearDamping(ISCATMASTER.dampingLineare);
 
         // Collisioni disabilitate finché l'entrata non è completata
         setEnabled(false);
@@ -102,6 +104,6 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
 
     @Override
     public double getTerminalVelocity() {
-        return IscatMasterSettings.MAX_VELOCITY;
+        return ISCATMASTER.maxVelocity;
     }
 }

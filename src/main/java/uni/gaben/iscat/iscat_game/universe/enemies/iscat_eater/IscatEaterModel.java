@@ -7,16 +7,18 @@ import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterSettings.ISCATEATER;
+
 public class IscatEaterModel extends LivingEntityModel {
 
     public IscatEaterModel(double x, double y) {
-        super(x, y, IscatEaterSettings.HP_INIZIALI, IscatEaterSettings.HP_INIZIALI);
-        setXpReward(IscatEaterSettings.XP_REWARD);
+        super(x, y, ISCATEATER.initLife, ISCATEATER.initLife);
+        setXpReward(ISCATEATER.xpReward);
 
         // Creazione della forma di collisione circolare scalata in metri
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(
-                        UU.pxToM(IscatEaterSettings.DIM_SPRITE * IscatEaterSettings.SCALE / 2.0 * 0.9)));
+                        UU.pxToM(ISCATEATER.dimSprite * ISCATEATER.scale / 2.0 * 0.9)));
 
         // Applica il filtro per distinguere questa entità come NEMICO nelle collisioni
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
@@ -25,7 +27,7 @@ public class IscatEaterModel extends LivingEntityModel {
         setMass(MassType.NORMAL);
 
         // Applica l'attrito lineare per simulare la resistenza al movimento nel vuoto
-        setLinearDamping(IscatEaterSettings.DAMPING_LINEARE);
+        setLinearDamping(ISCATEATER.dampingLineare);
 
     }
 
@@ -36,6 +38,6 @@ public class IscatEaterModel extends LivingEntityModel {
 
     @Override
     public double getTerminalVelocity() {
-        return IscatEaterSettings.MAX_VELOCITY_MS;
+        return ISCATEATER.maxVelocity;
     }
 }

@@ -10,6 +10,7 @@ import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 
 import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreSettings.*;
+import static uni.gaben.iscat.iscat_game.universe.heart.HeartSettings.DIM_SPRITE;
 
 /**
  * Gestisce il rendering grafico dell'IscatCore
@@ -27,14 +28,14 @@ public class IscatCoreView extends AbstractEntityView<IscatCoreModel>
     public IscatCoreView() {
 
         // Imposta la scala di rendering dello sprite definita nei Settings
-        spriteScale = IscatCoreSettings.SCALE;
+        spriteScale = ISCATCORE.scale;
 
         // Carica l'immagine tramite la libreria centrale dei file multimediali
         this.spriteSheetsParser = SpritesLibrary.getInstance()
                 .getSprite(
                         SPRITE_SHEET_PATH,
-                        DIM_SPRITE,
-                        DIM_SPRITE
+                        (int) ISCATCORE.dimSprite,
+                        (int) ISCATCORE.dimSprite
                 );
 
         // Configura la velocità di riproduzione dei fotogrammi

@@ -10,11 +10,13 @@ import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.Interpolator;
 
 import java.util.Random;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.PlungeAttackBehavior;
 
 public class IscatWormController implements AiController {
 
     private final IscatWormModel worm;
     private Vector2 headTarget = null;
+    private final PlungeAttackBehavior plungeBehavior = new PlungeAttackBehavior(12.0, IscatWormSettings.HEAD_FORCE * 6.0, 3.0);
 
     // ── LOGICA DI SPARO CHAOTIC BURST (CODA DA SOLA) ─────────────────────────
     private Shooter<IscatWormSegment> tailShooter = null;
@@ -90,19 +92,21 @@ public class IscatWormController implements AiController {
 
         Vector2 direction = headTarget.copy().subtract(headPos);
         double distanceToTarget = direction.getMagnitude();
-        double distanceToPlayer = playerPos.copy().subtract(headPos).getMagnitude();
 
-        // Attacco Corpo a Corpo
-        double attackRadius = UU.pxToM(IscatWormSettings.DIM_SPRITE * IscatWormSettings.HEAD_SCALE) * 1.2;
-        if (distanceToPlayer < attackRadius) {
-            if (head.canAttack()) {
-                player.deltaToLife(-IscatWormSettings.HEAD_ATTACK_POWER);
-                head.startAttackCooldown();
+        // Plunge Attack
+        if (plungeBehavior.getPriority(head, universe) > 0) {
+            plungeBehavior.execute(head, universe, dt);
+            
+            // Melee damage on impact during plunge
+            double attackRadius = UU.pxToM(IscatWormSettings.DIM_SPRITE * IscatWormSettings.HEAD_SCALE) * 1.2;
+            if (headPos.distance(playerPos) < attackRadius) {
+                if (head.canAttack()) {
+                    player.deltaToLife(-IscatWormSettings.HEAD_ATTACK_POWER * 1.5); // extra damage from plunge
+                    head.startAttackCooldown();
+                }
             }
-        }
-
-        // Spinta fisica ed inseguimento
-        if (distanceToTarget > 0.1) {
+        } else if (distanceToTarget > 0.1) {
+            // Spinta fisica ed inseguimento
             rotateTo(head, direction.getDirection(), dt, currentRotationSpeed);
             head.setAtRest(false);
 

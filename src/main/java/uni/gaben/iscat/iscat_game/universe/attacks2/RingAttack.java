@@ -1,5 +1,6 @@
 package uni.gaben.iscat.iscat_game.universe.attacks2;
 
+
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Shooter;
 

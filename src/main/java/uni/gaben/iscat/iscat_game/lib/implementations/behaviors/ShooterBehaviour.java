@@ -18,7 +18,7 @@ import java.util.function.DoubleSupplier;
 
 public class ShooterBehaviour<T extends AbstractEntityModel & HasProjectile<? extends AbstractProjectileModel>> implements AiBehavior {
 
-    private final double priorityValue;
+    private double priorityValue;
     private final double combatRange;
     private final double preferredRange;
     private final double force;

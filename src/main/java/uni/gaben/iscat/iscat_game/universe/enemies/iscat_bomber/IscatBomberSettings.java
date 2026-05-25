@@ -1,5 +1,6 @@
 package uni.gaben.iscat.iscat_game.universe.enemies.iscat_bomber;
 
+import uni.gaben.iscat.iscat_game.lib.abstracts.BaseEntitySettings;
 import uni.gaben.iscat.iscat_game.universe.VelocitySettings;
 
 /**
@@ -8,25 +9,22 @@ import uni.gaben.iscat.iscat_game.universe.VelocitySettings;
 public final class IscatBomberSettings {
     private IscatBomberSettings() { }
 
-    // --- PROPRIETA FISICHE E VITA ---
-    public static final int HP_INIZIALI = 100;
-    public static final double DAMPING_LINEARE = 3.0;
-    
-    // --- RENDERING ---
-    public static final int DIM_SPRITE = 32;
-    public static final double SCALE = 4.0;
+    public static final BaseEntitySettings ISCATBOMBER = new BaseEntitySettings();
 
-    // --- AI e INSEGUIMENTO ---
-    public static final int LUNGHEZZA_TRAIL = 120;
-    public static final int RITARDO_TRAIL = 40;
+    static {
+        ISCATBOMBER.initLife = 100.0;
+        ISCATBOMBER.dimSprite        = 32.0;
+        ISCATBOMBER.scale            = 4.0;
+        ISCATBOMBER.dampingLineare   = 3.0;
+        ISCATBOMBER.maxVelocity      = VelocitySettings.BOMBER_MAX_VELOCITY;
+        ISCATBOMBER.force            = 40.0;
+        ISCATBOMBER.xpReward         = 100;
+    }
+
+    // Bomber-specific constants (no BaseEntitySettings equivalent)
+    public static final int    LUNGHEZZA_TRAIL        = 120;
+    public static final int    RITARDO_TRAIL          = 40;
     public static final double DISTANZA_MIN_INSEGUIMENTO = 10.0;
-    public static final double SMOOTHING_ROTAZIONE = 0.12;
-
-    public static final double MAX_VELOCITY_MS = VelocitySettings.BOMBER_MAX_VELOCITY;
-    public static final double FORCE = 40.0; // Maggiore forza dato che e' piu' pesante
-    
-    // --- STORDIMENTO ---
-    public static final double DURATA_STORDIMENTO_SEC = 0.5; // 30 tick a 60fps
-
-    public static final double XP_REWARD = 100.0;
+    public static final double SMOOTHING_ROTAZIONE    = 0.12;
+    public static final double DURATA_STORDIMENTO_SEC = 0.5;
 }

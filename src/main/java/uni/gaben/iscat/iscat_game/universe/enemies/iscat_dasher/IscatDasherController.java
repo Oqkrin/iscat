@@ -2,26 +2,28 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_dasher;
 
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.ChaseBehavior;
-import uni.gaben.iscat.iscat_game.lib.interfaces.controller.AiController;
-import uni.gaben.iscat.iscat_game.universe.UniverseModel;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.SeparationBehavior;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.DodgeProjectileBehavior;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.PlungeAttackBehavior;
+import uni.gaben.iscat.iscat_game.utils.UU;
 
-public class IscatDasherController extends AiBehaviours<IscatDasherModel> implements AiController {
+import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_dasher.IscatDasherSettings.ISCATDASHER;
 
+public class IscatDasherController extends AiBehaviours<IscatDasherModel> {
 
-    /**
-     * Crea un controller per un'entità specifica.
-     *
-     * @param aiEntity Il modello fisico dell'entità.
-     */
-    public IscatDasherController(IscatDasherModel aiEntity) {
-        super(aiEntity);
+    public IscatDasherController(IscatDasherModel iscat) {
+        super(iscat);
 
-        addBehavior(
-                new ChaseBehavior(aiEntity.getBaseAccelerationPerTick(), aiEntity.getTerminalVelocity()));
-    }
+        // Separation
+        this.addBehavior(new SeparationBehavior(UU.pxToM(24.0), ISCATDASHER.force * 0.8));
 
-    @Override
-    public void aiUpdate(UniverseModel universeModel, double dt) {
+        // Chase
+        this.addBehavior(new ChaseBehavior(ISCATDASHER.force, ISCATDASHER.maxVelocity));
 
+        // Fast Dodge
+        this.addBehavior(new DodgeProjectileBehavior(ISCATDASHER.force * 2.5, 1.0));
+
+        // Plunge Attack
+        this.addBehavior(new PlungeAttackBehavior(10.0, ISCATDASHER.force * 3.0, 2.0));
     }
 }
