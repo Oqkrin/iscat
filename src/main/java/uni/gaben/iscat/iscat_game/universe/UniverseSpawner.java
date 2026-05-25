@@ -9,6 +9,8 @@ import uni.gaben.iscat.iscat_game.universe.enemies.fallen_star_golem.FallenStarG
 import uni.gaben.iscat.iscat_game.universe.enemies.fallen_star_golem.FallenStarGolemModel;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreController;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreModel;
+import uni.gaben.iscat.iscat_game.universe.enemies.iscat_dasher.IscatDasherController;
+import uni.gaben.iscat.iscat_game.universe.enemies.iscat_dasher.IscatDasherModel;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterController;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterModel;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother.IscatMotherController;
@@ -81,6 +83,8 @@ public class UniverseSpawner {
             case ISCAT_CORE -> spawnStandard(IscatCoreModel::new, IscatCoreController:: new, x, y);
             case FAKE_ISCAT -> spawnStandard(FakeIscatModel::new, FakeIscatController::new, x, y);
             case FALLEN_STAR_GOLEM -> spawnStandard(FallenStarGolemModel::new, FallenStarGolemController::new, x, y);
+            case ISCAT_DASHER -> spawnStandard(IscatDasherModel::new, IscatDasherController::new, x, y);
+            case ISCAT_HEALER -> null;
             case ISCAT_MASTER -> spawnIscatMaster(x, y);
             case WORM -> spawnWorm(x, y);
 

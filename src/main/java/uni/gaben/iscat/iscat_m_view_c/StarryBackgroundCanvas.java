@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 import uni.gaben.iscat.iscat_game.universe.starfield.StarfieldModel;
 import uni.gaben.iscat.iscat_game.universe.starfield.StarfieldView;
 import uni.gaben.iscat.iscat_game.universe.starfield.StarModel;
-import uni.gaben.iscat.utils.ThemeColors;
+import uni.gaben.iscat.utils.ThemeManager;
 
 import java.util.Random;
 
@@ -176,8 +176,7 @@ public class StarryBackgroundCanvas extends Canvas {
 
         GraphicsContext gc = getGraphicsContext2D();
 
-        ThemeColors.ensureLoaded();
-        Color bgColor = ThemeColors.parsedColors.getOrDefault("bg-primary", Color.BLACK);
+        Color bgColor = ThemeManager.getInstance().getBgPrimary();
 
         gc.setFill(bgColor);
         gc.fillRect(0, 0, w, h);

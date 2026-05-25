@@ -8,7 +8,7 @@ import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerSettings;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.utils.DrawSettings;
-import uni.gaben.iscat.utils.ThemeColors;
+import uni.gaben.iscat.utils.ThemeManager;
 
 /**
  * Pipeline di rendering astratta e standardizzata per tutte le entità di gioco.
@@ -75,9 +75,9 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
     protected abstract void drawContent(M entity, GraphicsContext gc, double x, double y, double width, double height);
 
     protected void drawHpBar(LifeDeath entity, GraphicsContext gc) {
-        gc.setFill(ThemeColors.getColorError());
+        gc.setFill(ThemeManager.getInstance().getColorError());
         gc.fillRect(cx - w / 2, cy - h / 2 - PlayerSettings.HP_BAR_OFFSET_Y, w, PlayerSettings.HP_BAR_HEIGHT);
-        gc.setFill(ThemeColors.getColorSuccess());
+        gc.setFill(ThemeManager.getInstance().getColorSuccess());
         gc.fillRect(cx - w / 2, cy - h / 2 - PlayerSettings.HP_BAR_OFFSET_Y, w * (entity.getLife() / entity.getMaxLife()), PlayerSettings.HP_BAR_HEIGHT);
     }
 

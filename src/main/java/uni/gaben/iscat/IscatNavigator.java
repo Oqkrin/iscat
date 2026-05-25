@@ -22,7 +22,7 @@ public class IscatNavigator {
         this.model = model;
     }
 
-    public void navigateTo(IscatViews targetScene) {
+    public void navigateInstantTo(IscatViews targetScene) {
         model.navigate(targetScene, IscatModel.TransitionType.INSTANT);
     }
 

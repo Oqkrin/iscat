@@ -159,11 +159,11 @@
 
 /* Decorative border overlay — transparent fill, rounded border only.
    Sits on top of all content, mouseTransparent so it never blocks interaction. */
-.window-border-overlay {
+.window-border {
     -fx-background-color: transparent;
-    -fx-border-color: rgba(203, 203, 203, 0.25);
-    -fx-border-width: 1px;
-    -fx-border-radius: 16px;
+    -fx-border-color: -bg-elevated;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
     -fx-border-insets: 0;
 }
 

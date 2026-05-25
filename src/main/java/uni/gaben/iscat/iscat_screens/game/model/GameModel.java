@@ -23,9 +23,23 @@ public class GameModel {
     private LongProperty start = new SimpleLongProperty(-1);
     private DoubleProperty accumulator = new SimpleDoubleProperty(0);
     private BooleanProperty paused = new SimpleBooleanProperty(false);
+    private BooleanProperty wave = new SimpleBooleanProperty(false);
     private IntegerProperty timer = new SimpleIntegerProperty(0);
-
     private final BooleanProperty gameOver = new SimpleBooleanProperty(false);
+
+    private final DoubleProperty totalElapsedSeconds = new SimpleDoubleProperty(0.0);
+
+    public DoubleProperty totalElapsedSecondsProperty() {
+        return totalElapsedSeconds;
+    }
+
+    public double getTotalElapsedSeconds() {
+        return totalElapsedSeconds.get();
+    }
+
+    public void setTotalElapsedSeconds(double value) {
+        this.totalElapsedSeconds.set(value);
+    }
 
     public BooleanProperty gameOverProperty() { return gameOver; }
     public boolean isGameOver() { return gameOver.get(); }
@@ -126,5 +140,12 @@ public class GameModel {
 
     public final void setTimer(int value) {
         this.timer.set(value);
+    }
+
+    public boolean isWaveing() {
+        return wave.get();
+    }
+    public BooleanProperty waveProperty() {
+        return wave;
     }
 }

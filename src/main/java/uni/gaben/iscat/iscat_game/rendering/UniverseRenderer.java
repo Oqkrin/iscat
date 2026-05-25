@@ -11,7 +11,7 @@ import uni.gaben.iscat.iscat_game.universe.starfield.StarfieldView;
 import uni.gaben.iscat.iscat_screens.game.controller.GameController;
 import uni.gaben.iscat.iscat_screens.game.model.GameModel;
 import uni.gaben.iscat.iscat_m_view_c.StarryText;
-import uni.gaben.iscat.utils.ThemeColors;
+import uni.gaben.iscat.utils.ThemeManager;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 public class UniverseRenderer {
@@ -43,8 +43,7 @@ public class UniverseRenderer {
 
         // 1. Core Background clearing
         gc.clearRect(0, 0, w, h);
-        ThemeColors.ensureLoaded();
-        gc.setFill(ThemeColors.parsedColors.get("bg-primary"));
+        gc.setFill(ThemeManager.getInstance().getBgPrimary());
         gc.fillRect(0, 0, w, h);
 
         UniverseModel universe = gameController.getUniverseController().getUniverseModel();
@@ -104,7 +103,9 @@ public class UniverseRenderer {
             for (double f : fpsHistory) avg += f;
             avg /= fpsHistory.length;
 
-            gc.setFill(avg >= 60 ? ThemeColors.getColorSuccess() : avg >= 30 ? ThemeColors.getColorWarning() : ThemeColors.getColorError());
+            if (avg >= 60) gc.setFill(ThemeManager.getInstance().getColorSuccess());
+            else
+                gc.setFill(avg >= 30 ? ThemeManager.getInstance().getColorWarning() : ThemeManager.getInstance().getColorError());
             gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
             gc.fillText(String.format("FPS: %.0f", avg), w - 80, 50);
         }

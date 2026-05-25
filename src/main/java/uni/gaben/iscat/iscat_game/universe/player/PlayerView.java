@@ -9,7 +9,6 @@ import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.utils.Cooldown;
-import uni.gaben.iscat.utils.ThemeColors;
 import uni.gaben.iscat.utils.ThemeManager;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -79,7 +78,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
         int particleCount = (int) (PlayerSettings.THRUST_MIN_PARTICLES + intensity * PlayerSettings.THRUST_EXTRA_PARTICLES);
         double maxThrustHeight = ScalareAureo.phiMaggiore(h) * 1.2;
 
-        Color accent = ThemeManager.getInstance().getColor("accent-primary", Color.CYAN);
+        Color accent = ThemeManager.getInstance().getAccentPrimary();
 
         gc.save();
         gc.setGlobalBlendMode(BlendMode.ADD);
@@ -182,6 +181,6 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
 
     @Override
     public Color getTint() {
-        return hurt.isCoolingDown() ? ThemeColors.getColorError() : DrawableSpriteSheet.super.getTint();
+        return hurt.isCoolingDown() ? ThemeManager.getInstance().getColorError() : DrawableSpriteSheet.super.getTint();
     }
 }

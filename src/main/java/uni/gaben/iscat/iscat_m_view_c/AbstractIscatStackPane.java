@@ -9,7 +9,6 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import uni.gaben.iscat.iscat_mv_controller.IscatFxmlController;
 import uni.gaben.iscat.iscat_model_vc.IscatViewLifecycle;
-import uni.gaben.iscat.utils.ThemeColors;
 
 import java.io.IOException;
 
@@ -37,8 +36,6 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     }
 
     protected AbstractIscatStackPane(Parent root, boolean withStarryBackground) {
-        ThemeColors.ensureLoaded();
-
         // Applica gli stili di base del pannello di contenuto
         this.getStyleClass().add(withStarryBackground ? "window-content-transparent" : "window-content");
         this.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);

@@ -5,6 +5,8 @@ import uni.gaben.iscat.iscat_game.universe.asteroid.AsteroidModel;
 import uni.gaben.iscat.iscat_game.universe.enemies.fake_iscat.FakeIscatModel;
 import uni.gaben.iscat.iscat_game.universe.enemies.fallen_star_golem.FallenStarGolemModel;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreModel;
+import uni.gaben.iscat.iscat_game.universe.enemies.iscat_dasher.IscatDasherModel;
+import uni.gaben.iscat.iscat_game.universe.enemies.iscat_healer.IscatHealerModel;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterModel;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother.IscatMotherModel;
 import uni.gaben.iscat.iscat_game.universe.heart.HeartModel;
@@ -26,6 +28,9 @@ public enum UniverseSpawnable {
     FALLEN_STAR_GOLEM(FallenStarGolemModel.class),
     FAKE_ISCAT(FakeIscatModel.class),
     ISCAT_BOMBER(IscatBomberModel.class),
+    ISCAT_DASHER(IscatDasherModel.class),
+    ISCAT_HEALER(IscatHealerModel.class),
+
     ISCAT_MASTER(IscatMasterModel.class),
 
     WORM(IscatWormSegment.class),

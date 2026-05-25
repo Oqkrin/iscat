@@ -91,10 +91,12 @@ public class GameController {
 
     private void tick(double dt) {
         if (!gameModel.isPaused()) {
+            // Update physics and spatial entities
             universeController.updatev(dt, gameInputs, getCameraModel());
 
-            if (waveController != null) {
-                waveController.update(dt, getCameraModel());
+            // FIX: Pass gameModel downward to use its global master runtime property directly
+            if (waveController != null && gameModel.isWaveing()) {
+                waveController.update(dt, getCameraModel(), gameModel);
             }
         }
     }

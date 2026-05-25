@@ -16,14 +16,14 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Orchestratore centrale per l'estetica del gioco.
- * Gestisce CSS, Palette colori dinamica e Tintaggio Sprite.
+ * Central orchestrator for global application aesthetics. Handles hot-swapping
+ * layouts, asset re-tinting pools, and bridges CSS attributes to Java runtime drawing components.
  */
 public class ThemeManager {
     private static final ThemeManager instance = new ThemeManager();
     public static ThemeManager getInstance() { return instance; }
 
-    // --- STATO E CACHE ---
+    // --- State & Component Cache Control Arrays ---
     private final ObjectProperty<Color> globalTint = new SimpleObjectProperty<>(Color.WHITE);
     private final Map<String, Color> currentPalette = new HashMap<>();
     private final Map<TintKey, Image> tintCache = new HashMap<>();
@@ -32,32 +32,33 @@ public class ThemeManager {
     private Timeline animation;
 
     private ThemeManager() {
-        // Caricamento iniziale della palette predefinita
+        // Core initialization sync
         loadPalette(currentCssPath);
     }
 
     /**
-     * Il metodo "Magico": Cambia il look di tutta l'app (UI + Sprite).
+     * Hot-swaps the underlying presentation stylesheet. Dynamically builds color maps,
+     * resets frame buffer image mutations, and updates visual themes cleanly.
      */
     public void switchTheme(Scene scene, String newCssPath, Color targetSpriteTint, double durationSec) {
-        // 1. Aggiorna i fogli di stile della Scene (UI)
         if (scene != null) {
-            scene.getStylesheets().remove(Objects.requireNonNull(getClass().getResource(currentCssPath)).toExternalForm());
-            String newUrl = Objects.requireNonNull(getClass().getResource(newCssPath)).toExternalForm();
+            var oldRes = getClass().getResource(currentCssPath);
+            if (oldRes != null) {
+                scene.getStylesheets().remove(oldRes.toExternalForm());
+            }
+
+            var newRes = Objects.requireNonNull(getClass().getResource(newCssPath), "Stylesheet target missing: " + newCssPath);
+            String newUrl = newRes.toExternalForm();
             if (!scene.getStylesheets().contains(newUrl)) {
                 scene.getStylesheets().add(newUrl);
             }
         }
 
-        // 2. Aggiorna la logica interna
         this.currentCssPath = newCssPath;
         loadPalette(newCssPath);
 
-        // 3. Importante: Svuota la cache delle immagini tinte.
-        // I vecchi colori del tema precedente non servono più e occupano RAM.
+        // Instantly dump old assets to prevent broken color bleed or cache leaks across maps
         tintCache.clear();
-
-        // 4. Anima la transizione del colore degli sprite (Global Tint)
         animateTint(targetSpriteTint, durationSec);
     }
 
@@ -67,14 +68,40 @@ public class ThemeManager {
     }
 
     /**
-     * Sostituisce il vecchio ThemeColors. Ritorna un colore dalla palette attuale.
+     * Look up colors programmatically. If a key is missing, it logs a warning
+     * and flashes bright Magenta to instantly highlight formatting errors during development.
      */
-    public Color getColor(String key, Color defaultValue) {
-        return currentPalette.getOrDefault(key, defaultValue);
+    public Color getColor(String key) {
+        Color color = currentPalette.get(key);
+        if (color == null) {
+            System.err.println("ThemeManager Warning: Looked-up color key target not found: '" + key + "'");
+            return Color.MAGENTA;
+        }
+        return color;
     }
 
-    // --- LOGICA TINTAGGIO (Per SpriteDrawer) ---
+    // --- Explicit Unified Property Access Layer (Replaces ThemeColors.java) ---
+    public Color getBgPrimary()        { return getColor("bg-primary"); }
+    public Color getBgSecondary()      { return getColor("bg-secondary"); }
+    public Color getBgTertiary()       { return getColor("bg-tertiary"); }
+    public Color getBgElevated()       { return getColor("bg-elevated"); }
 
+    public Color getTextPrimary()      { return getColor("text-primary"); }
+    public Color getTextSecondary()    { return getColor("text-secondary"); }
+    public Color getTextTertiary()     { return getColor("text-tertiary"); }
+    public Color getTextDisabled()     { return getColor("text-disabled"); }
+
+    public Color getAccentPrimary()    { return getColor("accent-primary"); }
+    public Color getAccentSecondary()  { return getColor("accent-secondary"); }
+    public Color getAccentTertiary()   { return getColor("accent-tertiary"); }
+
+    public Color getColorSuccess()     { return getColor("color-success"); }
+    public Color getColorWarning()     { return getColor("color-warning"); }
+    public Color getColorError()       { return getColor("color-error"); }
+    public Color getColorInfo()        { return getColor("color-info"); }
+    public Color getColorTransparent() { return getColor("color-transparent"); }
+
+    // --- Asset Tint Allocation Pipelines ---
     public ObjectProperty<Color> globalTintProperty() { return globalTint; }
 
     public Image getTintedImage(Image source, Color color) {
@@ -84,17 +111,22 @@ public class ThemeManager {
 
     private void animateTint(Color newColor, double seconds) {
         if (animation != null) animation.stop();
-        animation = new Timeline(new KeyFrame(Duration.seconds(seconds),
-                new KeyValue(globalTint, newColor)));
+        animation = new Timeline(new KeyFrame(Duration.seconds(seconds), new KeyValue(globalTint, newColor)));
         animation.play();
     }
 
     private record TintKey(Image image, Color color) {
-        @Override public boolean equals(Object o) {
+        @Override
+        public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof TintKey(Image image1, Color color1))) return false;
+            if (!(o instanceof TintKey(Image image1, Color color1))) {
+                return false;
+            }
             return image.equals(image1) && color.equals(color1);
         }
-        @Override public int hashCode() { return Objects.hash(image, color); }
+        @Override
+        public int hashCode() {
+            return Objects.hash(image, color);
+        }
     }
 }

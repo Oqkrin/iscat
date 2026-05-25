@@ -4,8 +4,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.utils.UU;
-import uni.gaben.iscat.utils.ThemeColors;
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.utils.ThemeManager;
 
 public class AsteroidView implements Drawable<AsteroidModel> {
     @Override
@@ -23,7 +23,7 @@ public class AsteroidView implements Drawable<AsteroidModel> {
         gc.setFill(Color.BLACK);
         gc.fillPolygon(xPoints, yPoints, vertices.length);
         
-        gc.setStroke(ThemeColors.getTextSecondary());
+        gc.setStroke(ThemeManager.getInstance().getTextSecondary());
         gc.setLineWidth(2);
         gc.strokePolygon(xPoints, yPoints, vertices.length);
     }

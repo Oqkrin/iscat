@@ -28,8 +28,8 @@ public final class PlayerSettings {
     public static final double COOLDOWN_SCATTO_SEC = 0.8;
 
     // === Combat & Vitals ===
-    public static final int HP_MASSIMO = 2000;
-    public static final int HP_INIZIALE = 2000;
+    public static final int HP_MASSIMO = 100;
+    public static final int HP_INIZIALE = 100;
     public static final double COOLDOWN_FUOCO_SEC = 1/2.0;
     public static final double VELOCITA_PROIETTILE = VelocitySettings.PLAYER_BULLET_VELOCITY;
     public static final double FORZA_SPINTA = VelocitySettings.PLAYER_MAX_VELOCITY*3;

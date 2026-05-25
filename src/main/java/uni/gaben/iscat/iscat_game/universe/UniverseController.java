@@ -23,6 +23,8 @@ public class UniverseController {
     private final List<AiController> aiControllers = new ArrayList<>();
     private final StarfieldController starfieldController = new StarfieldController();
 
+    private final EnemyWaveController enemyWaveController = new EnemyWaveController();
+
     // --- Dynamic Asteroid Spawn Config ---
     private final Cooldown asteroidCooldown = new Cooldown();
     private static final double ASTEROID_SPAWN_INTERVAL = 3.0; // check and spawn every 3 seconds

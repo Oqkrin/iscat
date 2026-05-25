@@ -8,7 +8,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import uni.gaben.iscat.utils.ThemeColors;
+import uni.gaben.iscat.utils.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +84,6 @@ public class StarryText {
     }
 
     public void updateAndDraw(GraphicsContext gc) {
-        ThemeColors.ensureLoaded();
         for (StarParticle p : new ArrayList<>(particles)) {
             p.update();
             gc.setGlobalAlpha(p.getAlpha());
@@ -112,9 +111,9 @@ public class StarryText {
             this.phaseSpeed = 0.05 + random.nextDouble() * 0.05; // speed of twinkling pulse
 
             Color[] colors = {
-                    ThemeColors.getAccentPrimary(),
-                    ThemeColors.getAccentSecondary(),
-                    ThemeColors.getAccentTertiary()
+                    ThemeManager.getInstance().getAccentPrimary(),
+                    ThemeManager.getInstance().getAccentSecondary(),
+                    ThemeManager.getInstance().getAccentTertiary()
             };
             this.color = colors[random.nextInt(colors.length)];
         }

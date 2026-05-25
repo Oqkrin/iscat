@@ -6,7 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.universe.UniverseSettings;
-import uni.gaben.iscat.utils.ThemeColors;
+import uni.gaben.iscat.utils.ThemeManager;
 
 public class StarfieldView implements Drawable<StarfieldModel> {
     private final Color[] accents;
@@ -16,11 +16,10 @@ public class StarfieldView implements Drawable<StarfieldModel> {
     private final DoubleProperty h = new SimpleDoubleProperty(UniverseSettings.DEFAULT_HEIGHT);
 
     public StarfieldView() {
-        ThemeColors.ensureLoaded();
         this.accents = new Color[]{
-                ThemeColors.getAccentPrimary(),
-                ThemeColors.getAccentSecondary(),
-                ThemeColors.getAccentTertiary()
+                ThemeManager.getInstance().getAccentPrimary(),
+                ThemeManager.getInstance().getAccentSecondary(),
+                ThemeManager.getInstance().getAccentTertiary()
         };
     }
 

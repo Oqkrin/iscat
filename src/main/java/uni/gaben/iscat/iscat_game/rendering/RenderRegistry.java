@@ -62,6 +62,8 @@ public class RenderRegistry {
             case ISCAT_CORE -> new IscatCoreView();
             case FAKE_ISCAT -> new FakeIscatView();
             case FALLEN_STAR_GOLEM -> new FallenStarGolemView();
+            case ISCAT_DASHER -> null;
+            case ISCAT_HEALER -> null;
             case ISCAT_MASTER -> new IscatMasterView();
             case WORM -> (Drawable<IscatWormSegment>) (segment, gc) ->
                     IscatWormView.forType(segment.getType()).draw(segment, gc);

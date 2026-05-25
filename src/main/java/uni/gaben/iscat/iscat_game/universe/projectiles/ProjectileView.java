@@ -3,7 +3,6 @@ package uni.gaben.iscat.iscat_game.universe.projectiles;
 import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
-import uni.gaben.iscat.utils.ThemeColors;
 
 /**
  * Vista standardizzata per il Proiettile.
@@ -17,8 +16,6 @@ public class ProjectileView extends AbstractEntityView<Projectile> implements Dr
     @Override
     public void draw(Projectile p, GraphicsContext gc) {
         // Carica i colori prima dell'esecuzione del loop
-        ThemeColors.ensureLoaded();
-
         // Passa il modello alla pipeline principale.
         // L'angolo dell'asset di default è 0.0.
         setupGraphicsContextAndDrawContent(p, gc, 0.0);

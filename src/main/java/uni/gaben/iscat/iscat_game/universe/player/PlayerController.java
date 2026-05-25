@@ -109,12 +109,10 @@ public class PlayerController {
 
         if (input.shooting && player.isSparoDisponibile()) {
             double angle = player.getTransform().getRotationAngle();
-            double extraDamage = (player.getLevel() - 1) * 2.0;
 
-            Consumer<Projectile> customizer = bullet -> {
-                double newDamage = bullet.getLife() + extraDamage;
-                bullet.setMaxLife(newDamage);
-                bullet.setLife(newDamage);
+            Consumer<Projectile> customized = bullet -> {
+                bullet.setMaxLife(bullet.getLife() + player.getLevel());
+                bullet.setLife(bullet.getMaxLife());
             };
 
             int level = player.getLevel();
@@ -123,19 +121,19 @@ public class PlayerController {
                 // PENTA SHOT: 5 bullets total. Max spread is 15°.
                 // 2 side steps to reach the edge, so step = 15° / 2 = 7.5°
                 double step = Math.toRadians(7.5);
-                shooter.shoot(projectileTemplate, angle - step * 2, customizer); // -15.0° (Far Left)
-                shooter.shoot(projectileTemplate, angle - step, customizer);     // -7.5°  (Mid Left)
-                shooter.shoot(projectileTemplate, angle, customizer);             //  0.0°  (Center)
-                shooter.shoot(projectileTemplate, angle + step, customizer);     //  +7.5°  (Mid Right)
-                shooter.shoot(projectileTemplate, angle + step * 2, customizer); // +15.0° (Far Right)
+                shooter.shoot(projectileTemplate, angle - step * 2, customized); // -15.0° (Far Left)
+                shooter.shoot(projectileTemplate, angle - step, customized);     // -7.5°  (Mid Left)
+                shooter.shoot(projectileTemplate, angle, customized);             //  0.0°  (Center)
+                shooter.shoot(projectileTemplate, angle + step, customized);     //  +7.5°  (Mid Right)
+                shooter.shoot(projectileTemplate, angle + step * 2, customized); // +15.0° (Far Right)
 
             } else if (level >= 6) {
                 // TRIPLE FAN SHOT: 3 bullets total. Max spread is 15°.
                 // 1 side step to reach the edge, so step = 15°
                 double step = Math.toRadians(15.0);
-                shooter.shoot(projectileTemplate, angle - step, customizer);     // -15.0° (Left)
-                shooter.shoot(projectileTemplate, angle, customizer);             //  0.0°  (Center)
-                shooter.shoot(projectileTemplate, angle + step, customizer);     // +15.0° (Right)
+                shooter.shoot(projectileTemplate, angle - step, customized);     // -15.0° (Left)
+                shooter.shoot(projectileTemplate, angle, customized);             //  0.0°  (Center)
+                shooter.shoot(projectileTemplate, angle + step, customized);     // +15.0° (Right)
 
             } else if (level >= 3) {
                 // DUAL PARALLEL + CENTER: 3 bullets firing perfectly straight.
@@ -157,13 +155,13 @@ public class PlayerController {
                         cy + Math.sin(angle) * dist - Math.sin(perpAngle) * lateralOffset
                 );
 
-                shooter.shoot(projectileTemplate, posLeft, angle, customizer);  // Left Wing (0° Angle)
-                shooter.shoot(projectileTemplate, posRight, angle, customizer); // Right Wing (0° Angle)
-                shooter.shoot(projectileTemplate, angle, customizer);           // Nose Cannon (0° Angle)
+                shooter.shoot(projectileTemplate, posLeft, angle, customized);  // Left Wing (0° Angle)
+                shooter.shoot(projectileTemplate, posRight, angle, customized); // Right Wing (0° Angle)
+                shooter.shoot(projectileTemplate, angle, customized);           // Nose Cannon (0° Angle)
 
             } else {
                 // STANDARD: 1 clean center-aimed bullet
-                shooter.shoot(projectileTemplate, customizer);
+                shooter.shoot(projectileTemplate, customized);
             }
 
             player.startCooldownFuoco();

@@ -44,9 +44,9 @@ public class IscatWindowController {
         this.stage = stage;
         this.iscatScene = iscatScene;
         this.iscatTitleBar = iscatTitleBar;
-
-        // Listen to pin state to update the title bar button
         model.pinnedProperty().addListener((obs, old, isPinned) -> syncWindowState());
+        wireCustomDecoration();
+        initializeWindow();
     }
 
     public void initializeWindow() {
