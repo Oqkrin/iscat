@@ -19,8 +19,8 @@ public class EnemyWaveController {
     private boolean bossDead = false;
 
     // Configuration Constants
-    private static final double SPAWN_RADIUS = 800.0;
-    private static final double INITIAL_SPAWN_COOLDOWN = 14.0;
+    private static final double SPAWN_RADIUS = 1200.0;
+    private static final double INITIAL_SPAWN_COOLDOWN = 10.0;
 
     /**
      * Main update tick fueled directly by the shared GameModel timer state.
@@ -53,7 +53,7 @@ public class EnemyWaveController {
         if (camera == null) return;
 
         // Exponential budget rule: level * level total spawns (Level 10 = 100 enemies!)
-        int totalEnemiesToSpawn = playerLevel * playerLevel;
+        int totalEnemiesToSpawn = (int) (playerLevel * (1+Math.log(playerLevel)));
         boolean bossSpawnedThisWave = false;
 
         for (int i = 0; i < totalEnemiesToSpawn; i++) {
