@@ -1,6 +1,7 @@
 package uni.gaben.iscat.iscat_game.universe.enemies.iscat_master;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.DrawableSpriteSheet;
@@ -39,9 +40,17 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     private final SpriteSheetsAnimator attack4Animator;
     private final SpriteSheetsAnimator deathAnimator;
 
-    // Active pair — updated every draw() call based on model state
     private SpriteSheetsParser activeSheet;
     private SpriteSheetsAnimator activeAnimator;
+
+    // SHOCKWAVE
+    private boolean shockwaveActive = false;
+    private double shockwaveRadius = 0.0;
+    private double shockwaveAlpha = 1.0;
+
+    private static final double SHOCKWAVE_MAX_RADIUS = 500.0;
+    private static final double SHOCKWAVE_EXPANSION_SPEED = 650.0;
+    private static final double SHOCKWAVE_LINE_WIDTH = 15.0;
 
     public IscatMasterView() {
         spriteScale = IscatMasterSettings.ISCATMASTER.scale;
@@ -62,12 +71,9 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         attack4Animator  = animator(attack4Sheet);
         deathAnimator    = animator(deathSheet);
 
-        // Always start from entrance
         activeSheet    = entranceSheet;
         activeAnimator = entranceAnimator;
     }
-
-    // ── HELPERS ───────────────────────────────────────────────────────────────
 
     private SpriteSheetsParser load(String path) {
         return SpritesLibrary.getInstance().getSprite(path, (int) ISCATMASTER.dimSprite, (int) ISCATMASTER.dimSprite);
@@ -81,15 +87,12 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         );
     }
 
-    // ── INTERFACE ─────────────────────────────────────────────────────────────
-
     @Override
     public SpriteSheetsParser getSpriteSheet() { return activeSheet; }
 
     @Override
     public SpriteSheetsAnimator getAnimator() { return activeAnimator; }
 
-    // ── DRAW ──────────────────────────────────────────────────────────────────
 
     @Override
     public void draw(IscatMasterModel entity, GraphicsContext gc) {
@@ -103,11 +106,13 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             if (entranceAnimator.hasCompletedCycle()) {
                 entity.setEntranceDone(true);
                 entity.setEnabled(true);
+
+                this.shockwaveActive = true;
+                this.shockwaveRadius = 0.0;
+                this.shockwaveAlpha = 1.0;
             }
 
         } else {
-
-            // Select sheet and animator based on model state
             switch (entity.getAnimationState()) {
                 case ATTACK1 -> { activeSheet = attack1Sheet; activeAnimator = attack1Animator; }
                 case ATTACK2 -> { activeSheet = attack2Sheet; activeAnimator = attack2Animator; }
@@ -121,14 +126,12 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
             AnimationState state = entity.getAnimationState();
 
-            // Attack animations: reset and return to IDLE when done
             if (state != AnimationState.IDLE && state != AnimationState.DEATH
                     && activeAnimator.hasCompletedCycle()) {
                 activeAnimator.reset();
                 entity.setAnimationState(AnimationState.IDLE);
             }
 
-            // Death animation: mark for removal when done
             if (state == AnimationState.DEATH && deathAnimator.hasCompletedCycle()) {
                 entity.completeKill();
             }
@@ -140,6 +143,53 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
         if (entity.getAnimationState() != AnimationState.DEATH) {
             drawHpBar(entity, gc);
+        }
+
+        if (shockwaveActive) {
+            drawShockwave(entity, gc);
+        }
+    }
+
+    /** Gestisce il disegno di un'onda d'urto potenziata con effetto Glow ed energia interna */
+    private void drawShockwave(IscatMasterModel entity, GraphicsContext gc) {
+        shockwaveRadius += SHOCKWAVE_EXPANSION_SPEED * UU.UNIVERSE_TICK;
+
+        double progress = shockwaveRadius / SHOCKWAVE_MAX_RADIUS;
+        shockwaveAlpha = Math.max(0.0, 1.0 - progress);
+
+        if (progress >= 1.0) {
+            shockwaveActive = false;
+        } else {
+            gc.save();
+
+            double centerX = UU.mToPx(entity.getTransform().getTranslationX());
+            double centerY = UU.mToPx(entity.getTransform().getTranslationY());
+
+            double diameter = shockwaveRadius * 2;
+            double topLeftX = centerX - shockwaveRadius;
+            double topLeftY = centerY - shockwaveRadius;
+
+            // Crea un riempimento interno che svanisce molto velocemente rispetto al bordo
+            double fillAlpha = shockwaveAlpha * 0.15; // Molto leggero per non coprire tutto
+            gc.setFill(Color.rgb(255, 255, 255, fillAlpha));
+            gc.fillOval(topLeftX, topLeftY, diameter, diameter);
+
+            // Disegnamo un cerchio molto spesso ma quasi invisibile
+            gc.setStroke(Color.rgb(255, 255, 255, shockwaveAlpha * 0.3));
+            gc.setLineWidth(SHOCKWAVE_LINE_WIDTH * 3.5);
+            gc.strokeOval(topLeftX, topLeftY, diameter, diameter);
+
+            // EFFETTO GLOW
+            gc.setStroke(Color.rgb(255, 255, 255, shockwaveAlpha * 0.6));
+            gc.setLineWidth(SHOCKWAVE_LINE_WIDTH * 1.8);
+            gc.strokeOval(topLeftX, topLeftY, diameter, diameter);
+
+            // Il cuore dell'onda rimane bianco solido puro
+            gc.setStroke(Color.rgb(255, 255, 255, shockwaveAlpha));
+            gc.setLineWidth(SHOCKWAVE_LINE_WIDTH);
+            gc.strokeOval(topLeftX, topLeftY, diameter, diameter);
+
+            gc.restore();
         }
     }
 
