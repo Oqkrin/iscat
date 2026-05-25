@@ -25,10 +25,10 @@ public class IscatMVCRegistry {
             case LOGIN_MENU -> new LoginView(new LoginController(new LoginModel(), LoginData.withPlaceholder()));
             case MAIN_MENU -> new MenuView(new MenuController());
             case GAME ->  new GameView(new GameController(new GameModel()));
-            case SKIN_MENU ->  new ScoreMenuView();
-            case BESTIARY_MENU -> new SkinMenuView();
-            case SCORE_MENU -> new OptionsMenuView();
-            case OPTIONS_MENU ->  new BestiaryView();
+            case SKIN_MENU -> new SkinMenuView() ;
+            case BESTIARY_MENU -> new BestiaryView();
+            case SCORE_MENU -> new ScoreMenuView();
+            case OPTIONS_MENU ->  new OptionsMenuView();
         };
     }
 }
