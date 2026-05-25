@@ -4,10 +4,12 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.iscat_game.camera.CameraModel;
 import uni.gaben.iscat.iscat_screens.game.model.GameModel;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
+/**
+ * Advanced Wave Controller utilizing mathematical time-based and level-based probability curves
+ * with an exponential scaling multiplier based on the player's level.
+ */
 public class EnemyWaveController {
 
     private double spawnTimer = 0.0;
@@ -16,9 +18,9 @@ public class EnemyWaveController {
     private boolean bossSpawned = false;
     private boolean bossDead = false;
 
+    // Configuration Constants
     private static final double SPAWN_RADIUS = 800.0;
-    private static final double INITIAL_SPAWN_COOLDOWN = 15.0;
-    private static final double PROGRESSION_STEP_SECONDS = 30.0;
+    private static final double INITIAL_SPAWN_COOLDOWN = 14.0;
 
     /**
      * Main update tick fueled directly by the shared GameModel timer state.
@@ -26,27 +28,39 @@ public class EnemyWaveController {
     public void update(double dt, CameraModel camera, GameModel gameModel) {
         if (gameModel == null) return;
 
-        // Fetch the absolute unified master time from the model
         double masterTimeSec = gameModel.getTotalElapsedSeconds();
 
-        // Count down the local intermediate delta step for spawn pacing
+        // Count down the local pacing interval timer
         spawnTimer -= dt;
         if (spawnTimer <= 0) {
-            spawnWaveOffScreen(camera, masterTimeSec);
-            // Scale spawn intervals dynamically based on global engine runtime
-            spawnTimer = Math.max(6.0, INITIAL_SPAWN_COOLDOWN - (masterTimeSec / 60.0));
+            // Extract player level safely with structural fallbacks
+            int playerLevel = 1;
+            if (gameModel.getUniverseModel() != null && gameModel.getUniverseModel().getPlayer() != null) {
+                playerLevel = gameModel.getUniverseModel().getPlayer().getLevel();
+            }
+
+            spawnDynamicWaveOffScreen(camera, masterTimeSec, playerLevel);
+
+            // Scale spawn frequencies up slightly over time (down to a minimum of 4 seconds)
+            spawnTimer = Math.max(4.0, INITIAL_SPAWN_COOLDOWN - (masterTimeSec / 60.0));
         }
     }
 
-    private void spawnWaveOffScreen(CameraModel camera, double currentSessionTime) {
+    /**
+     * Handles spawning calculated arrays of entities just outside the viewport camera bounds.
+     */
+    private void spawnDynamicWaveOffScreen(CameraModel camera, double currentSessionTime, int playerLevel) {
         if (camera == null) return;
 
-        int waveMultiplier = 1 + ((int) (currentSessionTime / PROGRESSION_STEP_SECONDS));
+        // Exponential budget rule: level * level total spawns (Level 10 = 100 enemies!)
+        int totalEnemiesToSpawn = playerLevel * playerLevel;
         boolean bossSpawnedThisWave = false;
 
-        for (int w = 0; w < waveMultiplier; w++) {
-            UniverseSpawnable enemyToSpawn = chooseEnemyTypeByTime(currentSessionTime);
+        for (int i = 0; i < totalEnemiesToSpawn; i++) {
+            // FIX: Now passing player level into probability calculations
+            UniverseSpawnable enemyToSpawn = rollWeightProbability(currentSessionTime, playerLevel);
 
+            // Boss Check: Safely downscale duplicated master triggers to preserve balance
             if (enemyToSpawn == UniverseSpawnable.ISCAT_MASTER) {
                 if (bossSpawned || bossSpawnedThisWave) {
                     enemyToSpawn = UniverseSpawnable.ISCAT_MOB;
@@ -55,60 +69,61 @@ public class EnemyWaveController {
                 }
             }
 
-            int groupSize = getGroupSize(enemyToSpawn, currentSessionTime);
+            // Calculate precise circular spawn trajectories outside the camera frame
+            double angle = random.nextDouble() * Math.PI * 2.0;
+            double spawnX = camera.getX() + Math.cos(angle) * SPAWN_RADIUS;
+            double spawnY = camera.getY() + Math.sin(angle) * SPAWN_RADIUS;
 
-            for (int i = 0; i < groupSize; i++) {
-                double angle = random.nextDouble() * Math.PI * 2.0;
-                double spawnX = camera.getX() + Math.cos(angle) * SPAWN_RADIUS;
-                double spawnY = camera.getY() + Math.sin(angle) * SPAWN_RADIUS;
+            UniverseSpawner.getInstance().spawn(enemyToSpawn, spawnX, spawnY);
 
-                UniverseSpawner.getInstance().spawn(enemyToSpawn, spawnX, spawnY);
-            }
-
+            // Notify environmental sound system if the final boss is selected
             if (enemyToSpawn == UniverseSpawnable.ISCAT_MASTER && !bossSpawned) {
                 notifyBossSpawned();
             }
         }
     }
 
-    private int getGroupSize(UniverseSpawnable type, double currentSessionTime) {
-        return switch (type) {
-            case ISCAT_MOB -> {
-                if (currentSessionTime >= 120.0) yield 6;
-                if (currentSessionTime >= 30.0)  yield 3;
-                yield 1;
-            }
-            case EATER -> {
-                if (currentSessionTime >= 120.0) yield 5;
-                if (currentSessionTime >= 60.0)  yield 3;
-                yield 1;
-            }
-            case FAKE_ISCAT -> (currentSessionTime >= 90.0) ? 3 : 1;
-            case ISCAT_BOMBER -> 2;
-            case ISCAT_MASTER, FALLEN_STAR_GOLEM, ISCAT_CORE, ISCAT_MOTHER, WORM -> 1;
-            default -> 1;
-        };
-    }
+    /**
+     * Dual-layered scaling system. Enemies unlock if EITHER the time threshold is reached
+     * OR the player's level is high enough.
+     */
+    private UniverseSpawnable rollWeightProbability(double time, int level) {
+        // Base mob drops in priority as the run escalates
+        double mobWeight = Math.max(10.0, 100.0 - (time * 0.5) - (level * 4.0));
 
-    private UniverseSpawnable chooseEnemyTypeByTime(double currentSessionTime) {
-        if (!bossSpawned && currentSessionTime >= 180.0) {
-            return UniverseSpawnable.ISCAT_MASTER;
-        }
+        // FIX: Unlock based on Time OR Player Level thresholds
+        double eaterWeight  = (time >= 20.0  || level >= 2) ? Math.min(45.0, (time - 20.0) * 1.5 + (level * 3.0)) : 0.0;
+        double fakeWeight   = (time >= 45.0  || level >= 3) ? Math.min(40.0, (time - 45.0) * 1.5 + (level * 3.5)) : 0.0;
+        double bomberWeight = (time >= 7000.0  || level >= 4) ? Math.min(35.0, (time - 70.0) * 1.2 + (level * 4.0)) : 0.0;
+        double golemWeight  = (time >= 100.0 || level >= 5) ? Math.min(30.0, (time - 100.0) * 1.0 + (level * 4.5)) : 0.0;
+        double coreWeight   = (time >= 130.0 || level >= 6) ? Math.min(30.0, (time - 130.0) * 1.0 + (level * 5.0)) : 0.0;
+        double wormWeight   = (time >= 160.0 || level >= 7) ? Math.min(25.0, (time - 160.0) * 0.8 + (level * 5.5)) : 0.0;
+        double motherWeight = (time >= 190.0 || level >= 8) ? Math.min(25.0, (time - 190.0) * 0.8 + (level * 6.0)) : 0.0;
 
-        List<UniverseSpawnable> unlockedEnemies = new ArrayList<>();
-        unlockedEnemies.add(UniverseSpawnable.ISCAT_MOB);
+        // Final Boss threshold opens at 4 minutes OR Level 10
+        double masterWeight = (!bossSpawned && (time >= 240.0 || level >= 10))
+                ? Math.min(20.0, (time - 240.0) * 0.5 + (level * 2.0))
+                : 0.0;
 
-        if (currentSessionTime >= 30.0) unlockedEnemies.add(UniverseSpawnable.EATER);
-        if (currentSessionTime >= 60.0) unlockedEnemies.add(UniverseSpawnable.ISCAT_BOMBER);
-        if (currentSessionTime >= 90.0) {
-            unlockedEnemies.add(UniverseSpawnable.FALLEN_STAR_GOLEM);
-            unlockedEnemies.add(UniverseSpawnable.FAKE_ISCAT);
-        }
-        if (currentSessionTime >= 120.0) unlockedEnemies.add(UniverseSpawnable.ISCAT_CORE);
-        if (currentSessionTime >= 150.0) unlockedEnemies.add(UniverseSpawnable.WORM);
-        if (currentSessionTime >= 200.0) unlockedEnemies.add(UniverseSpawnable.ISCAT_MOTHER);
+        // Sum complete active weight profile boundaries
+        double totalWeightSum = mobWeight + eaterWeight + fakeWeight + bomberWeight
+                + golemWeight + coreWeight + wormWeight + motherWeight + masterWeight;
 
-        return unlockedEnemies.get(random.nextInt(unlockedEnemies.size()));
+        // Roll pointer index inside range space
+        double rollValue = random.nextDouble() * totalWeightSum;
+        double currentInspectedSum = 0.0;
+
+        if ((currentInspectedSum += mobWeight) >= rollValue)    return UniverseSpawnable.ISCAT_MOB;
+        if ((currentInspectedSum += eaterWeight) >= rollValue)  return UniverseSpawnable.EATER;
+        if ((currentInspectedSum += fakeWeight) >= rollValue)   return UniverseSpawnable.FAKE_ISCAT;
+        if ((currentInspectedSum += bomberWeight) >= rollValue) return UniverseSpawnable.ISCAT_BOMBER;
+        if ((currentInspectedSum += golemWeight) >= rollValue)  return UniverseSpawnable.FALLEN_STAR_GOLEM;
+        if ((currentInspectedSum += coreWeight) >= rollValue)   return UniverseSpawnable.ISCAT_CORE;
+        if ((currentInspectedSum += wormWeight) >= rollValue)   return UniverseSpawnable.WORM;
+        if ((currentInspectedSum += motherWeight) >= rollValue) return UniverseSpawnable.ISCAT_MOTHER;
+        if ((currentInspectedSum += masterWeight) >= rollValue) return UniverseSpawnable.ISCAT_MASTER;
+
+        return UniverseSpawnable.ISCAT_MOB; // Absolute safety line fallback
     }
 
     public void notifyBossSpawned() {

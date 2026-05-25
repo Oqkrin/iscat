@@ -66,6 +66,9 @@ public class GameController {
 
                 double totalSeconds = (now - gameModel.getStart()) / GameModel.ONE_SECOND_IN_NANO_SECONDS;
 
+                // FIX: Synchronize the game model's internal tracker with the calculated elapsed runtime
+                gameModel.setTotalElapsedSeconds(totalSeconds);
+
                 int hours = (int) (totalSeconds / 3600);
                 int minutes = (int) ((totalSeconds % 3600) / 60);
                 int seconds = (int) (totalSeconds % 60);
@@ -91,10 +94,8 @@ public class GameController {
 
     private void tick(double dt) {
         if (!gameModel.isPaused()) {
-            // Update physics and spatial entities
             universeController.updatev(dt, gameInputs, getCameraModel());
 
-            // FIX: Pass gameModel downward to use its global master runtime property directly
             if (waveController != null && gameModel.isWaveing()) {
                 waveController.update(dt, getCameraModel(), gameModel);
             }
@@ -124,7 +125,6 @@ public class GameController {
         gameModel.setGameOver(false);
         gameModel.setPaused(false);
 
-        // Preserve layout limits across rebuild sequences
         double currentWidth = getUniverseModel().getWidth();
         double currentHeight = getUniverseModel().getHeight();
 
@@ -153,9 +153,11 @@ public class GameController {
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
 
-        // Clear time tracking benchmarks completely
         gameModel.startProperty().set(-1);
         gameModel.setLastUpdate(0);
+
+        // FIX: Reset total elapsed seconds to zero upon layout clear operations
+        gameModel.setTotalElapsedSeconds(0.0);
     }
 
     private void spawnInitialAsteroidBelts(UniverseModel universe, double centerX, double centerY) {
