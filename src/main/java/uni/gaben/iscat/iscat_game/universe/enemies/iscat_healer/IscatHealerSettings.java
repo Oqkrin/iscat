@@ -7,8 +7,8 @@ public class IscatHealerSettings {
 
     static {
         ISCATHEALER.initLife = 60.0;
-        ISCATHEALER.dimSprite      = 64.0;
-        ISCATHEALER.scale          = 1.0;
+        ISCATHEALER.dimSprite      = 32.0;
+        ISCATHEALER.scale          = 2.0;
         ISCATHEALER.dampingLineare = 3.0;
         ISCATHEALER.maxVelocity    = 6.0;
         ISCATHEALER.force          = 20.0;

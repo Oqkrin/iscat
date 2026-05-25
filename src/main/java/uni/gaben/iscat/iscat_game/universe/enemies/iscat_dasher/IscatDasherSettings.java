@@ -7,8 +7,8 @@ public class IscatDasherSettings {
 
     static {
         ISCATDASHER.initLife = 40.0;
-        ISCATDASHER.dimSprite      = 64.0;
-        ISCATDASHER.scale          = 1.0;
+        ISCATDASHER.dimSprite      = 32.0;
+        ISCATDASHER.scale          = 2.0;
         ISCATDASHER.dampingLineare = 2.5;
         ISCATDASHER.maxVelocity    = 15.0;
         ISCATDASHER.force          = 35.0;

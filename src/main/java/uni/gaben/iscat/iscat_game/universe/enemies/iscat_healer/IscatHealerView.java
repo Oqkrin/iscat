@@ -26,9 +26,9 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
                 .getSprite(SPRITE_PATH, (int) ISCATHEALER.dimSprite, (int) ISCATHEALER.dimSprite);
 
         this.animator = new SpriteSheetsAnimator(
-                UU.UNIVERSE_TICK * 2,
-                spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
-                spriteSheet != null ? spriteSheet.getTotalStates() : 1
+                UU.UNIVERSE_TICK * 4,
+                spriteSheet.getTotalFrames(),
+                spriteSheet.getTotalStates()
         );
     }
 

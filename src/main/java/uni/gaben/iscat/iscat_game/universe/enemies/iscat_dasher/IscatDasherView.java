@@ -27,8 +27,8 @@ public class IscatDasherView extends AbstractEntityView<IscatDasherModel>
 
         this.animator = new SpriteSheetsAnimator(
                 UU.UNIVERSE_TICK * 2,
-                spriteSheet != null ? spriteSheet.getTotalFrames() : 1,
-                spriteSheet != null ? spriteSheet.getTotalStates() : 1
+                spriteSheet.getTotalFrames(),
+                spriteSheet.getTotalStates()
         );
     }
 
