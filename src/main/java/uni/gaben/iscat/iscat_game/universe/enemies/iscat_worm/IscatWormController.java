@@ -16,7 +16,7 @@ public class IscatWormController implements AiController {
 
     private final IscatWormModel worm;
     private Vector2 headTarget = null;
-    private final PlungeAttackBehavior plungeBehavior = new PlungeAttackBehavior(12.0, IscatWormSettings.HEAD_FORCE * 6.0, 3.0);
+    private final PlungeAttackBehavior plungeBehavior = new PlungeAttackBehavior(12.0, IscatWormSettings.HEAD_FORCE * 6.0, 3.0, 1.0);
 
     // ── LOGICA DI SPARO CHAOTIC BURST (CODA DA SOLA) ─────────────────────────
     private Shooter<IscatWormSegment> tailShooter = null;
@@ -96,15 +96,6 @@ public class IscatWormController implements AiController {
         // Plunge Attack
         if (plungeBehavior.getPriority(head, universe) > 0) {
             plungeBehavior.execute(head, universe, dt);
-            
-            // Melee damage on impact during plunge
-            double attackRadius = UU.pxToM(IscatWormSettings.DIM_SPRITE * IscatWormSettings.HEAD_SCALE) * 1.2;
-            if (headPos.distance(playerPos) < attackRadius) {
-                if (head.canAttack()) {
-                    player.deltaToLife(-IscatWormSettings.HEAD_ATTACK_POWER * 1.5); // extra damage from plunge
-                    head.startAttackCooldown();
-                }
-            }
         } else if (distanceToTarget > 0.1) {
             // Spinta fisica ed inseguimento
             rotateTo(head, direction.getDirection(), dt, currentRotationSpeed);

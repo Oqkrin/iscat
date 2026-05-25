@@ -11,16 +11,22 @@ public class DirectionalSlamBehavior implements AiBehavior {
 
     private final double maxDist;
     private final double slamForce;
+    private final double slamDurationSeconds;
     private final double coneTolerance = 0.95; // ~18 gradi
     private final Cooldown slamCooldown = new Cooldown();
     
     private boolean isSlamming = false;
     private double slamTimer = 0.0;
 
-    public DirectionalSlamBehavior(double maxDist, double slamForce, double cooldownSeconds) {
+    public DirectionalSlamBehavior(double maxDist, double slamForce, double cooldownSeconds, double slamDurationSeconds) {
         this.maxDist = maxDist;
         this.slamForce = slamForce;
+        this.slamDurationSeconds = slamDurationSeconds;
         this.slamCooldown.start(cooldownSeconds);
+    }
+
+    public DirectionalSlamBehavior(double maxDist, double slamForce, double cooldownSeconds) {
+        this(maxDist, slamForce, cooldownSeconds, 0.6); // Default 0.6s
     }
 
     @Override
@@ -65,7 +71,7 @@ public class DirectionalSlamBehavior implements AiBehavior {
         
         if (!isSlamming && !slamCooldown.isCoolingDown()) {
             isSlamming = true;
-            slamTimer = 0.6; // 0.6s slam
+            slamTimer = slamDurationSeconds;
             
             Vector2 npcPos = npc.getTransform().getTranslation();
             Vector2 playerPos = player.getTransform().getTranslation();

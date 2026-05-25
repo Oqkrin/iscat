@@ -41,7 +41,7 @@ public class IscatDasherView extends AbstractEntityView<IscatDasherModel>
     @Override
     public void draw(IscatDasherModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
-        setupGraphicsContextAndDrawContent(entity, gc, 90.0);
+        setupGraphicsContextAndDrawContent(entity, gc, -180.0);
     }
 
     @Override

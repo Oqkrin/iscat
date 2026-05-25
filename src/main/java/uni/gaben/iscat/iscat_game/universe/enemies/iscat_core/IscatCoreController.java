@@ -71,7 +71,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
 
         // Dodge e Slam
         this.addBehavior(new DodgeProjectileBehavior(ISCATCORE.force * 1.5, 2.0));
-        this.addBehavior(new DirectionalSlamBehavior(5.0, ISCATCORE.force * 4.0, 3.0));
+        this.addBehavior(new DirectionalSlamBehavior(5.0, ISCATCORE.force * 4.0, 3.0, 1.2));
     }
 
     @Override

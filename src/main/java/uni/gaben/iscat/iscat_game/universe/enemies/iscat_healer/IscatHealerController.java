@@ -17,8 +17,8 @@ public class IscatHealerController extends AiBehaviours<IscatHealerModel> {
         // Separation
         this.addBehavior(new SeparationBehavior(UU.pxToM(32.0), ISCATHEALER.force * 0.8));
 
-        // Wander
-        this.addBehavior(new WanderBehavior(ISCATHEALER.force, ISCATHEALER.rotationSpeed));
+        // Hide Behind Allies
+        this.addBehavior(new uni.gaben.iscat.iscat_game.lib.implementations.behaviors.HideBehindEntitiesBehavior(ISCATHEALER.force, ISCATHEALER.maxVelocity, 3.0));
 
         // Dodge
         this.addBehavior(new DodgeProjectileBehavior(ISCATHEALER.force * 1.5, 2.0));

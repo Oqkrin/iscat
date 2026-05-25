@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.DrawableSpriteSheet;
+import uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterSettings;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
@@ -47,6 +48,12 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
     @Override
     protected void drawContent(IscatHealerModel entity, GraphicsContext gc,
                                double x, double y, double width, double height) {
+        // Draw the healing radius
+        double radiusPx = UU.mToPx(IscatHealerSettings.HEAL_RADIUS_M);
+        gc.setStroke(javafx.scene.paint.Color.web("#00ff00", 0.4));
+        gc.setLineWidth(2.0);
+        gc.strokeOval(-radiusPx, -radiusPx, radiusPx * 2, radiusPx * 2);
+
         drawSprite(gc, x, y, width, height);
         drawHpBar(entity, gc);
     }

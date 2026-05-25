@@ -63,13 +63,9 @@ public class ChaseBehavior implements AiBehavior {
 
         // Movimento
         if (distance > 0.5) {
-            if (npc.getLinearVelocity().getMagnitude() <= maxVelocity) {
-                Vector2 forceVec = direction.getNormalized().multiply(force);
-                npc.applyForce(forceVec);
-            } else {
-                Vector2 vel = npc.getLinearVelocity();
-                npc.setLinearVelocity(vel.getNormalized().multiply(maxVelocity));
-            }
+            Vector2 desiredVelocity = direction.getNormalized().multiply(maxVelocity);
+            Vector2 steeringForce = desiredVelocity.subtract(npc.getLinearVelocity()).getNormalized().multiply(force);
+            npc.applyForce(steeringForce);
         }
     }
 }

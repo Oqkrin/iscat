@@ -52,6 +52,24 @@ public class IscatWormSegment extends LivingEntityModel implements HasProjectile
         setMass(MassType.NORMAL);
         setLinearDamping(getDamping(type));
         setAngularDamping(0.0); // Azzera l'attrito rotazionale per curve fulminee
+
+        this.setOnCollision(other -> {
+            if (other instanceof uni.gaben.iscat.iscat_game.universe.player.PlayerModel player) {
+                if (this.type == Type.HEAD) {
+                    if (this.canAttack()) {
+                        Vector2 vel = this.getLinearVelocity();
+                        if (vel.getMagnitude() > IscatWormSettings.HEAD_MAX_SPEED * 1.5) {
+                            player.deltaToLife(-IscatWormSettings.HEAD_ATTACK_POWER * 1.5); // Plunge attack
+                        } else {
+                            player.deltaToLife(-IscatWormSettings.HEAD_ATTACK_POWER);
+                        }
+                        this.startAttackCooldown();
+                    }
+                } else {
+                    player.deltaToLife(-2.0); // Minor contact damage from body/tail
+                }
+            }
+        });
     }
 
     // ── IMPLEMENTAZIONE RIGIDA DI HASPROJECTILE ───────────────────────────────

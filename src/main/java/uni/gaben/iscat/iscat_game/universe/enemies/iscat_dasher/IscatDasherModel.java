@@ -24,7 +24,7 @@ public class IscatDasherModel extends LivingEntityModel {
                         UU.pxToM(ISCATDASHER.dimSprite * ISCATDASHER.scale / 2.0 * 0.9)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
-        setMass(MassType.NORMAL);
+        setMass(MassType.FIXED_ANGULAR_VELOCITY);
         setLinearDamping(ISCATDASHER.dampingLineare);
         
         // Damage tick on collision proportional to velocity

@@ -29,6 +29,18 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(ISCATCORE.dampingLineare);
+
+        this.setOnCollision(other -> {
+            if (other instanceof uni.gaben.iscat.iscat_game.universe.player.PlayerModel player) {
+                org.dyn4j.geometry.Vector2 vel = this.getLinearVelocity();
+                double speed = vel.getMagnitude();
+                if (speed > ISCATCORE.maxVelocity * 1.5) {
+                    player.deltaToLife(-30.0); // Heavy Slam Damage
+                } else {
+                    player.deltaToLife(-2.0); // Light Contact Damage
+                }
+            }
+        });
     }
 
     public void update(double dt) {
