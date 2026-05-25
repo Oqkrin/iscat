@@ -1,6 +1,7 @@
 package uni.gaben.iscat.iscat_game.universe.player;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.iscat_game.universe.attacks2.*;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.iscat_screens.game.controller.GameInputs;
 import uni.gaben.iscat.iscat_game.utils.UU;
@@ -16,10 +17,11 @@ import java.util.function.Consumer;
 public class PlayerController {
     private PlayerModel player;
     private Shooter<PlayerModel> shooter;
-
     private Projectile projectileTemplate;
+
     private final Cooldown dashBuffer = new Cooldown();
     private boolean bufferedDashIsWASD = false;
+    private AttackPattern currentAttack;
 
     public PlayerController(PlayerModel player) {
         setPlayer(player);
@@ -65,8 +67,6 @@ public class PlayerController {
         }
 
         handleDash(input, dx, dy, nextAngle);
-
-
     }
 
     private void handleDash(GameInputs input, double dx, double dy, double nextAngle) {
@@ -95,9 +95,13 @@ public class PlayerController {
         if (player != null) {
             this.shooter = new Shooter<>(player);
             this.projectileTemplate = new Projectile(ProjectileType.PLAYER_BULLET);
+
+            this.currentAttack = new SingleShotAttack();
+
             this.player.lifeProperty().addListener((observable, oldValue, newValue) -> {
                 if(oldValue.doubleValue() > newValue.doubleValue()) {
-                AudioManager.getInstance().playSFX("hurt"); }
+                    AudioManager.getInstance().playSFX("hurt");
+                }
             });
         } else {
             this.shooter = null;
@@ -105,7 +109,7 @@ public class PlayerController {
     }
 
     private void handleShooting(GameInputs input) {
-        if (player == null || shooter == null) return;
+        if (player == null || shooter == null || currentAttack == null) return;
 
         if (input.shooting && player.isSparoDisponibile()) {
             double angle = player.getTransform().getRotationAngle();
@@ -115,56 +119,30 @@ public class PlayerController {
                 bullet.setLife(bullet.getMaxLife());
             };
 
-            int level = player.getLevel();
+            updateAttackPatternByLevel();
 
-            if (level >= 9) {
-                // PENTA SHOT: 5 bullets total. Max spread is 15°.
-                // 2 side steps to reach the edge, so step = 15° / 2 = 7.5°
-                double step = Math.toRadians(7.5);
-                shooter.shoot(projectileTemplate, angle - step * 2, customized); // -15.0° (Far Left)
-                shooter.shoot(projectileTemplate, angle - step, customized);     // -7.5°  (Mid Left)
-                shooter.shoot(projectileTemplate, angle, customized);             //  0.0°  (Center)
-                shooter.shoot(projectileTemplate, angle + step, customized);     //  +7.5°  (Mid Right)
-                shooter.shoot(projectileTemplate, angle + step * 2, customized); // +15.0° (Far Right)
-
-            } else if (level >= 6) {
-                // TRIPLE FAN SHOT: 3 bullets total. Max spread is 15°.
-                // 1 side step to reach the edge, so step = 15°
-                double step = Math.toRadians(15.0);
-                shooter.shoot(projectileTemplate, angle - step, customized);     // -15.0° (Left)
-                shooter.shoot(projectileTemplate, angle, customized);             //  0.0°  (Center)
-                shooter.shoot(projectileTemplate, angle + step, customized);     // +15.0° (Right)
-
-            } else if (level >= 3) {
-                // DUAL PARALLEL + CENTER: 3 bullets firing perfectly straight.
-                // Spatially offset across the wings, keeping the center laser active.
-                double cx = player.getTransform().getTranslationX();
-                double cy = player.getTransform().getTranslationY();
-                double dist = player.getHeightMeters() / 2.0;
-                if (dist <= 0) dist = 0.2;
-
-                double perpAngle = angle + Math.PI / 2.0;
-                double lateralOffset = 0.15;
-
-                Vector2 posLeft = new Vector2(
-                        cx + Math.cos(angle) * dist + Math.cos(perpAngle) * lateralOffset,
-                        cy + Math.sin(angle) * dist + Math.sin(perpAngle) * lateralOffset
-                );
-                Vector2 posRight = new Vector2(
-                        cx + Math.cos(angle) * dist - Math.cos(perpAngle) * lateralOffset,
-                        cy + Math.sin(angle) * dist - Math.sin(perpAngle) * lateralOffset
-                );
-
-                shooter.shoot(projectileTemplate, posLeft, angle, customized);  // Left Wing (0° Angle)
-                shooter.shoot(projectileTemplate, posRight, angle, customized); // Right Wing (0° Angle)
-                shooter.shoot(projectileTemplate, angle, customized);           // Nose Cannon (0° Angle)
-
-            } else {
-                // STANDARD: 1 clean center-aimed bullet
-                shooter.shoot(projectileTemplate, customized);
-            }
+            currentAttack.execute(shooter, projectileTemplate, angle, customized);
 
             player.startCooldownFuoco();
+        }
+    }
+
+    private void updateAttackPatternByLevel() {
+        int level = player.getLevel();
+
+        if (level >= 9) {
+            this.currentAttack = new SpreadAttack(5, 30.0);
+            player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.4);
+        } else if (level >= 6) {
+            // Spara a ventaglio tre colpi molto rapidamente
+            this.currentAttack = new SpreadAttack(3, 30.0);
+            player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.6);
+        } else if (level >= 3) {
+            this.currentAttack = new ParallelLineAttack(3, 15.0);
+            player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.8);
+        } else {
+            this.currentAttack = new RingAttack(3);
+            player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC);
         }
     }
 

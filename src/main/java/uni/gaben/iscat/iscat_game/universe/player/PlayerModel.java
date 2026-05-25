@@ -93,6 +93,10 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
         weaponCooldown.start(PlayerSettings.COOLDOWN_FUOCO_SEC);
     }
 
+    public void setCooldownFuocoSec(double new_value){
+        PlayerSettings.COOLDOWN_FUOCO_SEC = new_value;
+    }
+
     /** Managed safe retrieval of current cooldown fraction for visual interface bars */
     public double getDashMeter() {
         return dashCooldown.getProgress();

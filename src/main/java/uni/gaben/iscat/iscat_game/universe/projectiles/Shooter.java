@@ -27,6 +27,8 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
         }
     }
 
+    public T getModel() { return this.model; }
+
     @Override
     public void shoot(AbstractProjectileModel template) {
         shoot(template, null);
