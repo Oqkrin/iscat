@@ -121,7 +121,8 @@ public class PlayerController {
 
             updateAttackPatternByLevel();
 
-            currentAttack.execute(shooter, projectileTemplate, angle, customized);
+            shooter.shoot(player.getProjectile());
+            //currentAttack.execute(shooter, projectileTemplate, angle, customized);
 
             player.startCooldownFuoco();
         }

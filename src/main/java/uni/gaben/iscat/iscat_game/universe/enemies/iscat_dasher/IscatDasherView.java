@@ -14,7 +14,7 @@ import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_dasher.IscatDash
 public class IscatDasherView extends AbstractEntityView<IscatDasherModel>
         implements Drawable<IscatDasherModel>, DrawableSpriteSheet {
 
-    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/enemies/iscat_dasher.png";
+    private static final String SPRITE_PATH = "/uni/gaben/iscat/sprites/enemies/iscat_dasher_S.png";
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
@@ -26,7 +26,7 @@ public class IscatDasherView extends AbstractEntityView<IscatDasherModel>
                 .getSprite(SPRITE_PATH, (int) ISCATDASHER.dimSprite, (int) ISCATDASHER.dimSprite);
 
         this.animator = new SpriteSheetsAnimator(
-                UU.UNIVERSE_TICK * 2,
+                UU.UNIVERSE_TICK*2,
                 spriteSheet.getTotalFrames(),
                 spriteSheet.getTotalStates()
         );
