@@ -190,7 +190,8 @@ public class BestiaryMenuController implements IscatFxmlController {
                             Vittime confermate: [REDACTED]
                             Tentativi di contenimento riusciti: 0
                             Ultima frase trasmessa da uno Space Explorer:
-                            "OH NO, STA [REDACTED] MANGIANDO IL [REDACTED]
+                            OH NO, STA [REDACTED] MANGIANDO IL MIO [REDACTED] AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.
+                            [NUOVE MISURE ANTI EATER SONO INSTALLATE NEGLI ULTIMI MODELLI DI ASTRONAVE]
                             """
             )),
 
