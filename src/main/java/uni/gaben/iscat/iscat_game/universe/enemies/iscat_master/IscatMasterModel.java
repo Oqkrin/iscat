@@ -3,6 +3,7 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_master;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
+import uni.gaben.iscat.iscat_game.lib.interfaces.model.Updatable;
 import uni.gaben.iscat.iscat_game.rendering.effects.HasShockwave;
 import uni.gaben.iscat.iscat_game.rendering.effects.ShockwaveModel;
 import uni.gaben.iscat.iscat_game.universe.EnemyWaveController;
@@ -16,7 +17,7 @@ import uni.gaben.iscat.utils.Cooldown;
 
 import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterSettings.ISCATMASTER;
 
-public class IscatMasterModel extends LivingEntityModel implements HasProjectile<Projectile>, HasShockwave {
+public class IscatMasterModel extends LivingEntityModel implements HasProjectile<Projectile>, HasShockwave, Updatable {
 
     private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
     private final Cooldown weaponCooldown = new Cooldown();
@@ -53,6 +54,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
         setEnabled(false);
     }
 
+    @Override
     public void update(double dt) {
         weaponCooldown.update(dt);
         shockwaveModel.update(dt);

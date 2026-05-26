@@ -5,6 +5,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.iscat_game.lib.interfaces.model.HasProjectile;
+import uni.gaben.iscat.iscat_game.lib.interfaces.model.Updatable;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
@@ -13,7 +14,7 @@ import uni.gaben.iscat.utils.Cooldown;
 
 import static uni.gaben.iscat.iscat_game.universe.enemies.fallen_star_golem.FallenStarGolemSettings.FALLENSTARGOLEM;
 
-public class FallenStarGolemModel extends LivingEntityModel implements HasProjectile<Projectile> {
+public class FallenStarGolemModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
 
     private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
     private final Cooldown weaponCooldown = new Cooldown();

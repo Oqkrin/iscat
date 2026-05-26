@@ -5,6 +5,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.iscat_game.lib.interfaces.model.Updatable;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel;
@@ -43,4 +44,5 @@ public class IscatDasherModel extends LivingEntityModel {
     public double getTerminalVelocity() {
         return ISCATDASHER.maxVelocity * 1.5; // Can exceed a bit during dash
     }
+
 }

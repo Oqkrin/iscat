@@ -4,8 +4,6 @@ import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.DrawableSpriteSheet;
-import uni.gaben.iscat.iscat_game.rendering.effects.ShockWaveEffect;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterSettings;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -22,7 +20,6 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
     private final Cooldown healingAnimation = new Cooldown();
-    private ShockWaveEffect shockWaveEffect = new ShockWaveEffect();
 
     public IscatHealerView() {
         spriteScale = ISCATHEALER.scale;
@@ -47,7 +44,6 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
     public void draw(IscatHealerModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
         healingAnimation.update(UU.UNIVERSE_TICK);
-        shockWaveEffect.updateAndDrawShockwave(entity, gc);
         setupGraphicsContextAndDrawContent(entity, gc, 90.0);
     }
 
@@ -57,11 +53,12 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
 
 
         if(healingAnimation.isReady()) {
-            shockWaveEffect.triggerShockwave(UU.UNIVERSE_TICK*45, UU.mToPx(HEAL_RADIUS_M), UU.mToPx(HEAL_RADIUS_M)/10, 0, false);
+            entity.shockwave().trigger(UU.UNIVERSE_TICK*45, UU.mToPx(HEAL_RADIUS_M), UU.mToPx(HEAL_RADIUS_M)/10);
             healingAnimation.start(1);
         }
 
         drawSprite(gc, x, y, width, height);
+        drawShockwave(gc, 0, 0, entity.shockwave());
         drawHpBar(entity, gc);
     }
 }

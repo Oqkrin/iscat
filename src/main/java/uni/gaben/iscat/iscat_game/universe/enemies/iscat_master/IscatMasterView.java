@@ -84,7 +84,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
                 entity.setEntranceDone(true);
                 entity.setEnabled(true);
 
-                drawShockwave(gc, cx, cy, entity.shockwave());
+                entity.shockwave().trigger(.8, 15, 7);
 
                 AudioManager.getInstance().playSFX("shockwave");
                 AudioManager.getInstance().playSFX("laugh");
@@ -96,7 +96,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
                 case ATTACK3 -> { activeSheet = attack3Sheet; activeAnimator = attack3Animator; }
                 case ATTACK4 -> { activeSheet = attack4Sheet; activeAnimator = attack4Animator; }
                 case DEATH   -> { activeSheet = deathSheet;   activeAnimator = deathAnimator;   }
-                default      -> { activeSheet = mainSheet;    activeAnimator = mainAnimator;     }
+                default      -> { activeSheet = mainSheet;    activeAnimator = mainAnimator;    }
             }
 
             activeAnimator.update(UU.UNIVERSE_TICK);
@@ -116,7 +116,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         setPos(entity);
         setAngle(entity);
         setupGraphicsContextAndDrawContent(entity, gc, 270.0);
-
+        drawShockwave(gc, 0, 0, entity.shockwave());
         if (entity.getAnimationState() != AnimationState.DEATH) {
             drawHpBar(entity, gc);
         }

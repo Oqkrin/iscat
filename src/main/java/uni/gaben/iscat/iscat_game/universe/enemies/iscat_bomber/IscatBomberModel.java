@@ -4,6 +4,7 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.iscat_game.lib.interfaces.model.Updatable;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
@@ -19,7 +20,7 @@ import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_bomber.IscatBomb
  * esternamente (da UniverseSpawner), non qui dentro.
  * Il modello espone solo i predicati di stato: {@link #isStunned()}.
  */
-public class IscatBomberModel extends LivingEntityModel {
+public class IscatBomberModel extends LivingEntityModel implements Updatable {
 
     private final Cooldown stunCooldown = new Cooldown();
 
@@ -34,6 +35,7 @@ public class IscatBomberModel extends LivingEntityModel {
 
         setMass(MassType.NORMAL);
         setLinearDamping(ISCATBOMBER.dampingLineare);
+
     }
 
     // ─── LifeDeath ──────────────────────────────────────────────────────────

@@ -70,24 +70,57 @@ public class PlayerController {
         handleDash(input, dx, dy, nextAngle);
     }
 
-    private void handleDash(GameInputs input, double dx, double dy, double nextAngle) {
-        if (input.consumeDash() || input.consumeDashMouse()) {
+    private void handleDash(
+            GameInputs input,
+            double dx,
+            double dy,
+            double nextAngle
+    ) {
+
+        if (input.consumeDash()) {
+
             dashBuffer.start(0.15);
+
+            // keyboard dash = movement-relative
             bufferedDashIsWASD = true;
         }
 
-        if (dashBuffer.isCoolingDown() && player.isScattoDisponibile()) {
-            double finalDashAngle = (bufferedDashIsWASD && (dx != 0 || dy != 0))
-                    ? Math.atan2(dy, dx)
-                    : nextAngle;
+        if (input.consumeDashMouse()) {
+
+            dashBuffer.start(0.15);
+
+            // mouse dash = aim-relative
+            bufferedDashIsWASD = false;
+        }
+
+        if (dashBuffer.isCoolingDown() &&
+                player.isScattoDisponibile()) {
+
+            double finalDashAngle;
+
+            if (bufferedDashIsWASD &&
+                    (dx != 0 || dy != 0)) {
+
+                finalDashAngle = Math.atan2(dy, dx);
+
+            } else {
+
+                finalDashAngle = nextAngle;
+            }
 
             player.getTransform().setRotation(finalDashAngle);
+
             player.setAngularVelocity(0);
+
             player.executeScatto(finalDashAngle);
+
             dashBuffer.reset();
 
-            int randFart = new Random().nextInt(3) + 1;
-            AudioManager.getInstance().playSFX("fart_alt" + randFart);
+            int randFart =
+                    new Random().nextInt(3) + 1;
+
+            AudioManager.getInstance()
+                    .playSFX("fart_alt" + randFart);
         }
     }
 
@@ -123,7 +156,7 @@ public class PlayerController {
             updateAttackPatternByLevel();
 
             shooter.shoot(player.getProjectile());
-            //currentAttack.execute(shooter, projectileTemplate, angle, customized);
+            currentAttack.execute(shooter, projectileTemplate, angle, customized);
 
             player.startCooldownFuoco();
         }

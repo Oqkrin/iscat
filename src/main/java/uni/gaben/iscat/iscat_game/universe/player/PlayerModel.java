@@ -9,6 +9,7 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
+import uni.gaben.iscat.iscat_game.lib.interfaces.model.Updatable;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.iscat_game.lib.interfaces.model.HasProjectile;
@@ -17,7 +18,7 @@ import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
-public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile> {
+public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
 
     // LEVEL SYSTEM VARIABLES
     private final IntegerProperty level = new SimpleIntegerProperty(1);

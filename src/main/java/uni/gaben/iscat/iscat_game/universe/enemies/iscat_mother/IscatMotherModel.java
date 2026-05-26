@@ -6,6 +6,7 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.iscat_game.lib.abstracts.BaseEntitySettings;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.iscat_game.lib.interfaces.model.HasProjectile;
+import uni.gaben.iscat.iscat_game.lib.interfaces.model.Updatable;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
@@ -19,7 +20,7 @@ import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother.IscatMoth
  * Contiene solo stato e predicati: la logica comportamentale
  * (sparo, spawn minioni, orda) è nel Controller.
  */
-public class IscatMotherModel extends LivingEntityModel implements HasProjectile<Projectile> {
+public class IscatMotherModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
 
     private final Cooldown fireCooldown = new Cooldown();
     private boolean hasSpawnedMinions = false;
