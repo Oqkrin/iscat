@@ -7,11 +7,12 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
+import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
 import uni.gaben.iscat.universe.player.PlayerModel;
 
 import static uni.gaben.iscat.universe.iscats.dasher.IscatDasherSettings.ISCATDASHER;
 
-public class IscatDasherModel extends LivingEntityModel {
+public class IscatDasherModel extends LivingEntityModel implements Updatable {
     public IscatDasherModel(double x, double y) {
         this(x, y, ISCATDASHER.initLife, ISCATDASHER.initLife);
     }
@@ -44,4 +45,8 @@ public class IscatDasherModel extends LivingEntityModel {
         return ISCATDASHER.maxVelocity * 1.5; // Can exceed a bit during dash
     }
 
+    @Override
+    public void update(double dt) {
+        updateLifetime(dt);
+    }
 }

@@ -6,10 +6,11 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
+import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
 
 import static uni.gaben.iscat.universe.iscats.eater.IscatEaterSettings.ISCATEATER;
 
-public class IscatEaterModel extends LivingEntityModel {
+public class IscatEaterModel extends LivingEntityModel implements Updatable {
 
     public IscatEaterModel(double x, double y) {
         super(x, y, ISCATEATER.initLife, ISCATEATER.initLife);
@@ -39,5 +40,10 @@ public class IscatEaterModel extends LivingEntityModel {
     @Override
     public double getTerminalVelocity() {
         return ISCATEATER.maxVelocity;
+    }
+
+    @Override
+    public void update(double dt) {
+        updateLifetime(dt);
     }
 }
