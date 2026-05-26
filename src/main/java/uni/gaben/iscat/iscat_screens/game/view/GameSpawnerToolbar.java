@@ -7,7 +7,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.iscat_screens.game.controller.GameController;
-import uni.gaben.iscat.iscat_game.universe.UniverseSpawnable;
+import uni.gaben.iscat.universe.UniverseSpawnable;
 
 import uni.gaben.iscat.utils.design.CssHelper;
 

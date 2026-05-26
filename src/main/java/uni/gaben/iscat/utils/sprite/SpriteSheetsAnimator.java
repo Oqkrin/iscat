@@ -5,7 +5,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 
 public class SpriteSheetsAnimator {
     private double internalTime = 0;
-    private double speedMultiplier = 1.0;
     private int currentState = 0;
 
     // Matrice di Properties: [Stato][Frame]
@@ -47,7 +46,7 @@ public class SpriteSheetsAnimator {
 
 
     public void update(double deltaTime) {
-        internalTime += deltaTime * speedMultiplier;
+        internalTime += deltaTime;
     }
 
     /**
@@ -89,7 +88,6 @@ public class SpriteSheetsAnimator {
     }
 
     public int getCurrentState() { return currentState; }
-    public void setSpeed(double speed) { this.speedMultiplier = speed; }
     public void reset() { this.internalTime = 0; }
 
     public boolean hasCompletedCycle() {

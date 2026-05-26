@@ -14,7 +14,7 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.iscat_mv_controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.iscat_model_vc.IscatViews;
-import uni.gaben.iscat.iscat_game.universe.player.PlayerSettings;
+import uni.gaben.iscat.universe.player.PlayerSettings;
 import uni.gaben.iscat.iscat_m_view_c.AnimatedCanvas;
 
 import java.util.ArrayList;

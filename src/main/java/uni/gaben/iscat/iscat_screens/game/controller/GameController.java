@@ -5,15 +5,15 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.iscat_game.universe.EnemyWaveController;
+import uni.gaben.iscat.universe.UniverseWaveController;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.iscat_game.universe.asteroid.AsteroidModel;
-import uni.gaben.iscat.iscat_game.camera.CameraModel;
+import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
+import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.iscat_model_vc.IscatViews;
 import uni.gaben.iscat.iscat_screens.game.model.GameModel;
-import uni.gaben.iscat.iscat_game.universe.UniverseController;
-import uni.gaben.iscat.iscat_game.universe.UniverseModel;
-import uni.gaben.iscat.iscat_game.universe.UniverseSpawner;
+import uni.gaben.iscat.universe.UniverseController;
+import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.AudioManager;
 
 import java.util.Random;
@@ -29,13 +29,13 @@ public class GameController {
     private StackPane contentRoot;
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
-    private EnemyWaveController waveController;
+    private UniverseWaveController waveController;
     Random random = new Random();
 
     public GameController(GameModel gameModel) {
         this.gameModel = gameModel;
         this.universeController = new UniverseController(gameModel.getUniverseModel());
-        this.waveController = new EnemyWaveController();
+        this.waveController = new UniverseWaveController();
 
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
 
@@ -133,7 +133,7 @@ public class GameController {
 
         gameModel.setUniverseModel(newUniverse);
         this.universeController = new UniverseController(newUniverse);
-        this.waveController = new EnemyWaveController();
+        this.waveController = new UniverseWaveController();
 
         UniverseSpawner.getInstance().init(newUniverse, universeController, waveController);
 
