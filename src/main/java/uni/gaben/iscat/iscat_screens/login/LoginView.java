@@ -14,14 +14,15 @@ import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.iscat_m_view_c.AbstractIscatStackPane;
 import uni.gaben.iscat.iscat_model_vc.IscatViews;
 import uni.gaben.iscat.iscat_m_view_c.AutoFittingLabel;
+import uni.gaben.iscat.iscat_screens.login.model.LoginModel;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 import java.util.stream.Stream;
 
 /**
- * Schermata di login con input custom e animazioni.
- * Usa AutoFittingLabel invece di TextField per mantenere lo stile unico.
+ * Schermata di login con componenti tipografici ed animazioni custom.
+ * Utilizza AutoFittingLabel al posto dei TextField per garantire uno stile uniforme.
  */
 public class LoginView extends AbstractIscatStackPane {
 
@@ -30,21 +31,21 @@ public class LoginView extends AbstractIscatStackPane {
     private final LoginModel model;
     private final LoginController controller;
 
-    private StackPane root;
+    private final StackPane root;
     private VBox contentBox;
 
-    // Username components
+    // Elementi grafici Username
     private AutoFittingLabel welcomeTitle;
     private AutoFittingLabel usernameLabel;
     private AutoFittingLabel usernamePlaceholder;
     private FontIcon loginIcon;
 
-    // Password components
+    // Elementi grafici Password
     private AutoFittingLabel passwordLabel;
     private AutoFittingLabel passwordPlaceholder;
     private FontIcon passwdIcon;
 
-    // Status and cursor
+    // Cursore stile Terminale Retro e Feedback di stato
     private AutoFittingLabel statusLabel;
     private Label blinkCursor;
     private Timeline blinkAnimation;
@@ -56,14 +57,12 @@ public class LoginView extends AbstractIscatStackPane {
     private HBox passwordField;
 
     public LoginView(LoginController loginController) {
-        super(new StackPane(), true); // Enable starry background
+        super(new StackPane(), true); // Attiva lo sfondo animato stellato interattivo
         this.controller = loginController;
         this.model = loginController.getLoginModel();
         this.root = getContentRoot();
 
-        // Make root transparent so stars show through
         root.setStyle("-fx-background-color: transparent;");
-
         initialize();
     }
 
@@ -74,16 +73,14 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     protected void initNodes() {
-        // Titolo
         welcomeTitle = new AutoFittingLabel(TipografiaAurea.DISPLAY[TipografiaAurea.MEDIUM], FONT, "login-title");
         welcomeTitle.setText("WELCOME TO ISCAT");
 
-        // Cursore lampeggiante
         blinkCursor = new Label("_");
         blinkCursor.getStyleClass().add("login-cursor");
         blinkCursor.setMouseTransparent(true);
 
-        // Username
+        // Username Set
         usernameLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE], FONT, "login-text");
         usernamePlaceholder = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE], FONT, "login-placeholder");
         usernamePlaceholder.setText("Nome Utente");
@@ -94,7 +91,7 @@ public class LoginView extends AbstractIscatStackPane {
         loginIcon.getStyleClass().add("login-icon");
         HBox.setMargin(loginIcon, new Insets(0, 16, 16, 16));
 
-        // Password
+        // Password Set
         passwordLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.MEDIUM], FONT, "login-text");
         passwordPlaceholder = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.MEDIUM], FONT, "login-placeholder");
         passwordPlaceholder.setText("Password");
@@ -105,12 +102,10 @@ public class LoginView extends AbstractIscatStackPane {
         passwdIcon.getStyleClass().add("login-icon");
         HBox.setMargin(passwdIcon, new Insets(0, 16, 16, 16));
 
-        // Status
         statusLabel = new AutoFittingLabel(TipografiaAurea.LABEL[TipografiaAurea.LARGE], FONT, "login-text-status");
 
-        // Label che apparirà dopo il login
         loggedInUserLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.LARGE], FONT, "login-user-success");
-        loggedInUserLabel.setOpacity(0); // Invisibile all'inizio
+        loggedInUserLabel.setOpacity(0);
         loggedInUserLabel.setManaged(false);
     }
 
@@ -118,9 +113,9 @@ public class LoginView extends AbstractIscatStackPane {
     protected void initLayout() {
         contentBox = new VBox();
         contentBox.setAlignment(Pos.CENTER);
-        contentBox.setStyle("-fx-background-color: transparent;"); // Ensure stars show through
+        contentBox.setStyle("-fx-background-color: transparent;");
 
-        // Username: HBox(label + cursor) stacked with placeholder
+        // Layout Struttura Username
         HBox usernameTextBox = new HBox(usernameLabel);
         usernameTextBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -132,7 +127,7 @@ public class LoginView extends AbstractIscatStackPane {
         usernameField.setPickOnBounds(true);
         usernameField.setOnMouseClicked(e -> model.setLoginState(false));
 
-        // Password: HBox(label + cursor) stacked with placeholder
+        // Layout Struttura Password
         HBox passwordTextBox = new HBox(passwordLabel);
         passwordTextBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -144,7 +139,7 @@ public class LoginView extends AbstractIscatStackPane {
         passwordField.setPickOnBounds(true);
         passwordField.setOnMouseClicked(e -> model.setLoginState(true));
 
-        // Cursor management
+        // Spostamento reattivo del cursore a schermo tra i due campi
         model.loginStateProperty().addListener((obs, old, isTypingPass) -> {
             usernameTextBox.getChildren().remove(blinkCursor);
             passwordTextBox.getChildren().remove(blinkCursor);
@@ -162,7 +157,7 @@ public class LoginView extends AbstractIscatStackPane {
             }
         });
 
-        // Initial cursor setup
+        // Setup iniziale del cursore lampeggiante sul primo campo
         usernameTextBox.getChildren().add(blinkCursor);
         blinkCursor.fontProperty().bind(usernameLabel.fontProperty());
         blinkCursor.textFillProperty().bind(usernameLabel.textFillProperty());
@@ -170,11 +165,10 @@ public class LoginView extends AbstractIscatStackPane {
         StackPane headerStack = new StackPane(welcomeTitle, loggedInUserLabel);
         headerStack.setAlignment(Pos.CENTER);
 
-        contentBox.getChildren().addAll(headerStack, loggedInUserLabel, usernameField, passwordField, statusLabel);
+        contentBox.getChildren().addAll(headerStack, usernameField, passwordField, statusLabel);
         contentBox.maxWidthProperty().bind(this.widthProperty().multiply(ScalareAureo.IPHI_D));
 
-        // Title settings
-        welcomeTitle.setAlignment(Pos.CENTER); // Se lo vuoi centrato
+        welcomeTitle.setAlignment(Pos.CENTER);
         welcomeTitle.maxWidthProperty().bind(contentBox.maxWidthProperty());
         welcomeTitle.setLimit(contentBox.maxWidthProperty());
 
@@ -193,11 +187,9 @@ public class LoginView extends AbstractIscatStackPane {
         passwordLabel.textProperty().bind(model.passwordProperty());
         statusLabel.textProperty().bind(model.statusProperty());
 
-        // Hide placeholders when text present
         usernamePlaceholder.visibleProperty().bind(model.usernameProperty().isEmpty());
         passwordPlaceholder.visibleProperty().bind(model.passwordProperty().isEmpty());
 
-        // Dynamic styling
         model.usernameProperty().addListener((obs, old, val) -> updateUsernameStyle());
         model.userExistsProperty().addListener((obs, old, val) -> updateUsernameStyle());
 
@@ -207,18 +199,18 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     protected void initEventHandlers() {
-        // visto che ora la classe extende StackPane non possiamo assegnare qui ma in onShow
+        // Registrati via filtri di scena globali in onShow()
     }
 
     @Override
     protected void initAnimations() {
-        // Cursor blink animation
+        // Animazione Intermittenza Cursore (_)
         blinkAnimation = new Timeline(
-            new KeyFrame(Duration.millis(530), e -> blinkCursor.setVisible(!blinkCursor.isVisible()))
+                new KeyFrame(Duration.millis(530), e -> blinkCursor.setVisible(!blinkCursor.isVisible()))
         );
         blinkAnimation.setCycleCount(Animation.INDEFINITE);
 
-        // Error flash animation
+        // Flash cromatico in caso di errore
         Timeline errorFlash = new Timeline(
                 new KeyFrame(Duration.ZERO, e -> {
                     isErrorFlashing = true;
@@ -259,6 +251,7 @@ public class LoginView extends AbstractIscatStackPane {
         welcomeTitle.setTranslateY(0);
         loggedInUserLabel.setTranslateY(0);
         super.onShow();
+
         if (blinkAnimation != null) blinkAnimation.play();
         if (getScene() != null) {
             getScene().addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
@@ -268,20 +261,15 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     public void onHide() {
-        // Esegue la pulizia centralizzata dei listener del mouse
         super.onHide();
-        // Ferma animazione cursore quando la scena viene nascosta
         if (blinkAnimation != null) {
             blinkAnimation.pause();
         }
-        // Rimuove i filtri della tastiera
         if (getScene() != null) {
             getScene().removeEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
             getScene().removeEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
         }
     }
-
-    // --- Helper methods ---
 
     private void updateUsernameStyle() {
         if (isErrorFlashing) return;
@@ -316,7 +304,7 @@ public class LoginView extends AbstractIscatStackPane {
     }
 
     private void playLoginSuccessAnimation() {
-        // 1. Spariscono i campi (Username/Password/Status)
+        // 1. Spariscono i vecchi nodi di inserimento dati
         FadeTransition fadeOutU = new FadeTransition(Duration.millis(400), usernameField);
         fadeOutU.setToValue(0);
         FadeTransition fadeOutP = new FadeTransition(Duration.millis(400), passwordField);
@@ -324,17 +312,16 @@ public class LoginView extends AbstractIscatStackPane {
         FadeTransition fadeOutS = new FadeTransition(Duration.millis(400), statusLabel);
         fadeOutS.setToValue(0);
 
-        // 2. Il titolo sale leggermente o scende (decidi tu l'offset)
+        // 2. Il titolo scorre verso l'alto
         TranslateTransition moveTitle = new TranslateTransition(Duration.millis(600), welcomeTitle);
-        moveTitle.setToY(-20); // Lo alziamo un po' per fare spazio sotto
+        moveTitle.setToY(-20);
         moveTitle.setInterpolator(Interpolator.EASE_BOTH);
 
-        // 3. Appare il nome utente scendendo
+        // 3. Il nome utente compare scorrendo verso il centro (Estratto dal SessionManager)
         loggedInUserLabel.setText(model.getUsername());
-        // NON USARE setManaged(true) qui!
 
         TranslateTransition moveLabel = new TranslateTransition(Duration.millis(600), loggedInUserLabel);
-        moveLabel.setToY(400);   // Scende sotto il titolo
+        moveLabel.setToY(400);
         moveLabel.setInterpolator(Interpolator.EASE_BOTH);
 
         FadeTransition fadeInUser = new FadeTransition(Duration.millis(500), loggedInUserLabel);
@@ -342,13 +329,12 @@ public class LoginView extends AbstractIscatStackPane {
         fadeInUser.setToValue(1);
         fadeInUser.setDelay(Duration.millis(200));
 
-        // 4. Esecuzione
+        // 4. Esecuzione simultanea dei movimenti e navigazione finale coordinata
         ParallelTransition successAnim = new ParallelTransition(
                 fadeOutU, fadeOutP, fadeOutS, moveTitle, moveLabel, fadeInUser
         );
 
         successAnim.setOnFinished(e -> IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU));
-
         successAnim.play();
     }
 }
