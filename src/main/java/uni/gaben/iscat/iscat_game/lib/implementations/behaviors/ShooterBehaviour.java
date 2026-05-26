@@ -108,7 +108,7 @@ public class ShooterBehaviour implements AiBehavior {
                 if (selected instanceof RepeaterAttack repeater) {
                     // quando è un attacco a ripetizione configura la raffica con i suoi dati personalizzati
                     currentRepeatedAttack = repeater.getInner();
-                    repeatedAttackLeft = repeater.getBursts();
+                    repeatedAttackLeft = repeater.getTimes();
                 } else {
                     // quando è un attacco standard viene eseguito e messo il cooldown lungo
                     selected.execute(shooter, bulletTemplate, angleToPlayer, bullet -> {

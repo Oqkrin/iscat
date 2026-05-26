@@ -9,16 +9,16 @@ import java.util.function.Consumer;
  */
 public class RepeaterAttack implements AttackPattern {
 
-    private final int bursts;
+    private final int times;
     private final AttackPattern inner;
 
-    public RepeaterAttack(int bursts, AttackPattern inner) {
-        this.bursts = bursts;
+    public RepeaterAttack(int times, AttackPattern inner) {
+        this.times = times;
         this.inner = inner;
     }
 
-    public int getBursts() {
-        return bursts;
+    public int getTimes() {
+        return times;
     }
 
     public AttackPattern getInner() {
