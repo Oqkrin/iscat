@@ -68,7 +68,10 @@ public class IscatCoreView extends AbstractEntityView<IscatCoreModel>
         if (entity == null) return;
 
         // Avanza il frame dell'animazione dello sprite
-        animator.update(UU.UNIVERSE_TICK*entity.getMaxLife()/entity.getLife());
+
+        double healthRatio = entity.getLife() / entity.getMaxLife();
+        double animationSpeedMultiplier = 1.0 / healthRatio;
+        animator.setTime(entity.getLifetime() * animationSpeedMultiplier);
 
 
         // Aggiorna posizione e rotazione
