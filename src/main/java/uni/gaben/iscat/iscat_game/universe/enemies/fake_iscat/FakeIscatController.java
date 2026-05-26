@@ -4,6 +4,7 @@ import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.*;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
 import uni.gaben.iscat.iscat_game.universe.attacks.MultiDirectionAttack;
+import uni.gaben.iscat.iscat_game.universe.attacks.RepeaterAttack;
 import uni.gaben.iscat.iscat_game.universe.attacks.SingleShotAttack;
 import uni.gaben.iscat.iscat_game.universe.attacks.SpreadAttack;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
@@ -45,9 +46,9 @@ public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
                 FakeIscatSettings.FAKEISCAT.fireCooldownS,
                 ProjectileType.ENEMY_BULLET,
 
-                new SingleShotAttack(),
-                new SpreadAttack(3, 30.0),
-                new MultiDirectionAttack(9, 100, new SingleShotAttack())
+                new RepeaterAttack(5, new SingleShotAttack()),               // Spara 5 colpi singoli di fila
+                new RepeaterAttack(2, new SpreadAttack(3, 30.0)),            // Spara solo 2 sventagliate di fila
+                new MultiDirectionAttack(4, 0, new SingleShotAttack())       // Questo NON è dentro un repeater, quindi fa un colpo a croce singolo!
         );
 
         this.addBehavior(shooterBehaviour);
