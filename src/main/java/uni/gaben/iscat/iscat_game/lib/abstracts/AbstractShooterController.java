@@ -1,9 +1,8 @@
 package uni.gaben.iscat.iscat_game.lib.abstracts;
 
 import org.dyn4j.collision.CollisionBody;
-import uni.gaben.iscat.iscat_game.lib.interfaces.model.HasProjectile;
 
-public abstract class AbstractShooterController<T extends CollisionBody & HasProjectile> {
+public abstract class AbstractShooterController<T extends CollisionBody> {
 
     protected T model;
 
@@ -14,5 +13,4 @@ public abstract class AbstractShooterController<T extends CollisionBody & HasPro
     public abstract void shoot(AbstractProjectileModel template);
 
     protected abstract AbstractProjectileModel shootingLogic(AbstractProjectileModel projectile);
-
 }

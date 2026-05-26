@@ -9,11 +9,6 @@ import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.CheckLineOfSight
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.SeekLineOfSightBehavior;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.DodgeProjectileBehavior;
 import uni.gaben.iscat.iscat_game.utils.UU;
-import uni.gaben.iscat.iscat_game.universe.UniverseSpawnable;
-import uni.gaben.iscat.iscat_game.universe.attacks.BurstArcAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.RadialNovaAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.SingleBurstAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.SummonAttack;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
 
@@ -22,7 +17,7 @@ import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMast
 public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
 
     private CheckLineOfSight checkLineOfSight;
-    private ShooterBehaviour<IscatMasterModel> shooterBehaviur;
+    private ShooterBehaviour shooterBehaviour;
     private SeekLineOfSightBehavior seekLineOfSight;
 
     public IscatMasterController(IscatMasterModel iscat) {
@@ -46,22 +41,18 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
                 ISCATMASTER.rotationSpeed
         ));
 
-        // Attacchi
-        shooterBehaviur = new ShooterBehaviour<IscatMasterModel>(
+        this.shooterBehaviour = new ShooterBehaviour(
                 80.0,
                 ISCATMASTER.combatRange,
                 ISCATMASTER.preferredRange,
                 ISCATMASTER.force,
                 ISCATMASTER.rotationSpeed,
                 ISCATMASTER.fireCooldownS,
-                true,
-                ProjectileType.ENEMY_BULLET,
-                new SingleBurstAttack<>(5, 0.05),
-                new RadialNovaAttack<>(20),
-                new BurstArcAttack<>(10, 0.05, 15)//,
-                //new SummonAttack<>(5, UniverseSpawnable.EATER, 80.0)
+                ProjectileType.ENEMY_BULLET
+
+                //TODO ATTACCHI
         );
-        this.addBehavior(shooterBehaviur);
+        this.addBehavior(shooterBehaviour);
 
         // Dodge
         this.addBehavior(new DodgeProjectileBehavior(ISCATMASTER.force * 1.2, 1.5));
@@ -74,17 +65,17 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
     public void aiUpdate(UniverseModel universeModel, double dt) {
         if (aiEntity.getAnimationState() == IscatMasterModel.AnimationState.DEATH) return;
         super.aiUpdate(universeModel, dt);
-        
+
         if (checkLineOfSight == null) {
             checkLineOfSight = new CheckLineOfSight(universeModel.getPlayer());
             seekLineOfSight = new SeekLineOfSightBehavior(ISCATMASTER.force, ISCATMASTER.maxVelocity);
             addBehavior(checkLineOfSight);
         } else {
             if (checkLineOfSight.hasLineOfSightWithTarget()) {
-                addBehavior(shooterBehaviur);
+                addBehavior(shooterBehaviour);
                 removeBehavior(seekLineOfSight);
             } else {
-                removeBehavior(shooterBehaviur);
+                removeBehavior(shooterBehaviour);
                 addBehavior(seekLineOfSight);
             }
         }

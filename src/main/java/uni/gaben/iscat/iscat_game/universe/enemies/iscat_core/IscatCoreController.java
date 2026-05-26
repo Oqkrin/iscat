@@ -2,22 +2,19 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_core;
 
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.*;
+import uni.gaben.iscat.iscat_game.universe.attacks2.ParallelLineAttack;
 import uni.gaben.iscat.iscat_game.utils.UU;
-import uni.gaben.iscat.iscat_game.universe.attacks.MultiDirectionAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.ParallelLineAttack;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
-/**
- * Controller di Intelligenza Artificiale per l'IscatCore (Boss Quadrato).
- * Gestisce il movimento e l'attacco rotatorio tramite il sistema a comportamenti compositi (AiBehavior).
- */
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
+
+import uni.gaben.iscat.iscat_game.universe.attacks2.MultiDirectionAttack;
 
 import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreSettings.ISCATCORE;
 
 public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
 
     private CheckLineOfSight checkLineOfSight;
-    private ShooterBehaviour<IscatCoreModel> shooterBehaviur;
+    private ShooterBehaviour shooterBehaviour;
     private SeekLineOfSightBehavior seekLineOfSight;
 
     public IscatCoreController(IscatCoreModel iscat) {
@@ -49,8 +46,7 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
                 ISCATCORE.rotationSpeed
         ));
 
-        // Attacco
-        shooterBehaviur = new ShooterBehaviour<IscatCoreModel>(
+        shooterBehaviour = new ShooterBehaviour(
                 80.0,
                 ISCATCORE.combatRange,
                 ISCATCORE.preferredRange,
@@ -61,13 +57,11 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
                     double healthPercent = iscat.getLife() / iscat.getMaxLife();
                     return ISCATCORE.fireCooldownS * Math.max(0.1, healthPercent);
                 },
-                false,
                 ProjectileType.ENEMY_BULLET,
-                new MultiDirectionAttack<>(4, 0.0,
-                        new ParallelLineAttack<>(3, IscatCoreSettings.BULLET_SPACING_M)
-                )
+
+                new MultiDirectionAttack(4, 0.0, new ParallelLineAttack(3,30))
         );
-        this.addBehavior(shooterBehaviur);
+        this.addBehavior(shooterBehaviour);
 
         // Dodge e Slam
         this.addBehavior(new DodgeProjectileBehavior(ISCATCORE.force * 1.5, 2.0));
@@ -78,17 +72,17 @@ public class IscatCoreController extends AiBehaviours<IscatCoreModel> {
     public void aiUpdate(UniverseModel universeModel, double dt) {
         if (!aiEntity.isAlive()) return;
         super.aiUpdate(universeModel, dt);
-        
+
         if (checkLineOfSight == null) {
             checkLineOfSight = new CheckLineOfSight(universeModel.getPlayer());
             seekLineOfSight = new SeekLineOfSightBehavior(ISCATCORE.force, ISCATCORE.maxVelocity);
             addBehavior(checkLineOfSight);
         } else {
             if (checkLineOfSight.hasLineOfSightWithTarget()) {
-                addBehavior(shooterBehaviur);
+                addBehavior(shooterBehaviour);
                 removeBehavior(seekLineOfSight);
             } else {
-                removeBehavior(shooterBehaviur);
+                removeBehavior(shooterBehaviour);
                 addBehavior(seekLineOfSight);
             }
         }

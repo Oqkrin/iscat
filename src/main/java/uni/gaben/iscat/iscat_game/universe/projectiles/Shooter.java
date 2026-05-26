@@ -7,17 +7,16 @@ import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractShooterController;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.iscat_game.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.iscat_game.lib.interfaces.model.LifeDeath;
 import uni.gaben.iscat.iscat_game.universe.UniverseSpawner;
 
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractShooterController<T> {
-
+public class Shooter<T extends CollisionBody> extends AbstractShooterController<T> {
     private double distance;
     private final Random random = new Random();
+
     public Shooter(T model) {
         super(model);
         if(model instanceof AbstractEntityModel aem){
@@ -81,29 +80,10 @@ public class Shooter<T extends HasProjectile & CollisionBody> extends AbstractSh
 
     private void setupProjectileAndSpawn(AbstractProjectileModel p) {
         p.setOnCollision(otherEntity -> {
-            if (p.shouldRemove()) return; // guard: evita doppia collisione nello stesso tick
+            if (p.shouldRemove()) return;
 
             if (otherEntity instanceof AbstractProjectileModel otherProj) {
-                /*
-                // Symmetrical projectile-to-projectile collision:
-                // Damage is calculated proportionally, allowing stronger projectiles to damage weaker ones
-                // while both bounce/reflect without instant annihilation.
-                double selfLife = p.getLife();
-                double otherLife = otherProj.getLife();
-
-                // Compute self-damage based on the other's life relative to self life
-                double damageToSelf = (otherLife / Math.max(0.1, selfLife));
-                p.deltaToLife(-damageToSelf);
-
-                // Symmetrical bounce reflection: reflect the incoming angle over the other's angle
-                double incoming = p.getTransform().getRotationAngle();
-                double otherAngle = otherProj.getTransform().getRotationAngle();
-                double reflected = 2 * otherAngle - incoming;
-                p.getTransform().setRotation(reflected);
-                p.setLinearVelocity(Vector2.create(p.getTerminalVelocity(), reflected));
-                */
             } else {
-                // Standard projectile-to-non-projectile collision:
                 if (otherEntity instanceof LifeDeath target) {
                     if (target instanceof LivingEntityModel lem) {
                         lem.setKilledByProjectile(true);

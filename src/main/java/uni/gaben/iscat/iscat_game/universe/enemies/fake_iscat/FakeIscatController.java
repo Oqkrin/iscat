@@ -3,16 +3,16 @@ package uni.gaben.iscat.iscat_game.universe.enemies.fake_iscat;
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.*;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
-import uni.gaben.iscat.iscat_game.utils.UU;
-import uni.gaben.iscat.iscat_game.universe.attacks.BurstArcAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.RadialNovaAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.SingleBurstAttack;
+import uni.gaben.iscat.iscat_game.universe.attacks2.MultiDirectionAttack;
+import uni.gaben.iscat.iscat_game.universe.attacks2.SingleShotAttack;
+import uni.gaben.iscat.iscat_game.universe.attacks2.SpreadAttack;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
+import uni.gaben.iscat.iscat_game.utils.UU;
 
 public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
 
     private CheckLineOfSight checkLineOfSight;
-    private ShooterBehaviour<FakeIscatModel> shooterBehaviur;
+    private ShooterBehaviour shooterBehaviour;
     private SeekLineOfSightBehavior seekLineOfSight;
 
     public FakeIscatController(FakeIscatModel iscat) {
@@ -36,22 +36,21 @@ public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
                 FakeIscatSettings.FAKEISCAT.rotationSpeed
         ));
 
-        shooterBehaviur = new ShooterBehaviour<FakeIscatModel>(
+        this.shooterBehaviour = new ShooterBehaviour(
                 80.0,
                 FakeIscatSettings.FAKEISCAT.combatRange,
                 FakeIscatSettings.FAKEISCAT.preferredRange,
                 FakeIscatSettings.FAKEISCAT.force,
                 FakeIscatSettings.FAKEISCAT.rotationSpeed,
                 FakeIscatSettings.FAKEISCAT.fireCooldownS,
-                false,
                 ProjectileType.ENEMY_BULLET,
-                new SingleBurstAttack<>(3, 0.12),
-                new RadialNovaAttack<>(15),
-                new BurstArcAttack<>(3, 0.18, 15)
+
+                new SingleShotAttack(),
+                new SpreadAttack(3, 30.0),
+                new MultiDirectionAttack(9, 100, new SingleShotAttack())
         );
 
-        // ShooterBehaviour configurato con gli attacchi specifici di FakeIscat!
-        this.addBehavior(shooterBehaviur);
+        this.addBehavior(shooterBehaviour);
 
         // Dodge behavior
         this.addBehavior(new DodgeProjectileBehavior(FakeIscatSettings.FAKEISCAT.force * 1.5, 2.0));
@@ -66,10 +65,10 @@ public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
             addBehavior(checkLineOfSight);
         } else {
             if (checkLineOfSight.hasLineOfSightWithTarget()) {
-                addBehavior(shooterBehaviur);
+                addBehavior(shooterBehaviour);
                 removeBehavior(seekLineOfSight);
             } else {
-                removeBehavior(shooterBehaviur);
+                removeBehavior(shooterBehaviour);
                 addBehavior(seekLineOfSight);
             }
         }
