@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.controller.AiController;
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.enemies.fake.FakeIscatController;
@@ -28,6 +29,7 @@ import uni.gaben.iscat.universe.enemies.bomber.IscatBomberController;
 import uni.gaben.iscat.universe.enemies.bomber.IscatBomberModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -90,6 +92,35 @@ public class UniverseSpawner {
 
             case PROJECTILE -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");
         };
+    }
+
+    public Object waveSpawn(UniverseSpawnable type, double x, double y, int playerLevel) {
+
+        Object toSpawn = switch (type) {
+            case PLAYER -> spawnPlayer(x, y);
+            case ASTEROID -> spawnStandard(AsteroidModel::new, null, x, y);
+            case ISCAT_MOB -> spawnStandard(IscatMobModel::new, IscatMobController::new, x, y);
+            case ISCAT_MOTHER -> spawnStandard(IscatMotherModel::new, IscatMotherController::new, x, y);
+            case ISCAT_BOMBER -> spawnStandard(IscatBomberModel::new, IscatBomberController::new, x, y);
+            case HEART -> spawnStandard(HeartModel::new, HeartController::new, x, y);
+            case EATER -> spawnStandard(IscatEaterModel::new, IscatEaterController::new, x, y);
+            case ISCAT_CORE -> spawnStandard(IscatCoreModel::new, IscatCoreController:: new, x, y);
+            case FAKE_ISCAT -> spawnStandard(FakeIscatModel::new, FakeIscatController::new, x, y);
+            case FALLEN_STAR_GOLEM -> spawnStandard(FallenStarGolemModel::new, FallenStarGolemController::new, x, y);
+            case ISCAT_DASHER -> spawnStandard(IscatDasherModel::new, IscatDasherController::new, x, y);
+            case ISCAT_HEALER -> spawnStandard(uni.gaben.iscat.universe.enemies.healer.IscatHealerModel::new, uni.gaben.iscat.universe.enemies.healer.IscatHealerController::new, x, y);
+            case ISCAT_MASTER -> spawnIscatMaster(x, y);
+            case WORM -> spawnWorm(x, y);
+
+            case PROJECTILE -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");
+        };;
+
+        if (toSpawn instanceof LivingEntityModel l) {
+            l.setMaxLife(l.getLife()*playerLevel);
+            l.setLife(l.getMaxLife()*playerLevel);
+        }
+
+        return toSpawn;
     }
 
     public IscatMasterModel spawnIscatMaster(double x, double y) {
