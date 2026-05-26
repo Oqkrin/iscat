@@ -8,7 +8,7 @@ import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 
-import static uni.gaben.iscat.universe.iscats.mob.IscatMobSettings.ISCATMOB;
+import static uni.gaben.iscat.universe.enemies.mob.IscatMobSettings.ISCATMOB;
 
 public class HeartModel extends LivingEntityModel {
     public HeartModel(double x, double y) {

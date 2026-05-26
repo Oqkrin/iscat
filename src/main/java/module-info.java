@@ -32,9 +32,9 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.enviroment.asteroid;
     exports uni.gaben.iscat.universe.enviroment.starfield;
     exports uni.gaben.iscat.universe.projectiles;
-    exports uni.gaben.iscat.universe.iscats.mob;
-    exports uni.gaben.iscat.universe.iscats.eater;
-    exports uni.gaben.iscat.universe.iscats.worm;
+    exports uni.gaben.iscat.universe.enemies.mob;
+    exports uni.gaben.iscat.universe.enemies.eater;
+    exports uni.gaben.iscat.universe.enemies.worm;
     exports uni.gaben.iscat.iscat_screens.options;
     exports uni.gaben.iscat.iscat_screens.main_menu;
     exports uni.gaben.iscat.utils.sprite;

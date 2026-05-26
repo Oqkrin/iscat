@@ -2,20 +2,20 @@ package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.iscats.fake.FakeIscatModel;
-import uni.gaben.iscat.universe.iscats.fallen_star_golem.FallenStarGolemModel;
-import uni.gaben.iscat.universe.iscats.core.IscatCoreModel;
-import uni.gaben.iscat.universe.iscats.dasher.IscatDasherModel;
-import uni.gaben.iscat.universe.iscats.healer.IscatHealerModel;
-import uni.gaben.iscat.universe.iscats.master.IscatMasterModel;
-import uni.gaben.iscat.universe.iscats.mother.IscatMotherModel;
+import uni.gaben.iscat.universe.enemies.fake.FakeIscatModel;
+import uni.gaben.iscat.universe.enemies.fallen_star_golem.FallenStarGolemModel;
+import uni.gaben.iscat.universe.enemies.core.IscatCoreModel;
+import uni.gaben.iscat.universe.enemies.dasher.IscatDasherModel;
+import uni.gaben.iscat.universe.enemies.healer.IscatHealerModel;
+import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
+import uni.gaben.iscat.universe.enemies.mother.IscatMotherModel;
 import uni.gaben.iscat.universe.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.iscats.eater.IscatEaterModel;
-import uni.gaben.iscat.universe.iscats.mob.IscatMobModel;
-import uni.gaben.iscat.universe.iscats.bomber.IscatBomberModel;
+import uni.gaben.iscat.universe.enemies.eater.IscatEaterModel;
+import uni.gaben.iscat.universe.enemies.mob.IscatMobModel;
+import uni.gaben.iscat.universe.enemies.bomber.IscatBomberModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.projectiles.Projectile;
-import uni.gaben.iscat.universe.iscats.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
 
 public enum UniverseSpawnable {
     PLAYER(PlayerModel.class),

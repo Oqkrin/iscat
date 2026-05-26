@@ -12,7 +12,7 @@ import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
 
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.iscats.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.player.PlayerController;
 import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldController;
