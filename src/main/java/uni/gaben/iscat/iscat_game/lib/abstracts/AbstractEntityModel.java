@@ -26,6 +26,8 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
         translate(UU.pxToM(x), UU.pxToM(y));
     }
 
+    private double lifetime = 0.0;
+
     /**
      * Permette a un agente esterno (es. Controller) di definire cosa succede all'impatto.
      */
@@ -68,4 +70,17 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
     @Override public double getBaseAccelerationPerTick() { return baseAccelerationPerTick; }
     public boolean shouldRemove() { return shouldRemove; }
     public void setShouldRemove(boolean shouldRemove) { this.shouldRemove = shouldRemove; }
+
+
+    public void updateLifetime(double dt) {
+        this.lifetime += dt;
+    }
+
+    public double getLifetime() {
+        return lifetime;
+    }
+
+    public void setLifetime(double lifetime) {
+        this.lifetime = lifetime;
+    }
 }
