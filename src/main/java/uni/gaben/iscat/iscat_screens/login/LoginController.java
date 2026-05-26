@@ -1,25 +1,34 @@
 package uni.gaben.iscat.iscat_screens.login;
 
 import javafx.scene.input.KeyEvent;
+import uni.gaben.iscat.iscat_screens.login.model.LoginAuth;
+import uni.gaben.iscat.iscat_screens.login.model.LoginModel;
+import uni.gaben.iscat.iscat_screens.login.model.LoginState;
+import uni.gaben.iscat.iscat_screens.login.model.SessionUser;
+import uni.gaben.iscat.utils.SessionManager;
+
+import java.util.Optional;
 
 /**
  * Controller per la schermata di login.
- * Gestisce input da tastiera, validazione e navigazione.
+ * Gestisce i buffer di input da tastiera, coordina lo stato della vista
+ * e delega l'autenticazione/registrazione a LoginAuth.
  */
 public class LoginController {
 
     private final LoginModel model;
-    private final LoginData loginData;
+    private final LoginAuth loginAuth;
+
     private final StringBuilder usernameBuffer = new StringBuilder();
     private final StringBuilder passwordBuffer = new StringBuilder();
 
     private LoginState currentLoginState = LoginState.USERNAME;
 
-    public LoginController(LoginModel model, LoginData loginData) {
+    public LoginController(LoginModel model, LoginAuth loginAuth) {
         this.model = model;
-        this.loginData = loginData;
+        this.loginAuth = loginAuth;
 
-        // Sincronizza stato interno con model
+        // Sincronizza lo stato logico del controller con la tipologia di focus (User o Pass)
         model.loginStateProperty().addListener((obs, old, isTypingPass) ->
                 this.currentLoginState = Boolean.TRUE.equals(isTypingPass) ? LoginState.PASSWORD : LoginState.USERNAME);
     }
@@ -33,17 +42,16 @@ public class LoginController {
     }
 
     public void onKeyTyped(KeyEvent e) {
-        String ch = e.getCharacter();
-        if (ch.isEmpty() || ch.charAt(0) < 32 || e.isControlDown()) return;
-
-        char character = ch.charAt(0);
+        String character = e.getCharacter();
+        if (character == null || character.isEmpty() || character.charAt(0) < 32 || character.charAt(0) == 127) {
+            return; // Salta caratteri non stampabili
+        }
 
         if (currentLoginState == LoginState.USERNAME) {
             usernameBuffer.append(character);
         } else {
             passwordBuffer.append(character);
         }
-
         updateDisplay();
         checkUserExistence();
     }
@@ -51,14 +59,11 @@ public class LoginController {
     private void onBackspace() {
         if (currentLoginState == LoginState.USERNAME) {
             if (!usernameBuffer.isEmpty()) {
-                usernameBuffer.deleteCharAt(usernameBuffer.length() - 1);
+                usernameBuffer.setLength(usernameBuffer.length() - 1);
             }
         } else {
             if (!passwordBuffer.isEmpty()) {
-                passwordBuffer.deleteCharAt(passwordBuffer.length() - 1);
-            } else {
-                // Backspace su password vuota torna a username
-                switchToUsername();
+                passwordBuffer.setLength(passwordBuffer.length() - 1);
             }
         }
         updateDisplay();
@@ -68,7 +73,9 @@ public class LoginController {
     private void onEnter() {
         if (currentLoginState == LoginState.USERNAME) {
             String u = usernameBuffer.toString().trim();
-            if (!u.isEmpty()) switchToPassword();
+            if (!u.isEmpty()) {
+                model.setLoginState(true); // Sposta il cursore sul campo password
+            }
         } else {
             submitLogin();
         }
@@ -76,28 +83,18 @@ public class LoginController {
 
     private void checkUserExistence() {
         String u = usernameBuffer.toString().trim();
-        boolean exists = loginData.exists(u);
+        boolean exists = loginAuth.exists(u);
         model.setUserExists(exists);
 
         if (currentLoginState == LoginState.USERNAME) {
             if (u.isEmpty()) {
                 model.setStatus("");
             } else {
-                model.setStatus(exists ? "giocatore esistente (accedi)" : "nuovo giocatore (registrati)");
+                model.setStatus(exists ? "giocatore esistente (premi INVIO)" : "nuovo giocatore (premi INVIO)");
             }
+        } else {
+            model.setStatus(exists ? "inserisci password" : "crea nuova password");
         }
-    }
-
-    private void switchToUsername() {
-        currentLoginState = LoginState.USERNAME;
-        model.setLoginState(false);
-        checkUserExistence();
-    }
-
-    private void switchToPassword() {
-        currentLoginState = LoginState.PASSWORD;
-        model.setLoginState(true);
-        model.setStatus(model.userExistsProperty().get() ? "inserisci password" : "crea nuova password");
     }
 
     private void submitLogin() {
@@ -105,22 +102,28 @@ public class LoginController {
         String p = passwordBuffer.toString();
 
         if (p.isEmpty()) return;
+        if (model.isLoggedIn()) return; // Previene input multipli ad animazione avviata
 
-        // Impediamo doppie sottomissioni durante l'animazione
-        if (model.isLoggedIn()) return;
-
-        if (loginData.exists(u)) {
-            if (loginData.checkPassword(u, p)) {
+        if (loginAuth.exists(u)) {
+            // Esegui flusso di Login standard
+            Optional<SessionUser> sessionOpt = loginAuth.login(u, p);
+            if (sessionOpt.isPresent()) {
                 model.setStatus("ACCESSO IN CORSO...");
-                // Scatena l'animazione nella Scene tramite il listener nel model
+                SessionManager.getInstance().currentUser = sessionOpt.get();
                 model.setLoggedIn(true);
             } else {
                 handleError("password errata");
             }
         } else {
-            loginData.register(u, p);
-            model.setStatus("registrazione completata!");
-            model.setLoggedIn(true);
+            // Esegui flusso di Registrazione con Login automatico integrato
+            Optional<SessionUser> sessionOpt = loginAuth.register(u, p);
+            if (sessionOpt.isPresent()) {
+                model.setStatus("registrazione completata!");
+                SessionManager.getInstance().currentUser = sessionOpt.get();
+                model.setLoggedIn(true);
+            } else {
+                handleError("errore di registrazione");
+            }
         }
     }
 
@@ -144,6 +147,6 @@ public class LoginController {
     }
 
     public LoginModel getLoginModel() {
-        return model;
+        return this.model;
     }
 }

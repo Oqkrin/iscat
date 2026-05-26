@@ -1,4 +1,7 @@
-package uni.gaben.iscat;
+package uni.gaben.iscat.database;
+
+import uni.gaben.iscat.database.interfaces.UsersQueriesInterface;
+import uni.gaben.iscat.database.sqlite.SqliteUsersQueries;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,6 +11,9 @@ public class IscatDB {
 
     private static IscatDB instance;
     private Connection connection;
+
+    // Gestione centralizzata del repository utenti
+    private UsersQueriesInterface usersQueries;
 
     private static final String URL = "jdbc:sqlite:IscatDB.db";
 
@@ -22,6 +28,8 @@ public class IscatDB {
 
     public void init() {
         connect();
+        // Inizializza il repository SUBITO DOPO aver stabilito la connessione
+        this.usersQueries = new SqliteUsersQueries();
     }
 
     private void connect() {
@@ -35,5 +43,12 @@ public class IscatDB {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    /**
+     * Ritorna l'istanza unica del repository utenti, pronta all'uso.
+     */
+    public UsersQueriesInterface getUsersQueries() {
+        return usersQueries;
     }
 }

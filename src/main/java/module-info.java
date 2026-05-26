@@ -50,4 +50,7 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.iscat_model_vc to javafx.fxml;
     exports uni.gaben.iscat.iscat_screens.game.view;
     exports uni.gaben.iscat.universe;
+    exports uni.gaben.iscat.iscat_screens.login.model;
+    exports uni.gaben.iscat.database;
+    opens uni.gaben.iscat.database to javafx.fxml;
 }

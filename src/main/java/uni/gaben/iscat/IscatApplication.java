@@ -8,6 +8,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.iscat_mv_controller.IscatViewController;
 import uni.gaben.iscat.iscat_mv_controller.IscatWindowController;
 import uni.gaben.iscat.iscat_model_vc.IscatModel;

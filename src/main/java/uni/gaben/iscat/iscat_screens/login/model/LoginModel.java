@@ -1,4 +1,4 @@
-package uni.gaben.iscat.iscat_screens.login;
+package uni.gaben.iscat.iscat_screens.login.model;
 
 import javafx.beans.property.*;
 
