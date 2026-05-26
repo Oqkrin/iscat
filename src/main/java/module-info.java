@@ -20,26 +20,26 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.iscat_m_view_c;
     exports uni.gaben.iscat.iscat_screens.game.model;
     exports uni.gaben.iscat.iscat_screens.game.controller;
-    exports uni.gaben.iscat.iscat_game.rendering;
-    exports uni.gaben.iscat.iscat_game.camera;
-    exports uni.gaben.iscat.iscat_game.lib.abstracts;
-    exports uni.gaben.iscat.iscat_game.lib.interfaces.model;
-    exports uni.gaben.iscat.iscat_game.lib.interfaces.view;
-    exports uni.gaben.iscat.iscat_game.lib.interfaces.controller;
-    exports uni.gaben.iscat.iscat_game.universe;
-    exports uni.gaben.iscat.iscat_game.universe.player;
-    exports uni.gaben.iscat.iscat_game.universe.heart;
-    exports uni.gaben.iscat.iscat_game.universe.asteroid;
-    exports uni.gaben.iscat.iscat_game.universe.starfield;
-    exports uni.gaben.iscat.iscat_game.universe.projectiles;
-    exports uni.gaben.iscat.iscat_game.universe.iscats.mob;
-    exports uni.gaben.iscat.iscat_game.universe.iscats.eater;
-    exports uni.gaben.iscat.iscat_game.universe.iscats.worm;
+    exports uni.gaben.iscat.universe.rendering;
+    exports uni.gaben.iscat.universe.camera;
+    exports uni.gaben.iscat.universe.lib.abstracts;
+    exports uni.gaben.iscat.universe.lib.interfaces.model;
+    exports uni.gaben.iscat.universe.lib.interfaces.view;
+    exports uni.gaben.iscat.universe.lib.interfaces.controller;
+    exports uni.gaben.iscat.universe.universe;
+    exports uni.gaben.iscat.universe.player;
+    exports uni.gaben.iscat.universe.consumables.heart;
+    exports uni.gaben.iscat.universe.enviroment.asteroid;
+    exports uni.gaben.iscat.universe.enviroment.starfield;
+    exports uni.gaben.iscat.universe.projectiles;
+    exports uni.gaben.iscat.universe.iscats.mob;
+    exports uni.gaben.iscat.universe.iscats.eater;
+    exports uni.gaben.iscat.universe.iscats.worm;
     exports uni.gaben.iscat.iscat_screens.options;
     exports uni.gaben.iscat.iscat_screens.main_menu;
     exports uni.gaben.iscat.utils.sprite;
     exports uni.gaben.iscat.iscat_mv_controller;
-    exports uni.gaben.iscat.iscat_game.lib.implementations.attacks;
+    exports uni.gaben.iscat.universe.lib.implementations.attacks;
 
 
     opens uni.gaben.iscat.utils.sprite to javafx.fxml;
@@ -48,6 +48,7 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.iscat_mv_controller to javafx.fxml;
     exports uni.gaben.iscat.iscat_model_vc;
     opens uni.gaben.iscat.iscat_model_vc to javafx.fxml;
-    exports uni.gaben.iscat.iscat_game.utils;
+    exports uni.gaben.iscat.universe.utils;
     exports uni.gaben.iscat.iscat_screens.game.view;
+    exports uni.gaben.iscat.universe;
 }

@@ -7,7 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.iscat_game.universe.iscats.worm.IscatWormSettings;
+import uni.gaben.iscat.universe.iscats.worm.IscatWormSettings;
 import uni.gaben.iscat.iscat_m_view_c.AnimatedCanvas;
 import uni.gaben.iscat.iscat_model_vc.IscatViews;
 import uni.gaben.iscat.iscat_mv_controller.IscatFxmlController;
@@ -15,9 +15,9 @@ import uni.gaben.iscat.iscat_mv_controller.IscatFxmlController;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static uni.gaben.iscat.iscat_game.universe.iscats.dasher.IscatDasherSettings.ISCATDASHER;
-import static uni.gaben.iscat.iscat_game.universe.iscats.eater.IscatEaterSettings.ISCATEATER;
-import static uni.gaben.iscat.iscat_game.universe.iscats.mob.IscatMobSettings.ISCATMOB;
+import static uni.gaben.iscat.universe.iscats.dasher.IscatDasherSettings.ISCATDASHER;
+import static uni.gaben.iscat.universe.iscats.eater.IscatEaterSettings.ISCATEATER;
+import static uni.gaben.iscat.universe.iscats.mob.IscatMobSettings.ISCATMOB;
 
 public class BestiaryMenuController implements IscatFxmlController {
 

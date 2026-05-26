@@ -4,9 +4,9 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.iscat_game.universe.starfield.StarfieldModel;
-import uni.gaben.iscat.iscat_game.universe.starfield.StarfieldView;
-import uni.gaben.iscat.iscat_game.universe.starfield.StarModel;
+import uni.gaben.iscat.universe.enviroment.starfield.StarfieldModel;
+import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
+import uni.gaben.iscat.universe.enviroment.starfield.StarModel;
 import uni.gaben.iscat.utils.ThemeManager;
 
 import java.util.Random;

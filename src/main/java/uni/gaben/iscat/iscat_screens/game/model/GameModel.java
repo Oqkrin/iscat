@@ -2,8 +2,8 @@ package uni.gaben.iscat.iscat_screens.game.model;
 
 import javafx.beans.property.*;
 
-import uni.gaben.iscat.iscat_game.universe.UniverseModel;
-import uni.gaben.iscat.iscat_game.camera.CameraModel;
+import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.camera.CameraModel;
 
 /**
  * Modello dello stato globale di Gamenex.
