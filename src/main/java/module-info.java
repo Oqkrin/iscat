@@ -39,7 +39,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.iscat_screens.main_menu;
     exports uni.gaben.iscat.utils.sprite;
     exports uni.gaben.iscat.iscat_mv_controller;
-    exports uni.gaben.iscat.iscat_game.universe.attacks2;
+    exports uni.gaben.iscat.iscat_game.universe.attacks;
 
 
     opens uni.gaben.iscat.utils.sprite to javafx.fxml;

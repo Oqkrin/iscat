@@ -1,4 +1,4 @@
-package uni.gaben.iscat.iscat_game.universe.attacks2;
+package uni.gaben.iscat.iscat_game.universe.attacks;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;

@@ -1,7 +1,7 @@
 package uni.gaben.iscat.iscat_game.universe.player;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.iscat_game.universe.attacks2.*;
+import uni.gaben.iscat.iscat_game.universe.attacks.*;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.iscat_screens.game.controller.GameInputs;
 import uni.gaben.iscat.iscat_game.utils.UU;

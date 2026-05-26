@@ -4,7 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.iscat_game.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
-import uni.gaben.iscat.iscat_game.universe.attacks2.AttackPattern; // <--- ORA USA IL NUOVO SISTEMA DEL PLAYER
+import uni.gaben.iscat.iscat_game.universe.attacks.AttackPattern; // <--- ORA USA IL NUOVO SISTEMA DEL PLAYER
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
