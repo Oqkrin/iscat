@@ -38,7 +38,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
                                 * ISCATMASTER.scale / 2.0 * 0.9)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
-        setMass(MassType.NORMAL);
+        setMass(MassType.FIXED_ANGULAR_VELOCITY);
         setLinearDamping(ISCATMASTER.dampingLineare);
 
         // Collisioni disabilitate finché l'entrata non è completata

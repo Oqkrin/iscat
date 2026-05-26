@@ -1,16 +1,14 @@
 package uni.gaben.iscat.iscat_game.universe.enemies.iscat_master;
 
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
-import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.SeparationBehavior;
-import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.WanderBehavior;
-import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.ChaseBehavior;
-import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.ShooterBehaviour;
-import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.CheckLineOfSight;
-import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.SeekLineOfSightBehavior;
-import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.DodgeProjectileBehavior;
+import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.*;
+import uni.gaben.iscat.iscat_game.universe.UniverseSpawnable;
+import uni.gaben.iscat.iscat_game.universe.attacks.*;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
+
+import java.util.Random;
 
 import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterSettings.ISCATMASTER;
 
@@ -19,6 +17,8 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
     private CheckLineOfSight checkLineOfSight;
     private ShooterBehaviour shooterBehaviour;
     private SeekLineOfSightBehavior seekLineOfSight;
+
+    Random rand = new Random();
 
     public IscatMasterController(IscatMasterModel iscat) {
         super(iscat);
@@ -33,12 +33,11 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
         ));
 
         // Chase
-        this.addBehavior(new ChaseBehavior(
+        addBehavior(new OrbitPlayerBehavior(
                 ISCATMASTER.force,
                 ISCATMASTER.maxVelocity,
-                ISCATMASTER.detectionRange,
-                50.0,
-                ISCATMASTER.rotationSpeed
+                (ISCATMASTER.preferredRange+ISCATMASTER.preferredRange)/2,
+                false
         ));
 
         this.shooterBehaviour = new ShooterBehaviour(
@@ -48,10 +47,16 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
                 ISCATMASTER.force,
                 ISCATMASTER.rotationSpeed,
                 ISCATMASTER.fireCooldownS,
-                ProjectileType.ENEMY_BULLET
+                ProjectileType.ENEMY_BULLET,
+                new RepeaterAttack(3,new SummonAttack(1, UniverseSpawnable.ISCAT_DASHER,0)),
+                new RepeaterAttack(3,new SummonAttack(1, UniverseSpawnable.ISCAT_HEALER,0)),
+                new RepeaterAttack(3,new SummonAttack(1, UniverseSpawnable.ISCAT_CORE,0)),
 
-                //TODO ATTACCHI
-        );
+                new RepeaterAttack(5, new MultiDirectionAttack(3, rand.nextInt(90),
+                        new SpreadAttack(rand.nextInt((int) ISCATMASTER.combatRange)/3, rand.nextInt(180))))
+                );
+
+        new RepeaterAttack(3, new FigureAttack(3, FigureAttack.FigureType.STAR));
         this.addBehavior(shooterBehaviour);
 
         // Dodge

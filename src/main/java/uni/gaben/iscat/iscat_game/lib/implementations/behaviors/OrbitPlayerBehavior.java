@@ -11,11 +11,13 @@ public class OrbitPlayerBehavior implements AiBehavior {
     private final double force;
     private final double maxVelocity;
     private final double orbitRadius;
+    private final boolean rotateToPlayer;
 
-    public OrbitPlayerBehavior(double force, double maxVelocity, double orbitRadius) {
+    public OrbitPlayerBehavior(double force, double maxVelocity, double orbitRadius, boolean rotateToPlayer) {
         this.force = force;
         this.maxVelocity = maxVelocity;
         this.orbitRadius = orbitRadius;
+        this.rotateToPlayer = rotateToPlayer;
     }
 
     @Override
@@ -49,8 +51,8 @@ public class OrbitPlayerBehavior implements AiBehavior {
 
         Vector2 steering = desiredVelocity.subtract(npc.getLinearVelocity());
         
-        // Face movement direction
-        if (desiredVelocity.getMagnitudeSquared() > 0.1) {
+
+        if (desiredVelocity.getMagnitudeSquared() > 0.1 && rotateToPlayer) {
             double targetRot = desiredVelocity.getDirection();
             double cur = npc.getTransform().getRotationAngle();
             double diff = targetRot - cur;

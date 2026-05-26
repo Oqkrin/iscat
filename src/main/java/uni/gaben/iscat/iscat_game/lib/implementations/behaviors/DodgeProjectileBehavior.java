@@ -17,7 +17,7 @@ public class DodgeProjectileBehavior implements AiBehavior {
 
     private final double dodgeForce;
     private final double postDodgeCooldownSeconds;
-    private final double detectionRadius = 15.0; // Distanza a cui vede il proiettile
+    private final double detectionRadius = 10.0; // Distanza a cui vede il proiettile
     private final Cooldown dodgeCooldown = new Cooldown();
     
     public DodgeProjectileBehavior(double dodgeForce, double cooldownSeconds, double postDodgeCooldownSeconds) {
