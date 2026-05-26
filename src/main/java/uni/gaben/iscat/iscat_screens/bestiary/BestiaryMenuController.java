@@ -72,26 +72,15 @@ public class BestiaryMenuController implements IscatFxmlController {
                     64,
                     64,
                     """
-                    Iscat, Macchina e Roccia.
-
-                    Che cos'è quest'abominio?
-
-                    Sembra sprizzare magia,
-                    ma non c'è nulla di naturale in lui.
-
-                    Un omuncolo frutto del malsano ingegno del Maestro
-                    nella sua ricerca perpetua dell'immortalità.
-
-                    Le Madri degli Iscat vengono sfruttate,
-                    curate e torturate.
-
-                    Dal loro dolore nascono i Cometa Golem,
-                    mentre la loro linfa magica viene estratta
-                    per sostenere il Maestro.
-
-                    Iscat Core è il risultato finale:
-                    chimere magiche, meccaniche...
-                    ma ancora vive.
+                    Iscat, Macchina e Roccia che cos'è quest'abominio.
+                    Sembra sprizzare magia ma non c'è nulla naturale in lui,
+                    Un omuncolo frutto del malsano ingegno del maestro nella sua ricerca perpetua dell'immortalità
+                    la spiraleggiante effimerezza dei golem è riuscito ad imbrigliare la creazione di questa nuova specie molti pensano sia solo il bisogno logistico di un esercito, 
+                    ma da dove nasce un iscat cosa proteggono i golem domande che un giovane maestro ha risolto, 
+                    ora in zone remote dell'universo le madri degli iscat vengono sfruttate curate e torturate e con esse la loro prole, 
+                    e da cotanto dolore i cometa golem arrivano da ogni dove in massa; parte della loro linfa magica estratta per sostenere il maestro; 
+                    ormai vacui e deboli vengono ammassati e compressati insieme agli iscat che volevano proteggere fusi nelle immonde creature che sono gli iscat core 
+                    chimere magiche meccaniche ma vive, questo barlume di vita e magia sprizza via nei suoi ultimi momenti
                     """
             )),
 
@@ -166,7 +155,7 @@ public class BestiaryMenuController implements IscatFxmlController {
                     dallo spazio profondo
                     quando gli Iscat sono in pericolo.
 
-                    Ma perché li proteggono?
+                    perché?
                     """
             )),
 
@@ -201,12 +190,12 @@ public class BestiaryMenuController implements IscatFxmlController {
                     (int) IscatWormSettings.DIM_SPRITE,
                     (int) IscatWormSettings.DIM_SPRITE,
                     """
-                            Il comandante del sistema ISCAT_WORM.EXE.
-                            
-                            Iscat Worm Head dirige tutte le parti del corpo
-                            e decide la direzione da percorrere.
-                            
-                            Viaggia per lo spazio senza meta,
+                    Il comandante del sistema ISCAT_WORM.EXE.
+
+                    Iscat Worm Head dirige tutte le parti del corpo
+                    e decide la direzione da percorrere.
+                    
+                    Viaggia per lo spazio senza meta,
                     attaccando chiunque definisca
                     una possibile fonte di cibo.
 
