@@ -36,7 +36,16 @@ public class BestiaryMenuController implements IscatFxmlController {
             Map.entry("iscat_mother", new BestiaryMenuController.Enemy("Iscat Mother", BASE + "iscat_mother.png",
                     128, 128, "Descrizione Iscat Mother")),
             Map.entry("fake_iscat", new BestiaryMenuController.Enemy("Fake Iscat", BASE + "fake_iscat.png",
-                    32, 32, "Descrizione Fake Iscat")),
+                    32, 32, "Descrizione Fake Iscat\n" +
+                    "Era una tranquilla giornata d'autunno quando Fake passeggiava tra i campi ricoperti di brina del suo paese. " +
+                    "Improvvisamente, una luce intensa lo avvolse completamente, trascinandolo in un luogo sconosciuto. " +
+                    "Al suo risveglio si ritrovò all'interno di una struttura simile a un uovo. Una volta uscito, il suo corpo era cambiato: " +
+                    "una fusione anomala tra un Iscat e una forma di vita aliena.\n\n" +
+                    "Fake Iscat è considerato un'entità potenzialmente pericolosa e deve essere mantenuto sotto stretta osservazione. " +
+                    "Deve essere contenuto in una cella rinforzata d'acciaio, monitorata 24 ore su 24, 7 giorni su 7. " +
+                    "Nel suo arsenale possiede tre differenti tipi di attacco, rendendolo un avversario imprevedibile.\n\n" +
+                    "Molti Space Explorer lo classificano come un mini-boss, anche se ufficialmente tale denominazione non è riconosciuta."
+            )),
             Map.entry("fallen_star_golem", new BestiaryMenuController.Enemy("Fallen Star Golem", BASE + "fallen_star_golem.png",
                     64, 64, "Descrizione Fallen Star Golem\nSpiraleggianti creature? o rocce?\nsembrano arrivare come una stella cadente dallo spazio profondo quando gli iscat sono in pericolo ma perché?")),
             Map.entry("eater", new BestiaryMenuController.Enemy("Eater", BASE + "eater.png",
