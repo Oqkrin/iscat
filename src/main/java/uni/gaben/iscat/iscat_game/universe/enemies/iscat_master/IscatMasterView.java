@@ -23,7 +23,6 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     private static final String PATH_ATTACK3  = "/uni/gaben/iscat/sprites/enemies/iscat_master_attack3.png";
     private static final String PATH_ATTACK4  = "/uni/gaben/iscat/sprites/enemies/iscat_master_attack4.png";
     private static final String PATH_DEATH    = "/uni/gaben/iscat/sprites/enemies/iscat_master_death.png";
-
     private final SpriteSheetsParser mainSheet;
     private final SpriteSheetsParser entranceSheet;
     private final SpriteSheetsParser attack1Sheet;
@@ -75,6 +74,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     public void draw(IscatMasterModel entity, GraphicsContext gc) {
         if (entity == null) return;
 
+
         if (!entity.isEntranceDone()) {
             activeSheet    = entranceSheet;
             activeAnimator = entranceAnimator;
@@ -84,7 +84,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
                 entity.setEntranceDone(true);
                 entity.setEnabled(true);
 
-                triggerShockwave(0.8, 1500.0, 10.0, 15.0, true);
+                drawShockwave(gc, cx, cy, entity.shockwave());
 
                 AudioManager.getInstance().playSFX("shockwave");
                 AudioManager.getInstance().playSFX("laugh");

@@ -30,6 +30,7 @@ public class GameController {
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
     private EnemyWaveController waveController;
+    Random random = new Random();
 
     public GameController(GameModel gameModel) {
         this.gameModel = gameModel;
@@ -161,7 +162,6 @@ public class GameController {
     }
 
     private void spawnInitialAsteroidBelts(UniverseModel universe, double centerX, double centerY) {
-        Random random = new Random();
         for (int clump = 0; clump < 6; clump++) {
             double angle = (clump * (Math.PI * 2.0 / 6.0)) + (Math.random() * 0.5);
             double dist = 600.0 + Math.random() * 1200.0;

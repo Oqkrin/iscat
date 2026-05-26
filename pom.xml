@@ -58,6 +58,11 @@
             <artifactId>dyn4j</artifactId>
             <version>5.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.45.3.0</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -9,8 +9,6 @@ import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.iscat_mv_controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.iscat_model_vc.IscatViews;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterSettings;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobSettings;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_worm.IscatWormSettings;
 import uni.gaben.iscat.iscat_m_view_c.AnimatedCanvas;
 

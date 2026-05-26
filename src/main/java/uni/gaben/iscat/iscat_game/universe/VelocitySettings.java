@@ -18,7 +18,7 @@ public final class VelocitySettings {
     // ─── PROJECTILES ──────────────────────────────────────────────────────────
 
     /** Velocity of a player bullet (m/s). */
-    public static final double PLAYER_BULLET_VELOCITY = 10.0;
+    public static final double PLAYER_BULLET_VELOCITY = 12.0;
 
     /** Velocity of a generic enemy bullet (m/s). */
     public static final double ENEMY_BULLET_VELOCITY  = PLAYER_BULLET_VELOCITY * .8;

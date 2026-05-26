@@ -21,6 +21,6 @@ public class IscatDasherController extends AiBehaviours<IscatDasherModel> {
         this.addBehavior(new DodgeProjectileBehavior(ISCATDASHER.force * 2.5, 0, 1));
 
         // Plunge Attack (duration 0.8s)
-        this.addBehavior(new PlungeAttackBehavior(5.0, ISCATDASHER.force * 3.0, 1, 2));
+        this.addBehavior(new PlungeAttackBehavior(5.0, ISCATDASHER.force * 3.0, 1, 1));
     }
 }

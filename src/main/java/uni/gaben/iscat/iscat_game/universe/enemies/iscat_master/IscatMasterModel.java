@@ -3,6 +3,8 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_master;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
+import uni.gaben.iscat.iscat_game.rendering.effects.HasShockwave;
+import uni.gaben.iscat.iscat_game.rendering.effects.ShockwaveModel;
 import uni.gaben.iscat.iscat_game.universe.EnemyWaveController;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.iscat_game.lib.interfaces.model.HasProjectile;
@@ -14,10 +16,16 @@ import uni.gaben.iscat.utils.Cooldown;
 
 import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterSettings.ISCATMASTER;
 
-public class IscatMasterModel extends LivingEntityModel implements HasProjectile<Projectile> {
+public class IscatMasterModel extends LivingEntityModel implements HasProjectile<Projectile>, HasShockwave {
 
     private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
     private final Cooldown weaponCooldown = new Cooldown();
+    private final ShockwaveModel shockwaveModel = new ShockwaveModel();
+
+    @Override
+    public ShockwaveModel shockwave() {
+        return shockwaveModel;
+    }
 
     public enum AnimationState { IDLE, ATTACK1, ATTACK2, ATTACK3, ATTACK4, DEATH }
     private AnimationState animationState = AnimationState.IDLE;
@@ -47,6 +55,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
 
     public void update(double dt) {
         weaponCooldown.update(dt);
+        shockwaveModel.update(dt);
     }
 
     // ── ANIMATION STATE ───────────────────────────────────────────────────────
