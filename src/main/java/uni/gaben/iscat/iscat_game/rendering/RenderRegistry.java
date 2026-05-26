@@ -4,17 +4,17 @@ import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.universe.UniverseSpawnable;
 import uni.gaben.iscat.iscat_game.universe.asteroid.AsteroidView;
-import uni.gaben.iscat.iscat_game.universe.enemies.fake_iscat.FakeIscatView;
-import uni.gaben.iscat.iscat_game.universe.enemies.fallen_star_golem.FallenStarGolemView;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreView;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterView;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother.IscatMotherView;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_worm.IscatWormSegment;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_worm.IscatWormView;
+import uni.gaben.iscat.iscat_game.universe.iscats.fake.FakeIscatView;
+import uni.gaben.iscat.iscat_game.universe.iscats.fallen_star_golem.FallenStarGolemView;
+import uni.gaben.iscat.iscat_game.universe.iscats.core.IscatCoreView;
+import uni.gaben.iscat.iscat_game.universe.iscats.master.IscatMasterView;
+import uni.gaben.iscat.iscat_game.universe.iscats.mother.IscatMotherView;
+import uni.gaben.iscat.iscat_game.universe.iscats.worm.IscatWormSegment;
+import uni.gaben.iscat.iscat_game.universe.iscats.worm.IscatWormView;
 import uni.gaben.iscat.iscat_game.universe.heart.HeartView;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterView;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobView;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_bomber.IscatBomberView;
+import uni.gaben.iscat.iscat_game.universe.iscats.eater.IscatEaterView;
+import uni.gaben.iscat.iscat_game.universe.iscats.mob.IscatMobView;
+import uni.gaben.iscat.iscat_game.universe.iscats.bomber.IscatBomberView;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerView;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileView;
 
@@ -62,8 +62,8 @@ public class RenderRegistry {
             case ISCAT_CORE -> new IscatCoreView();
             case FAKE_ISCAT -> new FakeIscatView();
             case FALLEN_STAR_GOLEM -> new FallenStarGolemView();
-            case ISCAT_DASHER -> new uni.gaben.iscat.iscat_game.universe.enemies.iscat_dasher.IscatDasherView();
-            case ISCAT_HEALER -> new uni.gaben.iscat.iscat_game.universe.enemies.iscat_healer.IscatHealerView();
+            case ISCAT_DASHER -> new uni.gaben.iscat.iscat_game.universe.iscats.dasher.IscatDasherView();
+            case ISCAT_HEALER -> new uni.gaben.iscat.iscat_game.universe.iscats.healer.IscatHealerView();
             case ISCAT_MASTER -> new IscatMasterView();
             case WORM -> (Drawable<IscatWormSegment>) (segment, gc) ->
                     IscatWormView.forType(segment.getType()).draw(segment, gc);

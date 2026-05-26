@@ -4,7 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.iscat_game.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.iscat_game.universe.UniverseSpawnable;
 import uni.gaben.iscat.iscat_game.universe.UniverseSpawner;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.master.IscatMasterModel;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel; // Importiamo il player
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Shooter;

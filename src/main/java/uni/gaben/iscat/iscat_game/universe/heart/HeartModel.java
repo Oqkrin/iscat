@@ -7,10 +7,8 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.iscat_game.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobSettings;
 
-import static uni.gaben.iscat.iscat_game.universe.enemies.fake_iscat.FakeIscatSettings.FAKEISCAT;
-import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobSettings.ISCATMOB;
+import static uni.gaben.iscat.iscat_game.universe.iscats.mob.IscatMobSettings.ISCATMOB;
 
 public class HeartModel extends LivingEntityModel {
     public HeartModel(double x, double y) {

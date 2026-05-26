@@ -2,20 +2,20 @@ package uni.gaben.iscat.iscat_game.universe;
 
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.iscat_game.universe.asteroid.AsteroidModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.fake_iscat.FakeIscatModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.fallen_star_golem.FallenStarGolemModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_dasher.IscatDasherModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_healer.IscatHealerModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mother.IscatMotherModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.fake.FakeIscatModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.fallen_star_golem.FallenStarGolemModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.core.IscatCoreModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.dasher.IscatDasherModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.healer.IscatHealerModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.master.IscatMasterModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.mother.IscatMotherModel;
 import uni.gaben.iscat.iscat_game.universe.heart.HeartModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_mob.IscatMobModel;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_bomber.IscatBomberModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.eater.IscatEaterModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.mob.IscatMobModel;
+import uni.gaben.iscat.iscat_game.universe.iscats.bomber.IscatBomberModel;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
-import uni.gaben.iscat.iscat_game.universe.enemies.iscat_worm.IscatWormSegment;
+import uni.gaben.iscat.iscat_game.universe.iscats.worm.IscatWormSegment;
 
 public enum UniverseSpawnable {
     PLAYER(PlayerModel.class),
