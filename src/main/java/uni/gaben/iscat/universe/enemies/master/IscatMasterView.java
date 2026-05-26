@@ -16,97 +16,76 @@ import static uni.gaben.iscat.universe.enemies.master.IscatMasterModel.Animation
 public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         implements Drawable<IscatMasterModel>, DrawableSpriteSheet {
 
-    private static final String PATH_MAIN     = "/uni/gaben/iscat/sprites/enemies/iscat_master.png";
-    private static final String PATH_ENTRANCE = "/uni/gaben/iscat/sprites/enemies/iscat_master_entrance.png";
-    private static final String PATH_ATTACK1  = "/uni/gaben/iscat/sprites/enemies/iscat_master_attack1.png";
-    private static final String PATH_ATTACK2  = "/uni/gaben/iscat/sprites/enemies/iscat_master_attack2.png";
-    private static final String PATH_ATTACK3  = "/uni/gaben/iscat/sprites/enemies/iscat_master_attack3.png";
-    private static final String PATH_ATTACK4  = "/uni/gaben/iscat/sprites/enemies/iscat_master_attack4.png";
-    private static final String PATH_DEATH    = "/uni/gaben/iscat/sprites/enemies/iscat_master_death.png";
-    private final SpriteSheetsParser mainSheet;
-    private final SpriteSheetsParser entranceSheet;
-    private final SpriteSheetsParser attack1Sheet;
-    private final SpriteSheetsParser attack2Sheet;
-    private final SpriteSheetsParser attack3Sheet;
-    private final SpriteSheetsParser attack4Sheet;
-    private final SpriteSheetsParser deathSheet;
+    private static final String PATH_SINGLE_SHEET = "/uni/gaben/iscat/sprites/enemies/iscat_master.png";
 
-    private final SpriteSheetsAnimator mainAnimator;
-    private final SpriteSheetsAnimator entranceAnimator;
-    private final SpriteSheetsAnimator attack1Animator;
-    private final SpriteSheetsAnimator attack2Animator;
-    private final SpriteSheetsAnimator attack3Animator;
-    private final SpriteSheetsAnimator attack4Animator;
-    private final SpriteSheetsAnimator deathAnimator;
+    private final SpriteSheetsParser masterSheet;
+    private final SpriteSheetsAnimator masterAnimator;
 
-    private SpriteSheetsParser activeSheet;
-    private SpriteSheetsAnimator activeAnimator;
+    private boolean deathSfxTriggered = false;
+    private int lastRow = -1;
 
     public IscatMasterView() {
         spriteScale = IscatMasterSettings.ISCATMASTER.scale;
-        mainSheet     = load(PATH_MAIN);
-        entranceSheet = load(PATH_ENTRANCE);
-        attack1Sheet  = load(PATH_ATTACK1);
-        attack2Sheet  = load(PATH_ATTACK2);
-        attack3Sheet  = load(PATH_ATTACK3);
-        attack4Sheet  = load(PATH_ATTACK4);
-        deathSheet    = load(PATH_DEATH);
 
-        mainAnimator     = animator(mainSheet);
-        entranceAnimator = animator(entranceSheet);
-        attack1Animator  = animator(attack1Sheet);
-        attack2Animator  = animator(attack2Sheet);
-        attack3Animator  = animator(attack3Sheet);
-        attack4Animator  = animator(attack4Sheet);
-        deathAnimator    = animator(deathSheet);
+        masterSheet = SpritesLibrary.getInstance().getSprite(
+                PATH_SINGLE_SHEET,
+                (int) ISCATMASTER.dimSprite,
+                (int) ISCATMASTER.dimSprite
+        );
 
-        activeSheet    = entranceSheet;
-        activeAnimator = entranceAnimator;
+        masterAnimator = new SpriteSheetsAnimator(
+                1.0 / 6.0,
+                masterSheet != null ? masterSheet.getTotalFrames() : 1,
+                masterSheet != null ? masterSheet.getTotalStates() : 1
+        );
     }
 
-    private SpriteSheetsParser load(String path) { return SpritesLibrary.getInstance().getSprite(path, (int) ISCATMASTER.dimSprite, (int) ISCATMASTER.dimSprite); }
-    private SpriteSheetsAnimator animator(SpriteSheetsParser sheet) { return new SpriteSheetsAnimator(1.0 / 6.0, sheet != null ? sheet.getTotalFrames() : 1, sheet != null ? sheet.getTotalStates() : 1); }
-
-    @Override public SpriteSheetsParser getSpriteSheet() { return activeSheet; }
-    @Override public SpriteSheetsAnimator getAnimator() { return activeAnimator; }
+    @Override public SpriteSheetsParser getSpriteSheet() { return masterSheet; }
+    @Override public SpriteSheetsAnimator getAnimator() { return masterAnimator; }
 
     @Override
     public void draw(IscatMasterModel entity, GraphicsContext gc) {
         if (entity == null) return;
 
+        int targetRow;
+        int maxFrames;
 
         if (!entity.isEntranceDone()) {
-            activeSheet    = entranceSheet;
-            activeAnimator = entranceAnimator;
-            entranceAnimator.update(UU.UNIVERSE_TICK);
+            targetRow = 0;
+            maxFrames = 22;
 
-            if (entranceAnimator.hasCompletedCycle()) {
+            updateAnimatorState(targetRow);
+            masterAnimator.update(UU.UNIVERSE_TICK);
+
+            if (isRowCycleCompleted(maxFrames)) {
                 entity.setEntranceDone(true);
                 entity.setEnabled(true);
-
                 entity.shockwave().trigger(.8, 15, 7);
 
                 AudioManager.getInstance().playSFX("shockwave");
                 AudioManager.getInstance().playSFX("laugh");
+
+                updateAnimatorState(1);
             }
         } else {
-            switch (entity.getAnimationState()) {
-                case ATTACK1 -> { activeSheet = attack1Sheet; activeAnimator = attack1Animator; }
-                case ATTACK2 -> { activeSheet = attack2Sheet; activeAnimator = attack2Animator; }
-                case ATTACK3 -> { activeSheet = attack3Sheet; activeAnimator = attack3Animator; }
-                case ATTACK4 -> { activeSheet = attack4Sheet; activeAnimator = attack4Animator; }
-                case DEATH   -> { activeSheet = deathSheet;   activeAnimator = deathAnimator;   }
-                default      -> { activeSheet = mainSheet;    activeAnimator = mainAnimator;    }
+            AnimationState modelState = entity.getAnimationState();
+            targetRow = mapStateToRow(modelState);
+            maxFrames = getFramesCountForRow(targetRow);
+
+            updateAnimatorState(targetRow);
+            masterAnimator.update(UU.UNIVERSE_TICK);
+
+            if (modelState == AnimationState.DEATH && !deathSfxTriggered) {
+                deathSfxTriggered = true;
+                AudioManager.getInstance().playSFX("shockwave");
             }
 
-            activeAnimator.update(UU.UNIVERSE_TICK);
-            AnimationState state = entity.getAnimationState();
-
-            if (state != AnimationState.IDLE && state != AnimationState.DEATH && activeAnimator.hasCompletedCycle()) {
-                activeAnimator.reset();
+            if (modelState != AnimationState.IDLE && modelState != AnimationState.DEATH && isRowCycleCompleted(maxFrames)) {
+                updateAnimatorState(1);
                 entity.setAnimationState(AnimationState.IDLE);
             }
-            if (state == AnimationState.DEATH && deathAnimator.hasCompletedCycle()) {
+
+            if (modelState == AnimationState.DEATH && isRowCycleCompleted(maxFrames)) {
                 entity.completeKill();
             }
         }
@@ -116,7 +95,9 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         setPos(entity);
         setAngle(entity);
         setupGraphicsContextAndDrawContent(entity, gc, 270.0);
+
         drawShockwave(gc, 0, 0, entity.shockwave());
+
         if (entity.getAnimationState() != AnimationState.DEATH) {
             drawHpBar(entity, gc);
         }
@@ -124,8 +105,56 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         gc.restore();
     }
 
+    private void updateAnimatorState(int row) {
+        masterAnimator.setState(row);
+        if (row != lastRow) {
+            masterAnimator.setTime(0);
+            lastRow = row;
+        }
+    }
+
+    private boolean isRowCycleCompleted(int maxFrames) {
+        double defaultFrameDuration = 1.0 / 6.0;
+        double totalRowDuration = maxFrames * defaultFrameDuration;
+        return masterAnimator.getTime() >= totalRowDuration;
+    }
+
+    private int getFramesCountForRow(int row) {
+        return switch (row) {
+            case 0  -> 21;
+            case 1  -> 4;
+            case 2  -> 3;
+            case 3  -> 7;
+            case 4  -> 8;
+            case 5  -> 5;
+            case 6  -> 6;
+            default -> 1;
+        };
+    }
+
+    private int mapStateToRow(AnimationState state) {
+        return switch (state) {
+            case IDLE    -> 1;
+            case ATTACK1 -> 2;
+            case ATTACK2 -> 3;
+            case ATTACK3 -> 4;
+            case ATTACK4 -> 5;
+            case DEATH   -> 6;
+        };
+    }
+
     @Override
     protected void drawContent(IscatMasterModel entity, GraphicsContext gc, double x, double y, double width, double height) {
-        drawSprite(gc, x, y, width, height);
+        int currentRow = masterAnimator.getCurrentState();
+        int maxFrames = getFramesCountForRow(currentRow);
+
+        int localFrame = (int) (masterAnimator.getTime() / (1.0 / 6.0)) % maxFrames;
+
+        double frameW = masterSheet.frameWidth;
+        double frameH = masterSheet.frameHeight;
+        double sx = localFrame * frameW;
+        double sy = currentRow * frameH;
+
+        gc.drawImage(masterSheet.getSheet(), sx, sy, frameW, frameH, x, y, width, height);
     }
 }
