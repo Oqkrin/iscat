@@ -9,32 +9,32 @@ import uni.gaben.iscat.iscat_game.universe.player.PlayerSettings;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.utils.DrawSettings;
 import uni.gaben.iscat.utils.ThemeManager;
+import java.util.Random;
 
-/**
- * Pipeline di rendering astratta e standardizzata per tutte le entità di gioco.
- * Gestisce l'isolamento della matrice del Canvas e calcola gli spazi locali.
- *
- * @param <M> Tipo specifico di modello fisico associato a questa vista.
- */
 public abstract class AbstractEntityView<M extends AbstractEntityModel> {
     protected double cx, cy, w, h, rotDeg, rotRad;
-
-    /** Fattore di scala visiva indipendente dall'hitbox fisico. Default = 1.0 */
     protected double spriteScale = 1.0;
-
-    /** Dimensioni dello sprite calcolate: hitbox × spriteScale */
     protected double sw, sh;
 
-    /**
-     * Sincronizza la posizione globale dello schermo e le metriche delle
-     * dimensioni direttamente estratti dai contorni fisici reali dell'entità.
-     */
+    // Shockwave stuff
+    protected boolean shockwaveActive = false;
+    protected double shockwaveRadius = 0.0;
+    protected double shockwaveAlpha = 1.0;
+    protected double shakeIntensity = 0.0;
+    private double shockwaveTimer = 0.0;
+    protected double shockwaveDuration;
+    protected double shockwaveMaxRadius;
+    protected double shockwaveLineWidth;
+    protected double maxShakeIntensity;
+    protected boolean shakeEnabled;
+
+    protected final Random random = new Random();
+
     public void setPos(M e) {
         cx = UU.mToPx(e.getTransform().getTranslationX());
         cy = UU.mToPx(e.getTransform().getTranslationY());
         w = e.getWidthPx();
         h = e.getHeightPx();
-
         sw = w;
         sh = h;
     }
@@ -44,35 +44,117 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         rotDeg = Math.toDegrees(rotRad);
     }
 
-    /**
-     * IL MOTORE DEL PIPELINE STANDARD (Template Method)
-     * Isola lo stack delle trasformazioni, calcola il punto di rotazione al centro,
-     * e richiama il disegno specifico in coordinate locali (-w/2, -h/2).
-     */
     public final void setupGraphicsContextAndDrawContent(M entity, GraphicsContext gc, double assetAngularOffsetDeg) {
         setPos(entity);
         setAngle(entity);
 
         gc.save();
 
+        // Applica lo shake all'intero contesto grafico di questa entità (se attivo)
+        applyScreenShake(gc);
+
         if(entity instanceof Projectile p) {
             gc.setFill(p.getType().color);
         }
-        // Trasla l'origine del Canvas esattamente al centro dell'entità
+
+        // Traslazione e rotazione standard dello sprite
+        gc.save();
         gc.translate(cx, cy);
         gc.rotate(rotDeg + assetAngularOffsetDeg);
-
-        // Delega l'esecuzione del disegno interno alle classi derivate.
-        // In drawContent(), (0,0) corrisponde perfettamente al centro dell'entità!
         drawContent(entity, gc, -sw / 2, -sh / 2, sw, sh);
+        gc.restore();
+
+        // Disegna la barra della vita (se attiva)
+        if (entity instanceof LifeDeath ld) {
+            drawHpBar(ld, gc);
+        }
+
+        // Aggiorna e disegna l'anello dello shockwave (se attivo)
+        updateAndDrawShockwave(entity, gc);
 
         gc.restore();
     }
 
-    /**
-     * Metodo astratto implementato dalle singole visual views per gestire i propri contenuti grafici.
-     */
     protected abstract void drawContent(M entity, GraphicsContext gc, double x, double y, double width, double height);
+
+    /**
+     * Chiamata di una Shockwave. Nota: per usare questo metodo devi chiamarlo in un eventa, tipo nemico che muore o usa un attacco
+     */
+    public void triggerShockwave(double duration, double maxRadius, double lineWidth, double maxShake, boolean enableShake) {
+        this.shockwaveActive = true;
+        this.shockwaveTimer = 0.0;
+        this.shockwaveDuration = duration;
+        this.shockwaveMaxRadius = maxRadius;
+        this.shockwaveLineWidth = lineWidth;
+        this.maxShakeIntensity = maxShake;
+        this.shakeEnabled = enableShake;
+
+        this.shockwaveAlpha = 1.0;
+        this.shockwaveRadius = 0.0;
+        this.shakeIntensity = enableShake ? maxShake : 0.0;
+    }
+
+    /**
+     * Chiamata veloce di una Shockwave. Nota: per usare questo metodo devi chiamarlo in un eventa, tipo nemico che muore o usa un attacco
+     */
+    public void triggerShockwave(double duration, boolean enableShake) {
+        triggerShockwave(duration, 2500.0, 15.0, 24.0, enableShake);
+    }
+
+    /**
+     * Applica un effetto Shake al nemico
+     */
+    private void applyScreenShake(GraphicsContext gc) {
+        if (shockwaveActive && shakeEnabled && shakeIntensity > 0.1) {
+            double shakeX = (random.nextDouble() * 2.0 - 1.0) * shakeIntensity;
+            double shakeY = (random.nextDouble() * 2.0 - 1.0) * shakeIntensity;
+            gc.translate(shakeX, shakeY);
+        }
+    }
+
+    /**
+     * Metodo che disegna la Shockwave
+     */
+    private void updateAndDrawShockwave(AbstractEntityModel entity, GraphicsContext gc) {
+        if (!shockwaveActive) return;
+
+        shockwaveTimer += UU.UNIVERSE_TICK;
+        double progress = shockwaveTimer / shockwaveDuration;
+
+        if (progress >= 1.0) {
+            shockwaveActive = false;
+            shakeIntensity = 0.0;
+            return;
+        }
+
+        shockwaveRadius = progress * shockwaveMaxRadius;
+        shockwaveAlpha = Math.max(0.0, 1.0 - progress);
+        shakeIntensity = maxShakeIntensity * (1.0 - progress);
+
+        gc.save();
+        double centerX = UU.mToPx(entity.getTransform().getTranslationX());
+        double centerY = UU.mToPx(entity.getTransform().getTranslationY());
+        double diameter = shockwaveRadius * 2;
+        double topLeftX = centerX - shockwaveRadius;
+        double topLeftY = centerY - shockwaveRadius;
+
+        double fillAlpha = shockwaveAlpha * 0.15;
+        gc.setFill(Color.rgb(255, 255, 255, fillAlpha));
+        gc.fillOval(topLeftX, topLeftY, diameter, diameter);
+
+        gc.setStroke(Color.rgb(255, 255, 255, shockwaveAlpha * 0.3));
+        gc.setLineWidth(shockwaveLineWidth * 3.5);
+        gc.strokeOval(topLeftX, topLeftY, diameter, diameter);
+
+        gc.setStroke(Color.rgb(255, 255, 255, shockwaveAlpha * 0.6));
+        gc.setLineWidth(shockwaveLineWidth * 1.8);
+        gc.strokeOval(topLeftX, topLeftY, diameter, diameter);
+
+        gc.setStroke(Color.rgb(255, 255, 255, shockwaveAlpha));
+        gc.setLineWidth(shockwaveLineWidth);
+        gc.strokeOval(topLeftX, topLeftY, diameter, diameter);
+        gc.restore();
+    }
 
     protected void drawHpBar(LifeDeath entity, GraphicsContext gc) {
         gc.setFill(ThemeManager.getInstance().getColorError());
@@ -81,31 +163,16 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         gc.fillRect(cx - w / 2, cy - h / 2 - PlayerSettings.HP_BAR_OFFSET_Y, w * (entity.getLife() / entity.getMaxLife()), PlayerSettings.HP_BAR_HEIGHT);
     }
 
-    /**
-     * Visualizzatore Debug delle Collisioni geometriche basato sulle coordinate attuali.
-     */
     public void drawDebugCollision(M e, GraphicsContext gc) {
-        setPos(e);
-        setAngle(e);
-
-        gc.save();
-        gc.translate(cx, cy);
-        gc.rotate(rotDeg);
-
-        gc.setStroke(Color.LIME);
-        gc.setLineWidth(1.5);
-
-        if (e.getFixtureCount() > 0
-                && e.getFixture(0).getShape() instanceof Circle) {
-            double radiusPx = w / 2;
-            gc.strokeOval(-radiusPx, -radiusPx, w, h);
+        setPos(e); setAngle(e);
+        gc.save(); gc.translate(cx, cy); gc.rotate(rotDeg);
+        gc.setStroke(Color.LIME); gc.setLineWidth(1.5);
+        if (e.getFixtureCount() > 0 && e.getFixture(0).getShape() instanceof Circle) {
+            double radiusPx = w / 2; gc.strokeOval(-radiusPx, -radiusPx, w, h);
         } else {
             gc.strokeRect(-w / 2, -h / 2, w, h);
         }
-
-        gc.setStroke(Color.RED);
-        gc.strokeLine(0, 0, w / 2, 0);
-
+        gc.setStroke(Color.RED); gc.strokeLine(0, 0, w / 2, 0);
         gc.restore();
     }
 }
