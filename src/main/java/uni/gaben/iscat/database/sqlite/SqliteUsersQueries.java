@@ -167,25 +167,30 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
         }
     }
 
-    private User mapRow(ResultSet rs)
-            throws SQLException {
-
-        Timestamp creationTs =
-                rs.getTimestamp("DateOfCreation");
-
-        Timestamp lastLoginTs =
-                rs.getTimestamp("LastLogin");
-
+    private User mapRow(ResultSet rs) throws SQLException {
         return new User(
                 rs.getInt("ID"),
                 rs.getString("Username"),
                 rs.getString("Password"),
-                creationTs != null
-                        ? creationTs.toLocalDateTime()
-                        : null,
-                lastLoginTs != null
-                        ? lastLoginTs.toLocalDateTime()
-                        : null
+                safeParseLocalDateTime(rs, "DateOfCreation"),
+                safeParseLocalDateTime(rs, "LastLogin")
         );
+    }
+
+    private LocalDateTime safeParseLocalDateTime(ResultSet rs, String columnName) throws SQLException {
+        String value = rs.getString(columnName);
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        // Se il valore nel DB è un vecchio record numerico (millisecondi Unix)
+        if (value.matches("\\d+")) {
+            long epochMillis = Long.parseLong(value);
+            return Timestamp.from(java.time.Instant.ofEpochMilli(epochMillis)).toLocalDateTime();
+        }
+
+        // Se è nel formato stringa standard di SQLite (prodotto da CURRENT_TIMESTAMP)
+        Timestamp ts = rs.getTimestamp(columnName);
+        return ts != null ? ts.toLocalDateTime() : null;
     }
 }
