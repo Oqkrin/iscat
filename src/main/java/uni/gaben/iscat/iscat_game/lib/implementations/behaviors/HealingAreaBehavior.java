@@ -22,7 +22,7 @@ public class HealingAreaBehavior implements AiBehavior {
     @Override
     public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
         // Runs passively without overriding movement (returns 0 or low) if it just pulses
-        return 0.1; 
+        return -1;
     }
 
     @Override

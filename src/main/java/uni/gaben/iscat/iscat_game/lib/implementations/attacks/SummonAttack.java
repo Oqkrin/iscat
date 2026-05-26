@@ -1,6 +1,7 @@
-package uni.gaben.iscat.iscat_game.universe.attacks;
+package uni.gaben.iscat.iscat_game.lib.implementations.attacks;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.iscat_game.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.iscat_game.universe.UniverseSpawnable;
 import uni.gaben.iscat.iscat_game.universe.UniverseSpawner;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_master.IscatMasterModel;

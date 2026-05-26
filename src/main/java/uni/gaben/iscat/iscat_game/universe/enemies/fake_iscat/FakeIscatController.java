@@ -3,10 +3,10 @@ package uni.gaben.iscat.iscat_game.universe.enemies.fake_iscat;
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.*;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
-import uni.gaben.iscat.iscat_game.universe.attacks.MultiDirectionAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.RepeaterAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.SingleShotAttack;
-import uni.gaben.iscat.iscat_game.universe.attacks.SpreadAttack;
+import uni.gaben.iscat.iscat_game.lib.implementations.attacks.MultiDirectionAttack;
+import uni.gaben.iscat.iscat_game.lib.implementations.attacks.RepeaterAttack;
+import uni.gaben.iscat.iscat_game.lib.implementations.attacks.SingleShotAttack;
+import uni.gaben.iscat.iscat_game.lib.implementations.attacks.SpreadAttack;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.iscat_game.utils.UU;
 

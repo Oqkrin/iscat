@@ -6,6 +6,7 @@ import uni.gaben.iscat.iscat_game.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.iscat_game.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.iscat_game.universe.enemies.iscat_eater.IscatEaterSettings;
 import uni.gaben.iscat.iscat_game.utils.UU;
+import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
@@ -19,6 +20,7 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
 
     private final SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator;
+    private final Cooldown healingAnimation = new Cooldown();
 
     public IscatHealerView() {
         spriteScale = ISCATHEALER.scale;
@@ -42,17 +44,19 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
     @Override
     public void draw(IscatHealerModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
+        healingAnimation.update(UU.UNIVERSE_TICK);
         setupGraphicsContextAndDrawContent(entity, gc, 90.0);
     }
 
     @Override
     protected void drawContent(IscatHealerModel entity, GraphicsContext gc,
                                double x, double y, double width, double height) {
-        // Draw the healing radius
-        double radiusPx = UU.mToPx(IscatHealerSettings.HEAL_RADIUS_M);
-        gc.setStroke(javafx.scene.paint.Color.web("#00ff00", 0.4));
-        gc.setLineWidth(2.0);
-        gc.strokeOval(-radiusPx, -radiusPx, radiusPx * 2, radiusPx * 2);
+
+
+        if(healingAnimation.isReady()) {
+            triggerShockwave(UU.UNIVERSE_TICK*45, UU.mToPx(HEAL_RADIUS_M), UU.mToPx(HEAL_RADIUS_M)/10, 0, false);
+            healingAnimation.start(1);
+        }
 
         drawSprite(gc, x, y, width, height);
         drawHpBar(entity, gc);

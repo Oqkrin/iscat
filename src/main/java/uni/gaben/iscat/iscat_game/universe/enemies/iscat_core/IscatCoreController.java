@@ -2,12 +2,12 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_core;
 
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.*;
-import uni.gaben.iscat.iscat_game.universe.attacks.ParallelLineAttack;
+import uni.gaben.iscat.iscat_game.lib.implementations.attacks.ParallelLineAttack;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
 
-import uni.gaben.iscat.iscat_game.universe.attacks.MultiDirectionAttack;
+import uni.gaben.iscat.iscat_game.lib.implementations.attacks.MultiDirectionAttack;
 
 import static uni.gaben.iscat.iscat_game.universe.enemies.iscat_core.IscatCoreSettings.ISCATCORE;
 

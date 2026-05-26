@@ -4,8 +4,8 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.iscat_game.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.iscat_game.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;
-import uni.gaben.iscat.iscat_game.universe.attacks.AttackPattern;
-import uni.gaben.iscat.iscat_game.universe.attacks.RepeaterAttack;
+import uni.gaben.iscat.iscat_game.lib.interfaces.model.AttackPattern;
+import uni.gaben.iscat.iscat_game.lib.implementations.attacks.RepeaterAttack;
 import uni.gaben.iscat.iscat_game.universe.player.PlayerModel;
 import uni.gaben.iscat.iscat_game.universe.projectiles.Projectile;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
@@ -14,6 +14,7 @@ import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.Interpolator;
 
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 public class ShooterBehaviour implements AiBehavior {
@@ -34,6 +35,8 @@ public class ShooterBehaviour implements AiBehavior {
     private int repeatedAttackLeft = 0;
     private AttackPattern currentRepeatedAttack = null;
     private final double REPEATED_ATTACK_COOLDOWN = 0.15;
+
+    private Consumer<Projectile> customizer;
 
     public ShooterBehaviour(double priorityValue, double combatRange, double preferredRange,
                             double force, double rotationSpeed, double globalCooldownS,
@@ -111,10 +114,7 @@ public class ShooterBehaviour implements AiBehavior {
                     repeatedAttackLeft = repeater.getTimes();
                 } else {
                     // quando è un attacco standard viene eseguito e messo il cooldown lungo
-                    selected.execute(shooter, bulletTemplate, angleToPlayer, bullet -> {
-                        bullet.setMaxLife(bullet.getLife());
-                        bullet.setLife(bullet.getMaxLife());
-                    });
+                    selected.execute(shooter, bulletTemplate, angleToPlayer, customizer);
                     fireCooldown.start(cooldownSupplier.getAsDouble());
                     return;
                 }
@@ -135,6 +135,10 @@ public class ShooterBehaviour implements AiBehavior {
                 fireCooldown.start(cooldownSupplier.getAsDouble());
             }
         }
+    }
+
+    public void customize(Consumer<Projectile> customizer) {
+        this.customizer = customizer;
     }
 
     @Override

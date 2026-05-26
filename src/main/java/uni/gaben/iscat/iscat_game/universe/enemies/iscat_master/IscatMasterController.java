@@ -3,7 +3,7 @@ package uni.gaben.iscat.iscat_game.universe.enemies.iscat_master;
 import uni.gaben.iscat.iscat_game.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.iscat_game.lib.implementations.behaviors.*;
 import uni.gaben.iscat.iscat_game.universe.UniverseSpawnable;
-import uni.gaben.iscat.iscat_game.universe.attacks.*;
+import uni.gaben.iscat.iscat_game.lib.implementations.attacks.*;
 import uni.gaben.iscat.iscat_game.utils.UU;
 import uni.gaben.iscat.iscat_game.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.iscat_game.universe.UniverseModel;

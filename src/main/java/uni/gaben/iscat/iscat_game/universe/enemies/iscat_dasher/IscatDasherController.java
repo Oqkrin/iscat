@@ -18,9 +18,9 @@ public class IscatDasherController extends AiBehaviours<IscatDasherModel> {
         this.addBehavior(new OrbitPlayerBehavior(ISCATDASHER.force, ISCATDASHER.maxVelocity, 4.0, true));
 
         // Fast Dodge (cooldown 1.0s, post-dodge cooldown 0.5s)
-        this.addBehavior(new DodgeProjectileBehavior(ISCATDASHER.force * 2.5, 0.3, 0.1));
+        this.addBehavior(new DodgeProjectileBehavior(ISCATDASHER.force * 2.5, 0, 1));
 
         // Plunge Attack (duration 0.8s)
-        this.addBehavior(new PlungeAttackBehavior(5.0, ISCATDASHER.force * 3.0, 0.0, 0.0));
+        this.addBehavior(new PlungeAttackBehavior(5.0, ISCATDASHER.force * 3.0, 1, 2));
     }
 }
