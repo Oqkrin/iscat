@@ -40,7 +40,7 @@ public class IscatCoreView extends AbstractEntityView<IscatCoreModel>
 
         // Configura la velocità di riproduzione dei fotogrammi
         this.animator = new SpriteSheetsAnimator(
-                1.0 / 24.0,
+                UU.UNIVERSE_TICK*10,
                 spriteSheetsParser != null
                         ? spriteSheetsParser.getTotalFrames()
                         : 1,
@@ -68,7 +68,8 @@ public class IscatCoreView extends AbstractEntityView<IscatCoreModel>
         if (entity == null) return;
 
         // Avanza il frame dell'animazione dello sprite
-        animator.update(UU.UNIVERSE_TICK);
+        animator.update(UU.UNIVERSE_TICK*entity.getMaxLife()/entity.getLife());
+
 
         // Aggiorna posizione e rotazione
         setPos(entity);
