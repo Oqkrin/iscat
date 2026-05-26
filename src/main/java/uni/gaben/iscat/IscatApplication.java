@@ -33,6 +33,7 @@ public class IscatApplication extends Application {
     private final StackPane iscatContentRoot = new StackPane();
     private final IscatTitleBar iscatTitleBar = new IscatTitleBar();
     private final Region iscatWindowBorderOverlay = new Region();
+    private final IscatDB db = IscatDB.getInstance();
     private IscatWindowController iscatWindowController;
     private IscatViewController iscatViewController;
 
@@ -40,6 +41,9 @@ public class IscatApplication extends Application {
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
+        System.out.println("DB PATH = " + new java.io.File("iscat.db").getAbsolutePath());
+        db.init();
+        System.out.println("DB PATH = " + new java.io.File("iscat.db").getAbsolutePath());
         IscatNavigator.getInstance().initialize(iscatModel);
         AudioManager.getInstance().loadDefaultAudio();
     }
