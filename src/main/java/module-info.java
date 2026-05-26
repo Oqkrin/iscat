@@ -26,7 +26,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.lib.interfaces.model;
     exports uni.gaben.iscat.universe.lib.interfaces.view;
     exports uni.gaben.iscat.universe.lib.interfaces.controller;
-    exports uni.gaben.iscat.universe.universe;
     exports uni.gaben.iscat.universe.player;
     exports uni.gaben.iscat.universe.consumables.heart;
     exports uni.gaben.iscat.universe.enviroment.asteroid;
@@ -48,7 +47,6 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.iscat_mv_controller to javafx.fxml;
     exports uni.gaben.iscat.iscat_model_vc;
     opens uni.gaben.iscat.iscat_model_vc to javafx.fxml;
-    exports uni.gaben.iscat.universe.utils;
     exports uni.gaben.iscat.iscat_screens.game.view;
     exports uni.gaben.iscat.universe;
 }
