@@ -32,7 +32,7 @@ public class BestiaryMenuController implements IscatFxmlController {
             Map.entry("iscat_bomber", new BestiaryMenuController.Enemy("Iscat Bomber", BASE + "iscat_bomber.png",
                     32, 32, "Descrizione Iscat Bomber")),
             Map.entry("iscat_core", new BestiaryMenuController.Enemy("Iscat Core", BASE + "iscat_core.png",
-                    64, 64, "Descrizione Iscat Core\n Iscat, Macchina e Roccia che cos'è quest'abominio\nSembra sprizzare magia ma non c'è nulla naturale in lui, un omuncolo frutto del malsano ingegno del maestro nella sua ricerca perpetua dell'immortalità la spiraleggiante effimerezza dei golem è riuscito ad imbrigliare la creazione di questa nuova specie molti pensano sia solo il bisogno logistico di un esercito, ma da dove nasce un iscat cosa proteggono i golem domande che un giovane maestro ha risolto, ora in zone remote dell'universo le madri degli iscat vengono sfruttate curate e torturate e con esse la loro prole, e da cotanto dolore i cometa golem arrivano da ogni dove in massa; parte della loro linfa magica estratta per sostenere il maestro; ormai vacui e deboli vengono ammassati e compressati insieme agli iscat che volevano proteggere fusi nelle immonde creature che sono gli iscat core chimere magiche meccaniche ma vive, questo barlume di vita e magia sprizza via nei suoi ultimi momenti")),
+                    64, 64, "Descrizione Iscat Core\nIscat, Macchina e Roccia che cos'è quest'abominio\nSembra sprizzare magia ma non c'è nulla naturale in lui, un omuncolo frutto del malsano ingegno del maestro nella sua ricerca perpetua dell'immortalità la spiraleggiante effimerezza dei golem è riuscito ad imbrigliare la creazione di questa nuova specie molti pensano sia solo il bisogno logistico di un esercito, ma da dove nasce un iscat cosa proteggono i golem domande che un giovane maestro ha risolto, ora in zone remote dell'universo le madri degli iscat vengono sfruttate curate e torturate e con esse la loro prole, e da cotanto dolore i cometa golem arrivano da ogni dove in massa; parte della loro linfa magica estratta per sostenere il maestro; ormai vacui e deboli vengono ammassati e compressati insieme agli iscat che volevano proteggere fusi nelle immonde creature che sono gli iscat core chimere magiche meccaniche ma vive, questo barlume di vita e magia sprizza via nei suoi ultimi momenti")),
             Map.entry("iscat_mother", new BestiaryMenuController.Enemy("Iscat Mother", BASE + "iscat_mother.png",
                     128, 128, "Descrizione Iscat Mother")),
             Map.entry("fake_iscat", new BestiaryMenuController.Enemy("Fake Iscat", BASE + "fake_iscat.png",
@@ -50,7 +50,21 @@ public class BestiaryMenuController implements IscatFxmlController {
                     64, 64, "Descrizione Fallen Star Golem\nSpiraleggianti creature? o rocce?\nsembrano arrivare come una stella cadente dallo spazio profondo quando gli iscat sono in pericolo ma perché?")),
             Map.entry("eater", new BestiaryMenuController.Enemy("Eater", BASE + "eater.png",
                     (int) ISCATEATER.dimSprite, (int) ISCATEATER.dimSprite,
-                    "Descrizione Eater\n AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA \n[REDACTED]")),
+                    "Descrizione Eater\n" +
+                            "Creatura classificata come ENTITÀ DI LIVELLO: [REDACTED]. " +
+                            "Dimensioni corporee instabili. Fame: apparentemente infinita. " +
+                            "Comportamento: estremamente aggressivo.\n\n" +
+                            "Eater consuma qualsiasi forma di materia trovata nelle vicinanze. " +
+                            "Carne, metallo, energia, rocce, tecnologia, [REDACTED], perfino oggetti normalmente impossibili da ingerire. " +
+                            "Non sembra possedere un reale limite biologico.\n\n" +
+                            "Osservazioni dirette riportano: denti [REDACTED], rumori corporei [REDACTED], " +
+                            "odore classificato come [REDACTED], fluidi non identificati di origine [REDACTED]. " +
+                            "È severamente sconsigliato avvicinarsi oltre il raggio di sicurezza.\n\n" +
+                            "Incidenti registrati: [REDACTED]\n" +
+                            "Vittime confermate: [REDACTED]\n" +
+                            "Tentativi di contenimento riusciti: 0\n" +
+                            "Ultima frase trasmessa da uno Space Explorer:\n" +
+                            "\"OH NO, STA [REDACTED] MANGIANDO IL [REDACTED]\"")),
             Map.entry("iscat_worm_head", new BestiaryMenuController.Enemy("Iscat Worm Head", BASE + "iscat_worm_head.png",
                     (int) IscatWormSettings.DIM_SPRITE, (int) IscatWormSettings.DIM_SPRITE,
                     "Descrizione Iscat Worm Head\nIl comandante del sistema ISCAT_WORM.EXE, Iscat Worm Head si occupa di dirigere le parti del corpo e la coda nella direzione che vuole percorrere. Viaggia per lo spazio senza meta, e attacca chi definisce come possibile fonte di cibo, purtroppo per lui, è costretto di dividere il cibo con tutti i membri del sistema")),
