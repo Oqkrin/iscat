@@ -30,35 +30,26 @@ import static javafx.application.Platform.runLater;
 
 public class GameView extends AbstractIscatStackPane {
 
-    // --- Core Architecture References ---
     private final GameModel gameModel;
     private final GameController gameController;
     private final StackPane root;
 
-    // --- Rendering Sub-System Components ---
     private Canvas canvas;
     private Canvas timerCanvas;
     private StarryText starryTimer;
     private final StarfieldView starfieldView = new StarfieldView();
     private UniverseRenderer universeRenderer;
 
-    // --- Interactive UI Overlay Layers ---
     private GameSpawnerToolbar spawnerToolbar;
     private GamePauseMenu pauseMenu;
     private GameOverMenu gameOverMenu;
 
-    // --- Layout Containers & Control Hubs ---
     private HBox debugButtonsContainer;
     private Button debugButton;
     private Button toggleWave;
     private Label levelLabel;
 
-    // --- View State Properties ---
     private boolean debugPanelVisible = false;
-
-    // ==========================================
-    // Lifecycle & Initialization Handlers
-    // ==========================================
 
     public GameView(GameController gameController) {
         super(new StackPane());
@@ -72,15 +63,12 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initNodes() {
-        // Core Visual Pipeline Layer
         canvas = new Canvas();
 
-        // Contextual Overlay Sub-Menus
         spawnerToolbar = new GameSpawnerToolbar(gameController);
         pauseMenu = new GamePauseMenu(gameController);
         gameOverMenu = new GameOverMenu(gameController);
 
-        // Core Status Component Metrics
         levelLabel = new Label("LEVEL 1");
         levelLabel.setFocusTraversable(false);
         levelLabel.setMouseTransparent(true);
@@ -90,7 +78,6 @@ public class GameView extends AbstractIscatStackPane {
         timerCanvas.setFocusTraversable(false);
         starryTimer = new StarryText(300, 100);
 
-        // Debug Management Controls
         debugButton = new Button("DEBUG");
         debugButton.setFocusTraversable(false);
 
@@ -100,11 +87,9 @@ public class GameView extends AbstractIscatStackPane {
         debugButtonsContainer = new HBox(10, debugButton, toggleWave);
         debugButtonsContainer.setFocusTraversable(false);
 
-        // FIX 1: Prevent layouts from swallowing canvas mouse inputs
         debugButtonsContainer.setPickOnBounds(false);
         spawnerToolbar.setPickOnBounds(false);
 
-        // Wire Engine Layer Specialist Pipeline
         universeRenderer = new UniverseRenderer(canvas, gameController, starfieldView);
     }
 
@@ -126,32 +111,25 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initLayout() {
-        // FIX 2: Reordered Stack. Bottom layers come first, critical menus go last (rendered on top).
         root.getChildren().addAll(
                 canvas,
                 timerCanvas,
                 levelLabel,
                 spawnerToolbar,
                 debugButtonsContainer,
-                pauseMenu,       // Menus sit completely on top of everything now
+                pauseMenu,
                 gameOverMenu
         );
 
-        // Apply explicit UI layout anchors
         StackPane.setAlignment(spawnerToolbar, Pos.BOTTOM_CENTER);
         StackPane.setAlignment(debugButtonsContainer, Pos.TOP_LEFT);
         StackPane.setAlignment(timerCanvas, Pos.TOP_CENTER);
         StackPane.setAlignment(levelLabel, Pos.BOTTOM_RIGHT);
 
-        // Apply clean margins structured using the application safety frame bounds
         StackPane.setMargin(debugButtonsContainer, new Insets(50, 0, 0, 50));
         StackPane.setMargin(timerCanvas, new Insets(50, 0, 0, 0));
         StackPane.setMargin(levelLabel, new Insets(0, 50, 50, 0));
     }
-
-    // ==========================================
-    // System Bindings & Property Listeners
-    // ==========================================
 
     @Override
     protected void initBindings() {
@@ -165,31 +143,11 @@ public class GameView extends AbstractIscatStackPane {
         camera.screenWidthProperty().bind(canvas.widthProperty());
         camera.screenHeightProperty().bind(canvas.heightProperty());
 
-        UniverseController universeController = gameController.getUniverseController();
-        UniverseModel universe = universeController.getUniverseModel();
-
         gameOverMenu.visibleProperty().bind(gameModel.gameOverProperty());
         gameOverMenu.managedProperty().bind(gameOverMenu.visibleProperty());
 
         pauseMenu.visibleProperty().bind(gameModel.pausedProperty().and(gameModel.gameOverProperty().not()));
         pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
-
-        if (universe != null) {
-            setupUniverseBoundings(universe, universeController);
-        }
-    }
-
-    private void setupUniverseBoundings(UniverseModel universe, UniverseController universeController) {
-        universe.widthProperty().bind(canvas.widthProperty());
-        universe.heightProperty().bind(canvas.heightProperty());
-
-        universe.widthProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
-                .regenerate(universe.getStarfieldModel(), newV.doubleValue(), universe.getHeight()));
-        universe.heightProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
-                .regenerate(universe.getStarfieldModel(), universe.getWidth(), newV.doubleValue()));
-
-        starfieldView.wProperty().bind(canvas.widthProperty());
-        starfieldView.hProperty().bind(canvas.heightProperty());
 
         gameModel.pausedProperty().addListener((obs, wasPaused, isPausedNow) -> {
             if (!isPausedNow) {
@@ -217,16 +175,32 @@ public class GameView extends AbstractIscatStackPane {
 
         gameModel.timerProperty().addListener((obs, oldVal, newVal) -> updateTimerText(newVal.intValue()));
         runLater(() -> updateTimerText(gameModel.getTimer()));
+    }
+
+    /**
+     * Configura i binding dinamici legati all'universo di gioco.
+     */
+    private void setupUniverseBoundings(UniverseModel universe, UniverseController universeController) {
+        levelLabel.textProperty().unbind();
+
+        universe.widthProperty().bind(canvas.widthProperty());
+        universe.heightProperty().bind(canvas.heightProperty());
+
+        universe.widthProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
+                .regenerate(universe.getStarfieldModel(), newV.doubleValue(), universe.getHeight()));
+        universe.heightProperty().addListener((obs, oldV, newV) -> universeController.getStarfieldController()
+                .regenerate(universe.getStarfieldModel(), universe.getWidth(), newV.doubleValue()));
+
+        starfieldView.wProperty().bind(canvas.widthProperty());
+        starfieldView.hProperty().bind(canvas.heightProperty());
 
         var player = universe.getPlayer();
         if (player != null) {
             levelLabel.textProperty().bind(Bindings.concat("LEVEL ", player.levelProperty().asString()));
+        } else {
+            levelLabel.setText("LEVEL 1");
         }
     }
-
-    // ==========================================
-    // Event Handlers & Core Action Loops
-    // ==========================================
 
     @Override
     protected void initEventHandlers() {
@@ -245,8 +219,6 @@ public class GameView extends AbstractIscatStackPane {
                 spawnerToolbar.setVisible(debugPanelVisible);
                 spawnerToolbar.setManaged(debugPanelVisible);
                 debugButton.setText(debugPanelVisible ? "HIDE DEBUG" : "DEBUG");
-
-                // Keep game loops focused on click
                 canvas.requestFocus();
             }
         });
@@ -255,8 +227,6 @@ public class GameView extends AbstractIscatStackPane {
             if (gameController.isDebugModeOn()) {
                 gameModel.waveProperty().set(!gameModel.isWaveing());
                 toggleWave.setText(gameModel.isWaveing() ? "||" : "|>");
-
-                // Keep game loops focused on click
                 canvas.requestFocus();
             }
         });
@@ -269,6 +239,11 @@ public class GameView extends AbstractIscatStackPane {
         gameController.setDrawCall(() -> universeRenderer.renderFrame(timerCanvas, starryTimer, debugPanelVisible));
         gameController.getInputManager().attachToScene(this.getScene());
         gameController.startGameLoop();
+        UniverseController universeController = gameController.getUniverseController();
+        UniverseModel universe = universeController.getUniverseModel();
+        if (universe != null) {
+            setupUniverseBoundings(universe, universeController);
+        }
 
         runLater(() -> canvas.requestFocus());
     }
