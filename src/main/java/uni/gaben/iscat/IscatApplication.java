@@ -42,9 +42,7 @@ public class IscatApplication extends Application {
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
-        System.out.println("DB PATH = " + new java.io.File("iscat.db").getAbsolutePath());
         db.init();
-        System.out.println("DB PATH = " + new java.io.File("iscat.db").getAbsolutePath());
         IscatNavigator.getInstance().initialize(iscatModel);
         AudioManager.getInstance().loadDefaultAudio();
     }

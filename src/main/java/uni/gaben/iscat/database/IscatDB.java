@@ -35,7 +35,7 @@ public class IscatDB {
     private void connect() {
         try {
             connection = DriverManager.getConnection(URL);
-            System.out.println("DB connected");
+            //System.out.println("[IscatDB] DB connected");
         } catch (SQLException e) {
             e.printStackTrace();
         }
