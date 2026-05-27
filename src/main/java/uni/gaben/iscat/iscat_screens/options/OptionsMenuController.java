@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import uni.gaben.iscat.utils.AudioManager;
@@ -20,10 +21,11 @@ import uni.gaben.iscat.iscat_model_vc.IscatViews;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
 import uni.gaben.iscat.database.sqlite.SettingsDAO;
-import uni.gaben.iscat.utils.DynamicColors;
 import uni.gaben.iscat.utils.SessionManager;
+import uni.gaben.iscat.utils.ThemeManager;
 
 import java.io.File;
+import java.util.List;
 
 public class OptionsMenuController implements IscatFxmlController {
 
@@ -46,23 +48,17 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button dash2;
     @FXML private Button esc;
 
-    @FXML
-    private Button ImagePicker;
-
-    @FXML
-    private ColorPicker accentPrimary;
-
-    @FXML
-    private ColorPicker accentSecondary;
-
-    @FXML
-    private ColorPicker accentTernary;
+    @FXML private Button ImagePicker;
+    @FXML private ColorPicker accentPrimary;
+    @FXML private ColorPicker accentSecondary;
+    @FXML private ColorPicker accentTernary;
 
     private Button selectedButton = null;
     private String selectedColumn = null;
 
     @FXML
     public void initialize() {
+        // Audio Controls
         BGMSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             AudioManager.getInstance().setBgmVolume(newValue.doubleValue());
         });
@@ -71,8 +67,11 @@ public class OptionsMenuController implements IscatFxmlController {
             AudioManager.getInstance().setSfxVolume(newValue.doubleValue());
         });
 
+        // UI Initialization Sync
         refreshButtonLabels();
+        syncColorPickersWithTheme();
 
+        // Global Key Listener Configuration
         paneMaster.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleGlobalKeyPress);
@@ -102,7 +101,6 @@ public class OptionsMenuController implements IscatFxmlController {
      */
     @FXML
     void changeControl(ActionEvent event) {
-        // Se stiamo già ascoltando un tasto, annulliamo la selezione precedente
         if (selectedButton != null) {
             refreshButtonLabels();
         }
@@ -126,8 +124,8 @@ public class OptionsMenuController implements IscatFxmlController {
         if (selectedButton == null || selectedColumn == null) return;
 
         String pressedKey = event.getCode().toString();
-
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+
         if (settings != null) {
             switch (selectedColumn) {
                 case "WalkUp"    -> settings.setWalkUp(pressedKey);
@@ -159,11 +157,13 @@ public class OptionsMenuController implements IscatFxmlController {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
 
-        // Ripristino dei valori di default sul database
         int uid = settings.getUserId();
+
+        // Ripristino dei valori di default sul database (Fixed: WalkRight is now saved!)
         SettingsDAO.updateControl(uid, "WalkUp", "W");
         SettingsDAO.updateControl(uid, "WalkDown", "S");
         SettingsDAO.updateControl(uid, "WalkLeft", "A");
+        SettingsDAO.updateControl(uid, "WalkRight", "D");
         SettingsDAO.updateControl(uid, "Dash1", "Space");
         SettingsDAO.updateControl(uid, "Dash2", "Middle Mouse");
         SettingsDAO.updateControl(uid, "PauseGame", "ESC");
@@ -216,32 +216,62 @@ public class OptionsMenuController implements IscatFxmlController {
         UU.setUniverseScale(scaleSlider.getValue());
     }
 
+    /**
+     * Reads current running runtime values from ThemeManager and matches the
+     * ColorPicker states to them.
+     */
+    private void syncColorPickersWithTheme() {
+        ThemeManager tm = ThemeManager.getInstance();
+        accentPrimary.setValue(tm.getAccentPrimary());
+        accentSecondary.setValue(tm.getAccentSecondary());
+        accentTernary.setValue(tm.getAccentTernary());
+    }
+
+    /**
+     * Converts a JavaFX Color structure cleanly to a web-safe hex string (#RRGGBB).
+     */
+    private String toHex(Color color) {
+        return String.format("#%02x%02x%02x",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255)
+        );
+    }
+
+    /**
+     * Collects all manual user color selections from the ColorPickers and flushes them
+     * to the running theme.
+     */
+    private void applyManualColorChanges() {
+        if (paneMaster.getScene() == null) return;
+
+        List<String> hexPalette = List.of(
+                toHex(accentPrimary.getValue()),
+                toHex(accentSecondary.getValue()),
+                toHex(accentTernary.getValue())
+        );
+
+        ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.2);
+    }
 
     @FXML
     void onImagePick(ActionEvent event) {
-
         FileChooser imagePicker = new FileChooser();
-        try {
-            File choosenImage = imagePicker.showOpenDialog(null);
-            DynamicColors.getTopDistinctColorsHex(choosenImage,3);
-        } catch (NullPointerException e) {
-            System.err.println("[OptionsController] Error opening image file");
+        imagePicker.setTitle("Select Custom Theme Image Source");
+        imagePicker.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.bmp")
+        );
+
+        Stage currentStage = (Stage) paneMaster.getScene().getWindow();
+        File chosenImage = imagePicker.showOpenDialog(currentStage);
+
+        if (chosenImage != null) {
+            ThemeManager.getInstance().applyDynamicImageTheme(paneMaster.getScene(), chosenImage, 0.8);
+            syncColorPickersWithTheme();
         }
-
     }
 
-    @FXML
-    void onPrimary(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onSecondary(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onTernary(ActionEvent event) {
-
-    }
+    @FXML void onPrimary(ActionEvent event) { applyManualColorChanges(); }
+    @FXML void onSecondary(ActionEvent event) { applyManualColorChanges(); }
+    @FXML void onTernary(ActionEvent event) { applyManualColorChanges(); }
 }

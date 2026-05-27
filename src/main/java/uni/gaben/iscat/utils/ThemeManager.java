@@ -96,7 +96,7 @@ public class ThemeManager {
 
     public Color getAccentPrimary()    { return getColor("accent-primary"); }
     public Color getAccentSecondary()  { return getColor("accent-secondary"); }
-    public Color getAccentTertiary()   { return getColor("accent-tertiary"); }
+    public Color getAccentTernary()   { return getColor("accent-tertiary"); }
 
     public Color getColorSuccess()     { return getColor("color-success"); }
     public Color getColorWarning()     { return getColor("color-warning"); }
@@ -137,35 +137,41 @@ public class ThemeManager {
     private File activeDynamicCssFile = null;
 
     /**
-     * Recreates the CSS file dynamically from an image, making the physical CSS the single source of truth.
+     * Recreates the CSS file dynamically from a list of raw Hex colors,
+     * providing a unified pipeline for both image extraction and manual color picker inputs.
      */
-    public void applyDynamicImageTheme(Scene scene, File imageFile, double durationSec) {
-        List<String> topHexColors = DynamicColors.getTopDistinctColorsHex(imageFile, 3);
-        if (topHexColors.isEmpty()) return;
+    public void applyHexColorsTheme(Scene scene, List<String> topHexColors, double durationSec) {
+        if (topHexColors == null || topHexColors.isEmpty()) return;
 
-        // 1. Generate the physical CSS file
+        // 1. Generate the physical temporary CSS file
         File newCssFile = CssThemeGenerator.createDynamicStylesheet("/uni/gaben/iscat/styles/iscat-color-theme.css", topHexColors);
         if (newCssFile == null) return;
 
-        // 2. Update the JavaFX Scene Graph
+        // 2. Update the JavaFX Scene Graph stylesheets
         if (scene != null) {
-            // Remove the old stylesheet (internal or previous dynamic one)
             scene.getStylesheets().removeIf(url -> url.contains("iscat-color-theme.css") || url.contains("iscat-dynamic-theme"));
-
-            // Apply the new physical file
             String newStylesheetUrl = newCssFile.toURI().toString();
             scene.getStylesheets().add(newStylesheetUrl);
         }
 
-        // 3. Update the Java memory state via the CSS Parser (CSS dictates the Java state)
+        // 3. Update the Java memory state map via the CSS Parser
         currentPalette.clear();
         currentPalette.putAll(CssColorParser.parseExternalColors(newCssFile));
 
-        // Save reference so we know what is currently loaded
+        // Save active disk reference
         this.activeDynamicCssFile = newCssFile;
 
-        // 4. Animate the global tint
+        // 4. Animate the global game asset sprite tints
         tintCache.clear();
         animateTint(getAccentPrimary(), durationSec);
+    }
+
+    /**
+     * Recreates the CSS file dynamically by extracting the top distinct colors from an image.
+     */
+    public void applyDynamicImageTheme(Scene scene, File imageFile, double durationSec) {
+        if (imageFile == null) return;
+        List<String> topHexColors = DynamicColors.getTopDistinctColorsHex(imageFile, 3);
+        applyHexColorsTheme(scene, topHexColors, durationSec);
     }
 }

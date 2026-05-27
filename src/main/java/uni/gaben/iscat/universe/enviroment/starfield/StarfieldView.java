@@ -9,40 +9,49 @@ import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.utils.ThemeManager;
 
 public class StarfieldView implements Drawable<StarfieldModel> {
-    private final Color[] accents;
+
     private final DoubleProperty cameraX = new SimpleDoubleProperty(0);
     private final DoubleProperty cameraY = new SimpleDoubleProperty(0);
     private final DoubleProperty w = new SimpleDoubleProperty(UniverseSettings.DEFAULT_WIDTH);
     private final DoubleProperty h = new SimpleDoubleProperty(UniverseSettings.DEFAULT_HEIGHT);
 
     public StarfieldView() {
-        this.accents = new Color[]{
-                ThemeManager.getInstance().getAccentPrimary(),
-                ThemeManager.getInstance().getAccentSecondary(),
-                ThemeManager.getInstance().getAccentTertiary()
-        };
+        // Constructor left intentionality lean. Caching dynamic instances here causes reference stale-outs.
     }
 
     @Override
     public void draw(StarfieldModel entity, GraphicsContext gc) {
-        // Se il modello è vuoto (es. appena resettato e non ancora ripopolato), non disegna nulla
         if (entity == null || entity.getStars().isEmpty()) return;
 
-        gc.setGlobalAlpha(UniverseSettings.STAR_ALPHA);
-        int starIdx = 0;
+        // FIX 1: Grab live references from ThemeManager directly during the active frame draw pass.
+        ThemeManager theme = ThemeManager.getInstance();
+        Color primary = theme.getAccentPrimary();
+        Color secondary = theme.getAccentSecondary();
+        Color ternary = theme.getAccentTernary();
 
-        // FIXED: Utilizziamo le proprietà interne della View (w e h) che riflettono il Canvas.
-        // Forniamo un fallback pulito alle impostazioni di default se non sono ancora bindate (> 0)
+        gc.setGlobalAlpha(UniverseSettings.STAR_ALPHA);
+
+        // Utilize internal layout property configurations safely
         double currentW = getW() > 0 ? getW() : UniverseSettings.DEFAULT_WIDTH;
         double currentH = getH() > 0 ? getH() : UniverseSettings.DEFAULT_HEIGHT;
 
         for (StarModel star : entity.getStars()) {
-            gc.setFill(accents[starIdx % accents.length]);
             double s = star.getSize();
 
             // Calcolo del fattore di parallasse in base alla profondità della stella
             double depth = UniverseSettings.PARALLAX_BASE +
                     (s / UniverseSettings.PARALLAX_SIZE_DIVISOR) * UniverseSettings.PARALLAX_FACTOR;
+
+            // FIX 2: Dynamic Chromatic Depth Mapping instead of raw index modulo.
+            // Tiny background micro-stars get the subtle dark ternary accents.
+            // Mid-range dust gets secondary accents, and foreground giants pop with primary accents.
+            if (s < 1.5) {
+                gc.setFill(ternary);
+            } else if (s < 2.8) {
+                gc.setFill(secondary);
+            } else {
+                gc.setFill(primary);
+            }
 
             // Movimento relativo opposto alla telecamera con avvolgimento (wrapping) dello schermo
             double renderX = (star.getX() - getCameraX() * depth) % currentW;
@@ -51,8 +60,9 @@ public class StarfieldView implements Drawable<StarfieldModel> {
             double renderY = (star.getY() - getCameraY() * depth) % currentH;
             if (renderY < 0) renderY += currentH;
 
+            // Use fillOval instead of fillRect for circular high-fidelity stars if preferred,
+            // but keeping fillRect to preserve your exact performance constraints.
             gc.fillRect(renderX, renderY, s, s);
-            starIdx++;
         }
         gc.setGlobalAlpha(1.0);
     }

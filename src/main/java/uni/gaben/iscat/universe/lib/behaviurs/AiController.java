@@ -69,10 +69,8 @@ public abstract class AiController {
         // 5. Apply steering force
         applySteering(desired, dt);
 
-        // 6. Face movement direction if desired velocity is non‑zero
-        if (desired.getMagnitudeSquared() > 0.01) {
-            faceDirection(desired.getDirection(), dt);
-        }
+
+        faceDirection(desired.getDirection(), dt);
     }
 
     private void applySteering(Vector2 desired, double dt) {
@@ -82,11 +80,6 @@ public abstract class AiController {
         double mag = steering.getMagnitude();
         if (mag > maxForce) steering.multiply(maxForce / mag);
         entity.applyForce(steering);
-
-        // Speed cap
-        if (entity.getLinearVelocity().getMagnitude() > maxVelocity) {
-            entity.setLinearVelocity(entity.getLinearVelocity().getNormalized().multiply(maxVelocity));
-        }
     }
 
     private void faceDirection(double targetAngle, double dt) {

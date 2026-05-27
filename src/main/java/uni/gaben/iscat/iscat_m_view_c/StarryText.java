@@ -113,7 +113,7 @@ public class StarryText {
             Color[] colors = {
                     ThemeManager.getInstance().getAccentPrimary(),
                     ThemeManager.getInstance().getAccentSecondary(),
-                    ThemeManager.getInstance().getAccentTertiary()
+                    ThemeManager.getInstance().getAccentTernary()
             };
             this.color = colors[random.nextInt(colors.length)];
         }
