@@ -7,7 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -28,7 +28,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Slider BGMSlider;
     @FXML private Slider SFXSlider;
     @FXML private Slider scaleSlider;
-    @FXML private BorderPane rootPane;
+    @FXML private Pane paneMaster;
     @FXML private Label skinNameLabel;
     @FXML private Label skinNameLabel1;
     @FXML private VBox controlsBox;
@@ -56,7 +56,7 @@ public class OptionsMenuController implements IscatFxmlController {
 
         refreshButtonLabels();
 
-        rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+        paneMaster.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleGlobalKeyPress);
             }
@@ -169,8 +169,8 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void toggleFullscreen(ActionEvent event) {
-        if (rootPane != null && rootPane.getScene() != null) {
-            Stage stage = (Stage) rootPane.getScene().getWindow();
+        if (paneMaster != null && paneMaster.getScene() != null) {
+            Stage stage = (Stage) paneMaster.getScene().getWindow();
             stage.setFullScreen(!stage.isFullScreen());
         }
     }

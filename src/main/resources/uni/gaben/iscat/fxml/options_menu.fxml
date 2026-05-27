@@ -5,106 +5,111 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="879.0" prefWidth="660.0" stylesheets="@../styles/options-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.options.OptionsMenuController">
-   <top>
-      <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
-         <padding>
-            <Insets top="40.0" />
-         </padding>
-         <Label text="OPTIONS" textFill="WHITE">
-            <font>
-               <Font name="System Bold" size="80.0" />
-            </font>
-         </Label>
-      </VBox>
-   </top>
-   <center>
-      <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <children>            <VBox fx:id="mainOptions" alignment="CENTER" spacing="30.0" style="-fx-background-radis: 20;">
-               <padding>
-                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-               </padding>
-               <Label text="---- Audio ----" />
-               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
-                  <children>
-      
-                           <Label fx:id="skinNameLabel" ellipsisString="" text="BGM AUDIO" textFill="#00ffcc">
-                        <font>
-                           <Font name="System Italic" size="25.0" />
-                        </font>
-                     </Label>
-                     <Slider fx:id="BGMSlider" />
-                  </children>
-               </HBox>
-               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
-                  <children>
-                     <Label fx:id="skinNameLabel1" ellipsisString="" text="SFX AUDIO" textFill="#00ffcc">
-                        <font>
-                           <Font name="System Italic" size="25.0" />
-                        </font>
-                     </Label>
-                     <Slider fx:id="SFXSlider" />
-                  </children>
-               </HBox>
-               <Label text="---- Miscelaneus ----" />
-               <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
-                  <children>
-                     <Label fx:id="skinNameLabel11" ellipsisString="" text="scale" textFill="#00ffcc">
-                        <font>
-                           <Font name="System Italic" size="25.0" />
-                        </font>
-                     </Label>
-                     <Slider fx:id="scaleSlider" blockIncrement="2.0" max="96.0" min="1.0" onDragDetected="#updateScale" value="64.0" />
-                  </children>
-               </HBox>
-               <CheckBox fx:id="checkFps" mnemonicParsing="false" onAction="#toggleFPSVisible" text="MOSTRA FPS" />
-               <CheckBox fx:id="FullscreenCheck" mnemonicParsing="false" onAction="#toggleFullscreen" text="FULLSCREEN" />
-               <Button fx:id="DeleteAccountBtn" ellipsisString="" onAction="#deleteAccount" styleClass="back-button" text="Delete Account" />
-               <Button fx:id="ResetAccountBtn" ellipsisString="" onAction="#resetAccount" styleClass="back-button" text="Reset Account" />
-            <Button fx:id="ExitBtn" ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
-            </VBox>
-            <VBox fx:id="controlsBox" alignment="CENTER" prefHeight="721.0" prefWidth="346.0">
+<Pane fx:id="paneMaster" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="509.0" prefWidth="889.0" stylesheets="@../styles/options-menu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.options.OptionsMenuController">
+   <children>
+      <VBox fx:id="controlsBox" alignment="CENTER" layoutX="519.0" layoutY="33.0" prefHeight="379.0" prefWidth="346.0">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="328.0">
                <children>
-                  <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="328.0">
+                  <Label text="Main Movements" />
+                  <Button fx:id="walkUp" mnemonicParsing="false" onAction="#changeControl" text="W" />
+                  <HBox alignment="TOP_CENTER" prefHeight="42.0" prefWidth="328.0">
                      <children>
-                        <Label text="Main Movements" />
-                        <Button fx:id="walkUp" mnemonicParsing="false" onAction="#changeControl" text="W" />
-                        <HBox alignment="TOP_CENTER" prefHeight="42.0" prefWidth="328.0">
-                           <children>
-                              <Button fx:id="walkLeft" mnemonicParsing="false" onAction="#changeControl" text="A" />
-                              <Button fx:id="walkDown" mnemonicParsing="false" onAction="#changeControl" text="S" />
-                              <Button fx:id="walkRight" mnemonicParsing="false" onAction="#changeControl" text="D" />
-                           </children>
-                        </HBox>
-                     </children>
-                  </VBox>
-                  <HBox alignment="CENTER" prefHeight="49.0" prefWidth="328.0">
-                     <children>
-                        <Label text="Dash 1" />
-                        <Button fx:id="dash1" mnemonicParsing="false" onAction="#changeControl" prefHeight="38.0" prefWidth="130.0" text="Space" />
+                        <Button fx:id="walkLeft" mnemonicParsing="false" onAction="#changeControl" text="A" />
+                        <Button fx:id="walkDown" mnemonicParsing="false" onAction="#changeControl" text="S" />
+                        <Button fx:id="walkRight" mnemonicParsing="false" onAction="#changeControl" text="D" />
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="42.0" prefWidth="328.0">
-                     <children>
-                        <Label text="Dash 2" />
-                        <Button fx:id="dash2" mnemonicParsing="false" onAction="#changeControl" text="Middle mouse" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="52.0" prefWidth="328.0">
-                     <children>
-                        <Label text="Attack" />
-                        <Button fx:id="esc" mnemonicParsing="false" onAction="#changeControl" prefHeight="38.0" prefWidth="136.0" text="Mouse Click" />
-                     </children>
-                  </HBox>
-                  <Button fx:id="resetControlsBtn" mnemonicParsing="false" onAction="#resetControls" text="RESET" />
                </children>
             </VBox>
+            <HBox alignment="CENTER" prefHeight="49.0" prefWidth="328.0">
+               <children>
+                  <Label text="Dash 1" />
+                  <Button fx:id="dash1" mnemonicParsing="false" onAction="#changeControl" prefHeight="38.0" prefWidth="130.0" text="Space" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="42.0" prefWidth="328.0">
+               <children>
+                  <Label text="Dash 2" />
+                  <Button fx:id="dash2" mnemonicParsing="false" onAction="#changeControl" text="Middle mouse" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="52.0" prefWidth="328.0">
+               <children>
+                  <Label text="Attack" />
+                  <Button fx:id="esc" mnemonicParsing="false" onAction="#changeControl" prefHeight="38.0" prefWidth="136.0" text="Mouse Click" />
+               </children>
+            </HBox>
+            <Button fx:id="resetControlsBtn" mnemonicParsing="false" onAction="#resetControls" text="RESET" />
          </children>
-      </HBox>
-   </center>
-</BorderPane>
+      </VBox>
+      <VBox fx:id="mainOptions" alignment="CENTER" layoutX="6.0" layoutY="14.0" prefHeight="345.0" prefWidth="351.0" spacing="30.0" style="-fx-background-radius: 20;">
+         <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+         </padding>
+         <children>
+            <Label text="---- Miscelaneus ----" />
+            <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
+               <children>
+                  <Label fx:id="skinNameLabel11" ellipsisString="" text="scale" textFill="#00ffcc">
+                     <font>
+                        <Font name="System Italic" size="25.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="scaleSlider" blockIncrement="2.0" max="96.0" min="1.0" onDragDetected="#updateScale" value="64.0" />
+               </children>
+            </HBox>
+            <CheckBox fx:id="checkFps" mnemonicParsing="false" onAction="#toggleFPSVisible" text="MOSTRA FPS" />
+            <CheckBox fx:id="FullscreenCheck" mnemonicParsing="false" onAction="#toggleFullscreen" text="FULLSCREEN" />
+         </children>
+      </VBox>
+      <VBox layoutX="339.0" layoutY="98.0" prefHeight="200.0" prefWidth="209.0">
+         <children>
+            <Label alignment="CENTER" text="---- Audio ----" />
+            <HBox alignment="CENTER" prefHeight="39.0" prefWidth="158.0" spacing="8.0">
+               <children>
+                  <Label fx:id="skinNameLabel2" ellipsisString="" text="MASTER AUDIO" textFill="#00ffcc">
+                     <font>
+                        <Font name="System Italic" size="25.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="BGMSlider1" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
+               <children>
+                  <Label fx:id="skinNameLabel" ellipsisString="" text="BGM AUDIO" textFill="#00ffcc">
+                     <font>
+                        <Font name="System Italic" size="25.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="BGMSlider" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="0.0" prefWidth="290.0" spacing="8.0">
+               <children>
+                  <Label fx:id="skinNameLabel1" ellipsisString="" text="SFX AUDIO" textFill="#00ffcc">
+                     <font>
+                        <Font name="System Italic" size="25.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="SFXSlider" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+      <VBox layoutX="339.0" layoutY="286.0" prefHeight="200.0" prefWidth="154.0">
+         <children>
+            <Label text="Account Management" />
+            <Button fx:id="DeleteAccountBtn" ellipsisString="" onAction="#deleteAccount" styleClass="back-button" text="Delete Account" />
+            <Button fx:id="ResetAccountBtn" ellipsisString="" onAction="#resetAccount" prefHeight="38.0" prefWidth="203.0" styleClass="back-button" text="Reset Account" />
+         </children>
+      </VBox>
+      <Button fx:id="ExitBtn" ellipsisString="" layoutX="79.0" layoutY="386.0" onAction="#handleBack" styleClass="back-button" text="ESCI" />
+   </children>
+</Pane>
