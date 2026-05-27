@@ -1,8 +1,8 @@
 package uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.core.MovementRequest;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.lib.implementations.MovementRequest;
 
 /**
  * A behavior that controls where/how an entity moves.

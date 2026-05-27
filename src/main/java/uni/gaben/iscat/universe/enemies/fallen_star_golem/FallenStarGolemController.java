@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.enemies.fallen_star_golem;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.core.MovementRequest;
+import uni.gaben.iscat.universe.lib.implementations.MovementRequest;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.AttackBehavior;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.MovementBehavior;
 import uni.gaben.iscat.universe.UniverseModel;

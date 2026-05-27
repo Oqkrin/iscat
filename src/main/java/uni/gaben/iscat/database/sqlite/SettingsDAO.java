@@ -5,6 +5,10 @@ import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
 import java.sql.*;
 
 public class SettingsDAO {
+    private SettingsDAO() {
+        /* This utility class should not be instantiated */
+    }
+
 
     public static UserSettings loadSettings(int userId) {
         String sql = "SELECT * FROM ImpostazioniUtenti WHERE UserID = ?";

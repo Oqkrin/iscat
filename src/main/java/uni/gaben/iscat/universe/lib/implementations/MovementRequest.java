@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.lib.implementations.behaviors.core;
+package uni.gaben.iscat.universe.lib.implementations;
 
 import org.dyn4j.geometry.Vector2;
 

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.core.MovementRequest;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.core.SteeringController;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.AttackBehavior;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.MovementBehavior;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.PassiveBehavior;

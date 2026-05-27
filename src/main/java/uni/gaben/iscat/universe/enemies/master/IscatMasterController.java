@@ -4,7 +4,7 @@ import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.*;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.movement.*;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.*;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.CheckLineOfSight;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.CheckLineOfSight;
 import uni.gaben.iscat.universe.UniverseSpawnable;
 import uni.gaben.iscat.universe.lib.implementations.attacks.*;
 import uni.gaben.iscat.universe.UU;
