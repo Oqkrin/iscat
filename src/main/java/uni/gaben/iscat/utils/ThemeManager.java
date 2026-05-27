@@ -24,7 +24,7 @@ public class ThemeManager {
     public static ThemeManager getInstance() { return instance; }
 
     // --- State & Component Cache Control Arrays ---
-    private final ObjectProperty<Color> globalTint = new SimpleObjectProperty<>(Color.WHITE);
+    private final ObjectProperty<Color> globalTint;
     private final Map<String, Color> currentPalette = new HashMap<>();
     private final Map<TintKey, Image> tintCache = new HashMap<>();
 
@@ -34,6 +34,7 @@ public class ThemeManager {
     private ThemeManager() {
         // Core initialization sync
         loadPalette(currentCssPath);
+        globalTint = new SimpleObjectProperty<>(getAccentPrimary());
     }
 
     /**

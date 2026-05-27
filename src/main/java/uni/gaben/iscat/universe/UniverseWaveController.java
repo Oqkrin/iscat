@@ -144,7 +144,7 @@ public class UniverseWaveController {
                     break;
             }
 
-            Object spawnedObject = UniverseSpawner.getInstance().waveSpawn(enemyToSpawn, spawnX, spawnY, (int) (playerLevel+masterTimeSec/60));
+            Object spawnedObject = UniverseSpawner.getInstance().waveSpawn(enemyToSpawn, spawnX, spawnY, 666*(int) (playerLevel+masterTimeSec/60));
 
             if (spawnedObject != null) {
                 activeEnemies.add(new ActiveEnemy(spawnedObject, enemyToSpawn));

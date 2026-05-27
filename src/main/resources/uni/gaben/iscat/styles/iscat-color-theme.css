@@ -30,10 +30,12 @@
     /* ============================================
        ACCENT COLORS (3 colors)
        ============================================ */
-    -accent-primary:   #cbcbcb;
-    -accent-secondary: #a9a9a9;
-    -accent-tertiary:  #333333;
-
+    -accent-primary: #ff0000;
+    -accent-secondary: #ff6200;
+    -accent-tertiary: #ffa600;
+    /*#cbcbcb;*/
+    /*#a9a9a9;*/
+    /*#333333;*/
     /* ============================================
        SEMANTIC COLORS (4 colors)
        ============================================ */
