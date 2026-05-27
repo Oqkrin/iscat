@@ -163,18 +163,6 @@ public class OptionsMenuController implements IscatFxmlController {
         refreshButtonLabels();
     }
 
-    @FXML
-    void saveAndCloseControls(ActionEvent event) {
-        toggleVisibilityMainOptions();
-        toggleVisibilityControls();
-    }
-
-    @FXML
-    void showControls(ActionEvent event) {
-        toggleVisibilityMainOptions();
-        toggleVisibilityControls();
-    }
-
     @FXML void toggleFPSVisible(ActionEvent event) {}
     @FXML void deleteAccount(ActionEvent event) {}
     @FXML void resetAccount(ActionEvent event) {}

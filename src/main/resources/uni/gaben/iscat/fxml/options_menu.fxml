@@ -7,11 +7,10 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/options-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.options.OptionsMenuController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="879.0" prefWidth="660.0" stylesheets="@../styles/options-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.options.OptionsMenuController">
    <top>
       <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
@@ -25,7 +24,7 @@
       </VBox>
    </top>
    <center>
-      <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>            <VBox fx:id="mainOptions" alignment="CENTER" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
                <padding>
                   <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
@@ -65,12 +64,11 @@
                </HBox>
                <CheckBox fx:id="checkFps" mnemonicParsing="false" onAction="#toggleFPSVisible" text="MOSTRA FPS" />
                <CheckBox fx:id="FullscreenCheck" mnemonicParsing="false" onAction="#toggleFullscreen" text="FULLSCREEN" />
-               <Button fx:id="ControlsBtn" ellipsisString="" onAction="#showControls" styleClass="back-button" text="Controls" />
                <Button fx:id="DeleteAccountBtn" ellipsisString="" onAction="#deleteAccount" styleClass="back-button" text="Delete Account" />
                <Button fx:id="ResetAccountBtn" ellipsisString="" onAction="#resetAccount" styleClass="back-button" text="Reset Account" />
             <Button fx:id="ExitBtn" ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
             </VBox>
-            <VBox fx:id="controlsBox" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" visible="false" StackPane.alignment="CENTER">
+            <VBox fx:id="controlsBox" alignment="CENTER" prefHeight="721.0" prefWidth="346.0">
                <children>
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                      <children>
@@ -115,10 +113,9 @@
                      </children>
                   </HBox>
                   <Button fx:id="resetControlsBtn" mnemonicParsing="false" onAction="#resetControls" text="RESET" />
-                  <Button fx:id="saveAndCloseControlsBtn" mnemonicParsing="false" onAction="#saveAndCloseControls" text="SAVE AND EXIT" />
                </children>
             </VBox>
          </children>
-      </StackPane>
+      </HBox>
    </center>
 </BorderPane>
