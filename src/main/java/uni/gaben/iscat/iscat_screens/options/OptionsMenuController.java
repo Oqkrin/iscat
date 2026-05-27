@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.iscat_mv_controller.IscatFxmlController;
@@ -19,7 +20,10 @@ import uni.gaben.iscat.iscat_model_vc.IscatViews;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
 import uni.gaben.iscat.database.sqlite.SettingsDAO;
+import uni.gaben.iscat.utils.DynamicColors;
 import uni.gaben.iscat.utils.SessionManager;
+
+import java.io.File;
 
 public class OptionsMenuController implements IscatFxmlController {
 
@@ -215,6 +219,14 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void onImagePick(ActionEvent event) {
+
+        FileChooser imagePicker = new FileChooser();
+        try {
+            File choosenImage = imagePicker.showOpenDialog(null);
+            DynamicColors.getTopDistinctColorsHex(choosenImage,3);
+        } catch (NullPointerException e) {
+            System.err.println("[OptionsController] Error opening image file");
+        }
 
     }
 

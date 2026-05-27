@@ -70,7 +70,13 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
     public boolean isEntranceDone() { return entranceDone; }
     public void setEntranceDone(boolean done) { this.entranceDone = done; }
 
-    // ── DEATH ─────────────────────────────────────────────────────────────────
+// ── DEATH ─────────────────────────────────────────────────────────────────
+
+    @Override
+    public void kill() {
+        // Redirect the no-arg call from the controller to our custom deferred death logic
+        this.kill(true);
+    }
 
     @Override
     public void kill(boolean b) {
@@ -91,7 +97,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
         if (completeKillCalled) return; // guard contro doppia chiamata
         completeKillCalled = true;
         if (waveController != null) waveController.notifyBossDead();
-        super.kill(true);
+        super.kill(true); // Ora evoca la cancellazione effettiva dal motore fisico
     }
 
     // ── HAS PROJECTILE ────────────────────────────────────────────────────────
