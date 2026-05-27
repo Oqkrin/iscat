@@ -1,8 +1,8 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.universe.lib.behaviurs.AiController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.controller.AiController;
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.enemies.fake.FakeIscatController;
 import uni.gaben.iscat.universe.enemies.fake.FakeIscatModel;
@@ -29,7 +29,6 @@ import uni.gaben.iscat.universe.enemies.bomber.IscatBomberController;
 import uni.gaben.iscat.universe.enemies.bomber.IscatBomberModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -126,7 +125,7 @@ public class UniverseSpawner {
     public IscatMasterModel spawnIscatMaster(double x, double y) {
         IscatMasterModel master = new IscatMasterModel(x, y, waveController);
         model.addEntity(master);
-        controller.addAiController(new IscatMasterController(master));
+        controller.addAiController((AiController) new IscatMasterController(master));
         return master;
     }
 
@@ -144,7 +143,7 @@ public class UniverseSpawner {
 
     private <M extends AbstractEntityModel> M spawnStandard(
             BiFunction<Double, Double, M> modelFactory,
-            Function<M, ?> controllerFactory,
+            Function<M, AiController> controllerFactory,   // was Function<M, ?>
             double x, double y) {
 
         if (model == null || controller == null) {
@@ -156,8 +155,8 @@ public class UniverseSpawner {
         model.addEntity(entityModel);
 
         if (controllerFactory != null) {
-            Object aiController = controllerFactory.apply(entityModel);
-            controller.addAiController((AiController) aiController);
+            AiController aiController = controllerFactory.apply(entityModel);
+            controller.addAiController(aiController);
         }
 
         return entityModel;
@@ -179,7 +178,7 @@ public class UniverseSpawner {
         for (IscatWormSegment seg : worm.getSegments()) {
             model.addEntity(seg); // ogni segmento è un corpo fisico separato
         }
-        controller.addAiController(new IscatWormController(worm));
+        controller.addWormController(new IscatWormController(worm));
         return worm;
     }
 }

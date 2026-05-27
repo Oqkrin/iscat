@@ -1,28 +1,72 @@
 package uni.gaben.iscat.universe.enemies.dasher;
 
-import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.*;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.movement.*;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.*;
-import uni.gaben.iscat.universe.UU;
+import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.universe.lib.behaviurs.AiController;
+import uni.gaben.iscat.universe.lib.behaviurs.AttackBehavior;
+import uni.gaben.iscat.universe.lib.behaviurs.modifiers.ObstacleAvoidanceModifier;
+import uni.gaben.iscat.universe.lib.behaviurs.modifiers.ProjectileAvoidanceModifier;
+import uni.gaben.iscat.universe.lib.behaviurs.modifiers.SeparationModifier;
+import uni.gaben.iscat.universe.lib.behaviurs.strategies.ChaseStrategy;
+import uni.gaben.iscat.universe.lib.behaviurs.strategies.OrbitStrategy;
+import uni.gaben.iscat.universe.player.PlayerModel;
+import uni.gaben.iscat.utils.Cooldown;
 
 import static uni.gaben.iscat.universe.enemies.dasher.IscatDasherSettings.ISCATDASHER;
 
-public class IscatDasherController extends AiBehaviours<IscatDasherModel> {
+// IscatDasherController.java
+public class IscatDasherController extends AiController {
 
-    public IscatDasherController(IscatDasherModel iscat) {
-        super(iscat, ISCATDASHER.force, ISCATDASHER.maxVelocity, ISCATDASHER.rotationSpeed);
+    private final Cooldown plungeCooldown = new Cooldown();
 
-        // Separation (Passive)
-        this.addPassive(new SeparationBehavior(UU.pxToM(24.0), ISCATDASHER.force * 0.8));
+    public IscatDasherController(IscatDasherModel entity) {
+        super(entity, ISCATDASHER.force, ISCATDASHER.maxVelocity, ISCATDASHER.rotationSpeed);
+        // Movement strategies: default orbit
+        setMovementStrategy(new OrbitStrategy(ISCATDASHER.maxVelocity, IscatDasherSettings.orbitRadius));
+        // Modifiers: always apply
+        addModifier(new SeparationModifier(2.0, 0.6));
+        addModifier(new ObstacleAvoidanceModifier());
+        addModifier(new ProjectileAvoidanceModifier());
+        // Attacks
+        addAttack(new PlungeAttack(IscatDasherSettings.plungeTriggerRadius, IscatDasherSettings.plungeForce, 1.5));
+    }
 
-        // Orbit (Movement track)
-        this.addMovement(new OrbitPlayerBehavior(ISCATDASHER.maxVelocity, ISCATDASHER.combatRange, 100.0, true));
-
-        // Fast Dodge (Movement track)
-        this.addMovement(new DodgeProjectileBehavior(ISCATDASHER.force * 2.5, ISCATDASHER.combatRange, 1));
-
-        // Plunge Attack (Both tracks)
-        this.add(new PlungeAttackBehavior(ISCATDASHER.combatRange, ISCATDASHER.force * 3.0, 1, 1));
+    // Plunge attack (both AttackBehavior and also changes movement strategy temporarily)
+    private class PlungeAttack implements AttackBehavior {
+        private final double triggerRadius, force, cooldown;
+        public PlungeAttack(double triggerRadius, double force, double cooldown) {
+            this.triggerRadius = triggerRadius;
+            this.force = force;
+            this.cooldown = cooldown;
+        }
+        @Override
+        public double getPriority(AbstractEntityModel entity, UniverseModel world) {
+            if (plungeCooldown.isCoolingDown()) return 0;
+            PlayerModel p = world.getPlayer();
+            if (p == null) return 0;
+            double dist = entity.getTransform().getTranslation().distance(p.getTransform().getTranslation());
+            return dist < triggerRadius ? 100 : 0;
+        }
+        @Override
+        public void execute(AbstractEntityModel entity, UniverseModel world, double dt) {
+            PlayerModel p = world.getPlayer();
+            if (p == null) return;
+            Vector2 dir = p.getTransform().getTranslation().copy()
+                    .subtract(entity.getTransform().getTranslation()).getNormalized();
+            entity.applyImpulse(dir.multiply(force));
+            plungeCooldown.start(cooldown);
+            // Temporarily set movement to direct chase for the plunge duration
+            setMovementStrategy(new ChaseStrategy(ISCATDASHER.maxVelocity));
+            // After 0.5 seconds, revert to orbit
+            new java.util.Timer().schedule(new java.util.TimerTask() {
+                @Override public void run() {
+                    setMovementStrategy(new OrbitStrategy(ISCATDASHER.maxVelocity, IscatDasherSettings.orbitRadius));
+                }
+            }, 500);
+        }
+        @Override public void tick(AbstractEntityModel entity, UniverseModel world, double dt) {
+            plungeCooldown.update(dt);
+        }
     }
 }

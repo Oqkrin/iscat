@@ -45,7 +45,7 @@ public class PlayerController {
         if (!player.isInScatto()) {
             if (dx != 0 || dy != 0) {
                 Vector2 dir = new Vector2(dx, dy).getNormalized();
-                player.applyForce(dir.multiply(PlayerSettings.FORZA_SPINTA * player.getMass().getMass()));
+                if (player.notStunned()) player.applyForce(dir.multiply(PlayerSettings.FORZA_SPINTA * player.getMass().getMass()));
             }
 
             double playerWorldPxX = UU.mToPx(player.getTransform().getTranslationX());
@@ -61,13 +61,13 @@ public class PlayerController {
 
             nextAngle = Interpolator.lerp(currentAngle, currentAngle + diff, Math.min(15.0 * dt, 1.0));
             player.getTransform().setRotation(nextAngle);
-            player.setAngularVelocity(Interpolator.lerp(player.getAngularVelocity(), 0, Math.min(20.0 * dt, 1.0)));
+            if (player.notStunned()) player.setAngularVelocity(Interpolator.lerp(player.getAngularVelocity(), 0, Math.min(20.0 * dt, 1.0)));
             handleShooting(input);
         } else {
             player.setAngularVelocity(0);
         }
 
-        handleDash(input, dx, dy, nextAngle);
+        if (player.notStunned()) handleDash(input, dx, dy, nextAngle);
     }
 
     private void handleDash(

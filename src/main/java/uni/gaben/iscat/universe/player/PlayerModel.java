@@ -9,6 +9,7 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
+import uni.gaben.iscat.universe.enemies.bomber.IscatBomberSettings;
 import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
@@ -28,6 +29,7 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
     private final Cooldown dashCooldown = new Cooldown();
     private final Cooldown dashDuration = new Cooldown();
     private final Cooldown weaponCooldown = new Cooldown();
+    private final Cooldown stunCooldown = new Cooldown();
 
     private Runnable onDeathCallback;
 
@@ -168,5 +170,13 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
         setLife(getMaxLife());
 
         System.out.println("[LEVEL UP] Nuovo Livello: " + getLevel() + " | Prossimo livello a: " + this.xpNeeded + " XP");
+    }
+
+    public void applyStun(double duration) {
+        stunCooldown.start(duration);
+    }
+
+    public boolean notStunned() {
+        return stunCooldown.isReady();
     }
 }
