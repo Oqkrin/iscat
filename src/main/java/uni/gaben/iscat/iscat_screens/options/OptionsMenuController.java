@@ -1,5 +1,6 @@
 package uni.gaben.iscat.iscat_screens.options;
 
+import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -73,6 +74,9 @@ public class OptionsMenuController implements IscatFxmlController {
     private Button selectedButton = null;
     private String selectedColumn = null;
 
+    // Timer locale per aggiornare i ColorPicker nell'interfaccia delle opzioni
+    private AnimationTimer uiRainbowSyncTimer;
+
     @FXML
     public void initialize() {
         // Audio Controls
@@ -88,10 +92,15 @@ public class OptionsMenuController implements IscatFxmlController {
         refreshButtonLabels();
         syncColorPickersWithTheme();
 
-        // Global Key Listener Configuration
+        // Configurazione del listener della scena per catturare l'attivazione dell'arcobaleno
         paneMaster.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleGlobalKeyPress);
+
+                // Se era già attivo globalmente da un gameplay precedente, aggancia il sync
+                if (ThemeManager.getInstance().isRainbowModeActive()) {
+                    startUiSyncTimer();
+                }
             }
         });
     }
@@ -156,6 +165,9 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void handleBack(ActionEvent event) {
+        if (uiRainbowSyncTimer != null) {
+            uiRainbowSyncTimer.stop();
+        }
         IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
@@ -187,7 +199,41 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML void toggleFPSVisible(ActionEvent event) {}
     @FXML void deleteAccount(ActionEvent event) {}
-    @FXML void resetAccount(ActionEvent event) {}
+
+    @FXML
+    void resetAccount(ActionEvent event) {
+        if (paneMaster.getScene() == null) return;
+        if (ThemeManager.getInstance().isRainbowModeActive()) {
+            ThemeManager.getInstance().stopRainbowMode();
+            if (uiRainbowSyncTimer != null) {
+                uiRainbowSyncTimer.stop();
+            }
+            syncColorPickersWithTheme();
+            AudioManager.getInstance().playSFX("laugh");
+        } else {
+            AudioManager.getInstance().playSFX("rainbow");
+            ThemeManager.getInstance().startRainbowMode(paneMaster.getScene());
+            startUiSyncTimer();
+        }
+    }
+
+    private void startUiSyncTimer() {
+        if (uiRainbowSyncTimer != null) {
+            uiRainbowSyncTimer.stop();
+        }
+
+        uiRainbowSyncTimer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                // Allinea i selettori grafici delle opzioni (Primary, Secondary, Tertiary)
+                Color currentArcobaleno = ThemeManager.getInstance().getAccentPrimary();
+                accentPrimary.setValue(currentArcobaleno);
+                accentSecondary.setValue(currentArcobaleno);
+                accentTernary.setValue(currentArcobaleno);
+            }
+        };
+        uiRainbowSyncTimer.start();
+    }
 
     @FXML
     void toggleFullscreen(ActionEvent event) {
@@ -226,6 +272,12 @@ public class OptionsMenuController implements IscatFxmlController {
     private void applyManualColorChanges() {
         if (paneMaster.getScene() == null) return;
 
+        // Disattiva la RainbowMode se l'utente sceglie un colore manualmente
+        ThemeManager.getInstance().stopRainbowMode();
+        if (uiRainbowSyncTimer != null) {
+            uiRainbowSyncTimer.stop();
+        }
+
         List<String> hexPalette = List.of(
                 toHex(accentPrimary.getValue()),
                 toHex(accentSecondary.getValue()),
@@ -240,15 +292,15 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void toggleThemeMode(ActionEvent event) {
-        // If an image is selected, re-extract colors so we "steal" the appropriate light/dark background
+        ThemeManager.getInstance().stopRainbowMode();
+        if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
+
         if (!carouselImages.isEmpty() && currentIndex >= 0) {
             applyTheme(carouselImages.get(currentIndex));
         } else {
-            // Fallback generation if no image is active
             boolean isLight = lightModeCheck.isSelected();
             Color currentPrimary = accentPrimary.getValue();
 
-            // Basic luminosity shift fallback
             double targetBrightness = isLight ? 0.95 : 0.05;
             Color fallbackBg = Color.hsb(currentPrimary.getHue(), currentPrimary.getSaturation() * 0.1, targetBrightness);
 
@@ -277,6 +329,9 @@ public class OptionsMenuController implements IscatFxmlController {
 
     private void applyTheme(File imageFile) {
         try {
+            ThemeManager.getInstance().stopRainbowMode();
+            if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
+
             boolean isLightMode = lightModeCheck.isSelected();
             List<java.awt.Color> palette = DynamicColors.getTopDistinctColors(
                     ImageIO.read(imageFile), 4, isLightMode

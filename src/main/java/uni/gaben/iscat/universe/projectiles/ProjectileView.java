@@ -1,8 +1,10 @@
 package uni.gaben.iscat.universe.projectiles;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.universe.lib.interfaces.view.Drawable;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 
 /**
  * Vista standardizzata per il Proiettile.
@@ -26,6 +28,8 @@ public class ProjectileView extends AbstractEntityView<Projectile> implements Dr
         // IL FIX: x e y arrivano precalcolate come (-width/2, -height/2).
         // Disegnando qui, il cerchio grafico si allinea millimetricamente
         // alla fixture fisica di Dyn4j invece di sporgere dall'angolo (0,0).
+        Color bulletColor = ThemeManager.getInstance().getAccentTernary();
+        gc.setFill(bulletColor);
         gc.fillOval(x, y, width, height);
     }
 }

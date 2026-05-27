@@ -1,5 +1,6 @@
 package uni.gaben.iscat.utils.theme;
 
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -34,6 +35,13 @@ public class ThemeManager {
     private String currentCssPath = "/uni/gaben/iscat/styles/iscat-color-theme.css";
     private Timeline animation;
 
+    // --- Rainbow Mode Properties ---
+    private AnimationTimer rainbowTimer;
+    private double rainbowHue = 0.0;
+    private boolean rainbowActive = false;
+    private Color currentRainbowColor = Color.WHITE;
+    private Scene activeSceneRef = null; // Riferimento per aggiornare il CSS a schermo
+
     private ThemeManager() {
         // Core initialization sync
         loadPalette(currentCssPath);
@@ -41,10 +49,97 @@ public class ThemeManager {
     }
 
     /**
-     * Hot-swaps the underlying presentation stylesheet. Dynamically builds color maps,
-     * resets frame buffer image mutations, and updates visual themes cleanly.
+     * Attiva la modalità arcobaleno graduale per Primary, Secondary e Tertiary.
+     * Aggiorna anche il CSS iniettato nella scena passata come parametro.
+     */
+    public void startRainbowMode(Scene currentScene) {
+        if (rainbowTimer != null) {
+            rainbowTimer.stop();
+        }
+
+        this.activeSceneRef = currentScene;
+        rainbowActive = true;
+
+        rainbowTimer = new AnimationTimer() {
+            private long lastCacheClear = 0;
+            private long lastCssUpdate = 0;
+            private long lastSpriteUpdate = 0;
+
+            @Override
+            public void handle(long now) {
+                // Incremento graduale della tonalità (uguale a prima per la fluidità del Canvas)
+                rainbowHue = (rainbowHue + 0.4) % 360.0;
+                currentRainbowColor = Color.hsb(rainbowHue, 0.85, 0.9);
+
+                // Aggiorna la palette locale in memoria usata dai getter dei proiettili e scritte
+                currentPalette.put("accent-primary", currentRainbowColor);
+                currentPalette.put("accent-secondary", currentRainbowColor);
+                currentPalette.put("accent-tertiary", currentRainbowColor);
+
+                // LIMITATORE DI TEXTURE HARDWARE (Ogni 200ms)
+                // Aggiorna globalTint (usato dagli sprite ricolorati) solo 5 volte al secondo.
+                // In questo modo la GPU deve istanziare pochissime varianti e non va in crash.
+                if (now - lastSpriteUpdate > 200_000_000) {
+                    globalTint.set(currentRainbowColor);
+                    lastSpriteUpdate = now;
+                }
+
+                // Rigenera e applica il file CSS reale ogni 15 frame (circa ogni 250ms)
+                if (now - lastCssUpdate > 250_000_000) {
+                    if (activeSceneRef != null) {
+                        String hex = toHexStr(currentRainbowColor);
+                        List<String> hexPalette = List.of(hex, hex, hex, toHexStr(getBgPrimary()));
+                        applyHexColorsThemeInternal(activeSceneRef, hexPalette);
+                    }
+                    lastCssUpdate = now;
+                }
+
+                // SVUOTAMENTO DI SICUREZZA (Ogni 2 secondi anziché 200ms)
+                // Svuotare troppo spesso manda in panico la pipeline D3DSwapChain se ci sono draw calls attive.
+                if (now - lastCacheClear > 2_000_000_000L) {
+                    tintCache.clear();
+                    lastCacheClear = now;
+                }
+            }
+        };
+        rainbowTimer.start();
+    }
+
+    /**
+     * Disattiva la modalità arcobaleno ripristinando i colori originari del tema.
+     */
+    public void stopRainbowMode() {
+        rainbowActive = false;
+        if (rainbowTimer != null) {
+            rainbowTimer.stop();
+        }
+        activeSceneRef = null;
+        tintCache.clear();
+        loadPalette(currentCssPath);
+        globalTint.set(getAccentPrimary());
+    }
+
+    public boolean isRainbowModeActive() {
+        return rainbowActive;
+    }
+
+    /**
+     * Helper interno veloce per convertire il colore senza alterare la pipeline dei fogli di stile esterni
+     */
+    private String toHexStr(Color color) {
+        return String.format("#%02x%02x%02x",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255)
+        );
+    }
+
+    /**
+     * Hot-swaps the underlying presentation stylesheet.
      */
     public void switchTheme(Scene scene, String newCssPath, Color targetSpriteTint, double durationSec) {
+        stopRainbowMode();
+
         if (scene != null) {
             var oldRes = getClass().getResource(currentCssPath);
             if (oldRes != null) {
@@ -61,7 +156,6 @@ public class ThemeManager {
         this.currentCssPath = newCssPath;
         loadPalette(newCssPath);
 
-        // Instantly dump old assets to prevent broken color bleed or cache leaks across maps
         tintCache.clear();
         animateTint(targetSpriteTint, durationSec);
     }
@@ -71,10 +165,6 @@ public class ThemeManager {
         currentPalette.putAll(CssColorParser.parseColors(path));
     }
 
-    /**
-     * Look up colors programmatically. If a key is missing, it logs a warning
-     * and flashes bright Magenta to instantly highlight formatting errors during development.
-     */
     public Color getColor(String key) {
         Color color = currentPalette.get(key);
         if (color == null) {
@@ -84,7 +174,7 @@ public class ThemeManager {
         return color;
     }
 
-    // --- Explicit Unified Property Access Layer (Replaces ThemeColors.java) ---
+    // --- Explicit Unified Property Access Layer ---
     public Color getBgPrimary()        { return getColor("bg-primary"); }
     public Color getBgSecondary()      { return getColor("bg-secondary"); }
     public Color getBgTertiary()       { return getColor("bg-tertiary"); }
@@ -105,7 +195,6 @@ public class ThemeManager {
     public Color getColorInfo()        { return getColor("color-info"); }
     public Color getColorTransparent() { return getColor("color-transparent"); }
 
-    // --- Asset Tint Allocation Pipelines ---
     public ObjectProperty<Color> globalTintProperty() { return globalTint; }
 
     public Image getTintedImage(Image source, Color color) {
@@ -119,52 +208,35 @@ public class ThemeManager {
         animation.play();
     }
 
-    private record TintKey(Image image, Color color) {
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof TintKey(Image image1, Color color1))) {
-                return false;
-            }
-            return image.equals(image1) && color.equals(color1);
-        }
-        @Override
-        public int hashCode() {
-            return Objects.hash(image, color);
-        }
-    }
+    private record TintKey(Image image, Color color) {}
 
-    // Keep track of the currently active external file (if any)
     private File activeDynamicCssFile = null;
 
     /**
-     * Recreates the CSS file dynamically from a list of raw Hex colors,
-     * providing a unified pipeline for both image extraction and manual color picker inputs.
+     * Esposizione pubblica standard per modifiche manuali da ColorPicker o Immagini.
      */
     public void applyHexColorsTheme(Scene scene, List<String> topHexColors, double durationSec) {
         if (topHexColors == null || topHexColors.isEmpty()) return;
+        applyHexColorsThemeInternal(scene, topHexColors);
 
-        // 1. Generate the physical temporary CSS file
+        currentPalette.clear();
+        currentPalette.putAll(CssColorParser.parseExternalColors(this.activeDynamicCssFile));
+        tintCache.clear();
+        animateTint(getAccentPrimary(), durationSec);
+    }
+
+    /**
+     * Pipeline di riscrittura fisica del CSS sul disco e swap immediato nell'albero di JavaFX
+     */
+    private void applyHexColorsThemeInternal(Scene scene, List<String> topHexColors) {
         File newCssFile = CssThemeGenerator.createDynamicStylesheet("/uni/gaben/iscat/styles/iscat-color-theme.css", topHexColors);
         if (newCssFile == null) return;
 
-        // 2. Update the JavaFX Scene Graph stylesheets
         if (scene != null) {
             scene.getStylesheets().removeIf(url -> url.contains("iscat-color-theme.css") || url.contains("iscat-dynamic-theme"));
             String newStylesheetUrl = newCssFile.toURI().toString();
             scene.getStylesheets().add(newStylesheetUrl);
         }
-
-        // 3. Update the Java memory state map via the CSS Parser
-        currentPalette.clear();
-        currentPalette.putAll(CssColorParser.parseExternalColors(newCssFile));
-
-        // Save active disk reference
         this.activeDynamicCssFile = newCssFile;
-
-        // 4. Animate the global game asset sprite tints
-        tintCache.clear();
-        animateTint(getAccentPrimary(), durationSec);
     }
-
 }
