@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.lib.implementations.behaviors;
+package uni.gaben.iscat.universe.lib.implementations.behaviors.passive;
 
 import org.dyn4j.collision.Filter;
 import org.dyn4j.dynamics.Body;

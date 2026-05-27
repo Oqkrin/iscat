@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe.lib.implementations.behaviors.movement;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.core.MovementRequest;
+import uni.gaben.iscat.universe.lib.implementations.MovementRequest;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.MovementBehavior;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
@@ -52,22 +52,20 @@ public class OrbitPlayerBehavior implements MovementBehavior {
         Vector2 npcPos    = npc.getTransform().getTranslation();
         Vector2 playerPos = player.getTransform().getTranslation();
         double  dist      = playerPos.distance(npcPos);
-        Vector2 toPlayer  = playerPos.copy().subtract(npcPos).getNormalized();
+        Vector2 toPlayer = playerPos.copy().subtract(npcPos).getNormalized();
+        Vector2 tangent  = new Vector2(-toPlayer.y, toPlayer.x);
 
-        Vector2 desiredVelocity;
-        if (dist > orbitRadius * 1.2) {
-            desiredVelocity = toPlayer.multiply(maxVelocity);
-        } else if (dist < orbitRadius * 0.8) {
-            desiredVelocity = toPlayer.multiply(-maxVelocity);
-        } else {
-            // Tangent (counter-clockwise)
-            desiredVelocity = new Vector2(-toPlayer.y, toPlayer.x).multiply(maxVelocity);
-        }
+        // 1. Calculate Radial component (Approach/Retreat)
+        double radialStrength = (dist - orbitRadius) * 2.0; // Scaled difference
+        Vector2 radialForce = toPlayer.multiply(radialStrength);
 
-        double rotTarget = facePlayer
-                ? toPlayer.getDirection()
-                : desiredVelocity.getDirection();
+        // 2. Calculate Tangential component (Orbit)
+        Vector2 tangentialForce = tangent.multiply(maxVelocity);
 
-        return MovementRequest.of(desiredVelocity, rotTarget);
+        // 3. Blend them!
+        // This creates a circular path that naturally corrects its distance.
+        Vector2 desiredVelocity = radialForce.add(tangentialForce).getNormalized().multiply(maxVelocity);
+
+        return MovementRequest.of(desiredVelocity, facePlayer ? toPlayer.getDirection() : desiredVelocity.getDirection());
     }
 }

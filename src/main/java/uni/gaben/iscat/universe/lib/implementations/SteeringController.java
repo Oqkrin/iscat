@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.lib.implementations.behaviors.core;
+package uni.gaben.iscat.universe.lib.implementations;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
@@ -36,7 +36,7 @@ public class SteeringController {
 
     /**
      * Applies {@code request} to {@code entity}. Call once per frame after
-     * the active {@link uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.MovementBehavior}
+     * the active {@link MovementBehavior}
      * has been selected.
      *
      * @param entity  The entity to steer.
