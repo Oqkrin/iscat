@@ -10,9 +10,7 @@ import uni.gaben.iscat.universe.lib.implementations.attacks.SingleShotAttack;
 import uni.gaben.iscat.universe.lib.implementations.attacks.SpreadAttack;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.PlungeAttackBehavior;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.ShooterBehaviour;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.MovementBehavior;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.PassiveBehavior;
-import uni.gaben.iscat.universe.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.universe.lib.interfaces.controller.AiController;
 import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
@@ -21,6 +19,22 @@ import uni.gaben.iscat.utils.Interpolator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * BUG 5 FIXED: All segment behaviors were anonymous {@code AiBehavior} instances.
+ * {@code AiBehaviours.add()} only pattern-matches {@code MovementBehavior},
+ * {@code AttackBehavior}, and {@code PassiveBehavior} — so EVERY behavior was
+ * silently discarded.  The worm was completely inert.
+ *
+ * FIX: The worm's head/follow/lock behaviors bypass the steering controller
+ * intentionally (they manage their own physics with velocity capping, excess-force
+ * scaling, etc.).  The correct track for this is {@link PassiveBehavior} — it
+ * runs every frame unconditionally, and passive behaviors are permitted to call
+ * {@code applyForce} directly.
+ *
+ * ShooterBehaviour (already an AttackBehavior) and PlungeAttackBehavior
+ * (AttackBehavior + MovementBehavior) are registered via the proper tracks
+ * and need no changes.
+ */
 public class IscatWormController implements AiController {
 
     private final IscatWormModel worm;
@@ -34,28 +48,33 @@ public class IscatWormController implements AiController {
     }
 
     private AiBehaviours<IscatWormSegment> buildController(IscatWormSegment seg) {
-        double force = seg.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_FORCE :
-                (seg.getType() == IscatWormSegment.Type.BODY ? IscatWormSettings.BODY_FOLLOW_FORCE : IscatWormSettings.TAIL_FOLLOW_FORCE);
-        double maxSpeed = IscatWormSettings.HEAD_MAX_SPEED;
-        double rotSpeed = IscatWormSettings.HEAD_ROTATION_SPEED;
-
-        AiBehaviours<IscatWormSegment> ctrl = new AiBehaviours<>(seg, force, maxSpeed, rotSpeed);
+        double force    = seg.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_FORCE :
+                          seg.getType() == IscatWormSegment.Type.BODY ? IscatWormSettings.BODY_FOLLOW_FORCE
+                                                                       : IscatWormSettings.TAIL_FOLLOW_FORCE;
+        AiBehaviours<IscatWormSegment> ctrl = new AiBehaviours<>(
+                seg, force, IscatWormSettings.HEAD_MAX_SPEED, IscatWormSettings.HEAD_ROTATION_SPEED);
 
         switch (seg.getType()) {
             case HEAD -> {
-                ctrl.add(headBehavior());
+                // FIX: was ctrl.add(headBehavior()) → now addPassive
+                ctrl.addPassive(headPassive());
             }
-            case BODY -> ctrl.add(followBehavior());
+            case BODY -> {
+                // FIX: was ctrl.add(followBehavior()) → now addPassive
+                ctrl.addPassive(followPassive());
+            }
             case TAIL -> {
-                ctrl.add(followBehavior());
-                ctrl.add(lockRotationBehavior());
+                // FIX: both were ctrl.add(...) → now addPassive
+                ctrl.addPassive(followPassive());
+                ctrl.addPassive(lockRotationPassive());
+                // ShooterBehaviour is already an AttackBehavior — correct track
                 ctrl.addAttack(new ShooterBehaviour(
                         80.0,
                         IscatWormSettings.TAIL_COMBAT_RANGE,
                         IscatWormSettings.TAIL_FIRE_COOLDOWN,
                         ProjectileType.ENEMY_BULLET,
-                        new RepeaterAttack(10,new MultiDirectionAttack(15, 0, new SingleShotAttack())),
-                        new RepeaterAttack(10,new MultiDirectionAttack(10, 0, new SpreadAttack(3,15)))
+                        new RepeaterAttack(10, new MultiDirectionAttack(15, 0, new SingleShotAttack())),
+                        new RepeaterAttack(10, new MultiDirectionAttack(10, 0, new SpreadAttack(3, 15)))
                 ) {
                     @Override
                     public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
@@ -85,22 +104,30 @@ public class IscatWormController implements AiController {
         seg.promoteToHead();
         seg.setPreviousSegment(null);
 
-        AiBehaviours<IscatWormSegment> ctrl = new AiBehaviours<>(seg, IscatWormSettings.HEAD_FORCE, IscatWormSettings.HEAD_MAX_SPEED, IscatWormSettings.HEAD_ROTATION_SPEED);
+        AiBehaviours<IscatWormSegment> ctrl = new AiBehaviours<>(
+                seg, IscatWormSettings.HEAD_FORCE,
+                IscatWormSettings.HEAD_MAX_SPEED,
+                IscatWormSettings.HEAD_ROTATION_SPEED);
+
+        // PlungeAttackBehavior implements both AttackBehavior and MovementBehavior — use add()
         ctrl.add(new PlungeAttackBehavior(12.0, IscatWormSettings.HEAD_FORCE * 6.0, 3.0, 1.0));
-        ctrl.add(headBehavior());
+        // FIX: headBehavior is now a PassiveBehavior
+        ctrl.addPassive(headPassive());
         controllers.put(seg, ctrl);
     }
 
-    // Behaviors
+    // ─────────────────────────────────────────────────────────────────────────
+    // Segment PassiveBehaviors (run every frame, manage their own physics)
+    // ─────────────────────────────────────────────────────────────────────────
 
-    private AiBehavior headBehavior() {
-        return new AiBehavior() {
+    /**
+     * FIX BUG 5: headBehavior() returned AiBehavior — converted to PassiveBehavior.
+     * PassiveBehavior runs every frame and is permitted to call applyForce directly,
+     * which the head logic needs for velocity scaling and speed capping.
+     */
+    private PassiveBehavior headPassive() {
+        return new PassiveBehavior() {
             Vector2 headTarget = null;
-
-            @Override
-            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
-                return universe.getPlayer() != null ? 50.0 : 0.0;
-            }
 
             @Override
             public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
@@ -108,12 +135,12 @@ public class IscatWormController implements AiController {
                 PlayerModel player = universe.getPlayer();
                 if (player == null) return;
 
-                boolean isAlone = activeCount() == 1;
-                double speedMul = isAlone ? 3.0 : 1.0;
-                double maxSpeed = IscatWormSettings.HEAD_MAX_SPEED * speedMul;
-                double force    = IscatWormSettings.HEAD_FORCE * speedMul;
-                double rotSpeed = isAlone ? 1.0 : IscatWormSettings.HEAD_ROTATION_SPEED;
-                double precision = isAlone ? 0.2 : 1.5;
+                boolean isAlone   = activeCount() == 1;
+                double  speedMul  = isAlone ? 3.0 : 1.0;
+                double  maxSpeed  = IscatWormSettings.HEAD_MAX_SPEED * speedMul;
+                double  force     = IscatWormSettings.HEAD_FORCE * speedMul;
+                double  rotSpeed  = isAlone ? 1.0 : IscatWormSettings.HEAD_ROTATION_SPEED;
+                double  precision = isAlone ? 0.2 : 1.5;
 
                 Vector2 headPos   = head.getWorldCenter();
                 Vector2 playerPos = player.getWorldCenter();
@@ -135,58 +162,50 @@ public class IscatWormController implements AiController {
         };
     }
 
-    private AiBehavior followBehavior() {
-        return new AiBehavior() {
-            @Override
-            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
-                IscatWormSegment seg = (IscatWormSegment) npc;
-                IscatWormSegment prev = seg.getPreviousSegment();
-                return (prev != null && !prev.isConsumed()) ? 50.0 : 0.0;
+    /** FIX BUG 5: followBehavior() returned AiBehavior — converted to PassiveBehavior. */
+    private PassiveBehavior followPassive() {
+        return (npc, universe, dt) -> {
+            IscatWormSegment seg  = (IscatWormSegment) npc;
+            IscatWormSegment prev = seg.getPreviousSegment();
+            if (prev == null || prev.isConsumed()) return;
+
+            double force = seg.getType() == IscatWormSegment.Type.BODY
+                    ? IscatWormSettings.BODY_FOLLOW_FORCE
+                    : IscatWormSettings.TAIL_FOLLOW_FORCE;
+
+            Vector2 dir  = prev.getWorldCenter().copy().subtract(seg.getWorldCenter());
+            double  dist = dir.getMagnitude();
+            double  scale = switch (seg.getType()) {
+                case HEAD -> IscatWormSettings.HEAD_SCALE;
+                case BODY -> IscatWormSettings.BODY_SCALE;
+                case TAIL -> IscatWormSettings.TAIL_SCALE;
+            };
+            double desired = uni.gaben.iscat.universe.UU.pxToM(
+                    IscatWormSettings.FOLLOW_DISTANCE_PX * scale);
+
+            if (dist > desired) {
+                double excess = dist - desired;
+                seg.setAtRest(false);
+                seg.applyForce(dir.getNormalized().multiply(force * (1.0 + excess * 12.0)));
+                rotateTo(seg, dir.getDirection(), dt, 0.28);
             }
 
-            @Override
-            public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
-                IscatWormSegment seg  = (IscatWormSegment) npc;
-                IscatWormSegment prev = seg.getPreviousSegment();
-                if (prev == null || prev.isConsumed()) return;
-
-                double force = seg.getType() == IscatWormSegment.Type.BODY
-                        ? IscatWormSettings.BODY_FOLLOW_FORCE
-                        : IscatWormSettings.TAIL_FOLLOW_FORCE;
-
-                Vector2 dir  = prev.getWorldCenter().copy().subtract(seg.getWorldCenter());
-                double  dist = dir.getMagnitude();
-                double  scale = switch (seg.getType()) {
-                    case HEAD -> IscatWormSettings.HEAD_SCALE;
-                    case BODY -> IscatWormSettings.BODY_SCALE;
-                    case TAIL -> IscatWormSettings.TAIL_SCALE;
-                };
-                double desired = uni.gaben.iscat.universe.UU.pxToM(IscatWormSettings.FOLLOW_DISTANCE_PX * scale);
-
-                if (dist > desired) {
-                    double excess = dist - desired;
-                    seg.setAtRest(false);
-                    seg.applyForce(dir.getNormalized().multiply(force * (1.0 + excess * 12.0)));
-                    rotateTo(seg, dir.getDirection(), dt, 0.28);
-                }
-
-                Vector2 vel = seg.getLinearVelocity();
-                double maxSpeed = IscatWormSettings.HEAD_MAX_SPEED * 0.95;
-                if (vel.getMagnitude() > maxSpeed)
-                    seg.setLinearVelocity(vel.getNormalized().multiply(maxSpeed));
-            }
+            double maxSpeed = IscatWormSettings.HEAD_MAX_SPEED * 0.95;
+            Vector2 vel = seg.getLinearVelocity();
+            if (vel.getMagnitude() > maxSpeed)
+                seg.setLinearVelocity(vel.getNormalized().multiply(maxSpeed));
         };
     }
 
-    private AiBehavior lockRotationBehavior() {
-        return new AiBehavior() {
-            @Override public double getPriority(AbstractEntityModel npc, UniverseModel universe) { return -1.0; }
-            @Override public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
-                npc.setAngularVelocity(0);
-                npc.getTransform().setRotation(0);
-            }
+    /** FIX BUG 5: lockRotationBehavior() returned AiBehavior — converted to PassiveBehavior. */
+    private PassiveBehavior lockRotationPassive() {
+        return (npc, universe, dt) -> {
+            npc.setAngularVelocity(0);
+            npc.getTransform().setRotation(0);
         };
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
 
     private long activeCount() {
         return worm.getSegments().stream().filter(s -> !s.isConsumed()).count();

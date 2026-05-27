@@ -4,6 +4,7 @@ import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.*;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.movement.*;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.*;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.CheckLineOfSight;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.implementations.attacks.MultiDirectionAttack;
 import uni.gaben.iscat.universe.lib.implementations.attacks.RepeaterAttack;
@@ -14,54 +15,52 @@ import uni.gaben.iscat.universe.UU;
 
 import static uni.gaben.iscat.universe.enemies.fake.FakeIscatSettings.FAKEISCAT;
 
+/**
+ * BUG 1 (inherited): CheckLineOfSight now implements PassiveBehavior.
+ * BUG 8 FIXED: SeekLineOfSightBehavior args corrected to (maxVelocity, 45.0).
+ * BUG 9 FIXED: WanderBehavior uses fixed radii (1.0, 3.0) instead of
+ *   detectionRange/combatRange (which produced minRadius > maxRadius and
+ *   negative random wander targets).
+ */
 public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
 
-    private CheckLineOfSight checkLineOfSight;
-    private ShooterBehaviour shooterBehaviour;
+    private CheckLineOfSight        checkLineOfSight;
+    private ShooterBehaviour        shooterBehaviour;
     private SeekLineOfSightBehavior seekLineOfSight;
 
     public FakeIscatController(FakeIscatModel iscat) {
         super(iscat, FAKEISCAT.force, FAKEISCAT.maxVelocity, FAKEISCAT.rotationSpeed);
 
-        // Evita assembramenti (Passive track)
-        this.addPassive(new SeparationBehavior(UU.pxToM(64.0), FAKEISCAT.force * 0.8));
+        // Passive
+        addPassive(new SeparationBehavior(UU.pxToM(64.0), FAKEISCAT.force * 0.8));
 
-        // Wander nativo (Movement track)
-        this.addMovement(new WanderBehavior(
-                FAKEISCAT.maxVelocity,
-                50.0,
-                FAKEISCAT.detectionRange,
-                FAKEISCAT.combatRange
-        ));
+        // Movement
+        // FIX BUG 9: fixed radii
+        addMovement(new WanderBehavior(FAKEISCAT.maxVelocity, 10.0, 1.0, 3.0));
+        addMovement(new ChaseBehavior(FAKEISCAT.maxVelocity, FAKEISCAT.detectionRange, 50.0));
+        addMovement(new DodgeProjectileBehavior(FAKEISCAT.force * 1.5, FAKEISCAT.combatRange, 2.0));
 
-        // Chase nativo (Movement track)
-        this.addMovement(new ChaseBehavior(
-                FAKEISCAT.maxVelocity,
-                FAKEISCAT.detectionRange,
-                50.0
-        ));
-
-        this.shooterBehaviour = new ShooterBehaviour(
+        // Attack
+        shooterBehaviour = new ShooterBehaviour(
                 80.0,
                 FAKEISCAT.combatRange,
                 FAKEISCAT.fireCooldownS,
                 ProjectileType.ENEMY_BULLET,
                 new RepeaterAttack(5, new SingleShotAttack()),
                 new RepeaterAttack(2, new SpreadAttack(3, 30.0)),
-                new MultiDirectionAttack(4, 0, new SingleShotAttack())
-        );
-        this.addAttack(shooterBehaviour);
-
-        // Dodge behavior (Movement track)
-        this.addMovement(new DodgeProjectileBehavior(FAKEISCAT.force * 1.5, FAKEISCAT.combatRange,2.0));
+                new MultiDirectionAttack(4, 0, new SingleShotAttack()));
+        addAttack(shooterBehaviour);
     }
 
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
         super.aiUpdate(universeModel, dt);
+
         if (checkLineOfSight == null) {
             checkLineOfSight = new CheckLineOfSight(universeModel.getPlayer());
-            seekLineOfSight = new SeekLineOfSightBehavior(FAKEISCAT.force, FAKEISCAT.maxVelocity);
+            // FIX BUG 8: correct args
+            seekLineOfSight  = new SeekLineOfSightBehavior(FAKEISCAT.maxVelocity, 45.0);
+            // FIX BUG 1: now works because CheckLineOfSight implements PassiveBehavior
             addPassive(checkLineOfSight);
         } else {
             if (checkLineOfSight.hasLineOfSightWithTarget()) {

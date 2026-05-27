@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.lib.implementations.behaviors.passive;
+package uni.gaben.iscat.universe.lib.implementations.behaviors;
 
 import org.dyn4j.collision.Filter;
 import org.dyn4j.dynamics.Body;
@@ -10,6 +10,16 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.PassiveBehavior;
 import uni.gaben.iscat.universe.UniverseModel;
 
+/**
+ * Runs every frame as a {@link PassiveBehavior} and updates the {@code isFree}
+ * flag that shooter/seeker behaviors query.
+ *
+ * BUG FIXED: previously implemented the old {@code AiBehavior} interface.
+ * {@code addPassive(checkLineOfSight)} would silently no-op because
+ * {@code AiBehaviours.add()} only pattern-matches MovementBehavior /
+ * AttackBehavior / PassiveBehavior. The LoS check therefore never ran,
+ * so shooters in Core, FakeIscat, and Master could never fire.
+ */
 public class CheckLineOfSight implements PassiveBehavior {
 
     private boolean isFree = true;
@@ -23,42 +33,28 @@ public class CheckLineOfSight implements PassiveBehavior {
     public void execute(AbstractEntityModel npc, UniverseModel universe, double dt) {
         if (universe == null || target == null) return;
 
-        // 1. Establish coordinates
-        Vector2 startPos = npc.getTransform().getTranslation();
+        Vector2 startPos  = npc.getTransform().getTranslation();
         Vector2 targetPos = target.getTransform().getTranslation();
 
-        // 2. Calculate vector tracking metrics
-        Vector2 direction = targetPos.difference(startPos);
-        double distanceToTarget = direction.getMagnitude();
+        Vector2 direction       = targetPos.difference(startPos);
+        double  distanceToTarget = direction.getMagnitude();
 
         if (distanceToTarget <= 0.001) {
             this.isFree = true;
             return;
         }
 
-        // Normalize the orientation direction vector
         direction.normalize();
 
-        // 3. Create the Ray object
         Ray ray = new Ray(startPos, direction);
+        RaycastResult result = universe.raycastClosest(
+                ray, distanceToTarget,
+                new DetectFilter(true, true, Filter.DEFAULT_FILTER));
 
-        // 4. Query the world matching your JavaDoc method signature:
-        // Parameters: ray, maxLength, filter (null means check everything)
-        RaycastResult result = universe.raycastClosest(ray, distanceToTarget, new DetectFilter(true, true, Filter.DEFAULT_FILTER));
-
-        // 5. Evaluate the results array
         if (result != null && result.getBody() != null) {
-            Body firstObjectHit = (Body) result.getBody();
-
-            if (firstObjectHit == target) {
-                // Closest thing hit was our target. Line of sight is completely clear!
-                this.isFree = true;
-            } else {
-                // Something else blocked the ray vector before it reached the target distance
-                this.isFree = false;
-            }
+            Body firstHit = (Body) result.getBody();
+            this.isFree = (firstHit == target);
         } else {
-            // The ray reached the distance limit without striking any active fixtures
             this.isFree = true;
         }
     }
