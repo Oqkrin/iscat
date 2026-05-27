@@ -3,6 +3,7 @@ package uni.gaben.iscat.iscat_screens.options;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -23,6 +24,7 @@ import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
 import uni.gaben.iscat.database.sqlite.SettingsDAO;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.theme.ThemeManager;
+import uni.gaben.iscat.utils.theme.DynamicColors;
 
 import java.io.File;
 import java.util.List;
@@ -49,10 +51,11 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button esc;
 
     @FXML private Button ImagePicker;
+    @FXML private CheckBox lightModeCheck; // Interruttore per la modalità Chiara/Scura
     @FXML private ColorPicker accentPrimary;
     @FXML private ColorPicker accentSecondary;
     @FXML private ColorPicker accentTernary;
-    @FXML private ColorPicker bgPrimary; // Fourth configuration node injected here
+    @FXML private ColorPicker bgPrimary;
 
     private Button selectedButton = null;
     private String selectedColumn = null;
@@ -80,9 +83,6 @@ public class OptionsMenuController implements IscatFxmlController {
         });
     }
 
-    /**
-     * Legge le impostazioni correnti dal SessionManager e imposta il testo corretto dei pulsanti.
-     */
     private void refreshButtonLabels() {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
@@ -96,10 +96,6 @@ public class OptionsMenuController implements IscatFxmlController {
         esc.setText(settings.getPauseGame());
     }
 
-    /**
-     * Azione FXML unica associata a TUTTI i pulsanti di controllo nel file .fxml.
-     * Configura il rispettivo ID del pulsante e la colonna SQL corrispondente.
-     */
     @FXML
     void changeControl(ActionEvent event) {
         if (selectedButton != null) {
@@ -118,9 +114,6 @@ public class OptionsMenuController implements IscatFxmlController {
         else if (selectedButton == esc) selectedColumn = "PauseGame";
     }
 
-    /**
-     * Cattura la pressione fisica del tasto sulla tastiera
-     */
     private void handleGlobalKeyPress(KeyEvent event) {
         if (selectedButton == null || selectedColumn == null) return;
 
@@ -215,21 +208,14 @@ public class OptionsMenuController implements IscatFxmlController {
         UU.setUniverseScale(scaleSlider.getValue());
     }
 
-    /**
-     * Reads current running runtime values from ThemeManager and matches the
-     * ColorPicker states to them.
-     */
     private void syncColorPickersWithTheme() {
         ThemeManager tm = ThemeManager.getInstance();
         accentPrimary.setValue(tm.getAccentPrimary());
         accentSecondary.setValue(tm.getAccentSecondary());
         accentTernary.setValue(tm.getAccentTernary());
-        bgPrimary.setValue(tm.getBgPrimary()); // Unified initialization value synchronizer
+        bgPrimary.setValue(tm.getBgPrimary());
     }
 
-    /**
-     * Converts a JavaFX Color structure cleanly to a web-safe hex string (#RRGGBB).
-     */
     private String toHex(Color color) {
         return String.format("#%02x%02x%02x",
                 (int) (color.getRed() * 255),
@@ -238,10 +224,6 @@ public class OptionsMenuController implements IscatFxmlController {
         );
     }
 
-    /**
-     * Collects all manual user color selections from the ColorPickers and flushes them
-     * to the running theme.
-     */
     private void applyManualColorChanges() {
         if (paneMaster.getScene() == null) return;
 
@@ -249,10 +231,46 @@ public class OptionsMenuController implements IscatFxmlController {
                 toHex(accentPrimary.getValue()),
                 toHex(accentSecondary.getValue()),
                 toHex(accentTernary.getValue()),
-                toHex(bgPrimary.getValue()) // Appends manual foundation layer selection cleanly
+                toHex(bgPrimary.getValue())
         );
 
         ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.2);
+    }
+
+    /**
+     * Azione eseguita quando l'utente clicca sul CheckBox di Light Mode.
+     * Ricalcola al volo il colore dello sfondo preservando la coerenza con l'accento primario.
+     */
+    @FXML
+    void toggleThemeMode(ActionEvent event) {
+        boolean isLightMode = lightModeCheck.isSelected();
+        Color primary = accentPrimary.getValue();
+
+        double r, g, b;
+
+        if (isLightMode) {
+            // Light Mode: High brightness base (0.85).
+            // We tint it by mixing 85% light-grey with 15% of the primary color.
+            r = 0.85 + (primary.getRed() * 0.15);
+            g = 0.85 + (primary.getGreen() * 0.15);
+            b = 0.85 + (primary.getBlue() * 0.15);
+        } else {
+            // Dark Mode: Low brightness base (0.02).
+            // We tint it by taking 2% black and adding 10% of the primary color.
+            r = 0.02 + (primary.getRed() * 0.10);
+            g = 0.02 + (primary.getGreen() * 0.10);
+            b = 0.02 + (primary.getBlue() * 0.10);
+        }
+
+        // Clamp values to valid color range [0.0, 1.0]
+        bgPrimary.setValue(new Color(
+                Math.clamp(r, 0.0, 1.0),
+                Math.clamp(g, 0.0, 1.0),
+                Math.clamp(b, 0.0, 1.0),
+                1.0
+        ));
+
+        applyManualColorChanges();
     }
 
     @FXML
@@ -267,13 +285,19 @@ public class OptionsMenuController implements IscatFxmlController {
         File chosenImage = imagePicker.showOpenDialog(currentStage);
 
         if (chosenImage != null) {
-            ThemeManager.getInstance().applyDynamicImageTheme(paneMaster.getScene(), chosenImage, 0.8);
-            syncColorPickersWithTheme();
+            // Estrae i colori delegando la scelta dello sfondo allo stato della CheckBox Light Mode
+            boolean isLightMode = lightModeCheck.isSelected();
+            List<String> hexPalette = DynamicColors.getTopDistinctColorsHex(chosenImage, 4, isLightMode);
+
+            if (!hexPalette.isEmpty()) {
+                ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.8);
+                syncColorPickersWithTheme();
+            }
         }
     }
 
     @FXML void onPrimary(ActionEvent event) { applyManualColorChanges(); }
     @FXML void onSecondary(ActionEvent event) { applyManualColorChanges(); }
     @FXML void onTernary(ActionEvent event) { applyManualColorChanges(); }
-    @FXML void onBgPrimary(ActionEvent event) { applyManualColorChanges(); } // Added target capture action wrapper
+    @FXML void onBgPrimary(ActionEvent event) { applyManualColorChanges(); }
 }

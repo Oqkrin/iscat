@@ -85,6 +85,7 @@
                   <Label styleClass="card-header" text="THEME" />
                   <VBox alignment="CENTER" spacing="8.0">
                      <children>
+                        <CheckBox fx:id="lightModeCheck" mnemonicParsing="false" onAction="#toggleThemeMode" styleClass="modern-checkbox" text="LIGHT MODE" />
                         <ColorPicker fx:id="accentPrimary" maxWidth="Infinity" onAction="#onPrimary" promptText="Primary Accent" />
                         <ColorPicker fx:id="accentSecondary" maxWidth="Infinity" onAction="#onSecondary" promptText="Secondary Accent" />
                         <ColorPicker fx:id="accentTernary" maxWidth="Infinity" onAction="#onTernary" promptText="Ternary Accent" />

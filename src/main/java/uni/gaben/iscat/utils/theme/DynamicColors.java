@@ -12,7 +12,8 @@ import java.util.Map;
 
 public class DynamicColors {
 
-    private static final double LAB_DISTANCE_THRESHOLD = 20.0;
+    // Incrementato a 35.0 (da 20.0) per forzare i colori accent ad essere molto più distanti e unici
+    private static final double LAB_DISTANCE_THRESHOLD = 35.0;
     private static final double DARK_LIGHTNESS_THRESHOLD = 38.0;
 
     // HSB filters targeting muddy or washed out pixels
@@ -22,13 +23,21 @@ public class DynamicColors {
 
     private record LabColor(double l, double a, double b) {}
 
+    // Overload per retrocompatibilità (esegue il fallback sul Dark Mode classico)
     public static List<String> getTopDistinctColorsHex(File imageFile, int limit) {
+        return getTopDistinctColorsHex(imageFile, limit, false);
+    }
+
+    /**
+     * Estrae i colori dominanti e calcola uno sfondo ad hoc in base alla modalità selezionata.
+     */
+    public static List<String> getTopDistinctColorsHex(File imageFile, int limit, boolean lightMode) {
         List<String> hexColors = new ArrayList<>();
         try {
             BufferedImage image = ImageIO.read(imageFile);
             if (image == null) return hexColors;
 
-            List<Color> topColors = getTopDistinctColors(image, limit);
+            List<Color> topColors = getTopDistinctColors(image, limit, lightMode);
             for (Color c : topColors) {
                 String hex = String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
                 hexColors.add(hex);
@@ -39,10 +48,9 @@ public class DynamicColors {
         return hexColors;
     }
 
-    private static List<Color> getTopDistinctColors(BufferedImage image, int limit) {
+    private static List<Color> getTopDistinctColors(BufferedImage image, int limit, boolean lightMode) {
         Map<Integer, Integer> colorCounts = scanPixels(image, true);
 
-        // Fallback if image filters leave the map empty (monochrome/grayscale assets)
         if (colorCounts.isEmpty()) {
             colorCounts = scanPixels(image, false);
         }
@@ -52,11 +60,9 @@ public class DynamicColors {
 
         List<Color> brightAccents = new ArrayList<>();
         List<LabColor> brightLabs = new ArrayList<>();
-
         List<Color> darkAccents = new ArrayList<>();
         List<LabColor> darkLabs = new ArrayList<>();
 
-        // Group candidates into explicit bright and dark clusters using Delta E distancing
         for (Map.Entry<Integer, Integer> entry : sortedColors) {
             Color candidateColor = new Color(entry.getKey());
             LabColor candidateLab = rgbToLab(candidateColor);
@@ -92,32 +98,41 @@ public class DynamicColors {
         List<Color> availableBright = new ArrayList<>(brightAccents);
         List<Color> availableDark = new ArrayList<>(darkAccents);
 
-        // 1. ALLOCATE ACCENTS: Pull 3 high-vibrancy light colors
+        // 1. ALLOCATE ACCENTS: Prendiamo i 3 colori vibranti distanti
         while (finalizedPalette.size() < 3 && !availableBright.isEmpty()) {
             finalizedPalette.add(availableBright.remove(0));
         }
-        // Fallback: Use dark tones if the image has no bright profiles
         while (finalizedPalette.size() < 3 && !availableDark.isEmpty()) {
             finalizedPalette.add(availableDark.remove(0));
         }
-        // Absolute fallback padding to keep the collection intact
         if (finalizedPalette.size() < 1) finalizedPalette.add(new Color(0, 255, 204));
         if (finalizedPalette.size() < 2) finalizedPalette.add(new Color(235, 52, 161));
         if (finalizedPalette.size() < 3) finalizedPalette.add(new Color(255, 166, 0));
 
-        // 2. ALLOCATE BACKGROUND: Position 4th color strictly as a deep shadow tone
+        // 2. ALLOCATE BACKGROUND: Gestione Dark e Light mode
         Color bgPrimaryColor;
-        if (!availableDark.isEmpty()) {
-            bgPrimaryColor = availableDark.get(0);
-        } else if (!darkAccents.isEmpty()) {
-            bgPrimaryColor = darkAccents.get(0);
-        } else {
-            // Creative Fallback: If image is pure light, derive an elegant dark tone from the primary accent
+        if (lightMode) {
+            // Light Mode: Genera uno sfondo chiaro, pulito e leggermente pastellato basato sull'accento principale
             Color primaryAccent = finalizedPalette.get(0);
-            int r = Math.max(2, (int) (primaryAccent.getRed() * 0.06));
-            int g = Math.max(3, (int) (primaryAccent.getGreen() * 0.08));
-            int b = Math.max(5, (int) (primaryAccent.getBlue() * 0.10));
+            int r = Math.min(255, (int) (244 + primaryAccent.getRed() * 0.04));
+            int g = Math.min(255, (int) (244 + primaryAccent.getGreen() * 0.04));
+            int b = Math.min(255, (int) (247 + primaryAccent.getBlue() * 0.04));
             bgPrimaryColor = new Color(r, g, b);
+        } else {
+            // Dark Mode: Forza uno sfondo decisamente scuro e cupo (molto più scuro di prima)
+            if (!availableDark.isEmpty()) {
+                Color baseDark = availableDark.get(availableDark.size() - 1); // prende il candidato più scuro
+                int r = Math.max(8, (int) (baseDark.getRed() * 0.35));
+                int g = Math.max(10, (int) (baseDark.getGreen() * 0.35));
+                int b = Math.max(16, (int) (baseDark.getBlue() * 0.40));
+                bgPrimaryColor = new Color(r, g, b);
+            } else {
+                Color primaryAccent = finalizedPalette.get(0);
+                int r = Math.max(8, (int) (primaryAccent.getRed() * 0.03));
+                int g = Math.max(10, (int) (primaryAccent.getGreen() * 0.04));
+                int b = Math.max(16, (int) (primaryAccent.getBlue() * 0.06));
+                bgPrimaryColor = new Color(r, g, b);
+            }
         }
 
         finalizedPalette.add(bgPrimaryColor);
