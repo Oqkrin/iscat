@@ -13,17 +13,14 @@ public class AsteroidView implements Drawable<AsteroidModel> {
         Vector2[] vertices = entity.getDisplayVertices();
         double[] xPoints = new double[vertices.length];
         double[] yPoints = new double[vertices.length];
-        
         for(int i=0; i<vertices.length; i++) {
             Vector2 worldPoint = entity.getTransform().getTransformed(vertices[i]);
             xPoints[i] = UU.mToPx(worldPoint.x);
             yPoints[i] = UU.mToPx(worldPoint.y);
         }
-
-        gc.setFill(Color.BLACK);
+        gc.setFill(ThemeManager.getInstance().getAccentTernary());
         gc.fillPolygon(xPoints, yPoints, vertices.length);
-        
-        gc.setStroke(ThemeManager.getInstance().getTextSecondary());
+        gc.setStroke(ThemeManager.getInstance().getAccentPrimary());
         gc.setLineWidth(2);
         gc.strokePolygon(xPoints, yPoints, vertices.length);
     }

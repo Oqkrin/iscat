@@ -13,7 +13,7 @@ public interface DrawableSpriteSheet {
     SpriteSheetsAnimator getAnimator();
 
     default Color getTint() {
-        return ThemeManager.getInstance().globalTintProperty().get();
+        return ThemeManager.getInstance().getAccentSecondary();
     }
 
     default void drawSprite(GraphicsContext gc, double x, double y, double w, double h) {

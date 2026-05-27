@@ -24,6 +24,7 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
 
     private final Cooldown hurt = new Cooldown();
     private double lastLife = 0.0;
+    private Color currentColorTint = ThemeManager.getInstance().getAccentPrimary();
 
     private SpriteSheetsParser spriteSheet;
     private final SpriteSheetsAnimator animator = new SpriteSheetsAnimator(0.1, 1, 1);
@@ -52,6 +53,8 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
 
         animator.update(UU.UNIVERSE_TICK);
         hurt.update(UU.UNIVERSE_TICK);
+
+        this.currentColorTint = ThemeManager.getInstance().getAccentPrimary();
         setupGraphicsContextAndDrawContent(entity, gc, 0.0);
         drawHpBar(entity, gc);
         lastLife = entity.getLife();
@@ -173,6 +176,6 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
 
     @Override
     public Color getTint() {
-        return hurt.isCoolingDown() ? ThemeManager.getInstance().getColorError() : DrawableSpriteSheet.super.getTint();
+        return this.currentColorTint;
     }
 }

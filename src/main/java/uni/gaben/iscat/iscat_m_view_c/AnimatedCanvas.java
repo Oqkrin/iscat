@@ -124,7 +124,7 @@ public class AnimatedCanvas extends Canvas {
         double sy = sheetRow * spriteSheet.frameHeight;
 
         // Recupero della tinta globale attiva
-        Color currentTint = ThemeManager.getInstance().globalTintProperty().get();
+        Color currentTint = ThemeManager.getInstance().getAccentSecondary();
 
         // GESTIONE CACHE: Chiede l'immagine tinta solo se lo sprite o il colore sono cambiati.
         // Evita di saturare la memoria generando 60 immagini al secondo nel render loop.
