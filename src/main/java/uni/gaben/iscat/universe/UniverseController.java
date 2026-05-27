@@ -6,10 +6,11 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterController; // Imported for type-safe cleanup
+import uni.gaben.iscat.universe.enemies.worm.IscatWormController;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
+import uni.gaben.iscat.universe.lib.behaviurs.AiController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.controller.AiController;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
 
@@ -31,7 +32,7 @@ public class UniverseController {
 
     private UniverseModel universeModel;
     private final PlayerController playerController;
-    private final List<AiController> aiControllers = new ArrayList<>();
+    private final List<uni.gaben.iscat.universe.lib.behaviurs.AiController> aiControllers = new ArrayList<>();
     private final StarfieldController starfieldController = new StarfieldController();
     private final UniverseWaveController universeWaveController = new UniverseWaveController();
     private final Cooldown asteroidCooldown = new Cooldown();
@@ -39,6 +40,12 @@ public class UniverseController {
     private static final double ASTEROID_SPAWN_INTERVAL = 3.0;
     private static final int MAX_ACTIVE_ASTEROIDS = 30;
     private final Random random = new Random();
+
+    private final List<IscatWormController> wormControllers = new ArrayList<>();
+
+    public void addWormController(IscatWormController wormController) {
+        wormControllers.add(wormController);
+    }
 
     public UniverseController(UniverseModel universeModel) {
         this.universeModel = universeModel;
@@ -90,7 +97,11 @@ public class UniverseController {
 
     private void updateAI(double dt) {
         for (AiController ai : new ArrayList<>(aiControllers)) {
-            ai.aiUpdate(universeModel, dt);
+            ai.update(universeModel, dt);
+
+            for (IscatWormController w : wormControllers) {
+                w.update(universeModel, dt);
+            }
         }
     }
 
@@ -250,7 +261,7 @@ public class UniverseController {
         }
     }
 
-    public void addAiController(AiController controller) {
+    public void addAiController(uni.gaben.iscat.universe.lib.behaviurs.AiController controller) {
         aiControllers.add(controller);
     }
 

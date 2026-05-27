@@ -1,46 +1,54 @@
 package uni.gaben.iscat.universe.enemies.fake;
 
-import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.*;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.movement.*;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.*;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.CheckLineOfSight;
+import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.lib.implementations.attacks.MultiDirectionAttack;
-import uni.gaben.iscat.universe.lib.implementations.attacks.RepeaterAttack;
-import uni.gaben.iscat.universe.lib.implementations.attacks.SingleShotAttack;
-import uni.gaben.iscat.universe.lib.implementations.attacks.SpreadAttack;
+import uni.gaben.iscat.universe.lib.behaviurs.AiController;
+import uni.gaben.iscat.universe.lib.behaviurs.AttackBehavior;
+import uni.gaben.iscat.universe.lib.behaviurs.LineOfSightChecker;
+import uni.gaben.iscat.universe.lib.behaviurs.MovementStrategy;
+import uni.gaben.iscat.universe.lib.behaviurs.ShooterBehaviour;
+import uni.gaben.iscat.universe.lib.behaviurs.modifiers.ProjectileAvoidanceModifier;
+import uni.gaben.iscat.universe.lib.behaviurs.modifiers.SeparationModifier;
+import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.lib.implementations.attacks.*;
 import uni.gaben.iscat.universe.UU;
+
+import java.util.Random;
 
 import static uni.gaben.iscat.universe.enemies.fake.FakeIscatSettings.FAKEISCAT;
 
-/**
- * BUG 1 (inherited): CheckLineOfSight now implements PassiveBehavior.
- * BUG 8 FIXED: SeekLineOfSightBehavior args corrected to (maxVelocity, 45.0).
- * BUG 9 FIXED: WanderBehavior uses fixed radii (1.0, 3.0) instead of
- *   detectionRange/combatRange (which produced minRadius > maxRadius and
- *   negative random wander targets).
- */
-public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
+public class FakeIscatController extends AiController {
 
-    private CheckLineOfSight        checkLineOfSight;
-    private ShooterBehaviour        shooterBehaviour;
-    private SeekLineOfSightBehavior seekLineOfSight;
+    private final ShooterBehaviour shooterBehaviour;
+    private final LineOfSightChecker losChecker;
+    private final Random rand = new Random();
 
-    public FakeIscatController(FakeIscatModel iscat) {
-        super(iscat, FAKEISCAT.force, FAKEISCAT.maxVelocity, FAKEISCAT.rotationSpeed);
+    // Wander state
+    private Vector2 wanderTarget = null;
 
-        // Passive
-        addPassive(new SeparationBehavior(UU.pxToM(64.0), FAKEISCAT.force * 0.8));
+    // Seek‑LoS state
+    private double seekAngleSign = 1.0;
+    private double seekTimer = 0.0;
 
-        // Movement
-        // FIX BUG 9: fixed radii
-        addMovement(new WanderBehavior(FAKEISCAT.maxVelocity, 10.0, 1.0, 3.0));
-        addMovement(new ChaseBehavior(FAKEISCAT.maxVelocity, FAKEISCAT.detectionRange, 50.0));
-        addMovement(new DodgeProjectileBehavior(FAKEISCAT.force * 1.5, FAKEISCAT.combatRange, 2.0));
+    // Erratic orbit state
+    private double erraticTimer = 0.0;
+    private double erraticAngleOffset = 0.0;
 
-        // Attack
+    public FakeIscatController(FakeIscatModel fake) {
+        super(fake, FAKEISCAT.force, FAKEISCAT.maxVelocity, FAKEISCAT.rotationSpeed);
+
+        this.losChecker = new LineOfSightChecker(fake);
+
+        // Movement strategy
+        setMovementStrategy(new FakeMovementStrategy());
+
+        // Avoidance
+        addModifier(new SeparationModifier(UU.pxToM(64.0), FAKEISCAT.force * 0.8));
+        addModifier(new ProjectileAvoidanceModifier());
+
+        // Attacks
         shooterBehaviour = new ShooterBehaviour(
                 80.0,
                 FAKEISCAT.combatRange,
@@ -48,28 +56,132 @@ public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
                 ProjectileType.ENEMY_BULLET,
                 new RepeaterAttack(5, new SingleShotAttack()),
                 new RepeaterAttack(2, new SpreadAttack(3, 30.0)),
-                new MultiDirectionAttack(4, 0, new SingleShotAttack()));
-        addAttack(shooterBehaviour);
+                new MultiDirectionAttack(4, 0, new SingleShotAttack())
+        );
+        addAttack(new LosAwareAttack(shooterBehaviour));
     }
 
     @Override
-    public void aiUpdate(UniverseModel universeModel, double dt) {
-        super.aiUpdate(universeModel, dt);
+    public void update(UniverseModel universe, double dt) {
+        if (entity == null || entity.shouldRemove()) return;
+        super.update(universe, dt);
+    }
 
-        if (checkLineOfSight == null) {
-            checkLineOfSight = new CheckLineOfSight(universeModel.getPlayer());
-            // FIX BUG 8: correct args
-            seekLineOfSight  = new SeekLineOfSightBehavior(FAKEISCAT.maxVelocity, 45.0);
-            // FIX BUG 1: now works because CheckLineOfSight implements PassiveBehavior
-            addPassive(checkLineOfSight);
-        } else {
-            if (checkLineOfSight.hasLineOfSightWithTarget()) {
-                addAttack(shooterBehaviour);
-                removeMovement(seekLineOfSight);
-            } else {
-                removeAttack(shooterBehaviour);
-                addMovement(seekLineOfSight);
+    // ── Movement strategy ─────────────────────────────────────────────────
+
+    private class FakeMovementStrategy implements MovementStrategy {
+        @Override
+        public Vector2 computeDesiredVelocity(AbstractEntityModel e, UniverseModel world, double dt) {
+            FakeIscatModel fake = (FakeIscatModel) e;
+            PlayerModel player = world.getPlayer();
+            if (player == null) return new Vector2();
+
+            Vector2 pos = fake.getTransform().getTranslation();
+            Vector2 playerPos = player.getTransform().getTranslation();
+            double dist = pos.distance(playerPos);
+
+            losChecker.update(pos, playerPos, world);
+
+            // 1. No player detection → wander
+            if (dist > FAKEISCAT.detectionRange) {
+                return computeWanderVelocity(fake);
             }
+
+            // 2. No line‑of‑sight → seek a clear angle
+            if (!losChecker.hasLineOfSight()) {
+                return computeSeekLoSVelocity(pos, playerPos, dt);
+            }
+
+            // 3. LoS clear → combat behavior
+            if (dist < FAKEISCAT.combatRange * 0.8) {
+                // Too close → retreat
+                Vector2 toPlayer = playerPos.copy().subtract(pos);
+                return toPlayer.getNormalized().multiply(-FAKEISCAT.maxVelocity * 0.6);
+            } else if (dist > FAKEISCAT.combatRange * 1.3) {
+                // Too far → chase
+                Vector2 toPlayer = playerPos.copy().subtract(pos);
+                return toPlayer.getNormalized().multiply(FAKEISCAT.maxVelocity);
+            } else {
+                // In sweet spot → erratic orbit
+                return computeErraticOrbitVelocity(pos, playerPos, dt);
+            }
+        }
+    }
+
+    // ── Movement helpers ──────────────────────────────────────────────────
+
+    private Vector2 computeErraticOrbitVelocity(Vector2 pos, Vector2 playerPos, double dt) {
+        erraticTimer -= dt;
+        if (erraticTimer <= 0) {
+            erraticTimer = 0.8 + rand.nextDouble() * 1.2;
+            erraticAngleOffset = (rand.nextDouble() - 0.5) * Math.PI;
+        }
+
+        Vector2 toPlayer = playerPos.copy().subtract(pos);
+        double dist = toPlayer.getMagnitude();
+        double idealRadius = FAKEISCAT.combatRange;
+        double radialCorrection = (dist - idealRadius) * 0.6;
+        Vector2 radial = toPlayer.getNormalized().multiply(radialCorrection);
+
+        double sign = erraticAngleOffset > 0 ? 1 : -1;
+        Vector2 tangentDir = new Vector2(-toPlayer.y, toPlayer.x).multiply(sign).getNormalized();
+        Vector2 tangent = tangentDir.multiply(FAKEISCAT.maxVelocity * 0.7);
+
+        return radial.add(tangent);
+    }
+
+    private Vector2 computeSeekLoSVelocity(Vector2 pos, Vector2 playerPos, double dt) {
+        seekTimer -= dt;
+        if (seekTimer <= 0) {
+            seekAngleSign *= -1;
+            seekTimer = 1.5 + rand.nextDouble() * 1.0;
+        }
+        Vector2 toPlayer = playerPos.copy().subtract(pos);
+        double angle = toPlayer.getDirection() + Math.toRadians(45.0 * seekAngleSign);
+        Vector2 desiredDir = new Vector2(Math.cos(angle), Math.sin(angle));
+        return desiredDir.multiply(FAKEISCAT.maxVelocity);
+    }
+
+    private Vector2 computeWanderVelocity(FakeIscatModel fake) {
+        if (wanderTarget == null) {
+            double angle = rand.nextDouble() * 2 * Math.PI;
+            double distance = 1.0 + rand.nextDouble() * 2.0; // 1..3
+            wanderTarget = fake.getTransform().getTranslation().copy()
+                    .add(Vector2.create(distance, angle));
+        }
+        Vector2 toTarget = wanderTarget.copy().subtract(fake.getTransform().getTranslation());
+        if (toTarget.getMagnitude() < 0.2) {
+            wanderTarget = null;
+            return new Vector2();
+        }
+        return toTarget.getNormalized().multiply(FAKEISCAT.maxVelocity * 0.5);
+    }
+
+    // ── LoS‑aware attack wrapper ─────────────────────────────────────────
+
+    private class LosAwareAttack implements AttackBehavior {
+        private final AttackBehavior delegate;
+
+        LosAwareAttack(AttackBehavior delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public double getPriority(AbstractEntityModel entity, UniverseModel world) {
+            if (!losChecker.hasLineOfSight()) return 0.0;
+            return delegate.getPriority(entity, world);
+        }
+
+        @Override
+        public void execute(AbstractEntityModel entity, UniverseModel world, double dt) {
+            if (losChecker.hasLineOfSight()) {
+                delegate.execute(entity, world, dt);
+            }
+        }
+
+        @Override
+        public void tick(AbstractEntityModel entity, UniverseModel world, double dt) {
+            delegate.tick(entity, world, dt);
         }
     }
 }

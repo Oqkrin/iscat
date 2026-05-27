@@ -1,8 +1,7 @@
-package uni.gaben.iscat.universe.lib.implementations.behaviors.attack;
+package uni.gaben.iscat.universe.lib.behaviurs;
 
-import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.AttackBehavior;
+import uni.gaben.iscat.universe.lib.behaviurs.AttackBehavior;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.lib.implementations.attacks.RepeaterAttack;
@@ -21,7 +20,6 @@ import java.util.function.DoubleSupplier;
  *
  * <p>This is now a pure {@link AttackBehavior}. It no longer applies movement
  * forces for "preferred range" maintenance — that concern belongs to a
- * companion {@link uni.gaben.iscat.universe.lib.implementations.behaviors.movement.OrbitPlayerBehavior}
  * configured with the same radius. The two behaviors compose cleanly because
  * they operate on separate tracks.</p>
  *
