@@ -7,6 +7,16 @@
 .label {
     -fx-text-fill: -accent-primary;
 }
+
+.option-card {
+    -fx-border-color: -accent-primary;  /* Usa la tua variabile del tema */
+    -fx-border-width: 2px;              /* Spessore del bordo */
+    -fx-border-radius: 8px;             /* Smussa gli angoli del bordo */
+    -fx-background-radius: 8px;         /* Smussa lo sfondo per non farlo uscire dal bordo */
+
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.1, 0, 0);
+}
+
 .menu-opzioni {
     -fx-background-color: rgba(1, 2, 3, 0.98); /* Agganciato al tono profondo di -bg-primary */
     -fx-padding: 30px;
