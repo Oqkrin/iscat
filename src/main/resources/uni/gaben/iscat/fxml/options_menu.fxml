@@ -13,15 +13,15 @@
 
 <StackPane stylesheets="@../styles/options-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.options.OptionsMenuController">
    <children>
-      <Pane fx:id="paneMaster" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="907.0" styleClass="menu-background">
+      <Pane fx:id="paneMaster" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="622.0" prefWidth="1114.0" styleClass="menu-background">
          <children>
 
-            <VBox alignment="TOP_CENTER" layoutX="316.0" layoutY="31.0" prefWidth="280.0" spacing="12.0" styleClass="option-card, audio-card">
+            <VBox alignment="TOP_CENTER" layoutX="369.0" layoutY="66.0" prefHeight="255.0" prefWidth="351.0" spacing="12.0" styleClass="option-card, audio-card">
                <padding>
                   <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                </padding>
                <children>
-                  <Label styleClass="card-header" text="AUDIO" />
+                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="109.0" styleClass="card-header" text="AUDIO" />
 
                   <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="sub-control-box, accent-box-primary">
                      <padding>
@@ -55,19 +55,19 @@
                </children>
             </VBox>
 
-            <VBox fx:id="mainOptions" alignment="TOP_CENTER" layoutX="14.0" layoutY="31.0" prefWidth="280.0" spacing="12.0" styleClass="option-card, video-card">
+            <VBox fx:id="mainOptions" alignment="TOP_CENTER" layoutX="35.0" layoutY="33.0" prefHeight="201.0" prefWidth="314.0" spacing="12.0" styleClass="option-card, video-card">
                <padding>
                   <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                </padding>
                <children>
-                  <Label styleClass="card-header" text="DISPLAY" />
+                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="110.0" styleClass="card-header" text="DISPLAY" />
 
                   <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="sub-control-box, accent-box-primary">
                      <padding>
                         <Insets bottom="8.0" left="10.0" right="10.0" top="8.0" />
                      </padding>
                      <children>
-                        <Label fx:id="skinNameLabel11" minWidth="65.0" prefWidth="65.0" styleClass="control-label" text="UI Scale" />
+                        <Label fx:id="skinNameLabel11" minWidth="65.0" prefHeight="20.0" prefWidth="78.0" styleClass="control-label" text="UI Scale" />
                         <Slider fx:id="scaleSlider" blockIncrement="2.0" max="96.0" min="1.0" onDragDetected="#updateScale" value="64.0" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
@@ -77,12 +77,12 @@
                </children>
             </VBox>
 
-            <VBox alignment="TOP_CENTER" layoutX="14.0" layoutY="250.0" prefHeight="239.0" prefWidth="280.0" spacing="12.0" styleClass="option-card, theme-card">
+            <VBox alignment="TOP_CENTER" layoutX="36.0" layoutY="261.0" prefHeight="297.0" prefWidth="313.0" spacing="12.0" styleClass="option-card, theme-card">
                <padding>
                   <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                </padding>
                <children>
-                  <Label styleClass="card-header" text="THEME" />
+                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="128.0" styleClass="card-header" text="THEME" />
                   <VBox alignment="CENTER" spacing="8.0">
                      <children>
                         <CheckBox fx:id="lightModeCheck" mnemonicParsing="false" onAction="#toggleThemeMode" styleClass="modern-checkbox" text="LIGHT MODE" />
@@ -96,22 +96,22 @@
                </children>
             </VBox>
 
-            <VBox alignment="TOP_CENTER" layoutX="316.0" layoutY="305.0" prefHeight="105.0" prefWidth="280.0" spacing="12.0" styleClass="option-card, danger-card">
+            <VBox alignment="TOP_CENTER" layoutX="364.0" layoutY="351.0" prefHeight="105.0" prefWidth="350.0" spacing="12.0" styleClass="option-card, danger-card">
                <padding>
                   <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                </padding>
                <children>
-                  <Label alignment="TOP_CENTER" contentDisplay="CENTER" styleClass="card-header" text="ACCOUNT" />
+                  <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="130.0" styleClass="card-header" text="ACCOUNT" />
                   <HBox spacing="16.0">
                      <children>
-                        <Button fx:id="ResetAccountBtn" maxWidth="Infinity" onAction="#resetAccount" styleClass="danger-button-weak" text="Reset Account" />
-                        <Button fx:id="DeleteAccountBtn" maxWidth="Infinity" onAction="#deleteAccount" style="-fx-text-fill: RED;" styleClass="danger-button-strong" text="Delete Account" />
+                        <Button fx:id="ResetAccountBtn" maxWidth="Infinity" onAction="#resetAccount" prefHeight="38.0" prefWidth="157.0" styleClass="danger-button-weak" text="Reset Account" />
+                        <Button fx:id="DeleteAccountBtn" maxWidth="Infinity" onAction="#deleteAccount" prefHeight="38.0" prefWidth="163.0" style="-fx-text-fill: RED;" styleClass="danger-button-strong" text="Delete Account" />
                      </children>
                   </HBox>
                </children>
             </VBox>
 
-            <VBox fx:id="controlsBox" alignment="TOP_CENTER" layoutX="613.0" layoutY="29.0" prefHeight="443.0" prefWidth="280.0" spacing="14.0" styleClass="option-card, controls-card">
+            <VBox fx:id="controlsBox" alignment="TOP_CENTER" layoutX="734.0" layoutY="46.0" prefHeight="540.0" prefWidth="367.0" spacing="14.0" styleClass="option-card, controls-card">
                <padding>
                   <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                </padding>
@@ -120,7 +120,7 @@
 
                   <VBox alignment="CENTER" spacing="4.0" styleClass="key-cluster">
                      <children>
-                        <Label prefHeight="37.0" prefWidth="67.0" styleClass="cluster-label" text="Movement" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="38.0" prefWidth="156.0" styleClass="cluster-label" text="Movement" />
                         <Button fx:id="walkUp" mnemonicParsing="false" onAction="#changeControl" styleClass="key-cap" text="W" />
                         <HBox alignment="CENTER" prefHeight="44.0" prefWidth="246.0" spacing="4.0">
                            <children>
@@ -160,7 +160,7 @@
                </children>
             </VBox>
 
-            <Button fx:id="ExitBtn" layoutX="396.0" layoutY="432.0" onAction="#handleBack" prefHeight="40.0" prefWidth="120.0" styleClass="back-button" text="Main Menu" />
+            <Button fx:id="ExitBtn" layoutX="448.0" layoutY="478.0" onAction="#handleBack" prefHeight="40.0" prefWidth="177.0" styleClass="back-button" text="Main Menu" />
 
          </children>
       </Pane>
