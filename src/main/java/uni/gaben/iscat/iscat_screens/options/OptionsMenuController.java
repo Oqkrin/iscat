@@ -22,7 +22,7 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
 import uni.gaben.iscat.database.sqlite.SettingsDAO;
 import uni.gaben.iscat.utils.SessionManager;
-import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.io.File;
 import java.util.List;
@@ -52,6 +52,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private ColorPicker accentPrimary;
     @FXML private ColorPicker accentSecondary;
     @FXML private ColorPicker accentTernary;
+    @FXML private ColorPicker bgPrimary; // Fourth configuration node injected here
 
     private Button selectedButton = null;
     private String selectedColumn = null;
@@ -159,7 +160,6 @@ public class OptionsMenuController implements IscatFxmlController {
 
         int uid = settings.getUserId();
 
-        // Ripristino dei valori di default sul database (Fixed: WalkRight is now saved!)
         SettingsDAO.updateControl(uid, "WalkUp", "W");
         SettingsDAO.updateControl(uid, "WalkDown", "S");
         SettingsDAO.updateControl(uid, "WalkLeft", "A");
@@ -168,7 +168,6 @@ public class OptionsMenuController implements IscatFxmlController {
         SettingsDAO.updateControl(uid, "Dash2", "Middle Mouse");
         SettingsDAO.updateControl(uid, "PauseGame", "ESC");
 
-        // Aggiorna l'oggetto della sessione locale
         settings.setWalkUp("W");
         settings.setWalkDown("S");
         settings.setWalkLeft("A");
@@ -225,6 +224,7 @@ public class OptionsMenuController implements IscatFxmlController {
         accentPrimary.setValue(tm.getAccentPrimary());
         accentSecondary.setValue(tm.getAccentSecondary());
         accentTernary.setValue(tm.getAccentTernary());
+        bgPrimary.setValue(tm.getBgPrimary()); // Unified initialization value synchronizer
     }
 
     /**
@@ -248,7 +248,8 @@ public class OptionsMenuController implements IscatFxmlController {
         List<String> hexPalette = List.of(
                 toHex(accentPrimary.getValue()),
                 toHex(accentSecondary.getValue()),
-                toHex(accentTernary.getValue())
+                toHex(accentTernary.getValue()),
+                toHex(bgPrimary.getValue()) // Appends manual foundation layer selection cleanly
         );
 
         ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.2);
@@ -274,4 +275,5 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML void onPrimary(ActionEvent event) { applyManualColorChanges(); }
     @FXML void onSecondary(ActionEvent event) { applyManualColorChanges(); }
     @FXML void onTernary(ActionEvent event) { applyManualColorChanges(); }
+    @FXML void onBgPrimary(ActionEvent event) { applyManualColorChanges(); } // Added target capture action wrapper
 }

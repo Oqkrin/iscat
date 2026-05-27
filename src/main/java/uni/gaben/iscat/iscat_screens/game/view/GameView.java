@@ -21,7 +21,7 @@ import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
 import uni.gaben.iscat.iscat_m_view_c.StarryText;
-import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 

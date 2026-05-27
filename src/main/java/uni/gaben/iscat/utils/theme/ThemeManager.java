@@ -1,4 +1,4 @@
-package uni.gaben.iscat.utils;
+package uni.gaben.iscat.utils.theme;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import uni.gaben.iscat.utils.sprite.SpriteUtils;
+import uni.gaben.iscat.utils.CssThemeGenerator;
 
 import java.io.File;
 import java.util.HashMap;
@@ -171,7 +172,8 @@ public class ThemeManager {
      */
     public void applyDynamicImageTheme(Scene scene, File imageFile, double durationSec) {
         if (imageFile == null) return;
-        List<String> topHexColors = DynamicColors.getTopDistinctColorsHex(imageFile, 3);
+        // Corrected limit parameter from 3 to 4 to ensure the structural canvas profile is loaded
+        List<String> topHexColors = DynamicColors.getTopDistinctColorsHex(imageFile, 4);
         applyHexColorsTheme(scene, topHexColors, durationSec);
     }
 }

@@ -6,7 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.universe.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.universe.UniverseSettings;
-import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 
 public class StarfieldView implements Drawable<StarfieldModel> {
 

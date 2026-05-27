@@ -16,7 +16,7 @@ import uni.gaben.iscat.iscat_model_vc.IscatViews;
 import uni.gaben.iscat.iscat_m_view_c.IscatTitleBar;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.IscatUtils;
-import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.Objects;
 

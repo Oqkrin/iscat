@@ -1,4 +1,4 @@
-package uni.gaben.iscat.utils;
+package uni.gaben.iscat.utils.theme;
 
 import javafx.scene.paint.Color;
 

@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldModel;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
 import uni.gaben.iscat.universe.enviroment.starfield.StarModel;
-import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.Random;
 

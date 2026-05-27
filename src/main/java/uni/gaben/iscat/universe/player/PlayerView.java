@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.universe.lib.interfaces.view.DrawableSpriteSheet;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.utils.Cooldown;
-import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;

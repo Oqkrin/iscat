@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.player.PlayerSettings;
 import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
-import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 
 /**
  * Pipeline di rendering astratta e standardizzata per tutte le entità di gioco.

@@ -11,7 +11,7 @@ import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
 import uni.gaben.iscat.iscat_screens.game.controller.GameController;
 import uni.gaben.iscat.iscat_screens.game.model.GameModel;
 import uni.gaben.iscat.iscat_m_view_c.StarryText;
-import uni.gaben.iscat.utils.ThemeManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
 public class UniverseRenderer {
