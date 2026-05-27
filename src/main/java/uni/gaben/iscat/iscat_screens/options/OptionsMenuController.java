@@ -2,6 +2,7 @@ package uni.gaben.iscat.iscat_screens.options;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
@@ -40,6 +41,15 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML
     private VBox controlsBox;
 
+    @FXML Button walkUp;
+    @FXML Button walkDown;
+    @FXML Button walkLeft;
+    @FXML Button dash1;
+    @FXML Button dash2;
+    @FXML Button esc;
+
+
+
     @FXML
     public void initialize(){
         BGMSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -66,12 +76,12 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void resetControls(ActionEvent event) {
-        //TODO RESET ALL BUTTONS TO THE DEFAULT OF INPUTMANAGER
+        //TODO RESET ALL BUTTONS TO THE DEFAULT
     }
 
     @FXML
     void saveAndCloseControls(ActionEvent event) {
-        //TODO SAVE NEW CONTROLS IN INPUTMANAGER
+        //TODO SAVE NEW CONTROLS
         toggleVisibilityMainOptions();
         toggleVisibilityControls();
     }
@@ -84,6 +94,16 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void toggleFPSVisible(ActionEvent event) {
+
+    }
+
+    @FXML
+    void deleteAccount(ActionEvent event) {
+
+    }
+
+    @FXML
+    void resetAccount(ActionEvent event) {
 
     }
 

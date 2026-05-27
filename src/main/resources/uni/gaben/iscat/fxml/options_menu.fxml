@@ -66,6 +66,8 @@
                <CheckBox fx:id="checkFps" mnemonicParsing="false" onAction="#toggleFPSVisible" text="MOSTRA FPS" />
                <CheckBox fx:id="FullscreenCheck" mnemonicParsing="false" onAction="#toggleFullscreen" text="FULLSCREEN" />
                <Button fx:id="ControlsBtn" ellipsisString="" onAction="#showControls" styleClass="back-button" text="Controls" />
+               <Button fx:id="DeleteAccountBtn" ellipsisString="" onAction="#deleteAccount" styleClass="back-button" text="Delete Account" />
+               <Button fx:id="ResetAccountBtn" ellipsisString="" onAction="#resetAccount" styleClass="back-button" text="Reset Account" />
             <Button fx:id="ExitBtn" ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
             </VBox>
             <VBox fx:id="controlsBox" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" visible="false" StackPane.alignment="CENTER">
@@ -109,7 +111,7 @@
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <Label text="Pause Game" />
-                        <Button mnemonicParsing="false" onAction="#changeControl" text="ESC" />
+                        <Button fx:id="esc" mnemonicParsing="false" onAction="#changeControl" text="ESC" />
                      </children>
                   </HBox>
                   <Button fx:id="resetControlsBtn" mnemonicParsing="false" onAction="#resetControls" text="RESET" />

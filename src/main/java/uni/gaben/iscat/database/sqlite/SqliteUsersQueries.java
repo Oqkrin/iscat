@@ -19,7 +19,6 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
 
     @Override
     public Optional<User> findByUsername(String username) {
-
         String sql = """
                 SELECT ID, Username, Password, DateOfCreation, LastLogin
                 FROM Utenti
@@ -27,18 +26,13 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setString(1, username);
-
             try (ResultSet rs = stmt.executeQuery()) {
-
                 if (!rs.next()) {
                     return Optional.empty();
                 }
-
                 return Optional.of(mapRow(rs));
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -46,7 +40,6 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
 
     @Override
     public Optional<User> findById(int id) {
-
         String sql = """
                 SELECT ID, Username, Password, DateOfCreation, LastLogin
                 FROM Utenti
@@ -54,18 +47,13 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setInt(1, id);
-
             try (ResultSet rs = stmt.executeQuery()) {
-
                 if (!rs.next()) {
                     return Optional.empty();
                 }
-
                 return Optional.of(mapRow(rs));
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -73,7 +61,6 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
 
     @Override
     public boolean exists(String username) {
-
         String sql = """
                 SELECT 1
                 FROM Utenti
@@ -81,13 +68,10 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setString(1, username);
-
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -95,8 +79,7 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
 
     @Override
     public User create(String username, String rawPassword) {
-
-        String sql = """
+        String insertUserSql = """
                 INSERT INTO Utenti(
                     Username,
                     Password,
@@ -106,32 +89,33 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 """;
 
-        String hashedPassword =
-                PasswordHasher.hash(rawPassword);
+        String insertSettingsSql = """
+                INSERT INTO ImpostazioniUtenti (UserID)
+                VALUES (?)
+                """;
 
-        try (PreparedStatement stmt =
-                     conn.prepareStatement(
-                             sql,
-                             Statement.RETURN_GENERATED_KEYS
-                     )) {
+        String hashedPassword = PasswordHasher.hash(rawPassword);
 
-            stmt.setString(1, username);
-            stmt.setString(2, hashedPassword);
+        try (PreparedStatement userStmt = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.executeUpdate();
+            userStmt.setString(1, username);
+            userStmt.setString(2, hashedPassword);
+            userStmt.executeUpdate();
 
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-
+            try (ResultSet rs = userStmt.getGeneratedKeys()) {
                 if (!rs.next()) {
-                    throw new SQLException(
-                            "Failed to retrieve generated user ID."
-                    );
+                    throw new SQLException("Failed to retrieve generated user ID.");
                 }
 
                 int generatedId = rs.getInt(1);
 
-                return findById(generatedId)
-                        .orElseThrow();
+                // CREAZIONE AUTOMATICA DELLE IMPOSTAZIONI UTENTE
+                try (PreparedStatement settingsStmt = conn.prepareStatement(insertSettingsSql)) {
+                    settingsStmt.setInt(1, generatedId);
+                    settingsStmt.executeUpdate();
+                }
+
+                return findById(generatedId).orElseThrow();
             }
 
         } catch (SQLException e) {
@@ -140,11 +124,7 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
     }
 
     @Override
-    public void updateLastLogin(
-            int userId,
-            LocalDateTime loginTime
-    ) {
-
+    public void updateLastLogin(int userId, LocalDateTime loginTime) {
         String sql = """
                 UPDATE Utenti
                 SET LastLogin = ?
@@ -152,16 +132,9 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setTimestamp(
-                    1,
-                    Timestamp.valueOf(loginTime)
-            );
-
+            stmt.setTimestamp(1, Timestamp.valueOf(loginTime));
             stmt.setInt(2, userId);
-
             stmt.executeUpdate();
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -183,13 +156,11 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
             return null;
         }
 
-        // Se il valore nel DB è un vecchio record numerico (millisecondi Unix)
         if (value.matches("\\d+")) {
             long epochMillis = Long.parseLong(value);
             return Timestamp.from(java.time.Instant.ofEpochMilli(epochMillis)).toLocalDateTime();
         }
 
-        // Se è nel formato stringa standard di SQLite (prodotto da CURRENT_TIMESTAMP)
         Timestamp ts = rs.getTimestamp(columnName);
         return ts != null ? ts.toLocalDateTime() : null;
     }
