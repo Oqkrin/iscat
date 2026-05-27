@@ -8,25 +8,28 @@
     -fx-font-size: 34px;
     -fx-font-weight: bold;
     -fx-text-fill: -accent-primary;
-    -fx-effect: dropshadow(gaussian, rgba(203, 203, 203, 0.3), 15, 0, 0, 0);
+    /* Ombra convertita all'accento primario per l'effetto glow coerente */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0.2, 0, 0);
 }
 
 /* Nome del mostro/entità selezionata */
 #monsterNameLabel {
     -fx-font-size: 30px;
-    -fx-text-fill: #00ffcc; /* Colore neon per il focus dell'elemento */
+    -fx-font-weight: bold;
+    -fx-text-fill: -accent-primary;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.2, 0, 0);
 }
 
 /* Sotto-etichette per le statistiche (es. HP, Danno, Tipo) */
-.bestiary-stat-label {
+.label.bestiary-stat-label {
     -fx-font-size: 16px;
-    -fx-text-fill: -text-secondary;
+    -fx-text-fill: -accent-primary;
 }
 
-.bestiary-stat-value {
+.label.bestiary-stat-value {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: -text-primary;
+    -fx-text-fill: -accent-primary;
 }
 
 /* ============================================
@@ -35,7 +38,7 @@
 
 /* Bottone per selezionare un mostro dalla griglia (usa la base dello skin-button) */
 .monster-button {
-    -fx-layout: skin-button; /* Concettualmente eredita le dimensioni 80x80 */
+    -fx-layout: skin-button; /* Concettualmente eredita le dimensioni 80x80 dallo shared */
     -fx-pref-width: 90px;
     -fx-pref-height: 90px;
     -fx-border-width: 1px;
@@ -45,9 +48,9 @@
 /* Variante quando il mostro è selezionato nella lista */
 .monster-button:selected,
 .monster-button.active {
-    -fx-border-color: #00ffcc;
-    -fx-background-color: rgba(0, 255, 204, 0.15);
-    -fx-effect: dropshadow(gaussian, #00ffcc, 10, 0.3, 0, 0);
+    -fx-border-color: -accent-primary; /* Convertito in accent primary */
+    -fx-background-color: rgba(255, 0, 0, 0.15); /* Sfondo sfumato basato sull'accento */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.4, 0, 0);
 }
 
 /* ============================================

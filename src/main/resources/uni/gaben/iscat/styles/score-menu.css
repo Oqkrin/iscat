@@ -8,7 +8,8 @@
     -fx-font-size: 45px;
     -fx-font-weight: bold;
     -fx-text-fill: -accent-primary;
-    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.1), 10, 0, 0, 0);
+    /* Ombra convertita all'accento primario per l'effetto glow */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0.2, 0, 0);
 }
 
 /* Valore numerico del punteggio (es. "00042300") */
@@ -16,15 +17,16 @@
     -fx-font-family: "Miracode", "Courier New", monospace;
     -fx-font-size: 58px;
     -fx-font-weight: bold;
-    -fx-text-fill: #00ffcc; /* Colore goblin neon per i punti */
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 204, 0.3), 15, 0, 0, 0);
+    -fx-text-fill: -accent-primary; /* Convertito in accent primary */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0.3, 0, 0);
 }
 
 /* Moltiplicatore di punteggio (es. "x2", "x5") */
 .score-multiplier {
     -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-text-fill: -color-warning; /* Oro/Giallo semantico per i bonus */
+    -fx-text-fill: -accent-primary; /* Convertito in accent primary */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 8, 0.2, 0, 0);
 }
 
 /* ============================================
@@ -32,12 +34,13 @@
    ============================================ */
 
 .leaderboard-container {
-    -fx-background-color: rgba(17, 17, 17, 0.85); /* -bg-secondary con opacità */
-    -fx-border-color: -bg-tertiary;
+    -fx-background-color: rgba(1, 2, 3, 0.95); /* Allineato a -bg-primary scuro */
+    -fx-border-color: -accent-primary;         /* Bordo convertito in accent primary */
     -fx-border-width: 2px;
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
     -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.1, 0, 0);
 }
 
 .leaderboard-row {
@@ -46,8 +49,9 @@
 
 /* Evidenziazione per la riga del giocatore corrente in classifica */
 .leaderboard-row.current-player {
-    -fx-background-color: rgba(0, 255, 204, 0.1);
-    -fx-border-color: rgba(0, 255, 204, 0.3);
+    /* Sfondo e bordo usano sfumature derivate dall'accento primario */
+    -fx-background-color: rgba(255, 0, 0, 0.15);
+    -fx-border-color: -accent-primary;
     -fx-border-width: 0 0 1px 0;
 }
 
@@ -55,7 +59,7 @@
    GRID / REWARD BUTTONS
    ============================================ */
 
-/* Bottone della griglia dei punteggi o dei premi (corretto l'errore :hoer) */
+/* Bottone della griglia dei punteggi o dei premi */
 .score-grid-button {
     -fx-pref-width: 80px;
     -fx-pref-height: 80px;
@@ -71,11 +75,12 @@
 }
 
 .score-grid-button:hover {
-    -fx-background-color: rgba(0, 255, 204, 0.2);
-    -fx-border-color: #00ffcc;
-    /* Nessuna transizione o scala qui per evitare sfocature */
+    -fx-background-color: rgba(255, 0, 0, 0.15); /* Feedback di hover basato sull'accento */
+    -fx-border-color: -accent-primary;            /* Convertito in accent primary */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 8, 0.3, 0, 0);
 }
 
 .score-grid-button:pressed {
-    -fx-background-color: rgba(0, 255, 204, 0.4);
+    -fx-background-color: rgba(255, 0, 0, 0.35);
+    -fx-border-color: white; /* Bordo bianco per feedback netto alla pressione */
 }

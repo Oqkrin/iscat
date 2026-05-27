@@ -7,21 +7,22 @@
 .skin-menu-title {
     -fx-font-size: 40px;
     -fx-font-weight: bold;
-    -fx-text-fill: -text-primary;
+    -fx-text-fill: -accent-primary; /* Convertito in accent primary per coerenza con gli altri menu */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0.2, 0, 0);
 }
 
 /* Nome della skin attualmente in anteprima */
 #skinNameLabel {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-text-fill: #00ffcc; /* Colore goblin neon per il focus dell'elemento */
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 204, 0.25), 12, 0, 0, 0);
+    -fx-text-fill: -accent-primary; /* Convertito in accent primary */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.3, 0, 0);
 }
 
 /* Riferimento per i crediti o la descrizione della skin */
 .skin-description {
     -fx-font-size: 14px;
-    -fx-text-fill: -text-secondary;
+    -fx-text-fill: -accent-primary;
 }
 
 /* ============================================
@@ -32,9 +33,9 @@
    Qui aggiungiamo lo stato specifico di selezione (Skin equipaggiata) */
 .skin-button:selected,
 .skin-button.equipped {
-    -fx-border-color: #00ffcc;
-    -fx-background-color: rgba(0, 255, 204, 0.12);
-    -fx-effect: dropshadow(gaussian, #00ffcc, 12, 0.4, 0, 0);
+    -fx-border-color: -accent-primary; /* Convertito in accent primary */
+    -fx-background-color: rgba(255, 0, 0, 0.15); /* Sfondo sfumato basato sull'accento */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.4, 0, 0);
 }
 
 /* Se all'interno delle skin usi delle icone/immagini */

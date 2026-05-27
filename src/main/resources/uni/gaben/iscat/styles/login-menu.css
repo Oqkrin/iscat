@@ -10,10 +10,11 @@
    ============================================ */
 
 .login-title {
-    -fx-text-fill: white;
+    /* Allineato al Main Menu: testo e ombra seguono l'accento primario del gioco */
+    -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;
     -fx-font-size: 55px;
-    -fx-effect: dropshadow(gaussian, rgba(255,255, 255, 0.5), 15, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0, 0, 0);
 }
 
 .login-text         { -fx-text-fill: -text-secondary; }

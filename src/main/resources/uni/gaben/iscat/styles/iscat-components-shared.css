@@ -28,20 +28,21 @@
 /* STATO ATTIVO (SELEZIONATO): Scatolina diventa nera con bordo di accento */
 .check-box:selected .box {
     -fx-background-color: -bg-primary; /* Sfondo nero del gioco */
-    -fx-border-color: #00ffcc;         /* Bordo goblin neon per far capire che è attivo */
+    -fx-border-color: -accent-primary;  /* Convertito in accent primary */
 }
 
-/* Il segno di spunta diventa visibile (bianco o neon) quando è selezionato */
+/* Il segno di spunta diventa visibile quando è selezionato */
 .check-box:selected .mark {
-    -fx-background-color: #00ffcc;     /* Spunta neon (o metti 'white' se preferisci) */
+    -fx-background-color: -accent-primary; /* Convertito in accent primary */
     -fx-shape: "M0,5 L2,7 L7,2 L6,1 L2,5 L1,4 Z";
 }
 
 /* Effetto Hover visivo al passaggio del mouse */
 .check-box:hover .box {
-    -fx-border-color: #00ffcc;
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 204, 0.2), 5, 0, 0, 0);
+    -fx-border-color: -accent-primary; /* Convertito in accent primary */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 5, 0.2, 0, 0);
 }
+
 /* ============================================
    GLOBAL SLIDERS (STILE NEON / CYBERPUNK)
    ============================================ */
@@ -52,8 +53,8 @@
 
 /* --- 1. LA TRACCIA (Il binario dello slider) --- */
 .slider .track {
-    -fx-background-color: -bg-secondary; /* Sfondo scuro coerente con i bottoni */
-    -fx-border-color: -bg-tertiary;      /* Bordo grigio per staccare dal pannello */
+    -fx-background-color: -bg-secondary;
+    -fx-border-color: -bg-tertiary;
     -fx-border-width: 1px;
     -fx-border-radius: 4px;
     -fx-background-radius: 4px;
@@ -75,12 +76,12 @@
 
 /* Sfumatura da sinistra a destra per l'orizzontale */
 .slider:horizontal .progress {
-    -fx-background-color: linear-gradient(to right, -bg-tertiary, -accent-secondary);
+    -fx-background-color: linear-gradient(to right, -bg-tertiary, -accent-primary);
 }
 
 /* Sfumatura dal basso verso l'alto per il verticale */
 .slider:vertical .progress {
-    -fx-background-color: linear-gradient(to top, -bg-tertiary, -accent-secondary);
+    -fx-background-color: linear-gradient(to top, -bg-tertiary, -accent-primary);
 }
 
 /* --- 3. IL CURSORE (Il "pallino" di trascinamento) --- */
@@ -88,48 +89,46 @@
     -fx-background-color: -bg-primary;
     -fx-border-color: -bg-elevated;
     -fx-border-width: 2px;
-    -fx-border-radius: 50%;             /* Lo rende perfettamente circolare */
+    -fx-border-radius: 50%;
     -fx-background-radius: 50%;
 
-    -fx-pref-width: 18px;                /* Dimensioni bilanciate */
+    -fx-pref-width: 18px;
     -fx-pref-height: 18px;
     -fx-cursor: hand;
 
-    /* Effetto ombra leggero per staccarsi dal fondo */
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 6, 0.2, 0, 2);
 }
 
 /* --- 4. HOVER SUL CURSORE --- */
 .slider:hover .thumb,
 .slider .thumb:hover {
-    -fx-border-color: -accent-secondary; /* Il bordo si accende di neon */
+    -fx-border-color: -accent-primary; /* Convertito in accent primary */
     -fx-background-color: -bg-secondary;
-    /* Effetto Glow Neon basato sulle tue variabili colore */
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 204, 0.6), 10, 0.4, 0, 0);
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.4, 0, 0);
     -fx-scale-x: 1.15;
     -fx-scale-y: 1.15;
 }
 
 /* --- 5. STATO PREMUTO (Mentre trascini lo slider) --- */
 .slider:pressed .thumb {
-    -fx-background-color: -accent-primary; /* Il cursore diventa completamente neon */
-    -fx-border-color: white;               /* Bordo bianco di contrasto per il feedback */
+    -fx-background-color: -accent-primary;
+    -fx-border-color: white;
     -fx-scale-x: 0.95;
     -fx-scale-y: 0.95;
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 204, 0.8), 12, 0.5, 0, 0);
+    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.5, 0, 0);
 }
+
 /* ============================================
    BOTTONI GENERICI (STRUTTURA BASE CONDIVISA)
    ============================================ */
 .button {
-    -fx-text-fill: -text-secondary;
+    -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;
     -fx-padding: 8px 18px;
     -fx-alignment: CENTER;
     -fx-content-display: LEFT;
     -fx-cursor: hand;
 
-    /* Sfondo nero sfumato usando i token del tema */
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-secondary, -bg-primary);
 
     /* Bordi e curve */
@@ -138,7 +137,6 @@
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
 
-    /* Effetti */
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0.2, 0, 4);
     -fx-scale-x: 1.0;
     -fx-scale-y: 1.0;
@@ -147,72 +145,75 @@
 /* Hover globale */
 .button:hover {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-elevated, -bg-tertiary);
-    -fx-text-fill: -text-primary;
+    -fx-text-fill: -accent-primary; /* Il testo diventa dell'accento primario all'hover */
+    -fx-border-color: -accent-primary;
     -fx-scale-x: 1.03;
     -fx-scale-y: 1.03;
     -fx-translate-y: -1px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 16, 0.25, 0, 6);
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.25, 0, 2);
 }
 
 /* Click globale */
 .button:pressed {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #5f7280, #425461); /* Grigio azzurro di feedback */
+    /* Feedback visivo scuro che sfuma verso l'accento primario */
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-primary, -accent-primary);
+    -fx-text-fill: white;
     -fx-scale-x: 0.96;
     -fx-scale-y: 0.96;
     -fx-translate-y: 2px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.2, 0, 3);
 }
+
 /* ============================================
    GLOBAL SCROLLBARS (PER TUTTI I COMPONENTI)
    ============================================ */
 
-/* 1. CONFIGURAZIONE BASE DELLE BARRE */
 .scroll-bar:vertical {
     -fx-background-color: transparent;
-    -fx-pref-width: 10px; /* Più sottile ed elegante */
+    -fx-pref-width: 10px;
     -fx-padding: 0;
 }
 
 .scroll-bar:horizontal {
     -fx-background-color: transparent;
-    -fx-pref-height: 10px; /* Spessore per la barra orizzontale */
+    -fx-pref-height: 10px;
     -fx-padding: 0;
 }
 
 /* 2. IL CANALE DI SFONDO (Track) */
 .scroll-bar .track {
-    -fx-background-color: -bg-secondary; /* Sfondo scuro come i bottoni */
+    -fx-background-color: -bg-secondary;
     -fx-border-color: -bg-tertiary;
     -fx-background-radius: 0;
 }
 
 .scroll-bar:vertical .track {
-    -fx-border-width: 0 0 0 1px; /* Bordino a sinistra per la verticale */
+    -fx-border-width: 0 0 0 1px;
 }
 
 .scroll-bar:horizontal .track {
-    -fx-border-width: 1px 0 0 0; /* Bordino in alto per l'orizzontale */
+    -fx-border-width: 1px 0 0 0;
 }
 
-/* 3. IL CURSORE (Thumb) - Valido sia per vertical che horizontal */
+/* 3. IL CURSORE (Thumb) */
 .scroll-bar .thumb {
-    -fx-background-color: -bg-elevated; /* Grigio di base */
+    -fx-background-color: -bg-elevated;
     -fx-background-radius: 4px;
     -fx-cursor: hand;
 }
 
 /* 4. HOVER SUL CURSORE */
 .scroll-bar .thumb:hover {
-    -fx-background-color: -accent-secondary; /* Verde neon Goblin */
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 204, 0.4), 6, 0.3, 0, 0);
+    -fx-background-color: -accent-primary; /* Convertito in accent primary */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 6, 0.3, 0, 0);
 }
 
 /* 5. CURSORE MENTRE SI TRASCINA */
 .scroll-bar .thumb:pressed {
-    -fx-background-color: -accent-primary; /* Neon ancora più acceso */
+    -fx-background-color: white; /* Diventa bianco puro sotto pressione per staccare dal binario d'accento */
 }
 
-/* 6. NASCONDERE LE FRECCETTE (Increment/Decrement globale) */
+/* 6. NASCONDERE LE FRECCETTE */
 .scroll-bar .increment-button,
 .scroll-bar .decrement-button {
     -fx-background-color: transparent;
@@ -225,15 +226,15 @@
     -fx-padding: 0;
 }
 
-/* 7. IL CORNER (Il quadratino vuoto all'incrocio tra barra orizzontale e verticale) */
+/* 7. IL CORNER */
 .scroll-pane .corner {
     -fx-background-color: -bg-secondary;
 }
+
 /* ============================================
    SKIN BUTTONS (Griglia / Icon-Only)
    ============================================ */
 .skin-button {
-    /* Eredita i comportamenti di hover/pressed grazie alla sovrascrittura mirata */
     -fx-pref-width: 80px;
     -fx-pref-height: 80px;
     -fx-padding: 10px;
@@ -247,15 +248,17 @@
 }
 
 .skin-button:hover {
-    -fx-background-color: rgba(0, 255, 204, 0.2); /* Tocco goblin neon del tuo design */
-    -fx-border-color: #00ffcc;
+    -fx-background-color: rgba(255, 0, 0, 0.1); /* Sfondo rosso accennato a specchio dell'accento */
+    -fx-border-color: -accent-primary;            /* Convertito in accent primary */
     -fx-scale-x: 1.03;
     -fx-scale-y: 1.03;
     -fx-translate-y: -1px;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 8, 0.3, 0, 0);
 }
 
 .skin-button:pressed {
-    -fx-background-color: rgba(0, 255, 204, 0.4);
+    -fx-background-color: rgba(255, 0, 0, 0.25);
+    -fx-border-color: white;
     -fx-scale-x: 0.96;
     -fx-scale-y: 0.96;
     -fx-translate-y: 2px;
@@ -283,23 +286,19 @@
 .window-chrome {
     -fx-background-color: -bg-primary;
     -fx-background-radius: 16px;
-    -fx-min-height: 34px; /* never smaller than the title bar */
+    -fx-min-height: 34px;
 }
 
-/* Bottom corners of content match chrome radius */
 .window-content {
     -fx-background-color: -bg-primary;
     -fx-background-radius: 0 0 16px 16px;
 }
 
-/* Transparent content for scenes with starry background */
 .window-content-transparent {
     -fx-background-color: transparent;
     -fx-background-radius: 0 0 16px 16px;
 }
 
-/* Decorative border overlay — transparent fill, rounded border only.
-   Sits on top of all content, mouseTransparent so it never blocks interaction. */
 .window-border {
     -fx-background-color: transparent;
     -fx-border-color: -bg-elevated;
@@ -353,7 +352,7 @@
 /* Minimize — accent on hover */
 .title-bar-btn-minimize:hover {
     -fx-text-fill: -accent-primary;
-    -fx-background-color: rgba(203, 203, 203, 0.1);
+    -fx-background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* Maximize */

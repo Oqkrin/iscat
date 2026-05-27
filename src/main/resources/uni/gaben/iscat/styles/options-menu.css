@@ -5,18 +5,21 @@
    ============================================ */
 
 .menu-opzioni {
-    -fx-background-color: rgba(20, 20, 20, 0.95);
+    -fx-background-color: rgba(1, 2, 3, 0.98); /* Agganciato al tono profondo di -bg-primary */
     -fx-padding: 30px;
-    -fx-border-color: -text-primary;
+    -fx-border-color: -accent-primary;         /* Convertito in accent primary */
     -fx-border-width: 2px;
     -fx-max-width: 450px;
     -fx-max-height: 600px;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0.1, 0, 0); /* Glow esterno sul pannello */
 }
 
 .menu-opzioni .title-large {
-    -fx-text-fill: -text-primary;
+    -fx-text-fill: -accent-primary;             /* Convertito in accent primary */
     -fx-font-size: 28px;
+    -fx-font-weight: bold;
     -fx-padding: 0 0 10px 0;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0, 0, 0);
 }
 
 /* ============================================
@@ -55,9 +58,10 @@
 }
 
 .slider .thumb:hover {
-    -fx-background-color: -accent-secondary;
-    -fx-scale-x: 1.1;
-    -fx-scale-y: 1.1;
+    -fx-background-color: white;              /* Diventa bianco puro all'hover per feedback visivo netto */
+    -fx-scale-x: 1.15;
+    -fx-scale-y: 1.15;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.4, 0, 0);
 }
 
 /* ============================================
@@ -70,16 +74,22 @@
 
 .check-box .box {
     -fx-background-color: -bg-secondary;
-    -fx-border-color: -text-primary;
+    -fx-border-color: -text-secondary;
     -fx-border-width: 1px;
 }
 
 .check-box:selected .box {
-    -fx-background-color: -accent-primary;
+    -fx-background-color: -bg-primary;
+    -fx-border-color: -accent-primary;         /* Convertito in accent primary */
 }
 
-.check-box .mark {
-    -fx-background-color: -bg-primary;
+.check-box:selected .mark {
+    -fx-background-color: -accent-primary;     /* Convertito in accent primary */
+}
+
+.check-box:hover .box {
+    -fx-border-color: -accent-primary;         /* Convertito in accent primary */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 6, 0.2, 0, 0);
 }
 
 /* ============================================

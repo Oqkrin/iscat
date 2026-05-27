@@ -6,10 +6,10 @@
 
 /* Specifichiamo che è una Label per sovrascrivere lo shared */
 .menu-title.label {
-    -fx-text-fill: -text-primary;
+    -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;
     -fx-font-size: 55px;
-    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.5), 15, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0, 0, 0);
 }
 
 /* ============================================
@@ -24,6 +24,7 @@
     -fx-pref-height: 45px;
     -fx-graphic-text-gap: 16px;
     -fx-alignment: center-left;
+    -fx-text-fill: -accent-primary;
 
 }
 
@@ -35,17 +36,18 @@
 .menu-button .image-view {
     -fx-fit-width: 20px;
     -fx-fit-height: 20px;
+    -fx-text-fill: -accent-primary;
 }
 
 /* Gestione icone vettoriali Ikonli */
 .menu-button .ikonli-font-icon {
-    -fx-icon-color: -text-secondary;
+    -fx-icon-color: -accent-primary;
 }
 
 .menu-button:hover .ikonli-font-icon {
-    -fx-icon-color: -text-primary;
+    -fx-icon-color: -accent-primary;
 }
 
 .menu-button:pressed .ikonli-font-icon {
-    -fx-icon-color: #d8e6f2;
+    -fx-icon-color: -accent-primary;
 }
