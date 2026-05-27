@@ -38,60 +38,35 @@ public class OptionsMenuController implements IscatFxmlController {
 
     private StackPane contentRoot;
 
-    @FXML
-    private VBox mainOptions;
-    @FXML
-    private Slider BGMSlider;
-    @FXML
-    private Slider BGMSlider1;
-    @FXML
-    private Slider SFXSlider;
-    @FXML
-    private Slider scaleSlider;
-    @FXML
-    private Pane paneMaster;
-    @FXML
-    private Label skinNameLabel;
-    @FXML
-    private Label skinNameLabel1;
-    @FXML
-    private Label skinNameLabel2;
-    @FXML
-    private Label skinNameLabel11;
-    @FXML
-    private VBox controlsBox;
+    @FXML private VBox mainOptions;
+    @FXML private Slider BGMSlider;
+    @FXML private Slider BGMSlider1;
+    @FXML private Slider SFXSlider;
+    @FXML private Slider scaleSlider;
+    @FXML private Pane paneMaster;
+    @FXML private Label skinNameLabel;
+    @FXML private Label skinNameLabel1;
+    @FXML private Label skinNameLabel2;
+    @FXML private Label skinNameLabel11;
+    @FXML private VBox controlsBox;
 
-    @FXML
-    private Button walkUp;
-    @FXML
-    private Button walkDown;
-    @FXML
-    private Button walkLeft;
-    @FXML
-    private Button walkRight;
-    @FXML
-    private Button dash1;
-    @FXML
-    private Button dash2;
-    @FXML
-    private Button esc;
+    @FXML private Button walkUp;
+    @FXML private Button walkDown;
+    @FXML private Button walkLeft;
+    @FXML private Button walkRight;
+    @FXML private Button dash1;
+    @FXML private Button dash2;
+    @FXML private Button esc;
 
-    @FXML
-    private Button ImagePicker;
-    @FXML
-    private CheckBox lightModeCheck;
-    @FXML
-    private ColorPicker accentPrimary;
-    @FXML
-    private ColorPicker accentSecondary;
-    @FXML
-    private ColorPicker accentTernary;
-    @FXML
-    private ColorPicker bgPrimary;
+    @FXML private Button ImagePicker;
+    @FXML private CheckBox lightModeCheck;
+    @FXML private ColorPicker accentPrimary;
+    @FXML private ColorPicker accentSecondary;
+    @FXML private ColorPicker accentTernary;
+    @FXML private ColorPicker bgPrimary;
 
     // Theme Carousel Elements
-    @FXML
-    private ImageView themePreview;
+    @FXML private ImageView themePreview;
     private List<File> carouselImages = new ArrayList<>();
     private int currentIndex = -1;
 
@@ -160,12 +135,12 @@ public class OptionsMenuController implements IscatFxmlController {
 
         if (settings != null) {
             switch (selectedColumn) {
-                case "WalkUp" -> settings.setWalkUp(pressedKey);
-                case "WalkDown" -> settings.setWalkDown(pressedKey);
-                case "WalkLeft" -> settings.setWalkLeft(pressedKey);
+                case "WalkUp"    -> settings.setWalkUp(pressedKey);
+                case "WalkDown"  -> settings.setWalkDown(pressedKey);
+                case "WalkLeft"  -> settings.setWalkLeft(pressedKey);
                 case "WalkRight" -> settings.setWalkRight(pressedKey);
-                case "Dash1" -> settings.setDash1(pressedKey);
-                case "Dash2" -> settings.setDash2(pressedKey);
+                case "Dash1"     -> settings.setDash1(pressedKey);
+                case "Dash2"     -> settings.setDash2(pressedKey);
                 case "PauseGame" -> settings.setPauseGame(pressedKey);
             }
 
@@ -210,17 +185,9 @@ public class OptionsMenuController implements IscatFxmlController {
         refreshButtonLabels();
     }
 
-    @FXML
-    void toggleFPSVisible(ActionEvent event) {
-    }
-
-    @FXML
-    void deleteAccount(ActionEvent event) {
-    }
-
-    @FXML
-    void resetAccount(ActionEvent event) {
-    }
+    @FXML void toggleFPSVisible(ActionEvent event) {}
+    @FXML void deleteAccount(ActionEvent event) {}
+    @FXML void resetAccount(ActionEvent event) {}
 
     @FXML
     void toggleFullscreen(ActionEvent event) {
@@ -351,4 +318,9 @@ public class OptionsMenuController implements IscatFxmlController {
                 1.0
         );
     }
+
+    @FXML void onPrimary(ActionEvent event) { applyManualColorChanges(); }
+    @FXML void onSecondary(ActionEvent event) { applyManualColorChanges(); }
+    @FXML void onTernary(ActionEvent event) { applyManualColorChanges(); }
+    @FXML void onBgPrimary(ActionEvent event) { applyManualColorChanges(); }
 }
