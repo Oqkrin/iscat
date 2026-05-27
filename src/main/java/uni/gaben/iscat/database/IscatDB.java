@@ -19,7 +19,7 @@ public class IscatDB {
 
     private IscatDB() {}
 
-    public static IscatDB getInstance() {
+    public static synchronized IscatDB getInstance() {
         if (instance == null) {
             instance = new IscatDB();
         }
@@ -28,20 +28,30 @@ public class IscatDB {
 
     public void init() {
         connect();
-        // Inizializza il repository SUBITO DOPO aver stabilito la connessione
         this.usersQueries = new SqliteUsersQueries();
     }
 
     private void connect() {
         try {
+            Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection(URL);
-            //System.out.println("[IscatDB] DB connected");
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public Connection getConnection() {
+    /**
+     * Ritorna la connessione corrente. Se è nulla o è stata chiusa
+     * da un try-with-resources precedente, la riapre istantaneamente.
+     */
+    public synchronized Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(URL);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return connection;
     }
 

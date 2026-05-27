@@ -11,12 +11,6 @@ import java.util.Optional;
 
 public class SqliteUsersQueries implements UsersQueriesInterface {
 
-    private final Connection conn;
-
-    public SqliteUsersQueries() {
-        this.conn = IscatDB.getInstance().getConnection();
-    }
-
     @Override
     public Optional<User> findByUsername(String username) {
         String sql = """
@@ -25,6 +19,7 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 WHERE Username = ?
                 """;
 
+        Connection conn = IscatDB.getInstance().getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -46,6 +41,7 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 WHERE ID = ?
                 """;
 
+        Connection conn = IscatDB.getInstance().getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -67,6 +63,7 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 WHERE Username = ?
                 """;
 
+        Connection conn = IscatDB.getInstance().getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -96,6 +93,7 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
 
         String hashedPassword = PasswordHasher.hash(rawPassword);
 
+        Connection conn = IscatDB.getInstance().getConnection();
         try (PreparedStatement userStmt = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
 
             userStmt.setString(1, username);
@@ -131,6 +129,7 @@ public class SqliteUsersQueries implements UsersQueriesInterface {
                 WHERE ID = ?
                 """;
 
+        Connection conn = IscatDB.getInstance().getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setTimestamp(1, Timestamp.valueOf(loginTime));
             stmt.setInt(2, userId);

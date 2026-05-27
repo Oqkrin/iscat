@@ -16,9 +16,9 @@ import uni.gaben.iscat.iscat_mv_controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.iscat_model_vc.IscatViews;
 import uni.gaben.iscat.universe.UU;
-import uni.gaben.iscat.iscat_screens.login.model.SessionManager;
 import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
 import uni.gaben.iscat.database.sqlite.SettingsDAO;
+import uni.gaben.iscat.utils.SessionManager;
 
 public class OptionsMenuController implements IscatFxmlController {
 

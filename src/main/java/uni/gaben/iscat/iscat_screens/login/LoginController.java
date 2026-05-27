@@ -6,6 +6,8 @@ import uni.gaben.iscat.iscat_screens.login.model.LoginModel;
 import uni.gaben.iscat.iscat_screens.login.model.LoginState;
 import uni.gaben.iscat.iscat_screens.login.model.SessionUser;
 import uni.gaben.iscat.utils.SessionManager;
+import uni.gaben.iscat.database.sqlite.SettingsDAO;
+import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
 
 import java.util.Optional;
 
@@ -109,7 +111,15 @@ public class LoginController {
             Optional<SessionUser> sessionOpt = loginAuth.login(u, p);
             if (sessionOpt.isPresent()) {
                 model.setStatus("ACCESSO IN CORSO...");
-                SessionManager.getInstance().currentUser = sessionOpt.get();
+
+                // Salva utente loggato
+                SessionUser loggedUser = sessionOpt.get();
+                SessionManager.getInstance().setCurrentUser(loggedUser);
+
+                // Carica e salva impostazioni personalizzate dell'utente dal DB
+                UserSettings settings = SettingsDAO.loadSettings(loggedUser.id());
+                SessionManager.getInstance().setCurrentSettings(settings);
+
                 model.setLoggedIn(true);
             } else {
                 handleError("password errata");
@@ -119,7 +129,15 @@ public class LoginController {
             Optional<SessionUser> sessionOpt = loginAuth.register(u, p);
             if (sessionOpt.isPresent()) {
                 model.setStatus("registrazione completata!");
-                SessionManager.getInstance().currentUser = sessionOpt.get();
+
+                // Salva utente appena registrato
+                SessionUser newUser = sessionOpt.get();
+                SessionManager.getInstance().setCurrentUser(newUser);
+
+                // Carica le impostazioni (generate di default nel DB durante la registrazione)
+                UserSettings settings = SettingsDAO.loadSettings(newUser.id());
+                SessionManager.getInstance().setCurrentSettings(settings);
+
                 model.setLoggedIn(true);
             } else {
                 handleError("errore di registrazione");
