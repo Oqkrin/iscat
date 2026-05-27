@@ -75,7 +75,7 @@ public class UniverseWaveController {
         }
 
         if (spawnTimer <= 0) {
-            boolean spawnedAtLeastOne = spawnDynamicWaveOffScreen(camera, gameModel.getUniverseModel().getPlayer().getLevel(), maxAllowedGlobal);
+            boolean spawnedAtLeastOne = spawnDynamicWaveOffScreen(camera, masterTimeSec, gameModel.getUniverseModel().getPlayer().getLevel(), maxAllowedGlobal);
 
             if (spawnedAtLeastOne) {
                 // Calcola il prossimo cooldown standard (si riduce man mano che aumentano le kill)
@@ -90,7 +90,7 @@ public class UniverseWaveController {
     /**
      * Ciclo di spawn dinamico ottimizzato con controllo While per evitare stalli
      */
-    private boolean spawnDynamicWaveOffScreen(CameraModel camera, int playerLevel, int maxAllowedGlobal) {
+    private boolean spawnDynamicWaveOffScreen(CameraModel camera, double masterTimeSec, int playerLevel, int maxAllowedGlobal) {
         if (camera == null) return false;
 
         int totalEnemiesToSpawn = 3 + (totalKills / 15);
@@ -144,7 +144,7 @@ public class UniverseWaveController {
                     break;
             }
 
-            Object spawnedObject = UniverseSpawner.getInstance().waveSpawn(enemyToSpawn, spawnX, spawnY, playerLevel);
+            Object spawnedObject = UniverseSpawner.getInstance().waveSpawn(enemyToSpawn, spawnX, spawnY, (int) (playerLevel+masterTimeSec/60));
 
             if (spawnedObject != null) {
                 activeEnemies.add(new ActiveEnemy(spawnedObject, enemyToSpawn));
