@@ -1,9 +1,8 @@
 package uni.gaben.iscat.utils;
 
 import javafx.scene.paint.Color;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -16,60 +15,85 @@ import java.util.regex.Pattern;
 public class CssColorParser {
 
     /**
-     * Parses a CSS file resource and maps variable declarations to JavaFX Color states.
-     * Strips structural styling noise, blocks comment pollution, and handles multi-format declarations.
+     * Parses a CSS file resource from the internal application JAR path and maps variable declarations.
      * * @param cssResourcePath Absolute file path to the resource stylesheet.
      * @return Map pairing variable names (without leading dashes) directly to extracted Color structures.
      */
     public static Map<String, Color> parseColors(String cssResourcePath) {
-        Map<String, Color> colors = new HashMap<>();
-
         try (InputStream is = CssColorParser.class.getResourceAsStream(cssResourcePath)) {
             if (is == null) {
                 System.err.println("CssColorParser Error: Target CSS file resource missing: " + cssResourcePath);
-                return colors;
+                return new HashMap<>();
             }
+            return parseFromStream(is);
+        } catch (Exception e) {
+            System.err.println("CssColorParser Critical Exception encountered processing internal stylesheet: " + cssResourcePath);
+            e.printStackTrace();
+            return new HashMap<>();
+        }
+    }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line;
-            boolean inMultiLineComment = false;
+    /**
+     * Parses a physical CSS file located externally on disk (e.g., from a temp folder) and maps variable declarations.
+     * * @param externalCssFile The physical File handle pointing to the stylesheet on the operating system.
+     * @return Map pairing variable names (without leading dashes) directly to extracted Color structures.
+     */
+    public static Map<String, Color> parseExternalColors(File externalCssFile) {
+        if (externalCssFile == null || !externalCssFile.exists()) {
+            System.err.println("CssColorParser Error: Target external CSS file missing or null.");
+            return new HashMap<>();
+        }
 
-            // Permits flexible spaces, trailing semi-colons, hex variations, and parenthetical color wrappers
-            Pattern pattern = Pattern.compile("-([a-zA-Z0-9-]+)\\s*:\\s*(#[0-9a-fA-F]{3,8}|rgba?\\([^)]+\\))\\s*;?");
+        try (FileInputStream fis = new FileInputStream(externalCssFile)) {
+            return parseFromStream(fis);
+        } catch (Exception e) {
+            System.err.println("CssColorParser Critical Exception encountered processing external stylesheet: " + externalCssFile.getAbsolutePath());
+            e.printStackTrace();
+            return new HashMap<>();
+        }
+    }
 
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
+    /**
+     * Shared processing pipeline. Consumes any generic InputStream and extracts variables.
+     */
+    private static Map<String, Color> parseFromStream(InputStream is) throws IOException {
+        Map<String, Color> colors = new HashMap<>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String line;
+        boolean inMultiLineComment = false;
 
-                // Multi-line block comment routing safety filters
-                if (line.contains("/*")) inMultiLineComment = true;
-                if (inMultiLineComment) {
-                    if (line.contains("*/")) {
-                        inMultiLineComment = false;
-                        line = line.substring(line.indexOf("*/") + 2).trim();
-                    } else {
-                        continue;
-                    }
-                }
+        // Permits flexible spaces, trailing semi-colons, hex variations, and parenthetical color wrappers
+        Pattern pattern = Pattern.compile("-([a-zA-Z0-9-]+)\\s*:\\s*(#[0-9a-fA-F]{3,8}|rgba?\\([^)]+\\))\\s*;?");
 
-                // Skip pure line comments or structural padding brackets
-                if (line.isEmpty() || line.startsWith("*") || line.startsWith("//") || line.equals("}") || line.equals(".root {")) {
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+
+            // Multi-line block comment routing safety filters
+            if (line.contains("/*")) inMultiLineComment = true;
+            if (inMultiLineComment) {
+                if (line.contains("*/")) {
+                    inMultiLineComment = false;
+                    line = line.substring(line.indexOf("*/") + 2).trim();
+                } else {
                     continue;
                 }
+            }
 
-                Matcher m = pattern.matcher(line);
-                if (m.find()) {
-                    String varName = m.group(1);
-                    String colorVal = m.group(2);
-                    try {
-                        colors.put(varName, Color.web(colorVal));
-                    } catch (IllegalArgumentException e) {
-                        System.err.println("CssColorParser Error: Parsing failure on format '" + colorVal + "' inside variable: " + varName);
-                    }
+            // Skip pure line comments or structural padding brackets
+            if (line.isEmpty() || line.startsWith("*") || line.startsWith("//") || line.equals("}") || line.equals(".root {")) {
+                continue;
+            }
+
+            Matcher m = pattern.matcher(line);
+            if (m.find()) {
+                String varName = m.group(1);
+                String colorVal = m.group(2);
+                try {
+                    colors.put(varName, Color.web(colorVal));
+                } catch (IllegalArgumentException e) {
+                    System.err.println("CssColorParser Error: Parsing failure on format '" + colorVal + "' inside variable: " + varName);
                 }
             }
-        } catch (Exception e) {
-            System.err.println("CssColorParser Critical Exception encountered processing stylesheet: " + cssResourcePath);
-            e.printStackTrace();
         }
         return colors;
     }
