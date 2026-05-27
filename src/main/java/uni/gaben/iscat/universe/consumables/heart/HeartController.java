@@ -1,8 +1,12 @@
 package uni.gaben.iscat.universe.consumables.heart;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.core.MovementRequest;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.MovementBehavior;
+import uni.gaben.iscat.universe.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.universe.player.PlayerModel;
 
 public class HeartController extends AiBehaviours<HeartModel> {
@@ -11,7 +15,7 @@ public class HeartController extends AiBehaviours<HeartModel> {
     private boolean collected = false; // Flag locale per evitare calcoli duplicati in un singolo frame
 
     public HeartController(HeartModel hearth) {
-        super(hearth);
+        super(hearth, hearth.getBaseAccelerationPerTick(), hearth.getTerminalVelocity(), 0.0) ;
         this.hearth = hearth;
 
         // COSA SUCCEDE SE COLLIDO? Lo decido io, qui nel controller.
@@ -25,16 +29,17 @@ public class HeartController extends AiBehaviours<HeartModel> {
                 hearth.setShouldRemove(true);// Chiamata diretta a kill(): svanisce l'entità
             }
         });
-        addBehavior(new uni.gaben.iscat.universe.lib.interfaces.controller.AiBehavior() {
+        addMovement(new MovementBehavior() {
             @Override
-            public double getPriority(uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel npc, UniverseModel universe) {
+            public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
                 return 10.0; // Sempre attivo
             }
+
             @Override
-            public void execute(uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel npc, UniverseModel universe, double dt) {
-                if (collected) return;
+            public MovementRequest computeRequest(AbstractEntityModel npc, UniverseModel universe, double dt) {
+                if (collected) return new MovementRequest(Vector2.create(0,0), 0.0, true);
                 PlayerModel player = universe.getPlayer();
-                if (player == null) return;
+                if (player == null) return new MovementRequest(Vector2.create(0,0), 0.0, true);;
 
                 Vector2 hPos = hearth.getTransform().getTranslation();
                 Vector2 pPos = player.getTransform().getTranslation();
@@ -57,6 +62,7 @@ public class HeartController extends AiBehaviours<HeartModel> {
                         hearth.setLinearVelocity(new Vector2(0, 0));
                     }
                 }
+                return new MovementRequest(Vector2.create(0,0), 0.0, true);
             }
         });
     }

@@ -1,7 +1,9 @@
 package uni.gaben.iscat.universe.enemies.fake;
 
 import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.*;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.*;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.movement.*;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.*;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.implementations.attacks.MultiDirectionAttack;
 import uni.gaben.iscat.universe.lib.implementations.attacks.RepeaterAttack;
@@ -10,6 +12,8 @@ import uni.gaben.iscat.universe.lib.implementations.attacks.SpreadAttack;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.UU;
 
+import static uni.gaben.iscat.universe.enemies.fake.FakeIscatSettings.FAKEISCAT;
+
 public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
 
     private CheckLineOfSight checkLineOfSight;
@@ -17,44 +21,39 @@ public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
     private SeekLineOfSightBehavior seekLineOfSight;
 
     public FakeIscatController(FakeIscatModel iscat) {
-        super(iscat);
+        super(iscat, FAKEISCAT.force, FAKEISCAT.maxVelocity, FAKEISCAT.rotationSpeed);
 
-        // Evita assembramenti
-        this.addBehavior(new SeparationBehavior(UU.pxToM(64.0), FakeIscatSettings.FAKEISCAT.force * 0.8));
+        // Evita assembramenti (Passive track)
+        this.addPassive(new SeparationBehavior(UU.pxToM(64.0), FAKEISCAT.force * 0.8));
 
-        // Wander nativo
-        this.addBehavior(new WanderBehavior(
-                FakeIscatSettings.FAKEISCAT.force,
-                FakeIscatSettings.FAKEISCAT.rotationSpeed
+        // Wander nativo (Movement track)
+        this.addMovement(new WanderBehavior(
+                FAKEISCAT.maxVelocity,
+                50.0,
+                FAKEISCAT.detectionRange,
+                FAKEISCAT.combatRange
         ));
 
-        // Chase nativo
-        this.addBehavior(new ChaseBehavior(
-                FakeIscatSettings.FAKEISCAT.force,
-                FakeIscatSettings.FAKEISCAT.maxVelocity,
-                FakeIscatSettings.FAKEISCAT.detectionRange,
-                50.0,
-                FakeIscatSettings.FAKEISCAT.rotationSpeed
+        // Chase nativo (Movement track)
+        this.addMovement(new ChaseBehavior(
+                FAKEISCAT.maxVelocity,
+                FAKEISCAT.detectionRange,
+                50.0
         ));
 
         this.shooterBehaviour = new ShooterBehaviour(
                 80.0,
-                FakeIscatSettings.FAKEISCAT.combatRange,
-                FakeIscatSettings.FAKEISCAT.preferredRange,
-                FakeIscatSettings.FAKEISCAT.force,
-                FakeIscatSettings.FAKEISCAT.rotationSpeed,
-                FakeIscatSettings.FAKEISCAT.fireCooldownS,
+                FAKEISCAT.combatRange,
+                FAKEISCAT.fireCooldownS,
                 ProjectileType.ENEMY_BULLET,
-
-                new RepeaterAttack(5, new SingleShotAttack()),               // Spara 5 colpi singoli di fila
-                new RepeaterAttack(2, new SpreadAttack(3, 30.0)),            // Spara solo 2 sventagliate di fila
-                new MultiDirectionAttack(4, 0, new SingleShotAttack())       // Questo NON è dentro un repeater, quindi fa un colpo a croce singolo!
+                new RepeaterAttack(5, new SingleShotAttack()),
+                new RepeaterAttack(2, new SpreadAttack(3, 30.0)),
+                new MultiDirectionAttack(4, 0, new SingleShotAttack())
         );
+        this.addAttack(shooterBehaviour);
 
-        this.addBehavior(shooterBehaviour);
-
-        // Dodge behavior
-        this.addBehavior(new DodgeProjectileBehavior(FakeIscatSettings.FAKEISCAT.force * 1.5, 2.0));
+        // Dodge behavior (Movement track)
+        this.addMovement(new DodgeProjectileBehavior(FAKEISCAT.force * 1.5, FAKEISCAT.combatRange,2.0));
     }
 
     @Override
@@ -62,15 +61,15 @@ public class FakeIscatController extends AiBehaviours<FakeIscatModel> {
         super.aiUpdate(universeModel, dt);
         if (checkLineOfSight == null) {
             checkLineOfSight = new CheckLineOfSight(universeModel.getPlayer());
-            seekLineOfSight = new SeekLineOfSightBehavior(FakeIscatSettings.FAKEISCAT.force, FakeIscatSettings.FAKEISCAT.maxVelocity);
-            addBehavior(checkLineOfSight);
+            seekLineOfSight = new SeekLineOfSightBehavior(FAKEISCAT.force, FAKEISCAT.maxVelocity);
+            addPassive(checkLineOfSight);
         } else {
             if (checkLineOfSight.hasLineOfSightWithTarget()) {
-                addBehavior(shooterBehaviour);
-                removeBehavior(seekLineOfSight);
+                addAttack(shooterBehaviour);
+                removeMovement(seekLineOfSight);
             } else {
-                removeBehavior(shooterBehaviour);
-                addBehavior(seekLineOfSight);
+                removeAttack(shooterBehaviour);
+                addMovement(seekLineOfSight);
             }
         }
     }

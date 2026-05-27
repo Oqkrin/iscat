@@ -1,7 +1,9 @@
 package uni.gaben.iscat.universe.enemies.master;
 
 import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.*;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.*;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.movement.*;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.*;
 import uni.gaben.iscat.universe.UniverseSpawnable;
 import uni.gaben.iscat.universe.lib.implementations.attacks.*;
 import uni.gaben.iscat.universe.UU;
@@ -21,51 +23,47 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
     Random rand = new Random();
 
     public IscatMasterController(IscatMasterModel iscat) {
-        super(iscat);
+        super(iscat, ISCATMASTER.force, ISCATMASTER.maxVelocity, ISCATMASTER.rotationSpeed);
 
-        // Evita assembramenti (parallelo, sempre attivo)
-        this.addBehavior(new SeparationBehavior(UU.pxToM(32.0), ISCATMASTER.force * 0.8));
+        // Evita assembramenti (Passive track)
+        this.addPassive(new SeparationBehavior(UU.pxToM(32.0), ISCATMASTER.force * 0.8));
 
-        // Wander
-        this.addBehavior(new WanderBehavior(
-                ISCATMASTER.force,
-                ISCATMASTER.rotationSpeed
+        // Wander (Movement track)
+        this.addMovement(new WanderBehavior(
+                ISCATMASTER.maxVelocity,
+                50.0,
+                ISCATMASTER.detectionRange,
+                ISCATMASTER.combatRange
         ));
 
-        // Chase
-        addBehavior(new OrbitPlayerBehavior(
+        // Chase (Movement track)
+        addMovement(new OrbitPlayerBehavior(
                 ISCATMASTER.force,
                 ISCATMASTER.maxVelocity,
                 (ISCATMASTER.preferredRange+ISCATMASTER.preferredRange)/2,
                 false
         ));
 
+        // (Fixed stray FigureAttack missing array wrap)
         this.shooterBehaviour = new ShooterBehaviour(
                 80.0,
                 ISCATMASTER.combatRange,
-                ISCATMASTER.preferredRange,
-                ISCATMASTER.force,
-                ISCATMASTER.rotationSpeed,
                 ISCATMASTER.fireCooldownS,
                 ProjectileType.ENEMY_BULLET,
                 new RepeaterAttack(3,new SummonAttack(1, UniverseSpawnable.ISCAT_DASHER,0)),
                 new RepeaterAttack(3,new SummonAttack(1, UniverseSpawnable.ISCAT_HEALER,0)),
                 new RepeaterAttack(3,new SummonAttack(1, UniverseSpawnable.ISCAT_CORE,0)),
-
                 new RepeaterAttack(5, new MultiDirectionAttack(3, rand.nextInt(90),
-                        new SpreadAttack(rand.nextInt((int) ISCATMASTER.combatRange)/3, rand.nextInt(180))))
-                );
+                        new SpreadAttack(rand.nextInt((int) ISCATMASTER.combatRange)/3, rand.nextInt(180)))),
+                new RepeaterAttack(3, new FigureAttack(3, FigureAttack.FigureType.STAR))
+        );
 
-        new RepeaterAttack(3, new FigureAttack(3, FigureAttack.FigureType.STAR));
-        this.addBehavior(shooterBehaviour);
+        this.addAttack(shooterBehaviour);
 
-        // Dodge
-        this.addBehavior(new DodgeProjectileBehavior(ISCATMASTER.force * 1.2, 1.5));
+        // Dodge (Movement track)
+        this.addMovement(new DodgeProjectileBehavior(ISCATMASTER.force * 1.2, ISCATMASTER.combatRange,1.5));
     }
 
-    /**
-     * Blocca l'AI finché l'animazione di entrata non è terminata.
-     */
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
         aiEntity.shockwave().update(dt);
@@ -75,14 +73,14 @@ public class IscatMasterController extends AiBehaviours<IscatMasterModel> {
         if (checkLineOfSight == null) {
             checkLineOfSight = new CheckLineOfSight(universeModel.getPlayer());
             seekLineOfSight = new SeekLineOfSightBehavior(ISCATMASTER.force, ISCATMASTER.maxVelocity);
-            addBehavior(checkLineOfSight);
+            addPassive(checkLineOfSight);
         } else {
             if (checkLineOfSight.hasLineOfSightWithTarget()) {
-                addBehavior(shooterBehaviour);
-                removeBehavior(seekLineOfSight);
+                addAttack(shooterBehaviour);
+                removeMovement(seekLineOfSight);
             } else {
-                removeBehavior(shooterBehaviour);
-                addBehavior(seekLineOfSight);
+                removeAttack(shooterBehaviour);
+                addMovement(seekLineOfSight);
             }
         }
     }

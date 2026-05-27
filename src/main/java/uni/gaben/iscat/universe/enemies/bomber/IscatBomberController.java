@@ -3,8 +3,9 @@ package uni.gaben.iscat.universe.enemies.bomber;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.DodgeProjectileBehavior;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.SeparationBehavior;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.AttackBehavior;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.movement.DodgeProjectileBehavior;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.passive.SeparationBehavior;
 import uni.gaben.iscat.universe.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
@@ -30,7 +31,7 @@ public class IscatBomberController extends AiBehaviours<IscatBomberModel> {
     private final LinkedList<Vector2> playerTrail = new LinkedList<>();
 
     public IscatBomberController(IscatBomberModel iscat) {
-        super(iscat);
+        super(iscat, ISCATBOMBER.force, ISCATBOMBER.maxVelocity, ISCATBOMBER.rotationSpeed);
         // Il controller è responsabile di registrare la logica di collisione.
         // Il modello espone applyStun() come interfaccia pulita.
         aiEntity.setOnCollision(other -> {
@@ -39,12 +40,12 @@ public class IscatBomberController extends AiBehaviours<IscatBomberModel> {
             }
         });
 
-        this.addBehavior(new SeparationBehavior(
+        addPassive(new SeparationBehavior(
                 UU.pxToM(48.0), ISCATBOMBER.force * 0.8));
 
-        this.addBehavior(new DodgeProjectileBehavior(ISCATBOMBER.force * 1.5, 2.0));
+        addMovement(new DodgeProjectileBehavior(ISCATBOMBER.force * 1.5, ISCATBOMBER.detectionRange , 2.0));
 
-        addBehavior(new AiBehavior() {
+        addAttack(new AttackBehavior() {
             @Override
             public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
                 // Se stordito priorità 0, altrimenti 50

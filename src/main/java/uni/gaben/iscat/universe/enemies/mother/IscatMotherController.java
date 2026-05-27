@@ -4,6 +4,8 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.implementations.AiBehaviours;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.AttackBehavior;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.PassiveBehavior;
 import uni.gaben.iscat.universe.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.UniverseSpawnable;
@@ -16,34 +18,20 @@ import uni.gaben.iscat.utils.Interpolator;
 
 import static uni.gaben.iscat.universe.enemies.mother.IscatMotherSettings.ISCATMOTHER;
 
-/**
- * Controller AI per IscatMother (boss).
- *
- * Comportamento:
- * - Mantiene una distanza ideale dal player, avvicinandosi o allontanandosi
- * - Spara a ventaglio di 3 proiettili quando il player è nel range di combattimento
- * - Al 50% HP spawna minioni (Iscat + Eater) intorno a sé
- * - Alla morte spawna un'orda finale di nemici
- */
 public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
 
     private final Shooter<IscatMotherModel> shooter;
     private final Projectile bulletTemplate;
 
     public IscatMotherController(IscatMotherModel mother) {
-        super(mother);
+        super(mother, ISCATMOTHER.force, ISCATMOTHER.maxVelocity, ISCATMOTHER.rotationSpeed);
 
-        // Configura lo shooter per proiettili nemici
         shooter = new Shooter<>(mother);
         bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
-
-        // Alla morte, spawna l'orda finale
         mother.setOnDeath(this::spawnHorde);
 
-        // --- COMPOSIZIONE BEHAVIORS ---
-
-        // 1. SPAWN MINIONS (Priorità altissima)
-        addBehavior(new AiBehavior() {
+        // 1. SPAWN MINIONS (Passive track, evaluates safely alongside movement/attack)
+        addAttack(new AttackBehavior() {
             @Override
             public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
                 return aiEntity.shouldSpawnMinions() ? 100.0 : 0.0;
@@ -55,8 +43,8 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
             }
         });
 
-        // 2. COMBAT STATE (Priorità base, sempre attiva se il player è in vita)
-        addBehavior(new AiBehavior() {
+        // 2. COMBAT STATE (Movement & Attack combined -> mapped to add)
+        add(new AiBehavior() {
             @Override
             public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
                 return universe.getPlayer() != null ? 50.0 : 0.0;
@@ -86,31 +74,21 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
     @Override
     public void aiUpdate(UniverseModel universeModel, double dt) {
         if (aiEntity == null || aiEntity.shouldRemove()) return;
-
-        // Tick cooldown interni
         aiEntity.update(dt);
-
-        // Delega al Priority Queue (esegue il behavior col priority maggiore)
         super.aiUpdate(universeModel, dt);
     }
-
-    // ─── Movimento ──────────────────────────────────────────────────────────
 
     private void maintainDistance(Vector2 toPlayer, double dist) {
         double idealDist = IscatMotherSettings.DISTANZA_IDEALE_M;
 
         if (dist < idealDist - IscatMotherSettings.DISTANZA_TOLLERANZA_VICINO) {
-            // Troppo vicino → indietreggia
             Vector2 away = toPlayer.copy().getNormalized().multiply(-ISCATMOTHER.force);
             aiEntity.applyForce(away);
         } else if (dist > idealDist + IscatMotherSettings.DISTANZA_TOLLERANZA_LONTANO) {
-            // Troppo lontano → avvicinati
             Vector2 toward = toPlayer.copy().getNormalized().multiply(ISCATMOTHER.force);
             aiEntity.applyForce(toward);
         }
     }
-
-    // ─── Sparo ──────────────────────────────────────────────────────────────
 
     private void shootBurst() {
         double baseAngle = aiEntity.getTransform().getRotationAngle();
@@ -124,8 +102,6 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
 
         aiEntity.startFireCooldown();
     }
-
-    // ─── Spawn minioni (al 50% HP) ──────────────────────────────────────────
 
     private void spawnMinions() {
         Vector2 myPos = aiEntity.getTransform().getTranslation();
@@ -149,8 +125,6 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
         System.out.println("IscatMother ha chiamato rinforzi!");
     }
 
-    // ─── Orda finale (alla morte) ───────────────────────────────────────────
-
     private void spawnHorde() {
         Vector2 center = aiEntity.getTransform().getTranslation();
 
@@ -173,8 +147,6 @@ public class IscatMotherController extends AiBehaviours<IscatMotherModel> {
         }
         System.out.println("IscatMother ha dato inizio ad un'orda!");
     }
-
-    // ─── Rotazione fluida ───────────────────────────────────────────────────
 
     private void rotateTo(double targetAngle, double dt) {
         aiEntity.setAngularVelocity(0.0);

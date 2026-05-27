@@ -8,8 +8,10 @@ import uni.gaben.iscat.universe.lib.implementations.attacks.MultiDirectionAttack
 import uni.gaben.iscat.universe.lib.implementations.attacks.RepeaterAttack;
 import uni.gaben.iscat.universe.lib.implementations.attacks.SingleShotAttack;
 import uni.gaben.iscat.universe.lib.implementations.attacks.SpreadAttack;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.PlungeAttackBehavior;
-import uni.gaben.iscat.universe.lib.implementations.behaviors.ShooterBehaviour;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.PlungeAttackBehavior;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.attack.ShooterBehaviour;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.MovementBehavior;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.PassiveBehavior;
 import uni.gaben.iscat.universe.lib.interfaces.controller.AiBehavior;
 import uni.gaben.iscat.universe.lib.interfaces.controller.AiController;
 import uni.gaben.iscat.universe.player.PlayerModel;
@@ -32,21 +34,24 @@ public class IscatWormController implements AiController {
     }
 
     private AiBehaviours<IscatWormSegment> buildController(IscatWormSegment seg) {
-        AiBehaviours<IscatWormSegment> ctrl = new AiBehaviours<>(seg);
+        double force = seg.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_FORCE :
+                (seg.getType() == IscatWormSegment.Type.BODY ? IscatWormSettings.BODY_FOLLOW_FORCE : IscatWormSettings.TAIL_FOLLOW_FORCE);
+        double maxSpeed = IscatWormSettings.HEAD_MAX_SPEED;
+        double rotSpeed = IscatWormSettings.HEAD_ROTATION_SPEED;
+
+        AiBehaviours<IscatWormSegment> ctrl = new AiBehaviours<>(seg, force, maxSpeed, rotSpeed);
+
         switch (seg.getType()) {
             case HEAD -> {
-                ctrl.addBehavior(headBehavior());
+                ctrl.add(headBehavior());
             }
-            case BODY -> ctrl.addBehavior(followBehavior());
+            case BODY -> ctrl.add(followBehavior());
             case TAIL -> {
-                ctrl.addBehavior(followBehavior());
-                ctrl.addBehavior(lockRotationBehavior());
-                ctrl.addBehavior(new ShooterBehaviour(
+                ctrl.add(followBehavior());
+                ctrl.add(lockRotationBehavior());
+                ctrl.addAttack(new ShooterBehaviour(
                         80.0,
                         IscatWormSettings.TAIL_COMBAT_RANGE,
-                        IscatWormSettings.TAIL_PREFERRED_RANGE,
-                        IscatWormSettings.TAIL_FORCE,
-                        0.0,
                         IscatWormSettings.TAIL_FIRE_COOLDOWN,
                         ProjectileType.ENEMY_BULLET,
                         new RepeaterAttack(10,new MultiDirectionAttack(15, 0, new SingleShotAttack())),
@@ -76,11 +81,13 @@ public class IscatWormController implements AiController {
         if (seg.getType() != IscatWormSegment.Type.BODY) return;
         IscatWormSegment prev = seg.getPreviousSegment();
         if (prev == null || !prev.isConsumed()) return;
+
         seg.promoteToHead();
         seg.setPreviousSegment(null);
-        AiBehaviours<IscatWormSegment> ctrl = new AiBehaviours<>(seg);
-        ctrl.addBehavior(new PlungeAttackBehavior(12.0, IscatWormSettings.HEAD_FORCE * 6.0, 3.0, 1.0));
-        ctrl.addBehavior(headBehavior());
+
+        AiBehaviours<IscatWormSegment> ctrl = new AiBehaviours<>(seg, IscatWormSettings.HEAD_FORCE, IscatWormSettings.HEAD_MAX_SPEED, IscatWormSettings.HEAD_ROTATION_SPEED);
+        ctrl.add(new PlungeAttackBehavior(12.0, IscatWormSettings.HEAD_FORCE * 6.0, 3.0, 1.0));
+        ctrl.add(headBehavior());
         controllers.put(seg, ctrl);
     }
 

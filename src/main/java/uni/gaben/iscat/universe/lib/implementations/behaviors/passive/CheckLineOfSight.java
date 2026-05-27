@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.lib.implementations.behaviors;
+package uni.gaben.iscat.universe.lib.implementations.behaviors.passive;
 
 import org.dyn4j.collision.Filter;
 import org.dyn4j.dynamics.Body;
@@ -7,21 +7,16 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.DetectFilter;
 import org.dyn4j.world.result.RaycastResult;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.controller.AiBehavior;
+import uni.gaben.iscat.universe.lib.implementations.behaviors.interfaces.PassiveBehavior;
 import uni.gaben.iscat.universe.UniverseModel;
 
-public class CheckLineOfSight implements AiBehavior {
+public class CheckLineOfSight implements PassiveBehavior {
 
     private boolean isFree = true;
     private final AbstractEntityModel target;
 
     public CheckLineOfSight(AbstractEntityModel target) {
         this.target = target;
-    }
-
-    @Override
-    public double getPriority(AbstractEntityModel npc, UniverseModel universe) {
-        return -1; // Keep priority logic mapping structured as needed
     }
 
     @Override
