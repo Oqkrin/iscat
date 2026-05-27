@@ -11,7 +11,9 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import uni.gaben.iscat.utils.sprite.SpriteUtils;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -129,5 +131,41 @@ public class ThemeManager {
         public int hashCode() {
             return Objects.hash(image, color);
         }
+    }
+
+    // Keep track of the currently active external file (if any)
+    private File activeDynamicCssFile = null;
+
+    /**
+     * Recreates the CSS file dynamically from an image, making the physical CSS the single source of truth.
+     */
+    public void applyDynamicImageTheme(Scene scene, File imageFile, double durationSec) {
+        List<String> topHexColors = DynamicColors.getTopDistinctColorsHex(imageFile, 3);
+        if (topHexColors.isEmpty()) return;
+
+        // 1. Generate the physical CSS file
+        File newCssFile = CssThemeGenerator.createDynamicStylesheet("/uni/gaben/iscat/styles/iscat-color-theme.css", topHexColors);
+        if (newCssFile == null) return;
+
+        // 2. Update the JavaFX Scene Graph
+        if (scene != null) {
+            // Remove the old stylesheet (internal or previous dynamic one)
+            scene.getStylesheets().removeIf(url -> url.contains("iscat-color-theme.css") || url.contains("iscat-dynamic-theme"));
+
+            // Apply the new physical file
+            String newStylesheetUrl = newCssFile.toURI().toString();
+            scene.getStylesheets().add(newStylesheetUrl);
+        }
+
+        // 3. Update the Java memory state via the CSS Parser (CSS dictates the Java state)
+        currentPalette.clear();
+        currentPalette.putAll(CssColorParser.parseExternalColors(newCssFile));
+
+        // Save reference so we know what is currently loaded
+        this.activeDynamicCssFile = newCssFile;
+
+        // 4. Animate the global tint
+        tintCache.clear();
+        animateTint(getAccentPrimary(), durationSec);
     }
 }
