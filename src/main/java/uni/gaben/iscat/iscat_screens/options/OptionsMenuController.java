@@ -3,6 +3,7 @@ package uni.gaben.iscat.iscat_screens.options;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.input.KeyEvent;
@@ -40,6 +41,18 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button dash1;
     @FXML private Button dash2;
     @FXML private Button esc;
+
+    @FXML
+    private Button ImagePicker;
+
+    @FXML
+    private ColorPicker accentPrimary;
+
+    @FXML
+    private ColorPicker accentSecondary;
+
+    @FXML
+    private ColorPicker accentTernary;
 
     private Button selectedButton = null;
     private String selectedColumn = null;
@@ -197,5 +210,26 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML
     void updateScale(MouseEvent event) {
         UU.setUniverseScale(scaleSlider.getValue());
+    }
+
+
+    @FXML
+    void onImagePick(ActionEvent event) {
+
+    }
+
+    @FXML
+    void onPrimary(ActionEvent event) {
+
+    }
+
+    @FXML
+    void onSecondary(ActionEvent event) {
+
+    }
+
+    @FXML
+    void onTernary(ActionEvent event) {
+
     }
 }
