@@ -7,6 +7,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -26,36 +28,72 @@ import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.theme.DynamicColors;
 
+import javax.imageio.ImageIO;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OptionsMenuController implements IscatFxmlController {
 
     private StackPane contentRoot;
 
-    @FXML private VBox mainOptions;
-    @FXML private Slider BGMSlider;
-    @FXML private Slider SFXSlider;
-    @FXML private Slider scaleSlider;
-    @FXML private Pane paneMaster;
-    @FXML private Label skinNameLabel;
-    @FXML private Label skinNameLabel1;
-    @FXML private VBox controlsBox;
+    @FXML
+    private VBox mainOptions;
+    @FXML
+    private Slider BGMSlider;
+    @FXML
+    private Slider BGMSlider1;
+    @FXML
+    private Slider SFXSlider;
+    @FXML
+    private Slider scaleSlider;
+    @FXML
+    private Pane paneMaster;
+    @FXML
+    private Label skinNameLabel;
+    @FXML
+    private Label skinNameLabel1;
+    @FXML
+    private Label skinNameLabel2;
+    @FXML
+    private Label skinNameLabel11;
+    @FXML
+    private VBox controlsBox;
 
-    @FXML private Button walkUp;
-    @FXML private Button walkDown;
-    @FXML private Button walkLeft;
-    @FXML private Button walkRight;
-    @FXML private Button dash1;
-    @FXML private Button dash2;
-    @FXML private Button esc;
+    @FXML
+    private Button walkUp;
+    @FXML
+    private Button walkDown;
+    @FXML
+    private Button walkLeft;
+    @FXML
+    private Button walkRight;
+    @FXML
+    private Button dash1;
+    @FXML
+    private Button dash2;
+    @FXML
+    private Button esc;
 
-    @FXML private Button ImagePicker;
-    @FXML private CheckBox lightModeCheck; // Interruttore per la modalità Chiara/Scura
-    @FXML private ColorPicker accentPrimary;
-    @FXML private ColorPicker accentSecondary;
-    @FXML private ColorPicker accentTernary;
-    @FXML private ColorPicker bgPrimary;
+    @FXML
+    private Button ImagePicker;
+    @FXML
+    private CheckBox lightModeCheck;
+    @FXML
+    private ColorPicker accentPrimary;
+    @FXML
+    private ColorPicker accentSecondary;
+    @FXML
+    private ColorPicker accentTernary;
+    @FXML
+    private ColorPicker bgPrimary;
+
+    // Theme Carousel Elements
+    @FXML
+    private ImageView themePreview;
+    private List<File> carouselImages = new ArrayList<>();
+    private int currentIndex = -1;
 
     private Button selectedButton = null;
     private String selectedColumn = null;
@@ -122,12 +160,12 @@ public class OptionsMenuController implements IscatFxmlController {
 
         if (settings != null) {
             switch (selectedColumn) {
-                case "WalkUp"    -> settings.setWalkUp(pressedKey);
-                case "WalkDown"  -> settings.setWalkDown(pressedKey);
-                case "WalkLeft"  -> settings.setWalkLeft(pressedKey);
+                case "WalkUp" -> settings.setWalkUp(pressedKey);
+                case "WalkDown" -> settings.setWalkDown(pressedKey);
+                case "WalkLeft" -> settings.setWalkLeft(pressedKey);
                 case "WalkRight" -> settings.setWalkRight(pressedKey);
-                case "Dash1"     -> settings.setDash1(pressedKey);
-                case "Dash2"     -> settings.setDash2(pressedKey);
+                case "Dash1" -> settings.setDash1(pressedKey);
+                case "Dash2" -> settings.setDash2(pressedKey);
                 case "PauseGame" -> settings.setPauseGame(pressedKey);
             }
 
@@ -172,9 +210,17 @@ public class OptionsMenuController implements IscatFxmlController {
         refreshButtonLabels();
     }
 
-    @FXML void toggleFPSVisible(ActionEvent event) {}
-    @FXML void deleteAccount(ActionEvent event) {}
-    @FXML void resetAccount(ActionEvent event) {}
+    @FXML
+    void toggleFPSVisible(ActionEvent event) {
+    }
+
+    @FXML
+    void deleteAccount(ActionEvent event) {
+    }
+
+    @FXML
+    void resetAccount(ActionEvent event) {
+    }
 
     @FXML
     void toggleFullscreen(ActionEvent event) {
@@ -187,20 +233,6 @@ public class OptionsMenuController implements IscatFxmlController {
     @Override
     public void setContentRoot(StackPane contentRoot) {
         this.contentRoot = contentRoot;
-    }
-
-    private void toggleVisibilityMainOptions() {
-        boolean show = !mainOptions.isVisible();
-        mainOptions.setVisible(show);
-        mainOptions.setManaged(show);
-        if (show) mainOptions.toFront();
-    }
-
-    private void toggleVisibilityControls() {
-        boolean show = !controlsBox.isVisible();
-        controlsBox.setVisible(show);
-        controlsBox.setManaged(show);
-        if (show) controlsBox.toFront();
     }
 
     @FXML
@@ -237,40 +269,25 @@ public class OptionsMenuController implements IscatFxmlController {
         ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.2);
     }
 
-    /**
-     * Azione eseguita quando l'utente clicca sul CheckBox di Light Mode.
-     * Ricalcola al volo il colore dello sfondo preservando la coerenza con l'accento primario.
-     */
+    // --- Dynamic Theme Integration & Carousel ---
+
     @FXML
     void toggleThemeMode(ActionEvent event) {
-        boolean isLightMode = lightModeCheck.isSelected();
-        Color primary = accentPrimary.getValue();
-
-        double r, g, b;
-
-        if (isLightMode) {
-            // Light Mode: High brightness base (0.85).
-            // We tint it by mixing 85% light-grey with 15% of the primary color.
-            r = 0.85 + (primary.getRed() * 0.15);
-            g = 0.85 + (primary.getGreen() * 0.15);
-            b = 0.85 + (primary.getBlue() * 0.15);
+        // If an image is selected, re-extract colors so we "steal" the appropriate light/dark background
+        if (!carouselImages.isEmpty() && currentIndex >= 0) {
+            applyTheme(carouselImages.get(currentIndex));
         } else {
-            // Dark Mode: Low brightness base (0.02).
-            // We tint it by taking 2% black and adding 10% of the primary color.
-            r = 0.02 + (primary.getRed() * 0.10);
-            g = 0.02 + (primary.getGreen() * 0.10);
-            b = 0.02 + (primary.getBlue() * 0.10);
+            // Fallback generation if no image is active
+            boolean isLight = lightModeCheck.isSelected();
+            Color currentPrimary = accentPrimary.getValue();
+
+            // Basic luminosity shift fallback
+            double targetBrightness = isLight ? 0.95 : 0.05;
+            Color fallbackBg = Color.hsb(currentPrimary.getHue(), currentPrimary.getSaturation() * 0.1, targetBrightness);
+
+            bgPrimary.setValue(fallbackBg);
+            applyManualColorChanges();
         }
-
-        // Clamp values to valid color range [0.0, 1.0]
-        bgPrimary.setValue(new Color(
-                Math.clamp(r, 0.0, 1.0),
-                Math.clamp(g, 0.0, 1.0),
-                Math.clamp(b, 0.0, 1.0),
-                1.0
-        ));
-
-        applyManualColorChanges();
     }
 
     @FXML
@@ -285,19 +302,53 @@ public class OptionsMenuController implements IscatFxmlController {
         File chosenImage = imagePicker.showOpenDialog(currentStage);
 
         if (chosenImage != null) {
-            // Estrae i colori delegando la scelta dello sfondo allo stato della CheckBox Light Mode
-            boolean isLightMode = lightModeCheck.isSelected();
-            List<String> hexPalette = DynamicColors.getTopDistinctColorsHex(chosenImage, 4, isLightMode);
-
-            if (!hexPalette.isEmpty()) {
-                ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.8);
-                syncColorPickersWithTheme();
-            }
+            carouselImages.add(chosenImage);
+            currentIndex = carouselImages.size() - 1;
+            applyTheme(chosenImage);
         }
     }
 
-    @FXML void onPrimary(ActionEvent event) { applyManualColorChanges(); }
-    @FXML void onSecondary(ActionEvent event) { applyManualColorChanges(); }
-    @FXML void onTernary(ActionEvent event) { applyManualColorChanges(); }
-    @FXML void onBgPrimary(ActionEvent event) { applyManualColorChanges(); }
+    private void applyTheme(File imageFile) {
+        try {
+            boolean isLightMode = lightModeCheck.isSelected();
+            List<java.awt.Color> palette = DynamicColors.getTopDistinctColors(
+                    ImageIO.read(imageFile), 4, isLightMode
+            );
+
+            if (palette.size() >= 4) {
+                accentPrimary.setValue(toJfx(palette.get(0)));
+                accentSecondary.setValue(toJfx(palette.get(1)));
+                accentTernary.setValue(toJfx(palette.get(2)));
+                bgPrimary.setValue(toJfx(palette.get(3)));
+
+                themePreview.setImage(new Image(imageFile.toURI().toString()));
+                applyManualColorChanges();
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load theme image: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    void nextTheme(ActionEvent event) {
+        if (carouselImages.isEmpty()) return;
+        currentIndex = (currentIndex + 1) % carouselImages.size();
+        applyTheme(carouselImages.get(currentIndex));
+    }
+
+    @FXML
+    void prevTheme(ActionEvent event) {
+        if (carouselImages.isEmpty()) return;
+        currentIndex = (currentIndex - 1 + carouselImages.size()) % carouselImages.size();
+        applyTheme(carouselImages.get(currentIndex));
+    }
+
+    private Color toJfx(java.awt.Color awt) {
+        return new Color(
+                awt.getRed() / 255.0,
+                awt.getGreen() / 255.0,
+                awt.getBlue() / 255.0,
+                1.0
+        );
+    }
 }

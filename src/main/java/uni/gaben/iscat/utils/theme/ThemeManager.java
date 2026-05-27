@@ -167,13 +167,4 @@ public class ThemeManager {
         animateTint(getAccentPrimary(), durationSec);
     }
 
-    /**
-     * Recreates the CSS file dynamically by extracting the top distinct colors from an image.
-     */
-    public void applyDynamicImageTheme(Scene scene, File imageFile, double durationSec) {
-        if (imageFile == null) return;
-        // Corrected limit parameter from 3 to 4 to ensure the structural canvas profile is loaded
-        List<String> topHexColors = DynamicColors.getTopDistinctColorsHex(imageFile, 4);
-        applyHexColorsTheme(scene, topHexColors, durationSec);
-    }
 }
