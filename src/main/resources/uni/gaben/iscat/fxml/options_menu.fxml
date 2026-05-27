@@ -25,7 +25,7 @@
    </top>
    <center>
       <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <children>            <VBox fx:id="mainOptions" alignment="CENTER" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
+         <children>            <VBox fx:id="mainOptions" alignment="CENTER" spacing="30.0" style="-fx-background-radis: 20;">
                <padding>
                   <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
                </padding>
@@ -70,46 +70,35 @@
             </VBox>
             <VBox fx:id="controlsBox" alignment="CENTER" prefHeight="721.0" prefWidth="346.0">
                <children>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                  <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="328.0">
                      <children>
-                        <Label text="Walk up" />
+                        <Label text="Main Movements" />
                         <Button fx:id="walkUp" mnemonicParsing="false" onAction="#changeControl" text="W" />
+                        <HBox alignment="TOP_CENTER" prefHeight="42.0" prefWidth="328.0">
+                           <children>
+                              <Button fx:id="walkLeft" mnemonicParsing="false" onAction="#changeControl" text="A" />
+                              <Button fx:id="walkDown" mnemonicParsing="false" onAction="#changeControl" text="S" />
+                              <Button fx:id="walkRight" mnemonicParsing="false" onAction="#changeControl" text="D" />
+                           </children>
+                        </HBox>
                      </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label text="Walk left" />
-                        <Button fx:id="walkLeft" mnemonicParsing="false" onAction="#changeControl" text="A" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label text="Walk down" />
-                        <Button fx:id="walkDown" mnemonicParsing="false" onAction="#changeControl" text="S" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label text="Walk right" />
-                        <Button fx:id="walkRight" mnemonicParsing="false" onAction="#changeControl" text="D" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                  </VBox>
+                  <HBox alignment="CENTER" prefHeight="49.0" prefWidth="328.0">
                      <children>
                         <Label text="Dash 1" />
-                        <Button fx:id="dash1" mnemonicParsing="false" onAction="#changeControl" text="Space" />
+                        <Button fx:id="dash1" mnemonicParsing="false" onAction="#changeControl" prefHeight="38.0" prefWidth="130.0" text="Space" />
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                  <HBox alignment="CENTER" prefHeight="42.0" prefWidth="328.0">
                      <children>
                         <Label text="Dash 2" />
                         <Button fx:id="dash2" mnemonicParsing="false" onAction="#changeControl" text="Middle mouse" />
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                  <HBox alignment="CENTER" prefHeight="52.0" prefWidth="328.0">
                      <children>
-                        <Label text="Pause Game" />
-                        <Button fx:id="esc" mnemonicParsing="false" onAction="#changeControl" text="ESC" />
+                        <Label text="Attack" />
+                        <Button fx:id="esc" mnemonicParsing="false" onAction="#changeControl" prefHeight="38.0" prefWidth="136.0" text="Mouse Click" />
                      </children>
                   </HBox>
                   <Button fx:id="resetControlsBtn" mnemonicParsing="false" onAction="#resetControls" text="RESET" />
