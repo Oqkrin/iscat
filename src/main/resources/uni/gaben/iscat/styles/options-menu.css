@@ -4,6 +4,9 @@
    OPTIONS MENU CONTAINER
    ============================================ */
 
+.label {
+    -fx-text-fill: -accent-primary;
+}
 .menu-opzioni {
     -fx-background-color: rgba(1, 2, 3, 0.98); /* Agganciato al tono profondo di -bg-primary */
     -fx-padding: 30px;
