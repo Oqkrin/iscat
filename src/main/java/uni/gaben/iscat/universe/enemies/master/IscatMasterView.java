@@ -52,19 +52,16 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
         if (!entity.isEntranceDone()) {
             targetRow = 0;
-            maxFrames = 22;
-
+            maxFrames = getFramesCountForRow(targetRow);
             updateAnimatorState(targetRow);
             masterAnimator.update(UU.UNIVERSE_TICK);
 
             if (isRowCycleCompleted(maxFrames)) {
                 entity.setEntranceDone(true);
                 entity.setEnabled(true);
-                entity.shockwave().trigger(.8, 15, 7);
-
+                entity.shockwave().trigger(2.0, 1500, 15);
                 AudioManager.getInstance().playSFX("shockwave");
                 AudioManager.getInstance().playSFX("laugh");
-
                 updateAnimatorState(1);
             }
         } else {
@@ -90,19 +87,25 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             }
         }
 
-        gc.save();
-
-        setPos(entity);
-        setAngle(entity);
         setupGraphicsContextAndDrawContent(entity, gc, 270.0);
+    }
 
+    @Override
+    protected void drawContent(IscatMasterModel entity, GraphicsContext gc, double x, double y, double width, double height) {
+        int currentRow = masterAnimator.getCurrentState();
+        int maxFrames = getFramesCountForRow(currentRow);
+        double defaultFrameDuration = 1.0 / 6.0;
+
+        int localFrame = (int) (masterAnimator.getTime() / defaultFrameDuration) % maxFrames;
+        double realTime = masterAnimator.getTime();
+        masterAnimator.setTime(localFrame * defaultFrameDuration);
+        drawSprite(gc, x, y, width, height);
+        masterAnimator.setTime(realTime);
         drawShockwave(gc, 0, 0, entity.shockwave());
 
         if (entity.getAnimationState() != AnimationState.DEATH) {
             drawHpBar(entity, gc);
         }
-
-        gc.restore();
     }
 
     private void updateAnimatorState(int row) {
@@ -141,20 +144,5 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             case ATTACK4 -> 5;
             case DEATH   -> 6;
         };
-    }
-
-    @Override
-    protected void drawContent(IscatMasterModel entity, GraphicsContext gc, double x, double y, double width, double height) {
-        int currentRow = masterAnimator.getCurrentState();
-        int maxFrames = getFramesCountForRow(currentRow);
-
-        int localFrame = (int) (masterAnimator.getTime() / (1.0 / 6.0)) % maxFrames;
-
-        double frameW = masterSheet.frameWidth;
-        double frameH = masterSheet.frameHeight;
-        double sx = localFrame * frameW;
-        double sy = currentRow * frameH;
-
-        gc.drawImage(masterSheet.getSheet(), sx, sy, frameW, frameH, x, y, width, height);
     }
 }
