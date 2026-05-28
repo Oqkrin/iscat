@@ -9,46 +9,54 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane stylesheets="@../styles/scenes/score-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.scores.ScoreMenuController">
+<StackPane stylesheets="@../styles/scenes/score-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.scores.ScoreMenuController">
 
     <BorderPane fx:id="rootPane" styleClass="menu-background">
 
-        <top>
-            <VBox alignment="CENTER" spacing="8.0">
-                <padding>
-                    <Insets bottom="10.0" top="40.0" />
-                </padding>
-                <Label styleClass="menu-title" text="SCORE" />
-            </VBox>
-        </top>
-
         <center>
-            <HBox alignment="CENTER">
-                <VBox alignment="CENTER" spacing="18.0" styleClass="glowing-border, main-card">
-                    <padding>
-                        <Insets bottom="28.0" left="40.0" right="40.0" top="28.0" />
-                    </padding>
-
-                    <Label styleClass="card-header" text="IL TUO SCORE:" />
-
-                    <VBox spacing="10.0">
-                        <Label fx:id="bestScore" styleClass="score-stat" text="Best Score: 1000" />
-                        <Label fx:id="totalEnemies" styleClass="score-stat" text="Nemici sconfitti: 69" />
-                        <Label fx:id="bestTime" styleClass="score-stat" text="Miglior tempo: 5min" />
-                        <Label fx:id="damageTaken" styleClass="score-stat" text="Danni subiti: 6799" />
-                        <Label fx:id="damageCaused" styleClass="score-stat" text="Danni causati: 9999" />
-                    </VBox>
-
-                    <Region prefHeight="10.0" />
-
-                    <Button maxWidth="Infinity" onAction="#handleBack" styleClass="menu-button, play-button" text="ESCI DAL MENU" />
-                </VBox>
-            </HBox>
+         <HBox BorderPane.alignment="CENTER">
+            <children>
+               <Region HBox.hgrow="ALWAYS" />
+               <VBox>
+                  <children>
+                     <Region VBox.vgrow="ALWAYS" />
+                         <VBox alignment="CENTER" fillWidth="false" spacing="16.0" styleClass="glowing-border, main-card">
+                             <padding>
+                                 <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                             </padding>
+                        <Region VBox.vgrow="ALWAYS" />
+            
+                             <VBox spacing="10.0">
+                                 <Label fx:id="bestScore" styleClass="score-stat" text="Best Score: 1000" />
+                                 <Label fx:id="totalEnemies" styleClass="score-stat" text="Nemici sconfitti: 69" />
+                                 <Label fx:id="bestTime" styleClass="score-stat" text="Miglior tempo: 5min" />
+                                 <Label fx:id="damageTaken" styleClass="score-stat" text="Danni subiti: 6799" />
+                                 <Label fx:id="damageCaused" styleClass="score-stat" text="Danni causati: 9999" />
+                             </VBox>
+            
+                             <Region VBox.vgrow="ALWAYS" />
+            
+                             <Button maxWidth="Infinity" onAction="#handleBack" styleClass="menu-button, play-button" text="MAIN MENU">
+                           <padding>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </padding>
+                        </Button>
+                        <Region VBox.vgrow="ALWAYS" />
+                         </VBox>
+                     <Region VBox.vgrow="ALWAYS" />
+                  </children>
+               </VBox>
+               <Region HBox.hgrow="ALWAYS" />
+            </children>
+         </HBox>
         </center>
 
         <bottom>
-            <Region minHeight="50.0" prefHeight="50.0" />
+            <Region minHeight="56.0" />
         </bottom>
+      <top>
+         <Region minHeight="56.0" BorderPane.alignment="CENTER" />
+      </top>
 
     </BorderPane>
 </StackPane>
