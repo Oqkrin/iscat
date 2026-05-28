@@ -84,6 +84,11 @@ public class SkinMenuController implements IscatFxmlController {
             }
         }
 
+        double fattoreScala = 1.25;
+
+        skinGrid.setScaleX(fattoreScala);
+        skinGrid.setScaleY(fattoreScala);
+
         previewCanvas.resize(previewDim);
         previewBox.setMinSize(previewDim + 100, previewDim + 150);
         previewBox.setPrefWidth(previewDim + 100);

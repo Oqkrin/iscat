@@ -11,12 +11,12 @@
 
 <StackPane fx:id="skinStackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../styles/skin-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.skin_selection.SkinMenuController">
    <children>
-      <HBox prefHeight="100.0" prefWidth="200.0">
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
          <children>
             <VBox prefHeight="400.0" prefWidth="586.0">
                <children>
                   <GridPane fx:id="skinGrid" alignment="CENTER" gridLinesVisible="true" hgap="15.0" minHeight="0" minWidth="0" prefHeight="574.0" prefWidth="312.0" vgap="15.0" />
-                  <Label alignment="BOTTOM_CENTER" ellipsisString="" prefHeight="36.0" prefWidth="529.0" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
+                  <Label fx:id="underGridLabel" alignment="BOTTOM_CENTER" ellipsisString="" prefHeight="36.0" prefWidth="529.0" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
                      <font>
                         <Font name="System Italic" size="25.0" />
                      </font>
