@@ -1,8 +1,0 @@
-.glowing-border {
-    -fx-border-color: -accent-primary;
-    -fx-border-width: 2px;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-
-    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.1, 0, 0);
-}
