@@ -6,6 +6,7 @@
 @import url('components/iscat-sliders.css');
 @import url('components/iscat-scrollbars.css');
 @import url('components/iscat-window.css');
+@import url('components/iscat-glowing-border-container.css');
 
 .label {
     -fx-text-fill: -accent-primary;

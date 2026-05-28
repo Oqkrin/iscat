@@ -3,7 +3,6 @@ package uni.gaben.iscat.iscat_screens.options;
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
@@ -12,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -57,7 +57,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private VBox keybinds;
     @FXML private CheckBox lightModeCheck;
     @FXML private Slider masterSlider;
-    @FXML private AnchorPane paneMaster;
+    @FXML private BorderPane paneMaster;
     @FXML private Button resetControlsBtn;
     @FXML private Slider scaleSlider;
     @FXML private VBox theme;
@@ -98,13 +98,11 @@ public class OptionsMenuController implements IscatFxmlController {
             }
         });
 
-        paneMaster.setPadding(new Insets(32, 16, 16, 16));
-
         // ── Dynamic Responsive Layout Controls ───────────────────────────────
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
 
-        // Keeps preview snapshot cleanly balanced inside the mid-sized menu card
+        // Keeps preview snapshot cleanly balanced inside the center menu card bounds
         theme.widthProperty().addListener((obs, oldWidth, newWidth) -> {
             themePreview.setFitWidth(newWidth.doubleValue() - 40.0);
         });
