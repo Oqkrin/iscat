@@ -6,42 +6,65 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/scenes/bestiary-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.bestiary.BestiaryMenuController">
-   <center>
-      <HBox alignment="CENTER" fillHeight="false" spacing="80.0" BorderPane.alignment="CENTER">
+<StackPane stylesheets="@../styles/scenes/bestiary-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.bestiary.BestiaryMenuController">
 
-         <VBox fx:id="enemyButtonsBox" alignment="CENTER" prefWidth="250.0" spacing="5.0" styleClass="glowing-border" />
+   <BorderPane fx:id="rootPane" styleClass="menu-background">
 
-         <VBox fx:id="previewBox" alignment="CENTER" spacing="30.0" styleClass="glowing-border">
+      <top>
+         <Region minHeight="60.0" prefHeight="60.0" />
+      </top>
+
+      <center>
+         <HBox alignment="CENTER" spacing="48.0">
             <padding>
-               <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+               <Insets bottom="20.0" left="48.0" right="48.0" top="20.0" />
             </padding>
 
-            <StackPane fx:id="previewContainer" prefHeight="160.0" prefWidth="160.0" />
-
-            <Label fx:id="skinNameLabel" ellipsisString="" text="Enemy Name" textFill="#00ffcc" wrapText="true">
-               <font>
-                  <Font name="System Italic" size="25.0" />
-               </font>
-            </Label>
-
-            <VBox alignment="CENTER" spacing="15.0">
-               <Button ellipsisString="" onAction="#selectRandom" styleClass="confirm-button" text="RANDOM" />
-               <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
+            <!-- LEFT: Enemy list -->
+            <VBox alignment="TOP_CENTER" maxWidth="280.0" minWidth="200.0" spacing="16.0" HBox.hgrow="ALWAYS">
+               <VBox fx:id="enemyButtonsBox" alignment="TOP_CENTER" rotate="-2.0" spacing="8.0" styleClass="glowing-border, secondary-card" VBox.vgrow="ALWAYS">
+                  <padding>
+                     <Insets bottom="20.0" left="16.0" right="16.0" top="20.0" />
+                  </padding>
+                  <Label styleClass="card-header" text="ENEMIES" />
+               </VBox>
             </VBox>
-         </VBox>
-         <VBox prefHeight="320.0" prefWidth="178.0" styleClass="glowing-border">
-            <children>
-               <Label alignment="CENTER" prefHeight="18.0" prefWidth="207.0" text="Enemy Description" />
-      
-               <TextArea fx:id="description" />
-            </children>
-         </VBox>
 
-      </HBox>
-   </center>
-</BorderPane>
+            <!-- CENTER: Preview -->
+            <VBox alignment="CENTER" maxWidth="320.0" minWidth="240.0" spacing="20.0" HBox.hgrow="ALWAYS">
+               <VBox alignment="CENTER" rotate="-1.0" spacing="16.0" styleClass="glowing-border, main-card">
+                  <padding>
+                     <Insets bottom="28.0" left="24.0" right="24.0" top="28.0" />
+                  </padding>
+                  <StackPane fx:id="previewContainer" prefHeight="160.0" prefWidth="160.0" />
+                  <Label fx:id="skinNameLabel" styleClass="card-header" text="ENEMY NAME" wrapText="true" />
+                  <Button maxWidth="Infinity" onAction="#selectRandom" styleClass="menu-button" text="RANDOM" />
+               </VBox>
+            </VBox>
+
+            <!-- RIGHT: Description -->
+            <VBox alignment="TOP_CENTER" maxWidth="360.0" minWidth="260.0" spacing="16.0" HBox.hgrow="ALWAYS">
+               <VBox alignment="TOP_CENTER" rotate="2.0" spacing="12.0" styleClass="glowing-border, secondary-card" VBox.vgrow="ALWAYS">
+                  <padding>
+                     <Insets bottom="20.0" left="16.0" right="16.0" top="20.0" />
+                  </padding>
+                  <Label styleClass="card-header" text="DESCRIPTION!" />
+                  <TextArea fx:id="description" VBox.vgrow="ALWAYS" />
+               </VBox>
+            </VBox>
+
+         </HBox>
+      </center>
+
+      <bottom>
+         <HBox alignment="CENTER" prefHeight="80.0">
+            <Button onAction="#handleBack" styleClass="back-button" text="ESCI" />
+         </HBox>
+      </bottom>
+
+   </BorderPane>
+</StackPane>

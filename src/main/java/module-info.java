@@ -16,6 +16,7 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.iscat_screens.scores to javafx.fxml;
     opens uni.gaben.iscat.iscat_screens.bestiary to javafx.fxml;
     opens uni.gaben.iscat.iscat_screens.options to javafx.fxml;
+    opens uni.gaben.iscat.iscat_screens.main_menu to javafx.fxml;
 
     exports uni.gaben.iscat;
     exports uni.gaben.iscat.utils;
