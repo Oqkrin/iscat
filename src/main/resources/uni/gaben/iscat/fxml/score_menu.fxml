@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/score-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.scores.ScoreMenuController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/scenes/score-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.scores.ScoreMenuController">
    <top>
       <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
