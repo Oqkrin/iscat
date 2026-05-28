@@ -13,21 +13,14 @@
    <children>
       <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="582.0" spacing="10.0">
-               <padding>
-                  <Insets top="40.0" />
-               </padding>
+            <VBox prefHeight="400.0" prefWidth="586.0">
                <children>
-                  <VBox prefHeight="448.0" prefWidth="382.0">
-                     <children>
-                        <GridPane fx:id="skinGrid" alignment="CENTER" hgap="15.0" minHeight="0" minWidth="0" prefHeight="336.0" prefWidth="383.0" vgap="15.0" />
-                        <Label alignment="BOTTOM_CENTER" ellipsisString="" prefHeight="36.0" prefWidth="529.0" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
-                           <font>
-                              <Font name="System Italic" size="25.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </VBox>
+                  <GridPane fx:id="skinGrid" alignment="CENTER" gridLinesVisible="true" hgap="15.0" minHeight="0" minWidth="0" prefHeight="574.0" prefWidth="312.0" vgap="15.0" />
+                  <Label alignment="BOTTOM_CENTER" ellipsisString="" prefHeight="36.0" prefWidth="529.0" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
+                     <font>
+                        <Font name="System Italic" size="25.0" />
+                     </font>
+                  </Label>
                </children>
             </VBox>
             <VBox fx:id="previewBox" alignment="CENTER" prefHeight="400.0" prefWidth="420.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
