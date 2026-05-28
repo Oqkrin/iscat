@@ -55,6 +55,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button esc;
     @FXML private VBox keybinds;
     @FXML private CheckBox lightModeCheck;
+    @FXML private CheckBox rainbowModeCheck;
     @FXML private Slider masterSlider;
     @FXML private VBox paneMaster;
     @FXML private Button resetControlsBtn;
@@ -179,20 +180,8 @@ public class OptionsMenuController implements IscatFxmlController {
         refreshButtonLabels();
     }
 
-    // ── Rainbow Logic ────────────────────────────────────────────────────────
     @FXML
     void resetAccount(ActionEvent event) {
-        if (paneMaster.getScene() == null) return;
-        if (ThemeManager.getInstance().isRainbowModeActive()) {
-            ThemeManager.getInstance().stopRainbowMode();
-            if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
-            syncColorPickersWithTheme();
-            AudioManager.getInstance().playSFX("laugh");
-        } else {
-            AudioManager.getInstance().playSFX("rainbow");
-            ThemeManager.getInstance().startRainbowMode(paneMaster.getScene());
-            startUiSyncTimer();
-        }
     }
 
     private void startUiSyncTimer() {
@@ -260,6 +249,21 @@ public class OptionsMenuController implements IscatFxmlController {
             Color cp = accentPrimary.getValue();
             bgPrimary.setValue(Color.hsb(cp.getHue(), cp.getSaturation() * 0.1, isLight ? 0.95 : 0.05));
             applyManualColorChanges();
+        }
+    }
+
+    @FXML
+    void toggleRainbowMode(ActionEvent event) {
+        if (paneMaster.getScene() == null) return;
+        if (ThemeManager.getInstance().isRainbowModeActive()) {
+            ThemeManager.getInstance().stopRainbowMode();
+            if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
+            syncColorPickersWithTheme();
+            AudioManager.getInstance().playSFX("laugh");
+        } else {
+            AudioManager.getInstance().playSFX("rainbow");
+            ThemeManager.getInstance().startRainbowMode(paneMaster.getScene());
+            startUiSyncTimer();
         }
     }
 

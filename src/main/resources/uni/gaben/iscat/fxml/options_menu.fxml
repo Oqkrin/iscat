@@ -73,6 +73,7 @@
                             <Button onAction="#nextTheme" text="&gt;" />
                         </HBox>
                         <CheckBox fx:id="lightModeCheck" onAction="#toggleThemeMode" text="LIGHT MODE" />
+                        <CheckBox fx:id="RainbowModeCheck" onAction="#toggleRainbowMode" text="RAINBOW MODE" />
                         <GridPane alignment="CENTER" hgap="8.0" vgap="8.0">
                             <columnConstraints>
                                 <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
