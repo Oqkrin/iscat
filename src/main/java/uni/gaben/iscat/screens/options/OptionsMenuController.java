@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import uni.gaben.iscat.database.sqlite.ScoreDAO;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
@@ -182,6 +183,12 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     void resetAccount(ActionEvent event) {
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        if (settings == null) return;
+        int userId = settings.getUserId();
+        ScoreDAO.reset(userId);
+        SessionManager.getInstance().setCurrentSaveData(ScoreDAO.load(userId));
+        AudioManager.getInstance().playSFX("laugh");
     }
 
     private void startUiSyncTimer() {

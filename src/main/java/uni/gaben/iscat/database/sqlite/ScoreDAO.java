@@ -75,4 +75,17 @@ public class ScoreDAO {
             e.printStackTrace();
         }
     }
+
+    /** Azzera tutte le statistiche di salvataggio per l'utente specificato */
+    public static void reset(int userId) {
+        String sql = "UPDATE Salvataggi SET Score = 0, Deaths = 0, TotalDamageDealt = 0, " +
+                "TotalDamageReceived = 0, BestTime = 0 WHERE UserID = ?";
+        try (Connection conn = IscatDB.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
