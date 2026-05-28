@@ -1,4 +1,3 @@
-@import url('../iscat-components-shared.css');
 
 /* ============================================
    OPTIONS MENU CONTAINER
@@ -9,34 +8,36 @@
 }
 
 .option-card {
-    -fx-border-color: -accent-primary;  /* Usa la tua variabile del tema */
-    -fx-border-width: 2px;              /* Spessore del bordo */
-    -fx-border-radius: 8px;             /* Smussa gli angoli del bordo */
-    -fx-background-radius: 8px;         /* Smussa lo sfondo per non farlo uscire dal bordo */
+    -fx-border-color: -accent-primary;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
 
     -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.1, 0, 0);
 }
 
 .menu-opzioni {
-    -fx-background-color: rgba(1, 2, 3, 0.98); /* Agganciato al tono profondo di -bg-primary */
+    -fx-background-color: rgba(1, 2, 3, 0.98);
     -fx-padding: 30px;
-    -fx-border-color: -accent-primary;         /* Convertito in accent primary */
+    -fx-border-color: -accent-primary;
     -fx-border-width: 2px;
     -fx-max-width: 450px;
     -fx-max-height: 600px;
-    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0.1, 0, 0); /* Glow esterno sul pannello */
+
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0.1, 0, 0);
 }
 
 .menu-opzioni .title-large {
-    -fx-text-fill: -accent-primary;             /* Convertito in accent primary */
+    -fx-text-fill: -accent-primary;
     -fx-font-size: 28px;
     -fx-font-weight: bold;
     -fx-padding: 0 0 10px 0;
+
     -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0, 0, 0);
 }
 
 /* ============================================
-   SECTION HEADERS & LABELS
+   SECTION HEADERS
    ============================================ */
 
 .sezione-opzioni {
@@ -55,162 +56,72 @@
 }
 
 /* ============================================
-   SLIDERS
-   ============================================ */
-
-.slider {
-    -fx-max-width: 300px;
-}
-
-.slider .track {
-    -fx-background-color: -bg-elevated;
-}
-
-.slider .thumb {
-    -fx-background-color: -accent-primary;
-}
-
-.slider .thumb:hover {
-    -fx-background-color: white;              /* Diventa bianco puro all'hover per feedback visivo netto */
-    -fx-scale-x: 1.15;
-    -fx-scale-y: 1.15;
-    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.4, 0, 0);
-}
-
-/* ============================================
-   CHECKBOXES (STILE ALLINEATO SULLE LABEL)
-   ============================================ */
-
-.check-box {
-    -fx-text-fill: -accent-primary;            /* Testo convertito come le Label */
-    -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.1, 0, 0);
-}
-
-.check-box .box {
-    -fx-background-color: -bg-secondary;
-    -fx-border-color: -text-secondary;
-    -fx-border-width: 1px;
-}
-
-.check-box:selected .box {
-    -fx-background-color: -bg-primary;
-    -fx-border-color: -accent-primary;         /* Convertito in accent primary */
-}
-
-.check-box:selected .mark {
-    -fx-background-color: -accent-primary;     /* Convertito in accent primary */
-}
-
-.check-box:hover {
-    -fx-effect: dropshadow(gaussian, -accent-primary, 14, 0.3, 0, 0);
-}
-
-.check-box:hover .box {
-    -fx-border-color: -accent-primary;         /* Convertito in accent primary */
-}
-
-/* ============================================
-   COLOR PICKER (STILIZZATO COME I BUTTONS + INTERNI)
+   COLOR PICKER (FEATURE SPECIFIC)
    ============================================ */
 
 .color-picker {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-secondary, -bg-primary);
+    -fx-background-color: linear-gradient(
+        from 0% 0% to 100% 100%,
+        -bg-secondary,
+        -bg-primary
+    );
+
     -fx-border-color: -bg-tertiary;
     -fx-border-width: 1px;
     -fx-border-radius: 8px;
+
     -fx-background-radius: 8px;
     -fx-cursor: hand;
+
     -fx-padding: 0px;
     -fx-alignment: CENTER;
+
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0.2, 0, 4);
 }
 
-/* Modella sia il contenitore della label sia il mini-bottone interno freccia */
+/* inner */
 .color-picker .color-picker-label,
 .color-picker .arrow-button {
     -fx-background-color: transparent;
     -fx-padding: 8px 14px;
 }
 
-/* IL TESTO INTERNO DEL COLORE (Prende il colore attualmente selezionato!) */
 .color-picker .color-picker-label .text {
-    -fx-fill: -fx-color; /* <--- ECCO IL TRUCCO: Segue dinamicamente il colore attivo */
+    -fx-fill: -fx-color;
     -fx-font-weight: bold;
     -fx-font-family: "Consolas", monospace;
-    /* Aggiungiamo un'ombra scura netta dietro per renderlo leggibile anche se il colore scelto è chiarissimo o bianco */
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 2, 0.0, 0, 1);
 }
 
-/* IL QUADRATINO DEL COLORE INTERNO (Color Preview Box) */
-.color-picker .color-picker-label .color-rect {
-    -fx-stroke: -bg-elevated;      /* Bordo del quadratino */
-    -fx-stroke-width: 1px;
-    -fx-arc-width: 4px;            /* Smussa leggermente gli angoli del quadratino */
-    -fx-arc-height: 4px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0.5, 0, 1);
-}
-
-/* --- HOVER STATS --- */
-
+/* hover */
 .color-picker:hover {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-elevated, -bg-tertiary);
+    -fx-background-color: linear-gradient(
+        from 0% 0% to 100% 100%,
+        -bg-elevated,
+        -bg-tertiary
+    );
+
     -fx-border-color: -accent-primary;
-    -fx-scale-x: 1.03;
-    -fx-scale-y: 1.03;
-    -fx-translate-y: -1px;
-    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.25, 0, 2);
 }
 
-/* All'hover il testo mantiene il suo colore dinamico, ma possiamo dargli un glow extra */
-.color-picker:hover .color-picker-label .text {
-    -fx-effect: dropshadow(three-pass-box, -accent-primary, 6, 0.4, 0, 0);
-}
-
-/* --- PRESSED STATS --- */
-
+/* pressed */
 .color-picker:pressed {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-primary, -accent-primary);
-    -fx-scale-x: 0.96;
-    -fx-scale-y: 0.96;
-    -fx-translate-y: 2px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.2, 0, 3);
-}
-
-/* Al click forziamo il bianco per contrasto sul gradiente che si scurisce */
-.color-picker:pressed .color-picker-label .text {
-    -fx-fill: white;
-    -fx-effect: none;
-}
-
-/* Nasconde del tutto la freccetta nativa a comparsa se preferisci un look button puro */
-.color-picker .arrow-button .arrow {
-    -fx-shape: "";
-    -fx-padding: 0px;
-}
-.color-picker .arrow-button {
-    -fx-padding: 0px; /* Rimuove lo spazio morto della freccia */
+    -fx-background-color: linear-gradient(
+        from 0% 0% to 100% 100%,
+        -bg-primary,
+        -accent-primary
+    );
 }
 
 /* ============================================
    OPTIONS BUTTONS
    ============================================ */
 
-/* Il pulsante standard delle opzioni eredita le animazioni e i gradienti da .button.
-   Applichiamo solo le dimensioni fisse del tuo vecchio foglio di stile. */
 .options-button {
     -fx-pref-width: 220px;
-    -fx-min-width: 220px;
-    -fx-max-width: 220px;
-
     -fx-pref-height: 45px;
-    -fx-min-height: 45px;
-    -fx-max-height: 45px;
-
     -fx-font-size: 16px;
 }
 
-/* Allineamento personalizzato per il contenitore dei pulsanti in fondo alle opzioni */
 .contenitore-pulsanti {
     -fx-alignment: center;
     -fx-spacing: 15px;
