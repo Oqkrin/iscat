@@ -1,8 +1,16 @@
 .glowing-border {
+    /* Spazio interno tra i bottoni e il bordo luminoso */
+    -fx-padding: 35px 50px;
+
+    /* Blocca la dimensione del VBox attorno al menu */
+    -fx-max-width: 420px;
+    -fx-max-height: 600px;
+
+    /* La tua configurazione del bordo e del glow */
     -fx-border-color: -accent-primary;
     -fx-border-width: 2px;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
 
-    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.1, 0, 0);
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.25, 0, 0);
 }

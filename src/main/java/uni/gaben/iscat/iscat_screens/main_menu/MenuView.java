@@ -17,9 +17,10 @@ import java.util.Objects;
  */
 public class MenuView extends AbstractIscatStackPane {
 
-    private static final String CSS_MENU_BUTTON = "menu-button";
-    private static final String CSS_TITLE       = "menu-title";
-    private static final String CSS_MENU_ROOT   = "menu-root";
+    private static final String CSS_MENU_BUTTON     = "menu-button";
+    private static final String CSS_TITLE           = "menu-title";
+    private static final String CSS_MENU_ROOT       = "menu-root";
+    private static final String CSS_GLOWING_BORDER  = "glowing-border"; // Nuova costante stilistica
 
     private final MenuController controller;
 
@@ -63,8 +64,10 @@ public class MenuView extends AbstractIscatStackPane {
 
     @Override
     protected void initLayout() {
-        VBox layout = new VBox(20, title, playButton, optionsButton, scoreButton, skinButton, bestiaryButton,logoutButton, quitButton);
+        VBox layout = new VBox(20, title, playButton, optionsButton, scoreButton, skinButton, bestiaryButton, logoutButton, quitButton);
         layout.setAlignment(Pos.CENTER);
+        layout.getStyleClass().add(CSS_GLOWING_BORDER);
+
         getContentRoot().getChildren().add(layout);
     }
 
