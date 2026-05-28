@@ -14,9 +14,9 @@
    <center>
       <HBox alignment="CENTER" fillHeight="false" spacing="80.0" BorderPane.alignment="CENTER">
 
-         <VBox fx:id="enemyButtonsBox" alignment="CENTER" prefWidth="250.0" spacing="5.0" />
+         <VBox fx:id="enemyButtonsBox" alignment="CENTER" prefWidth="250.0" spacing="5.0" styleClass="glowing-border" />
 
-         <VBox fx:id="previewBox" alignment="CENTER" prefWidth="303.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
+         <VBox fx:id="previewBox" alignment="CENTER" spacing="30.0" styleClass="glowing-border">
             <padding>
                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
             </padding>
@@ -34,8 +34,13 @@
                <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
             </VBox>
          </VBox>
-
-         <TextArea fx:id="description" />
+         <VBox prefHeight="320.0" prefWidth="178.0" styleClass="glowing-border">
+            <children>
+               <Label alignment="CENTER" prefHeight="18.0" prefWidth="207.0" text="Enemy Description" />
+      
+               <TextArea fx:id="description" />
+            </children>
+         </VBox>
 
       </HBox>
    </center>
