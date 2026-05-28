@@ -6,7 +6,6 @@
 .menu-title.label {
     -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;
-    -fx-font-size: 55px;
     -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0, 0, 0);
 }
 
@@ -16,11 +15,6 @@
 
 /* Struttura del bottone principale */
 .menu-button {
-    -fx-pref-width: 220px;
-    -fx-min-width: 220px;
-    -fx-max-width: 220px;
-    -fx-pref-height: 45px;
-    -fx-graphic-text-gap: 16px;
     -fx-alignment: center-left;
     -fx-text-fill: -accent-primary;
 
@@ -32,8 +26,6 @@
 
 /* Gestione icone standard */
 .menu-button .image-view {
-    -fx-fit-width: 20px;
-    -fx-fit-height: 20px;
     -fx-text-fill: -accent-primary;
 }
 

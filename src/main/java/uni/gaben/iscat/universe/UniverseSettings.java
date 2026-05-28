@@ -9,8 +9,8 @@ public final class UniverseSettings {
     private UniverseSettings() {
         // Impedisce l'istanza di questa classe di utility
     }
-    public static final double DEFAULT_HEIGHT = 1080.0;
-    public static final double DEFAULT_WIDTH = 1920.0;
+    public static final double DEFAULT_HEIGHT = 720.0;
+    public static final double DEFAULT_WIDTH = 1280.0;
 
     // --- Starfield Configuration ---
     public static final double STAR_DENSITY = 0.0015;

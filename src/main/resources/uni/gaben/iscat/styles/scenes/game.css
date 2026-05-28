@@ -8,7 +8,6 @@
 
 .pause-title {
     -fx-text-fill: -text-primary;
-    -fx-font-size: 40px;
     -fx-font-weight: bold;
 }
 
@@ -21,11 +20,7 @@
    ============================================ */
 .pulsante-menu {
     /* Non serve riscrivere gradienti o ombre! Modifichiamo solo le dimensioni */
-    -fx-pref-width: 200px;
-    -fx-pref-height: 50px;
-    -fx-min-width: 200px;
     -fx-text-fill: -accent-primary;
-    -fx-font-size: 20px;
 }
 
 /* Varianti speciali del pulsante menu */

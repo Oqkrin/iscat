@@ -1,7 +1,4 @@
 .glowing-border {
-    /* Spazio interno tra i bottoni e il bordo luminoso */
-    -fx-padding: 35px 50px;
-
     /* La tua configurazione del bordo e del glow */
     -fx-border-color: -accent-primary;
     -fx-border-width: 2px;

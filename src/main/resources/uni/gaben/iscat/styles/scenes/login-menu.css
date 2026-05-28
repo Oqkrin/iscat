@@ -6,7 +6,6 @@
     /* Allineato al Main Menu: testo e ombra seguono l'accento primario del gioco */
     -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;
-    -fx-font-size: 55px;
     -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0, 0, 0);
 }
 

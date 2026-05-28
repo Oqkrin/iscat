@@ -47,7 +47,6 @@
     /* Kinematic scaling animation steps matching buttons */
     -fx-scale-x: 1.03;
     -fx-scale-y: 1.03;
-    -fx-translate-y: -1px;
 
     -fx-effect: dropshadow(
             gaussian,

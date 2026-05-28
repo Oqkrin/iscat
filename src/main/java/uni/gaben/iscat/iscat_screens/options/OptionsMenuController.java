@@ -57,7 +57,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private VBox keybinds;
     @FXML private CheckBox lightModeCheck;
     @FXML private Slider masterSlider;
-    @FXML private BorderPane paneMaster;
+    @FXML private VBox paneMaster;
     @FXML private Button resetControlsBtn;
     @FXML private Slider scaleSlider;
     @FXML private VBox theme;
@@ -102,9 +102,11 @@ public class OptionsMenuController implements IscatFxmlController {
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
 
-        // Keeps preview snapshot cleanly balanced inside the center menu card bounds
-        theme.widthProperty().addListener((obs, oldWidth, newWidth) -> {
-            themePreview.setFitWidth(newWidth.doubleValue() - 40.0);
+        theme.widthProperty().addListener((obs, old, newWidth) -> {
+            themePreview.setFitWidth(newWidth.doubleValue() / 4);
+        });
+        theme.heightProperty().addListener((obs, old, newHeight) -> {
+            themePreview.setFitHeight(newHeight.doubleValue() / 4);
         });
     }
 

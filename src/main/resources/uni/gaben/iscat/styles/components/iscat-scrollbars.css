@@ -4,14 +4,10 @@
 
 .scroll-bar:vertical {
     -fx-background-color: transparent;
-    -fx-pref-width: 10px;
-    -fx-padding: 0;
 }
 
 .scroll-bar:horizontal {
     -fx-background-color: transparent;
-    -fx-pref-height: 10px;
-    -fx-padding: 0;
 }
 
 /* Track */
@@ -60,13 +56,11 @@
 .scroll-bar .increment-button,
 .scroll-bar .decrement-button {
     -fx-background-color: transparent;
-    -fx-padding: 0;
 }
 
 .scroll-bar .increment-arrow,
 .scroll-bar .decrement-arrow {
     -fx-shape: "";
-    -fx-padding: 0;
 }
 
 /* Corner */

@@ -2,6 +2,8 @@ package uni.gaben.iscat;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -52,6 +54,15 @@ public class IscatApplication extends Application {
         iscatRootScene.setFill(ThemeManager.getInstance().getBgPrimary());
         iscatTitleBar.setMaxHeight(56.0);
 
+        iscatRootScene.widthProperty().addListener((observable, oldValue, newValue) -> {
+
+            printNodeInfo(iscatRootScene.getRoot(), 0);
+        });
+
+        //this might fix scalings
+        iscatContentRoot.prefWidthProperty().bind(iscatApplicationRoot.widthProperty());
+        iscatContentRoot.prefHeightProperty().bind(iscatApplicationRoot.heightProperty());
+
 
         iscatWindowBorderOverlay.getStyleClass().add("window-border");
         iscatWindowBorderOverlay.setMouseTransparent(true);
@@ -82,5 +93,21 @@ public class IscatApplication extends Application {
         scene.getStylesheets().addAll(colorTheme, typography, components);
     }
 
+
+    void printNodeInfo(Node node, int depth) {
+        if (node == null) return;
+
+        // Indent for readability
+        String indent = "  ".repeat(depth);
+
+        System.out.println(indent + node.getClass().getSimpleName() +
+                " | Bounds: " + node.getBoundsInParent());
+
+        if (node instanceof Parent p) {
+            for (Node child : p.getChildrenUnmodifiable()) {
+                printNodeInfo(child, depth + 1);
+            }
+        }
+    }
 
 }
