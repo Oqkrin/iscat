@@ -84,14 +84,18 @@ public class OptionsMenuController implements IscatFxmlController {
         scaleSlider.valueProperty().addListener((obs, old, val) -> UU.setUniverseScale(val.doubleValue()));
         refreshButtonLabels();
         syncColorPickersWithTheme();
-        Stage stage = (Stage) paneMaster.getScene().getWindow();
-        FullscreenCheck.selectedProperty().bind(stage.fullScreenProperty());
-        // ── Scene Attachment Lifecycle ────────────────────────────────────────
         paneMaster.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                newScene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleGlobalKeyPress);
+                newScene.addEventFilter(
+                        KeyEvent.KEY_PRESSED,
+                        this::handleGlobalKeyPress
+                );
+                Stage stage = (Stage) newScene.getWindow();
+                if (stage != null) {
+                    FullscreenCheck.selectedProperty()
+                            .bind(stage.fullScreenProperty());
+                }
                 applyManualColorChanges();
-
                 if (ThemeManager.getInstance().isRainbowModeActive()) {
                     startUiSyncTimer();
                 }

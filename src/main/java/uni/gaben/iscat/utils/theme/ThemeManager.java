@@ -19,15 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Central orchestrator for global application aesthetics. Handles hot-swapping
- * layouts, asset re-tinting pools, and bridges CSS attributes to Java runtime drawing components.
- */
 public class ThemeManager {
     private static final ThemeManager instance = new ThemeManager();
     public static ThemeManager getInstance() { return instance; }
 
-    // --- State & Component Cache Control Arrays ---
     private final ObjectProperty<Color> globalTint;
     private final Map<String, Color> currentPalette = new HashMap<>();
     private final Map<TintKey, Image> tintCache = new HashMap<>();
@@ -35,23 +30,17 @@ public class ThemeManager {
     private String currentCssPath = "/uni/gaben/iscat/styles/iscat-color-theme.css";
     private Timeline animation;
 
-    // --- Rainbow Mode Properties ---
     private AnimationTimer rainbowTimer;
     private double rainbowHue = 0.0;
     private boolean rainbowActive = false;
     private Color currentRainbowColor = Color.WHITE;
-    private Scene activeSceneRef = null; // Riferimento per aggiornare il CSS a schermo
+    private Scene activeSceneRef = null;
 
     private ThemeManager() {
-        // Core initialization sync
         loadPalette(currentCssPath);
         globalTint = new SimpleObjectProperty<>(getAccentPrimary());
     }
 
-    /**
-     * Attiva la modalità arcobaleno graduale per Primary, Secondary e Tertiary.
-     * Aggiorna anche il CSS iniettato nella scena passata come parametro.
-     */
     public void startRainbowMode(Scene currentScene) {
         if (rainbowTimer != null) {
             rainbowTimer.stop();
@@ -61,71 +50,61 @@ public class ThemeManager {
         rainbowActive = true;
 
         rainbowTimer = new AnimationTimer() {
-            private long lastCacheClear = 0;
             private long lastCssUpdate = 0;
             private long lastSpriteUpdate = 0;
 
             @Override
             public void handle(long now) {
-                // Incremento graduale della tonalità (uguale a prima per la fluidità del Canvas)
-                rainbowHue = (rainbowHue + 0.4) % 360.0;
-                currentRainbowColor = Color.hsb(rainbowHue, 0.85, 0.9);
+                rainbowHue = (rainbowHue + 1.0) % 360.0;
 
-                // Aggiorna la palette locale in memoria usata dai getter dei proiettili e scritte
+                double quantizedHue = Math.round(rainbowHue / 10.0) * 10.0;
+                currentRainbowColor = Color.hsb(quantizedHue, 0.85, 0.9);
+
                 currentPalette.put("accent-primary", currentRainbowColor);
                 currentPalette.put("accent-secondary", currentRainbowColor);
                 currentPalette.put("accent-tertiary", currentRainbowColor);
 
-                // LIMITATORE DI TEXTURE HARDWARE (Ogni 200ms)
-                // Aggiorna globalTint (usato dagli sprite ricolorati) solo 5 volte al secondo.
-                // In questo modo la GPU deve istanziare pochissime varianti e non va in crash.
-                if (now - lastSpriteUpdate > 200_000_000) {
+                if (now - lastSpriteUpdate > 100_000_000) {
                     globalTint.set(currentRainbowColor);
                     lastSpriteUpdate = now;
                 }
 
-                // Rigenera e applica il file CSS reale ogni 15 frame (circa ogni 250ms)
-                if (now - lastCssUpdate > 250_000_000) {
-                    if (activeSceneRef != null) {
+                if (now - lastCssUpdate > 100_000_000) {
+                    if (activeSceneRef != null && activeSceneRef.getRoot() != null) {
                         String hex = toHexStr(currentRainbowColor);
-                        List<String> hexPalette = List.of(hex, hex, hex, toHexStr(getBgPrimary()));
-                        applyHexColorsThemeInternal(activeSceneRef, hexPalette);
+
+                        activeSceneRef.getRoot().setStyle(
+                                "-accent-primary: " + hex + ";" +
+                                        "-accent-secondary: " + hex + ";" +
+                                        "-accent-tertiary: " + hex + ";"
+                        );
                     }
                     lastCssUpdate = now;
-                }
-
-                // SVUOTAMENTO DI SICUREZZA (Ogni 2 secondi anziché 200ms)
-                // Svuotare troppo spesso manda in panico la pipeline D3DSwapChain se ci sono draw calls attive.
-                if (now - lastCacheClear > 2_000_000_000L) {
-                    tintCache.clear();
-                    lastCacheClear = now;
                 }
             }
         };
         rainbowTimer.start();
     }
 
-    /**
-     * Disattiva la modalità arcobaleno ripristinando i colori originari del tema.
-     */
     public void stopRainbowMode() {
         rainbowActive = false;
         if (rainbowTimer != null) {
             rainbowTimer.stop();
         }
+
+        // Ripristiniamo lo stile pulito sul root rimuovendo i colori iniettati a mano
+        if (activeSceneRef != null && activeSceneRef.getRoot() != null) {
+            activeSceneRef.getRoot().setStyle("");
+        }
+
         activeSceneRef = null;
         tintCache.clear();
         loadPalette(currentCssPath);
         globalTint.set(getAccentPrimary());
     }
 
-    public boolean isRainbowModeActive() {
-        return rainbowActive;
-    }
+    public boolean isRainbowModeActive() { return rainbowActive; }
 
-    /**
-     * Helper interno veloce per convertire il colore senza alterare la pipeline dei fogli di stile esterni
-     */
     private String toHexStr(Color color) {
         return String.format("#%02x%02x%02x",
                 (int) (color.getRed() * 255),
@@ -134,9 +113,6 @@ public class ThemeManager {
         );
     }
 
-    /**
-     * Hot-swaps the underlying presentation stylesheet.
-     */
     public void switchTheme(Scene scene, String newCssPath, Color targetSpriteTint, double durationSec) {
         stopRainbowMode();
 
@@ -168,27 +144,22 @@ public class ThemeManager {
     public Color getColor(String key) {
         Color color = currentPalette.get(key);
         if (color == null) {
-            System.err.println("ThemeManager Warning: Looked-up color key target not found: '" + key + "'");
             return Color.MAGENTA;
         }
         return color;
     }
 
-    // --- Explicit Unified Property Access Layer ---
     public Color getBgPrimary()        { return getColor("bg-primary"); }
     public Color getBgSecondary()      { return getColor("bg-secondary"); }
     public Color getBgTertiary()       { return getColor("bg-tertiary"); }
     public Color getBgElevated()       { return getColor("bg-elevated"); }
-
     public Color getTextPrimary()      { return getColor("text-primary"); }
     public Color getTextSecondary()    { return getColor("text-secondary"); }
     public Color getTextTertiary()     { return getColor("text-tertiary"); }
     public Color getTextDisabled()     { return getColor("text-disabled"); }
-
     public Color getAccentPrimary()    { return getColor("accent-primary"); }
     public Color getAccentSecondary()  { return getColor("accent-secondary"); }
     public Color getAccentTernary()   { return getColor("accent-tertiary"); }
-
     public Color getColorSuccess()     { return getColor("color-success"); }
     public Color getColorWarning()     { return getColor("color-warning"); }
     public Color getColorError()       { return getColor("color-error"); }
@@ -212,9 +183,6 @@ public class ThemeManager {
 
     private File activeDynamicCssFile = null;
 
-    /**
-     * Esposizione pubblica standard per modifiche manuali da ColorPicker o Immagini.
-     */
     public void applyHexColorsTheme(Scene scene, List<String> topHexColors, double durationSec) {
         if (topHexColors == null || topHexColors.isEmpty()) return;
         applyHexColorsThemeInternal(scene, topHexColors);
@@ -225,9 +193,6 @@ public class ThemeManager {
         animateTint(getAccentPrimary(), durationSec);
     }
 
-    /**
-     * Pipeline di riscrittura fisica del CSS sul disco e swap immediato nell'albero di JavaFX
-     */
     private void applyHexColorsThemeInternal(Scene scene, List<String> topHexColors) {
         File newCssFile = CssThemeGenerator.createDynamicStylesheet("/uni/gaben/iscat/styles/iscat-color-theme.css", topHexColors);
         if (newCssFile == null) return;
