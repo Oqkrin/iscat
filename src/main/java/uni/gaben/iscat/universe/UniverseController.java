@@ -23,6 +23,7 @@ import uni.gaben.iscat.universe.enviroment.starfield.StarfieldController;
 import uni.gaben.iscat.screens.game.controller.GameInputs;
 
 import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.SessionScoreTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -185,6 +186,7 @@ public class UniverseController {
                         living.isKilledByProjectile()) {
 
                     player.addXp(living.getXpReward());
+                    SessionScoreTracker.getInstance().addScore((int) living.getXpReward());
                 }
             }
         }

@@ -81,14 +81,23 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
                 AudioManager.getInstance().playSFX("heal");
             }
 
-            // CONTROLLO NEMICI
             if (!isHeart && !isProjectile && !isPlayer) {
                 UniverseWaveController.incrementKills();
 
-                if (Math.random() < 0.25 && killedByProjectile) {
-                    double pixelX = UU.mToPx(this.getTransform().getTranslationX());
-                    double pixelY = UU.mToPx(this.getTransform().getTranslationY());
-                    UniverseSpawner.getInstance().spawn("HEART", pixelX, pixelY);
+                if (killedByProjectile) {
+                    uni.gaben.iscat.utils.SessionScoreTracker.getInstance().addDeaths(1);
+
+                    uni.gaben.iscat.screens.login.model.SessionUser user = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser();
+                    if (user != null) {
+                        uni.gaben.iscat.database.sqlite.ScoreDAO.increment(user.id(), "Deaths", 1);
+                    }
+
+                    // Logica di spawn del cuore (25% di probabilità)
+                    if (Math.random() < 0.25) {
+                        double pixelX = UU.mToPx(this.getTransform().getTranslationX());
+                        double pixelY = UU.mToPx(this.getTransform().getTranslationY());
+                        UniverseSpawner.getInstance().spawn("HEART", pixelX, pixelY);
+                    }
                 }
             }
 

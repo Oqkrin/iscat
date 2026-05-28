@@ -1,10 +1,12 @@
 package uni.gaben.iscat.screens.login;
 
 import javafx.scene.input.KeyEvent;
+import uni.gaben.iscat.database.sqlite.ScoreDAO;
 import uni.gaben.iscat.screens.login.model.LoginAuth;
 import uni.gaben.iscat.screens.login.model.LoginModel;
 import uni.gaben.iscat.screens.login.model.LoginState;
 import uni.gaben.iscat.screens.login.model.SessionUser;
+import uni.gaben.iscat.screens.scores.SaveData;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.database.sqlite.SettingsDAO;
 import uni.gaben.iscat.screens.login.model.UserSettings;
@@ -120,6 +122,10 @@ public class LoginController {
                 UserSettings settings = SettingsDAO.loadSettings(loggedUser.id());
                 SessionManager.getInstance().setCurrentSettings(settings);
 
+                ScoreDAO.createIfNotExists(loggedUser.id());
+                SaveData saveData = ScoreDAO.load(loggedUser.id());
+                SessionManager.getInstance().setCurrentSaveData(saveData);
+
                 model.setLoggedIn(true);
             } else {
                 handleError("password errata");
@@ -137,6 +143,10 @@ public class LoginController {
                 // Carica le impostazioni (generate di default nel DB durante la registrazione)
                 UserSettings settings = SettingsDAO.loadSettings(newUser.id());
                 SessionManager.getInstance().setCurrentSettings(settings);
+
+                ScoreDAO.createIfNotExists(newUser.id());
+                SaveData saveData = ScoreDAO.load(newUser.id());
+                SessionManager.getInstance().setCurrentSaveData(saveData);
 
                 model.setLoggedIn(true);
             } else {

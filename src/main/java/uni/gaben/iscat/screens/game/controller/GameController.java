@@ -5,6 +5,9 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.StackPane;
+import uni.gaben.iscat.database.sqlite.ScoreDAO;
+import uni.gaben.iscat.screens.login.model.SessionUser;
+import uni.gaben.iscat.screens.scores.SaveData;
 import uni.gaben.iscat.universe.UniverseWaveController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
@@ -15,6 +18,8 @@ import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.SessionManager;
+import uni.gaben.iscat.utils.SessionScoreTracker;
 
 import java.util.Random;
 
@@ -126,6 +131,8 @@ public class GameController {
         gameModel.setGameOver(false);
         gameModel.setPaused(false);
 
+        SessionScoreTracker.getInstance().reset();
+
         double currentWidth = getUniverseModel().getWidth();
         double currentHeight = getUniverseModel().getHeight();
 
@@ -196,8 +203,10 @@ public class GameController {
         setShowDebugMode(false);
         stopGameLoop();
         gameModel.setPaused(false);
+        saveStats();
         resetUniverse();
         AudioManager.getInstance().stopBGM();
+        SessionScoreTracker.getInstance().reset();
 
         if (contentRoot != null) {
             IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
@@ -261,10 +270,39 @@ public class GameController {
             AudioManager.getInstance().stopBGM();
             gameModel.setGameOver(true);
             gameModel.setPaused(true);
+            saveStats();
         });
     }
 
     public GameModel getGameModel() {
         return gameModel;
+    }
+    private void saveStats() {
+        SessionUser user = SessionManager.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        int userId = user.id();
+        SessionScoreTracker tracker = SessionScoreTracker.getInstance();
+        int elapsed = (int) gameModel.getTotalElapsedSeconds();
+
+        // Carica i dati attuali per i confronti
+        SaveData current = ScoreDAO.load(userId);
+
+        // Lo score si aggiorna solo se la partita corrente è migliore
+        if (tracker.getScore() > current.score()) {
+            ScoreDAO.update(userId, "Score", tracker.getScore());
+        }
+
+        ScoreDAO.increment(userId, "TotalDamageDealt",    tracker.getDamageDealt());
+        ScoreDAO.increment(userId, "TotalDamageReceived", tracker.getDamageReceived());
+        ScoreDAO.increment(userId,"Deaths", tracker.getDeaths());
+
+        // Bil best time si aggiorna solo se migliore
+        if (current.bestTime() == 0 || elapsed > current.bestTime()) {
+            ScoreDAO.update(userId, "BestTime", elapsed);
+        }
+
+        SessionManager.getInstance().setCurrentSaveData(ScoreDAO.load(userId));
+        tracker.reset();
     }
 }

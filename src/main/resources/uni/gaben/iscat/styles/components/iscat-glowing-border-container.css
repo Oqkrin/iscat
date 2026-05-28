@@ -1,5 +1,4 @@
 .glowing-border {
-    /* La tua configurazione del bordo e del glow */
     -fx-border-color: -accent-primary;
     -fx-border-width: 2px;
     -fx-border-radius: 12px;

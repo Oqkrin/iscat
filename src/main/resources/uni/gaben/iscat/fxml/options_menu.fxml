@@ -16,15 +16,12 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/scenes/options-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.options.OptionsMenuController">
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/scenes/options-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.options.OptionsMenuController">
 
-    <!-- Sostituito BorderPane con VBox: si adatta automaticamente all'altezza dello StackPane -->
     <VBox fx:id="paneMaster" styleClass="menu-background" VBox.vgrow="ALWAYS">
 
-        <!-- top spacer -->
         <Region minHeight="56.0" prefHeight="56.0" />
 
-        <!-- centro: ScrollPane con tutto il contenuto -->
         <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
             <content>
                 <GridPane alignment="CENTER" hgap="32.0">
@@ -42,7 +39,6 @@
                         <RowConstraints percentHeight="100" vgrow="ALWAYS" />
                     </rowConstraints>
 
-                    <!-- COLONNA SINISTRA (Display + Account) -->
                     <VBox alignment="TOP_CENTER" maxWidth="295.0" minWidth="220.0" spacing="20.0" GridPane.columnIndex="0" VBox.vgrow="ALWAYS">
                   <Region VBox.vgrow="ALWAYS" />
                         <VBox fx:id="display" alignment="TOP_CENTER" rotate="-3.0" spacing="12.0" styleClass="glowing-border, video-card" VBox.vgrow="NEVER">
@@ -65,7 +61,6 @@
                   <Region VBox.vgrow="ALWAYS" />
                     </VBox>
 
-                    <!-- COLONNA CENTRALE (Theme) -->
                     <VBox fx:id="theme" alignment="TOP_CENTER" maxWidth="370.0" minWidth="280.0" rotate="-1.0" spacing="12.0" styleClass="glowing-border, theme-card" GridPane.columnIndex="1" VBox.vgrow="ALWAYS">
                         <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
                         <Label styleClass="card-header" text="THEME" />
@@ -94,7 +89,6 @@
                         </GridPane>
                     </VBox>
 
-                    <!-- COLONNA DESTRA (Audio + Keybinds) -->
                     <VBox alignment="TOP_CENTER" maxWidth="295.0" minWidth="220.0" spacing="20.0" GridPane.columnIndex="2" VBox.vgrow="ALWAYS">
                         <VBox fx:id="audio" alignment="TOP_CENTER" rotate="1.0" spacing="12.0" styleClass="glowing-border, audio-card" VBox.vgrow="NEVER">
                             <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
@@ -132,7 +126,6 @@
             </content>
         </ScrollPane>
 
-        <!-- bottom: pulsante Main Menu (ora spostato fuori dal contenuto scorrevole) -->
         <HBox alignment="CENTER" prefHeight="56.0">
             <Button fx:id="ExitBtn" onAction="#handleBack" styleClass="back-button" text="Main Menu" />
         </HBox>

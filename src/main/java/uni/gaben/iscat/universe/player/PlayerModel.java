@@ -19,6 +19,8 @@ import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.SessionScoreTracker;
+
 public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
 
     // LEVEL SYSTEM VARIABLES
@@ -178,5 +180,13 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
 
     public boolean notStunned() {
         return stunCooldown.isReady();
+    }
+
+    @Override
+    public void deltaToLife(double delta) {
+        super.deltaToLife(delta);
+        if (delta < 0) {
+            SessionScoreTracker.getInstance().addDamageReceived((int) Math.abs(delta));
+        }
     }
 }
