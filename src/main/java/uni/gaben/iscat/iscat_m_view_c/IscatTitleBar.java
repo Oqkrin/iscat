@@ -37,9 +37,11 @@ public class IscatTitleBar extends StackPane {
 
         // MIDDLE FLOATING CAPSULE: Styled Branding Label
         titleLabel.getStyleClass().add("title-bar-title");
+        titleLabel.getStyleClass().add("label-small");
         HBox centerCapsule = new HBox(titleLabel);
         centerCapsule.getStyleClass().add("floating-title-capsule");
         centerCapsule.setAlignment(Pos.CENTER);
+        centerCapsule.visibleProperty().bind(titleLabel.textProperty().isNotNull());
 
         // RIGHT FLOATING CAPSULE: Minimize + Maximize + Close
         HBox rightCapsule = new HBox(6, minimizeBtn, maximizeBtn, closeBtn);
@@ -59,6 +61,7 @@ public class IscatTitleBar extends StackPane {
         // Elegant breathing margins keeping capsules balanced off window edges
         StackPane.setMargin(leftCapsule, new Insets(0, 0, 0, 20));
         StackPane.setMargin(rightCapsule, new Insets(0, 20, 0, 20));
+        StackPane.setMargin(centerCapsule, new Insets(10, 0, 0, 0));
 
         // Center capsule placed first in the scene graph layout tree
         getChildren().addAll(centerCapsule, leftCapsule, rightCapsule);

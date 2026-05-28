@@ -6,27 +6,61 @@
     -fx-border-radius: 16px;
     -fx-border-insets: 0;
 }
+/* ============================================
+   CENTRAL IDENTITY STRUCTURE (BUTTON MIRROR)
+   ============================================ */
 
-/* Central identity capsule structure */
 .floating-title-capsule {
+    /* Inherits standard button color gradients & bounds */
     -fx-background-color: -color-transparent;
     -fx-border-color: -bg-tertiary;
     -fx-border-width: 1px;
-    -fx-background-radius: 40px;
-    -fx-border-radius: 40px;
-    -fx-padding: 8 8 8 8;
+
+    /* Rounded corners matched directly to standard button rules */
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+
+    /* Horizontal breathing padding equivalent to button structures */
+    -fx-padding: 8px 18px;
     -fx-alignment: CENTER;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 8, 0.2, 0, 4);
+
+    /* Base depth dropping shadow */
+    -fx-effect: dropshadow(
+            gaussian,
+            rgba(0,0,0,0.35),
+            12,
+            0.2,
+            0,
+            4
+    );
+
+    /* Baseline transformation scale */
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
 }
 
-/* Interactive title hover - triggers your primary neon theme accent glow */
+/* Central identity hover - perfectly replicates the button's neon transformation flare */
 .floating-title-capsule:hover {
+    -fx-background-color: -color-transparent;
     -fx-border-color: -accent-primary;
-    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.3, 0, 0);
+
+    /* Kinematic scaling animation steps matching buttons */
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-translate-y: -1px;
+
+    -fx-effect: dropshadow(
+            gaussian,
+            -accent-primary,
+            10,
+            0.25,
+            0,
+            2
+    );
 }
 
-.floating-title-capsule.label {
+/* Descendant selector fixing child text color constraints inside the container capsule */
+.floating-title-capsule .label {
     -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0, 0, 0);
 }

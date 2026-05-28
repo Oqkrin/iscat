@@ -50,7 +50,7 @@ public class IscatApplication extends Application {
     @Override
     public void start(Stage stage) {
         iscatRootScene.setFill(ThemeManager.getInstance().getBgPrimary());
-        iscatTitleBar.maxHeightProperty().bind(stage.heightProperty().multiply(1/25));
+        iscatTitleBar.setMaxHeight(56.0);
 
 
         iscatWindowBorderOverlay.getStyleClass().add("window-border");

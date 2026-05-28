@@ -2,10 +2,6 @@
     /* Spazio interno tra i bottoni e il bordo luminoso */
     -fx-padding: 35px 50px;
 
-    /* Blocca la dimensione del VBox attorno al menu */
-    -fx-max-width: 420px;
-    -fx-max-height: 600px;
-
     /* La tua configurazione del bordo e del glow */
     -fx-border-color: -accent-primary;
     -fx-border-width: 2px;
