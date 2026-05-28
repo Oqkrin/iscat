@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane stylesheets="@../styles/options-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.options.OptionsMenuController">
+<StackPane stylesheets="@../styles/scenes/options-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/" fx:controller="uni.gaben.iscat.iscat_screens.options.OptionsMenuController">
 
     <AnchorPane fx:id="paneMaster" styleClass="menu-background">
         <VBox fx:id="display" alignment="TOP_CENTER" rotate="-3.0" spacing="15.0" styleClass="option-card, video-card" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="50.0">
