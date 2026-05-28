@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,9 +27,7 @@ import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.theme.DynamicColors;
 
-import javax.imageio.ImageIO;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,21 +35,95 @@ public class OptionsMenuController implements IscatFxmlController {
 
     private StackPane contentRoot;
 
-    @FXML private VBox mainOptions;
-    @FXML private Slider BGMSlider;
-    @FXML private Slider BGMSlider1;
-    @FXML private Slider SFXSlider;
-    @FXML private Slider scaleSlider;
-    @FXML private AnchorPane paneMaster;
-    @FXML private Label skinNameLabel, skinNameLabel1, skinNameLabel2, skinNameLabel11;
-    @FXML private VBox controlsBox;
+    @FXML
+    private Slider BGMSlider;
 
-    @FXML private Button walkUp, walkDown, walkLeft, walkRight, dash1, dash2, esc;
-    @FXML private Button ImagePicker;
-    @FXML private CheckBox lightModeCheck;
-    @FXML private ColorPicker accentPrimary, accentSecondary, accentTernary, bgPrimary;
+    @FXML
+    private Button DeleteAccountBtn;
 
-    @FXML private ImageView themePreview;
+    @FXML
+    private Button ExitBtn;
+
+    @FXML
+    private CheckBox FullscreenCheck;
+
+    @FXML
+    private Button ImagePicker;
+
+    @FXML
+    private Button ResetAccountBtn;
+
+    @FXML
+    private Slider SFXSlider;
+
+    @FXML
+    private ColorPicker accentPrimary;
+
+    @FXML
+    private ColorPicker accentSecondary;
+
+    @FXML
+    private ColorPicker accentTernary;
+
+    @FXML
+    private VBox account;
+
+    @FXML
+    private VBox audio;
+
+    @FXML
+    private ColorPicker bgPrimary;
+
+    @FXML
+    private CheckBox checkFps;
+
+    @FXML
+    private Button dash1;
+
+    @FXML
+    private Button dash2;
+
+    @FXML
+    private VBox display;
+
+    @FXML
+    private Button esc;
+
+    @FXML
+    private VBox keybinds;
+
+    @FXML
+    private CheckBox lightModeCheck;
+
+    @FXML
+    private Slider masterSlider;
+
+    @FXML
+    private AnchorPane paneMaster;
+
+    @FXML
+    private Button resetControlsBtn;
+
+    @FXML
+    private Slider scaleSlider;
+
+    @FXML
+    private VBox theme;
+
+    @FXML
+    private ImageView themePreview;
+
+    @FXML
+    private Button walkDown;
+
+    @FXML
+    private Button walkLeft;
+
+    @FXML
+    private Button walkRight;
+
+    @FXML
+    private Button walkUp;
     private final List<File> carouselImages = new ArrayList<>();
     private int currentIndex = -1;
 
@@ -65,7 +136,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML
     public void initialize() {
         // ── Audio Controls ────────────────────────────────────────────────────
-        BGMSlider1.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));
+        masterSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));
         BGMSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));
         SFXSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setSfxVolume(val.doubleValue()));
 
@@ -228,6 +299,8 @@ public class OptionsMenuController implements IscatFxmlController {
                 applyManualColorChanges();
             }
         } catch (Exception e) { System.err.println("Theme Load Error: " + e.getMessage()); }
+
+
     }
 
     // ── Boilerplate Helpers ───────────────────────────────────────────────
