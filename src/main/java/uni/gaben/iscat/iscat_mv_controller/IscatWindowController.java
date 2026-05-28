@@ -18,7 +18,7 @@ public class IscatWindowController {
     private static final double MIN_H         = 720;
 
     // -------------------------------------------------------------------------
-    // Local Window Math State (Moved from Model)
+    // Local Window Math State
     // -------------------------------------------------------------------------
     private double dragOffsetX = 0;
     private double dragOffsetY = 0;
@@ -31,25 +31,32 @@ public class IscatWindowController {
     private double resizeStartStageX, resizeStartStageY;
 
     // -------------------------------------------------------------------------
-    // Core Dependencies
+    // Core Dependencies & Animation Trackers
     // -------------------------------------------------------------------------
     private final IscatModel model;
     private final Stage      stage;
     private final Scene iscatScene;
     private final IscatTitleBar iscatTitleBar;
+
     private boolean barVisible = true;
+    private TranslateTransition translateTransition;
+    private FadeTransition fadeTransition;
 
     public IscatWindowController(IscatModel model, Stage stage, Scene iscatScene, IscatTitleBar iscatTitleBar) {
         this.model = model;
         this.stage = stage;
         this.iscatScene = iscatScene;
         this.iscatTitleBar = iscatTitleBar;
+
         model.pinnedProperty().addListener((obs, old, isPinned) -> syncWindowState());
         wireCustomDecoration();
         initializeWindow();
     }
 
     public void initializeWindow() {
+        // Enforce boundary parameters directly inside standard OS toolkit layer
+        stage.setMinWidth(MIN_W);
+        stage.setMinHeight(MIN_H);
         stage.setWidth(MIN_W);
         stage.setHeight(MIN_H);
     }
@@ -59,15 +66,36 @@ public class IscatWindowController {
      * Viene eseguito una sola volta all'avvio dell'applicazione.
      */
     public void wireCustomDecoration() {
-        // Trascinamento della finestra tramite la barra del titolo globale
+        // Interazione iniziale sulla barra del titolo globale
         iscatTitleBar.setOnMousePressed(e -> {
-            if (stage.isFullScreen() || stage.isMaximized()) return;
+            if (stage.isFullScreen()) return;
+
+            // Premium feature: Doppio click per massimizzare/ripristinare la finestra
+            if (e.getClickCount() == 2) {
+                stage.setMaximized(!stage.isMaximized());
+                return;
+            }
+
+            // Salva le coordinate relative iniziali del cursore rispetto alla finestra
             dragOffsetX = e.getScreenX() - stage.getX();
             dragOffsetY = e.getScreenY() - stage.getY();
         });
 
+        // Gestione avanzata del drag della finestra
         iscatTitleBar.setOnMouseDragged(e -> {
-            if (stage.isFullScreen() || stage.isMaximized()) return;
+            if (stage.isFullScreen()) return;
+
+            // OS Behavior Match: Se trascini la finestra mentre è massimizzata, questa si
+            // ripristina mantenendo la proporzione orizzontale del puntatore sulla barra.
+            if (stage.isMaximized()) {
+                double clickPercentage = dragOffsetX / stage.getWidth();
+                stage.setMaximized(false);
+
+                // Ricalcola istantaneamente gli offset basandosi sulle dimensioni ripristinate
+                dragOffsetX = stage.getWidth() * clickPercentage;
+                dragOffsetY = e.getScreenY() - stage.getY();
+            }
+
             stage.setX(e.getScreenX() - dragOffsetX);
             stage.setY(e.getScreenY() - dragOffsetY);
         });
@@ -80,9 +108,9 @@ public class IscatWindowController {
 
                 double barHeight = iscatTitleBar.getHeight() > 0 ? iscatTitleBar.getHeight() : 40;
                 if (e.getSceneY() < 8 && !barVisible) {
-                    slideIn(iscatTitleBar);
+                    slideIn();
                 } else if (e.getSceneY() > barHeight + 8 && barVisible) {
-                    slideOut(iscatTitleBar);
+                    slideOut();
                 }
                 return; // Salta il calcolo del resize dei bordi
             }
@@ -140,10 +168,15 @@ public class IscatWindowController {
         if (isFs) {
             iscatTitleBar.getStyleClass().add("title-bar-fullscreen");
             barVisible = true;
-            slideOut(iscatTitleBar);
+            slideOut();
         } else {
             iscatTitleBar.getStyleClass().remove("title-bar-fullscreen");
             barVisible = true;
+
+            // Forza il blocco delle animazioni attive per evitare sfarfallii uscendo dal fullscreen
+            if (translateTransition != null) translateTransition.stop();
+            if (fadeTransition != null) fadeTransition.stop();
+
             iscatTitleBar.setTranslateY(0);
             iscatTitleBar.setOpacity(1.0);
         }
@@ -156,25 +189,33 @@ public class IscatWindowController {
         }
     }
 
-    private void slideIn(IscatTitleBar bar) {
-        barVisible = true;
-        TranslateTransition t = new TranslateTransition(Duration.millis(150), bar);
-        t.setToY(0);
-        FadeTransition f = new FadeTransition(Duration.millis(150), bar);
-        f.setToValue(1.0);
-        t.play();
-        f.play();
+    /**
+     * Sistema centralizzato di gestione delle transizioni per evitare sfarfallii concorrenti
+     * quando si muove rapidamente il mouse dentro/fuori dal raggio di attivazione.
+     */
+    private void runAnimation(double toY, double toOpacity, int durationMs) {
+        if (translateTransition != null) translateTransition.stop();
+        if (fadeTransition != null) fadeTransition.stop();
+
+        translateTransition = new TranslateTransition(Duration.millis(durationMs), iscatTitleBar);
+        translateTransition.setToY(toY);
+
+        fadeTransition = new FadeTransition(Duration.millis(durationMs), iscatTitleBar);
+        fadeTransition.setToValue(toOpacity);
+
+        translateTransition.play();
+        fadeTransition.play();
     }
 
-    private void slideOut(IscatTitleBar bar) {
+    private void slideIn() {
+        barVisible = true;
+        runAnimation(0, 1.0, 150);
+    }
+
+    private void slideOut() {
         barVisible = false;
-        TranslateTransition t = new TranslateTransition(Duration.millis(200), bar);
-        double h = bar.getHeight() > 0 ? bar.getHeight() : 40;
-        t.setToY(-h - 4);
-        FadeTransition f = new FadeTransition(Duration.millis(200), bar);
-        f.setToValue(0.0);
-        t.play();
-        f.play();
+        double h = iscatTitleBar.getHeight() > 0 ? iscatTitleBar.getHeight() : 40;
+        runAnimation(-h - 4, 0.0, 200);
     }
 
     // -------------------------------------------------------------------------
@@ -184,8 +225,8 @@ public class IscatWindowController {
     private void applyResize(double screenX, double screenY) {
         double dx   = screenX - resizeStartX;
         double dy   = screenY - resizeStartY;
-        double minW = stage.getMinWidth()  > 0 ? stage.getMinWidth()  : MIN_W;
-        double minH = stage.getMinHeight() > 0 ? stage.getMinHeight() : MIN_H;
+        double minW = stage.getMinWidth();
+        double minH = stage.getMinHeight();
 
         double newW = resizeStartW, newH = resizeStartH;
         double newX = resizeStartStageX, newY = resizeStartStageY;
