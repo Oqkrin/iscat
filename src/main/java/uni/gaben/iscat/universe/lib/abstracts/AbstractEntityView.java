@@ -74,7 +74,7 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         gc.restore();
 
         // Disegna la barra della vita (se attiva)
-        if (entity instanceof LifeDeath ld) {
+        if (entity instanceof LifeDeath ld && !(ld instanceof Projectile)) {
             drawHpBar(ld, gc);
         }
 
