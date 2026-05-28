@@ -3,32 +3,31 @@
    ============================================ */
 
 .check-box {
-    -fx-text-fill: white;
+    -fx-text-fill: -text-primary;
     -fx-font-family: "Consolas";
     -fx-font-size: 16px;
 }
 
-/* Base */
+/* Base box */
 .check-box .box {
-    -fx-background-color: white;
+    -fx-background-color: black;
     -fx-border-color: white;
     -fx-border-width: 1px;
     -fx-border-radius: 3px;
     -fx-background-radius: 3px;
 }
 
-/* Checkmark hidden */
+/* Hidden mark */
 .check-box .mark {
     -fx-background-color: transparent;
 }
 
-/* Selected */
+/* Selected state */
 .check-box:selected .box {
     -fx-background-color: -bg-primary;
     -fx-border-color: -accent-primary;
 }
 
-/* Checkmark visible */
 .check-box:selected .mark {
     -fx-background-color: -accent-primary;
     -fx-shape: "M0,5 L2,7 L7,2 L6,1 L2,5 L1,4 Z";
@@ -46,4 +45,8 @@
             0,
             0
         );
+}
+
+.check-box:hover {
+    -fx-text-fill: -accent-primary;
 }
