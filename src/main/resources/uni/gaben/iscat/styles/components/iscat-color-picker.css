@@ -1,0 +1,52 @@
+/* ============================================
+   COLOR PICKER COMPONENT
+   ============================================ */
+
+/* Il componente principale definisce i bordi, il raggio e gli effetti */
+.color-picker {
+    -fx-background-color: -bg-primary;
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+
+    -fx-cursor: hand;
+    -fx-padding: 0px;
+    -fx-alignment: CENTER;
+}
+
+/* FIX: Intercettiamo la scatola interna nativa di JavaFX (color-box)
+   e forziamo il background nero qui! */
+.color-picker > .color-box {
+    -fx-background-color: black;
+    -fx-background-radius: 8px;
+    -fx-padding: 0px; /* Rimuove il padding grigio nativo di JavaFX */
+}
+
+/* inner elements */
+.color-picker .color-picker-label,
+.color-picker .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 8px 14px;
+}
+
+/* text */
+.color-picker .color-picker-label .text {
+    -fx-fill: -fx-color;
+    -fx-font-weight: bold;
+    -fx-font-family: "Consolas", monospace;
+}
+
+/* hover - applichiamo il cambio di colore anche al color-box interno */
+.color-picker:hover {
+    -fx-border-color: -accent-primary;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.25, 0, 2);
+}
+.color-picker:hover > .color-box {
+    -fx-background-color: -bg-elevated;
+}
+
+/* pressed - cambiamo il colore del color-box alla pressione */
+.color-picker:pressed > .color-box {
+    -fx-background-color: -accent-primary;
+}
