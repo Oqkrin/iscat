@@ -90,9 +90,9 @@ public class OptionsMenuController implements IscatFxmlController {
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
 
-        paneMaster.widthProperty().addListener((obs, old, newWidth) -> {
-            themePreview.setFitWidth(newWidth.doubleValue() / 5.0);
-        });
+        paneMaster.widthProperty().addListener((obs, old, newWidth)
+                -> themePreview.setFitWidth(newWidth.doubleValue() / 3.0));
+
     }
 
     // ── Key Bindings ──────────────────────────────────────────────────────────
@@ -215,7 +215,10 @@ public class OptionsMenuController implements IscatFxmlController {
         try {
             ThemeManager.getInstance().stopRainbowMode();
             if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
-            List<java.awt.Color> palette = DynamicColors.getTopDistinctColors(ImageIO.read(imageFile), 4, lightModeCheck.isSelected());
+
+            // The utility now handles the caching logic internally
+            List<java.awt.Color> palette = DynamicColors.getPaletteForFile(imageFile, 4, lightModeCheck.isSelected());
+
             if (palette.size() >= 4) {
                 accentPrimary.setValue(toJfx(palette.get(0)));
                 accentSecondary.setValue(toJfx(palette.get(1)));
@@ -224,7 +227,7 @@ public class OptionsMenuController implements IscatFxmlController {
                 themePreview.setImage(new Image(imageFile.toURI().toString()));
                 applyManualColorChanges();
             }
-        } catch (IOException e) { System.err.println("Theme Error: " + e.getMessage()); }
+        } catch (Exception e) { System.err.println("Theme Load Error: " + e.getMessage()); }
     }
 
     // ── Boilerplate Helpers ───────────────────────────────────────────────
