@@ -1,5 +1,5 @@
 /* ============================================
-   TEXT INPUTS
+   TEXT INPUTS (BASE)
    ============================================ */
 
 .text-area {
@@ -10,11 +10,13 @@
     -fx-text-fill: -text-primary;
 }
 
+/* contenuto interno */
 .text-area .content,
 .text-area .viewport {
     -fx-background-color: -bg-primary;
 }
 
+/* testo */
 .text-area .text {
     -fx-fill: -text-primary;
 }

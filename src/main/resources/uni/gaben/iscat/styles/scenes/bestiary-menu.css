@@ -1,5 +1,3 @@
-@import url('../iscat-components-shared.css');
-
 /* ============================================
    BESTIARY CONTAINER & TITLES
    ============================================ */
@@ -8,11 +6,10 @@
     -fx-font-size: 34px;
     -fx-font-weight: bold;
     -fx-text-fill: -accent-primary;
-    /* Ombra convertita all'accento primario per l'effetto glow coerente */
     -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0.2, 0, 0);
 }
 
-/* Nome del mostro/entità selezionata */
+/* Nome mostro selezionato */
 #monsterNameLabel {
     -fx-font-size: 30px;
     -fx-font-weight: bold;
@@ -20,55 +17,42 @@
     -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.2, 0, 0);
 }
 
-/* Sotto-etichette per le statistiche (es. HP, Danno, Tipo) */
-.label.bestiary-stat-label {
+/* Stat labels */
+.label.bestiary-stat-label,
+.label.bestiary-stat-value {
     -fx-font-size: 16px;
     -fx-text-fill: -accent-primary;
 }
 
 .label.bestiary-stat-value {
-    -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: -accent-primary;
 }
 
 /* ============================================
-   GRID / LIST BUTTONS (I bottoni dei mostri)
+   MONSTER BUTTONS
    ============================================ */
 
-/* Bottone per selezionare un mostro dalla griglia (usa la base dello skin-button) */
 .monster-button {
-    -fx-layout: skin-button; /* Concettualmente eredita le dimensioni 80x80 dallo shared */
     -fx-pref-width: 90px;
     -fx-pref-height: 90px;
+
     -fx-border-width: 1px;
     -fx-border-color: -bg-tertiary;
 }
 
-/* Variante quando il mostro è selezionato nella lista */
 .monster-button:selected,
 .monster-button.active {
-    -fx-border-color: -accent-primary; /* Convertito in accent primary */
-    -fx-background-color: rgba(255, 0, 0, 0.15); /* Sfondo sfumato basato sull'accento */
+    -fx-border-color: -accent-primary;
+    -fx-background-color: rgba(255, 0, 0, 0.15);
+
     -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.4, 0, 0);
 }
 
 /* ============================================
-   DESCRIPTION BOX
-   ============================================ */
-
-/* La descrizione del lore/comportamento usa la struttura della text-area */
-.monster-description {
-    -fx-font-size: 14px;
-    -fx-line-spacing: 4px;
-}
-
-/* ============================================
-   NAVIGATION & BACK BUTTONS
+   NAVIGATION BUTTONS
    ============================================ */
 
 .bestiary-nav-button {
     -fx-pref-width: 220px;
     -fx-pref-height: 45px;
-    /* Eredita già sfondo, hover e press da .button in shared! */
 }
