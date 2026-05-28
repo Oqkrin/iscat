@@ -48,7 +48,7 @@ public class MenuController implements IscatFxmlController {
     private void setIcon(Button btn, String iconCode) {
         if (btn == null) return;
         FontIcon icon = new FontIcon(iconCode);
-        icon.iconSizeProperty().bind(btn.widthProperty());
+        icon.iconSizeProperty().bind(btn.textProperty().length().multiply(10));
         btn.setGraphic(icon);
         btn.setContentDisplay(ContentDisplay.TOP);
     }
