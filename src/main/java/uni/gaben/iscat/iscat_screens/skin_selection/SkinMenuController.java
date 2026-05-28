@@ -25,7 +25,7 @@ public class SkinMenuController implements IscatFxmlController {
     @FXML private GridPane skinGrid;
     @FXML private StackPane previewContainer;
     @FXML private Label skinNameLabel;
-    @FXML private BorderPane rootPane;
+    @FXML private StackPane skinStackPane;
     @FXML private VBox previewBox;
 
     private StackPane contentRoot;
@@ -56,8 +56,8 @@ public class SkinMenuController implements IscatFxmlController {
         previewCanvas.loadSkin(selectedSkinPath);
 
         ChangeListener<Number> sizeListener = (obs, oldVal, newVal) -> updateDynamicScaling();
-        rootPane.widthProperty().addListener(sizeListener);
-        rootPane.heightProperty().addListener(sizeListener);
+        skinStackPane.widthProperty().addListener(sizeListener);
+        skinStackPane.heightProperty().addListener(sizeListener);
 
         // Calcola lo scaling dinamico iniziale dopo che la finestra è pronta e stabile
         Platform.runLater(this::updateDynamicScaling);
@@ -65,8 +65,8 @@ public class SkinMenuController implements IscatFxmlController {
 
     private void updateDynamicScaling() {
         if (isScaling) return;
-        double w = rootPane.getWidth();
-        double h = rootPane.getHeight();
+        double w = skinStackPane.getWidth();
+        double h = skinStackPane.getHeight();
         if (w < 200 || h < 200) return;
 
         isScaling = true;

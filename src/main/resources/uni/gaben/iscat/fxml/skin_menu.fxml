@@ -3,54 +3,59 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/skin-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.skin_selection.SkinMenuController">
-   <top>
-      <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
-         <padding>
-            <Insets top="40.0" />
-         </padding>
-         <Label text="PLAYER SKINS" textFill="WHITE">
-            <font>
-               <Font name="System Bold" size="80.0" />
-            </font>
-         </Label>
-      </VBox>
-   </top>
-   <center>
-      <HBox alignment="CENTER" spacing="80.0" BorderPane.alignment="CENTER">
-         <GridPane fx:id="skinGrid" alignment="CENTER" hgap="15.0" minHeight="0" minWidth="0" vgap="15.0" />            <VBox fx:id="previewBox" alignment="CENTER" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
-            <padding>
-               <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-            </padding>
-            <Label text="PREVIEW" textFill="WHITE">
-               <font>
-                  <Font name="System Bold" size="35.0" />
-               </font>
-            </Label>
-
-         <StackPane fx:id="previewContainer" prefWidth="160.0" prefHeight="160.0" />
-
-            <Label fx:id="skinNameLabel" ellipsisString="" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
-               <font>
-                  <Font name="System Italic" size="25.0" />
-               </font>
-            </Label>
-
-            <VBox alignment="CENTER" spacing="15.0">
-               <Button ellipsisString="" onAction="#handleConfirm" styleClass="confirm-button" text="CONFERMA" />
-               <Button ellipsisString="" onAction="#selectRandom" styleClass="confirm-button" text="RANDOM" />
-               <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ANNULLA" />
+<StackPane fx:id="skinStackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../styles/skin-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.skin_selection.SkinMenuController">
+   <children>
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="582.0" spacing="10.0">
+               <padding>
+                  <Insets top="40.0" />
+               </padding>
+               <children>
+                  <VBox prefHeight="448.0" prefWidth="382.0">
+                     <children>
+                        <GridPane fx:id="skinGrid" alignment="CENTER" hgap="15.0" minHeight="0" minWidth="0" prefHeight="336.0" prefWidth="383.0" vgap="15.0" />
+                        <Label alignment="BOTTOM_CENTER" ellipsisString="" prefHeight="36.0" prefWidth="529.0" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
+                           <font>
+                              <Font name="System Italic" size="25.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </VBox>
+               </children>
             </VBox>
-         </VBox>
+            <VBox fx:id="previewBox" alignment="CENTER" prefHeight="400.0" prefWidth="420.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
+               <padding>
+                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+               </padding>
+               <children>
+                  <Label text="PREVIEW" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="35.0" />
+                     </font>
+                  </Label>
+                  <StackPane fx:id="previewContainer" prefHeight="160.0" prefWidth="156.0" />
+                  <Label fx:id="skinNameLabel" alignment="CENTER" prefHeight="30.0" prefWidth="181.0" text="Skin Name" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="35.0" />
+                     </font>
+                  </Label>
+                  <VBox alignment="CENTER" prefHeight="22.0" prefWidth="156.0" spacing="15.0">
+                     <children>
+                        <Button fx:id="confirmBtn" ellipsisString="" onAction="#handleConfirm" styleClass="confirm-button" text="CONFERMA" />
+                        <Button fx:id="randomBtn" ellipsisString="" onAction="#selectRandom" styleClass="confirm-button" text="RANDOM" />
+                        <Button fx:id="cancelBtn" ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ANNULLA" />
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </children>
       </HBox>
-   </center>
-</BorderPane>
+   </children>
+</StackPane>
