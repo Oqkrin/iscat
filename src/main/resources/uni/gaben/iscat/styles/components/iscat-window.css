@@ -1,72 +1,13 @@
-/* ============================================
-   WINDOW SYSTEM - FLOATING CAPSULE DESIGN
-   ============================================ */
-
-/* Main application window background chrome */
-.window-chrome {
-    -fx-background-color: -bg-primary;
-    -fx-background-radius: 16px;
-    -fx-min-height: 34px;
-}
-
-/* Content area background constraints */
-.window-content {
-    -fx-background-color: -bg-primary;
-    -fx-background-radius: 0 0 16px 16px;
-}
-
-.window-content-transparent {
-    -fx-background-color: transparent;
-    -fx-background-radius: 0 0 16px 16px;
-}
-
-/* Outer framework boundary line - adjusted to match global component rounding rules */
+/* Outer framework boundary line */
 .window-border {
     -fx-background-color: transparent;
     -fx-border-color: -bg-elevated;
     -fx-border-width: 2px;
-    -fx-border-radius: 16px; /* Matched to window-chrome corners */
+    -fx-border-radius: 16px;
     -fx-border-insets: 0;
 }
 
-/* Parent container wrapper remains transparent to protect the floating canvas effect */
-.title-bar {
-    -fx-background-color: transparent;
-    -fx-min-height: 56px;
-    -fx-pref-height: 56px;
-    -fx-max-height: 56px;
-}
-
-/* Drop shadow adjustment applied when sliding over fullscreen views */
-.title-bar-fullscreen {
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0.4, 0, 4);
-}
-
-/* Base capsule style shared across the side control capsule nodes.
-   Inherits the shared glassmorphic styling, leveraging unified color tokens.
-*/
-.floating-action-group {
-    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(30, 30, 35, 0.75), rgba(15, 15, 20, 0.85));
-    -fx-border-color: -bg-tertiary;
-    -fx-border-width: 1px;
-    -fx-background-radius: 40px;
-    -fx-border-radius: 40px;
-    -fx-padding: 4px 14px;
-    -fx-alignment: CENTER;
-    -fx-spacing: 6px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0.15, 0, 5);
-}
-
-/* Hover feedback logic reflecting button depth transitions */
-.floating-action-group:hover {
-    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(45, 45, 50, 0.85), rgba(25, 25, 30, 0.95));
-    -fx-border-color: rgba(255, 255, 255, 0.15);
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 14, 0.2, 0, 6);
-}
-
-/* Middle pill container housing your central title identification.
-   Utilizes standard subtle borders that flare up cleanly on hover.
-*/
+/* Central identity capsule structure */
 .floating-title-capsule {
     -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(20, 20, 25, 0.9), rgba(10, 10, 15, 0.95));
     -fx-border-color: -bg-tertiary;
@@ -78,23 +19,8 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 8, 0.2, 0, 4);
 }
 
-/* Interactive title hover - ignites the primary neon accent glow matching sliders and buttons */
+/* Interactive title hover - triggers your primary neon theme accent glow */
 .floating-title-capsule:hover {
     -fx-border-color: -accent-primary;
-    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(25, 25, 30, 0.95), rgba(15, 15, 20, 0.98));
-    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.25, 0, 0);
-}
-
-/* System text font properties - unified with checkboxes and inputs typography styling */
-.title-bar-title {
-    -fx-text-fill: -text-primary;
-    -fx-font-family: "Miracode", "Consolas", "Courier New", monospace;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-letter-spacing: 1px;
-}
-
-/* Text glow trigger state tied to parent container capsule actions */
-.floating-title-capsule:hover .title-bar-title {
-    -fx-text-fill: -accent-primary;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.3, 0, 0);
 }

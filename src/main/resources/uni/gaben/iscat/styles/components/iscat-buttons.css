@@ -1,89 +1,4 @@
 /* ============================================
-   BOTTONI GENERICI (STRUTTURA BASE CONDIVISA)
-   ============================================ */
-
-.button {
-    -fx-text-fill: -accent-primary;
-    -fx-font-weight: bold;
-    -fx-padding: 8px 18px;
-    -fx-alignment: CENTER;
-    -fx-content-display: LEFT;
-    -fx-cursor: hand;
-
-    -fx-background-color: linear-gradient(
-        from 0% 0% to 100% 100%,
-        -bg-secondary,
-        -bg-primary
-    );
-
-    -fx-border-color: -bg-tertiary;
-    -fx-border-width: 1px;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-
-    -fx-effect: dropshadow(
-        gaussian,
-        rgba(0,0,0,0.35),
-        12,
-        0.2,
-        0,
-        4
-    );
-
-    -fx-scale-x: 1.0;
-    -fx-scale-y: 1.0;
-}
-
-/* Hover globale */
-.button:hover {
-    -fx-background-color: linear-gradient(
-        from 0% 0% to 100% 100%,
-        -bg-elevated,
-        -bg-tertiary
-    );
-
-    -fx-text-fill: -accent-primary;
-    -fx-border-color: -accent-primary;
-
-    -fx-scale-x: 1.03;
-    -fx-scale-y: 1.03;
-    -fx-translate-y: -1px;
-
-    -fx-effect: dropshadow(
-        gaussian,
-        -accent-primary,
-        10,
-        0.25,
-        0,
-        2
-    );
-}
-
-/* Click globale */
-.button:pressed {
-    -fx-background-color: linear-gradient(
-        from 0% 0% to 100% 100%,
-        -bg-primary,
-        -accent-primary
-    );
-
-    -fx-text-fill: white;
-
-    -fx-scale-x: 0.96;
-    -fx-scale-y: 0.96;
-    -fx-translate-y: 2px;
-
-    -fx-effect: dropshadow(
-        gaussian,
-        rgba(0,0,0,0.3),
-        8,
-        0.2,
-        0,
-        3
-    );
-}
-
-/* ============================================
    TITLE BAR BUTTONS
    ============================================ */
 
@@ -100,42 +15,16 @@
 
 .title-bar-btn:hover {
     -fx-text-fill: -text-primary;
-    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-color: rgba(255, 255, 255, 0.08); /* Transparent text-primary base */
 }
 
 .title-bar-btn-close:hover {
     -fx-text-fill: -color-error;
-    -fx-background-color: rgba(255, 99, 71, 0.15);
+    /* Aligned red hue with -color-error (#ff0059 -> rgb(255, 0, 89)) */
+    -fx-background-color: rgba(255, 0, 89, 0.15);
 }
 
 .title-bar-btn-minimize:hover {
-    -fx-text-fill: -accent-primary;
-    -fx-background-color: rgba(255, 255, 255, 0.05);
-}
-
-.title-bar-btn-maximize:hover {
-    -fx-text-fill: -color-success;
-    -fx-background-color: rgba(50, 205, 50, 0.1);
-}
-
-.title-bar-btn-fullscreen:hover {
-    -fx-text-fill: -color-info;
-    -fx-background-color: rgba(0, 191, 255, 0.1);
-}
-
-.title-bar-btn-pin:hover {
-    -fx-text-fill: -color-warning;
-    -fx-background-color: rgba(255, 215, 0, 0.1);
-}
-
-.title-bar-btn-pin-active {
-    -fx-text-fill: -color-warning;
-    -fx-effect: dropshadow(
-        gaussian,
-        #ffd700,
-        6,
-        0.6,
-        0,
-        0
-    );
+    -fx-text-fill: -text-primary;
+    -fx-background-color: rgba(255, 255, 255, 0.08);
 }

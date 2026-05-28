@@ -10,8 +10,8 @@
 
 /* Base box */
 .check-box .box {
-    -fx-background-color: black;
-    -fx-border-color: white;
+    -fx-background-color: -bg-primary; /* Changed from black */
+    -fx-border-color: -text-primary;   /* Changed from white */
     -fx-border-width: 1px;
     -fx-border-radius: 3px;
     -fx-background-radius: 3px;
@@ -37,16 +37,12 @@
 .check-box:hover .box {
     -fx-border-color: -accent-primary;
     -fx-effect:
-        dropshadow(
-            gaussian,
-            -accent-primary,
-            5,
-            0.2,
-            0,
-            0
-        );
-}
-
-.check-box:hover {
-    -fx-text-fill: -accent-primary;
+            dropshadow(
+                    gaussian,
+                    -accent-primary,
+                    5,
+                    0.2,
+                    0,
+                    0
+            );
 }

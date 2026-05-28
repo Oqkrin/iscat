@@ -6,12 +6,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import uni.gaben.iscat.iscat_screens.login.model.SessionUser;
+import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.utils.SessionManager;
 
-public class IscatTitleBar extends HBox {
+public class IscatTitleBar extends StackPane {
 
     // Action elements
     public final Button closeBtn      = titleBarButton("✕",  "title-bar-btn-close",      "Close");
@@ -25,19 +24,14 @@ public class IscatTitleBar extends HBox {
 
     public IscatTitleBar() {
         getStyleClass().add("title-bar");
-        setAlignment(Pos.CENTER);
-
-        // Generous breathing padding for floating offsets
-        setPadding(new Insets(12, 20, 8, 20));
 
         /* * CRITICAL FIX: Forces JavaFX to intercept mouse events across the entire
-         * rectangular bounds of the HBox, even on transparent sections and spacers.
-         * This ensures window dragging works anywhere in the top 56px zone.
+         * rectangular bounds of the StackPane, even on transparent zones.
          */
         setPickOnBounds(true);
 
         // LEFT FLOATING CAPSULE: Pin + Fullscreen
-        HBox leftCapsule = new HBox(4, pinBtn, fullscreenBtn);
+        HBox leftCapsule = new HBox(6, pinBtn, fullscreenBtn);
         leftCapsule.getStyleClass().add("floating-action-group");
         leftCapsule.setAlignment(Pos.CENTER_LEFT);
 
@@ -48,23 +42,33 @@ public class IscatTitleBar extends HBox {
         centerCapsule.setAlignment(Pos.CENTER);
 
         // RIGHT FLOATING CAPSULE: Minimize + Maximize + Close
-        HBox rightCapsule = new HBox(4, minimizeBtn, maximizeBtn, closeBtn);
+        HBox rightCapsule = new HBox(6, minimizeBtn, maximizeBtn, closeBtn);
         rightCapsule.getStyleClass().add("floating-action-group");
         rightCapsule.setAlignment(Pos.CENTER_RIGHT);
 
-        // Flexible spacer layouts to keep the elements neatly split across screens
-        Region leftSpacer  = new Region();
-        Region rightSpacer = new Region();
-        HBox.setHgrow(leftSpacer,  Priority.ALWAYS);
-        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+        // Prevent layout containers from forcing full-width expansion inside StackPane
+        leftCapsule.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        centerCapsule.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        rightCapsule.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-        getChildren().addAll(leftCapsule, leftSpacer, centerCapsule, rightSpacer, rightCapsule);
+        // GEOMETRIC FIX: Explicitly align capsules to their absolute screen locations
+        StackPane.setAlignment(leftCapsule, Pos.CENTER_LEFT);
+        StackPane.setAlignment(centerCapsule, Pos.CENTER);
+        StackPane.setAlignment(rightCapsule, Pos.CENTER_RIGHT);
+
+        // Elegant breathing margins keeping capsules balanced off window edges
+        StackPane.setMargin(leftCapsule, new Insets(0, 0, 0, 20));
+        StackPane.setMargin(rightCapsule, new Insets(0, 20, 0, 20));
+
+        // Center capsule placed first in the scene graph layout tree
+        getChildren().addAll(centerCapsule, leftCapsule, rightCapsule);
         titleLabel.textProperty().bind(SessionManager.getInstance().usernameProperty());
     }
 
     private static Button titleBarButton(String text, String styleClass, String tooltip) {
         Button btn = new Button(text);
-        btn.getStyleClass().setAll("title-bar-btn", styleClass);
+        // Includes 'button' so it inherits standard physical properties, translations, and depth
+        btn.getStyleClass().setAll("button", "title-bar-btn", styleClass);
         btn.setTooltip(new Tooltip(tooltip));
         btn.setFocusTraversable(false);
         return btn;

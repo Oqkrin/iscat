@@ -16,9 +16,9 @@
 }
 
 /* FIX: Intercettiamo la scatola interna nativa di JavaFX (color-box)
-   e forziamo il background nero qui! */
+   e forziamo il background a seguire il tema qui! */
 .color-picker > .color-box {
-    -fx-background-color: black;
+    -fx-background-color: -bg-primary; /* Changed from black */
     -fx-background-radius: 8px;
     -fx-padding: 0px; /* Rimuove il padding grigio nativo di JavaFX */
 }
@@ -34,19 +34,5 @@
 .color-picker .color-picker-label .text {
     -fx-fill: -fx-color;
     -fx-font-weight: bold;
-    -fx-font-family: "Consolas", monospace;
-}
-
-/* hover - applichiamo il cambio di colore anche al color-box interno */
-.color-picker:hover {
-    -fx-border-color: -accent-primary;
-    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.25, 0, 2);
-}
-.color-picker:hover > .color-box {
-    -fx-background-color: -bg-elevated;
-}
-
-/* pressed - cambiamo il colore del color-box alla pressione */
-.color-picker:pressed > .color-box {
-    -fx-background-color: -accent-primary;
+    -fx-font-family: "Consolas";
 }
