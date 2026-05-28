@@ -1,3 +1,5 @@
+@import url("../components/iscat-color-picker.css");
+
 .option-card {
     -fx-border-color: -accent-primary;
     -fx-border-width: 2px;

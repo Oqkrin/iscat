@@ -5,9 +5,7 @@
 @import url('components/iscat-checkboxes.css');
 @import url('components/iscat-sliders.css');
 @import url('components/iscat-scrollbars.css');
-@import url('components/iscat-text-inputs.css');
 @import url('components/iscat-window.css');
-@import url('components/iscat-color-picker.css');
 
 .label {
     -fx-text-fill: -accent-primary;
