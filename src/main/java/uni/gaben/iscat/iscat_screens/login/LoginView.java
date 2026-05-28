@@ -73,7 +73,7 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     protected void initNodes() {
-        welcomeTitle = new AutoFittingLabel(TipografiaAurea.DISPLAY[TipografiaAurea.MEDIUM], FONT, "login-title");
+        welcomeTitle = new AutoFittingLabel(TipografiaAurea.DISPLAY[TipografiaAurea.LARGE], FONT, "login-title");
         welcomeTitle.setText("WELCOME TO ISCAT");
 
         blinkCursor = new Label("_");
