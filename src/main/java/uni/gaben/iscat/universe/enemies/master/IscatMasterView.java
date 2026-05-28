@@ -1,6 +1,8 @@
 package uni.gaben.iscat.universe.enemies.master;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.universe.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.universe.lib.interfaces.view.DrawableSpriteSheet;
@@ -9,6 +11,9 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
+import uni.gaben.iscat.utils.theme.ThemeManager;
+
+import java.util.Objects;
 
 import static uni.gaben.iscat.universe.enemies.master.IscatMasterSettings.*;
 import static uni.gaben.iscat.universe.enemies.master.IscatMasterModel.AnimationState;
@@ -20,6 +25,9 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
     private final SpriteSheetsParser masterSheet;
     private final SpriteSheetsAnimator masterAnimator;
+
+    // CACHE DEI FRAME: Matrice di singoli frame microscopici tagliati all'avvio
+    private final Image[][] slicedFrames;
 
     private boolean deathSfxTriggered = false;
     private int lastRow = -1;
@@ -38,6 +46,29 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
                 masterSheet != null ? masterSheet.getTotalFrames() : 1,
                 masterSheet != null ? masterSheet.getTotalStates() : 1
         );
+
+        int totalRows = 7;
+        int dim = (int) ISCATMASTER.dimSprite;
+        this.slicedFrames = new Image[totalRows][];
+
+        // Carichiamo l'immagine sorgente nativa direttamente dal flusso risorse
+        Image giantSheet = new Image(Objects.requireNonNull(getClass().getResourceAsStream(PATH_SINGLE_SHEET)));
+
+        for (int row = 0; row < totalRows; row++) {
+            int framesCount = getFramesCountForRow(row);
+            this.slicedFrames[row] = new Image[framesCount];
+
+            for (int col = 0; col < framesCount; col++) {
+                // Estraiamo la sub-image del singolo frame per isolarla dal file gigante
+                this.slicedFrames[row][col] = new WritableImage(
+                        giantSheet.getPixelReader(),
+                        col * dim,
+                        row * dim,
+                        dim,
+                        dim
+                );
+            }
+        }
     }
 
     @Override public SpriteSheetsParser getSpriteSheet() { return masterSheet; }
@@ -96,11 +127,20 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         int maxFrames = getFramesCountForRow(currentRow);
         double defaultFrameDuration = 1.0 / 6.0;
 
+        // Calcoliamo l'indice esatto del frame corrente
         int localFrame = (int) (masterAnimator.getTime() / defaultFrameDuration) % maxFrames;
-        double realTime = masterAnimator.getTime();
-        masterAnimator.setTime(localFrame * defaultFrameDuration);
-        drawSprite(gc, x, y, width, height);
-        masterAnimator.setTime(realTime);
+
+        if (currentRow < slicedFrames.length && localFrame < slicedFrames[currentRow].length) {
+            Image smallSingleFrame = slicedFrames[currentRow][localFrame];
+
+            Image tintedFrame = ThemeManager.getInstance().getTintedImage(
+                    smallSingleFrame,
+                    ThemeManager.getInstance().globalTintProperty().get()
+            );
+
+            gc.drawImage(tintedFrame, x, y, width, height);
+        }
+
         drawShockwave(gc, 0, 0, entity.shockwave());
 
         if (entity.getAnimationState() != AnimationState.DEATH) {

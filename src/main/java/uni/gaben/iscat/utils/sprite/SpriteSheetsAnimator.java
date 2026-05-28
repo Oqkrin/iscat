@@ -57,27 +57,25 @@ public class SpriteSheetsAnimator {
 
         DoubleProperty[] currentDurations = frameDurations[currentState];
 
-        // 1. Calcoliamo la durata totale dell'intera animazione (somma di tutti i frame)
+        int len = currentDurations.length;
         double totalStateDuration = 0;
-        for (DoubleProperty prop : currentDurations) {
-            totalStateDuration += prop.get();
+        for (int i = 0; i < len; i++) {
+            totalStateDuration += currentDurations[i].get();
         }
 
-        if (totalStateDuration <= 0) return 0; // Prevenzione errori
+        if (totalStateDuration <= 0) return 0;
 
-        // 2. Troviamo a che punto siamo del ciclo (il resto del tempo diviso la durata totale)
         double timeInCycle = internalTime % totalStateDuration;
-
-        // 3. Scorriamo i frame finché non "consumiamo" il timeInCycle
         double accumulatedTime = 0;
-        for (int i = 0; i < currentDurations.length; i++) {
+
+        for (int i = 0; i < len; i++) {
             accumulatedTime += currentDurations[i].get();
             if (timeInCycle < accumulatedTime) {
-                return i; // Siamo dentro questo frame!
+                return i;
             }
         }
 
-        return currentDurations.length - 1; // Fallback di sicurezza all'ultimo frame
+        return len - 1;
     }
 
     public void setState(int newState) {
