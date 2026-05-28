@@ -6,37 +6,22 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<?import javafx.scene.layout.StackPane?>
 <BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/scenes/bestiary-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.iscat_screens.bestiary.BestiaryMenuController">
-   <top>
-      <VBox spacing="10.0" BorderPane.alignment="TOP_LEFT">
-         <padding>
-            <Insets top="40.0" />
-         </padding>
-         <Label prefHeight="39.0" prefWidth="368.0" text="BESTIARY" textAlignment="CENTER" textFill="WHITE">
-            <font>
-               <Font name="System Bold" size="40.0" />
-            </font>
-         </Label>
-      </VBox>
-   </top>
    <center>
-      <HBox alignment="CENTER" spacing="80.0" BorderPane.alignment="CENTER">
-         <VBox fx:id="enemyButtonsBox"
-               alignment="CENTER"
-               prefWidth="250.0"
-               spacing="5.0"
-         />
+      <HBox alignment="CENTER" fillHeight="false" spacing="80.0" BorderPane.alignment="CENTER">
+
+         <VBox fx:id="enemyButtonsBox" alignment="CENTER" prefWidth="250.0" spacing="5.0" />
 
          <VBox fx:id="previewBox" alignment="CENTER" prefWidth="303.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
             <padding>
                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
             </padding>
 
-            <StackPane fx:id="previewContainer" prefWidth="160.0" prefHeight="160.0" />
+            <StackPane fx:id="previewContainer" prefHeight="160.0" prefWidth="160.0" />
 
             <Label fx:id="skinNameLabel" ellipsisString="" text="Enemy Name" textFill="#00ffcc" wrapText="true">
                <font>
@@ -48,9 +33,10 @@
                <Button ellipsisString="" onAction="#selectRandom" styleClass="confirm-button" text="RANDOM" />
                <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
             </VBox>
-
          </VBox>
-         <TextArea fx:id="description" prefHeight="200.0" prefWidth="400.0" />
+
+         <TextArea fx:id="description" />
+
       </HBox>
    </center>
 </BorderPane>
