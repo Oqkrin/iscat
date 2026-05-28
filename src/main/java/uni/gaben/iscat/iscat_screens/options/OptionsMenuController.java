@@ -3,6 +3,7 @@ package uni.gaben.iscat.iscat_screens.options;
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
@@ -35,135 +36,78 @@ public class OptionsMenuController implements IscatFxmlController {
 
     private StackPane contentRoot;
 
-    @FXML
-    private Slider BGMSlider;
+    @FXML private Slider BGMSlider;
+    @FXML private Button DeleteAccountBtn;
+    @FXML private Button ExitBtn;
+    @FXML private CheckBox FullscreenCheck;
+    @FXML private Button ImagePicker;
+    @FXML private Button ResetAccountBtn;
+    @FXML private Slider SFXSlider;
+    @FXML private ColorPicker accentPrimary;
+    @FXML private ColorPicker accentSecondary;
+    @FXML private ColorPicker accentTernary;
+    @FXML private VBox account;
+    @FXML private VBox audio;
+    @FXML private ColorPicker bgPrimary;
+    @FXML private CheckBox checkFps;
+    @FXML private Button dash1;
+    @FXML private Button dash2;
+    @FXML private VBox display;
+    @FXML private Button esc;
+    @FXML private VBox keybinds;
+    @FXML private CheckBox lightModeCheck;
+    @FXML private Slider masterSlider;
+    @FXML private AnchorPane paneMaster;
+    @FXML private Button resetControlsBtn;
+    @FXML private Slider scaleSlider;
+    @FXML private VBox theme;
+    @FXML private ImageView themePreview;
+    @FXML private Button walkDown;
+    @FXML private Button walkLeft;
+    @FXML private Button walkRight;
+    @FXML private Button walkUp;
 
-    @FXML
-    private Button DeleteAccountBtn;
-
-    @FXML
-    private Button ExitBtn;
-
-    @FXML
-    private CheckBox FullscreenCheck;
-
-    @FXML
-    private Button ImagePicker;
-
-    @FXML
-    private Button ResetAccountBtn;
-
-    @FXML
-    private Slider SFXSlider;
-
-    @FXML
-    private ColorPicker accentPrimary;
-
-    @FXML
-    private ColorPicker accentSecondary;
-
-    @FXML
-    private ColorPicker accentTernary;
-
-    @FXML
-    private VBox account;
-
-    @FXML
-    private VBox audio;
-
-    @FXML
-    private ColorPicker bgPrimary;
-
-    @FXML
-    private CheckBox checkFps;
-
-    @FXML
-    private Button dash1;
-
-    @FXML
-    private Button dash2;
-
-    @FXML
-    private VBox display;
-
-    @FXML
-    private Button esc;
-
-    @FXML
-    private VBox keybinds;
-
-    @FXML
-    private CheckBox lightModeCheck;
-
-    @FXML
-    private Slider masterSlider;
-
-    @FXML
-    private AnchorPane paneMaster;
-
-    @FXML
-    private Button resetControlsBtn;
-
-    @FXML
-    private Slider scaleSlider;
-
-    @FXML
-    private VBox theme;
-
-    @FXML
-    private ImageView themePreview;
-
-    @FXML
-    private Button walkDown;
-
-    @FXML
-    private Button walkLeft;
-
-    @FXML
-    private Button walkRight;
-
-    @FXML
-    private Button walkUp;
     private final List<File> carouselImages = new ArrayList<>();
     private int currentIndex = -1;
 
     private Button selectedButton = null;
     private String selectedColumn = null;
-
-    // Rainbow feature
     private AnimationTimer uiRainbowSyncTimer;
 
     @FXML
     public void initialize() {
-        // ── Audio Controls ────────────────────────────────────────────────────
+        // ── Audio Listeners ───────────────────────────────────────────────────
         masterSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));
         BGMSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));
         SFXSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setSfxVolume(val.doubleValue()));
 
-        // ── UI/Scale Initialization ───────────────────────────────────────────
+        // ── Scale & Theme Adjustments ─────────────────────────────────────────
         scaleSlider.valueProperty().addListener((obs, old, val) -> UU.setUniverseScale(val.doubleValue()));
         refreshButtonLabels();
         syncColorPickersWithTheme();
 
-        // ── Scene Attachment ──────────────────────────────────────────────────
+        // ── Scene Attachment Lifecycle ────────────────────────────────────────
         paneMaster.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleGlobalKeyPress);
-                applyManualColorChanges(); // Safe to apply now
+                applyManualColorChanges();
 
-                // If rainbow mode was active globally, re-start the sync timer
                 if (ThemeManager.getInstance().isRainbowModeActive()) {
                     startUiSyncTimer();
                 }
             }
         });
 
+        paneMaster.setPadding(new Insets(32, 16, 16, 16));
+
+        // ── Dynamic Responsive Layout Controls ───────────────────────────────
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
 
-        paneMaster.widthProperty().addListener((obs, old, newWidth)
-                -> themePreview.setFitWidth(newWidth.doubleValue() / 3.0));
-
+        // Keeps preview snapshot cleanly balanced inside the mid-sized menu card
+        theme.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+            themePreview.setFitWidth(newWidth.doubleValue() - 40.0);
+        });
     }
 
     // ── Key Bindings ──────────────────────────────────────────────────────────
@@ -179,7 +123,8 @@ public class OptionsMenuController implements IscatFxmlController {
         esc.setText(settings.getPauseGame());
     }
 
-    @FXML void changeControl(ActionEvent event) {
+    @FXML
+    void changeControl(ActionEvent event) {
         if (selectedButton != null) refreshButtonLabels();
         selectedButton = (Button) event.getSource();
         selectedButton.setText("[ PREMI UN TASTO ]");
@@ -214,12 +159,14 @@ public class OptionsMenuController implements IscatFxmlController {
         event.consume();
     }
 
-    @FXML void handleBack(ActionEvent event) {
+    @FXML
+    void handleBack(ActionEvent event) {
         if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
         IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
-    @FXML void resetControls(ActionEvent event) {
+    @FXML
+    void resetControls(ActionEvent event) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
         SettingsDAO.updateControl(settings.getUserId(), "WalkUp", "W");
@@ -232,8 +179,9 @@ public class OptionsMenuController implements IscatFxmlController {
         refreshButtonLabels();
     }
 
-    // ── Rainbow/Account Logic ─────────────────────────────────────────────
-    @FXML void resetAccount(ActionEvent event) {
+    // ── Rainbow Logic ────────────────────────────────────────────────────────
+    @FXML
+    void resetAccount(ActionEvent event) {
         if (paneMaster.getScene() == null) return;
         if (ThemeManager.getInstance().isRainbowModeActive()) {
             ThemeManager.getInstance().stopRainbowMode();
@@ -250,7 +198,8 @@ public class OptionsMenuController implements IscatFxmlController {
     private void startUiSyncTimer() {
         if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
         uiRainbowSyncTimer = new AnimationTimer() {
-            @Override public void handle(long now) {
+            @Override
+            public void handle(long now) {
                 Color c = ThemeManager.getInstance().getAccentPrimary();
                 accentPrimary.setValue(c);
                 accentSecondary.setValue(c);
@@ -260,7 +209,7 @@ public class OptionsMenuController implements IscatFxmlController {
         uiRainbowSyncTimer.start();
     }
 
-    // ── Theme / Color Logic ───────────────────────────────────────────────
+    // ── Theme Management ─────────────────────────────────────────────────────
     private void applyManualColorChanges() {
         if (paneMaster == null || paneMaster.getScene() == null) return;
         ThemeManager.getInstance().stopRainbowMode();
@@ -287,7 +236,6 @@ public class OptionsMenuController implements IscatFxmlController {
             ThemeManager.getInstance().stopRainbowMode();
             if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
 
-            // The utility now handles the caching logic internally
             List<java.awt.Color> palette = DynamicColors.getPaletteForFile(imageFile, 4, lightModeCheck.isSelected());
 
             if (palette.size() >= 4) {
@@ -298,15 +246,16 @@ public class OptionsMenuController implements IscatFxmlController {
                 themePreview.setImage(new Image(imageFile.toURI().toString()));
                 applyManualColorChanges();
             }
-        } catch (Exception e) { System.err.println("Theme Load Error: " + e.getMessage()); }
-
-
+        } catch (Exception e) {
+            System.err.println("Theme Load Error: " + e.getMessage());
+        }
     }
 
-    // ── Boilerplate Helpers ───────────────────────────────────────────────
-    @FXML void toggleThemeMode(ActionEvent event) {
-        if (!carouselImages.isEmpty() && currentIndex >= 0) applyTheme(carouselImages.get(currentIndex));
-        else {
+    @FXML
+    void toggleThemeMode(ActionEvent event) {
+        if (!carouselImages.isEmpty() && currentIndex >= 0) {
+            applyTheme(carouselImages.get(currentIndex));
+        } else {
             boolean isLight = lightModeCheck.isSelected();
             Color cp = accentPrimary.getValue();
             bgPrimary.setValue(Color.hsb(cp.getHue(), cp.getSaturation() * 0.1, isLight ? 0.95 : 0.05));
@@ -314,7 +263,8 @@ public class OptionsMenuController implements IscatFxmlController {
         }
     }
 
-    @FXML void onImagePick(ActionEvent event) {
+    @FXML
+    void onImagePick(ActionEvent event) {
         FileChooser picker = new FileChooser();
         File chosen = picker.showOpenDialog((Stage) paneMaster.getScene().getWindow());
         if (chosen != null) {
@@ -327,7 +277,8 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML void nextTheme(ActionEvent event) { if (!carouselImages.isEmpty()) applyTheme(carouselImages.get(currentIndex = (currentIndex + 1) % carouselImages.size())); }
     @FXML void prevTheme(ActionEvent event) { if (!carouselImages.isEmpty()) applyTheme(carouselImages.get(currentIndex = (currentIndex - 1 + carouselImages.size()) % carouselImages.size())); }
 
-    @FXML void toggleFullscreen(ActionEvent event) {
+    @FXML
+    void toggleFullscreen(ActionEvent event) {
         Stage stage = (Stage) paneMaster.getScene().getWindow();
         stage.setFullScreen(!stage.isFullScreen());
     }
