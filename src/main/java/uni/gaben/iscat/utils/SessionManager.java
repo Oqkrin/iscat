@@ -3,8 +3,8 @@ package uni.gaben.iscat.utils;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
-import uni.gaben.iscat.iscat_screens.login.model.SessionUser;
-import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
+import uni.gaben.iscat.screens.login.model.SessionUser;
+import uni.gaben.iscat.screens.login.model.UserSettings;
 
 public class SessionManager {
     private static SessionManager instance;

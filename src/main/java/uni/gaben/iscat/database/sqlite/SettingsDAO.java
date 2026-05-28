@@ -1,7 +1,7 @@
 package uni.gaben.iscat.database.sqlite;
 
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.iscat_screens.login.model.UserSettings;
+import uni.gaben.iscat.screens.login.model.UserSettings;
 import java.sql.*;
 
 public class SettingsDAO {

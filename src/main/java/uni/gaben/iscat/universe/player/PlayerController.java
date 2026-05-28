@@ -4,7 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.lib.implementations.attacks.*;
 import uni.gaben.iscat.utils.AudioManager;
-import uni.gaben.iscat.iscat_screens.game.controller.GameInputs;
+import uni.gaben.iscat.screens.game.controller.GameInputs;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;

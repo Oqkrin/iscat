@@ -2,7 +2,7 @@ package uni.gaben.iscat.database.sqlite;
 
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.interfaces.UsersQueriesInterface;
-import uni.gaben.iscat.iscat_screens.login.model.User;
+import uni.gaben.iscat.screens.login.model.User;
 import uni.gaben.iscat.utils.PasswordHasher;
 
 import java.sql.*;

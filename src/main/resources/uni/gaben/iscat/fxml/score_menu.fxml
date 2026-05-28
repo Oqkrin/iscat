@@ -24,7 +24,7 @@
 <StackPane stylesheets="@../styles/scenes/score-menu.css"
            xmlns="http://javafx.com/javafx/"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.iscat_screens.scores.ScoreMenuController">
+           fx:controller="uni.gaben.iscat.screens.scores.ScoreMenuController">
 
     <!-- No maxWidth/maxHeight — fills the StackPane (and therefore the window) -->
     <BorderPane fx:id="rootPane" styleClass="menu-background">

@@ -1,6 +1,6 @@
 package uni.gaben.iscat.database.interfaces;
 
-import uni.gaben.iscat.iscat_screens.login.model.User;
+import uni.gaben.iscat.screens.login.model.User;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

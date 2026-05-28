@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.iscat_screens.game.model.GameModel;
+import uni.gaben.iscat.screens.game.model.GameModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

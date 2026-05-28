@@ -1,0 +1,11 @@
+package uni.gaben.iscat.screens.bestiary;
+
+import javafx.scene.layout.StackPane;
+import uni.gaben.iscat.view.AbstractIscatStackPane;
+
+public class BestiaryView extends AbstractIscatStackPane {
+    public BestiaryView() {
+        super(new StackPane(),true);
+        initialize("/uni/gaben/iscat/fxml/bestiary_menu.fxml");
+    }
+}

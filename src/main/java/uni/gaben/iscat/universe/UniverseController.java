@@ -20,7 +20,7 @@ import uni.gaben.iscat.universe.player.PlayerController;
 import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldController;
 
-import uni.gaben.iscat.iscat_screens.game.controller.GameInputs;
+import uni.gaben.iscat.screens.game.controller.GameInputs;
 
 import uni.gaben.iscat.utils.Cooldown;
 
