@@ -44,6 +44,8 @@
                               styleClass="modern-checkbox" text="SHOW FPS OVERLAY" />
                     <CheckBox fx:id="FullscreenCheck" onAction="#toggleFullscreen"
                               styleClass="modern-checkbox" text="FULLSCREEN MODE" />
+                    <CheckBox fx:id="DebugModeCheck" onAction="#toggleDebugMode"
+                              styleClass="modern-checkbox" text="DEBUG MODE" />
                 </VBox>
                 <Region VBox.vgrow="ALWAYS" />
                 <VBox fx:id="account" alignment="TOP_CENTER" fillWidth="false"

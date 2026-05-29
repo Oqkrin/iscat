@@ -10,8 +10,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import uni.gaben.iscat.screens.pause_menu.PauseMenuController;
 import uni.gaben.iscat.view.AbstractIscatStackPane;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.rendering.UniverseRenderer;
@@ -41,7 +43,7 @@ public class GameView extends AbstractIscatStackPane {
     private UniverseRenderer universeRenderer;
 
     private GameSpawnerToolbar spawnerToolbar;
-    private GamePauseMenu pauseMenu;
+    private VBox pauseMenu;
     private GameOverMenu gameOverMenu;
 
     private HBox debugButtonsContainer;
@@ -66,8 +68,8 @@ public class GameView extends AbstractIscatStackPane {
         canvas = new Canvas();
 
         spawnerToolbar = new GameSpawnerToolbar(gameController);
-        pauseMenu = new GamePauseMenu(gameController);
         gameOverMenu = new GameOverMenu(gameController);
+        this.pauseMenu = loadPauseMenu();
 
         levelLabel = new Label("LEVEL 1");
         levelLabel.setFocusTraversable(false);
@@ -91,6 +93,20 @@ public class GameView extends AbstractIscatStackPane {
         spawnerToolbar.setPickOnBounds(false);
 
         universeRenderer = new UniverseRenderer(canvas, gameController, starfieldView);
+    }
+
+    private VBox loadPauseMenu() {
+        try {
+            var loader = new javafx.fxml.FXMLLoader(getClass().getResource("/uni/gaben/iscat/fxml/pause-menu.fxml"));
+            VBox view = loader.load();
+
+            PauseMenuController pauseController = loader.getController();
+            pauseController.initData(gameController);
+
+            return view;
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Errore fatale: impossibile caricare l'FXML della pausa!", e);
+        }
     }
 
     @Override
@@ -146,7 +162,12 @@ public class GameView extends AbstractIscatStackPane {
         gameOverMenu.visibleProperty().bind(gameModel.gameOverProperty());
         gameOverMenu.managedProperty().bind(gameOverMenu.visibleProperty());
 
-        pauseMenu.visibleProperty().bind(gameModel.pausedProperty().and(gameModel.gameOverProperty().not()));
+        // === MODIFICA IMPORTANTE: PauseMenu visibile solo quando in pausa e opzioni chiuse ===
+        pauseMenu.visibleProperty().bind(
+                gameModel.pausedProperty()
+                        .and(gameModel.gameOverProperty().not())
+                        .and(gameController.optionsMenuOpenProperty().not())
+        );
         pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
 
         gameModel.pausedProperty().addListener((obs, wasPaused, isPausedNow) -> {

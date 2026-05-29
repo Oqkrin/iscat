@@ -34,6 +34,7 @@ public class GameController {
     private StackPane contentRoot;
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
+    private final BooleanProperty optionsMenuOpen = new SimpleBooleanProperty(false);
     private UniverseWaveController waveController;
     Random random = new Random();
 
@@ -259,6 +260,18 @@ public class GameController {
 
     public CameraModel getCameraModel() {
         return gameModel.getCameraModel();
+    }
+
+    public BooleanProperty optionsMenuOpenProperty() {
+        return optionsMenuOpen;
+    }
+
+    public boolean isOptionsMenuOpen() {
+        return optionsMenuOpen.get();
+    }
+
+    public void setOptionsMenuOpen(boolean open) {
+        this.optionsMenuOpen.set(open);
     }
 
     public void retryGame() {

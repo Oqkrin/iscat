@@ -100,6 +100,8 @@ public class OptionsMenuController implements IscatFxmlController {
     private String selectedColumn = null;
     private AnimationTimer uiRainbowSyncTimer;
 
+    private Runnable customBackAction = null;
+
     private ColorPicker activePicker = null;
     private List<Color> currentPalette = new ArrayList<>();
 
@@ -115,56 +117,36 @@ public class OptionsMenuController implements IscatFxmlController {
         SFXSlider.valueProperty().addListener((obs, old, val) ->
                 AudioManager.getInstance().setSfxVolume(val.doubleValue()));
 
-        // ── Scale & Theme Adjustments ─────────────────────────────────────────
         scaleSlider.valueProperty().addListener((obs, old, val) ->
                 UU.setUniverseScale(val.doubleValue()));
+
         refreshButtonLabels();
         syncColorPickersWithTheme();
 
         paneMaster.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleGlobalKeyPress);
+
                 Stage stage = (Stage) newScene.getWindow();
-                if (stage != null) {
+                if (stage != null && FullscreenCheck != null) {
                     FullscreenCheck.selectedProperty().bind(stage.fullScreenProperty());
                 }
+
                 applyManualColorChanges();
+
                 if (ThemeManager.getInstance().isRainbowModeActive()) {
                     startUiSyncTimer();
                 }
             }
         });
 
-        // ── Image preview & carousel controls ───────────────────────────────
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.fitWidthProperty().bind(theme.widthProperty());
         themePreview.fitHeightProperty().bind(theme.heightProperty()
                 .multiply(ScalareAureo.IPHI_D * ScalareAureo.IPHI_D));
 
-        pickImageBtn.setVisible(true);
-        addImageBtn.setVisible(false);
-        addImageBtn.setManaged(false);
-        prevThemeBtn.setVisible(false);
-        nextThemeBtn.setVisible(false);
-
-        pickImageBtn.setOnAction(e -> onImagePick(null));
-        addImageBtn.setOnAction(e -> onImagePick(null));
-
-        themePreview.imageProperty().addListener((obs, oldImg, newImg) -> {
-            boolean hasImage = (newImg != null);
-            pickImageBtn.setVisible(!hasImage);
-            addImageBtn.setVisible(hasImage);
-            addImageBtn.setManaged(hasImage);
-        });
-
-        // ── Square WASD buttons ──────────────────────────────────────────────
-        for (Button btn : List.of(walkUp, walkDown, walkLeft, walkRight)) {
-            btn.prefWidthProperty().bind(btn.heightProperty());
-        }
-
         buildCustomPickers();
-
         setupPickerClickTarget(accentPrimary);
         setupPickerClickTarget(accentSecondary);
         setupPickerClickTarget(accentTernary);
@@ -231,13 +213,17 @@ public class OptionsMenuController implements IscatFxmlController {
     private void refreshButtonLabels() {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
-        walkUp.setText(settings.getWalkUp());
-        walkDown.setText(settings.getWalkDown());
-        walkLeft.setText(settings.getWalkLeft());
-        walkRight.setText(settings.getWalkRight());
-        dash1.setText(settings.getDash1());
-        dash2.setText(settings.getDash2());
-        esc.setText(settings.getPauseGame());
+
+        // Controlli difensivi su ogni singolo pulsante FXML
+        if (walkUp != null) walkUp.setText(settings.getWalkUp());
+        if (walkDown != null) walkDown.setText(settings.getWalkDown());
+        if (walkLeft != null) walkLeft.setText(settings.getWalkLeft());
+        if (walkRight != null) walkRight.setText(settings.getWalkRight());
+        if (dash1 != null) dash1.setText(settings.getDash1());
+        if (dash2 != null) dash2.setText(settings.getDash2());
+        if (esc != null) {
+            esc.setText(settings.getPauseGame());
+        }
     }
 
     @FXML
@@ -275,10 +261,17 @@ public class OptionsMenuController implements IscatFxmlController {
         event.consume();
     }
 
+    public void setCustomBackAction(Runnable customBackAction) {
+        this.customBackAction = customBackAction;
+    }
+
     @FXML
     void handleBack(ActionEvent event) {
-        if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+        if (customBackAction != null) {
+            customBackAction.run();
+        } else {
+            IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+        }
     }
 
     @FXML
@@ -561,4 +554,5 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
     @FXML void toggleFPSVisible(ActionEvent event) {}
+    @FXML void toggleDebugMode(ActionEvent event) {}
 }
