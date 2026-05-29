@@ -162,14 +162,8 @@ public class SkinMenuController implements IscatFxmlController {
         selectSkin(path, SKIN_NAMES[idx]);
     }
 
-    private void stopAll() {
-        buttonCanvases.forEach(AnimatedCanvas::stop);
-        previewCanvas.stop();
-    }
-
     @FXML
     private void handleConfirm(ActionEvent event) {
-        stopAll();
         if (selectedSkinPath != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
         }
@@ -178,7 +172,6 @@ public class SkinMenuController implements IscatFxmlController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        stopAll();
         IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 

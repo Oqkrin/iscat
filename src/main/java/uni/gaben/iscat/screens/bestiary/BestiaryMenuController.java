@@ -12,6 +12,8 @@ import uni.gaben.iscat.view.AnimatedCanvas;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.controller.IscatFxmlController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,6 +28,8 @@ public class BestiaryMenuController implements IscatFxmlController {
     private Map<String, BestiaryData.Enemy> enemies = new LinkedHashMap<>();
 
     private static final double DISPLAY_SIZE = 160.0;
+    private static final double ICON_SIZE = 32.0;
+
     private String currentEnemyId = null;
     private InfoMode currentInfoMode = InfoMode.DESCRIPTION;
 
@@ -35,8 +39,16 @@ public class BestiaryMenuController implements IscatFxmlController {
     @FXML private TextArea description;
     @FXML private VBox enemyButtonsBox;
 
+    @FXML private Button btnRandom;
+    @FXML private Button btnDescription;
+    @FXML private Button btnStats;
+    @FXML private Button btnExtra;
+    @FXML private Button btnBack;
+
     private StackPane contentRoot;
     private AnimatedCanvas previewCanvas;
+
+    private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
 
     @FXML
     public void initialize() {
@@ -45,6 +57,12 @@ public class BestiaryMenuController implements IscatFxmlController {
 
         description.setEditable(false);
         description.setWrapText(true);
+
+        applyIconButton(btnRandom,      "fas-dice");
+        applyIconButton(btnDescription, "fas-book");
+        applyIconButton(btnStats,       "fas-chart-bar");
+        applyIconButton(btnExtra,       "fas-info-circle");
+        applyIconButton(btnBack,        "fas-arrow-left");
 
         enemies = bestiaryData.loadEnemies();
         createEnemyButtons();
@@ -57,13 +75,23 @@ public class BestiaryMenuController implements IscatFxmlController {
 
     private void createEnemyButtons() {
         enemyButtonsBox.getChildren().clear();
+        buttonCanvases.clear();
+
         for (BestiaryData.Enemy enemy : enemies.values()) {
             String safeId = enemy.entityKey().trim();
 
             Button button = new Button(enemy.name());
             button.setPrefWidth(250.0);
-            button.setPrefHeight(26.0);
+            button.setPrefHeight(42.0);
             button.setId(safeId);
+
+            AnimatedCanvas iconCanvas = new AnimatedCanvas(ICON_SIZE);
+            iconCanvas.setFrameDuration(0.20);
+            iconCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
+
+            buttonCanvases.add(iconCanvas);
+            button.setGraphic(iconCanvas);
+            button.setGraphicTextGap(14.0);
 
             setupButtonHoverTween(button);
             button.setOnAction(e -> showEnemyById(safeId));
@@ -180,8 +208,8 @@ public class BestiaryMenuController implements IscatFxmlController {
         showEnemyById(randomId);
     }
 
-    @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
-
-    private void setupButtonHoverTween(Button b) {}
-    private void playSpawnTween(StackPane p) {}
+    @Override
+    public void setContentRoot(StackPane contentRoot) {
+        this.contentRoot = contentRoot;
+    }
 }
