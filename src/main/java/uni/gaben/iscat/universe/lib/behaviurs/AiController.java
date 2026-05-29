@@ -4,11 +4,12 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.behaviurs.modifiers.AvoidanceModifier;
+import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AiController {
+public abstract class AiController implements IEntityController {
     protected final AbstractEntityModel entity;
     protected MovementStrategy movementStrategy;
     protected final List<AvoidanceModifier> modifiers = new ArrayList<>();
@@ -38,6 +39,7 @@ public abstract class AiController {
         attacks.add(attack);
     }
 
+    @Override
     public void update(UniverseModel world, double dt) {
         if (entity.shouldRemove()) return;
 

@@ -7,12 +7,13 @@ import uni.gaben.iscat.universe.brain.actions.ActionCategory;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.brain.goals.MovementGoal;
 import uni.gaben.iscat.universe.brain.modifiers.MovementModifier;
+import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 
 import java.util.*;
 
-public class Brain<T extends AbstractEntityModel> {
+public class Brain<T extends AbstractEntityModel> implements IEntityController {
     private final T entity;
     private final Shooter<T> shooter;
     private final List<MovementModifier> modifiers = new ArrayList<>();
@@ -43,6 +44,7 @@ public class Brain<T extends AbstractEntityModel> {
                 .add(action);
     }
 
+    @Override
     public void update(UniverseModel world, double dt) {
         // 1. Determine blocked categories from currently active actions
         blockedCategories.clear();
