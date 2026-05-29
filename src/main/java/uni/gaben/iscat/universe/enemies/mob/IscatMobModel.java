@@ -17,7 +17,7 @@ import static uni.gaben.iscat.universe.enemies.mob.IscatMobSettings.ISCATMOB;
 public class IscatMobModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
 
     private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
-    private final Cooldown weaponCooldown = new Cooldown();
+    private final Cooldown projectileCooldown = new Cooldown();
 
     public IscatMobModel(double x, double y) {
         super(x, y, ISCATMOB.initLife, ISCATMOB.initLife);
@@ -33,17 +33,7 @@ public class IscatMobModel extends LivingEntityModel implements HasProjectile<Pr
     }
 
     public void update(double dt) {
-        weaponCooldown.update(dt);
-    }
-
-    // ==================== SHOOTING ====================
-
-    public boolean isSparoDisponibile() {
-        return weaponCooldown.isReady();
-    }
-
-    public void startCooldownFuoco() {
-        weaponCooldown.start(ISCATMOB.fireCooldownS);
+        projectileCooldown.update(dt);
     }
 
     @Override
@@ -58,7 +48,7 @@ public class IscatMobModel extends LivingEntityModel implements HasProjectile<Pr
 
     @Override
     public Cooldown projectileCooldown() {
-        return weaponCooldown;
+        return projectileCooldown;
     }
 
     @Override
@@ -68,7 +58,7 @@ public class IscatMobModel extends LivingEntityModel implements HasProjectile<Pr
 
     @Override
     public void setProjectileCooldownTickCount(int tickCount) {
-        weaponCooldown.start(UU.ticksToS(tickCount));
+        projectileCooldown.start(UU.ticksToS(tickCount));
     }
 
     @Override
