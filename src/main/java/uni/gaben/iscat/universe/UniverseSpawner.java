@@ -23,7 +23,7 @@ import uni.gaben.iscat.universe.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.enemies.eater.IscatEaterController;
 import uni.gaben.iscat.universe.enemies.eater.IscatEaterModel;
-import uni.gaben.iscat.universe.enemies.mob.IscatMobController;
+import uni.gaben.iscat.universe.enemies.mob.IscatMobBrain;
 import uni.gaben.iscat.universe.enemies.mob.IscatMobModel;
 import uni.gaben.iscat.universe.enemies.bomber.IscatBomberController;
 import uni.gaben.iscat.universe.enemies.bomber.IscatBomberModel;
@@ -76,7 +76,7 @@ public class UniverseSpawner {
         return switch (type) {
             case PLAYER -> spawnPlayer(x, y);
             case ASTEROID -> spawnStandard(AsteroidModel::new, null, x, y);
-            case ISCAT_MOB -> spawnStandard(IscatMobModel::new, IscatMobController::new, x, y);
+            case ISCAT_MOB -> spawnStandard(IscatMobModel::new, IscatMobBrain::new, x, y);
             case ISCAT_MOTHER -> spawnStandard(IscatMotherModel::new, IscatMotherController::new, x, y);
             case ISCAT_BOMBER -> spawnStandard(IscatBomberModel::new, IscatBomberController::new, x, y);
             case HEART -> spawnStandard(HeartModel::new, HeartController::new, x, y);
@@ -98,7 +98,7 @@ public class UniverseSpawner {
         Object toSpawn = switch (type) {
             case PLAYER -> spawnPlayer(x, y);
             case ASTEROID -> spawnStandard(AsteroidModel::new, null, x, y);
-            case ISCAT_MOB -> spawnStandard(IscatMobModel::new, IscatMobController::new, x, y);
+            case ISCAT_MOB -> spawnStandard(IscatMobModel::new, IscatMobBrain::new, x, y);
             case ISCAT_MOTHER -> spawnStandard(IscatMotherModel::new, IscatMotherController::new, x, y);
             case ISCAT_BOMBER -> spawnStandard(IscatBomberModel::new, IscatBomberController::new, x, y);
             case HEART -> spawnStandard(HeartModel::new, HeartController::new, x, y);
