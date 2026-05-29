@@ -1,0 +1,15 @@
+.score-title {
+    -fx-font-size: 18px;
+    -fx-text-fill: -accent-primary;
+    -fx-alignment: center;
+    -fx-font-weight: bold;
+}
+
+.score-stat .score-icon {
+    -fx-icon-color: -accent-primary;
+}
+
+.score-stat {
+    -fx-text-fill: -accent-primary;
+    -fx-alignment: CENTER_LEFT;
+}
