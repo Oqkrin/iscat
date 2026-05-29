@@ -81,6 +81,13 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     public void initialize() {
+
+        applyIconButton(ExitBtn,            "fas-sign-out-alt");
+        applyIconButton(ImagePicker,        "fas-image");
+        applyIconButton(ResetAccountBtn,    "fas-history");
+        applyIconButton(DeleteAccountBtn,   "fas-trash-alt");
+        applyIconButton(resetControlsBtn,   "fas-sync-alt");
+
         // ── Audio Listeners ───────────────────────────────────────────────────
         masterSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));
         BGMSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));

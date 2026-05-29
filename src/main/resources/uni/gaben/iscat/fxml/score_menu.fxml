@@ -11,11 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane minHeight="720.0" minWidth="1280.0"
-           stylesheets="@../styles/scenes/score-menu.css"
-           xmlns="http://javafx.com/javafx/25"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.screens.scores.ScoreMenuController">
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/scenes/score-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.scores.ScoreMenuController">
 
     <BorderPane fx:id="rootPane" styleClass="menu-background">
 
@@ -30,9 +26,9 @@
                 </padding>
 
                 <columnConstraints>
-                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" halignment="RIGHT" />
-                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" halignment="CENTER" />
-                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" halignment="LEFT" />
+                    <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS" percentWidth="25.0" />
+                    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="50.0" />
+                    <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" percentWidth="25.0" />
                 </columnConstraints>
 
                 <rowConstraints>
@@ -43,34 +39,25 @@
 
                     <VBox alignment="CENTER" spacing="40.0" GridPane.columnIndex="0">
                         <Region VBox.vgrow="ALWAYS" />
-                        <StackPane fx:id="previewNW"
-                                   minWidth="140.0" minHeight="140.0"
-                                   prefWidth="140.0" prefHeight="140.0"
-                                   maxWidth="140.0" maxHeight="140.0"
-                                   rotate="-6.0" styleClass="glowing-border, secondary-card" />
+                        <StackPane fx:id="previewNW" maxHeight="140.0" maxWidth="140.0" minHeight="140.0" minWidth="140.0" prefHeight="140.0" prefWidth="140.0" rotate="-6.0" styleClass="glowing-border, secondary-card" />
                         <Region VBox.vgrow="ALWAYS" />
-                        <StackPane fx:id="previewSW"
-                                   minWidth="140.0" minHeight="140.0"
-                                   prefWidth="140.0" prefHeight="140.0"
-                                   maxWidth="140.0" maxHeight="140.0"
-                                   rotate="4.0" styleClass="glowing-border, secondary-card" />
+                        <StackPane fx:id="previewSW" maxHeight="140.0" maxWidth="140.0" minHeight="140.0" minWidth="140.0" prefHeight="140.0" prefWidth="140.0" rotate="4.0" styleClass="glowing-border, secondary-card" />
                         <Region VBox.vgrow="ALWAYS" />
                     </VBox>
 
-                    <VBox alignment="CENTER" maxWidth="450.0" minWidth="380.0" rotate="-1.0"
-                          styleClass="glowing-border, main-card" GridPane.columnIndex="1">
+                    <VBox alignment="CENTER" maxWidth="450.0" minWidth="380.0" rotate="-1.0" styleClass="glowing-border, main-card" GridPane.columnIndex="1">
                         <padding>
                             <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
                         </padding>
 
-                        <Label fx:id="titleLabel" styleClass="score-title" text="PLAYER SCORE" style="-fx-font-size: 24px;" />
+                        <Label fx:id="titleLabel" style="-fx-font-size: 24px;" styleClass="score-title" text="PLAYER SCORE" />
 
                         <Region minHeight="20.0" />
 
-                        <GridPane hgap="20.0" vgap="12.0" alignment="CENTER">
+                        <GridPane alignment="CENTER" hgap="20.0" vgap="12.0">
                             <columnConstraints>
-                                <ColumnConstraints hgrow="NEVER" minWidth="180.0" prefWidth="200.0" halignment="LEFT" />
-                                <ColumnConstraints hgrow="ALWAYS" minWidth="60.0" halignment="RIGHT" />
+                                <ColumnConstraints halignment="LEFT" hgrow="NEVER" minWidth="180.0" prefWidth="200.0" />
+                                <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS" minWidth="60.0" />
                             </columnConstraints>
                             <rowConstraints>
                                 <RowConstraints minHeight="30.0" vgrow="NEVER" />
@@ -81,25 +68,25 @@
                                 <RowConstraints minHeight="30.0" vgrow="NEVER" />
                             </rowConstraints>
                             <children>
-                                <Label fx:id="lblBestScore"    styleClass="score-stat" text="Best Score"       GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <Label fx:id="lblBestScore" styleClass="score-stat" text="Best Score" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                 <Label fx:id="lblTotalEnemies" styleClass="score-stat" text="Nemici sconfitti" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                <Label fx:id="lblBestTime"     styleClass="score-stat" text="Miglior tempo"    GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                <Label fx:id="lblDamageTaken"  styleClass="score-stat" text="Danni subiti"     GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                <Label fx:id="lblDamageCaused" styleClass="score-stat" text="Danni causati"    GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                <Label fx:id="lblBoosts"       styleClass="score-stat" text="Boost raccolti"   GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                <Label fx:id="lblBestTime" styleClass="score-stat" text="Miglior tempo" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <Label fx:id="lblDamageTaken" styleClass="score-stat" text="Danni subiti" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <Label fx:id="lblDamageCaused" styleClass="score-stat" text="Danni causati" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <Label fx:id="lblBoosts" styleClass="score-stat" text="Boost raccolti" GridPane.columnIndex="0" GridPane.rowIndex="5" />
 
-                                <Label fx:id="valBestScore"    styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label fx:id="valBestScore" styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                 <Label fx:id="valTotalEnemies" styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                <Label fx:id="valBestTime"     styleClass="score-stat-value" text="00:00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                <Label fx:id="valDamageTaken"  styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                <Label fx:id="valBestTime" styleClass="score-stat-value" text="00:00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <Label fx:id="valDamageTaken" styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                 <Label fx:id="valDamageCaused" styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                <Label fx:id="valBoosts"       styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                <Label fx:id="valBoosts" styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                             </children>
                         </GridPane>
 
-                        <Region VBox.vgrow="ALWAYS" minHeight="24.0" />
+                        <Region minHeight="24.0" VBox.vgrow="ALWAYS" />
 
-                        <Button maxWidth="Infinity" onAction="#handleBack" styleClass="menu-button, play-button" text="MAIN MENU">
+                        <Button fx:id="exitBtn" maxWidth="Infinity" onAction="#handleBack" styleClass="menu-button, play-button" text="MAIN MENU">
                             <padding>
                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                             </padding>
@@ -108,17 +95,9 @@
 
                     <VBox alignment="CENTER" spacing="40.0" GridPane.columnIndex="2">
                         <Region VBox.vgrow="ALWAYS" />
-                        <StackPane fx:id="previewNE"
-                                   minWidth="140.0" minHeight="140.0"
-                                   prefWidth="140.0" prefHeight="140.0"
-                                   maxWidth="140.0" maxHeight="140.0"
-                                   rotate="5.0" styleClass="glowing-border, secondary-card" />
+                        <StackPane fx:id="previewNE" maxHeight="140.0" maxWidth="140.0" minHeight="140.0" minWidth="140.0" prefHeight="140.0" prefWidth="140.0" rotate="5.0" styleClass="glowing-border, secondary-card" />
                         <Region VBox.vgrow="ALWAYS" />
-                        <StackPane fx:id="previewSE"
-                                   minWidth="140.0" minHeight="140.0"
-                                   prefWidth="140.0" prefHeight="140.0"
-                                   maxWidth="140.0" maxHeight="140.0"
-                                   rotate="-3.5" styleClass="glowing-border, secondary-card" />
+                        <StackPane fx:id="previewSE" maxHeight="140.0" maxWidth="140.0" minHeight="140.0" minWidth="140.0" prefHeight="140.0" prefWidth="140.0" rotate="-3.5" styleClass="glowing-border, secondary-card" />
                         <Region VBox.vgrow="ALWAYS" />
                     </VBox>
 

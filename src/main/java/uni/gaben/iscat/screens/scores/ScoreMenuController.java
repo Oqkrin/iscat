@@ -3,6 +3,7 @@ package uni.gaben.iscat.screens.scores;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -40,6 +41,7 @@ public class ScoreMenuController implements IscatFxmlController {
 
     @FXML private BorderPane rootPane;
     @FXML private Label titleLabel;
+    @FXML private Button exitBtn;
 
     @FXML private StackPane previewNW;
     @FXML private StackPane previewNE;
@@ -60,12 +62,13 @@ public class ScoreMenuController implements IscatFxmlController {
                 }, SessionManager.getInstance().usernameProperty())
         );
 
-        applyIcon(lblBestScore,     "fas-trophy");
-        applyIcon(lblTotalEnemies,  "fas-skull");
-        applyIcon(lblBestTime,      "fas-stopwatch");
-        applyIcon(lblDamageTaken,   "fas-heart-broken");
-        applyIcon(lblDamageCaused,  "fas-crosshairs");
-        applyIcon(lblBoosts,        "fas-bolt");
+        applyIconButton(exitBtn,           "fas-sign-out-alt");
+        applyIconLabel(lblBestScore,     "fas-trophy");
+        applyIconLabel(lblTotalEnemies,  "fas-skull");
+        applyIconLabel(lblBestTime,      "fas-stopwatch");
+        applyIconLabel(lblDamageTaken,   "fas-heart-broken");
+        applyIconLabel(lblDamageCaused,  "fas-crosshairs");
+        applyIconLabel(lblBoosts,        "fas-bolt");
 
         setupCornerMobs();
 
@@ -73,29 +76,6 @@ public class ScoreMenuController implements IscatFxmlController {
                 (obs, old, data) -> refresh(data)
         );
         refresh(SessionManager.getInstance().getCurrentSaveData());
-    }
-
-    private void applyIcon(Label label, String iconCode) {
-        if (label == null) return;
-
-        // Creiamo l'icona normalmente
-        FontIcon icon = new FontIcon(iconCode);
-        icon.setIconSize(24);
-        icon.getStyleClass().add("score-icon");
-
-        // Creiamo un contenitore quadrato fisso per l'icona (es. 32x32 pixel)
-        StackPane iconContainer = new StackPane(icon);
-        iconContainer.setMinSize(32, 32);
-        iconContainer.setPrefSize(32, 32);
-        iconContainer.setMaxSize(32, 32);
-
-        // Centra l'icona nel suo box
-        iconContainer.setStyle("-fx-alignment: CENTER;");
-
-        // Assegniamo il contenitore come elemento grafico della Label
-        label.setGraphic(iconContainer);
-        label.setContentDisplay(ContentDisplay.LEFT);
-        label.setGraphicTextGap(15);
     }
 
     private void setupCornerMobs() {
