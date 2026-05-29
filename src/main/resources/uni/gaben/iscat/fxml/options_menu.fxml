@@ -79,7 +79,7 @@
 
                 <HBox fx:id="modeToggleBox" alignment="CENTER" spacing="12.0">
                     <CheckBox fx:id="lightModeCheck" onAction="#toggleThemeMode" text="LIGHT MODE" />
-                    <CheckBox fx:id="RainbowModeCheck" onAction="#toggleRainbowMode" text="RAINBOW MODE" />
+                    <CheckBox fx:id="rainbowModeCheck" onAction="#toggleRainbowMode" text="RAINBOW MODE" />
                 </HBox>
 
                 <HBox fx:id="pickerRow1" alignment="CENTER" spacing="8.0" />

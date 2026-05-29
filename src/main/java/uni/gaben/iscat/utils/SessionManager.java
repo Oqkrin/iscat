@@ -27,7 +27,11 @@ public class SessionManager {
     public SessionUser getCurrentUser()        { return currentUser; }
     public void setCurrentUser(SessionUser user) {
         this.currentUser = user;
-        username.set(user.username());
+        if (user != null) {
+            username.set(user.username());
+        } else {
+            username.set(""); // Pulisce la property se l'utente viene disconnesso
+        }
     }
 
     public UserSettings getCurrentSettings()   { return currentSettings; }
