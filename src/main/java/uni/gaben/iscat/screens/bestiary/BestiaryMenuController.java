@@ -18,13 +18,20 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BestiaryMenuController implements IscatFxmlController {
 
+    private enum InfoMode {
+        DESCRIPTION, STATS, EXTRA
+    }
+
     private final BestiaryData bestiaryData = new BestiaryData();
     private Map<String, BestiaryData.Enemy> enemies = new LinkedHashMap<>();
 
     private static final double DISPLAY_SIZE = 160.0;
+    private String currentEnemyId = null;
+    private InfoMode currentInfoMode = InfoMode.DESCRIPTION;
 
     @FXML private StackPane previewContainer;
     @FXML private Label skinNameLabel;
+    @FXML private Label rightCardHeader;
     @FXML private TextArea description;
     @FXML private VBox enemyButtonsBox;
 
@@ -40,7 +47,6 @@ public class BestiaryMenuController implements IscatFxmlController {
         description.setWrapText(true);
 
         enemies = bestiaryData.loadEnemies();
-
         createEnemyButtons();
 
         if (!enemies.isEmpty()) {
@@ -49,13 +55,8 @@ public class BestiaryMenuController implements IscatFxmlController {
         }
     }
 
-    /**
-     * Genera dinamicamente la lista dei pulsanti dei mostri,
-     * applicando l'icona del teschio e il tween "Godot-style" per l'hover.
-     */
     private void createEnemyButtons() {
         enemyButtonsBox.getChildren().clear();
-
         for (BestiaryData.Enemy enemy : enemies.values()) {
             String safeId = enemy.entityKey().trim();
 
@@ -65,7 +66,6 @@ public class BestiaryMenuController implements IscatFxmlController {
             button.setId(safeId);
 
             setupButtonHoverTween(button);
-
             button.setOnAction(e -> showEnemyById(safeId));
 
             enemyButtonsBox.getChildren().add(button);
@@ -73,8 +73,7 @@ public class BestiaryMenuController implements IscatFxmlController {
     }
 
     /**
-     * Aggiorna la vista con i dettagli del mostro selezionato
-     * e fa scattare l'animazione di spawn sulla preview box.
+     * Carica il nemico mantenendo la tab informativa precedentemente scelta dall'utente.
      */
     private void showEnemyById(String id) {
         if (id == null) return;
@@ -83,52 +82,106 @@ public class BestiaryMenuController implements IscatFxmlController {
         BestiaryData.Enemy enemy = enemies.get(cleanId);
 
         if (enemy == null) {
-            System.err.println("ERRORE BESTIARIO: Impossibile trovare il nemico con l'EntityKey '" + cleanId + "' nella mappa!");
+            System.err.println("ERRORE BESTIARIO: Impossibile trovare il nemico con l'EntityKey '" + cleanId + "'!");
             return;
         }
 
+        currentEnemyId = cleanId;
         skinNameLabel.setText(enemy.name().toUpperCase());
-        description.setText(enemy.description());
+
+        refreshInfoZone();
 
         previewCanvas.setFrameDuration(0.20);
-        previewCanvas.loadSkin(
-                enemy.sprite(),
-                enemy.frameW(),
-                enemy.frameH()
-        );
-
+        previewCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
         previewCanvas.resize(DISPLAY_SIZE);
 
         playSpawnTween(previewContainer);
     }
 
+    /**
+     * Metodo centralizzato che smista i dati e aggiorna i titoli in base alla modalità attiva.
+     */
+    private void refreshInfoZone() {
+        if (currentEnemyId == null) return;
+        BestiaryData.Enemy enemy = enemies.get(currentEnemyId);
+        if (enemy == null) return;
+
+        switch (currentInfoMode) {
+            case DESCRIPTION -> {
+                rightCardHeader.setText("DESCRIPTION!");
+                description.setText(enemy.description());
+            }
+            case STATS -> {
+                rightCardHeader.setText("STATS!");
+                description.setText(String.format("""
+                    === STATISTICHE DI BASE ===
+                    
+                    ❤ Punti Vita: %d HP
+                    ⚡ Velocità Massima: %d m/s
+                    ✨ Ricompensa Esperienza: %d XP
+                    """,
+                        enemy.initLife(),
+                        enemy.maxVelocity(),
+                        enemy.xpReward()
+                ));
+            }
+            case EXTRA -> {
+                rightCardHeader.setText("EXTRA INFO!");
+                description.setText(String.format("""
+                    === COMPORTAMENTO IA ===
+                    
+                    👁 Raggio di Avvistamento: %d unità
+                    ⚔ Raggio di Combattimento: %d unità
+                    ⏱ Cooldown Attacco: %d secondi
+                    
+                    ID Interno: %s
+                    """,
+                        enemy.detectionRange(),
+                        enemy.combatRange(),
+                        enemy.fireCooldownS(),
+                        enemy.entityKey()
+                ));
+            }
+        }
+    }
+
+    @FXML
+    private void showDescription() {
+        currentInfoMode = InfoMode.DESCRIPTION;
+        refreshInfoZone();
+    }
+
+    @FXML
+    private void showStats() {
+        currentInfoMode = InfoMode.STATS;
+        refreshInfoZone();
+    }
+
+    @FXML
+    private void showExtra() {
+        currentInfoMode = InfoMode.EXTRA;
+        refreshInfoZone();
+    }
+
     @FXML
     private void handleBack(ActionEvent event) {
-        IscatNavigator.getInstance()
-                .navigateWithFade(IscatViews.MAIN_MENU);
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
     @FXML
     private void selectRandom() {
         var validIds = enemies.keySet().stream()
-                .filter(id ->
-                        !enemies.get(id)
-                                .name()
-                                .toUpperCase()
-                                .equals(skinNameLabel.getText()))
+                .filter(id -> !enemies.get(id).name().toUpperCase().equals(skinNameLabel.getText()))
                 .toList();
 
         if (validIds.isEmpty()) return;
 
-        String randomId = validIds.get(
-                ThreadLocalRandom.current().nextInt(validIds.size())
-        );
-
+        String randomId = validIds.get(ThreadLocalRandom.current().nextInt(validIds.size()));
         showEnemyById(randomId);
     }
 
-    @Override
-    public void setContentRoot(StackPane contentRoot) {
-        this.contentRoot = contentRoot;
-    }
+    @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
+
+    private void setupButtonHoverTween(Button b) {}
+    private void playSpawnTween(StackPane p) {}
 }
