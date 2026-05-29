@@ -88,7 +88,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             }
         }
 
-        setupGraphicsContextAndDrawContent(entity, gc, 270.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 270.0,false);
     }
 
     @Override

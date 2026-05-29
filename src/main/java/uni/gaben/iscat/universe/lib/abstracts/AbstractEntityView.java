@@ -43,8 +43,12 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
     /**
      * Estrae l'orientamento dal modello cinematico e applica l'offset strutturale di rendering.
      */
-    protected void setAngle(M e) {
-        rotRad = e.getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET;
+    protected void setAngle(M e, boolean can_rotate) {
+        if (!can_rotate) {
+            rotRad = RenderingSettings.BASE_ROTRAD_OFFSET;
+        } else {
+            rotRad = e.getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET;
+        }
         rotDeg = Math.toDegrees(rotRad);
     }
 
@@ -53,34 +57,36 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
      * Isola lo stack delle trasformazioni, calcola il punto di rotazione al centro,
      * e richiama il disegno specifico in coordinate locali (-w/2, -h/2).
      */
-    public final void setupGraphicsContextAndDrawContent(M entity, GraphicsContext gc, double assetAngularOffsetDeg) {
+    public final void setupGraphicsContextAndDrawContent(M entity, GraphicsContext gc,
+                                                         double assetAngularOffsetDeg,
+                                                         boolean rotation) {
         setPos(entity);
-        setAngle(entity);
+        setAngle(entity, rotation);
 
         gc.save();
 
-        // Applica lo shake all'intero contesto grafico di questa entità (se attivo)
-        if(entity instanceof Projectile p) {
+        if (entity instanceof Projectile p) {
             gc.setFill(p.getType().color);
         }
 
-        // Trasla l'origine del Canvas esattamente al centro dell'entità
-        gc.save();
+        gc.save();  // salva per la rotazione
         gc.translate(cx, cy);
-        gc.rotate(rotDeg + assetAngularOffsetDeg);
-        // Delega l'esecuzione del disegno interno alle classi derivate.
-        // In drawContent(), (0,0) corrisponde perfettamente al centro dell'entità
-        drawContent(entity, gc, -sw / 2, -sh / 2, sw, sh);
-        gc.restore();
 
-        // Disegna la barra della vita (se attiva)
+        // Rotazione finale: offset base + offset specifico dello sprite
+        double finalRotation = rotDeg + assetAngularOffsetDeg;
+        gc.rotate(finalRotation);
+
+        // Disegna il contenuto centrato
+        drawContent(entity, gc, -sw / 2, -sh / 2, sw, sh);
+
+        gc.restore();   // fine rotazione
+
+        // HP Bar (sempre dritta)
         if (entity instanceof LifeDeath ld && !(ld instanceof Projectile)) {
             drawHpBar(ld, gc);
         }
 
-        // Aggiorna e disegna l'anello dello shockwave (se attivo)
-
-        gc.restore();
+        gc.restore();   // fine contesto entità
     }
 
     /**
@@ -114,7 +120,7 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
      * Visualizzatore Debug delle Collisioni geometriche basato sulle coordinate attuali.
      */
     public void drawDebugCollision(M e, GraphicsContext gc) {
-        setPos(e); setAngle(e);
+        setPos(e); setAngle(e,true);
         gc.save(); gc.translate(cx, cy); gc.rotate(rotDeg);
         gc.setStroke(Color.LIME); gc.setLineWidth(1.5);
         if (e.getFixtureCount() > 0 && e.getFixture(0).getShape() instanceof Circle) {

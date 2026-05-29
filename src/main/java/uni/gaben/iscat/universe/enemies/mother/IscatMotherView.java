@@ -44,7 +44,7 @@ public class IscatMotherView extends AbstractEntityView<IscatMotherModel>
     @Override
     public void draw(IscatMotherModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
-        setupGraphicsContextAndDrawContent(entity, gc, 180.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 180.0,true);
     }
 
 

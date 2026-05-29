@@ -20,7 +20,7 @@ public class ProjectileView extends AbstractEntityView<Projectile> implements Dr
         // Carica i colori prima dell'esecuzione del loop
         // Passa il modello alla pipeline principale.
         // L'angolo dell'asset di default è 0.0.
-        setupGraphicsContextAndDrawContent(p, gc, 0.0);
+        setupGraphicsContextAndDrawContent(p, gc, 0.0,false);
     }
 
     @Override

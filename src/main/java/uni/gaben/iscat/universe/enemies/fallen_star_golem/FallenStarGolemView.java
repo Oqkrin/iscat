@@ -55,11 +55,11 @@ public class FallenStarGolemView extends AbstractEntityView<FallenStarGolemModel
         animator.update(UU.UNIVERSE_TICK);
 
         setPos(entity);
-        setAngle(entity);
+        setAngle(entity,false);
 
         double structuralOffset = 270.0;
 
-        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset);
+        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset,false);
 
         drawHpBar(entity, gc);
     }

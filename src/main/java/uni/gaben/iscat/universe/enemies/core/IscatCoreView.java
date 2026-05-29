@@ -72,18 +72,14 @@ public class IscatCoreView extends AbstractEntityView<IscatCoreModel>
         double animationSpeedMultiplier = 1.0 / healthRatio;
         animator.setTime(entity.getStateTime() * animationSpeedMultiplier);
 
-
-        // Aggiorna posizione e rotazione
-        setPos(entity);
-        setAngle(entity);
-
         double structuralOffset = 270.0;
 
         // Disegna sprite con trasformazioni
         setupGraphicsContextAndDrawContent(
                 entity,
                 gc,
-                structuralOffset
+                structuralOffset,
+                true
         );
 
         drawHpBar(entity, gc);

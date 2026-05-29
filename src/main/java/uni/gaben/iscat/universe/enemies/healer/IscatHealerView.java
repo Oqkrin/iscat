@@ -44,7 +44,7 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
     public void draw(IscatHealerModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
         healingAnimation.update(UU.UNIVERSE_TICK);
-        setupGraphicsContextAndDrawContent(entity, gc, 90.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 90.0,false);
     }
 
     @Override

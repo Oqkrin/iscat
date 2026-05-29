@@ -55,7 +55,7 @@ public class IscatBomberView extends AbstractEntityView<IscatBomberModel>
     public void draw(IscatBomberModel entity, GraphicsContext gc) {
         animator.update(UU.UNIVERSE_TICK);
         // +90° perché il bomber punta verso l'alto nel file PNG
-        setupGraphicsContextAndDrawContent(entity, gc, 90.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 90.0,true);
     }
 
     // --- AbstractEntityView<IscatBomberModel> ---

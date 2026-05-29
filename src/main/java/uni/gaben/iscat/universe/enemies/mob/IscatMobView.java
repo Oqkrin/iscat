@@ -61,12 +61,11 @@ public class IscatMobView extends AbstractEntityView<IscatMobModel>
         // Aggiorna le coordinate cx e cy della View allineandole al modello fisico globale
         setPos(entity);
         // Sincronizza l'angolo di disegno con l'angolo logico calcolato dall'IA
-        setAngle(entity);
 
         double structuralOffset = 180.0;
 
         // Disegna lo sprite applicando traslazione e rotazione (Salva e ripristina la matrice internamente)
-        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset);
+        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset,true);
 
         drawHpBar(entity, gc);
     }

@@ -54,11 +54,10 @@ public class FakeIscatView extends AbstractEntityView<FakeIscatModel>
         animator.update(UU.UNIVERSE_TICK);
 
         setPos(entity);
-        setAngle(entity);
 
         double structuralOffset = 270.0;
 
-        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset);
+        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset,false);
 
         drawHpBar(entity, gc);
     }

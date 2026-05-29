@@ -55,7 +55,7 @@ public class HeartView extends AbstractEntityView<HeartModel>
         animator.update(UU.UNIVERSE_TICK);
 
         // 4. Invia l'entità nella pipeline centrale di rendering
-        setupGraphicsContextAndDrawContent(entity, gc, 270.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 270.0,true);
     }
 
     @Override

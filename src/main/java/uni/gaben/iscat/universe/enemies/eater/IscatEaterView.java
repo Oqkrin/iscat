@@ -54,11 +54,11 @@ public class IscatEaterView extends AbstractEntityView<IscatEaterModel>
 
         // 4. Determina l'angolo finale: se ROTATION_TOWARDS_PLAYER è disattivato,
         // calcoliamo l'offset inverso all'angolo base in modo da forzare il disegno dritto (0.0°).
-        setAngle(entity);
+        setAngle(entity,false);
         double structuralOffset = false ? 0.0 : -rotDeg;
 
         // 5. Invia l'entità alla pipeline standard dell'engine
-        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset);
+        setupGraphicsContextAndDrawContent(entity, gc, structuralOffset,false);
     }
 
     @Override

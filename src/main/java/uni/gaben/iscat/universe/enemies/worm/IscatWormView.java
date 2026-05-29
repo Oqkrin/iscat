@@ -45,7 +45,7 @@ public class IscatWormView extends AbstractEntityView<IscatWormSegment>
     public void draw(IscatWormSegment entity, GraphicsContext gc) {
         if (entity == null || entity.isConsumed()) return;
         animator.update(UU.UNIVERSE_TICK);
-        setupGraphicsContextAndDrawContent(entity, gc, 180.0);
+        setupGraphicsContextAndDrawContent(entity, gc, 180.0,true);
     }
 
     @Override
