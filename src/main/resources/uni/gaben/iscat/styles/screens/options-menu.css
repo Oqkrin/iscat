@@ -1,0 +1,60 @@
+@import url("../components/iscat-color-picker.css");
+
+/* Custom colour picker boxes */
+.custom-color-box {
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+}
+.custom-color-box:hover {
+    -fx-border-color: -accent-primary;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 6, 0.3, 0, 0);
+}
+
+/* Active picker glow */
+.custom-color-box.picker-active {
+    -fx-border-color: -accent-primary;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.5, 0, 0);
+    -fx-border-width: 2px;
+}
+
+.arrow-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 0 5;
+    -fx-cursor: hand;
+}
+.arrow-button:hover {
+    -fx-text-fill: -accent-primary;
+}
+
+/* Placeholder Pick Image button */
+#pickImageBtn {
+    -fx-background-color: -bg-secondary;
+    -fx-border-color: -bg-tertiary;
+}
+#pickImageBtn:hover {
+    -fx-border-color: -accent-primary;
+}
+
+/* Palette swatch squares */
+.palette-swatch {
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0.1, 0, 2);
+}
+.palette-swatch:hover {
+    -fx-border-color: -accent-primary;
+    -fx-scale-x: 1.15;
+    -fx-scale-y: 1.15;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 8, 0.3, 0, 0);
+}
+
+.palette-hint {
+    -fx-text-fill: -text-tertiary;
+    -fx-padding: 0 0 4 0;
+}
+.button-icon {
+    -fx-icon-color: -accent-primary;
+}

@@ -6,11 +6,6 @@ import uni.gaben.iscat.view.AbstractIscatStackPane;
 public class OptionsMenuView extends AbstractIscatStackPane {
     public OptionsMenuView() {
         super(new StackPane(), true);
-
+        initialize("/uni/gaben/iscat/fxml/options_menu.fxml");
     }
-
-    @Override
-    public void onShow() {
-        super.onShow();
-        initialize("/uni/gaben/iscat/fxml/options_menu.fxml");    }
 }

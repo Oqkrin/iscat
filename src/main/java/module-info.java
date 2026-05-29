@@ -9,6 +9,7 @@ module uni.gaben.iscat {
     requires jdk.unsupported.desktop;
     requires java.sql;
     requires org.xerial.sqlitejdbc;
+    requires color.thief;
 
     opens uni.gaben.iscat to javafx.fxml;
     opens uni.gaben.iscat.utils to javafx.fxml;

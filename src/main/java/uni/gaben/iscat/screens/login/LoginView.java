@@ -68,7 +68,7 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     protected void initStyles() {
-        getStylesheets().add(getClass().getResource("/uni/gaben/iscat/styles/scenes/login-menu.css").toExternalForm());
+        getStylesheets().add(getClass().getResource("/uni/gaben/iscat/styles/screens/login-menu.css").toExternalForm());
     }
 
     @Override

@@ -1,21 +1,29 @@
 package uni.gaben.iscat.screens.options;
 
+import de.androidpit.colorthief.ColorThief;
 import javafx.animation.AnimationTimer;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import uni.gaben.iscat.database.sqlite.ScoreDAO;
@@ -29,11 +37,15 @@ import uni.gaben.iscat.database.sqlite.SettingsDAO;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
-import uni.gaben.iscat.utils.theme.DynamicColors;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OptionsMenuController implements IscatFxmlController {
 
@@ -43,7 +55,6 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button DeleteAccountBtn;
     @FXML private Button ExitBtn;
     @FXML private CheckBox FullscreenCheck;
-    @FXML private Button ImagePicker;
     @FXML private Button ResetAccountBtn;
     @FXML private Slider SFXSlider;
     @FXML private ColorPicker accentPrimary;
@@ -59,7 +70,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button esc;
     @FXML private VBox keybinds;
     @FXML private CheckBox lightModeCheck;
-    @FXML private HBox paletteHolder;
+    @FXML private GridPane paletteHolder;          // now a GridPane
     @FXML private CheckBox rainbowModeCheck;
     @FXML private Slider masterSlider;
     @FXML private VBox paneMaster;
@@ -72,6 +83,12 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button walkRight;
     @FXML private Button walkUp;
 
+    // New fields for revised layout
+    @FXML private StackPane imageArea;
+    @FXML private Button pickImageBtn;              // placeholder button (no image)
+    @FXML private Button changeImageBtn;            // small "Change" button next to carousel
+    @FXML private HBox modeToggleBox;
+
     private final List<File> carouselImages = new ArrayList<>();
     private int currentIndex = -1;
 
@@ -79,34 +96,41 @@ public class OptionsMenuController implements IscatFxmlController {
     private String selectedColumn = null;
     private AnimationTimer uiRainbowSyncTimer;
 
+    private ColorPicker activePicker = null;
+    private List<Color> currentPalette = new ArrayList<>();
+
+    // Map to link picker to its custom box for active highlighting
+    private final Map<ColorPicker, StackPane> pickerBoxes = new HashMap<>();
+
     @FXML
     public void initialize() {
 
         applyIconButton(ExitBtn,            "fas-sign-out-alt");
-        applyIconButton(ImagePicker,        "fas-image");
+        applyIconButton(pickImageBtn,        "fas-image");
         applyIconButton(ResetAccountBtn,    "fas-history");
         applyIconButton(DeleteAccountBtn,   "fas-trash-alt");
         applyIconButton(resetControlsBtn,   "fas-sync-alt");
 
         // ── Audio Listeners ───────────────────────────────────────────────────
-        masterSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));
-        BGMSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setBgmVolume(val.doubleValue()));
-        SFXSlider.valueProperty().addListener((obs, old, val) -> AudioManager.getInstance().setSfxVolume(val.doubleValue()));
+        masterSlider.valueProperty().addListener((obs, old, val) ->
+                AudioManager.getInstance().setBgmVolume(val.doubleValue()));
+        BGMSlider.valueProperty().addListener((obs, old, val) ->
+                AudioManager.getInstance().setBgmVolume(val.doubleValue()));
+        SFXSlider.valueProperty().addListener((obs, old, val) ->
+                AudioManager.getInstance().setSfxVolume(val.doubleValue()));
 
         // ── Scale & Theme Adjustments ─────────────────────────────────────────
-        scaleSlider.valueProperty().addListener((obs, old, val) -> UU.setUniverseScale(val.doubleValue()));
+        scaleSlider.valueProperty().addListener((obs, old, val) ->
+                UU.setUniverseScale(val.doubleValue()));
         refreshButtonLabels();
         syncColorPickersWithTheme();
+
         paneMaster.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                newScene.addEventFilter(
-                        KeyEvent.KEY_PRESSED,
-                        this::handleGlobalKeyPress
-                );
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleGlobalKeyPress);
                 Stage stage = (Stage) newScene.getWindow();
                 if (stage != null) {
-                    FullscreenCheck.selectedProperty()
-                            .bind(stage.fullScreenProperty());
+                    FullscreenCheck.selectedProperty().bind(stage.fullScreenProperty());
                 }
                 applyManualColorChanges();
                 if (ThemeManager.getInstance().isRainbowModeActive()) {
@@ -115,16 +139,104 @@ public class OptionsMenuController implements IscatFxmlController {
             }
         });
 
-        // ── Dynamic Responsive Layout Controls ───────────────────────────────
+        // ── Image preview & placeholder button ───────────────────────────────
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
-
         themePreview.fitWidthProperty().bind(theme.widthProperty());
-        themePreview.fitHeightProperty().bind(theme.heightProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
+        themePreview.fitHeightProperty().bind(theme.heightProperty()
+                .multiply(ScalareAureo.IPHI_D * ScalareAureo.IPHI_D));
 
+        // When no image: show placeholder button, hide image + change button
+        // When image: hide placeholder, show image + change button
+        themePreview.imageProperty().addListener((obs, oldImg, newImg) -> {
+            boolean hasImage = (newImg != null);
+            pickImageBtn.setVisible(!hasImage);
+            changeImageBtn.setVisible(hasImage);
+        });
+        // initial state
+        pickImageBtn.setVisible(true);
+        changeImageBtn.setVisible(false);
+
+        pickImageBtn.setOnAction(e -> onImagePick(null));
+        changeImageBtn.setOnAction(e -> onImagePick(null));
+
+        // ── Build custom colour pickers ──────────────────────────────────────
+        buildCustomPickers();
+
+        // ── Palette click targets (still use the hidden pickers) ─────────────
+        setupPickerClickTarget(accentPrimary);
+        setupPickerClickTarget(accentSecondary);
+        setupPickerClickTarget(accentTernary);
+        setupPickerClickTarget(bgPrimary);
     }
 
-    // ── Key Bindings ──────────────────────────────────────────────────────────
+    // ── Custom picker construction ───────────────────────────────────────────
+    private void buildCustomPickers() {
+        buildCustomPicker(accentPrimary,  "Primary",    0, 0);
+        buildCustomPicker(accentSecondary,"Secondary",  0, 1);
+        buildCustomPicker(accentTernary,  "Tertiary",   1, 0);
+        buildCustomPicker(bgPrimary,      "Background", 1, 1);
+    }
+
+    private void buildCustomPicker(ColorPicker picker, String role, int row, int col) {
+        picker.setVisible(false);
+        picker.setManaged(false);
+
+        Rectangle rect = new Rectangle(60, 28);
+        rect.setArcWidth(8);
+        rect.setArcHeight(8);
+        rect.fillProperty().bind(picker.valueProperty());
+
+        Label roleLabel = new Label(role);
+        roleLabel.setFont(Font.font("System", FontWeight.BOLD, 10));
+        roleLabel.textFillProperty().bind(Bindings.createObjectBinding(() ->
+                        picker.getValue().getBrightness() > 0.5 ? Color.BLACK : Color.WHITE,
+                picker.valueProperty()));
+
+        StackPane colorBox = new StackPane(rect, roleLabel);
+        colorBox.getStyleClass().add("custom-color-box");
+        colorBox.setOnMouseClicked(e -> setActivePicker(picker));
+
+        Button arrowBtn = new Button("▼");
+        arrowBtn.getStyleClass().add("arrow-button");
+        arrowBtn.setOnAction(e -> picker.show());
+
+        HBox widget = new HBox(2, colorBox, arrowBtn);
+        widget.setAlignment(Pos.CENTER_LEFT);
+
+        // Store for active highlighting
+        pickerBoxes.put(picker, colorBox);
+
+        // Update theme whenever the picker value changes
+        picker.valueProperty().addListener((obs, oldVal, newVal) -> applyManualColorChanges());
+
+        // Place widget in the grid
+        GridPane grid = (GridPane) picker.getParent();
+        GridPane.setConstraints(widget, col, row);
+        grid.getChildren().add(widget);
+    }
+
+    // ── Active picker highlighting ───────────────────────────────────────────
+    private void setupPickerClickTarget(ColorPicker picker) {
+        picker.setOnMouseClicked(e -> setActivePicker(picker));
+    }
+
+    private void setActivePicker(ColorPicker picker) {
+        // Remove highlight from all picker boxes
+        for (StackPane box : pickerBoxes.values()) {
+            box.getStyleClass().remove("picker-active");
+        }
+        // Highlight the selected one
+        if (picker != null) {
+            StackPane box = pickerBoxes.get(picker);
+            if (box != null) {
+                box.getStyleClass().add("picker-active");
+            }
+        }
+        activePicker = picker;
+    }
+
+    // ── Key Bindings ─────────────────────────────────────────────────────────
     private void refreshButtonLabels() {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
@@ -142,13 +254,13 @@ public class OptionsMenuController implements IscatFxmlController {
         if (selectedButton != null) refreshButtonLabels();
         selectedButton = (Button) event.getSource();
         selectedButton.setText("[ PREMI UN TASTO ]");
-        if      (selectedButton == walkUp)    selectedColumn = "WalkUp";
-        else if (selectedButton == walkDown)  selectedColumn = "WalkDown";
-        else if (selectedButton == walkLeft)  selectedColumn = "WalkLeft";
+        if (selectedButton == walkUp) selectedColumn = "WalkUp";
+        else if (selectedButton == walkDown) selectedColumn = "WalkDown";
+        else if (selectedButton == walkLeft) selectedColumn = "WalkLeft";
         else if (selectedButton == walkRight) selectedColumn = "WalkRight";
-        else if (selectedButton == dash1)     selectedColumn = "Dash1";
-        else if (selectedButton == dash2)     selectedColumn = "Dash2";
-        else if (selectedButton == esc)       selectedColumn = "PauseGame";
+        else if (selectedButton == dash1) selectedColumn = "Dash1";
+        else if (selectedButton == dash2) selectedColumn = "Dash2";
+        else if (selectedButton == esc) selectedColumn = "PauseGame";
     }
 
     private void handleGlobalKeyPress(KeyEvent event) {
@@ -157,12 +269,12 @@ public class OptionsMenuController implements IscatFxmlController {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings != null) {
             switch (selectedColumn) {
-                case "WalkUp" -> settings.setWalkUp(pressedKey);
-                case "WalkDown" -> settings.setWalkDown(pressedKey);
-                case "WalkLeft" -> settings.setWalkLeft(pressedKey);
+                case "WalkUp"    -> settings.setWalkUp(pressedKey);
+                case "WalkDown"  -> settings.setWalkDown(pressedKey);
+                case "WalkLeft"  -> settings.setWalkLeft(pressedKey);
                 case "WalkRight" -> settings.setWalkRight(pressedKey);
-                case "Dash1" -> settings.setDash1(pressedKey);
-                case "Dash2" -> settings.setDash2(pressedKey);
+                case "Dash1"     -> settings.setDash1(pressedKey);
+                case "Dash2"     -> settings.setDash2(pressedKey);
             }
             SettingsDAO.updateControl(settings.getUserId(), selectedColumn, pressedKey);
         }
@@ -182,13 +294,14 @@ public class OptionsMenuController implements IscatFxmlController {
     void resetControls(ActionEvent event) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
-        SettingsDAO.updateControl(settings.getUserId(), "WalkUp", "W");
-        SettingsDAO.updateControl(settings.getUserId(), "WalkDown", "S");
-        SettingsDAO.updateControl(settings.getUserId(), "WalkLeft", "A");
-        SettingsDAO.updateControl(settings.getUserId(), "WalkRight", "D");
-        SettingsDAO.updateControl(settings.getUserId(), "Dash1", "Space");
-        SettingsDAO.updateControl(settings.getUserId(), "Dash2", "Middle Mouse");
-        SettingsDAO.updateControl(settings.getUserId(), "PauseGame", "ESC");
+        int uid = settings.getUserId();
+        SettingsDAO.updateControl(uid, "WalkUp", "W");
+        SettingsDAO.updateControl(uid, "WalkDown", "S");
+        SettingsDAO.updateControl(uid, "WalkLeft", "A");
+        SettingsDAO.updateControl(uid, "WalkRight", "D");
+        SettingsDAO.updateControl(uid, "Dash1", "Space");
+        SettingsDAO.updateControl(uid, "Dash2", "Middle Mouse");
+        SettingsDAO.updateControl(uid, "PauseGame", "ESC");
         refreshButtonLabels();
     }
 
@@ -238,35 +351,105 @@ public class OptionsMenuController implements IscatFxmlController {
         bgPrimary.setValue(tm.getBgPrimary());
     }
 
+    // ── Palette extraction and UI building ───────────────────────────────────
     private void applyTheme(File imageFile) {
         try {
             ThemeManager.getInstance().stopRainbowMode();
             if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
 
-            List<java.awt.Color> palette = DynamicColors.getPaletteForFile(imageFile, 16, lightModeCheck.isSelected());
-
-            paletteHolder.getChildren().clear();
-            paletteHolder.setSpacing(16);
-            paletteHolder.setAlignment(Pos.CENTER);
-            for (java.awt.Color color : palette) {
-                Circle circle = new Circle(8);
-                circle.setFill(toJfx(color));
-                paletteHolder.getChildren().add(circle);
+            BufferedImage bufferedImage = ImageIO.read(imageFile);
+            if (bufferedImage == null) {
+                System.err.println("Unable to read image: " + imageFile.getAbsolutePath());
+                return;
             }
 
-            if (palette.size() >= 4) {
-                accentPrimary.setValue(toJfx(palette.get(0)));
-                accentSecondary.setValue(toJfx(palette.get(1)));
-                accentTernary.setValue(toJfx(palette.get(2)));
-                bgPrimary.setValue(toJfx(palette.get(3)));
-                themePreview.setImage(new Image(imageFile.toURI().toString()));
-                applyManualColorChanges();
+            int[][] rawPalette = ColorThief.getPalette(bufferedImage, 16, 1, false);
+
+            currentPalette.clear();
+            for (int[] rgb : rawPalette) {
+                currentPalette.add(Color.rgb(rgb[0], rgb[1], rgb[2]));
             }
-        } catch (Exception e) {
+
+            rebuildPaletteUI();
+            assignPickersFromPalette();
+
+            themePreview.setImage(new Image(imageFile.toURI().toString()));
+            applyManualColorChanges();
+        } catch (IOException e) {
             System.err.println("Theme Load Error: " + e.getMessage());
         }
     }
 
+    private void rebuildPaletteUI() {
+        paletteHolder.getChildren().clear();
+        if (currentPalette.isEmpty()) return;
+
+        final int COLUMNS = 8;
+        int row = 0, col = 0;
+        for (Color color : currentPalette) {
+            Rectangle rect = new Rectangle(24, 24);
+            rect.setFill(color);
+            rect.getStyleClass().add("palette-swatch");
+            Tooltip.install(rect, new Tooltip("Click to assign to selected picker"));
+
+            rect.setOnMouseClicked(e -> {
+                if (activePicker != null) {
+                    activePicker.setValue(color);
+                    applyManualColorChanges();
+                }
+            });
+
+            paletteHolder.add(rect, col, row);
+            col++;
+            if (col == COLUMNS) {
+                col = 0;
+                row++;
+            }
+        }
+    }
+
+    private void assignPickersFromPalette() {
+        if (currentPalette.isEmpty()) return;
+
+        Color bg = pickBackground(currentPalette, lightModeCheck.isSelected());
+        bgPrimary.setValue(bg);
+
+        List<Color> accents = new ArrayList<>();
+        for (Color c : currentPalette) {
+            if (!equalsByRGB(c, bg)) {
+                accents.add(c);
+            }
+        }
+        if (!accents.isEmpty()) accentPrimary.setValue(accents.get(0));
+        if (accents.size() >= 2) accentSecondary.setValue(accents.get(1));
+        if (accents.size() >= 3) accentTernary.setValue(accents.get(2));
+    }
+
+    // ── Color utilities ──────────────────────────────────────────────────────
+    private static boolean equalsByRGB(Color a, Color b) {
+        return a.getRed() == b.getRed() &&
+                a.getGreen() == b.getGreen() &&
+                a.getBlue() == b.getBlue();
+    }
+
+    private Color pickBackground(List<Color> palette, boolean lightMode) {
+        return palette.stream()
+                .max(java.util.Comparator.comparingDouble(c -> lightMode ? luminance(c) : -luminance(c)))
+                .orElse(lightMode ? Color.WHITE : Color.BLACK);
+    }
+
+    private double luminance(Color c) {
+        double r = linearize(c.getRed());
+        double g = linearize(c.getGreen());
+        double b = linearize(c.getBlue());
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    private double linearize(double channel) {
+        return (channel <= 0.03928) ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+    }
+
+    // ── Toggles ──────────────────────────────────────────────────────────────
     @FXML
     void toggleThemeMode(ActionEvent event) {
         if (!carouselImages.isEmpty() && currentIndex >= 0) {
@@ -297,7 +480,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML
     void onImagePick(ActionEvent event) {
         FileChooser picker = new FileChooser();
-        File chosen = picker.showOpenDialog((Stage) paneMaster.getScene().getWindow());
+        File chosen = picker.showOpenDialog(paneMaster.getScene().getWindow());
         if (chosen != null) {
             carouselImages.add(chosen);
             currentIndex = carouselImages.size() - 1;
@@ -305,8 +488,21 @@ public class OptionsMenuController implements IscatFxmlController {
         }
     }
 
-    @FXML void nextTheme(ActionEvent event) { if (!carouselImages.isEmpty()) applyTheme(carouselImages.get(currentIndex = (currentIndex + 1) % carouselImages.size())); }
-    @FXML void prevTheme(ActionEvent event) { if (!carouselImages.isEmpty()) applyTheme(carouselImages.get(currentIndex = (currentIndex - 1 + carouselImages.size()) % carouselImages.size())); }
+    @FXML
+    void nextTheme(ActionEvent event) {
+        if (!carouselImages.isEmpty()) {
+            currentIndex = (currentIndex + 1) % carouselImages.size();
+            applyTheme(carouselImages.get(currentIndex));
+        }
+    }
+
+    @FXML
+    void prevTheme(ActionEvent event) {
+        if (!carouselImages.isEmpty()) {
+            currentIndex = (currentIndex - 1 + carouselImages.size()) % carouselImages.size();
+            applyTheme(carouselImages.get(currentIndex));
+        }
+    }
 
     @FXML
     void toggleFullscreen(ActionEvent event) {
@@ -314,12 +510,13 @@ public class OptionsMenuController implements IscatFxmlController {
         stage.setFullScreen(!stage.isFullScreen());
     }
 
-    private String toHex(Color c) { return String.format("#%02x%02x%02x", (int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255)); }
-    private Color toJfx(java.awt.Color a) { return new Color(a.getRed()/255.0, a.getGreen()/255.0, a.getBlue()/255.0, 1.0); }
+    private String toHex(Color c) {
+        return String.format("#%02x%02x%02x", (int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255));
+    }
 
-    @FXML void onPrimary(ActionEvent event) { applyManualColorChanges(); }
+    @FXML void onPrimary(ActionEvent event)   { applyManualColorChanges(); }
     @FXML void onSecondary(ActionEvent event) { applyManualColorChanges(); }
-    @FXML void onTernary(ActionEvent event) { applyManualColorChanges(); }
+    @FXML void onTernary(ActionEvent event)   { applyManualColorChanges(); }
     @FXML void onBgPrimary(ActionEvent event) { applyManualColorChanges(); }
 
     @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
