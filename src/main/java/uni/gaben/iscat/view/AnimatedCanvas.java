@@ -23,10 +23,10 @@ public class AnimatedCanvas extends Canvas {
     private long lastTime = 0;
     private double currentFrameDuration = 0.1;
 
-    // Cache locale per ottimizzare le performance del rendering ed evitare memory leak
-    private Image cachedTintedImage;
+    private Image cachedTintedFrame;
     private Color lastAppliedTint;
-    private Image lastProcessedSheet;
+    private int lastRow = -1;
+    private int lastCol = -1;
 
     public AnimatedCanvas() {
         super(0, 0);
@@ -39,7 +39,6 @@ public class AnimatedCanvas extends Canvas {
     public void setFrameDuration(double duration) {
         this.currentFrameDuration = duration;
         if (animator != null) {
-            // Aggiorna al volo la durata se l'animatore esiste già
             animator.constantDurationFiller(
                     duration,
                     spriteSheet.getTotalFrames(),
@@ -53,7 +52,7 @@ public class AnimatedCanvas extends Canvas {
     }
 
     public void loadSkin(String path, int frameW, int frameH) {
-        stop(); // Resetta e pulisce lo stato precedente
+        stop();
 
         spriteSheet = SpritesLibrary.getInstance().getSprite(path, frameW, frameH);
         if (spriteSheet == null || spriteSheet.getSheet() == null) {
@@ -61,7 +60,6 @@ public class AnimatedCanvas extends Canvas {
             return;
         }
 
-        // Inizializza l'animatore con le specifiche dello sprite caricato
         animator = new SpriteSheetsAnimator(currentFrameDuration, 1, 1);
         animator.constantDurationFiller(
                 currentFrameDuration,
@@ -69,9 +67,7 @@ public class AnimatedCanvas extends Canvas {
                 spriteSheet.getTotalStates()
         );
 
-        // Forza il reset della cache per il nuovo foglio sprite
         invalidateCache();
-
         startTimer();
     }
 
@@ -104,61 +100,54 @@ public class AnimatedCanvas extends Canvas {
     }
 
     private void render() {
-        if (spriteSheet == null || animator == null || spriteSheet.getSheet() == null) {
+        if (spriteSheet == null || animator == null) {
             return;
         }
 
         GraphicsContext gc = getGraphicsContext2D();
-
-        // Pulizia dell'area di disegno
         gc.clearRect(0, 0, getWidth(), getHeight());
-
-        // Pixel-art nitida (disattiva l'anti-aliasing)
         gc.setImageSmoothing(false);
 
-        // Calcolo sicuro delle coordinate sorgente sul foglio sprite
         int sheetRow = Math.clamp(animator.getCurrentState(), 0, spriteSheet.getTotalStates() - 1);
         int sheetColumn = Math.clamp(animator.getCurrentFrame(), 0, spriteSheet.getTotalFrames() - 1);
 
-        double sx = sheetColumn * spriteSheet.frameWidth;
-        double sy = sheetRow * spriteSheet.frameHeight;
-
-        // Recupero della tinta globale attiva
         Color currentTint = ThemeManager.getInstance().getAccentSecondary();
 
-        // GESTIONE CACHE: Chiede l'immagine tinta solo se lo sprite o il colore sono cambiati.
-        // Evita di saturare la memoria generando 60 immagini al secondo nel render loop.
-        if (cachedTintedImage == null
+        // GESTIONE CACHE: Ricalcola la tinta solo se il colore cambia O se l'animatore è passato al frame successivo
+        if (cachedTintedFrame == null
                 || !currentTint.equals(lastAppliedTint)
-                || spriteSheet.getSheet() != lastProcessedSheet) {
+                || sheetRow != lastRow
+                || sheetColumn != lastCol) {
 
-            cachedTintedImage = ThemeManager.getInstance().getTintedImage(spriteSheet.getSheet(), currentTint);
+            // Preleva il frame già tagliato dal parser (leggerissimo)
+            Image tinyFrame = spriteSheet.getFrame(sheetRow, sheetColumn);
+
+            if (tinyFrame != null) {
+                // Tinge solo il singolo quadratino
+                cachedTintedFrame = ThemeManager.getInstance().getTintedImage(tinyFrame, currentTint);
+            }
+
             lastAppliedTint = currentTint;
-            lastProcessedSheet = spriteSheet.getSheet();
+            lastRow = sheetRow;
+            lastCol = sheetColumn;
         }
 
-        // Disegno finale sul canvas con scaling automatico adattivo
-        gc.drawImage(
-                cachedTintedImage,
-                sx, sy,                                   // Coordinate di origine (sorgente)
-                spriteSheet.frameWidth, spriteSheet.frameHeight, // Dimensioni del frame ritagliato
-                0, 0,                                     // Destinazione (canvas)
-                getWidth(), getHeight()                   // Dimensioni finali scalate
-        );
+        // Disegna direttamente il frame tinto senza bisogno di calcolare le coordinate sorgente (sx, sy)
+        if (cachedTintedFrame != null) {
+            gc.drawImage(
+                    cachedTintedFrame,
+                    0, 0, getWidth(), getHeight()
+            );
+        }
     }
 
-    /**
-     * Svuota i riferimenti di cache per forzare un rinfresco totale dell'immagine.
-     */
     public void invalidateCache() {
-        this.cachedTintedImage = null;
+        this.cachedTintedFrame = null;
         this.lastAppliedTint = null;
-        this.lastProcessedSheet = null;
+        this.lastRow = -1;
+        this.lastCol = -1;
     }
 
-    /**
-     * Ferma l'animazione e rilascia le risorse per prevenire memory leak.
-     */
     public void stop() {
         if (timer != null) {
             timer.stop();

@@ -12,15 +12,31 @@ public class SpriteSheetsParser {
     private final int columnsCount;
     private final int rowsCount;
 
+    // Cache bidimensionale permanente dei singoli frame microscopici
+    private final Image[][] slicedFrames;
+
     public SpriteSheetsParser(String path, int frameWidth, int frameHeight) {
         this.sheet = new Image(Objects.requireNonNull(
                 getClass().getResourceAsStream(path)));
         this.frameWidth = frameWidth;
         this.frameHeight = frameHeight;
 
-        // Usiamo Math.max per prevenire divisioni per zero se l'immagine ha problemi
         this.columnsCount = Math.max(1, (int) sheet.getWidth() / frameWidth);
         this.rowsCount = Math.max(1, (int) sheet.getHeight() / frameHeight);
+
+        // Generiamo i singoli sottomoduli d'immagine all'avvio
+        this.slicedFrames = new Image[rowsCount][columnsCount];
+        for (int r = 0; r < rowsCount; r++) {
+            for (int c = 0; c < columnsCount; c++) {
+                this.slicedFrames[r][c] = new WritableImage(
+                        sheet.getPixelReader(),
+                        c * frameWidth,
+                        r * frameHeight,
+                        frameWidth,
+                        frameHeight
+                );
+            }
+        }
     }
 
     public Image getSheet() {
@@ -30,9 +46,14 @@ public class SpriteSheetsParser {
     public int getTotalFrames() { return columnsCount; }
     public int getTotalStates() { return rowsCount; }
 
+    /**
+     * Restituisce istantaneamente il riferimento al singolo frame pre-tagliato.
+     * Operazione O(1) con zero overhead di memoria.
+     */
     public Image getFrame(int state, int frame) {
-        int x = frame * frameWidth;
-        int y = state * frameHeight;
-        return new WritableImage(sheet.getPixelReader(), x, y, frameWidth, frameHeight);
+        if (state < 0 || state >= rowsCount || frame < 0 || frame >= columnsCount) {
+            return null;
+        }
+        return slicedFrames[state][frame];
     }
 }
