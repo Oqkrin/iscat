@@ -4,9 +4,6 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 
-/**
- * DISATTIVATO TEMPORANEAMENTE per debugging
- */
 public class ProjectileAvoidanceModifier implements AvoidanceModifier {
 
     @Override

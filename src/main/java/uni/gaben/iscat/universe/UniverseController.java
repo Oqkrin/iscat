@@ -12,7 +12,7 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.universe.lib.behaviurs.AiController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
-import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
+import uni.gaben.iscat.utils.Updatable;
 
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;

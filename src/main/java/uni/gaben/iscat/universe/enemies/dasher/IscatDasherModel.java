@@ -7,7 +7,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
+import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.player.PlayerModel;
 
 import static uni.gaben.iscat.universe.enemies.dasher.IscatDasherSettings.ISCATDASHER;

@@ -9,8 +9,7 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
-import uni.gaben.iscat.universe.enemies.bomber.IscatBomberSettings;
-import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
+import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasProjectile;

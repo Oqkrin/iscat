@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.lib.interfaces.model;
+package uni.gaben.iscat.utils;
 
 public interface Updatable {
     public void update(double dt);

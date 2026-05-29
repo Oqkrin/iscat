@@ -1,35 +1,59 @@
 package uni.gaben.iscat.universe.camera;
 
 /**
- * Logic for updating the CameraModel.
+ * Controller that updates the {@link CameraModel} to follow a target position.
+ *
+ * <p>This class is responsible for:
+ * <ul>
+ *   <li>Converting the target world position to a camera centre target.</li>
+ *   <li>Applying an initial snap to avoid a "flying‑in" artefact.</li>
+ *   <li>Updating both camera springs with the given timestep.</li>
+ * </ul>
+ * </p>
  */
 public class CameraController {
 
     /**
-     * Updates the camera model to chase the target position.
-     * @param model        The camera model to update
-     * @param targetWorldX target X in world pixels
-     * @param targetWorldY target Y in world pixels
-     * @param viewW        canvas width
-     * @param viewH        canvas height
-     * @param dt           timestep
+     * Updates the camera model to chase the given target position.
+     *
+     * <p>The method computes the desired camera centre as
+     * {@code (targetWorldX - viewW/2, targetWorldY - viewH/2)}. This target is
+     * fed into the X and Y springs of the camera model. On the very first frame
+     * where the view dimensions are valid, the camera is snapped directly to the
+     * target to prevent a visual jump from (0,0).</p>
+     *
+     * @param model        the camera model to update (must not be {@code null})
+     * @param targetWorldX target X coordinate in world pixels (e.g. player centre)
+     * @param targetWorldY target Y coordinate in world pixels
+     * @param viewW        current canvas width (screen pixels, must be > 0 for snapping)
+     * @param viewH        current canvas height (screen pixels, must be > 0 for snapping)
+     * @param dt           timestep in seconds (used for spring integration)
      */
-    public void update(CameraModel model, double targetWorldX, double targetWorldY,
-                       double viewW, double viewH, double dt) {
-        
-        double targetX = targetWorldX - viewW / 2.0;
-        double targetY = targetWorldY - viewH / 2.0;
+    public void update(CameraModel model,
+                       double targetWorldX,
+                       double targetWorldY,
+                       double viewW,
+                       double viewH,
+                       double dt) {
 
-        model.getSpringX().setTarget(targetX);
-        model.getSpringY().setTarget(targetY);
+        // Desired camera centre: centre the target in the viewport
+        double targetCentreX = targetWorldX - viewW / 2.0;
+        double targetCentreY = targetWorldY - viewH / 2.0;
 
-        // Snap on first valid frame to avoid lerp-from-origin glitch
+        // Tell the springs where we want them to go
+        model.getSpringX().setTarget(targetCentreX);
+        model.getSpringY().setTarget(targetCentreY);
+
+        // Snap the camera to the target on the first valid frame.
+        // Without this, the springs would interpolate from their initial (0,0)
+        // position, causing a distracting "camera flies into place" effect.
         if (!model.isSnapped() && viewW > 0 && viewH > 0) {
-            model.getSpringX().setPosition(targetX);
-            model.getSpringY().setPosition(targetY);
+            model.getSpringX().setPosition(targetCentreX);
+            model.getSpringY().setPosition(targetCentreY);
             model.setSnapped(true);
         }
 
+        // Advance the spring simulations
         model.getSpringX().update(dt);
         model.getSpringY().update(dt);
     }

@@ -15,23 +15,6 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
-/**
- * Fires projectiles at the player using a pool of {@link AttackPattern}s.
- *
- * <p>This is now a pure {@link AttackBehavior}. It no longer applies movement
- * forces for "preferred range" maintenance — that concern belongs to a
- * configured with the same radius. The two behaviors compose cleanly because
- * they operate on separate tracks.</p>
- *
- * <h3>Attack sequencing</h3>
- * <ol>
- *   <li>A random pattern is selected from {@code attackPool}.</li>
- *   <li>If it is a {@link RepeaterAttack}, each burst shot fires at
- *       {@value #BURST_INTERVAL_S}s intervals until the burst is exhausted,
- *       then the global cooldown restarts.</li>
- *   <li>Otherwise the pattern fires once and the global cooldown restarts.</li>
- * </ol>
- */
 public class ShooterBehaviour implements AttackBehavior {
 
     private static final double BURST_INTERVAL_S = 0.15;

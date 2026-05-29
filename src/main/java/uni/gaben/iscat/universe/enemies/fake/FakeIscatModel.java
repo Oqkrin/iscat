@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe.enemies.fake;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEnemyModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasProjectile;
-import uni.gaben.iscat.universe.lib.interfaces.model.Updatable;
+import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
