@@ -9,7 +9,6 @@ public class SettingsDAO {
         /* This utility class should not be instantiated */
     }
 
-
     public static UserSettings loadSettings(int userId) {
         String sql = "SELECT * FROM ImpostazioniUtenti WHERE UserID = ?";
         try (Connection conn = IscatDB.getInstance().getConnection();
@@ -44,6 +43,17 @@ public class SettingsDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, newKey);
             stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void delete(int userId) {
+        String sql = "DELETE FROM ImpostazioniUtenti WHERE UserID = ?";
+        try (Connection conn = IscatDB.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
