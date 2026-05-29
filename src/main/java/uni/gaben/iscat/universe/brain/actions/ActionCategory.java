@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.brain;
+package uni.gaben.iscat.universe.brain.actions;
 
 public enum ActionCategory {
     MOVEMENT,   // one movement goal at a time

@@ -2,6 +2,8 @@ package uni.gaben.iscat.universe.brain;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.brain.actions.Action;
+import uni.gaben.iscat.universe.brain.actions.ActionCategory;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.brain.goals.MovementGoal;
 import uni.gaben.iscat.universe.brain.modifiers.MovementModifier;
