@@ -43,6 +43,10 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.utils.sprite;
     exports uni.gaben.iscat.controller;
     exports uni.gaben.iscat.universe.lib.implementations.attacks;
+    exports uni.gaben.iscat.universe.brain;
+    exports uni.gaben.iscat.universe.brain.actions;
+    exports uni.gaben.iscat.universe.brain.modifiers;
+    exports uni.gaben.iscat.universe.brain.goals;
 
 
     opens uni.gaben.iscat.utils.sprite to javafx.fxml;
