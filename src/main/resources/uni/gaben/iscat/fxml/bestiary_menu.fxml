@@ -31,15 +31,17 @@
                 </VBox>
 
                 <VBox alignment="CENTER" maxWidth="300.0" minWidth="220.0" spacing="16.0" HBox.hgrow="ALWAYS">
-                    <VBox alignment="CENTER" rotate="-1.0" spacing="14.0" styleClass="glowing-border, main-card">
+                    <VBox alignment="CENTER" rotate="-1.0" spacing="14.0" styleClass="glowing-border, main-card" VBox.vgrow="ALWAYS">
                         <padding><Insets bottom="20.0" left="18.0" right="18.0" top="20.0"/></padding>
+
                         <StackPane fx:id="previewContainer" prefHeight="140.0" prefWidth="140.0"/>
                         <Label fx:id="skinNameLabel" styleClass="card-header" text="ENEMY NAME" wrapText="true"/>
-                        <Button maxWidth="Infinity" onAction="#selectRandom" styleClass="menu-button" text="RANDOM"/>
-                        <Button maxWidth="Infinity" onAction="#showDescription" styleClass="menu-button" text="DESCRIPTION"/>
-                        <Button maxWidth="Infinity" onAction="#showStats" styleClass="menu-button" text="STATS"/>
-                        <Button maxWidth="Infinity" onAction="#showExtra" styleClass="menu-button" text="EXTRA"/>
-                        <Button maxWidth="Infinity" onAction="#handleBack" styleClass="back-button" text="RETURN TO MAIN MENU"/>
+
+                        <Button fx:id="btnRandom" alignment="CENTER" maxWidth="Infinity" onAction="#selectRandom" styleClass="menu-button" text="RANDOM"/>
+                        <Button fx:id="btnDescription" alignment="CENTER" maxWidth="Infinity" onAction="#showDescription" styleClass="menu-button" text="DESCRIPTION"/>
+                        <Button fx:id="btnStats" alignment="CENTER" maxWidth="Infinity" onAction="#showStats" styleClass="menu-button" text="STATS"/>
+                        <Button fx:id="btnExtra" alignment="CENTER" maxWidth="Infinity" onAction="#showExtra" styleClass="menu-button" text="EXTRA"/>
+                        <Button fx:id="btnBack" alignment="CENTER" maxWidth="Infinity" onAction="#handleBack" styleClass="back-button" text="MAIN MENU"/>
                     </VBox>
                 </VBox>
 
