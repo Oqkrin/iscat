@@ -45,7 +45,7 @@ public class IscatBomberModel extends LivingEntityModel implements Updatable {
      */
     public void update(double dt) {
         stunCooldown.update(dt);
-        updateLifetime(dt);
+        updateStateTime(dt);
     }
 
     // ─── Stun state ─────────────────────────────────────────────────────────

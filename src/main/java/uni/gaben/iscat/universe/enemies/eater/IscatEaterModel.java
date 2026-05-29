@@ -44,6 +44,6 @@ public class IscatEaterModel extends LivingEntityModel implements Updatable {
 
     @Override
     public void update(double dt) {
-        updateLifetime(dt);
+        updateStateTime(dt);
     }
 }

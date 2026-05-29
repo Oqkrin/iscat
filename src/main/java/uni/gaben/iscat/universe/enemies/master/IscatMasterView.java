@@ -5,7 +5,6 @@ import javafx.scene.image.Image;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.universe.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.universe.lib.interfaces.view.DrawableSpriteSheet;
-import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
@@ -56,7 +55,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             targetRow = 0;
             maxFrames = getFramesCountForRow(targetRow);
             updateAnimatorState(targetRow);
-            masterAnimator.update(UU.UNIVERSE_TICK);
+            masterAnimator.setTime(entity.getStateTime());
 
             if (isRowCycleCompleted(maxFrames)) {
                 entity.setEntranceDone(true);
@@ -72,7 +71,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             maxFrames = getFramesCountForRow(targetRow);
 
             updateAnimatorState(targetRow);
-            masterAnimator.update(UU.UNIVERSE_TICK);
+            masterAnimator.setTime(entity.getStateTime());
 
             if (modelState == AnimationState.DEATH && !deathSfxTriggered) {
                 deathSfxTriggered = true;

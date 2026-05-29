@@ -3,6 +3,7 @@ package uni.gaben.iscat.screens.options;
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
@@ -10,9 +11,11 @@ import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import uni.gaben.iscat.database.sqlite.ScoreDAO;
@@ -56,6 +59,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button esc;
     @FXML private VBox keybinds;
     @FXML private CheckBox lightModeCheck;
+    @FXML private HBox paletteHolder;
     @FXML private CheckBox rainbowModeCheck;
     @FXML private Slider masterSlider;
     @FXML private VBox paneMaster;
@@ -232,7 +236,16 @@ public class OptionsMenuController implements IscatFxmlController {
             ThemeManager.getInstance().stopRainbowMode();
             if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
 
-            List<java.awt.Color> palette = DynamicColors.getPaletteForFile(imageFile, 4, lightModeCheck.isSelected());
+            List<java.awt.Color> palette = DynamicColors.getPaletteForFile(imageFile, 16, lightModeCheck.isSelected());
+
+            paletteHolder.getChildren().clear();
+            paletteHolder.setSpacing(16);
+            paletteHolder.setAlignment(Pos.CENTER);
+            for (java.awt.Color color : palette) {
+                Circle circle = new Circle(8);
+                circle.setFill(toJfx(color));
+                paletteHolder.getChildren().add(circle);
+            }
 
             if (palette.size() >= 4) {
                 accentPrimary.setValue(toJfx(palette.get(0)));

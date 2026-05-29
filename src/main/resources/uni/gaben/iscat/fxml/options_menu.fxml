@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/scenes/options-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.options.OptionsMenuController">
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/scenes/options-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.options.OptionsMenuController">
 
     <VBox fx:id="paneMaster" styleClass="menu-background" VBox.vgrow="ALWAYS">
 
@@ -88,6 +88,7 @@
                             <ColorPicker fx:id="accentTernary" onAction="#onTernary" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                             <ColorPicker fx:id="bgPrimary" onAction="#onBgPrimary" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         </GridPane>
+                  <HBox fx:id="paletteHolder" VBox.vgrow="NEVER" />
                     </VBox>
 
                     <VBox alignment="TOP_CENTER" maxWidth="295.0" minWidth="220.0" spacing="20.0" GridPane.columnIndex="2" VBox.vgrow="ALWAYS">

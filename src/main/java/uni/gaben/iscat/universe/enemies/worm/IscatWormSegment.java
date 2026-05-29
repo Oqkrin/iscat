@@ -97,7 +97,7 @@ public class IscatWormSegment extends LivingEntityModel implements HasProjectile
 
     @Override
     public void update(double dt) {
-        updateLifetime(dt);
+        updateStateTime(dt);
         updateCooldowns(dt);
     }
 

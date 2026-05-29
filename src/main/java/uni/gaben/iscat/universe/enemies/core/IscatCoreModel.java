@@ -46,7 +46,7 @@ public class IscatCoreModel extends LivingEntityModel implements HasProjectile<P
 
     public void update(double dt) {
         weaponCooldown.update(dt);
-        updateLifetime(dt);
+        updateStateTime(dt);
     }
 
     // ==================== SHOOTING ====================

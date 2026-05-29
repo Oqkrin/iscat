@@ -70,7 +70,7 @@ public class IscatCoreView extends AbstractEntityView<IscatCoreModel>
 
         double healthRatio = entity.getLife() / entity.getMaxLife();
         double animationSpeedMultiplier = 1.0 / healthRatio;
-        animator.setTime(entity.getLifetime() * animationSpeedMultiplier);
+        animator.setTime(entity.getStateTime() * animationSpeedMultiplier);
 
 
         // Aggiorna posizione e rotazione

@@ -13,6 +13,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractEntityModel extends Body implements HasTerminalVelocity {
     private String entityId;
+    private int state = 0;
     private double terminalVelocity = Double.MAX_VALUE;
     private double baseAccelerationPerTick = Double.MAX_VALUE;
     private boolean shouldRemove = false;
@@ -26,7 +27,7 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
         translate(UU.pxToM(x), UU.pxToM(y));
     }
 
-    private double lifetime = 0.0;
+    private double statetime = 0.0;
 
     /**
      * Permette a un agente esterno (es. Controller) di definire cosa succede all'impatto.
@@ -72,15 +73,23 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
     public void setShouldRemove(boolean shouldRemove) { this.shouldRemove = shouldRemove; }
 
 
-    public void updateLifetime(double dt) {
-        this.lifetime += dt;
+    public void updateStateTime(double dt) {
+        this.statetime += dt;
     }
 
-    public double getLifetime() {
-        return lifetime;
+    public double getStateTime() {
+        return statetime;
     }
 
-    public void setLifetime(double lifetime) {
-        this.lifetime = lifetime;
+    public void setStateTime(double statetime) {
+        this.statetime = statetime;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 }
