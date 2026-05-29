@@ -46,15 +46,15 @@ public class UU {
             }
             case TICKS -> {
                 ticksValue = value * UU.UNIVERSE_TICK;
-                secondsValue = UU.sToTicks(ticksValue);
+                secondsValue = UU.ticksToS(ticksValue);
             }
             case METERS -> {
                 metersValue = value;
-                secondsValue = UU.sToTicks(metersValue);
+                pixelValue = UU.mToPx(metersValue);
             }
             case PIXELS -> {
                 pixelValue = value;
-                secondsValue = UU.sToTicks(pixelValue);
+                metersValue = UU.pxToM(pixelValue);
             }
         }
     }
