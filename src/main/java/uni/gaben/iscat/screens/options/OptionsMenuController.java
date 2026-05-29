@@ -15,12 +15,12 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -42,10 +42,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OptionsMenuController implements IscatFxmlController {
 
@@ -70,7 +67,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button esc;
     @FXML private VBox keybinds;
     @FXML private CheckBox lightModeCheck;
-    @FXML private GridPane paletteHolder;          // now a GridPane
+    @FXML private HBox paletteHolder;
     @FXML private CheckBox rainbowModeCheck;
     @FXML private Slider masterSlider;
     @FXML private VBox paneMaster;
@@ -83,11 +80,15 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private Button walkRight;
     @FXML private Button walkUp;
 
-    // New fields for revised layout
-    @FXML private StackPane imageArea;
-    @FXML private Button pickImageBtn;              // placeholder button (no image)
-    @FXML private Button changeImageBtn;            // small "Change" button next to carousel
-    @FXML private HBox modeToggleBox;
+    // Carousel controls
+    @FXML private Button prevThemeBtn;
+    @FXML private Button nextThemeBtn;
+    @FXML private Button pickImageBtn;        // large placeholder button (no image)
+    @FXML private Button addImageBtn;         // small "ADD IMAGE" button between arrows
+
+    // Custom colour picker rows
+    @FXML private HBox pickerRow1;
+    @FXML private HBox pickerRow2;
 
     private final List<File> carouselImages = new ArrayList<>();
     private int currentIndex = -1;
@@ -104,13 +105,6 @@ public class OptionsMenuController implements IscatFxmlController {
 
     @FXML
     public void initialize() {
-
-        applyIconButton(ExitBtn,            "fas-sign-out-alt");
-        applyIconButton(pickImageBtn,        "fas-image");
-        applyIconButton(ResetAccountBtn,    "fas-history");
-        applyIconButton(DeleteAccountBtn,   "fas-trash-alt");
-        applyIconButton(resetControlsBtn,   "fas-sync-alt");
-
         // ── Audio Listeners ───────────────────────────────────────────────────
         masterSlider.valueProperty().addListener((obs, old, val) ->
                 AudioManager.getInstance().setBgmVolume(val.doubleValue()));
@@ -139,26 +133,38 @@ public class OptionsMenuController implements IscatFxmlController {
             }
         });
 
-        // ── Image preview & placeholder button ───────────────────────────────
+        // ── Image preview & carousel controls ───────────────────────────────
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.fitWidthProperty().bind(theme.widthProperty());
         themePreview.fitHeightProperty().bind(theme.heightProperty()
                 .multiply(ScalareAureo.IPHI_D * ScalareAureo.IPHI_D));
 
-        // When no image: show placeholder button, hide image + change button
-        // When image: hide placeholder, show image + change button
+        // Initially: placeholder visible, carousel buttons hidden
+        pickImageBtn.setVisible(true);
+        addImageBtn.setVisible(false);
+        addImageBtn.setManaged(false);
+        prevThemeBtn.setVisible(false);
+        nextThemeBtn.setVisible(false);
+
+        // Placeholder action
+        pickImageBtn.setOnAction(e -> onImagePick(null));
+
+        // ADD IMAGE button action (between arrows)
+        addImageBtn.setOnAction(e -> onImagePick(null));
+
+        // When an image appears/disappears
         themePreview.imageProperty().addListener((obs, oldImg, newImg) -> {
             boolean hasImage = (newImg != null);
-            pickImageBtn.setVisible(!hasImage);
-            changeImageBtn.setVisible(hasImage);
+            pickImageBtn.setVisible(!hasImage);          // hide placeholder
+            addImageBtn.setVisible(hasImage);            // show ADD IMAGE
+            addImageBtn.setManaged(hasImage);            // occupy space only when visible
         });
-        // initial state
-        pickImageBtn.setVisible(true);
-        changeImageBtn.setVisible(false);
 
-        pickImageBtn.setOnAction(e -> onImagePick(null));
-        changeImageBtn.setOnAction(e -> onImagePick(null));
+        // ── Square WASD buttons ──────────────────────────────────────────────
+        for (Button btn : List.of(walkUp, walkDown, walkLeft, walkRight)) {
+            btn.prefWidthProperty().bind(btn.heightProperty());
+        }
 
         // ── Build custom colour pickers ──────────────────────────────────────
         buildCustomPickers();
@@ -172,13 +178,13 @@ public class OptionsMenuController implements IscatFxmlController {
 
     // ── Custom picker construction ───────────────────────────────────────────
     private void buildCustomPickers() {
-        buildCustomPicker(accentPrimary,  "Primary",    0, 0);
-        buildCustomPicker(accentSecondary,"Secondary",  0, 1);
-        buildCustomPicker(accentTernary,  "Tertiary",   1, 0);
-        buildCustomPicker(bgPrimary,      "Background", 1, 1);
+        buildCustomPicker(accentPrimary,  "Primary",    pickerRow1);
+        buildCustomPicker(accentSecondary,"Secondary",  pickerRow1);
+        buildCustomPicker(accentTernary,  "Tertiary",   pickerRow2);
+        buildCustomPicker(bgPrimary,      "Background", pickerRow2);
     }
 
-    private void buildCustomPicker(ColorPicker picker, String role, int row, int col) {
+    private void buildCustomPicker(ColorPicker picker, String role, HBox row) {
         picker.setVisible(false);
         picker.setManaged(false);
 
@@ -204,16 +210,12 @@ public class OptionsMenuController implements IscatFxmlController {
         HBox widget = new HBox(2, colorBox, arrowBtn);
         widget.setAlignment(Pos.CENTER_LEFT);
 
-        // Store for active highlighting
         pickerBoxes.put(picker, colorBox);
 
         // Update theme whenever the picker value changes
         picker.valueProperty().addListener((obs, oldVal, newVal) -> applyManualColorChanges());
 
-        // Place widget in the grid
-        GridPane grid = (GridPane) picker.getParent();
-        GridPane.setConstraints(widget, col, row);
-        grid.getChildren().add(widget);
+        row.getChildren().add(widget);
     }
 
     // ── Active picker highlighting ───────────────────────────────────────────
@@ -222,11 +224,9 @@ public class OptionsMenuController implements IscatFxmlController {
     }
 
     private void setActivePicker(ColorPicker picker) {
-        // Remove highlight from all picker boxes
         for (StackPane box : pickerBoxes.values()) {
             box.getStyleClass().remove("picker-active");
         }
-        // Highlight the selected one
         if (picker != null) {
             StackPane box = pickerBoxes.get(picker);
             if (box != null) {
@@ -318,8 +318,7 @@ public class OptionsMenuController implements IscatFxmlController {
     private void startUiSyncTimer() {
         if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
         uiRainbowSyncTimer = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
+            @Override public void handle(long now) {
                 Color c = ThemeManager.getInstance().getAccentPrimary();
                 accentPrimary.setValue(c);
                 accentSecondary.setValue(c);
@@ -375,6 +374,7 @@ public class OptionsMenuController implements IscatFxmlController {
 
             themePreview.setImage(new Image(imageFile.toURI().toString()));
             applyManualColorChanges();
+            updateCarouselButtons();
         } catch (IOException e) {
             System.err.println("Theme Load Error: " + e.getMessage());
         }
@@ -384,27 +384,33 @@ public class OptionsMenuController implements IscatFxmlController {
         paletteHolder.getChildren().clear();
         if (currentPalette.isEmpty()) return;
 
-        final int COLUMNS = 8;
-        int row = 0, col = 0;
-        for (Color color : currentPalette) {
-            Rectangle rect = new Rectangle(24, 24);
-            rect.setFill(color);
-            rect.getStyleClass().add("palette-swatch");
-            Tooltip.install(rect, new Tooltip("Click to assign to selected picker"));
+        // Sort by luminance (dark → light)
+        List<Color> sorted = currentPalette.stream()
+                .sorted(Comparator.comparingDouble(this::luminance))
+                .toList();
 
-            rect.setOnMouseClicked(e -> {
+        int count = sorted.size();
+        double spacing = paletteHolder.getSpacing();
+        double totalSpacing = spacing * (count - 1);
+        double availableWidth = theme.getWidth() - 28;  // 14px padding each side
+
+        double diameter = Math.min(24, (availableWidth - totalSpacing) / count);
+        diameter = Math.max(diameter, 8);
+
+        for (Color color : sorted) {
+            Circle circle = new Circle(diameter / 2.0);
+            circle.setFill(color);
+            circle.getStyleClass().add("palette-swatch");
+            Tooltip.install(circle, new Tooltip("Click to assign to selected picker"));
+
+            circle.setOnMouseClicked(e -> {
                 if (activePicker != null) {
                     activePicker.setValue(color);
                     applyManualColorChanges();
                 }
             });
 
-            paletteHolder.add(rect, col, row);
-            col++;
-            if (col == COLUMNS) {
-                col = 0;
-                row++;
-            }
+            paletteHolder.getChildren().add(circle);
         }
     }
 
@@ -423,6 +429,13 @@ public class OptionsMenuController implements IscatFxmlController {
         if (!accents.isEmpty()) accentPrimary.setValue(accents.get(0));
         if (accents.size() >= 2) accentSecondary.setValue(accents.get(1));
         if (accents.size() >= 3) accentTernary.setValue(accents.get(2));
+    }
+
+    // ── Carousel button visibility ───────────────────────────────────────────
+    private void updateCarouselButtons() {
+        boolean show = carouselImages.size() > 1;
+        prevThemeBtn.setVisible(show);
+        nextThemeBtn.setVisible(show);
     }
 
     // ── Color utilities ──────────────────────────────────────────────────────
@@ -485,6 +498,7 @@ public class OptionsMenuController implements IscatFxmlController {
             carouselImages.add(chosen);
             currentIndex = carouselImages.size() - 1;
             applyTheme(chosen);
+            updateCarouselButtons();
         }
     }
 
@@ -511,7 +525,10 @@ public class OptionsMenuController implements IscatFxmlController {
     }
 
     private String toHex(Color c) {
-        return String.format("#%02x%02x%02x", (int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255));
+        return String.format("#%02x%02x%02x",
+                (int)(c.getRed()*255),
+                (int)(c.getGreen()*255),
+                (int)(c.getBlue()*255));
     }
 
     @FXML void onPrimary(ActionEvent event)   { applyManualColorChanges(); }
