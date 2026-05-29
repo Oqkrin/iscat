@@ -4,21 +4,13 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.projectiles.Projectile;
-import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
-/**
- * Segmento del verme (Head, Body, Tail).
- * Ottimizzato nella gestione della memoria e corretto nelle transizioni di stato fisiche.
- */
-public class IscatWormSegment extends LivingEntityModel implements HasProjectile, Updatable {
+public class IscatWormSegment extends LivingEntityModel implements Updatable {
 
     public enum Type { HEAD, BODY, TAIL }
 
@@ -28,16 +20,10 @@ public class IscatWormSegment extends LivingEntityModel implements HasProjectile
 
     private final Cooldown attackCooldown = new Cooldown();
 
-    private final Projectile bulletTemplate;
-    private final Cooldown tailFireCooldown = new Cooldown();
-    private int projectileTickCount = 0;
-
     public IscatWormSegment(Type type, double x, double y) {
         super(x, y, getHp(type), getHp(type));
         this.type = type;
         setXpReward(IscatWormSettings.XP_REWARD);
-
-        this.bulletTemplate = (type == Type.TAIL) ? new Projectile(ProjectileType.ENEMY_BULLET) : null;
 
         BodyFixture fixture = addFixture(Geometry.createCircle(UU.pxToM(getRadius(type))));
 
@@ -71,31 +57,6 @@ public class IscatWormSegment extends LivingEntityModel implements HasProjectile
     }
 
     @Override
-    public AbstractProjectileModel getProjectile() {
-        return this.type == Type.TAIL ? this.bulletTemplate : null;
-    }
-
-    @Override
-    public boolean hasAmmo() {
-        return this.type == Type.TAIL && !consumed;
-    }
-
-    @Override
-    public Cooldown projectileCooldown() {
-        return this.tailFireCooldown;
-    }
-
-    @Override
-    public int getProjectileCooldownTickCount() {
-        return this.projectileTickCount;
-    }
-
-    @Override
-    public void setProjectileCooldownTickCount(int tickCount) {
-        this.projectileTickCount = tickCount;
-    }
-
-    @Override
     public void update(double dt) {
         updateStateTime(dt);
         updateCooldowns(dt);
@@ -117,9 +78,6 @@ public class IscatWormSegment extends LivingEntityModel implements HasProjectile
 
     public void updateCooldowns(double dt) {
         attackCooldown.update(dt);
-        if (type == Type.TAIL) {
-            tailFireCooldown.update(dt);
-        }
     }
 
     public boolean canAttack()                   { return !attackCooldown.isCoolingDown(); }

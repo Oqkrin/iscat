@@ -225,8 +225,7 @@ public class IscatCoreController extends AiController {
             Vector2 bulletPos = pos.copy().add(normals[fireAngle == normals[0].getDirection() ? 0 : 2].multiply(0.5));
             for (int i = -1; i <= 1; i++) {
                 double angle = fireAngle + Math.toRadians(i * 10);   // spread ±10°
-                shooter.shoot(new uni.gaben.iscat.universe.projectiles.Projectile(bulletType),
-                        bulletPos, angle);
+                shooter.shoot(bulletType, bulletPos, angle);
             }
 
             // Health‑based cooldown

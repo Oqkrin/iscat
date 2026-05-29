@@ -132,7 +132,7 @@ public abstract class AbstractBrainController<T extends AbstractEntityModel> {
      * @param angle direction in radians
      */
     protected void shoot(ProjectileType type, double angle) {
-        shooter.shoot(new Projectile(type), angle);
+        shooter.shoot(type, angle);
     }
 
     /**
@@ -143,7 +143,7 @@ public abstract class AbstractBrainController<T extends AbstractEntityModel> {
      * @param customizer callback to modify the projectile before spawn
      */
     protected void shoot(ProjectileType type, double angle, Consumer<Projectile> customizer) {
-        shooter.shoot(new Projectile(type), angle, customizer);
+        shooter.shoot(type, angle, customizer);
     }
 
     /**
@@ -153,13 +153,13 @@ public abstract class AbstractBrainController<T extends AbstractEntityModel> {
      * @param angle   base aiming angle (usually toward player)
      */
     protected void executeAttack(AttackPattern pattern, double angle) {
-        pattern.execute(shooter, new Projectile(ProjectileType.ENEMY_BULLET), angle, null);
+        pattern.execute(shooter, ProjectileType.ENEMY_BULLET, angle, null);
     }
 
     /**
      * Executes an attack pattern with a projectile customizer.
      */
     protected void executeAttack(AttackPattern pattern, double angle, Consumer<Projectile> customizer) {
-        pattern.execute(shooter, new Projectile(ProjectileType.ENEMY_BULLET), angle, customizer);
+        pattern.execute(shooter, ProjectileType.ENEMY_BULLET, angle, customizer);
     }
 }

@@ -31,12 +31,12 @@ public class Shooter<T extends CollisionBody> extends AbstractShooterController<
     public T getModel() { return this.model; }
 
     @Override
-    public void shoot(AbstractProjectileModel template) {
-        shoot(template, null);
+    public void shoot(ProjectileType type) {
+        shoot(type, null);
     }
 
-    public void shoot(AbstractProjectileModel template, Consumer<Projectile> customizer) {
-        Projectile bullet = (Projectile) template.blueprint();
+    public void shoot(ProjectileType type, Consumer<Projectile> customizer) {
+        Projectile bullet = new Projectile(type);
         if (customizer != null) {
             customizer.accept(bullet);
         }
@@ -49,12 +49,12 @@ public class Shooter<T extends CollisionBody> extends AbstractShooterController<
         setupProjectileAndSpawn(bullet);
     }
 
-    public void shoot(AbstractProjectileModel template, double angle) {
-        shoot(template, angle, null);
+    public void shoot(ProjectileType type, double angle) {
+        shoot(type, angle, null);
     }
 
-    public void shoot(AbstractProjectileModel template, double angle, Consumer<Projectile> customizer) {
-        Projectile bullet = (Projectile) template.blueprint();
+    public void shoot(ProjectileType type, double angle, Consumer<Projectile> customizer) {
+        Projectile bullet = new Projectile(type);
         if (customizer != null) {
             customizer.accept(bullet);
         }
@@ -65,12 +65,12 @@ public class Shooter<T extends CollisionBody> extends AbstractShooterController<
         setupProjectileAndSpawn(bullet);
     }
 
-    public void shoot(AbstractProjectileModel template, Vector2 position, double angle) {
-        shoot(template, position, angle, null);
+    public void shoot(ProjectileType type, Vector2 position, double angle) {
+        shoot(type, position, angle, null);
     }
 
-    public void shoot(AbstractProjectileModel template, Vector2 position, double angle, Consumer<Projectile> customizer) {
-        Projectile bullet = (Projectile) template.blueprint();
+    public void shoot(ProjectileType type, Vector2 position, double angle, Consumer<Projectile> customizer) {
+        Projectile bullet = new Projectile(type);
         if (customizer != null) {
             customizer.accept(bullet);
         }
@@ -103,12 +103,12 @@ public class Shooter<T extends CollisionBody> extends AbstractShooterController<
     }
 
     @Override
-    protected AbstractProjectileModel shootingLogic(AbstractProjectileModel template) {
-        Projectile bullet = (Projectile) template.blueprint();
+    protected AbstractProjectileModel shootingLogic(ProjectileType type) {
+        Projectile bullet = new Projectile(type);
         bullet.setTransform(model.getTransform());
         bullet.translate(Vector2.create(distance, model.getTransform().getRotationAngle()));
         bullet.setLinearVelocity(
-                Vector2.create(template.getTerminalVelocity(),
+                Vector2.create(type.terminalVelocity,
                         model.getTransform().getRotationAngle())
         );
         return bullet;

@@ -4,6 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.projectiles.Projectile;
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 import uni.gaben.iscat.universe.UU;
 
@@ -25,7 +26,7 @@ public class ParallelLineAttack implements AttackPattern {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, Projectile template, double angle, Consumer<Projectile> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (count <= 0) return;
 
         Vector2 origin = shooter.getModel().getTransform().getTranslation();
@@ -50,7 +51,7 @@ public class ParallelLineAttack implements AttackPattern {
                     origin.y + Math.sin(angle) * forwardDistance + Math.sin(perpAngle) * currentOffset
             );
 
-            shooter.shoot(template, spawnPos, angle, customizer);
+            shooter.shoot(type, spawnPos, angle, customizer);
         }
     }
 }

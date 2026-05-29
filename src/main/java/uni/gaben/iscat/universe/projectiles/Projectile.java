@@ -32,15 +32,4 @@ public class Projectile extends AbstractProjectileModel {
     }
 
     public ProjectileType getType() { return type; }
-
-    @Override
-    public AbstractProjectileModel blueprint() {
-        Projectile p = new Projectile(type);
-        p.setTerminalVelocity(this.getTerminalVelocity());
-        p.setMaxLife(this.getMaxLife());
-        p.setLife(this.getLife());
-        p.baseAccelerationPerTick = this.baseAccelerationPerTick;
-        p.size = this.size;
-        return p;
-    }
 }

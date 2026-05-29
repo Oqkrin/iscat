@@ -8,19 +8,13 @@ import uni.gaben.iscat.universe.lib.interfaces.model.HasShockwave;
 import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
 import uni.gaben.iscat.universe.UniverseWaveController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.projectiles.Projectile;
-import uni.gaben.iscat.universe.projectiles.ProjectileType;
-import uni.gaben.iscat.utils.Cooldown;
 
 import static uni.gaben.iscat.universe.enemies.master.IscatMasterSettings.ISCATMASTER;
 
-public class IscatMasterModel extends LivingEntityModel implements HasProjectile<Projectile>, HasShockwave, Updatable {
+public class IscatMasterModel extends LivingEntityModel implements HasShockwave, Updatable {
 
-    private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
-    private final Cooldown weaponCooldown = new Cooldown();
     private final ShockwaveModel shockwaveModel = new ShockwaveModel();
 
     @Override
@@ -56,7 +50,6 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
 
     @Override
     public void update(double dt) {
-        weaponCooldown.update(dt);
         shockwaveModel.update(dt);
     }
 
@@ -98,25 +91,6 @@ public class IscatMasterModel extends LivingEntityModel implements HasProjectile
         completeKillCalled = true;
         if (waveController != null) waveController.notifyBossDead();
         super.kill(true); // Ora evoca la cancellazione effettiva dal motore fisico
-    }
-
-    // ── HAS PROJECTILE ────────────────────────────────────────────────────────
-
-    @Override
-    public Projectile getProjectile() { return projectile; }
-
-    @Override
-    public boolean hasAmmo() { return true; }
-
-    @Override
-    public Cooldown projectileCooldown() { return weaponCooldown; }
-
-    @Override
-    public int getProjectileCooldownTickCount() { return 0; }
-
-    @Override
-    public void setProjectileCooldownTickCount(int tickCount) {
-        weaponCooldown.start(UU.ticksToS(tickCount));
     }
 
     @Override

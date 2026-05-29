@@ -2,6 +2,7 @@ package uni.gaben.iscat.universe.lib.implementations.attacks;
 
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.projectiles.Projectile;
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 import java.util.function.Consumer;
 
@@ -27,10 +28,10 @@ public class RepeaterAttack implements AttackPattern {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, Projectile template, double angle, Consumer<Projectile> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         // Delega l'esecuzione immediata all'attacco interno
         if (inner != null) {
-            inner.execute(shooter, template, angle, customizer);
+            inner.execute(shooter, type, angle, customizer);
         }
     }
 }

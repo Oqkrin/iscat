@@ -7,6 +7,7 @@ import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
 import uni.gaben.iscat.universe.player.PlayerModel; // Importiamo il player
 import uni.gaben.iscat.universe.projectiles.Projectile;
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 import uni.gaben.iscat.universe.UU;
 
@@ -26,7 +27,7 @@ public class SummonAttack implements AttackPattern {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, Projectile template, double angle, Consumer<Projectile> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType pType, double angle, Consumer<Projectile> customizer) {
         var model = shooter.getModel();
 
         // GESTIONE ANIMAZIONI

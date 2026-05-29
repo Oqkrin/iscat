@@ -4,24 +4,13 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasProjectile;
-import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.projectiles.Projectile;
-import uni.gaben.iscat.universe.projectiles.ProjectileType;
-import uni.gaben.iscat.utils.Cooldown;
 
 import static uni.gaben.iscat.universe.enemies.mother.IscatMotherSettings.ISCATMOTHER;
 
-/**
- * Modello fisico puro dell'IscatMother (boss).
- * Contiene solo stato e predicati: la logica comportamentale
- * (sparo, spawn minioni, orda) è nel Controller.
- */
-public class IscatMotherModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
+public class IscatMotherModel extends LivingEntityModel {
 
-    private final Cooldown fireCooldown = new Cooldown();
     private boolean hasSpawnedMinions = false;
 
     public IscatMotherModel(double x, double y) {
@@ -37,21 +26,7 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
         setLinearDamping(ISCATMOTHER.dampingLineare);
     }
 
-    // ─── LifeDeath ──────────────────────────────────────────────────────────
 
-    public void update(double dt) {
-        fireCooldown.update(dt);
-    }
-
-    // ─── Fire cooldown ──────────────────────────────────────────────────────
-
-    public boolean isFireReady() {
-        return fireCooldown.isReady();
-    }
-
-    public void startFireCooldown() {
-        fireCooldown.start(ISCATMOTHER.fireCooldownS);
-    }
 
     // ─── Minion spawn state ─────────────────────────────────────────────────
 
@@ -68,32 +43,7 @@ public class IscatMotherModel extends LivingEntityModel implements HasProjectile
                 && getLife() <= getMaxLife() * IscatMotherSettings.MINION_SPAWN_HP_THRESHOLD;
     }
 
-    // ─── HasProjectile ──────────────────────────────────────────────────────
 
-    @Override
-    public Projectile getProjectile() {
-        return new Projectile(ProjectileType.ENEMY_BULLET);
-    }
-
-    @Override
-    public boolean hasAmmo() {
-        return true;
-    }
-
-    @Override
-    public Cooldown projectileCooldown() {
-        return fireCooldown;
-    }
-
-    @Override
-    public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(ISCATMOTHER.fireCooldownS);
-    }
-
-    @Override
-    public void setProjectileCooldownTickCount(int tickCount) {
-        fireCooldown.start(UU.ticksToS(tickCount));
-    }
 
     // ─── Terminal velocity ──────────────────────────────────────────────────
 

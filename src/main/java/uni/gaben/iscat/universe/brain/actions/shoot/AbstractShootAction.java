@@ -17,14 +17,16 @@ public abstract class AbstractShootAction extends Action {
     protected final double combatRange;
     protected final ProjectileType bulletType;
     protected final Target target;   // <-- was Function<...>
+    protected final boolean aimAtTarget;
 
     public AbstractShootAction(String name, double combatRange, double cooldownSec,
-                               ProjectileType bulletType, Target target) {
+                               ProjectileType bulletType, Target target, boolean aimAtTarget) {
         super(name, ActionCategory.ATTACK, Set.of());
         this.combatRange = combatRange;
         this.cooldown = new Cooldown(cooldownSec);
         this.bulletType = bulletType;
         this.target = target;
+        this.aimAtTarget = aimAtTarget;
     }
 
     @Override
@@ -41,10 +43,12 @@ public abstract class AbstractShootAction extends Action {
     }
 
     protected double getAimAngle(Brain<?> brain, UniverseModel world) {
-        Vector2 targetPos = target.getPosition(world);
-        return targetPos != null ? brain.angleToTarget(targetPos)
-                : brain.getEntity().getTransform().getRotationAngle();
+        if (aimAtTarget) {
+            Vector2 targetPos = target.getPosition(world);
+            return targetPos != null ? brain.angleToTarget(targetPos)
+                    : brain.getEntity().getTransform().getRotationAngle();
+        } else {
+            return brain.getEntity().getTransform().getRotationAngle();
+        }
     }
-
-    protected Projectile createBullet() { return new Projectile(bulletType); }
 }

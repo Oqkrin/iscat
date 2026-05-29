@@ -2,6 +2,7 @@ package uni.gaben.iscat.universe.lib.implementations.attacks;
 
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.projectiles.Projectile;
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 
 import java.util.function.Consumer;
@@ -28,7 +29,7 @@ public class FigureAttack implements AttackPattern {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, Projectile template, double angle, Consumer<Projectile> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType bulletType, double angle, Consumer<Projectile> customizer) {
         if (count <= 0) return;
 
         double angleStep = (2.0 * Math.PI) / count;
@@ -46,7 +47,7 @@ public class FigureAttack implements AttackPattern {
                 bullet.setTerminalVelocity(bullet.getTerminalVelocity() * geometricFactor);
             };
 
-            shooter.shoot(template, currentAngle, figureCustomizer);
+            shooter.shoot(bulletType, currentAngle, figureCustomizer);
         }
     }
 

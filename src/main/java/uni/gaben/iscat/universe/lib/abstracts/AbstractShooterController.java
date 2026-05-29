@@ -2,6 +2,8 @@ package uni.gaben.iscat.universe.lib.abstracts;
 
 import org.dyn4j.collision.CollisionBody;
 
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
+
 public abstract class AbstractShooterController<T extends CollisionBody> {
 
     protected T model;
@@ -10,7 +12,7 @@ public abstract class AbstractShooterController<T extends CollisionBody> {
         this.model = model;
     }
 
-    public abstract void shoot(AbstractProjectileModel template);
+    public abstract void shoot(ProjectileType type);
 
-    protected abstract AbstractProjectileModel shootingLogic(AbstractProjectileModel projectile);
+    protected abstract AbstractProjectileModel shootingLogic(ProjectileType type);
 }

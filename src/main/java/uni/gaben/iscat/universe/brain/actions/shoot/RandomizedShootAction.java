@@ -24,20 +24,20 @@ public class RandomizedShootAction extends AbstractShootAction {
 
     public RandomizedShootAction(double combatRange, double cooldownSec,
                                  ProjectileType bulletType,
-                                 Target target,
+                                 Target target, boolean aimAtTarget,
                                  AttackPattern... attacks) {
-        super("randomized-shoot", combatRange, cooldownSec, bulletType, target);
+        super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget);
         this.attackPool = List.of(attacks);
     }
 
     public static RandomizedShootAction targetingPlayer(double combatRange, double cooldownSec,
-                                                        ProjectileType bulletType,
+                                                        ProjectileType bulletType, boolean aimAtTarget,
                                                         AttackPattern... attacks) {
         return new RandomizedShootAction(combatRange, cooldownSec, bulletType,
                 Target.ofDynamic(world -> {
                     var p = world.getPlayer();
                     return p != null ? p.getTransform().getTranslation() : null;
-                }),
+                }), aimAtTarget,
                 attacks);
     }
 
@@ -49,11 +49,11 @@ public class RandomizedShootAction extends AbstractShootAction {
         if (selected instanceof RepeaterAttack repeater) {
             burstPattern = repeater.getInner();
             burstLeft = repeater.getTimes();
-            burstPattern.execute(brain.getShooter(), createBullet(), angle, customizer);
+            burstPattern.execute(brain.getShooter(), bulletType, angle, customizer);
             burstLeft--;
             cooldown.start(burstLeft > 0 ? BURST_INTERVAL_S : cooldown.getDefaultDuration());
         } else {
-            selected.execute(brain.getShooter(), createBullet(), angle, customizer);
+            selected.execute(brain.getShooter(), bulletType, angle, customizer);
             cooldown.start();
         }
     }
@@ -63,13 +63,15 @@ public class RandomizedShootAction extends AbstractShootAction {
         if (burstLeft > 0) {
             cooldown.update(dt);
             if (cooldown.isReady()) {
-                Vector2 targetPos = target.getPosition(world);  // <-- uses Target, not Function
-                if (targetPos == null) {
-                    burstLeft = 0;
-                    return false;
+                if (aimAtTarget) {
+                    Vector2 targetPos = target.getPosition(world);
+                    if (targetPos == null) {
+                        burstLeft = 0;
+                        return false;
+                    }
                 }
-                double angle = brain.angleToTarget(targetPos);
-                burstPattern.execute(brain.getShooter(), createBullet(), angle, customizer);
+                double angle = getAimAngle(brain, world);
+                burstPattern.execute(brain.getShooter(), bulletType, angle, customizer);
                 burstLeft--;
                 cooldown.start(burstLeft > 0 ? BURST_INTERVAL_S : cooldown.getDefaultDuration());
             }

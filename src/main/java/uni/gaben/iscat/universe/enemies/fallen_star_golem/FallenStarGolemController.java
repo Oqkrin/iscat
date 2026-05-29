@@ -10,7 +10,6 @@ import uni.gaben.iscat.universe.lib.behaviurs.modifiers.ObstacleAvoidanceModifie
 import uni.gaben.iscat.universe.lib.behaviurs.modifiers.ProjectileAvoidanceModifier;
 import uni.gaben.iscat.universe.lib.behaviurs.modifiers.SeparationModifier;
 import uni.gaben.iscat.universe.player.PlayerModel;
-import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 import uni.gaben.iscat.utils.Cooldown;
@@ -20,13 +19,11 @@ import static uni.gaben.iscat.universe.enemies.fallen_star_golem.FallenStarGolem
 public class FallenStarGolemController extends AiController {
 
     private final Shooter<FallenStarGolemModel> shooter;
-    private final Projectile bulletTemplate;
 
     public FallenStarGolemController(FallenStarGolemModel golem) {
         super(golem, FALLENSTARGOLEM.force, FALLENSTARGOLEM.maxVelocity, FALLENSTARGOLEM.rotationSpeed);
 
         this.shooter = new Shooter<>(golem);
-        this.bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
 
         // ── MOVEMENT: very slow orbit ─────────────────────────────────────
         setMovementStrategy(new SlowOrbitStrategy());
@@ -98,7 +95,7 @@ public class FallenStarGolemController extends AiController {
             Vector2 pos = entity.getTransform().getTranslation();
             Vector2 dir = player.getTransform().getTranslation().copy()
                     .subtract(pos).getNormalized();
-            shooter.shoot(bulletTemplate, dir.getDirection());   // aim directly at player
+            shooter.shoot(ProjectileType.ENEMY_BULLET, dir.getDirection());   // aim directly at player
             fireTimer.start(FALLENSTARGOLEM.fireCooldownS);
         }
     }

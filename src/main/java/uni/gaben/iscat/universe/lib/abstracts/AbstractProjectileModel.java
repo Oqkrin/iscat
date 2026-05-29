@@ -25,5 +25,4 @@ public abstract class AbstractProjectileModel extends LivingEntityModel {
         return terminalVelocity;
     }
     public void setTerminalVelocity(double v) { this.terminalVelocity = v; }
-    public abstract AbstractProjectileModel blueprint();
 }

@@ -9,7 +9,6 @@ import uni.gaben.iscat.universe.lib.behaviurs.MovementStrategy;
 import uni.gaben.iscat.universe.lib.behaviurs.modifiers.ObstacleAvoidanceModifier;
 import uni.gaben.iscat.universe.lib.behaviurs.modifiers.ProjectileAvoidanceModifier;
 import uni.gaben.iscat.universe.player.PlayerModel;
-import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 import uni.gaben.iscat.universe.UU;
@@ -21,13 +20,11 @@ import static uni.gaben.iscat.universe.enemies.mother.IscatMotherSettings.ISCATM
 public class IscatMotherController extends AiController {
 
     private final Shooter<IscatMotherModel> shooter;
-    private final Projectile bulletTemplate;
 
     public IscatMotherController(IscatMotherModel mother) {
         super(mother, ISCATMOTHER.force, ISCATMOTHER.maxVelocity, ISCATMOTHER.rotationSpeed);
 
         shooter = new Shooter<>(mother);
-        bulletTemplate = new Projectile(ProjectileType.ENEMY_BULLET);
 
         // Death callback – spawn horde of hearts and eaters
         mother.setOnDeath(this::spawnHorde);
@@ -50,7 +47,7 @@ public class IscatMotherController extends AiController {
     public void update(UniverseModel universe, double dt) {
         if (entity == null || entity.shouldRemove()) return;
         if (entity instanceof IscatMotherModel mother) {
-            mother.update(dt);   // entity‑specific updates (cooldowns, flags)
+            // entity-specific updates (flags)
         }
         super.update(universe, dt);
     }
@@ -109,7 +106,6 @@ public class IscatMotherController extends AiController {
         @Override
         public double getPriority(AbstractEntityModel entity, UniverseModel world) {
             if (!(entity instanceof IscatMotherModel mother)) return 0.0;
-            if (!mother.isFireReady()) return 0.0;
             PlayerModel player = world.getPlayer();
             if (player == null) return 0.0;
             double dist = entity.getTransform().getTranslation()
@@ -122,7 +118,6 @@ public class IscatMotherController extends AiController {
         public void execute(AbstractEntityModel entity, UniverseModel world, double dt) {
             if (!(entity instanceof IscatMotherModel mother)) return;
             shootBurst(mother);
-            mother.startFireCooldown();
         }
 
         @Override
@@ -140,7 +135,7 @@ public class IscatMotherController extends AiController {
             double angle = baseAngle + (i * spreadRad);
             Vector2 bulletPos = mother.getTransform().getTranslation().copy()
                     .add(Vector2.create(1.0, angle));
-            shooter.shoot(bulletTemplate, bulletPos, angle);
+            shooter.shoot(ProjectileType.ENEMY_BULLET, bulletPos, angle);
         }
     }
 

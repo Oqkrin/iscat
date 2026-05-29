@@ -18,7 +18,6 @@ import java.util.function.Consumer;
 public class PlayerController {
     private PlayerModel player;
     private Shooter<PlayerModel> shooter;
-    private Projectile projectileTemplate;
 
     private final Cooldown dashBuffer = new Cooldown();
     private boolean bufferedDashIsWASD = false;
@@ -128,7 +127,6 @@ public class PlayerController {
         this.player = player;
         if (player != null) {
             this.shooter = new Shooter<>(player);
-            this.projectileTemplate = new Projectile(ProjectileType.PLAYER_BULLET);
 
             this.currentAttack = new SingleShotAttack();
 
@@ -155,8 +153,7 @@ public class PlayerController {
 
             updateAttackPatternByLevel();
 
-            shooter.shoot(player.getProjectile());
-            currentAttack.execute(shooter, projectileTemplate, angle, customized);
+            currentAttack.execute(shooter, ProjectileType.PLAYER_BULLET, angle, customized);
 
             player.startCooldownFuoco();
         }

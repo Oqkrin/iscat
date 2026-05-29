@@ -6,6 +6,7 @@ import uni.gaben.iscat.universe.brain.actions.Action;
 import uni.gaben.iscat.universe.brain.actions.ActionCategory;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.brain.goals.MovementGoal;
+import uni.gaben.iscat.universe.brain.goals.RotationGoal;
 import uni.gaben.iscat.universe.brain.modifiers.MovementModifier;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.player.PlayerModel;
@@ -26,6 +27,9 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
     private MovementGoal currentMovementGoal;
     private final MovementGoal defaultMovementGoal;
+    
+    private RotationGoal currentRotationGoal;
+    private final RotationGoal defaultRotationGoal;
     private final double maxForce, maxVelocity, rotationSpeed;
 
     public Brain(T entity, MovementGoal defaultGoal,
@@ -34,6 +38,8 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         this.shooter = new Shooter<>(entity);
         this.defaultMovementGoal = defaultGoal;
         this.currentMovementGoal = defaultGoal;
+        this.defaultRotationGoal = RotationGoal.movement();
+        this.currentRotationGoal = defaultRotationGoal;
         this.maxForce = maxForce;
         this.maxVelocity = maxVelocity;
         this.rotationSpeed = rotationSpeed;
@@ -89,13 +95,19 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
             desired = mod.modify(desired, entity, world, dt);
         }
         applySteering(desired, dt);
-        if (rotationSpeed > 0 && desired.getMagnitudeSquared() > 0.01) {
-            faceDirection(desired.getDirection(), dt);
+        if (rotationSpeed > 0) {
+            Double desiredAngle = currentRotationGoal.compute(entity, world, dt);
+            if (desiredAngle != null) {
+                faceDirection(desiredAngle, dt);
+            }
         }
     }
 
     public void setMovementGoal(MovementGoal goal) { this.currentMovementGoal = goal; }
     public MovementGoal getDefaultGoal() { return defaultMovementGoal; }
+    
+    public void setRotationGoal(RotationGoal goal) { this.currentRotationGoal = goal; }
+    public RotationGoal getDefaultRotationGoal() { return defaultRotationGoal; }
     public T getEntity() { return entity; }
     public Shooter<T> getShooter() { return shooter; }
 

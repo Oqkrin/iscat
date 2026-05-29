@@ -3,21 +3,14 @@ package uni.gaben.iscat.universe.enemies.fallen_star_golem;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
-import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasProjectile;
-import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.projectiles.Projectile;
-import uni.gaben.iscat.universe.projectiles.ProjectileType;
-import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
+
 
 import static uni.gaben.iscat.universe.enemies.fallen_star_golem.FallenStarGolemSettings.FALLENSTARGOLEM;
 
-public class FallenStarGolemModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
-
-    private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
-    private final Cooldown weaponCooldown = new Cooldown();
+public class FallenStarGolemModel extends LivingEntityModel {
 
     public FallenStarGolemModel(double x, double y) {
         super(x, y, FALLENSTARGOLEM.initLife, FALLENSTARGOLEM.initLife);
@@ -32,42 +25,7 @@ public class FallenStarGolemModel extends LivingEntityModel implements HasProjec
         setLinearDamping(FALLENSTARGOLEM.dampingLineare);
     }
 
-    public void update(double dt) {
-        weaponCooldown.update(dt);
-    }
 
-    public boolean isSparoDisponibile() {
-        return weaponCooldown.isReady();
-    }
-
-    public void startCooldownFuoco() {
-        weaponCooldown.start(FALLENSTARGOLEM.fireCooldownS);
-    }
-
-    @Override
-    public Projectile getProjectile() {
-        return projectile;
-    }
-
-    @Override
-    public boolean hasAmmo() {
-        return true;
-    }
-
-    @Override
-    public Cooldown projectileCooldown() {
-        return weaponCooldown;
-    }
-
-    @Override
-    public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(FALLENSTARGOLEM.fireCooldownS);
-    }
-
-    @Override
-    public void setProjectileCooldownTickCount(int tickCount) {
-        weaponCooldown.start(UU.ticksToS(tickCount));
-    }
 
     @Override
     public double getTerminalVelocity() {

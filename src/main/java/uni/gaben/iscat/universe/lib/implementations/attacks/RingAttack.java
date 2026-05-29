@@ -3,6 +3,7 @@ package uni.gaben.iscat.universe.lib.implementations.attacks;
 
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.projectiles.Projectile;
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 
 import java.util.function.Consumer;
@@ -20,14 +21,14 @@ public class RingAttack implements AttackPattern {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, Projectile template, double angle, Consumer<Projectile> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (count <= 0) return;
 
         double angleStep = (2.0 * Math.PI) / count;
 
         for (int i = 0; i < count; i++) {
             double currentAngle = angle + (i * angleStep);
-            shooter.shoot(template, currentAngle, customizer);
+            shooter.shoot(type, currentAngle, customizer);
         }
     }
 }

@@ -4,20 +4,11 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasProjectile;
-import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.projectiles.Projectile;
-import uni.gaben.iscat.universe.projectiles.ProjectileType;
-import uni.gaben.iscat.utils.Cooldown;
-
 import static uni.gaben.iscat.universe.enemies.mob.IscatMobSettings.ISCATMOB;
 
-public class IscatMobModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
-
-    private final Projectile projectile = new Projectile(ProjectileType.ENEMY_BULLET);
-    private final Cooldown projectileCooldown = new Cooldown();
+public class IscatMobModel extends LivingEntityModel {
 
     public IscatMobModel(double x, double y) {
         super(x, y, ISCATMOB.initLife, ISCATMOB.initLife);
@@ -30,35 +21,6 @@ public class IscatMobModel extends LivingEntityModel implements HasProjectile<Pr
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(ISCATMOB.dampingLineare);
-    }
-
-    public void update(double dt) {
-        projectileCooldown.update(dt);
-    }
-
-    @Override
-    public Projectile getProjectile() {
-        return projectile;
-    }
-
-    @Override
-    public boolean hasAmmo() {
-        return true; // cambia in false se vuoi munizioni limitate
-    }
-
-    @Override
-    public Cooldown projectileCooldown() {
-        return projectileCooldown;
-    }
-
-    @Override
-    public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(ISCATMOB.fireCooldownS);
-    }
-
-    @Override
-    public void setProjectileCooldownTickCount(int tickCount) {
-        projectileCooldown.start(UU.ticksToS(tickCount));
     }
 
     @Override

@@ -2,6 +2,7 @@ package uni.gaben.iscat.universe.lib.implementations.attacks;
 
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.projectiles.Projectile;
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 
 import java.util.function.Consumer;
@@ -25,7 +26,7 @@ public class MultiDirectionAttack implements AttackPattern {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, Projectile template, double angle, Consumer<Projectile> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (directions <= 0 || inner == null) return;
 
         double angleStep = (2.0 * Math.PI) / directions;
@@ -35,7 +36,7 @@ public class MultiDirectionAttack implements AttackPattern {
             double currentAngle = angle + angleOffset + (i * angleStep);
 
             // Inietta l'angolo calcolato nell'attacco interno
-            inner.execute(shooter, template, currentAngle, customizer);
+            inner.execute(shooter, type, currentAngle, customizer);
         }
     }
 }

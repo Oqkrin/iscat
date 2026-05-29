@@ -2,6 +2,7 @@ package uni.gaben.iscat.universe.lib.implementations.attacks;
 
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.projectiles.Projectile;
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.projectiles.Shooter;
 
 import java.util.function.Consumer;
@@ -20,10 +21,10 @@ public class SpreadAttack implements AttackPattern {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, Projectile template, double angle, Consumer<Projectile> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (count <= 0) return;
         if (count == 1) {
-            shooter.shoot(template, angle, customizer);
+            shooter.shoot(type, angle, customizer);
             return;
         }
 
@@ -33,7 +34,7 @@ public class SpreadAttack implements AttackPattern {
 
         for (int i = 0; i < count; i++) {
             double currentAngle = startAngle + (i * angleStep);
-            shooter.shoot(template, currentAngle, customizer);
+            shooter.shoot(type, currentAngle, customizer);
         }
     }
 }

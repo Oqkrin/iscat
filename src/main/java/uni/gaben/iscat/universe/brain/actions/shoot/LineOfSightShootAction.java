@@ -18,8 +18,8 @@ public class LineOfSightShootAction extends ShootAction {
 
     public LineOfSightShootAction(double combatRange, double cooldownSec,
                                   ProjectileType bulletType, AttackPattern pattern,
-                                  Target target, double maxAngle) {
-        super(combatRange, cooldownSec, bulletType, pattern, target);
+                                  Target target, boolean aimAtTarget, double maxAngle) {
+        super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget);
         this.maxAngle = maxAngle;
     }
 

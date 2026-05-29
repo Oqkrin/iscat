@@ -1,7 +1,6 @@
 package uni.gaben.iscat.universe.lib.behaviurs;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.behaviurs.AttackBehavior;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.lib.implementations.attacks.RepeaterAttack;
@@ -22,7 +21,7 @@ public class ShooterBehaviour implements AttackBehavior {
     private final double          combatRange;
     private final double          priorityValue;
     private final DoubleSupplier  cooldownSupplier;
-    private final Projectile      bulletTemplate;
+    private final ProjectileType  bulletType;
     private final AttackPattern[] attackPool;
     private final Cooldown        fireCooldown = new Cooldown();
     private final Random          rand         = new Random();
@@ -30,7 +29,7 @@ public class ShooterBehaviour implements AttackBehavior {
     private Shooter<AbstractEntityModel> shooter = null;
     private int                          burstLeft       = 0;
     private AttackPattern                burstPattern    = null;
-    private Consumer<Projectile>         customizer      = null;
+    private Consumer<Projectile> customizer      = null;
 
     public ShooterBehaviour(double priorityValue, double combatRange,
                              double cooldownSeconds, ProjectileType bulletType,
@@ -44,7 +43,7 @@ public class ShooterBehaviour implements AttackBehavior {
         this.priorityValue    = priorityValue;
         this.combatRange      = combatRange;
         this.cooldownSupplier = cooldownSupplier;
-        this.bulletTemplate   = new Projectile(bulletType);
+        this.bulletType       = bulletType;
         this.attackPool       = attacks;
         this.fireCooldown.start(cooldownSupplier.getAsDouble());
     }
@@ -79,14 +78,14 @@ public class ShooterBehaviour implements AttackBehavior {
                 burstPattern = repeater.getInner();
                 burstLeft    = repeater.getTimes();
             } else {
-                selected.execute(shooter, bulletTemplate, angleToPlayer, customizer);
+                selected.execute(shooter, bulletType, angleToPlayer, customizer);
                 fireCooldown.start(cooldownSupplier.getAsDouble());
                 return;
             }
         }
 
         // Burst shot
-        burstPattern.execute(shooter, bulletTemplate, angleToPlayer, customizer);
+        burstPattern.execute(shooter, bulletType, angleToPlayer, customizer);
         burstLeft--;
 
         fireCooldown.start(burstLeft > 0 ? BURST_INTERVAL_S : cooldownSupplier.getAsDouble());

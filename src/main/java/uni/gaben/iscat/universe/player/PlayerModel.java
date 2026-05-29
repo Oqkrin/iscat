@@ -12,15 +12,12 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasProjectile;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.projectiles.Projectile;
-import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-public class PlayerModel extends LivingEntityModel implements HasProjectile<Projectile>, Updatable {
+public class PlayerModel extends LivingEntityModel implements Updatable {
 
     // LEVEL SYSTEM VARIABLES
     private final IntegerProperty level = new SimpleIntegerProperty(1);
@@ -37,8 +34,6 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
     public void setOnDeathCallback(Runnable callback) {
         this.onDeathCallback = callback;
     }
-
-    private final Projectile projectile = new Projectile(ProjectileType.PLAYER_BULLET);
 
     public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
@@ -109,31 +104,6 @@ public class PlayerModel extends LivingEntityModel implements HasProjectile<Proj
     @Override
     public double getTerminalVelocity() {
         return PlayerSettings.VELOCITA_MAX * (isInScatto() ? 10 : 1);
-    }
-
-    @Override
-    public Projectile getProjectile() {
-        return projectile;
-    }
-
-    @Override
-    public boolean hasAmmo() {
-        return true;
-    }
-
-    @Override
-    public Cooldown projectileCooldown() {
-        return weaponCooldown;
-    }
-
-    @Override
-    public int getProjectileCooldownTickCount() {
-        return (int) UU.sToTicks(PlayerSettings.COOLDOWN_FUOCO_SEC);
-    }
-
-    @Override
-    public void setProjectileCooldownTickCount(int tickCount) {
-        this.weaponCooldown.start(UU.ticksToS(tickCount));
     }
 
     @Override
