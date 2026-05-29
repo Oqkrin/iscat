@@ -114,4 +114,7 @@ public class UU {
         PIXELS
     }
 
+    public static Vector2 vector2zero() {
+        return new Vector2(0.0, 0.0);
+    }
 }
