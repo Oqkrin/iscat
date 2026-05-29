@@ -1,6 +1,5 @@
 package uni.gaben.iscat.universe;
 
-import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;

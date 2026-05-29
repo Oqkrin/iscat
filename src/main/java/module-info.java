@@ -62,4 +62,5 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.database to javafx.fxml;
     exports uni.gaben.iscat.utils.theme;
     opens uni.gaben.iscat.utils.theme to javafx.fxml;
+    exports uni.gaben.iscat.universe.brain.modifiers.flocking;
 }
