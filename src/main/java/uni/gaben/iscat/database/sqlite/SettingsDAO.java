@@ -49,13 +49,43 @@ public class SettingsDAO {
         }
     }
 
+    /**
+     * Elimina l'utente distruggendo le sue impostazioni, i suoi salvataggi
+     * e il suo profilo di login principale senza bloccare il database.
+     * @param userId ID dell'utente da eliminare
+     */
     public static void delete(int userId) {
-        String sql = "DELETE FROM ImpostazioniUtenti WHERE UserID = ?";
-        try (Connection conn = IscatDB.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            stmt.executeUpdate();
+        String deleteSettingsSql = "DELETE FROM ImpostazioniUtenti WHERE UserID = ?";
+        String deleteSavesSql = "DELETE FROM Salvataggi WHERE UserID = ?";
+        String deleteUserSql = "DELETE FROM Utenti WHERE ID = ?";
+
+        try (Connection conn = IscatDB.getInstance().getConnection()) {
+
+            // Elimina le impostazioni dei controlli
+            try (PreparedStatement stmtSettings = conn.prepareStatement(deleteSettingsSql)) {
+                stmtSettings.setInt(1, userId);
+                int rows = stmtSettings.executeUpdate();
+                System.out.println("Impostazioni rimosse per utente " + userId + " (Righe: " + rows + ")");
+            }
+
+            // Elimina i salvataggi
+            try (PreparedStatement stmtSaves = conn.prepareStatement(deleteSavesSql)) {
+                stmtSaves.setInt(1, userId);
+                int rows = stmtSaves.executeUpdate();
+                System.out.println("Salvataggi rimossi per utente " + userId + " (Righe: " + rows + ")");
+            }
+
+            // Elimina l'utente dalla tabella principale
+            try (PreparedStatement stmtUser = conn.prepareStatement(deleteUserSql)) {
+                stmtUser.setInt(1, userId);
+                int rows = stmtUser.executeUpdate();
+                System.out.println("Utente rimosso da tabella Utenti (Righe: " + rows + ")");
+            }
+
+            System.out.println("Procedura di eliminazione completata per l'ID: " + userId);
+
         } catch (SQLException e) {
+            System.err.println("ERRORE CRITICO DURANTE LA DELETE DELL'UTENTE!");
             e.printStackTrace();
         }
     }

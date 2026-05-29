@@ -322,11 +322,21 @@ public class OptionsMenuController implements IscatFxmlController {
                     "Eliminare Account?",
                     "Il tuo profilo utente e i record storici verranno distrutti. L'azione è irreversibile.",
                     () -> {
-                        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
-                        if (settings != null) {
-                            int userId = settings.getUserId();
+                        int userId =  SessionManager.getInstance().getCurrentSettings().getUserId();
+
+                        if (userId != -1) {
+                            System.out.println("Inizio delete per l'utente ID: " + userId);
+
                             SettingsDAO.delete(userId);
+
+                            SessionManager.getInstance().setCurrentUser(null);
+                            SessionManager.getInstance().setCurrentSettings(null);
+                            SessionManager.getInstance().setCurrentSaveData(null);
+
+                            AudioManager.getInstance().playSFX("laugh");
                             IscatNavigator.getInstance().navigateWithFade(IscatViews.LOGIN_MENU);
+                        } else {
+                            System.out.println("Errore: Impossibile trovare un ID utente valido nella sessione corrente.");
                         }
                     }
             );

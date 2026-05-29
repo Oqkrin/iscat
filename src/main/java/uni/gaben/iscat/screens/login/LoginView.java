@@ -26,6 +26,9 @@ import java.util.stream.Stream;
  */
 public class LoginView extends AbstractIscatStackPane {
 
+    private javafx.event.EventHandler<KeyEvent> keyPressedHandler;
+    private javafx.event.EventHandler<KeyEvent> keyTypedHandler;
+
     private static final String FONT = "Miracode";
 
     private final LoginModel model;
@@ -199,7 +202,8 @@ public class LoginView extends AbstractIscatStackPane {
 
     @Override
     protected void initEventHandlers() {
-        // Registrati via filtri di scena globali in onShow()
+        keyPressedHandler = controller::onKeyPressed;
+        keyTypedHandler   = controller::onKeyTyped;
     }
 
     @Override
@@ -254,20 +258,18 @@ public class LoginView extends AbstractIscatStackPane {
 
         if (blinkAnimation != null) blinkAnimation.play();
         if (getScene() != null) {
-            getScene().addEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
-            getScene().addEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
+            getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyPressedHandler);
+            getScene().addEventFilter(KeyEvent.KEY_TYPED,   keyTypedHandler);
         }
     }
 
     @Override
     public void onHide() {
         super.onHide();
-        if (blinkAnimation != null) {
-            blinkAnimation.pause();
-        }
+        if (blinkAnimation != null) blinkAnimation.pause();
         if (getScene() != null) {
-            getScene().removeEventFilter(KeyEvent.KEY_PRESSED, controller::onKeyPressed);
-            getScene().removeEventFilter(KeyEvent.KEY_TYPED, controller::onKeyTyped);
+            getScene().removeEventFilter(KeyEvent.KEY_PRESSED, keyPressedHandler);
+            getScene().removeEventFilter(KeyEvent.KEY_TYPED,   keyTypedHandler);
         }
     }
 
