@@ -40,6 +40,8 @@ public class IscatApplication extends Application {
     private IscatWindowController iscatWindowController;
     private IscatViewController iscatViewController;
 
+    boolean sentOnce = false; //TODO DA ELIMINARE
+
 
     @Override
     public void init() {
@@ -100,8 +102,12 @@ public class IscatApplication extends Application {
         // Indent for readability
         String indent = "  ".repeat(depth);
 
-        System.out.println(indent + node.getClass().getSimpleName() +
-                " | Bounds: " + node.getBoundsInParent());
+
+        if (!sentOnce)
+            System.out.println("[IscatApplication] ho disabilitato il mega output dei bounds, riga 104 di IscatApplication se ti serve ancora");
+        sentOnce = true;
+        //System.out.println(indent + node.getClass().getSimpleName() +
+                //" | Bounds: " + node.getBoundsInParent());
 
         if (node instanceof Parent p) {
             for (Node child : p.getChildrenUnmodifiable()) {
