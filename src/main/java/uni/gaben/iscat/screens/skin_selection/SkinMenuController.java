@@ -19,6 +19,9 @@ import uni.gaben.iscat.view.AnimatedCanvas;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 public class SkinMenuController implements IscatFxmlController {
 
     @FXML private GridPane skinGrid;
@@ -26,6 +29,10 @@ public class SkinMenuController implements IscatFxmlController {
     @FXML private Label skinNameLabel;
     @FXML private StackPane skinStackPane;
     @FXML private VBox previewBox;
+
+    @FXML private Button confirmBtn;
+    @FXML private Button randomBtn;
+    @FXML private Button cancelBtn;
 
     private StackPane contentRoot;
     private String selectedSkinPath;
@@ -48,6 +55,11 @@ public class SkinMenuController implements IscatFxmlController {
         previewCanvas = new AnimatedCanvas(BASE_SIZE);
         previewContainer.getChildren().add(previewCanvas);
 
+        // Iniezione Icone stabili sui tasti di controllo
+        applyIconButton(confirmBtn, "fas-check");
+        applyIconButton(randomBtn,  "fas-dice");
+        applyIconButton(cancelBtn,  "fas-arrow-left");
+
         populateGrid();
 
         this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
@@ -58,7 +70,6 @@ public class SkinMenuController implements IscatFxmlController {
         skinStackPane.widthProperty().addListener(sizeListener);
         skinStackPane.heightProperty().addListener(sizeListener);
 
-        // Calcola lo scaling dinamico iniziale dopo che la finestra è pronta e stabile
         Platform.runLater(this::updateDynamicScaling);
     }
 
@@ -126,6 +137,7 @@ public class SkinMenuController implements IscatFxmlController {
             btn.setMaxSize(initialDim, initialDim);
 
             btn.setOnAction(e -> selectSkin(path, name));
+
             skinGrid.add(btn, i % 3, i / 3);
         }
     }
@@ -134,6 +146,7 @@ public class SkinMenuController implements IscatFxmlController {
         this.selectedSkinPath = path;
         this.skinNameLabel.setText(name.toUpperCase());
         previewCanvas.loadSkin(path);
+        playSpawnTween(previewBox);
         updateDynamicScaling();
     }
 

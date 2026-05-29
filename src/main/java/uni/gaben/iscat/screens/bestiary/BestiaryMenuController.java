@@ -49,6 +49,10 @@ public class BestiaryMenuController implements IscatFxmlController {
         }
     }
 
+    /**
+     * Genera dinamicamente la lista dei pulsanti dei mostri,
+     * applicando l'icona del teschio e il tween "Godot-style" per l'hover.
+     */
     private void createEnemyButtons() {
         enemyButtonsBox.getChildren().clear();
 
@@ -60,12 +64,18 @@ public class BestiaryMenuController implements IscatFxmlController {
             button.setPrefHeight(26.0);
             button.setId(safeId);
 
+            setupButtonHoverTween(button);
+
             button.setOnAction(e -> showEnemyById(safeId));
 
             enemyButtonsBox.getChildren().add(button);
         }
     }
 
+    /**
+     * Aggiorna la vista con i dettagli del mostro selezionato
+     * e fa scattare l'animazione di spawn sulla preview box.
+     */
     private void showEnemyById(String id) {
         if (id == null) return;
 
@@ -88,6 +98,8 @@ public class BestiaryMenuController implements IscatFxmlController {
         );
 
         previewCanvas.resize(DISPLAY_SIZE);
+
+        playSpawnTween(previewContainer);
     }
 
     @FXML
