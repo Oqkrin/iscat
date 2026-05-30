@@ -6,6 +6,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.controller.IscatFxmlController;
+import uni.gaben.iscat.screens.confirmation_overlay.ConfirmationOverlayController;
 import uni.gaben.iscat.screens.game.controller.GameController;
 import uni.gaben.iscat.screens.game.view.GameView;
 import uni.gaben.iscat.utils.AudioManager;
@@ -25,6 +26,9 @@ public class PauseMenuController implements IscatFxmlController {
 
     private GameController gameController;
     private GameView       gameView;
+
+    @FXML private StackPane confirmOverlay;
+    @FXML private ConfirmationOverlayController confirmOverlayController;
 
     @FXML
     public void initialize() {
@@ -73,12 +77,36 @@ public class PauseMenuController implements IscatFxmlController {
 
     @FXML
     private void handleQuitToMenu() {
-        if (gameController != null) gameController.quitToMainMenu();
+        if (confirmOverlayController != null) {
+            confirmOverlayController.ask(
+                    "Uscire dal Gioco?",
+                    "Lo score della partia corrente verrà calcolato",
+                    () -> {
+                        if (gameController != null) {
+                            gameController.quitToMainMenu();
+                        }
+                    }
+            );
+        } else {
+            if (gameController != null) gameController.quitToMainMenu();
+        }
     }
 
     @FXML
     private void handleQuitGame() {
-        if (gameController != null) gameController.quitGame();
+        if (confirmOverlayController != null) {
+            confirmOverlayController.ask(
+                    "Uscire dal Gioco?",
+                    "I progressi della partita corrente andranno persi.",
+                    () -> {
+                        if (gameController != null) {
+                            gameController.quitGame();
+                        }
+                    }
+            );
+        } else {
+            if (gameController != null) gameController.quitGame();
+        }
     }
 
     @FXML

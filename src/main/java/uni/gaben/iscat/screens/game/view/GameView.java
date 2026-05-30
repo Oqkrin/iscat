@@ -50,7 +50,7 @@ public class GameView extends AbstractIscatStackPane {
     private final StarfieldView starfieldView = new StarfieldView();
 
     private GameSpawnerToolbar spawnerToolbar;
-    private VBox               pauseMenu;
+    private StackPane          pauseMenu;
     private GameOverMenu       gameOverMenu;
 
     private HBox   debugButtonsContainer;
@@ -101,14 +101,14 @@ public class GameView extends AbstractIscatStackPane {
         universeRenderer = new UniverseRenderer(canvas, gameController, starfieldView);
     }
 
-    private VBox loadPauseMenu() {
+    private StackPane loadPauseMenu() {
         try {
             var loader = new javafx.fxml.FXMLLoader(
                     getClass().getResource("/uni/gaben/iscat/fxml/pause-menu.fxml"));
-            VBox view = loader.load();
+            StackPane view = loader.load();
 
             PauseMenuController pauseController = loader.getController();
-            pauseController.initData(gameController, this);  // <-- aggiunto this
+            pauseController.initData(gameController, this);
             return view;
         } catch (java.io.IOException e) {
             throw new RuntimeException("Errore fatale: impossibile caricare pause-menu.fxml", e);
