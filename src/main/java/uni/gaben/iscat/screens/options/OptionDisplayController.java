@@ -9,14 +9,12 @@ import uni.gaben.iscat.universe.UU;
 
 public class OptionDisplayController {
 
-    @FXML private Slider scaleSlider;
     @FXML private CheckBox checkFps;
     @FXML private CheckBox FullscreenCheck;
     @FXML private CheckBox DebugModeCheck;
 
     @FXML
     public void initialize() {
-        scaleSlider.valueProperty().bindBidirectional(UU.UNIVERSE_SCALEProperty());
     }
 
     /**

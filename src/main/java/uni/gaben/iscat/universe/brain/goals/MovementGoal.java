@@ -56,7 +56,7 @@ public interface MovementGoal {
     }
 
     // ── Wander (random drift) ──────────────────────────────────────────────
-    static MovementGoal wander(double speed, double minDist, double maxDist) {
+    static MovementGoal wanderAroundTarget(double speed, double minDist, double maxDist) {
         // Wander state must be stored externally (could use a class, but here we use a trick:
         // attach a mutable reference via a 1-element array)
         return new MovementGoal() {
@@ -80,8 +80,8 @@ public interface MovementGoal {
 
     // ── Kite (maintain distance from target) ───────────────────────────────
     static MovementGoal kite(Target target, double speed, double preferredRange) {
-        return (self, world, dt) -> {
-            Vector2 targetPos = target.getPosition(world);
+        return (self, universe, dt) -> {
+            Vector2 targetPos = target.getPosition(universe);
             if (targetPos == null) return UU.vector2zero();
             Vector2 toTarget = targetPos.copy().subtract(self.getTransform().getTranslation());
             double dist = toTarget.getMagnitude();

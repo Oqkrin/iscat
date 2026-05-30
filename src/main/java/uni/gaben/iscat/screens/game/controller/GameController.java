@@ -122,9 +122,9 @@ public class GameController {
     }
 
     public void debugSpawn(String spawnableId) {
-        double spawnWorldX = getCameraModel().getX() + ((Math.random() - 0.5) * 400);
+        double spawnUniverseX = getCameraModel().getX() + ((Math.random() - 0.5) * 400);
         double spawnWorldY = getCameraModel().getY() + ((Math.random() - 0.5) * 400);
-        UniverseSpawner.getInstance().spawn(spawnableId, spawnWorldX, spawnWorldY);
+        UniverseSpawner.getInstance().spawn(spawnableId, spawnUniverseX, spawnWorldY);
     }
 
     public void resetUniverse() {

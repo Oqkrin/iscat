@@ -44,10 +44,10 @@ public class HeartController extends AiController {
 
     private class HeartMovement implements MovementStrategy {
         @Override
-        public Vector2 computeDesiredVelocity(AbstractEntityModel entity, UniverseModel world, double dt) {
+        public Vector2 computeDesiredVelocity(AbstractEntityModel entity, UniverseModel universe, double dt) {
             if (collected) return new Vector2();
 
-            PlayerModel player = world.getPlayer();
+            PlayerModel player = universe.getPlayer();
             if (player == null) return new Vector2();
 
             Vector2 heartPos = heart.getTransform().getTranslation();

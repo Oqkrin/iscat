@@ -1,6 +1,5 @@
 package uni.gaben.iscat.universe.enemies.mob;
 
-import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.brain.actions.shoot.LineOfSightShootAction;
@@ -13,8 +12,6 @@ import uni.gaben.iscat.universe.lib.implementations.attacks.SingleShotAttack;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
 
 
-import java.util.Random;
-import java.util.Vector;
 import java.util.stream.Collectors;
 
 import static uni.gaben.iscat.universe.enemies.mob.IscatMobSettings.ISCATMOB;
@@ -27,7 +24,7 @@ public class IscatMobBrain extends Brain<IscatMobModel> {
         super(entity, MovementGoal.idle(), ISCATMOB.force, ISCATMOB.maxVelocity, ISCATMOB.rotationSpeed);
 
 
-        setMovementGoal(MovementGoal.kite(Target.ofPlayer(), ISCATMOB.force, ISCATMOB.combatRange/3));
+        setMovementGoal(MovementGoal.wanderAroundTarget(ISCATMOB.force,ISCATMOB.combatRange,ISCATMOB.detectionRange));
 
         // 2. Dynamic Flocking Target (Finds all nearby mobs, excluding itself)
         Target flock = Target.ofEntities(world ->
@@ -50,9 +47,9 @@ public class IscatMobBrain extends Brain<IscatMobModel> {
         setRotationGoal(RotationGoal.target(Target.ofPlayer()));
 
 
-        addModifier(new CohesionModifier(flock, ISCATMOB.detectionRange*2, 1.8));
-        addModifier(new AlignmentModifier(flock, ISCATMOB.detectionRange*2, 1));
-        addModifier(new SeparationModifier(flock, ISCATMOB.combatRange*2, 3));
+        addModifier(new CohesionModifier(flock, ISCATMOB.detectionRange, 1.3));
+        addModifier(new AlignmentModifier(flock, ISCATMOB.detectionRange, Math.random()));
+        addModifier(new SeparationModifier(flock, ISCATMOB.detectionRange/2, 1.5));
 
     }
 }
