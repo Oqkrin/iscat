@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.player;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.lib.implementations.attacks.*;
 import uni.gaben.iscat.utils.AudioManager;
@@ -27,9 +28,7 @@ public class PlayerController {
         setPlayer(player);
     }
 
-    public void processInput(GameInputs input, double viewportLeftX, double viewportTopY, double dt) {
-        if (player == null) return;
-
+    public void processInput(GameInputs input, CameraModel camera, double dt) {
         dashBuffer.update(dt);
 
         double dx = 0, dy = 0;
@@ -47,12 +46,24 @@ public class PlayerController {
                 if (player.notStunned()) player.applyForce(dir.multiply(PlayerSettings.FORZA_SPINTA * player.getMass().getMass()));
             }
 
-            double playerWorldPxX = UU.mToPx(player.getTransform().getTranslationX());
-            double playerWorldPxY = UU.mToPx(player.getTransform().getTranslationY());
-            double mouseWorldPxX = input.mouseX + viewportLeftX;
-            double mouseWorldPxY = input.mouseY + viewportTopY;
 
-            double targetAngle = Math.atan2(mouseWorldPxY - playerWorldPxY, mouseWorldPxX - playerWorldPxX);
+        double screenCenterX = camera.getScreenWidth() / 2.0;
+        double screenCenterY = camera.getScreenHeight() / 2.0;
+        double zoom = camera.getZoom();
+        double cx = camera.getX();
+        double cy = camera.getY();
+
+// Convert mouse screen coordinates to world pixels
+        double mouseWorldX = cx + (input.mouseX - screenCenterX) / zoom;
+        double mouseWorldY = cy + (input.mouseY - screenCenterY) / zoom;
+
+// Player position in world pixels
+        double playerWorldX = UU.mToPx(player.getTransform().getTranslationX());
+        double playerWorldY = UU.mToPx(player.getTransform().getTranslationY());
+
+// Aim angle
+        double targetAngle = Math.atan2(mouseWorldY - playerWorldY, mouseWorldX - playerWorldX);
+
             double diff = targetAngle - currentAngle;
 
             while (diff < -Math.PI) diff += Math.PI * 2;

@@ -32,8 +32,6 @@ public class UU {
     private Double secondsValue = null;
     private Double ticksValue = null;
 
-
-
     private UU() {}
 
     /*Contenitore di Valori nelle unita di misura del sistema fisico e del game (metri - pixels) (secondi - tick)*/

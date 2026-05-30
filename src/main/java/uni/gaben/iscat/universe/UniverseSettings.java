@@ -6,7 +6,7 @@ package uni.gaben.iscat.universe;
  */
 public final class UniverseSettings {
 
-    public static final double DEFAULT_SCALE = 32.0;
+    public static final double DEFAULT_SCALE = 64.0;
 
     private UniverseSettings() {
         // Impedisce l'istanza di questa classe di utility

@@ -83,8 +83,7 @@ public class UniverseController {
         if (player == null) return;
         playerController.processInput(
                 inputs,
-                cameraModel.getViewportLeftX(),
-                cameraModel.getViewportTopY(),
+                cameraModel,
                 dt
         );
     }
@@ -134,17 +133,26 @@ public class UniverseController {
     }
 
     private void updateProjectiles(CameraModel cameraModel, double dt) {
-        double left = cameraModel.getViewportLeftX() - 200.0;
-        double right = cameraModel.getViewportLeftX() + cameraModel.getScreenWidth() + 200.0;
-        double top = cameraModel.getViewportTopY() - 200.0;
-        double bottom = cameraModel.getViewportTopY() + cameraModel.getScreenHeight() + 200.0;
+        double zoom = cameraModel.getZoom();
+        double worldLeft = cameraModel.getViewportLeftX();
+        double worldRight = worldLeft + (cameraModel.getScreenWidth() / zoom);
+        double worldTop = cameraModel.getViewportTopY();
+        double worldBottom = worldTop + (cameraModel.getScreenHeight() / zoom);
+
+        double margin = 200.0;
+        worldLeft -= margin;
+        worldRight += margin;
+        worldTop -= margin;
+        worldBottom += margin;
 
         for (AbstractProjectileModel p : new ArrayList<>(universeModel.getProjectiles())) {
             p.deltaToLife(-dt);
             if (p.shouldRemove()) continue;
+
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
-            if (px < left || px > right || py < top || py > bottom) {
+
+            if (px < worldLeft || px > worldRight || py < worldTop || py > worldBottom) {
                 p.kill(true);
             }
         }
