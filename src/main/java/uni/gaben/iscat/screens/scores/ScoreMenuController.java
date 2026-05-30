@@ -6,6 +6,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -23,6 +25,7 @@ import java.util.Map;
 public class ScoreMenuController implements IscatFxmlController {
 
     private StackPane contentRoot;
+    private Runnable customBackAction = null;
 
     // Label Icona
     @FXML private Label lblBestScore;
@@ -61,6 +64,18 @@ public class ScoreMenuController implements IscatFxmlController {
                     return user.toUpperCase() + " SCORE";
                 }, SessionManager.getInstance().usernameProperty())
         );
+
+        // sto testando questa nuova feature, rompe pause menu di game per ora:
+        /*rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+                    if (e.getCode() == KeyCode.ESCAPE) {
+                        handleBack(null);
+                        e.consume();
+                    }
+                });
+            }
+        });*/
 
         applyIconButton(exitBtn,           "fas-sign-out-alt");
         applyIconLabel(lblBestScore,     "fas-trophy");
@@ -126,6 +141,10 @@ public class ScoreMenuController implements IscatFxmlController {
         this.contentRoot = contentRoot;
     }
 
+    public void setCustomBackAction(Runnable customBackAction) {
+        this.customBackAction = customBackAction;
+    }
+
     @FXML
     private void handleBack(ActionEvent event) {
         titleLabel.textProperty().unbind();
@@ -135,6 +154,10 @@ public class ScoreMenuController implements IscatFxmlController {
         }
         activeCanvases.clear();
 
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+        if (customBackAction != null) {
+            customBackAction.run();
+        } else {
+            IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+        }
     }
 }

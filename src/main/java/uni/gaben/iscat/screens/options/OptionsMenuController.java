@@ -241,6 +241,19 @@ public class OptionsMenuController implements IscatFxmlController {
     }
 
     private void handleGlobalKeyPress(KeyEvent event) {
+        if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+            if (selectedButton != null) {
+                refreshButtonLabels();
+                selectedButton = null;
+                selectedColumn = null;
+            } else {
+                handleBack(null);
+            }
+            event.consume();
+            return;
+        }
+
+        // gestione riassegnazione tasto
         if (selectedButton == null || selectedColumn == null) return;
         String pressedKey = event.getCode().toString();
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
