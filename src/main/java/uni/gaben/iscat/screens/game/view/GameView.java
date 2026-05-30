@@ -113,10 +113,11 @@ public class GameView extends AbstractIscatStackPane {
 
     public void openOptions() {
         transitionTo(GameState.IN_OPTIONS);
-        StackPane[] optionsView = new StackPane[1];
-        optionsView[0] = loadFxml("/uni/gaben/iscat/fxml/options/options_menu.fxml",
-                (OptionsMenuController c) -> c.setCustomBackAction(() -> closeOptions(optionsView[0])));
-        root.getChildren().add(optionsView[0]);
+        final StackPane[] optionsViewWrapper = new StackPane[1];
+        optionsViewWrapper[0] = loadFxml("/uni/gaben/iscat/fxml/options/options_menu.fxml",
+                (OptionsMenuController c) -> c.setCustomBackAction(() -> closeOptions(optionsViewWrapper[0])));
+        optionsViewWrapper[0].getStyleClass().add("game-pause-overlay");
+        root.getChildren().add(optionsViewWrapper[0]);
     }
 
     private void closeOptions(StackPane optionsView) {
