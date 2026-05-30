@@ -41,14 +41,16 @@ public class LoginController {
         switch (e.getCode()) {
             case BACK_SPACE -> onBackspace();
             case ENTER      -> onEnter();
+            case ESCAPE     -> onEscape();
             default         -> {}
         }
     }
 
     public void onKeyTyped(KeyEvent e) {
         String character = e.getCharacter();
-        if (character == null || character.isEmpty() || character.charAt(0) < 32 || character.charAt(0) == 127) {
-            return; // Salta caratteri non stampabili
+        // Salta caratteri non stampabili (incluso ESCAPE 27 e BACKSPACE 8/127 intercettati da onKeyPressed)
+        if (character == null || character.isEmpty() || character.charAt(0) < 32 || character.charAt(0) == 127 || character.charAt(0) == 27) {
+            return;
         }
 
         if (currentLoginState == LoginState.USERNAME) {
@@ -68,6 +70,9 @@ public class LoginController {
         } else {
             if (!passwordBuffer.isEmpty()) {
                 passwordBuffer.setLength(passwordBuffer.length() - 1);
+            } else {
+                backToUsername();
+                return;
             }
         }
         updateDisplay();
@@ -83,6 +88,25 @@ public class LoginController {
         } else {
             submitLogin();
         }
+    }
+
+    /**
+     * Azione alla pressione del tasto ESCAPE.
+     */
+    private void onEscape() {
+        if (currentLoginState == LoginState.PASSWORD) {
+            backToUsername();
+        }
+    }
+
+    /**
+     * Svuota la password e sposta lo stato logico e visivo nuovamente sullo username.
+     */
+    private void backToUsername() {
+        passwordBuffer.setLength(0);
+        model.setLoginState(false); // Riporta lo stato (e il focus) su username
+        updateDisplay();
+        checkUserExistence();
     }
 
     private void checkUserExistence() {
