@@ -36,12 +36,8 @@ public class GameOverMenuController implements IscatFxmlController {
 
     @FXML
     private void handleRetry() {
-        if (gameController != null) {
-            gameController.retryGame();
-        }
-        if (gameView != null) {
-            gameView.transitionTo(GameState.PLAYING);
-        }
+        if (gameView != null) gameView.transitionTo(GameState.PLAYING);
+        if (gameController != null) gameController.retryGame();
     }
 
     @FXML

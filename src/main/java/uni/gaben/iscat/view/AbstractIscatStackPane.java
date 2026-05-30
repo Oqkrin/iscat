@@ -171,4 +171,17 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     protected void fadeIn() {
         fadeIn(Duration.millis(300));
     }
+
+    protected <C> StackPane loadFxml(String path, java.util.function.Consumer<C> init) {
+        try {
+            var loader = new FXMLLoader(getClass().getResource(path));
+            StackPane view = loader.load();
+            C controller = loader.getController();
+            if (controller instanceof IscatFxmlController c) c.setContentRoot(this);
+            init.accept(controller);
+            return view;
+        } catch (IOException e) {
+            throw new RuntimeException("Errore fatale: impossibile caricare " + path, e);
+        }
+    }
 }

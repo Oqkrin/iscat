@@ -102,47 +102,21 @@ public class GameView extends AbstractIscatStackPane {
     }
 
     private StackPane loadPauseMenu() {
-        try {
-            var loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/uni/gaben/iscat/fxml/pause-menu.fxml"));
-            StackPane view = loader.load();
-
-            PauseMenuController pauseController = loader.getController();
-            pauseController.initData(gameController, this);
-            return view;
-        } catch (java.io.IOException e) {
-            throw new RuntimeException("Errore fatale: impossibile caricare pause-menu.fxml", e);
-        }
+        return loadFxml("/uni/gaben/iscat/fxml/pause-menu.fxml",
+                (PauseMenuController c) -> c.initData(gameController, this));
     }
 
     private StackPane loadGameOverMenu() {
-        try {
-            var loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/uni/gaben/iscat/fxml/game-over-menu.fxml"));
-            StackPane view = loader.load();
-
-            GameOverMenuController gameOverController = loader.getController();
-            gameOverController.initData(gameController, this);
-            return view;
-        } catch (java.io.IOException e) {
-            throw new RuntimeException("Errore fatale: impossibile caricare GameOverMenu.fxml", e);
-        }
+        return loadFxml("/uni/gaben/iscat/fxml/game-over-menu.fxml",
+                (GameOverMenuController c) -> c.initData(gameController, this));
     }
 
     public void openOptions() {
         transitionTo(GameState.IN_OPTIONS);
-        try {
-            var loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/uni/gaben/iscat/fxml/options/options_menu.fxml"));
-            StackPane optionsView = loader.load();
-
-            OptionsMenuController optionsController = loader.getController();
-            optionsController.setCustomBackAction(() -> closeOptions(optionsView));
-
-            root.getChildren().add(optionsView);
-        } catch (java.io.IOException e) {
-            throw new RuntimeException("Errore fatale: impossibile caricare options_menu.fxml", e);
-        }
+        StackPane[] optionsView = new StackPane[1];
+        optionsView[0] = loadFxml("/uni/gaben/iscat/fxml/options/options_menu.fxml",
+                (OptionsMenuController c) -> c.setCustomBackAction(() -> closeOptions(optionsView[0])));
+        root.getChildren().add(optionsView[0]);
     }
 
     private void closeOptions(StackPane optionsView) {
