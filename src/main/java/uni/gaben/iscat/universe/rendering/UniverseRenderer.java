@@ -69,9 +69,10 @@ public class UniverseRenderer {
         gc.translate(screenW / 2 - cx * zoom, screenH / 2 - cy * zoom);
         gc.scale(zoom, zoom);
 
+        double dt = gameModel.getDt();
         boolean renderCollisionBoxes = debugPanelVisible && gameController.isDebugModeOn();
         for (var entity : universe.getEntities()) {
-            drawEntity(entity, gc, renderCollisionBoxes);
+            drawEntity(entity, gc, renderCollisionBoxes, dt);
         }
         gc.restore();
 
@@ -87,9 +88,13 @@ public class UniverseRenderer {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends AbstractEntityModel> void drawEntity(T entity, GraphicsContext gc, boolean renderCollisionBoxes) {
+    private <T extends AbstractEntityModel> void drawEntity(T entity, GraphicsContext gc, boolean renderCollisionBoxes, double dt) {
         Drawable<T> renderer = (Drawable<T>) RenderRegistry.getInstance().getRenderer(entity.getClass());
         if (renderer == null) return;
+
+        if (renderer instanceof AbstractEntityView<?> view) {
+            view.updateAnimator(dt);
+        }
 
         renderer.draw(entity, gc);
 

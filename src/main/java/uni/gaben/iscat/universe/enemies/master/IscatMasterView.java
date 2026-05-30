@@ -22,6 +22,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     private final SpriteSheetsParser masterSheet;
     private final SpriteSheetsAnimator masterAnimator;
 
+    private IscatMasterModel currentEntity;
     private boolean deathSfxTriggered = false;
     private int lastRow = -1;
 
@@ -45,8 +46,14 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     @Override public SpriteSheetsAnimator getAnimator() { return masterAnimator; }
 
     @Override
+    public void updateAnimator(double dt) {
+        masterAnimator.update(dt);
+    }
+
+    @Override
     public void draw(IscatMasterModel entity, GraphicsContext gc) {
         if (entity == null) return;
+        this.currentEntity = entity;
 
         int targetRow;
         int maxFrames;
@@ -55,7 +62,6 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             targetRow = 0;
             maxFrames = getFramesCountForRow(targetRow);
             updateAnimatorState(targetRow);
-            masterAnimator.setTime(entity.getStateTime());
 
             if (isRowCycleCompleted(maxFrames)) {
                 entity.setEntranceDone(true);
@@ -71,14 +77,14 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             maxFrames = getFramesCountForRow(targetRow);
 
             updateAnimatorState(targetRow);
-            masterAnimator.setTime(entity.getStateTime());
 
             if (modelState == AnimationState.DEATH && !deathSfxTriggered) {
                 deathSfxTriggered = true;
                 AudioManager.getInstance().playSFX("shockwave");
             }
 
-            if (modelState != AnimationState.IDLE && modelState != AnimationState.DEATH && isRowCycleCompleted(maxFrames)) {
+            if (modelState != AnimationState.IDLE && modelState != AnimationState.DEATH
+                    && isRowCycleCompleted(maxFrames)) {
                 updateAnimatorState(1);
                 entity.setAnimationState(AnimationState.IDLE);
             }
@@ -88,7 +94,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
             }
         }
 
-        setupGraphicsContextAndDrawContent(entity, gc, 270.0,false);
+        setupGraphicsContextAndDrawContent(entity, gc, 270.0, false);
     }
 
     @Override
@@ -101,7 +107,6 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
         if (masterSheet != null) {
             Image smallSingleFrame = masterSheet.getFrame(currentRow, localFrame);
-
             if (smallSingleFrame != null) {
                 Image tintedFrame = ThemeManager.getInstance().getTintedImage(
                         smallSingleFrame,
@@ -122,6 +127,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         masterAnimator.setState(row);
         if (row != lastRow) {
             masterAnimator.setTime(0);
+            if (currentEntity != null) currentEntity.setStateTime(0);
             lastRow = row;
         }
     }

@@ -167,4 +167,7 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         gc.setLineWidth(shockwave.getLineWidth());
         gc.strokeOval(topLeftX, topLeftY, diameter, diameter);
     }
+
+    public void updateAnimator(double dt) {
+    }
 }
