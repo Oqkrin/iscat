@@ -33,11 +33,7 @@ public class RandomizedShootAction extends AbstractShootAction {
     public static RandomizedShootAction targetingPlayer(double combatRange, double cooldownSec,
                                                         ProjectileType bulletType, boolean aimAtTarget,
                                                         AttackPattern... attacks) {
-        return new RandomizedShootAction(combatRange, cooldownSec, bulletType,
-                Target.ofDynamic(world -> {
-                    var p = world.getPlayer();
-                    return p != null ? p.getTransform().getTranslation() : null;
-                }), aimAtTarget,
+        return new RandomizedShootAction(combatRange, cooldownSec, bulletType, universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget,
                 attacks);
     }
 

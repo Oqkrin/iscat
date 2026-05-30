@@ -5,6 +5,8 @@ import uni.gaben.iscat.universe.brain.*;
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
 
+import java.util.Collections;
+
 public class ShootAction extends AbstractShootAction {
     private final AttackPattern pattern;
 
@@ -19,10 +21,7 @@ public class ShootAction extends AbstractShootAction {
                                               ProjectileType bulletType, AttackPattern pattern,
                                               boolean aimAtTarget) {
         return new ShootAction(combatRange, cooldownSec, bulletType, pattern,
-                Target.ofDynamic(world -> {
-                    var p = world.getPlayer();
-                    return p != null ? p.getTransform().getTranslation() : null;
-                }), aimAtTarget);
+                universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget);
     }
 
     @Override

@@ -6,7 +6,6 @@ import uni.gaben.iscat.universe.brain.*;
 import uni.gaben.iscat.universe.brain.actions.Action;
 import uni.gaben.iscat.universe.brain.actions.ActionCategory;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
@@ -19,7 +18,7 @@ public abstract class AbstractShootAction extends Action {
     protected final Target target;   // <-- was Function<...>
     protected final boolean aimAtTarget;
 
-    public AbstractShootAction(String name, double combatRange, double cooldownSec,
+    protected AbstractShootAction(String name, double combatRange, double cooldownSec,
                                ProjectileType bulletType, Target target, boolean aimAtTarget) {
         super(name, ActionCategory.ATTACK, Set.of());
         this.combatRange = combatRange;

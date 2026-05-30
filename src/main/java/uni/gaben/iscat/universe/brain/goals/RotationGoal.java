@@ -4,6 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.utils.Cooldown;
 
 @FunctionalInterface
 public interface RotationGoal {
@@ -43,7 +44,7 @@ public interface RotationGoal {
     }
 
     // ── Continuous Spin ────────────────────────────────────────────────────
-    static RotationGoal spin(double spinSpeedRadiansPerSec) {
+    static RotationGoal continuesSpin(double spinSpeedRadiansPerTicks) {
         return new RotationGoal() {
             private double currentAngle = Double.NaN;
 
@@ -52,7 +53,29 @@ public interface RotationGoal {
                 if (Double.isNaN(currentAngle)) {
                     currentAngle = self.getTransform().getRotationAngle();
                 }
-                currentAngle += spinSpeedRadiansPerSec * dt;
+                currentAngle += spinSpeedRadiansPerTicks * dt;
+                return currentAngle;
+            }
+        };
+    }
+
+    static RotationGoal intervalSpin(int spinSteps, double stepPauseSec, double stepSpeedRadiansPerTicks) {
+        return new RotationGoal() {
+            private double currentAngle = Double.NaN;
+            private final Cooldown stepPause = new Cooldown(stepPauseSec);
+            private double targetAngle = Double.NaN;
+            @Override
+            public Double compute(AbstractEntityModel self, UniverseModel world, double dt) {
+                if(stepPause.isCoolingDown()) stepPause.update(dt);
+                if (Double.isNaN(currentAngle)) {
+                    currentAngle = self.getTransform().getRotationAngle();
+                    targetAngle = currentAngle + (Math.TAU/spinSteps);
+                }
+                if (currentAngle >= targetAngle) {
+                    targetAngle += (Math.TAU/spinSteps);
+                    stepPause.start();
+                }
+                if (stepPause.isReady()) currentAngle += spinSteps * stepSpeedRadiansPerTicks * dt;
                 return currentAngle;
             }
         };

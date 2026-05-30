@@ -19,9 +19,9 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     private final Shooter<T> shooter;
     private final List<MovementModifier> modifiers = new ArrayList<>();
 
-    private final Map<ActionCategory, List<Action>> actions = new HashMap<>();
+    private final Map<ActionCategory, List<Action>> actions = new EnumMap<>(ActionCategory.class);
     // One active action per category (null if none)
-    private final Map<ActionCategory, Action> active = new HashMap<>();
+    private final Map<ActionCategory, Action> active = new EnumMap<>(ActionCategory.class);
     // Categories blocked by running actions (includes own category and explicit blocks)
     private final Set<ActionCategory> blockedCategories = new HashSet<>();
 
@@ -50,9 +50,14 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
                 .add(action);
     }
 
+    public void addModifier(MovementModifier mod) {
+        modifiers.add(mod);
+    }
+
+
     @Override
-    public void update(UniverseModel world, double dt) {
-        // 1. Determine blocked categories from currently active actions
+    public void update(UniverseModel universe, double dt) {
+
         blockedCategories.clear();
         for (Action a : active.values()) {
             if (a == null) continue;
@@ -60,16 +65,15 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
             blockedCategories.addAll(a.getBlockedCategories());
         }
 
-        // 2. Tick every active action once, collect finished ones
         Set<ActionCategory> finishedCategories = new HashSet<>();
         for (Map.Entry<ActionCategory, Action> entry : active.entrySet()) {
             Action a = entry.getValue();
             if (a == null) continue;
-            if (!a.update(this, world, dt)) {
+            if (!a.update(this, universe, dt)) {
                 finishedCategories.add(entry.getKey());
             }
         }
-        // Remove finished actions
+
         finishedCategories.forEach(active::remove);
 
         // 3. For each category, if it's empty AND not blocked, try to activate a new action
@@ -81,22 +85,21 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
             // Actions are added in priority order – first that canActivate wins
             for (Action a : catActions) {
-                if (a.canActivate(entity, world, dt)) {
+                if (a.canActivate(entity, universe, dt)) {
                     active.put(cat, a);
-                    a.onActivate(this, world);
+                    a.onActivate(this, universe);
                     break;
                 }
             }
         }
 
-        // 4. Compute movement (even if no MOVEMENT action, the default goal stays)
-        Vector2 desired = currentMovementGoal.compute(entity, world, dt);
+        Vector2 desired = currentMovementGoal.compute(entity, universe, dt);
         for (MovementModifier mod : modifiers) {
-            desired = mod.modify(desired, entity, world, dt);
+            desired = mod.modify(desired, entity, universe, maxForce, dt);
         }
         applySteering(desired, dt);
         if (rotationSpeed > 0) {
-            Double desiredAngle = currentRotationGoal.compute(entity, world, dt);
+            Double desiredAngle = currentRotationGoal.compute(entity, universe, dt);
             if (desiredAngle != null) {
                 faceDirection(desiredAngle, dt);
             }

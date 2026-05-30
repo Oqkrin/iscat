@@ -3,151 +3,76 @@ package uni.gaben.iscat.universe.brain;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.universe.player.PlayerModel;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class Target {
-    // ── Internal storage ────────────────────────────────────────────────────
-    private final AbstractEntityModel single;
-    private final Vector2 point;
-    private final Function<UniverseModel, Vector2> dynamic;
-    private final List<AbstractEntityModel> multiple;
+@FunctionalInterface
+public interface Target {
 
-    // Private – use factories
-    private Target(AbstractEntityModel single) {
-        this.single = single;
-        this.point = null;
-        this.dynamic = null;
-        this.multiple = null;
+    /** Returns all entities associated with this target (empty if targeting a point in space). */
+    List<AbstractEntityModel> getEntities(UniverseModel world);
+
+    /** Returns the positions of all relevant entities or points. */
+    default List<Vector2> getPositions(UniverseModel world) {
+        return getEntities(world).stream()
+                .filter(e -> !e.shouldRemove())
+                .map(e -> e.getTransform().getTranslation())
+                .collect(Collectors.toList());
     }
 
-    private Target(Vector2 point) {
-        this.single = null;
-        this.point = point;
-        this.dynamic = null;
-        this.multiple = null;
-    }
+    /** Returns a single representative position (the exact point, or the center of a group). */
+    default Vector2 getPosition(UniverseModel world) {
+        List<Vector2> positions = getPositions(world);
+        if (positions.isEmpty()) return null;
+        if (positions.size() == 1) return positions.get(0);
 
-    private Target(Function<UniverseModel, Vector2> supplier) {
-        this.single = null;
-        this.point = null;
-        this.dynamic = supplier;
-        this.multiple = null;
-    }
-
-    private Target(List<AbstractEntityModel> members) {
-        this.single = null;
-        this.point = null;
-        this.dynamic = null;
-        this.multiple = members;
+        // Average center for groups (Flocking Cohesion)
+        Vector2 center = new Vector2();
+        for (Vector2 p : positions) center.add(p);
+        return center.multiply(1.0 / positions.size());
     }
 
     // ── Factories ────────────────────────────────────────────────────────
 
-    public static Target ofEntity(AbstractEntityModel entity) {
-        return new Target(entity);
+    static Target ofPoint(Vector2 point) {
+        return new Target() {
+            @Override
+            public List<AbstractEntityModel> getEntities(UniverseModel world) { return Collections.emptyList(); }
+            @Override
+            public List<Vector2> getPositions(UniverseModel world) { return Collections.singletonList(point.copy()); }
+        };
     }
 
-    public static Target ofPoint(Vector2 point) {
-        return new Target(point);
-    }
-
-    public static Target ofDynamic(Function<UniverseModel, Vector2> supplier) {
-        return new Target(supplier);
-    }
-
-    public static Target ofGroup(List<AbstractEntityModel> members) {
-        return new Target(members);
-    }
-
-    // ── Type checks (clean names) ────────────────────────────────────────
-
-    public boolean isEntity()  { return single != null; }
-    public boolean isPoint()   { return point != null; }
-    public boolean isDynamic() { return dynamic != null; }
-    public boolean isGroup()   { return multiple != null; }
-
-    // ── Single‑position access (backward compatible) ─────────────────────
-
-    /**
-     * Returns a representative position:
-     * <ul>
-     *   <li>For an entity, its translation (or null if removed).</li>
-     *   <li>For a fixed point, a copy of that point.</li>
-     *   <li>For a dynamic target, the computed position.</li>
-     *   <li>For a group, the center (average of all members).</li>
-     * </ul>
-     */
-    public Vector2 getPosition(UniverseModel world) {
-        if (single != null) {
-            if (single.shouldRemove()) return null;
-            return single.getTransform().getTranslation();
-        }
-        if (point != null) {
-            return point.copy();
-        }
-        if (dynamic != null) {
-            return dynamic.apply(world);
-        }
-        if (multiple != null && !multiple.isEmpty()) {
-            Vector2 center = new Vector2();
-            for (AbstractEntityModel m : multiple) center.add(m.getTransform().getTranslation());
-            return center.multiply(1.0 / multiple.size());
-        }
-        return null;
-    }
-
-    // ── Collection‑based access (new) ────────────────────────────────────
-
-    /**
-     * Returns all entities associated with this target.
-     * <ul>
-     *   <li>For a single entity, a list containing that entity.</li>
-     *   <li>For a group, the group list.</li>
-     *   <li>For point/dynamic, an empty list.</li>
-     * </ul>
-     */
-    public List<AbstractEntityModel> getEntities() {
-        if (single != null) return Collections.singletonList(single);
-        if (multiple != null) return multiple;
-        return Collections.emptyList();
-    }
-
-    /**
-     * Returns the positions of all relevant entities.
-     * <ul>
-     *   <li>For a single entity, its position (or empty if removed).</li>
-     *   <li>For a group, the positions of all its members.</li>
-     *   <li>For a point/dynamic, a single‑element list with that position.</li>
-     * </ul>
-     */
-    public List<Vector2> getPositions(UniverseModel world) {
-        if (single != null) {
-            if (single.shouldRemove()) return Collections.emptyList();
-            return Collections.singletonList(single.getTransform().getTranslation());
-        }
-        if (point != null) {
-            return Collections.singletonList(point.copy());
-        }
-        if (dynamic != null) {
-            Vector2 pos = dynamic.apply(world);
-            return pos == null ? Collections.emptyList() : Collections.singletonList(pos);
-        }
-        if (multiple != null) {
-            List<Vector2> positions = new ArrayList<>();
-            for (AbstractEntityModel m : multiple) {
-                if (!m.shouldRemove()) positions.add(m.getTransform().getTranslation());
+    static Target ofDynamicPoint(Function<UniverseModel, Vector2> query) {
+        return new Target() {
+            @Override
+            public List<AbstractEntityModel> getEntities(UniverseModel world) { return Collections.emptyList(); }
+            @Override
+            public List<Vector2> getPositions(UniverseModel world) {
+                Vector2 p = query.apply(world);
+                return p == null ? Collections.emptyList() : Collections.singletonList(p);
             }
-            return positions;
-        }
-        return Collections.emptyList();
+        };
     }
 
-    // ── Convenience accessors (keep old names if needed) ──────────────────
+    static Target ofEntity(AbstractEntityModel entity) {
+        return world -> entity.shouldRemove() ? Collections.emptyList() : Collections.singletonList(entity);
+    }
 
-    public AbstractEntityModel getEntity() { return single; }
-    public List<AbstractEntityModel> getList() { return multiple; }
+    /** A common helper for enemy AI. */
+    static Target ofPlayer() {
+        return world -> {
+            PlayerModel p = world.getPlayer();
+            return (p != null && !p.shouldRemove()) ? Collections.singletonList(p) : Collections.emptyList();
+        };
+    }
+
+    /** The ultimate dynamic query (perfect for Flocking Boids). */
+    static Target ofEntities(Function<UniverseModel, List<AbstractEntityModel>> query) {
+        return query::apply;
+    }
 }
