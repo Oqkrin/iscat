@@ -7,16 +7,11 @@
     -fx-border-color: -bg-tertiary;
     -fx-border-width: 2px;
 
-    -fx-text-fill: -text-primary;
+    -fx-text-fill: -accent-primary;
 }
 
 /* contenuto interno */
 .text-area .content,
 .text-area .viewport {
     -fx-background-color: -bg-primary;
-}
-
-/* testo */
-.text-area .text {
-    -fx-fill: -text-primary;
 }

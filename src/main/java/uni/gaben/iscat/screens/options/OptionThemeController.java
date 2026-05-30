@@ -41,6 +41,7 @@ public class OptionThemeController {
     private final List<Color> currentPalette = new ArrayList<>();
     private final Map<ColorPicker, StackPane> pickerBoxes = new HashMap<>();
     private Pane paneMaster;
+    private boolean isUpdatingProgrammatically = false;
 
     @FXML
     public void initialize() {
@@ -70,6 +71,11 @@ public class OptionThemeController {
     private void buildCustomPicker(ColorPicker picker, String role, HBox row) {
         picker.setVisible(false);
         picker.setManaged(false);
+        picker.valueProperty().addListener((obs, old, newVal) -> {
+            if (!isUpdatingProgrammatically) {
+                applyManualColorChanges();
+            }
+        });
 
         Rectangle rect = new Rectangle(60, 28);
         rect.setArcWidth(8); rect.setArcHeight(8);
@@ -92,7 +98,6 @@ public class OptionThemeController {
         widget.setAlignment(Pos.CENTER_LEFT);
         pickerBoxes.put(picker, colorBox);
 
-        picker.valueProperty().addListener((obs, old, newVal) -> applyManualColorChanges());
         row.getChildren().add(widget);
     }
 
@@ -179,11 +184,14 @@ public class OptionThemeController {
     private void assignPickersFromPalette() {
         if (currentPalette.isEmpty()) return;
         Color bg = currentPalette.stream().max(Comparator.comparingDouble(c -> lightModeCheck.isSelected() ? luminance(c) : -luminance(c))).orElse(Color.BLACK);
+
+        isUpdatingProgrammatically = true;
         bgPrimary.setValue(bg);
         List<Color> accents = currentPalette.stream().filter(c -> !c.equals(bg)).toList();
         if (!accents.isEmpty()) accentPrimary.setValue(accents.get(0));
         if (accents.size() >= 2) accentSecondary.setValue(accents.get(1));
         if (accents.size() >= 3) accentTernary.setValue(accents.get(2));
+        isUpdatingProgrammatically = false;
     }
 
     private void startUiSyncTimer() {
@@ -191,7 +199,12 @@ public class OptionThemeController {
         uiRainbowSyncTimer = new AnimationTimer() {
             @Override public void handle(long now) {
                 Color c = ThemeManager.getInstance().getAccentPrimary();
-                accentPrimary.setValue(c); accentSecondary.setValue(c); accentTernary.setValue(c);
+
+                isUpdatingProgrammatically = true;
+                accentPrimary.setValue(c);
+                accentSecondary.setValue(c);
+                accentTernary.setValue(c);
+                isUpdatingProgrammatically = false;
             }
         };
         uiRainbowSyncTimer.start();
@@ -209,8 +222,12 @@ public class OptionThemeController {
 
     private void syncColorPickersWithTheme() {
         ThemeManager tm = ThemeManager.getInstance();
-        accentPrimary.setValue(tm.getAccentPrimary()); accentSecondary.setValue(tm.getAccentSecondary());
-        accentTernary.setValue(tm.getAccentTernary()); bgPrimary.setValue(tm.getBgPrimary());
+        isUpdatingProgrammatically = true;
+        accentPrimary.setValue(tm.getAccentPrimary());
+        accentSecondary.setValue(tm.getAccentSecondary());
+        accentTernary.setValue(tm.getAccentTernary());
+        bgPrimary.setValue(tm.getBgPrimary());
+        isUpdatingProgrammatically = false;
     }
 
     private double luminance(Color c) { return 0.2126 * lin(c.getRed()) + 0.7152 * lin(c.getGreen()) + 0.0722 * lin(c.getBlue()); }

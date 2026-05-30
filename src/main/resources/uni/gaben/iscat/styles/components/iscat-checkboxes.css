@@ -3,13 +3,13 @@
    ============================================ */
 
 .check-box {
-    -fx-text-fill: -text-primary;
+    -fx-text-fill: -accent-primary;
 }
 
 /* Base box */
 .check-box .box {
     -fx-background-color: -bg-primary; /* Changed from black */
-    -fx-border-color: -text-primary;   /* Changed from white */
+    -fx-border-color: -accent-primary;   /* Changed from white */
     -fx-border-width: 1px;
     -fx-border-radius: 3px;
     -fx-background-radius: 3px;
