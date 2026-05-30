@@ -1,0 +1,59 @@
+package uni.gaben.iscat.screens.game_over;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
+import uni.gaben.iscat.controller.IscatFxmlController;
+import uni.gaben.iscat.screens.game.controller.GameController;
+import uni.gaben.iscat.screens.game.controller.GameState;
+import uni.gaben.iscat.screens.game.view.GameView;
+
+public class GameOverMenuController implements IscatFxmlController {
+
+    @FXML private Button retryBtn;
+    @FXML private Button menuBtn;
+    @FXML private Button quitBtn;
+
+    private GameController gameController;
+    private GameView gameView;
+
+
+    @FXML
+    public void initialize() {
+        applyIconButton(retryBtn, "fas-redo");
+        applyIconButton(menuBtn,  "fas-home");
+        applyIconButton(quitBtn,  "fas-power-off");
+
+        setupButtonHoverTween(retryBtn);
+        setupButtonHoverTween(menuBtn);
+        setupButtonHoverTween(quitBtn);
+    }
+
+    public void initData(GameController controller, GameView view) {
+        this.gameController = controller;
+        this.gameView       = view;
+    }
+
+    @FXML
+    private void handleRetry() {
+        if (gameController != null) {
+            gameController.retryGame();
+        }
+        if (gameView != null) {
+            gameView.transitionTo(GameState.PLAYING);
+        }
+    }
+
+    @FXML
+    private void handleQuitToMenu() {
+        if (gameController != null) gameController.quitToMainMenu();
+    }
+
+    @FXML
+    private void handleQuitGame() {
+        if (gameController != null) gameController.quitGame();
+    }
+
+    @Override
+    public void setContentRoot(StackPane contentRoot) {}
+}

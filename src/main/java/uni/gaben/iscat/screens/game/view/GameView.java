@@ -15,6 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.screens.game.controller.GameState;
+import uni.gaben.iscat.screens.game_over.GameOverMenuController;
 import uni.gaben.iscat.screens.options.OptionsMenuController;
 import uni.gaben.iscat.screens.pause_menu.PauseMenuController;
 import uni.gaben.iscat.view.AbstractIscatStackPane;
@@ -50,7 +51,7 @@ public class GameView extends AbstractIscatStackPane {
 
     private GameSpawnerToolbar spawnerToolbar;
     private StackPane          pauseMenu;
-    private GameOverMenu       gameOverMenu;
+    private StackPane          gameOverMenu; // Modificato in StackPane (Nodo radice dell'FXML)
 
     private HBox   debugButtonsContainer;
     private Button debugButton;
@@ -74,8 +75,8 @@ public class GameView extends AbstractIscatStackPane {
         canvas = new Canvas();
 
         spawnerToolbar = new GameSpawnerToolbar(gameController);
-        gameOverMenu   = new GameOverMenu(gameController);
         pauseMenu      = loadPauseMenu();
+        gameOverMenu   = loadGameOverMenu();
 
         levelLabel = new Label("LEVEL 1");
         levelLabel.setFocusTraversable(false);
@@ -111,6 +112,20 @@ public class GameView extends AbstractIscatStackPane {
             return view;
         } catch (java.io.IOException e) {
             throw new RuntimeException("Errore fatale: impossibile caricare pause-menu.fxml", e);
+        }
+    }
+
+    private StackPane loadGameOverMenu() {
+        try {
+            var loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/uni/gaben/iscat/fxml/game-over-menu.fxml"));
+            StackPane view = loader.load();
+
+            GameOverMenuController gameOverController = loader.getController();
+            gameOverController.initData(gameController, this);
+            return view;
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Errore fatale: impossibile caricare GameOverMenu.fxml", e);
         }
     }
 

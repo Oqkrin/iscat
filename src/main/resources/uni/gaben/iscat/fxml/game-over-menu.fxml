@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane minHeight="720.0" minWidth="1280.0"
+           stylesheets="@../styles/screens/game.css"
+           xmlns="http://javafx.com/javafx/"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="uni.gaben.iscat.screens.game_over.GameOverMenuController">
+
+    <VBox alignment="CENTER" spacing="24.0" styleClass="game-pause-overlay">
+        <padding>
+            <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+        </padding>
+
+        <Label styleClass="pause-title" text="GAME OVER" />
+
+        <Button fx:id="retryBtn" alignment="CENTER" onAction="#handleRetry" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu, primario" text="RETRY" />
+        <Button fx:id="menuBtn" alignment="CENTER" onAction="#handleQuitToMenu" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu" text="RETURN TO MAIN MENU" />
+        <Button fx:id="quitBtn" alignment="CENTER" onAction="#handleQuitGame" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu, pericolo" text="QUIT GAME" />
+    </VBox>
+</StackPane>
