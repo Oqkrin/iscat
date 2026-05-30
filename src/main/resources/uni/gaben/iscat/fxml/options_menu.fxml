@@ -29,23 +29,7 @@
             <VBox alignment="TOP_CENTER" spacing="20.0" HBox.hgrow="ALWAYS">
                 <Region VBox.vgrow="ALWAYS" />
 
-                <VBox fx:id="display" alignment="TOP_CENTER" fillWidth="false"
-                      rotate="-3.0" spacing="12.0" styleClass="glowing-border, video-card"
-                      VBox.vgrow="NEVER">
-                    <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
-                    <Label styleClass="card-header" text="DISPLAY" />
-                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label styleClass="control-label" text="UI Scale" />
-                        <Slider fx:id="scaleSlider" blockIncrement="2.0" max="96.0" min="1.0"
-                                value="64.0" HBox.hgrow="ALWAYS" />
-                    </HBox>
-                    <CheckBox fx:id="checkFps" onAction="#toggleFPSVisible"
-                              styleClass="modern-checkbox" text="SHOW FPS OVERLAY" />
-                    <CheckBox fx:id="FullscreenCheck" onAction="#toggleFullscreen"
-                              styleClass="modern-checkbox" text="FULLSCREEN MODE" />
-                    <CheckBox fx:id="DebugModeCheck" onAction="#toggleDebugMode"
-                              styleClass="modern-checkbox" text="DEBUG MODE" />
-                </VBox>
+                <fx:include fx:id="subDisplay" source="option_display.fxml" />
 
                 <Region VBox.vgrow="ALWAYS" />
 

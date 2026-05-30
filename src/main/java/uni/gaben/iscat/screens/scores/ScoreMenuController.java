@@ -4,16 +4,13 @@ import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import org.kordamp.ikonli.javafx.FontIcon;
-import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.screens.base.IscatMenuController;
 import uni.gaben.iscat.screens.bestiary.BestiaryData;
 import uni.gaben.iscat.view.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;
@@ -22,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ScoreMenuController implements IscatFxmlController {
+public class ScoreMenuController implements IscatMenuController {
 
     private StackPane contentRoot;
     private Runnable customBackAction = null;
@@ -55,6 +52,7 @@ public class ScoreMenuController implements IscatFxmlController {
 
     @FXML
     public void initialize() {
+        registerEscHandler();
         titleLabel.textProperty().bind(
                 Bindings.createStringBinding(() -> {
                     String user = SessionManager.getInstance().usernameProperty().getValue();
@@ -65,19 +63,7 @@ public class ScoreMenuController implements IscatFxmlController {
                 }, SessionManager.getInstance().usernameProperty())
         );
 
-        // sto testando questa nuova feature, rompe pause menu di game per ora:
-        /*rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                newScene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-                    if (e.getCode() == KeyCode.ESCAPE) {
-                        handleBack(null);
-                        e.consume();
-                    }
-                });
-            }
-        });*/
-
-        applyIconButton(exitBtn,           "fas-sign-out-alt");
+        applyIconButton(exitBtn,         "fas-sign-out-alt");
         applyIconLabel(lblBestScore,     "fas-trophy");
         applyIconLabel(lblTotalEnemies,  "fas-skull");
         applyIconLabel(lblBestTime,      "fas-stopwatch");
@@ -145,19 +131,18 @@ public class ScoreMenuController implements IscatFxmlController {
         this.customBackAction = customBackAction;
     }
 
-    @FXML
-    private void handleBack(ActionEvent event) {
+    @Override
+    public void handleBack() {
         titleLabel.textProperty().unbind();
-
-        for (AnimatedCanvas canvas : activeCanvases) {
-            canvas.stop();
-        }
+        activeCanvases.forEach(AnimatedCanvas::stop);
         activeCanvases.clear();
-
-        if (customBackAction != null) {
-            customBackAction.run();
-        } else {
-            IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
-        }
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
+
+    @FXML
+    private void handleBackAction(ActionEvent event) { handleBack(); }
+
+    @Override
+    public Pane getRootPane() { return rootPane; }
+
 }

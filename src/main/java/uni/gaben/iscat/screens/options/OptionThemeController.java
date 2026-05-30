@@ -40,7 +40,7 @@ public class OptionThemeController {
     private ColorPicker activePicker = null;
     private final List<Color> currentPalette = new ArrayList<>();
     private final Map<ColorPicker, StackPane> pickerBoxes = new HashMap<>();
-    private Pane paneMaster; // Passato dal padre per la Scene
+    private Pane paneMaster;
 
     @FXML
     public void initialize() {
