@@ -1,10 +1,45 @@
-https://opengameart.org/content/lasershootingsx
-https://pixabay.com/it/sound-effects/search/fart/
-https://opengameart.org/content/rpg-sound-effect-pack
-https://opengameart.org/content/8-bitnes-explosion-sound-effecs
-https://opengameart.org/content/explosion-0
-https://opengameart.org/content/level-up-power-up-coin-get-13-sounds
-https://opengameart.org/content/3-heal-spells
-https://opengameart.org/content/wgs-sound-fx-explosion-1
-https://opengameart.org/content/evil-cyber-laugh
-https://opengameart.org/content/magic-spell-sfx
+shoot ->
+	teckpow
+	CC0 
+	https://opengameart.org/content/lasershootingsx
+
+fart_alt1,2,3 ->
+	aPebble
+	Royalty-Free
+	https://pixabay.com/it/sound-effects/search/fart/
+
+hurt ->
+	TeamAlpha
+	CC-BY 3.0
+	https://opengameart.org/content/8-bitnes-explosion-sound-effecs
+
+explosion ->
+	TinyWorlds
+	CC0
+	https://opengameart.org/content/explosion-0
+
+levelup ->
+	wobbleboxx
+	CC0
+	https://opengameart.org/content/level-up-power-up-coin-get-13-sounds
+
+heal ->
+	DoKashiteru
+	CC-BY 3.0, GPL 2.0, GPL 3.0
+	https://opengameart.org/content/3-heal-spells
+
+shockwave ->
+	Retimer
+	CC-BY 3.0
+	https://opengameart.org/content/wgs-sound-fx-explosion-1
+
+laugh ->
+	AppPro
+	CC0
+	https://opengameart.org/content/evil-cyber-laugh
+	
+
+rainbow ->
+	JaggedStone
+	CC0
+	https://opengameart.org/content/magic-spell-sfx

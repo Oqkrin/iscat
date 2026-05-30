@@ -281,6 +281,7 @@ public class GameController {
     private void onPlayerDeath() {
         Platform.runLater(() -> {
             AudioManager.getInstance().stopBGM();
+            AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/gameover.wav",true);
             gameModel.setGameOver(true);
             gameModel.setPaused(true);
             saveStats();
