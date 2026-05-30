@@ -16,8 +16,7 @@ public class OptionDisplayController {
 
     @FXML
     public void initialize() {
-        scaleSlider.valueProperty().addListener((obs, old, val) ->
-                UU.setUniverseScale(val.doubleValue()));
+        scaleSlider.valueProperty().bindBidirectional(UU.UNIVERSE_SCALEProperty());
     }
 
     /**

@@ -3,12 +3,14 @@ package uni.gaben.iscat.universe;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
 
+import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterController;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormController;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
+import uni.gaben.iscat.universe.lib.behaviurs.AiController;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
@@ -182,11 +184,9 @@ public class UniverseController {
         for (AbstractEntityModel entity : toRemove) {
             universeModel.removeEntity(entity);
 
-            // Remove associated AI controller
-            if (entity instanceof IscatMasterModel) {
-                entityControllers.removeIf(ctrl -> ctrl instanceof IscatMasterController);
-            }
-            // Future: if other controllers need removal, add cases here
+            entityControllers.removeIf(
+                    ctrl -> (ctrl instanceof Brain<?> brain && brain.getEntity() == entity)
+            );
         }
     }
 

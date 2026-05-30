@@ -22,8 +22,6 @@ import static uni.gaben.iscat.universe.enemies.mob.IscatMobSettings.ISCATMOB;
 
 
 public class IscatMobBrain extends Brain<IscatMobModel> {
-
-    Random r = new Random();
     public IscatMobBrain(IscatMobModel entity) {
 
         super(entity, MovementGoal.idle(), ISCATMOB.force, ISCATMOB.maxVelocity, ISCATMOB.rotationSpeed);
@@ -39,7 +37,6 @@ public class IscatMobBrain extends Brain<IscatMobModel> {
                         .collect(Collectors.toList())
         );
 
-        // 3. Setup Actions & Modifiers
         addAction(new LineOfSightShootAction(
                 ISCATMOB.combatRange,
                 ISCATMOB.fireCooldownS,
@@ -53,9 +50,9 @@ public class IscatMobBrain extends Brain<IscatMobModel> {
         setRotationGoal(RotationGoal.target(Target.ofPlayer()));
 
 
-        addModifier(new CohesionModifier(flock, ISCATMOB.detectionRange*2, 1));
+        addModifier(new CohesionModifier(flock, ISCATMOB.detectionRange*2, 1.8));
         addModifier(new AlignmentModifier(flock, ISCATMOB.detectionRange*2, 1));
-        addModifier(new SeparationModifier(flock, ISCATMOB.combatRange*2, 1.8));
+        addModifier(new SeparationModifier(flock, ISCATMOB.combatRange*2, 3));
 
     }
 }

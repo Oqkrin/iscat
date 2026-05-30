@@ -37,9 +37,7 @@ public class UniverseModel extends World<Body> {
             new SimpleDoubleProperty(UniverseSettings.DEFAULT_HEIGHT);
 
     public UniverseModel() {
-
         setGravity(PhysicsWorld.ZERO_GRAVITY);
-
         addContactListener(new ContactListenerAdapter<Body>() {
 
             @Override
@@ -47,13 +45,10 @@ public class UniverseModel extends World<Body> {
                     ContactCollisionData<Body> collision,
                     Contact contact
             ) {
-
                 Body b1 = collision.getBody1();
                 Body b2 = collision.getBody2();
-
                 AbstractEntityModel entA = extractEntity(b1);
                 AbstractEntityModel entB = extractEntity(b2);
-
                 if (entA != null && entB != null) {
                     entA.triggerCollision(entB);
                     entB.triggerCollision(entA);

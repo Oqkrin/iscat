@@ -15,7 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.screens.game.controller.GameState;
-import uni.gaben.iscat.screens.game_over.GameOverMenuController;
+import uni.gaben.iscat.screens.game.controller.GameOverMenuController;
 import uni.gaben.iscat.screens.options.OptionsMenuController;
 import uni.gaben.iscat.screens.pause_menu.PauseMenuController;
 import uni.gaben.iscat.view.AbstractIscatStackPane;

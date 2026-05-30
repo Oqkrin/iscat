@@ -10,7 +10,7 @@
            stylesheets="@../styles/screens/game.css"
            xmlns="http://javafx.com/javafx/"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.screens.game_over.GameOverMenuController">
+           fx:controller="uni.gaben.iscat.screens.game.controller.GameOverMenuController">
 
     <VBox alignment="CENTER" spacing="24.0" styleClass="game-pause-overlay">
         <padding>

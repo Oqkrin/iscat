@@ -1,11 +1,9 @@
-package uni.gaben.iscat.screens.game_over;
+package uni.gaben.iscat.screens.game.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.controller.IscatFxmlController;
-import uni.gaben.iscat.screens.game.controller.GameController;
-import uni.gaben.iscat.screens.game.controller.GameState;
 import uni.gaben.iscat.screens.game.view.GameView;
 
 public class GameOverMenuController implements IscatFxmlController {

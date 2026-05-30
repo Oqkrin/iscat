@@ -26,16 +26,13 @@ public class CohesionModifier extends AbstractFlockingModifier {
         }
 
         if (flockSize > 0) {
-            // 1. Find the average position of all neighbors
             centerOfMass.divide(flockSize);
 
-            // 2. Create a steering vector pointing from self toward the center of mass
             Vector2 steer = centerOfMass.subtract(selfPos);
 
             if (steer.getMagnitudeSquared() > 0) {
                 steer.normalize();
                 steer.multiply(maxForce*multiplier);
-                // You can add a weight multiplier here if cohesion is too weak/strong (e.g., steer.multiply(0.5))
                 currentDesired.add(steer);
             }
         }
