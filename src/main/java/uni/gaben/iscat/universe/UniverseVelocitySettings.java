@@ -57,7 +57,7 @@ public final class UniverseVelocitySettings {
     public static final double MOTHER_MAX_VELOCITY    = ENEMY_BULLET_VELOCITY/3;
 
     /** IscatWorm head max movement speed (m/s). */
-    public static final double WORM_HEAD_MAX_SPEED    = ENEMY_BULLET_VELOCITY/2;
+    public static final double WORM_HEAD_MAX_SPEED    = ENEMY_BULLET_VELOCITY*4;
 
     public static final double ISCAT_MASTER_MAX_VELOCITY = ENEMY_BULLET_VELOCITY*10;
 

@@ -89,7 +89,7 @@ public class IscatWormController {
 
     private void configureHead(AiController ctrl) {
         ctrl.setMovementStrategy(new HeadMovement());
-        ctrl.addAttack(new HeadPlungeAttack());
+        //ctrl.addAttack(new HeadPlungeAttack());
     }
 
     private void configureBody(AiController ctrl) {
@@ -206,7 +206,7 @@ public class IscatWormController {
         newCtrl.addModifier(new ProjectileAvoidanceModifier());
         newCtrl.addModifier(new ObstacleAvoidanceModifier());
         newCtrl.setMovementStrategy(new HeadMovement());
-        newCtrl.addAttack(new HeadPlungeAttack());
+        //newCtrl.addAttack(new HeadPlungeAttack());
         controllers.put(seg, newCtrl);
     }
 
