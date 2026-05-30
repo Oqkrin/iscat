@@ -321,13 +321,13 @@ public class GameView extends AbstractIscatStackPane {
         starfieldView.wProperty().bind(canvas.widthProperty());
         starfieldView.hProperty().bind(canvas.heightProperty());
 
-        var player = universe.getPlayer();
-        if (player != null) {
-            levelLabel.textProperty().bind(
-                    Bindings.concat("LEVEL ", player.levelProperty().asString()));
-        } else {
-            levelLabel.setText("LEVEL 1");
-        }
+        runLater(() -> {
+            var player = universe.getPlayer();
+            if (player != null) {
+                levelLabel.textProperty().bind(
+                        Bindings.concat("LEVEL ", player.levelProperty().asString()));
+            }
+        });
     }
 
     private void updateTimerText(int val) {
