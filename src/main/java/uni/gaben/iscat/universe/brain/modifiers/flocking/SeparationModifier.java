@@ -20,8 +20,6 @@ public class SeparationModifier extends AbstractFlockingModifier {
         Vector2 selfPos = self.getTransform().getTranslation();
 
         for (var body : flock.getEntities(universe)) {
-            // Redundancy check: ensure we don't calculate separation from ourselves
-            if (body == self) continue;
 
             Vector2 bodyPos = body.getTransform().getTranslation();
             double distance = selfPos.distance(bodyPos);
@@ -49,7 +47,7 @@ public class SeparationModifier extends AbstractFlockingModifier {
             // Normalize so we can predictably mix it with the other steering behaviors
             if (sum.getMagnitudeSquared() > 0) {
                 sum.normalize();
-                sum.multiply(maxForce);
+                sum.multiply(maxForce*multiplier);
 
 
                 // Note: You can multiply 'sum' by a scalar weight here (e.g., sum.multiply(1.5))

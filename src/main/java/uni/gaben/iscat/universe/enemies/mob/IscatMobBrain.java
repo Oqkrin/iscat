@@ -19,10 +19,11 @@ import static uni.gaben.iscat.universe.enemies.mob.IscatMobSettings.ISCATMOB;
 public class IscatMobBrain extends Brain<IscatMobModel> {
 
     public IscatMobBrain(IscatMobModel entity) {
-        super(entity, MovementGoal.idle(), ISCATMOB.force, ISCATMOB.maxVelocity, ISCATMOB.rotationSpeed);
+
+        super(entity, MovementGoal.chase(Target.ofPlayer(), ISCATMOB.maxVelocity), ISCATMOB.force, ISCATMOB.maxVelocity, ISCATMOB.rotationSpeed);
 
         // 1. Easy Player Targeting
-        Target playerTarget = Target.ofPlayer();
+
 
         // 2. Dynamic Flocking Target (Finds all nearby mobs, excluding itself)
         Target flock = Target.ofEntities(world ->
@@ -38,16 +39,16 @@ public class IscatMobBrain extends Brain<IscatMobModel> {
                 ISCATMOB.fireCooldownS,
                 ProjectileType.ENEMY_BULLET,
                 new SingleShotAttack(),
-                playerTarget,
+                Target.ofPlayer(),
                 false,
                 Math.toRadians(ISCATMOB.detectionRange)
         ));
 
         Random r = new Random();
-        // Flocking modifiers now correctly receive the dynamic list of neighboring entities
-        addModifier(new CohesionModifier(flock, ISCATMOB.detectionRange/2, r.nextDouble(10)));
-        addModifier(new AlignmentModifier(flock, ISCATMOB.detectionRange/2, r.nextDouble(5)));
-        addModifier(new SeparationModifier(flock, ISCATMOB.combatRange/3, r.nextDouble(5)));
+
+        addModifier(new CohesionModifier(flock, ISCATMOB.detectionRange/2, r.nextGaussian()/10));
+        addModifier(new AlignmentModifier(flock, ISCATMOB.detectionRange/2, r.nextGaussian()));
+        addModifier(new SeparationModifier(flock, ISCATMOB.combatRange/2, r.nextGaussian()*100));
 
     }
 }

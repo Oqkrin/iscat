@@ -34,7 +34,7 @@ public class CohesionModifier extends AbstractFlockingModifier {
 
             if (steer.getMagnitudeSquared() > 0) {
                 steer.normalize();
-                steer.multiply(maxForce);
+                steer.multiply(maxForce*multiplier);
                 // You can add a weight multiplier here if cohesion is too weak/strong (e.g., steer.multiply(0.5))
                 currentDesired.add(steer);
             }

@@ -31,7 +31,7 @@ public class AlignmentModifier extends AbstractFlockingModifier {
 
             if (averageVelocity.getMagnitudeSquared() > 0) {
                 averageVelocity.normalize();
-                averageVelocity.multiply(maxForce);
+                averageVelocity.multiply(maxForce*multiplier);
                 // You can add a weight multiplier here to scale alignment strength
                 currentDesired.add(averageVelocity);
             }
