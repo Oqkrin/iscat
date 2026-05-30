@@ -60,4 +60,11 @@ public enum UniverseSpawnable {
             return null;
         }
     }
+
+    public static UniverseSpawnable fromModelClass(Class<?> modelClass) {
+        for (UniverseSpawnable type : values()) {
+            if (type.modelClass == modelClass) return type;
+        }
+        return null;
+    }
 }

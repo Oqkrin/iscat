@@ -14,6 +14,7 @@ import uni.gaben.iscat.universe.lib.behaviurs.AiController;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
+import uni.gaben.iscat.universe.rendering.RenderRegistry;
 import uni.gaben.iscat.utils.Updatable;
 
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
@@ -191,6 +192,7 @@ public class UniverseController {
 
         for (AbstractEntityModel entity : toRemove) {
             universeModel.removeEntity(entity);
+            RenderRegistry.getInstance().removeRenderer(entity);
 
             entityControllers.removeIf(
                     ctrl -> (ctrl instanceof Brain<?> brain && brain.getEntity() == entity)

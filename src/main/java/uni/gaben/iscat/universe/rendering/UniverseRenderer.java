@@ -88,8 +88,9 @@ public class UniverseRenderer {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends AbstractEntityModel> void drawEntity(T entity, GraphicsContext gc, boolean renderCollisionBoxes, double dt) {
-        Drawable<T> renderer = (Drawable<T>) RenderRegistry.getInstance().getRenderer(entity.getClass());
+    private <T extends AbstractEntityModel> void drawEntity(T entity, GraphicsContext gc,
+                                                            boolean renderCollisionBoxes, double dt) {
+        Drawable<T> renderer = RenderRegistry.getInstance().getRenderer(entity); // <-- entity, non class
         if (renderer == null) return;
 
         if (renderer instanceof AbstractEntityView<?> view) {
@@ -98,11 +99,10 @@ public class UniverseRenderer {
 
         renderer.draw(entity, gc);
 
-        if (renderCollisionBoxes && renderer instanceof AbstractEntityView) {
-            AbstractEntityView<T> entityView = (AbstractEntityView<T>) renderer;
+        if (renderCollisionBoxes && renderer instanceof AbstractEntityView<?>entityView) {
             gc.save();
-            entityView.setPos(entity);
-            entityView.drawDebugCollision(entity, gc);
+            ((AbstractEntityView<T>) entityView).setPos(entity);
+            ((AbstractEntityView<T>) entityView).drawDebugCollision(entity, gc);
             gc.restore();
         }
     }

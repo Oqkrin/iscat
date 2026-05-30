@@ -5,7 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" fillWidth="false" rotate="-3.0" spacing="12.0" styleClass="glowing-border, video-card" VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.options.OptionDisplayController">
+<VBox alignment="TOP_CENTER" fillWidth="false" rotate="-3.0" spacing="12.0" styleClass="glowing-border, video-card" VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.options.OptionDisplayController">
     <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
 
     <Label styleClass="card-header" text="DISPLAY" />
