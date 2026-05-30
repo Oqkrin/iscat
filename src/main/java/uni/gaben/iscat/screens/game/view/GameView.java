@@ -12,7 +12,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.screens.game.controller.GameState;
@@ -119,7 +118,7 @@ public class GameView extends AbstractIscatStackPane {
         transitionTo(GameState.IN_OPTIONS);
         try {
             var loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/uni/gaben/iscat/fxml/options_menu.fxml"));
+                    getClass().getResource("/uni/gaben/iscat/fxml/options/options_menu.fxml"));
             StackPane optionsView = loader.load();
 
             OptionsMenuController optionsController = loader.getController();
