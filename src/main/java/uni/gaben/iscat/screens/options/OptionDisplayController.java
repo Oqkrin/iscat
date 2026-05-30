@@ -39,4 +39,12 @@ public class OptionDisplayController {
 
     @FXML void toggleFPSVisible(ActionEvent event) {}
     @FXML void toggleDebugMode(ActionEvent event) {}
+
+    public javafx.scene.control.CheckBox getCheckFps() {
+        return checkFps;
+    }
+
+    public javafx.scene.control.CheckBox getDebugModeCheck() {
+        return DebugModeCheck;
+    }
 }
