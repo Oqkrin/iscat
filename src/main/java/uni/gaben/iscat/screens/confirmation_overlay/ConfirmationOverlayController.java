@@ -6,7 +6,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
-public class ConfirmationOverlay {
+public class ConfirmationOverlayController {
 
     @FXML private StackPane rootPane;
     @FXML private Label titleLabel;

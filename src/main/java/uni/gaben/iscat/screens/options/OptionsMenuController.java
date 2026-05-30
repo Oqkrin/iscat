@@ -26,7 +26,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import uni.gaben.iscat.database.sqlite.ScoreDAO;
-import uni.gaben.iscat.screens.confirmation_overlay.ConfirmationOverlay;
+import uni.gaben.iscat.screens.confirmation_overlay.ConfirmationOverlayController;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
@@ -91,7 +91,7 @@ public class OptionsMenuController implements IscatFxmlController {
     @FXML private HBox pickerRow2;
 
     @FXML private StackPane confirmOverlay;
-    @FXML private ConfirmationOverlay confirmOverlayController;
+    @FXML private ConfirmationOverlayController confirmOverlayController;
 
     private final List<File> carouselImages = new ArrayList<>();
     private int currentIndex = -1;
