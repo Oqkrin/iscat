@@ -3,10 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -30,6 +28,7 @@
 
             <VBox alignment="TOP_CENTER" spacing="20.0" HBox.hgrow="ALWAYS">
                 <Region VBox.vgrow="ALWAYS" />
+
                 <VBox fx:id="display" alignment="TOP_CENTER" fillWidth="false"
                       rotate="-3.0" spacing="12.0" styleClass="glowing-border, video-card"
                       VBox.vgrow="NEVER">
@@ -47,92 +46,23 @@
                     <CheckBox fx:id="DebugModeCheck" onAction="#toggleDebugMode"
                               styleClass="modern-checkbox" text="DEBUG MODE" />
                 </VBox>
+
                 <Region VBox.vgrow="ALWAYS" />
-                <VBox fx:id="account" alignment="TOP_CENTER" fillWidth="false"
-                      rotate="1.5" spacing="10.0" styleClass="glowing-border, danger-card"
-                      VBox.vgrow="NEVER">
-                    <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
-                    <Label styleClass="card-header" text="ACCOUNT" />
-                    <Button fx:id="ResetAccountBtn" onAction="#resetAccount" text="Reset Account" />
-                    <Button fx:id="DeleteAccountBtn" onAction="#deleteAccount"
-                            style="-fx-text-fill: red;" text="Delete Account" />
-                </VBox>
+
+                <fx:include fx:id="subAccount" source="option_account.fxml" />
+
                 <Region VBox.vgrow="ALWAYS" />
             </VBox>
 
-            <VBox fx:id="theme" alignment="TOP_CENTER" rotate="-1.0" spacing="12.0"
-                  styleClass="glowing-border, theme-card" HBox.hgrow="ALWAYS">
-                <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
-                <Label styleClass="card-header" text="THEME" />
-
-                <StackPane fx:id="imageArea" minHeight="80.0" VBox.vgrow="ALWAYS">
-                    <ImageView fx:id="themePreview" fitHeight="180" fitWidth="320"
-                               preserveRatio="true" />
-                    <Button fx:id="pickImageBtn" text="Pick Image"
-                            styleClass="action-button" StackPane.alignment="CENTER" />
-                </StackPane>
-
-                <HBox alignment="CENTER" spacing="10.0">
-                    <Button fx:id="prevThemeBtn" onAction="#prevTheme" text="&lt;" />
-                    <Button fx:id="addImageBtn" text="ADD IMAGE"
-                            visible="false" managed="false" styleClass="action-button" />
-                    <Button fx:id="nextThemeBtn" onAction="#nextTheme" text="&gt;" />
-                </HBox>
-
-                <HBox fx:id="modeToggleBox" alignment="CENTER" spacing="12.0">
-                    <CheckBox fx:id="lightModeCheck" onAction="#toggleThemeMode" text="LIGHT MODE" />
-                    <CheckBox fx:id="rainbowModeCheck" onAction="#toggleRainbowMode" text="RAINBOW MODE" />
-                </HBox>
-
-                <HBox fx:id="pickerRow1" alignment="CENTER" spacing="8.0" />
-                <HBox fx:id="pickerRow2" alignment="CENTER" spacing="8.0" />
-
-                <VBox fx:id="hiddenPickers" managed="false" visible="false">
-                    <ColorPicker fx:id="accentPrimary" />
-                    <ColorPicker fx:id="accentSecondary" />
-                    <ColorPicker fx:id="accentTernary" />
-                    <ColorPicker fx:id="bgPrimary" />
-                </VBox>
-
-                <Label text="Premi un selettore, poi un colore" styleClass="palette-hint" />
-                <HBox fx:id="paletteHolder" alignment="CENTER" spacing="6"
-                      VBox.vgrow="NEVER" style="-fx-padding: 8 0 0 0;" />
-            </VBox>
+            <fx:include fx:id="subTheme" source="option_theme.fxml" />
 
             <VBox alignment="TOP_CENTER" spacing="20.0" HBox.hgrow="ALWAYS">
-                <VBox fx:id="audio" alignment="TOP_CENTER" rotate="1.0" spacing="12.0"
-                      styleClass="glowing-border, audio-card" VBox.vgrow="NEVER">
-                    <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
-                    <Label styleClass="card-header" text="AUDIO" />
-                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label styleClass="control-label" text="MASTER" />
-                        <Slider fx:id="masterSlider" HBox.hgrow="ALWAYS" />
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label styleClass="control-label" text="BGM" />
-                        <Slider fx:id="BGMSlider" HBox.hgrow="ALWAYS" />
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label styleClass="control-label" text="SFX" />
-                        <Slider fx:id="SFXSlider" HBox.hgrow="ALWAYS" />
-                    </HBox>
-                </VBox>
+
+                <fx:include fx:id="subAudio" source="option_audio.fxml" />
+
                 <Region VBox.vgrow="ALWAYS" />
-                <VBox fx:id="keybinds" alignment="TOP_CENTER" rotate="-2.0" spacing="8.0"
-                      styleClass="glowing-border, controls-card" VBox.vgrow="NEVER">
-                    <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
-                    <Label styleClass="card-header" text="KEYBINDINGS" />
-                    <Button fx:id="walkUp" onAction="#changeControl" text="W" />
-                    <HBox alignment="CENTER" spacing="5.0">
-                        <Button fx:id="walkLeft" onAction="#changeControl" text="A" />
-                        <Button fx:id="walkDown" onAction="#changeControl" text="S" />
-                        <Button fx:id="walkRight" onAction="#changeControl" text="D" />
-                    </HBox>
-                    <Button fx:id="dash1" onAction="#changeControl" text="Dash: Space" />
-                    <Button fx:id="dash2" onAction="#changeControl" text="Dash: Mouse" />
-                    <Button fx:id="resetControlsBtn" onAction="#resetControls"
-                            text="RESTORE DEFAULTS" />
-                </VBox>
+
+                <fx:include fx:id="subKeybinds" source="option_keybinds.fxml" />
             </VBox>
         </HBox>
 
