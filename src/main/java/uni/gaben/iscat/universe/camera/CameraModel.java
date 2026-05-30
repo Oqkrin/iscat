@@ -20,9 +20,19 @@ public class CameraModel {
     private boolean snapped = false;
 
     // Viewport dimensions (the visible area in screen pixels)
-    private final DoubleProperty screenWidth  = new SimpleDoubleProperty(800);
-    private final DoubleProperty screenHeight = new SimpleDoubleProperty(600);
+    private final DoubleProperty screenWidth  = new SimpleDoubleProperty(1280);
+    private final DoubleProperty screenHeight = new SimpleDoubleProperty(720);
+    private final DoubleProperty zoom = new SimpleDoubleProperty(1.0);
 
+    public double getZoom() { return zoom.get(); }
+    public DoubleProperty zoomProperty() { return zoom; }
+    public void setZoom(double zoom) {
+        this.zoom.set(Math.clamp(zoom, 0.5, 2.0));
+    }
+
+    public void addZoom(double delta) {
+        setZoom(getZoom() + delta);
+    }
     /**
      * Constructs a new camera model with default spring configurations.
      *
@@ -196,15 +206,13 @@ public class CameraModel {
      * @return left edge world X (pixels)
      */
     public double getViewportLeftX() {
-        return getX() - getScreenCenterX();
+        return getX() - (getScreenWidth() / getZoom()) / 2.0;
     }
-
     /**
      * Computes the world Y coordinate of the viewport's top edge.
      *
      * @return top edge world Y (pixels)
      */
     public double getViewportTopY() {
-        return getY() - getScreenCenterY();
-    }
-}
+        return getY() - (getScreenHeight() / getZoom()) / 2.0;
+    }}

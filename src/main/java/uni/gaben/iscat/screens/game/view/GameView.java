@@ -259,6 +259,17 @@ public class GameView extends AbstractIscatStackPane {
                 canvas.requestFocus();
             }
         });
+
+        this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (gameController.getGameModel().isPaused()) return;
+            if (e.getCode() == KeyCode.PLUS || e.getCode() == KeyCode.ADD) {
+                gameController.getCameraModel().addZoom(0.1);
+                e.consume();
+            } else if (e.getCode() == KeyCode.MINUS || e.getCode() == KeyCode.SUBTRACT) {
+                gameController.getCameraModel().addZoom(-0.1);
+                e.consume();
+            }
+        });
     }
 
     @Override

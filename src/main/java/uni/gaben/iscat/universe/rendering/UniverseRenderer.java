@@ -58,7 +58,16 @@ public class UniverseRenderer {
 
         // 3. Render Game Entities inside Camera Space Matrix
         gc.save();
-        gc.translate(-cameraModel.getViewportLeftX(), -cameraModel.getViewportTopY());
+        //gc.translate(-cameraModel.getViewportLeftX(), -cameraModel.getViewportTopY());
+
+        double cx = cameraModel.getX();
+        double cy = cameraModel.getY();
+        double zoom = cameraModel.getZoom();
+        double screenW = mainCanvas.getWidth();
+        double screenH = mainCanvas.getHeight();
+
+        gc.translate(screenW / 2 - cx * zoom, screenH / 2 - cy * zoom);
+        gc.scale(zoom, zoom);
 
         boolean renderCollisionBoxes = debugPanelVisible && gameController.isDebugModeOn();
         for (var entity : universe.getEntities()) {

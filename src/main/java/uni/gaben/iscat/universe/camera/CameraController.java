@@ -37,8 +37,9 @@ public class CameraController {
                        double dt) {
 
         // Desired camera centre: centre the target in the viewport
-        double targetCentreX = targetWorldX - viewW / 2.0;
-        double targetCentreY = targetWorldY - viewH / 2.0;
+        double zoom = model.getZoom();
+        double targetCentreX = targetWorldX - (viewW / zoom) / 2.0;
+        double targetCentreY = targetWorldY - (viewH / zoom) / 2.0;
 
         // Tell the springs where we want them to go
         model.getSpringX().setTarget(targetCentreX);

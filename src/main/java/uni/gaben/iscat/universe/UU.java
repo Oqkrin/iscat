@@ -5,7 +5,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.geometry.Vector2;
 
 
-
 /**
  * Universe Units (UU) - Utility class for scaling between
  * Dyn4j physics units (meters, seconds) and visual engine units (pixels, ticks).
@@ -24,7 +23,7 @@ public class UU {
     }
 
     // 64 pixels = 1 meter
-    public static DoubleProperty UNIVERSE_SCALE = new SimpleDoubleProperty(64.0);
+    public static DoubleProperty UNIVERSE_SCALE = new SimpleDoubleProperty(UniverseSettings.DEFAULT_SCALE);
     // 1 tick = 1/60th of a second (assuming a standard 60Hz physics loop)
     public static final double UNIVERSE_TICK = 1.0 / 60.0;
 
