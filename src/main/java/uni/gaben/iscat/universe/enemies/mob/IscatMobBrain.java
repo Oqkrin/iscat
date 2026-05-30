@@ -1,9 +1,11 @@
 package uni.gaben.iscat.universe.enemies.mob;
 
+import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.brain.actions.shoot.LineOfSightShootAction;
 import uni.gaben.iscat.universe.brain.goals.MovementGoal;
+import uni.gaben.iscat.universe.brain.goals.RotationGoal;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.AlignmentModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.CohesionModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.SeparationModifier;
@@ -12,18 +14,22 @@ import uni.gaben.iscat.universe.projectiles.ProjectileType;
 
 
 import java.util.Random;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 import static uni.gaben.iscat.universe.enemies.mob.IscatMobSettings.ISCATMOB;
 
+
+
 public class IscatMobBrain extends Brain<IscatMobModel> {
 
+    Random r = new Random();
     public IscatMobBrain(IscatMobModel entity) {
 
-        super(entity, MovementGoal.chase(Target.ofPlayer(), ISCATMOB.maxVelocity), ISCATMOB.force, ISCATMOB.maxVelocity, ISCATMOB.rotationSpeed);
+        super(entity, MovementGoal.idle(), ISCATMOB.force, ISCATMOB.maxVelocity, ISCATMOB.rotationSpeed);
 
-        // 1. Easy Player Targeting
 
+        setMovementGoal(MovementGoal.kite(Target.ofPlayer(), ISCATMOB.force, ISCATMOB.combatRange/3));
 
         // 2. Dynamic Flocking Target (Finds all nearby mobs, excluding itself)
         Target flock = Target.ofEntities(world ->
@@ -44,11 +50,12 @@ public class IscatMobBrain extends Brain<IscatMobModel> {
                 Math.toRadians(ISCATMOB.detectionRange)
         ));
 
-        Random r = new Random();
+        setRotationGoal(RotationGoal.target(Target.ofPlayer()));
 
-        addModifier(new CohesionModifier(flock, ISCATMOB.detectionRange/2, r.nextGaussian()/10));
-        addModifier(new AlignmentModifier(flock, ISCATMOB.detectionRange/2, r.nextGaussian()));
-        addModifier(new SeparationModifier(flock, ISCATMOB.combatRange/2, r.nextGaussian()*100));
+
+        addModifier(new CohesionModifier(flock, ISCATMOB.detectionRange*2, 1));
+        addModifier(new AlignmentModifier(flock, ISCATMOB.detectionRange*2, 1));
+        addModifier(new SeparationModifier(flock, ISCATMOB.combatRange*2, 1.8));
 
     }
 }
