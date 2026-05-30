@@ -2,29 +2,29 @@ package uni.gaben.iscat.screens.pause_menu;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.controller.IscatFxmlController;
+import uni.gaben.iscat.screens.confirmation_overlay.ConfirmationOverlayController;
 import uni.gaben.iscat.screens.game.controller.GameController;
 import uni.gaben.iscat.screens.game.view.GameView;
-import uni.gaben.iscat.utils.AudioManager;
-import uni.gaben.iscat.utils.AudioSettings;
+import uni.gaben.iscat.screens.options.OptionAudioController;
+import uni.gaben.iscat.screens.options.OptionDisplayController;
 
 public class PauseMenuController implements IscatFxmlController {
-
-    @FXML private Slider   musicSlider;
-    @FXML private Slider   sfxSlider;
-    @FXML private CheckBox fpsCheck;
-    @FXML private CheckBox debugCheck;
 
     @FXML private Button resumeBtn;
     @FXML private Button menuBtn;
     @FXML private Button quitBtn;
     @FXML private Button optionBtn;
 
+    @FXML private OptionDisplayController subDisplayController;
+    @FXML private OptionAudioController subAudioController;
+
     private GameController gameController;
     private GameView       gameView;
+
+    @FXML private StackPane confirmOverlay;
+    @FXML private ConfirmationOverlayController confirmOverlayController;
 
     @FXML
     public void initialize() {
@@ -37,48 +37,56 @@ public class PauseMenuController implements IscatFxmlController {
         setupButtonHoverTween(menuBtn);
         setupButtonHoverTween(quitBtn);
         setupButtonHoverTween(optionBtn);
-
-        musicSlider.setValue(AudioSettings.VOLUME_BGM);
-        sfxSlider.setValue(AudioSettings.VOLUME_SFX);
-
-        musicSlider.valueProperty().addListener((obs, oldV, newV) ->
-                AudioManager.getInstance().setBgmVolume(newV.doubleValue()));
-
-        sfxSlider.valueProperty().addListener((obs, oldV, newV) ->
-                AudioManager.getInstance().setSfxVolume(newV.doubleValue()));
     }
 
     /**
-     * Inietta controller e view. Chiamato da GameView dopo il caricamento FXML.
+     * Inietta controller e view della partita.
      */
     public void initData(GameController controller, GameView view) {
         this.gameController = controller;
         this.gameView       = view;
 
-        fpsCheck.setSelected(gameController.isFpsOn());
-        debugCheck.setSelected(gameController.isDebugModeOn());
+        if (subDisplayController != null) {
+            subDisplayController.getCheckFps().setSelected(gameController.isFpsOn());
+            subDisplayController.getDebugModeCheck().setSelected(gameController.isDebugModeOn());
 
-        fpsCheck.selectedProperty().addListener((obs, oldV, newV) ->
-                gameController.setShowFps(newV));
+            subDisplayController.getCheckFps().selectedProperty().addListener((obs, oldV, newV) ->
+                    gameController.setShowFps(newV));
 
-        debugCheck.selectedProperty().addListener((obs, oldV, newV) ->
-                gameController.setShowDebugMode(newV));
+            subDisplayController.getDebugModeCheck().selectedProperty().addListener((obs, oldV, newV) ->
+                    gameController.setShowDebugMode(newV));
+        }
     }
 
     @FXML
     private void handleResume() {
-        if (gameView != null) gameView.transitionTo(
-                gameView.getGameState().onEscape());
+        if (gameView != null) gameView.transitionTo(gameView.getGameState().onEscape());
     }
 
     @FXML
     private void handleQuitToMenu() {
-        if (gameController != null) gameController.quitToMainMenu();
+        if (confirmOverlayController != null) {
+            confirmOverlayController.ask(
+                    "Uscire dal Gioco?",
+                    "Lo score della partita corrente verrà calcolato.",
+                    () -> { if (gameController != null) gameController.quitToMainMenu(); }
+            );
+        } else {
+            if (gameController != null) gameController.quitToMainMenu();
+        }
     }
 
     @FXML
     private void handleQuitGame() {
-        if (gameController != null) gameController.quitGame();
+        if (confirmOverlayController != null) {
+            confirmOverlayController.ask(
+                    "Uscire dal Gioco?",
+                    "I progressi della partita corrente andranno persi.",
+                    () -> { if (gameController != null) gameController.quitGame(); }
+            );
+        } else {
+            if (gameController != null) gameController.quitGame();
+        }
     }
 
     @FXML
@@ -87,5 +95,5 @@ public class PauseMenuController implements IscatFxmlController {
     }
 
     @Override
-    public void setContentRoot(StackPane contentRoot) { /* non usato */ }
+    public void setContentRoot(StackPane contentRoot) {}
 }

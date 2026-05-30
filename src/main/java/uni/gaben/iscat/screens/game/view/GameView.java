@@ -12,7 +12,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.screens.game.controller.GameState;
@@ -50,7 +49,7 @@ public class GameView extends AbstractIscatStackPane {
     private final StarfieldView starfieldView = new StarfieldView();
 
     private GameSpawnerToolbar spawnerToolbar;
-    private VBox               pauseMenu;
+    private StackPane          pauseMenu;
     private GameOverMenu       gameOverMenu;
 
     private HBox   debugButtonsContainer;
@@ -101,14 +100,14 @@ public class GameView extends AbstractIscatStackPane {
         universeRenderer = new UniverseRenderer(canvas, gameController, starfieldView);
     }
 
-    private VBox loadPauseMenu() {
+    private StackPane loadPauseMenu() {
         try {
             var loader = new javafx.fxml.FXMLLoader(
                     getClass().getResource("/uni/gaben/iscat/fxml/pause-menu.fxml"));
-            VBox view = loader.load();
+            StackPane view = loader.load();
 
             PauseMenuController pauseController = loader.getController();
-            pauseController.initData(gameController, this);  // <-- aggiunto this
+            pauseController.initData(gameController, this);
             return view;
         } catch (java.io.IOException e) {
             throw new RuntimeException("Errore fatale: impossibile caricare pause-menu.fxml", e);
@@ -119,7 +118,7 @@ public class GameView extends AbstractIscatStackPane {
         transitionTo(GameState.IN_OPTIONS);
         try {
             var loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/uni/gaben/iscat/fxml/options_menu.fxml"));
+                    getClass().getResource("/uni/gaben/iscat/fxml/options/options_menu.fxml"));
             StackPane optionsView = loader.load();
 
             OptionsMenuController optionsController = loader.getController();

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" rotate="1.0" spacing="12.0"
+      styleClass="glowing-border, audio-card" VBox.vgrow="NEVER"
+      xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="uni.gaben.iscat.screens.options.OptionAudioController">
+    <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
+    <Label styleClass="card-header" text="AUDIO" />
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <Label styleClass="control-label" text="MASTER" />
+        <Slider fx:id="masterSlider" HBox.hgrow="ALWAYS" />
+    </HBox>
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <Label styleClass="control-label" text="BGM" />
+        <Slider fx:id="BGMSlider" HBox.hgrow="ALWAYS" />
+    </HBox>
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <Label styleClass="control-label" text="SFX" />
+        <Slider fx:id="SFXSlider" HBox.hgrow="ALWAYS" />
+    </HBox>
+</VBox>

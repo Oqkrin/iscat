@@ -8,21 +8,20 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.screens.base.IscatMenuController;
 import uni.gaben.iscat.universe.player.PlayerSettings;
 import uni.gaben.iscat.view.AnimatedCanvas;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
-public class SkinMenuController implements IscatFxmlController {
+public class SkinMenuController implements IscatMenuController {
 
     @FXML private GridPane skinGrid;
     @FXML private StackPane previewContainer;
@@ -71,6 +70,8 @@ public class SkinMenuController implements IscatFxmlController {
         skinStackPane.heightProperty().addListener(sizeListener);
 
         Platform.runLater(this::updateDynamicScaling);
+
+        registerEscHandler();
     }
 
     private void updateDynamicScaling() {
@@ -162,17 +163,23 @@ public class SkinMenuController implements IscatFxmlController {
         selectSkin(path, SKIN_NAMES[idx]);
     }
 
+    @Override
+    public Pane getRootPane() { return skinStackPane; }
+
+    @Override
+    public void handleBack() {
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+    }
+
+    @FXML
+    private void handleBack(ActionEvent event) { handleBack(); }
+
     @FXML
     private void handleConfirm(ActionEvent event) {
         if (selectedSkinPath != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
         }
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
-    }
-
-    @FXML
-    private void handleBack(ActionEvent event) {
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+        handleBack();
     }
 
     @Override

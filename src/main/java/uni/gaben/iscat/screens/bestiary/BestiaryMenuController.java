@@ -5,12 +5,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.screens.base.IscatMenuController;
 import uni.gaben.iscat.view.AnimatedCanvas;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.controller.IscatFxmlController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class BestiaryMenuController implements IscatFxmlController {
+public class BestiaryMenuController implements IscatMenuController {
 
     private enum InfoMode {
         DESCRIPTION, STATS, EXTRA
@@ -71,6 +72,8 @@ public class BestiaryMenuController implements IscatFxmlController {
             String firstEnemyId = enemies.keySet().iterator().next();
             showEnemyById(firstEnemyId);
         }
+
+        registerEscHandler();
     }
 
     private void createEnemyButtons() {
@@ -192,11 +195,6 @@ public class BestiaryMenuController implements IscatFxmlController {
     }
 
     @FXML
-    private void handleBack(ActionEvent event) {
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
-    }
-
-    @FXML
     private void selectRandom() {
         var validIds = enemies.keySet().stream()
                 .filter(id -> !enemies.get(id).name().toUpperCase().equals(skinNameLabel.getText()))
@@ -212,4 +210,15 @@ public class BestiaryMenuController implements IscatFxmlController {
     public void setContentRoot(StackPane contentRoot) {
         this.contentRoot = contentRoot;
     }
+
+    @Override
+    public Pane getRootPane() { return (Pane) btnBack.getParent().getParent(); }
+
+    @Override
+    public void handleBack() {
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+    }
+
+    @FXML
+    private void handleBack(ActionEvent event) { handleBack(); }
 }

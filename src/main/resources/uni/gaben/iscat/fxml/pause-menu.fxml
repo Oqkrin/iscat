@@ -2,46 +2,35 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" minHeight="720.0" minWidth="1280.0" spacing="24.0" styleClass="game-pause-overlay" stylesheets="@../styles/screens/game.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.screens.pause_menu.PauseMenuController">
-    <padding>
-        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
-    </padding>
+<StackPane minHeight="720.0" minWidth="1280.0"
+           stylesheets="@../styles/screens/game.css"
+           xmlns="http://javafx.com/javafx/"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="uni.gaben.iscat.screens.pause_menu.PauseMenuController">
 
-    <Label styleClass="pause-title" text="GAME PAUSED" />
+    <VBox alignment="CENTER" spacing="24.0" styleClass="game-pause-overlay">
+        <padding>
+            <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+        </padding>
 
-        <VBox alignment="CENTER" maxWidth="400.0" spacing="20.0" styleClass="pause-settings-box">
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
+        <Label styleClass="pause-title" text="GAME PAUSED" />
 
-            <VBox alignment="CENTER_LEFT" spacing="5.0">
-                <Label styleClass="label-small, testo-dim" text="MUSIC VOLUME" />
-                <Slider fx:id="musicSlider" max="1.0" min="0.0" styleClass="slider" />
-            </VBox>
+        <HBox alignment="CENTER" spacing="40.0">
+            <fx:include fx:id="subDisplay" source="options/option_display.fxml" />
 
-            <VBox alignment="CENTER_LEFT" spacing="5.0">
-                <Label styleClass="label-small, testo-dim" text="SFX VOLUME" />
-                <Slider fx:id="sfxSlider" max="1.0" min="0.0" styleClass="slider" />
-            </VBox>
+            <fx:include fx:id="subAudio" source="options/option_audio.fxml" />
+        </HBox>
 
-            <CheckBox fx:id="fpsCheck" maxWidth="Infinity" styleClass="check-box" text="SHOW FPS COUNTER" />
-            <CheckBox fx:id="debugCheck" maxWidth="Infinity" styleClass="check-box" text="DEBUG MODE" />
-        </VBox>
+        <Button fx:id="resumeBtn" alignment="CENTER" onAction="#handleResume" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu, primario" text="RESUME GAME" />
+        <Button fx:id="menuBtn" alignment="CENTER" onAction="#handleQuitToMenu" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu" text="QUIT TO MENU" />
+        <Button fx:id="optionBtn" alignment="CENTER" onAction="#openOptionMenu" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu" text="OPTIONS" />
+        <Button fx:id="quitBtn" alignment="CENTER" onAction="#handleQuitGame" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu, pericolo" text="QUIT GAME" />
+    </VBox>
 
-        <Button fx:id="resumeBtn" onAction="#handleResume" prefHeight="50.0" prefWidth="300.0"
-                styleClass="pulsante-menu, primario" text="RESUME GAME" />
-
-        <Button fx:id="menuBtn" onAction="#handleQuitToMenu" prefHeight="50.0" prefWidth="300.0"
-                styleClass="pulsante-menu" text="QUIT TO MENU" />
-
-        <Button fx:id="optionBtn" onAction="#openOptionMenu" prefHeight="50.0" prefWidth="300.0"
-                styleClass="pulsante-menu" text="OPTIONS" />
-
-        <Button fx:id="quitBtn" onAction="#handleQuitGame" prefHeight="50.0" prefWidth="300.0"
-                styleClass="pulsante-menu, pericolo" text="QUIT GAME" />
-</VBox>
+    <fx:include fx:id="confirmOverlay" source="confirmation-overlay.fxml" />
+</StackPane>
