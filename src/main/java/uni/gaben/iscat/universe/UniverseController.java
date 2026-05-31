@@ -3,17 +3,14 @@ package uni.gaben.iscat.universe;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
 
+import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.database.sqlite.EnemyDAO;
-import uni.gaben.iscat.database.sqlite.ScoreDAO;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
-import uni.gaben.iscat.universe.enemies.master.IscatMasterController;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormController;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
-import uni.gaben.iscat.universe.lib.behaviurs.AiController;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
@@ -46,6 +43,7 @@ public class UniverseController {
 
     private UniverseModel universeModel;
     private final PlayerController playerController;
+    private ScoreDAO scoreDAO;
     private final List<IEntityController> entityControllers = new ArrayList<>();
     private final StarfieldController starfieldController = new StarfieldController();
     private final UniverseWaveController universeWaveController = new UniverseWaveController();
@@ -61,8 +59,9 @@ public class UniverseController {
         wormControllers.add(wormController);
     }
 
-    public UniverseController(UniverseModel universeModel) {
+    public UniverseController(UniverseModel universeModel, ScoreDAO scoreDAO) {
         this.universeModel = universeModel;
+        this.scoreDAO = scoreDAO;
         this.playerController = new PlayerController(universeModel.getPlayer());
     }
 
@@ -227,7 +226,7 @@ public class UniverseController {
                         // Persistenza sul database SQLite dell'utente autenticato
                         SessionUser user = SessionManager.getInstance().getCurrentUser();
                         if (user != null) {
-                            ScoreDAO.increment(user.id(), "Deaths", 1);
+                            scoreDAO.increment(user.id(), "Deaths", 1);
                             if (!cleanKey.isEmpty()) {
                                 EnemyDAO.incrementKill(user.id(), cleanKey);
                             }

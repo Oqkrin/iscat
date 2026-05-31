@@ -1,7 +1,8 @@
 package uni.gaben.iscat.screens.login;
 
 import javafx.scene.input.KeyEvent;
-import uni.gaben.iscat.database.sqlite.ScoreDAO;
+import uni.gaben.iscat.database.dao.ScoreDAO;
+import uni.gaben.iscat.database.sqlite.SQLiteScoreDAO;
 import uni.gaben.iscat.screens.login.model.LoginAuth;
 import uni.gaben.iscat.screens.login.model.LoginModel;
 import uni.gaben.iscat.screens.login.model.LoginState;
@@ -10,7 +11,6 @@ import uni.gaben.iscat.screens.scores.SaveData;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.database.sqlite.SettingsDAO;
 import uni.gaben.iscat.screens.login.model.UserSettings;
-
 import java.util.Optional;
 
 /**
@@ -22,19 +22,29 @@ public class LoginController {
 
     private final LoginModel model;
     private final LoginAuth loginAuth;
+    private final ScoreDAO scoreDAO;
 
     private final StringBuilder usernameBuffer = new StringBuilder();
     private final StringBuilder passwordBuffer = new StringBuilder();
 
     private LoginState currentLoginState = LoginState.USERNAME;
 
-    public LoginController(LoginModel model, LoginAuth loginAuth) {
+    public LoginController(LoginModel model, LoginAuth loginAuth, ScoreDAO scoreDAO) {
         this.model = model;
         this.loginAuth = loginAuth;
+        this.scoreDAO = scoreDAO;
 
         // Sincronizza lo stato logico del controller con la tipologia di focus (User o Pass)
         model.loginStateProperty().addListener((obs, old, isTypingPass) ->
                 this.currentLoginState = Boolean.TRUE.equals(isTypingPass) ? LoginState.PASSWORD : LoginState.USERNAME);
+    }
+
+    public LoginController(LoginModel model, LoginAuth loginAuth) {
+        this(model, loginAuth, createDefaultScoreDAO());
+    }
+
+    private static ScoreDAO createDefaultScoreDAO() {
+        return new SQLiteScoreDAO();
     }
 
     public void onKeyPressed(KeyEvent e) {
@@ -146,8 +156,9 @@ public class LoginController {
                 UserSettings settings = SettingsDAO.loadSettings(loggedUser.id());
                 SessionManager.getInstance().setCurrentSettings(settings);
 
-                ScoreDAO.createIfNotExists(loggedUser.id());
-                SaveData saveData = ScoreDAO.load(loggedUser.id());
+                scoreDAO.createIfNotExists(loggedUser.id());
+                Optional<SaveData> saveDataOpt = scoreDAO.load(loggedUser.id());
+                SaveData saveData = saveDataOpt.orElse(new SaveData(loggedUser.id(), 0, 0, 0, 0, 0));
                 SessionManager.getInstance().setCurrentSaveData(saveData);
 
                 model.setLoggedIn(true);
@@ -168,8 +179,9 @@ public class LoginController {
                 UserSettings settings = SettingsDAO.loadSettings(newUser.id());
                 SessionManager.getInstance().setCurrentSettings(settings);
 
-                ScoreDAO.createIfNotExists(newUser.id());
-                SaveData saveData = ScoreDAO.load(newUser.id());
+                scoreDAO.createIfNotExists(newUser.id());
+                Optional<SaveData> saveDataOpt = scoreDAO.load(newUser.id());
+                SaveData saveData = saveDataOpt.orElse(new SaveData(newUser.id(), 0, 0, 0, 0, 0));
                 SessionManager.getInstance().setCurrentSaveData(saveData);
 
                 model.setLoggedIn(true);

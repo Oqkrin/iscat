@@ -66,4 +66,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.brain.modifiers.flocking;
     exports uni.gaben.iscat.database.sqlite;
     opens uni.gaben.iscat.database.sqlite to javafx.fxml;
+    exports uni.gaben.iscat.database.dao;
+    opens uni.gaben.iscat.database.dao to javafx.fxml;
 }

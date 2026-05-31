@@ -3,7 +3,7 @@ package uni.gaben.iscat.screens.options;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.database.sqlite.ScoreDAO;
+import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.database.sqlite.SettingsDAO;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.screens.confirmation_overlay.ConfirmationOverlayController;
@@ -14,9 +14,14 @@ import uni.gaben.iscat.utils.SessionManager;
 public class OptionAccountController {
 
     private ConfirmationOverlayController confirmOverlayController;
+    private ScoreDAO scoreDAO;
 
     public void setConfirmOverlayController(ConfirmationOverlayController controller) {
         this.confirmOverlayController = controller;
+    }
+
+    public void setScoreDAO(ScoreDAO scoreDAO) {
+        this.scoreDAO = scoreDAO;
     }
 
     @FXML
@@ -25,8 +30,11 @@ public class OptionAccountController {
             confirmOverlayController.ask("Resettare Account?", "I progressi locali verranno azzerati.", () -> {
                 UserSettings settings = SessionManager.getInstance().getCurrentSettings();
                 if (settings != null) {
-                    ScoreDAO.reset(settings.getUserId());
-                    SessionManager.getInstance().setCurrentSaveData(ScoreDAO.load(settings.getUserId()));
+                    scoreDAO.reset(settings.getUserId());
+                    scoreDAO.load(settings.getUserId()).ifPresent(saveData ->
+                            SessionManager.getInstance().setCurrentSaveData(saveData)
+                    );
+
                     AudioManager.getInstance().playSFX("laugh");
                 }
             });

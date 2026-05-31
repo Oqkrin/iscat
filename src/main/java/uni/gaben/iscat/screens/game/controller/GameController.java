@@ -5,7 +5,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.database.sqlite.ScoreDAO;
+import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.screens.scores.SaveData;
 import uni.gaben.iscat.universe.UniverseWaveController;
@@ -32,15 +32,17 @@ public class GameController {
     private AnimationTimer gameLoop;
     private Runnable drawCall;
     private StackPane contentRoot;
+    private ScoreDAO scoreDAO;
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
     private final BooleanProperty optionsMenuOpen = new SimpleBooleanProperty(false);
     private UniverseWaveController waveController;
     Random random = new Random();
 
-    public GameController(GameModel gameModel) {
+    public GameController(GameModel gameModel, ScoreDAO scoreDAO) {
         this.gameModel = gameModel;
-        this.universeController = new UniverseController(gameModel.getUniverseModel());
+        this.scoreDAO = scoreDAO;
+        this.universeController = new UniverseController(gameModel.getUniverseModel(), scoreDAO);
         this.waveController = new UniverseWaveController();
 
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
@@ -140,7 +142,7 @@ public class GameController {
         UniverseModel newUniverse = new UniverseModel();
 
         gameModel.setUniverseModel(newUniverse);
-        this.universeController = new UniverseController(newUniverse);
+        this.universeController = new UniverseController(newUniverse, scoreDAO);
         this.waveController = new UniverseWaveController();
 
         UniverseSpawner.getInstance().init(newUniverse, universeController, waveController);
@@ -299,24 +301,21 @@ public class GameController {
         SessionScoreTracker tracker = SessionScoreTracker.getInstance();
         int elapsed = (int) gameModel.getTotalElapsedSeconds();
 
-        // Carica i dati attuali per i confronti
-        SaveData current = ScoreDAO.load(userId);
+        SaveData current = scoreDAO.load(userId).orElse(new SaveData(userId, 0, 0, 0, 0, 0));  // <-- CAMBIA QUI
 
-        // Lo score si aggiorna solo se la partita corrente è migliore
         if (tracker.getScore() > current.score()) {
-            ScoreDAO.update(userId, "Score", tracker.getScore());
+            scoreDAO.update(userId, "Score", tracker.getScore());
+            scoreDAO.increment(userId, "TotalDamageDealt", tracker.getDamageDealt());
+            scoreDAO.increment(userId, "TotalDamageReceived", tracker.getDamageReceived());
+            scoreDAO.increment(userId, "Deaths", tracker.getDeaths());
+            if (current.bestTime() == 0 || elapsed > current.bestTime()) {
+                scoreDAO.update(userId, "BestTime", elapsed);
+            }
+            scoreDAO.load(userId).ifPresent(saveData ->
+                    SessionManager.getInstance().setCurrentSaveData(saveData)
+            );
+
+            tracker.reset();
         }
-
-        ScoreDAO.increment(userId, "TotalDamageDealt",    tracker.getDamageDealt());
-        ScoreDAO.increment(userId, "TotalDamageReceived", tracker.getDamageReceived());
-        ScoreDAO.increment(userId,"Deaths", tracker.getDeaths());
-
-        // Bil best time si aggiorna solo se migliore
-        if (current.bestTime() == 0 || elapsed > current.bestTime()) {
-            ScoreDAO.update(userId, "BestTime", elapsed);
-        }
-
-        SessionManager.getInstance().setCurrentSaveData(ScoreDAO.load(userId));
-        tracker.reset();
     }
 }
