@@ -1,7 +1,7 @@
 package uni.gaben.iscat.database.sqlite;
 
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.database.interfaces.UsersQueriesInterface;
+import uni.gaben.iscat.database.dao.UserDAO;
 import uni.gaben.iscat.screens.login.model.User;
 import uni.gaben.iscat.utils.PasswordHasher;
 
@@ -9,7 +9,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public class SqliteUsersQueries implements UsersQueriesInterface {
+public class SQLiteUserDAO implements UserDAO {
 
     @Override
     public Optional<User> findByUsername(String username) {

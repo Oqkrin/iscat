@@ -1,15 +1,15 @@
 package uni.gaben.iscat.screens.login.model;
 
-import uni.gaben.iscat.database.interfaces.UsersQueriesInterface;
+import uni.gaben.iscat.database.dao.UserDAO;
 import uni.gaben.iscat.utils.PasswordHasher;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class LoginAuth {
-    private final UsersQueriesInterface users;
+    private final UserDAO users;
 
-    public LoginAuth(UsersQueriesInterface users) {
+    public LoginAuth(UserDAO users) {
         this.users = users;
     }
 

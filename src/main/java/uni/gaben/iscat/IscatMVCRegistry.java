@@ -19,7 +19,7 @@ public class IscatMVCRegistry {
 
     public static AbstractIscatStackPane getMVC(IscatViews scene) {
         return switch (scene) {
-            case LOGIN_MENU -> new LoginView(new LoginController(new LoginModel(), new LoginAuth(IscatDB.getInstance().getUsersQueries())));
+            case LOGIN_MENU -> new LoginView(new LoginController(new LoginModel(), new LoginAuth(IscatDB.getInstance().getUserDAO())));
             case GAME -> {
                 GameController gameController = new GameController(new GameModel());
                 yield new GameView(gameController);

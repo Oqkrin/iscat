@@ -1,7 +1,7 @@
 package uni.gaben.iscat.database;
 
-import uni.gaben.iscat.database.interfaces.UsersQueriesInterface;
-import uni.gaben.iscat.database.sqlite.SqliteUsersQueries;
+import uni.gaben.iscat.database.dao.UserDAO;
+import uni.gaben.iscat.database.sqlite.SQLiteUserDAO;
 import uni.gaben.iscat.database.sqlite.SQLiteScoreDAO;
 import uni.gaben.iscat.database.sqlite.SQLiteSettingsDAO;
 import uni.gaben.iscat.database.sqlite.SQLiteEnemyDAO;
@@ -15,8 +15,7 @@ public class IscatDB {
     private static IscatDB instance;
     private Connection connection;
 
-    private UsersQueriesInterface usersQueries;
-
+    private UserDAO userDAO;
     private SQLiteScoreDAO scoreDAO;
     private SQLiteSettingsDAO settingsDAO;
     private SQLiteEnemyDAO enemyDAO;
@@ -34,7 +33,7 @@ public class IscatDB {
 
     public void init() {
         connect();
-        this.usersQueries = new SqliteUsersQueries();
+        this.userDAO = new SQLiteUserDAO();
 
         this.scoreDAO = new SQLiteScoreDAO();
         this.settingsDAO = new SQLiteSettingsDAO();
@@ -61,18 +60,15 @@ public class IscatDB {
         return connection;
     }
 
-    public UsersQueriesInterface getUsersQueries() {
-        return usersQueries;
+    public UserDAO getUserDAO() {
+        return userDAO;
     }
-
     public SQLiteScoreDAO getScoreDAO() {
         return scoreDAO;
     }
-
     public SQLiteSettingsDAO getSettingsDAO() {
         return settingsDAO;
     }
-
     public SQLiteEnemyDAO getEnemyDAO() {
         return enemyDAO;
     }
