@@ -1,6 +1,6 @@
 package uni.gaben.iscat.universe.enemies.generic;
 
-import uni.gaben.iscat.database.sqlite.EnemyDAO;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.universe.rendering.RenderRegistry;
 
 import java.util.Map;
@@ -70,7 +70,7 @@ public class GenericEntityFactory {
      * per azzerare completamente qualsiasi microscatto o latenza di lettura del disco durante le ondate di gioco.
      */
     public static void preloadAll() {
-        EnemyDAO.findAll().forEach(s -> {
+        IscatDB.getInstance().getEnemyDAO().findAll().forEach(s -> {
             if (s != null && s.entityKey != null) {
                 cache.put(s.entityKey.toLowerCase().trim(), s);
             }
@@ -92,7 +92,7 @@ public class GenericEntityFactory {
             return cached;
         }
 
-        Optional<GenericEntitySettings> found = EnemyDAO.findByKey(entityKey);
+        Optional<GenericEntitySettings> found = IscatDB.getInstance().getEnemyDAO().findByKey(entityKey);
         if (found.isPresent()) {
             GenericEntitySettings settings = found.get();
             System.out.println("[GenericEntityFactory] Caricamento dinamico di '" + entityKey + "' eseguito dal database.");

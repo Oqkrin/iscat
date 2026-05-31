@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.enemies.healer;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
-import uni.gaben.iscat.database.sqlite.EnemyDAO;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.utils.Updatable;
@@ -75,7 +75,7 @@ public class IscatHealerModel extends LivingEntityModel implements HasShockwave,
      * @return Un oggetto GenericEntitySettings pronto per l'uso.
      */
     private static GenericEntitySettings loadSettings() {
-        return EnemyDAO.findByKey(ENTITY_KEY).orElseGet(() -> {
+        return IscatDB.getInstance().getEnemyDAO().findByKey(ENTITY_KEY).orElseGet(() -> {
             System.err.println("[IscatHealerModel] Record DB non trovato. Applicazione dei valori di fallback.");
             GenericEntitySettings s = new GenericEntitySettings();
             s.initLife       = FALLBACK_INIT_LIFE;

@@ -2,6 +2,9 @@ package uni.gaben.iscat.database;
 
 import uni.gaben.iscat.database.interfaces.UsersQueriesInterface;
 import uni.gaben.iscat.database.sqlite.SqliteUsersQueries;
+import uni.gaben.iscat.database.sqlite.SQLiteScoreDAO;
+import uni.gaben.iscat.database.sqlite.SQLiteSettingsDAO;
+import uni.gaben.iscat.database.sqlite.SQLiteEnemyDAO;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,8 +15,11 @@ public class IscatDB {
     private static IscatDB instance;
     private Connection connection;
 
-    // Gestione centralizzata del repository utenti
     private UsersQueriesInterface usersQueries;
+
+    private SQLiteScoreDAO scoreDAO;
+    private SQLiteSettingsDAO settingsDAO;
+    private SQLiteEnemyDAO enemyDAO;
 
     private static final String URL = "jdbc:sqlite:IscatDB.db";
 
@@ -29,6 +35,10 @@ public class IscatDB {
     public void init() {
         connect();
         this.usersQueries = new SqliteUsersQueries();
+
+        this.scoreDAO = new SQLiteScoreDAO();
+        this.settingsDAO = new SQLiteSettingsDAO();
+        this.enemyDAO = new SQLiteEnemyDAO();
     }
 
     private void connect() {
@@ -40,10 +50,6 @@ public class IscatDB {
         }
     }
 
-    /**
-     * Ritorna la connessione corrente. Se è nulla o è stata chiusa
-     * da un try-with-resources precedente, la riapre istantaneamente.
-     */
     public synchronized Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
@@ -55,10 +61,19 @@ public class IscatDB {
         return connection;
     }
 
-    /**
-     * Ritorna l'istanza unica del repository utenti, pronta all'uso.
-     */
     public UsersQueriesInterface getUsersQueries() {
         return usersQueries;
+    }
+
+    public SQLiteScoreDAO getScoreDAO() {
+        return scoreDAO;
+    }
+
+    public SQLiteSettingsDAO getSettingsDAO() {
+        return settingsDAO;
+    }
+
+    public SQLiteEnemyDAO getEnemyDAO() {
+        return enemyDAO;
     }
 }

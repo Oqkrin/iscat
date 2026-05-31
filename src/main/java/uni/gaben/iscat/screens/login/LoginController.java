@@ -1,9 +1,8 @@
 package uni.gaben.iscat.screens.login;
 
 import javafx.scene.input.KeyEvent;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.database.sqlite.SQLiteScoreDAO;
-import uni.gaben.iscat.database.sqlite.SQLiteSettingsDAO;
 import uni.gaben.iscat.screens.login.model.LoginAuth;
 import uni.gaben.iscat.screens.login.model.LoginModel;
 import uni.gaben.iscat.screens.login.model.LoginState;
@@ -28,29 +27,16 @@ public class LoginController {
 
     private final StringBuilder usernameBuffer = new StringBuilder();
     private final StringBuilder passwordBuffer = new StringBuilder();
-
     private LoginState currentLoginState = LoginState.USERNAME;
 
-    public LoginController(LoginModel model, LoginAuth loginAuth, ScoreDAO scoreDAO, SettingsDAO settingsDAO) {
+    public LoginController(LoginModel model, LoginAuth loginAuth) {
         this.model = model;
         this.loginAuth = loginAuth;
-        this.scoreDAO = scoreDAO;
-        this.settingsDAO = settingsDAO;
+        this.scoreDAO = IscatDB.getInstance().getScoreDAO();
+        this.settingsDAO = IscatDB.getInstance().getSettingsDAO();
 
-        // Sincronizza lo stato logico del controller con la tipologia di focus (User o Pass)
         model.loginStateProperty().addListener((obs, old, isTypingPass) ->
                 this.currentLoginState = Boolean.TRUE.equals(isTypingPass) ? LoginState.PASSWORD : LoginState.USERNAME);
-    }
-
-    public LoginController(LoginModel model, LoginAuth loginAuth) {
-        this(model, loginAuth, createDefaultScoreDAO(), createDefaultSettingsDAO());
-    }
-
-    private static ScoreDAO createDefaultScoreDAO() {
-        return new SQLiteScoreDAO();
-    }
-    private static SettingsDAO createDefaultSettingsDAO() {
-        return new SQLiteSettingsDAO();
     }
 
     public void onKeyPressed(KeyEvent e) {

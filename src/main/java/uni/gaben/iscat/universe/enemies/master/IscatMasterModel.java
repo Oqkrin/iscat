@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.enemies.master;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
-import uni.gaben.iscat.database.sqlite.EnemyDAO;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
 import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasShockwave;
@@ -12,7 +12,6 @@ import uni.gaben.iscat.universe.UniverseWaveController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.UniverseVelocitySettings;
 
 /**
  * Modello logico e fisico per il Boss finale (IscatMaster).
@@ -84,7 +83,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
      * un DTO minimale di emergenza con valori unitari per prevenire fallimenti critici nell'engine.
      */
     private static GenericEntitySettings loadSettings() {
-        return EnemyDAO.findByKey(ENTITY_KEY).orElseGet(() -> {
+        return IscatDB.getInstance().getEnemyDAO().findByKey(ENTITY_KEY).orElseGet(() -> {
             GenericEntitySettings s = new GenericEntitySettings();
             s.initLife       = 1;
             s.dimSprite      = 1;
@@ -145,7 +144,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
         try {
             var user = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser();
             if (user != null) {
-                uni.gaben.iscat.database.sqlite.EnemyDAO.incrementKill(user.id(), ENTITY_KEY);
+                IscatDB.getInstance().getEnemyDAO().incrementKill(user.id(), ENTITY_KEY);
             }
         } catch (Exception e) {
             System.err.println("[ERRORE REGISTRAZIONE BOSS] Impossibile aggiornare i record di morte su DB");

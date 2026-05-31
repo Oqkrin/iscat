@@ -9,7 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import uni.gaben.iscat.database.sqlite.EnemyDAO;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.screens.game.controller.GameController;
 import uni.gaben.iscat.universe.UniverseSpawnable;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
@@ -52,7 +52,7 @@ public class GameSpawnerToolbar extends StackPane {
         genericContainer.setPadding(new Insets(4, 20, 4, 20));
 
         Thread.ofVirtual().start(() -> {
-            List<GenericEntitySettings> enemies = EnemyDAO.findAll();
+            List<GenericEntitySettings> enemies = IscatDB.getInstance().getEnemyDAO().findAll();
             Platform.runLater(() -> {
                 for (GenericEntitySettings s : enemies) {
                     Button b = createSmallButton(s.entityKey);

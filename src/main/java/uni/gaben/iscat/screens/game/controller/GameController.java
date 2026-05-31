@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.StackPane;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.screens.scores.SaveData;
@@ -39,10 +40,10 @@ public class GameController {
     private UniverseWaveController waveController;
     Random random = new Random();
 
-    public GameController(GameModel gameModel, ScoreDAO scoreDAO) {
+    public GameController(GameModel gameModel) {
         this.gameModel = gameModel;
-        this.scoreDAO = scoreDAO;
-        this.universeController = new UniverseController(gameModel.getUniverseModel(), scoreDAO);
+        this.scoreDAO = IscatDB.getInstance().getScoreDAO();
+        this.universeController = new UniverseController(gameModel.getUniverseModel());
         this.waveController = new UniverseWaveController();
 
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
@@ -142,7 +143,7 @@ public class GameController {
         UniverseModel newUniverse = new UniverseModel();
 
         gameModel.setUniverseModel(newUniverse);
-        this.universeController = new UniverseController(newUniverse, scoreDAO);
+        this.universeController = new UniverseController(newUniverse);
         this.waveController = new UniverseWaveController();
 
         UniverseSpawner.getInstance().init(newUniverse, universeController, waveController);

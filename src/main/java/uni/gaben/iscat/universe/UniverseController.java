@@ -3,8 +3,9 @@ package uni.gaben.iscat.universe;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
 
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.database.sqlite.EnemyDAO;
+import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
@@ -44,6 +45,7 @@ public class UniverseController {
     private UniverseModel universeModel;
     private final PlayerController playerController;
     private ScoreDAO scoreDAO;
+    private EnemyDAO enemyDAO;
     private final List<IEntityController> entityControllers = new ArrayList<>();
     private final StarfieldController starfieldController = new StarfieldController();
     private final UniverseWaveController universeWaveController = new UniverseWaveController();
@@ -59,9 +61,10 @@ public class UniverseController {
         wormControllers.add(wormController);
     }
 
-    public UniverseController(UniverseModel universeModel, ScoreDAO scoreDAO) {
+    public UniverseController(UniverseModel universeModel) {
         this.universeModel = universeModel;
-        this.scoreDAO = scoreDAO;
+        this.scoreDAO = IscatDB.getInstance().getScoreDAO();
+        this.enemyDAO = IscatDB.getInstance().getEnemyDAO();
         this.playerController = new PlayerController(universeModel.getPlayer());
     }
 
@@ -228,7 +231,7 @@ public class UniverseController {
                         if (user != null) {
                             scoreDAO.increment(user.id(), "Deaths", 1);
                             if (!cleanKey.isEmpty()) {
-                                EnemyDAO.incrementKill(user.id(), cleanKey);
+                                enemyDAO.incrementKill(user.id(), cleanKey);
                             }
                         }
                     }
