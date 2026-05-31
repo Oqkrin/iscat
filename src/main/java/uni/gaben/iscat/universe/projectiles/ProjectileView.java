@@ -32,4 +32,5 @@ public class ProjectileView extends AbstractEntityView<Projectile> implements Dr
         gc.setFill(bulletColor);
         gc.fillOval(x, y, width, height);
     }
+
 }

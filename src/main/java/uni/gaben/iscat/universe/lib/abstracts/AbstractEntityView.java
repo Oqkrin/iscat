@@ -174,5 +174,5 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
         gc.strokeOval(topLeftX, topLeftY, diameter, diameter);
     }
 
-    abstract public void setAnimatorTime(double dt);
+     public void setAnimatorTime(double time) {}
 }

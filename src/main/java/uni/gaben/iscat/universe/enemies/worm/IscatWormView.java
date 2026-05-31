@@ -54,6 +54,11 @@ public class IscatWormView extends AbstractEntityView<IscatWormSegment>
         drawSprite(gc, x, y, width, height);
     }
 
+    @Override
+    public void setAnimatorTime(double time) {
+        animator.setTime(time);
+    }
+
     private String getSpritePath(IscatWormSegment.Type type) {
         return switch (type) {
             case HEAD -> "/uni/gaben/iscat/sprites/enemies/iscat_worm_head.png";

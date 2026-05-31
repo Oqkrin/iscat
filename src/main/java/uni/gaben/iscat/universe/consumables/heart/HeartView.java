@@ -63,4 +63,9 @@ public class HeartView extends AbstractEntityView<HeartModel>
         // 5. drawSprite calcola in automatico riga, colonna, tinting globale e disegna nel centro local space
         drawSprite(gc, x, y, width, height);
     }
+
+    @Override
+    public void setAnimatorTime(double time) {
+        animator.setTime(time);
+    }
 }

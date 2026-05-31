@@ -49,7 +49,6 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
             hurt.start(.1);
         }
 
-        animator.update(UU.UNIVERSE_TICK);
         hurt.update(UU.UNIVERSE_TICK);
 
         setupGraphicsContextAndDrawContent(entity, gc, 0.0,true);
@@ -60,6 +59,11 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
     protected void drawContent(PlayerModel entity, GraphicsContext gc, double x, double y, double width, double height) {
         drawSprite(gc, x, y, width, height);
         drawThrustEffect(gc, entity, width, height);
+    }
+
+    @Override
+    public void setAnimatorTime(double time) {
+        animator.setTime(time);
     }
 
     private void drawThrustEffect(GraphicsContext gc, PlayerModel entity, double w, double h) {
