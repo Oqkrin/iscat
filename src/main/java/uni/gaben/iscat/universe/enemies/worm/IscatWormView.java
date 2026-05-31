@@ -52,9 +52,6 @@ public class IscatWormView extends AbstractEntityView<IscatWormSegment>
     protected void drawContent(IscatWormSegment entity, GraphicsContext gc,
                                double x, double y, double width, double height) {
         drawSprite(gc, x, y, width, height);
-        if (entity.getType() == IscatWormSegment.Type.HEAD) {
-            drawHpBar(entity, gc);
-        }
     }
 
     private String getSpritePath(IscatWormSegment.Type type) {

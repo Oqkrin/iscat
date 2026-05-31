@@ -55,6 +55,5 @@ public class IscatHealerView extends AbstractEntityView<IscatHealerModel>
 
         drawSprite(gc, x, y, width, height);
         drawShockwave(gc, 0, 0, entity.shockwave());
-        drawHpBar(entity, gc);
     }
 }

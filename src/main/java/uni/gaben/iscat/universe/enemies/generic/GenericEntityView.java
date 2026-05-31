@@ -83,6 +83,5 @@ public class GenericEntityView extends AbstractEntityView<GenericEntityModel>
 
         gc.drawImage(tinted, x, y, width, height);
 
-        drawHpBar(entity, gc);
     }
 }

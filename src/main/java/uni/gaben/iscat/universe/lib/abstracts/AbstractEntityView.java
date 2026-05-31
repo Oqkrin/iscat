@@ -69,8 +69,8 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
             gc.setFill(p.getType().color);
         }
 
-        gc.save();  // salva per la rotazione
         gc.translate(cx, cy);
+        gc.save();  // salva per la rotazione
 
         // Rotazione finale: offset base + offset specifico dello sprite
         double finalRotation = rotDeg + assetAngularOffsetDeg;
@@ -83,7 +83,7 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
 
         // HP Bar (sempre dritta)
         if (entity instanceof LifeDeath ld && !(ld instanceof Projectile)) {
-            drawHpBar(ld, gc);
+            drawHpBarLocal(ld, gc);
         }
 
         gc.restore();   // fine contesto entità
@@ -109,11 +109,17 @@ public abstract class AbstractEntityView<M extends AbstractEntityModel> {
     /**
      * Renderizza sul Canvas una barra della salute bicromatica fluttuante sopra le coordinate geometriche dell'entità.
      */
-    protected void drawHpBar(LifeDeath entity, GraphicsContext gc) {
+    protected void drawHpBarLocal(LifeDeath entity, GraphicsContext gc) {
+        double barWidth = sw;
+        double barX = -barWidth / 2;
+        double barY = -sh / 2 - PlayerSettings.HP_BAR_OFFSET_Y;
+
         gc.setFill(ThemeManager.getInstance().getColorError());
-        gc.fillRect(cx - w / 2, cy - h / 2 - PlayerSettings.HP_BAR_OFFSET_Y, w, PlayerSettings.HP_BAR_HEIGHT);
+        gc.fillRect(barX, barY, barWidth, PlayerSettings.HP_BAR_HEIGHT);
+
         gc.setFill(ThemeManager.getInstance().getColorSuccess());
-        gc.fillRect(cx - w / 2, cy - h / 2 - PlayerSettings.HP_BAR_OFFSET_Y, w * (entity.getLife() / entity.getMaxLife()), PlayerSettings.HP_BAR_HEIGHT);
+        double healthPercent = entity.getLife() / entity.getMaxLife();
+        gc.fillRect(barX, barY, barWidth * healthPercent, PlayerSettings.HP_BAR_HEIGHT);
     }
 
     /**

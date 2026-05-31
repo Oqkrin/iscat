@@ -113,10 +113,6 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         }
 
         drawShockwave(gc, 0, 0, entity.shockwave());
-
-        if (entity.getAnimationState() != AnimationState.DEATH) {
-            drawHpBar(entity, gc);
-        }
     }
 
     private void updateAnimatorState(int row) {

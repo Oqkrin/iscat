@@ -53,7 +53,6 @@ public class PlayerView extends AbstractEntityView<PlayerModel>
         hurt.update(UU.UNIVERSE_TICK);
 
         setupGraphicsContextAndDrawContent(entity, gc, 0.0,true);
-        drawHpBar(entity, gc);
         lastLife = entity.getLife();
     }
 
