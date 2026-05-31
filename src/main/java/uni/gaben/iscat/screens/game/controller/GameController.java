@@ -294,6 +294,7 @@ public class GameController {
     public GameModel getGameModel() {
         return gameModel;
     }
+
     private void saveStats() {
         SessionUser user = SessionManager.getInstance().getCurrentUser();
         if (user == null) return;
@@ -302,21 +303,27 @@ public class GameController {
         SessionScoreTracker tracker = SessionScoreTracker.getInstance();
         int elapsed = (int) gameModel.getTotalElapsedSeconds();
 
-        SaveData current = scoreDAO.load(userId).orElse(new SaveData(userId, 0, 0, 0, 0, 0));  // <-- CAMBIA QUI
+        SaveData current = scoreDAO.load(userId)
+                .orElse(new SaveData(userId, 0, 0, 0, 0, 0));
 
+        // solo se questa partita batte il record
         if (tracker.getScore() > current.score()) {
             scoreDAO.update(userId, "Score", tracker.getScore());
-            scoreDAO.increment(userId, "TotalDamageDealt", tracker.getDamageDealt());
-            scoreDAO.increment(userId, "TotalDamageReceived", tracker.getDamageReceived());
-            scoreDAO.increment(userId, "Deaths", tracker.getDeaths());
-            if (current.bestTime() == 0 || elapsed > current.bestTime()) {
-                scoreDAO.update(userId, "BestTime", elapsed);
-            }
-            scoreDAO.load(userId).ifPresent(saveData ->
-                    SessionManager.getInstance().setCurrentSaveData(saveData)
-            );
-
-            tracker.reset();
         }
+
+        // solo se questa partita è durata di meno
+        if (elapsed > current.bestTime()) {
+            scoreDAO.update(userId, "BestTime", elapsed);
+        }
+
+        // Statistiche sempre incrementate indipendentemente dallo score
+        scoreDAO.increment(userId, "TotalDamageDealt",    tracker.getDamageDealt());
+        scoreDAO.increment(userId, "TotalDamageReceived", tracker.getDamageReceived());
+        scoreDAO.increment(userId, "Deaths",              tracker.getDeaths());
+
+        scoreDAO.load(userId).ifPresent(
+                SessionManager.getInstance()::setCurrentSaveData);
+
+        tracker.reset();
     }
 }

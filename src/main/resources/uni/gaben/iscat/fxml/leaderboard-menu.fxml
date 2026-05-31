@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane minHeight="720.0" minWidth="1280.0"
+           stylesheets="@../styles/screens/score-menu.css"
+           xmlns="http://javafx.com/javafx/"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="uni.gaben.iscat.screens.leaderboard.LeaderBoardMenuController">
+
+    <BorderPane fx:id="rootPane" styleClass="menu-background">
+
+        <top>
+            <Region minHeight="56.0" prefHeight="56.0"/>
+        </top>
+
+        <center>
+            <GridPane alignment="CENTER" hgap="32.0">
+                <padding>
+                    <Insets bottom="16.0" left="32.0" right="32.0" top="16.0"/>
+                </padding>
+
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="50.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints percentHeight="100.0" vgrow="ALWAYS"/>
+                </rowConstraints>
+
+                <children>
+                    <VBox alignment="CENTER" maxWidth="560.0" minWidth="420.0"
+                          rotate="-1.0" styleClass="glowing-border, main-card"
+                          GridPane.columnIndex="1">
+                        <padding>
+                            <Insets bottom="24.0" left="32.0" right="32.0" top="24.0"/>
+                        </padding>
+
+                        <Label text="LEADERBOARD" styleClass="score-title"/>
+
+                        <Region minHeight="16.0"/>
+
+                        <GridPane hgap="20">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="60.0"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                                <ColumnConstraints halignment="RIGHT"/>
+                            </columnConstraints>
+                            <children>
+                                <Label text="POS"      styleClass="score-stat" GridPane.columnIndex="0"/>
+                                <Label text="GIOCATORE" styleClass="score-stat" GridPane.columnIndex="1"/>
+                                <Label text="PUNTEGGIO" styleClass="score-stat" GridPane.columnIndex="2"/>
+                            </children>
+                        </GridPane>
+
+                        <Region minHeight="8.0"/>
+
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                                    VBox.vgrow="ALWAYS"
+                                    style="-fx-background: transparent; -fx-background-color: transparent;">
+                            <content>
+                                <VBox fx:id="leaderboardContainer" spacing="6.0"/>
+                            </content>
+                        </ScrollPane>
+
+                        <Region minHeight="24.0" VBox.vgrow="ALWAYS"/>
+
+                        <Button fx:id="exitBtn" maxWidth="Infinity"
+                                onAction="#handleBackAction"
+                                styleClass="menu-button, play-button"
+                                text="MAIN MENU">
+                            <padding>
+                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+                            </padding>
+                        </Button>
+
+                    </VBox>
+
+                </children>
+            </GridPane>
+        </center>
+
+        <bottom>
+            <Region minHeight="56.0" prefHeight="56.0"/>
+        </bottom>
+
+    </BorderPane>
+</StackPane>

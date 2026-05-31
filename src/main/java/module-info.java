@@ -21,6 +21,7 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.screens.confirmation_overlay to javafx.fxml;
     opens uni.gaben.iscat.screens.pause_menu to javafx.fxml;
     opens uni.gaben.iscat.screens.game.controller to javafx.fxml;
+    opens uni.gaben.iscat.screens.leaderboard to javafx.fxml;
 
     exports uni.gaben.iscat;
     exports uni.gaben.iscat.utils;
