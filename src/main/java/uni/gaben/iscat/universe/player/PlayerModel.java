@@ -9,6 +9,10 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
+import uni.gaben.iscat.universe.lib.interfaces.model.HasSprite;
+import uni.gaben.iscat.universe.lib.interfaces.model.HasThrust;
+import uni.gaben.iscat.universe.rendering.RenderingSettings;
+import uni.gaben.iscat.universe.rendering.vfx.ThrustModel;
 import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
@@ -17,7 +21,7 @@ import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-public class PlayerModel extends LivingEntityModel implements Updatable {
+public class PlayerModel extends LivingEntityModel implements HasSprite, HasThrust {
 
     // LEVEL SYSTEM VARIABLES
     private final IntegerProperty level = new SimpleIntegerProperty(1);
@@ -28,7 +32,7 @@ public class PlayerModel extends LivingEntityModel implements Updatable {
     private final Cooldown dashDuration = new Cooldown();
     private final Cooldown weaponCooldown = new Cooldown();
     private final Cooldown stunCooldown = new Cooldown();
-
+    private final ThrustModel thrust;
     private Runnable onDeathCallback;
 
     public void setOnDeathCallback(Runnable callback) {
@@ -45,6 +49,8 @@ public class PlayerModel extends LivingEntityModel implements Updatable {
         fixture.setFilter(UniverseCollisionLayers.PLAYER_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(PlayerSettings.LINEAR_DAMPING);
+
+        thrust = new ThrustModel();
     }
 
     public void update(double dt) {
@@ -52,6 +58,7 @@ public class PlayerModel extends LivingEntityModel implements Updatable {
         dashCooldown.update(dt);
         dashDuration.update(dt);
         weaponCooldown.update(dt);
+        updateThrust();
 
         if (isInScatto()) {
             setLinearDamping(PlayerSettings.LINEAR_DAMPING_SCATTO);
@@ -59,6 +66,29 @@ public class PlayerModel extends LivingEntityModel implements Updatable {
             setLinearDamping(PlayerSettings.LINEAR_DAMPING);
         }
     }
+
+    public void updateThrust() {
+        Vector2 worldVel = getLinearVelocity();
+        double speed = worldVel.getMagnitude();
+        double intensity = Math.min(speed / PlayerSettings.VELOCITA_MAX, 1.0);
+
+        double normVx = worldVel.x / PlayerSettings.VELOCITA_MAX;
+        double normVy = worldVel.y / PlayerSettings.VELOCITA_MAX;
+
+        // EXACT angle used by the renderer when drawing thrust:
+        //   gc.rotate( physicsAngle + BASE_ROTRAD_OFFSET )
+        double rotRad = getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET;
+        double cos = Math.cos(rotRad);
+        double sin = Math.sin(rotRad);
+
+        // These formulas are exactly as in the old PlayerView
+        double localDriftX = -normVx * cos - normVy * sin;
+        double localDriftY =  normVx * sin - normVy * cos;
+
+        thrust.update(intensity, new Vector2(localDriftX, localDriftY),
+                getWidthPx(), getHeightPx());
+    }
+
 
     public void executeScatto(double angle) {
         Vector2 dashDir = new Vector2(Math.cos(angle), Math.sin(angle));
@@ -157,5 +187,45 @@ public class PlayerModel extends LivingEntityModel implements Updatable {
         if (delta < 0) {
             SessionScoreTracker.getInstance().addDamageReceived((int) Math.abs(delta));
         }
+    }
+
+    @Override
+    public String getSpritePath() {
+        return PlayerSettings.getPlayerSkin();
+    }
+
+    @Override
+    public int getSpriteFrameWidth() {
+        return (int) PlayerSettings.DIMENSIONE_DA_DISEGNARE;
+    }
+
+    @Override
+    public double getFrameDuration() {
+        return UU.UNIVERSE_TICK*6;
+    }
+
+    @Override
+    public double getFrameDuration(int state, int frame) {
+        return getFrameDuration();
+    }
+
+    @Override
+    public int getSpriteFrameHeight() {
+        return (int) PlayerSettings.DIMENSIONE_DA_DISEGNARE;
+    }
+
+    @Override
+    public double getVisualScale() {
+        return PlayerSettings.MASSA;
+    }
+
+    @Override
+    public double getVisualAngularOffsetDeg() {
+        return 180;
+    }
+
+    @Override
+    public ThrustModel thrust() {
+        return thrust;
     }
 }

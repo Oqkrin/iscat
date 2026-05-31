@@ -17,6 +17,7 @@ import uni.gaben.iscat.universe.lib.implementations.attacks.*;
 import uni.gaben.iscat.universe.UniverseSpawnable;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.utils.AudioManager;
 
 import java.util.Random;
 
@@ -30,6 +31,9 @@ public class IscatMasterController extends AiController {
     private double seekAngleSign = 1.0;
     private double seekTimer = 0.0;
     private Vector2 wanderTarget = null;
+
+    // SFX tracker
+    private boolean deathSfxTriggered = false;
 
     public IscatMasterController(IscatMasterModel master) {
         super(master, master.getSettings().force,
@@ -61,9 +65,42 @@ public class IscatMasterController extends AiController {
     @Override
     public void update(UniverseModel universe, double dt) {
         if (entity == null || entity.shouldRemove()) return;
+
         if (entity instanceof IscatMasterModel master) {
-            master.shockwave().update(dt);
-            if (master.getAnimationState() == IscatMasterModel.AnimationState.DEATH) return;
+
+            // Core Animation States Logic - Driven entirely by the Controller
+            IscatMasterModel.AnimationState state = master.getAnimationState();
+            double time = master.getStateTime();
+            double stateDuration = master.getFramesForState(state) * (1.0 / 6.0);
+
+            if (state == IscatMasterModel.AnimationState.ENTRANCE) {
+                if (time >= stateDuration) {
+                    master.setAnimationState(IscatMasterModel.AnimationState.IDLE);
+                    master.setEnabled(true);
+                    master.shockwave().trigger(2.0, 1500, 15);
+                    AudioManager.getInstance().playSFX("shockwave");
+                    AudioManager.getInstance().playSFX("laugh");
+                }
+                return; // Lock AI movement/attacks during entrance
+            }
+
+            if (state == IscatMasterModel.AnimationState.DEATH) {
+                if (!deathSfxTriggered) {
+                    deathSfxTriggered = true;
+                    AudioManager.getInstance().playSFX("shockwave");
+                }
+                if (time >= stateDuration) {
+                    master.completeKill();
+                }
+                return; // Lock AI movement/attacks during death sequence
+            }
+
+            // Return to IDLE after finishing any ATTACK animation cycle
+            if (state != IscatMasterModel.AnimationState.IDLE && time >= stateDuration) {
+                master.setAnimationState(IscatMasterModel.AnimationState.IDLE);
+            }
+
+            // Execute standard movement and attack behaviors if IDLE or ATTACKING
             super.update(universe, dt);
         }
     }

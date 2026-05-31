@@ -4,12 +4,11 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-import uni.gaben.iscat.universe.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
 import uni.gaben.iscat.screens.game.controller.GameController;
 import uni.gaben.iscat.screens.game.model.GameModel;
+import uni.gaben.iscat.universe.rendering.vfx.VFXRenderer;
 import uni.gaben.iscat.view.StarryText;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
@@ -17,6 +16,13 @@ import uni.gaben.iscat.utils.design.TipografiaAurea;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Master renderer for the entire universe scene.
+ * <p>
+ * Handles background clearing, starfield, entity rendering (delegated to
+ * {@link EntityRenderer}), HUD overlay, and FPS display.
+ * No per‑entity View objects are created – everything is stateless and data‑driven.
+ */
 public class UniverseRenderer {
 
     private final Canvas mainCanvas;
@@ -44,7 +50,7 @@ public class UniverseRenderer {
         double w = mainCanvas.getWidth();
         double h = mainCanvas.getHeight();
 
-        // 1. Core Background clearing
+        // 1. Clear background and draw base colour
         gc.clearRect(0, 0, w, h);
         gc.setFill(ThemeManager.getInstance().getBgPrimary());
         gc.fillRect(0, 0, w, h);
@@ -54,12 +60,12 @@ public class UniverseRenderer {
 
         CameraModel cameraModel = gameController.getCameraModel();
 
-        // 2. Render Background Starfield
+        // 2. Render background starfield (parallax layer)
         starfieldView.setCameraX(cameraModel.getX());
         starfieldView.setCameraY(cameraModel.getY());
         starfieldView.draw(universe.getStarfieldModel(), gc);
 
-        // 3. Render Game Entities inside Camera Space Matrix
+        // 3. Apply camera transform and draw all game entities
         gc.save();
 
         double cx = cameraModel.getX();
@@ -71,63 +77,60 @@ public class UniverseRenderer {
         gc.translate(screenW / 2 - cx * zoom, screenH / 2 - cy * zoom);
         gc.scale(zoom, zoom);
 
-        double dt = gameModel.getDt();
         boolean renderCollisionBoxes = debugPanelVisible && gameController.isDebugModeOn();
 
-        // Crea una copia della lista per evitare ConcurrentModificationException
+        // Snapshot entity list to avoid concurrent modification
         List<AbstractEntityModel> entitiesCopy = new ArrayList<>(universe.getEntities());
         for (var entity : entitiesCopy) {
-            drawEntity(entity, gc, renderCollisionBoxes, dt);
+            drawEntity(entity, gc, renderCollisionBoxes);
         }
 
         gc.restore();
 
-        // 4. Render Independent Overlay HUD Canvas Components
+        // 4. Render HUD overlay (timer canvas)
         if (timerCanvas != null && starryTimer != null) {
             GraphicsContext timerGc = timerCanvas.getGraphicsContext2D();
             timerGc.clearRect(0, 0, timerCanvas.getWidth(), timerCanvas.getHeight());
             starryTimer.updateAndDraw(timerGc);
         }
 
-        // 5. Render Engine Performance Metrics
+        // 5. Render FPS counter
         drawFps(gc, w);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends AbstractEntityModel> void drawEntity(T entity, GraphicsContext gc,
-                                                            boolean renderCollisionBoxes, double dt) {
-        Drawable<T> renderer = RenderRegistry.getInstance().getRenderer(entity);
-        if (renderer == null) return;
-
-        if (renderer instanceof AbstractEntityView<?> view) {
-            view.setAnimatorTime(entity.getStateTime());
-        }
-
-        renderer.draw(entity, gc);
-
-        if (renderCollisionBoxes && renderer instanceof AbstractEntityView<?> entityView) {
-            gc.save();
-            ((AbstractEntityView<T>) entityView).setPos(entity);
-            ((AbstractEntityView<T>) entityView).drawDebugCollision(entity, gc);
-            gc.restore();
+    /**
+     * Draws a single entity and optionally its debug collision shape.
+     * Delegates all rendering to the stateless {@link EntityRenderer}.
+     */
+    private void drawEntity(AbstractEntityModel entity, GraphicsContext gc, boolean renderCollisionBoxes) {
+        EntityRenderer.draw(entity, gc);
+        if (renderCollisionBoxes) {
+            VFXRenderer.drawDebugCollision(entity, gc);
         }
     }
 
-    private void drawFps(GraphicsContext gc, double w) {
-        if (gameController.isFpsOn()) {
-            double fps = 1.0 / gameModel.getDt();
-            fpsHistory[fpsIdx] = fps;
-            fpsIdx = (fpsIdx + 1) % fpsHistory.length;
+    /**
+     * Draws a smoothed FPS readout in the top‑right corner.
+     */
+    private void drawFps(GraphicsContext gc, double canvasWidth) {
+        if (!gameController.isFpsOn()) return;
 
-            double avg = 0;
-            for (double f : fpsHistory) avg += f;
-            avg /= fpsHistory.length;
+        double dt = gameModel.getDt();
+        double fps = 1.0 / dt;
+        fpsHistory[fpsIdx] = fps;
+        fpsIdx = (fpsIdx + 1) % fpsHistory.length;
 
-            if (avg >= 60) gc.setFill(ThemeManager.getInstance().getColorSuccess());
-            else
-                gc.setFill(avg >= 30 ? ThemeManager.getInstance().getColorWarning() : ThemeManager.getInstance().getColorError());
-            gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
-            gc.fillText(String.format("FPS: %.0f", avg), w - 80, 50);
+        double avg = 0;
+        for (double f : fpsHistory) avg += f;
+        avg /= fpsHistory.length;
+
+        if (avg >= 60) {
+            gc.setFill(ThemeManager.getInstance().getColorSuccess());
+        } else {
+            gc.setFill(avg >= 30 ? ThemeManager.getInstance().getColorWarning()
+                    : ThemeManager.getInstance().getColorError());
         }
+        gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
+        gc.fillText(String.format("FPS: %.0f", avg), canvasWidth - 80, 50);
     }
 }

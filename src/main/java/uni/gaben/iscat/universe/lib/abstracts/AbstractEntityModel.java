@@ -5,13 +5,15 @@ import org.dyn4j.geometry.AABB;
 import org.dyn4j.geometry.Transform;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.utils.Updatable;
+
 import java.util.function.Consumer;
 
 /**
  * Rappresentazione astratta di un'entità nel mondo fisico.
  * Calcola in modo dinamico le dimensioni basandosi sulle Fixture fisiche attive.
  */
-public abstract class AbstractEntityModel extends Body implements HasTerminalVelocity {
+public abstract class AbstractEntityModel extends Body implements HasTerminalVelocity, Updatable {
     private String entityId;
     private int state = 0;
     private double terminalVelocity = Double.MAX_VALUE;
@@ -72,6 +74,10 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
     public boolean shouldRemove() { return shouldRemove; }
     public void setShouldRemove(boolean shouldRemove) { this.shouldRemove = shouldRemove; }
 
+    @Override
+    public void update(double dt) {
+        updateStateTime(dt);
+    }
 
     public void updateStateTime(double dt) {
         this.statetime += dt;

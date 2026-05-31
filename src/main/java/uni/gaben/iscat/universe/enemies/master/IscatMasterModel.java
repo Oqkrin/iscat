@@ -5,6 +5,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.universe.lib.interfaces.model.HasSprite;
 import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasShockwave;
 import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
@@ -13,49 +14,60 @@ import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 
-/**
- * Modello logico e fisico per il Boss finale (IscatMaster).
- * Estende {@link LivingEntityModel} e implementa {@link HasShockwave} per gestire l'emissione
- * di impulsi d'attacco globali. Governa una macchina a stati interna per le animazioni e
- * controlla la rimozione fisica ritardata, utile a consentire il completamento dei vfx visivi di morte
- * prima di notificare la fine dell'ondata e aggiornare il database.
- */
-public class IscatMasterModel extends LivingEntityModel implements HasShockwave, Updatable {
+public class IscatMasterModel extends LivingEntityModel implements HasShockwave, Updatable, HasSprite {
 
-    /** Chiave primaria identificativa del Boss all'interno del database. */
     private static final String ENTITY_KEY = "iscat_master";
 
     private final ShockwaveModel shockwaveModel = new ShockwaveModel();
 
-    /** Stati utilizzabili per pilotare la visualizzazione delle clip animate del Boss. */
-    public enum AnimationState { IDLE, ATTACK1, ATTACK2, ATTACK3, ATTACK4, DEATH }
-    private AnimationState animationState = AnimationState.IDLE;
+    @Override
+    public String getSpritePath() {
+        return settings.spritePath;
+    }
 
-    /** Flag di stato che traccia il completamento della cinematica di ingresso del Boss nella mappa. */
-    private boolean entranceDone = false;
+    @Override
+    public int getSpriteFrameWidth() {
+        return settings.frameW;
+    }
 
-    /** Flag di sicurezza per evitare la doppia invocazione della routine di morte permanente. */
+    @Override
+    public double getFrameDuration() {
+        return UU.UNIVERSE_TICK*6;
+    }
+
+    @Override
+    public double getFrameDuration(int state, int frame) {
+        return getFrameDuration();
+    }
+
+    @Override
+    public int getSpriteFrameHeight() {
+        return settings.frameH;
+    }
+
+    @Override
+    public double getVisualScale() {
+        return settings.scale;
+    }
+
+    @Override
+    public double getVisualAngularOffsetDeg() {
+        return 0;
+    }
+
+    // The ENTRANCE state replaces the boolean entranceDone flag
+    public enum AnimationState { ENTRANCE, IDLE, ATTACK1, ATTACK2, ATTACK3, ATTACK4, DEATH }
+    private AnimationState animationState = AnimationState.ENTRANCE;
+
     private boolean completeKillCalled = false;
 
     private final UniverseWaveController waveController;
     private final GenericEntitySettings settings;
 
-    /**
-     * Costruisce il modello dell'IscatMaster interfacciandosi con il controllore delle ondate corrente.
-     *
-     * @param x              Coordinata X iniziale di spawn in pixel.
-     * @param y              Coordinata Y iniziale di spawn in pixel.
-     * @param waveController Riferimento al manager delle ondate per notificare la risoluzione del match.
-     */
     public IscatMasterModel(double x, double y, UniverseWaveController waveController) {
         this(x, y, waveController, loadSettings());
     }
 
-    /**
-     * Costruttore privato adibito alla configurazione dei vincoli fisici Dyn4J del Boss.
-     * Inizializza il corpo rigido a rotazione vincolata e lo imposta inizialmente come disabilitato
-     * in attesa del termine della sequenza cinematica d'ingresso.
-     */
     private IscatMasterModel(double x, double y, UniverseWaveController waveController,
                              GenericEntitySettings s) {
         super(x, y, s.initLife, s.initLife);
@@ -65,23 +77,18 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
         setEntityKey(ENTITY_KEY);
         setXpReward(s.xpReward);
 
-        // Generazione del collider circolare di grandi dimensioni basato sui parametri DB
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(
                         UU.pxToM(s.dimSprite * s.scale / 2.0 * 0.9)));
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
-        setMass(MassType.FIXED_ANGULAR_VELOCITY); // Impedisce al Boss di ruotare su se stesso a seguito di urti
+        setMass(MassType.FIXED_ANGULAR_VELOCITY);
         setLinearDamping(s.dampingLineare);
 
         // Disabilitato di default fino al completamento dell'animazione di spawn intro
         setEnabled(false);
     }
 
-    /**
-     * Carica le configurazioni dal database. Se la riga del Boss è assente, inizializza
-     * un DTO minimale di emergenza con valori unitari per prevenire fallimenti critici nell'engine.
-     */
     private static GenericEntitySettings loadSettings() {
         return IscatDB.getInstance().getEnemyDAO().findByKey(ENTITY_KEY).orElseGet(() -> {
             GenericEntitySettings s = new GenericEntitySettings();
@@ -101,42 +108,49 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
     public ShockwaveModel shockwave() { return shockwaveModel; }
 
     @Override
-    public void update(double dt) { shockwaveModel.update(dt); }
+    public void update(double dt) {
+        super.update(dt); // Crucial: Advances the stateTime
+        shockwaveModel.update(dt);
+    }
 
     public AnimationState getAnimationState() { return animationState; }
-    public void setAnimationState(AnimationState state) { this.animationState = state; }
 
-    public boolean isEntranceDone() { return entranceDone; }
-    public void setEntranceDone(boolean done) { this.entranceDone = done; }
+    // State changes automatically reset the animation timer so the View always starts at frame 0
+    public void setAnimationState(AnimationState state) {
+        if (this.animationState != state) {
+            this.animationState = state;
+            this.setStateTime(0.0);
+        }
+    }
 
-    /**
-     * Intercetta la richiesta standard di distruzione. Invece di rimuovere l'entità,
-     * sposta lo stato su DEATH per avviare l'animazione di esplosione finale.
-     */
+    // Single source of truth for animation durations
+    public int getFramesForState(AnimationState state) {
+        return switch (state) {
+            case ENTRANCE -> 21;
+            case IDLE     -> 4;
+            case ATTACK1  -> 3;
+            case ATTACK2  -> 7;
+            case ATTACK3  -> 8;
+            case ATTACK4  -> 5;
+            case DEATH    -> 6;
+        };
+    }
+
     @Override
     public void kill() { this.kill(true); }
 
     @Override
-    public void kill(boolean b) {
+    public void kill(boolean silent) {
         if (animationState == AnimationState.DEATH) return;
         setAnimationState(AnimationState.DEATH);
     }
 
-    /**
-     * Sovrascrive la logica di rimozione. Fintanto che il Boss si trova nello stato DEATH,
-     * la rimozione fisica dal motore viene bloccata finché i controller visivi non invocano {@link #completeKill()}.
-     */
     @Override
     public boolean shouldRemove() {
         if (animationState == AnimationState.DEATH && !completeKillCalled) return false;
         return super.shouldRemove();
     }
 
-    /**
-     * Sancisce la distruzione definitiva del Boss a schermo.
-     * Incrementa in modo persistente sul database il contatore di uccisioni per l'utente loggato,
-     * notifica la vittoria formale al controller delle ondate e sblocca la rimozione della superclasse.
-     */
     public void completeKill() {
         if (completeKillCalled) return;
         completeKillCalled = true;

@@ -5,23 +5,16 @@ import javafx.scene.image.Image;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.universe.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.universe.lib.interfaces.view.DrawableSpriteSheet;
-import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 import uni.gaben.iscat.utils.theme.ThemeManager;
-
-import static uni.gaben.iscat.universe.enemies.master.IscatMasterModel.AnimationState;
 
 public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         implements Drawable<IscatMasterModel>, DrawableSpriteSheet {
 
     private final SpriteSheetsParser masterSheet;
     private final SpriteSheetsAnimator masterAnimator;
-
-    private IscatMasterModel currentEntity;
-    private boolean deathSfxTriggered = false;
-    private int lastRow = -1;
 
     public IscatMasterView(IscatMasterModel entity) {
         var s = entity.getSettings();
@@ -50,70 +43,33 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
     @Override
     public void setAnimatorTime(double time) {
-        masterAnimator.update(time);
+        masterAnimator.setTime(time);
     }
 
     @Override
     public void draw(IscatMasterModel entity, GraphicsContext gc) {
-        if (entity == null) return;
-        if (entity.shouldRemove()) return;
-        if (masterSheet == null) return;
+        if (entity == null || entity.shouldRemove() || masterSheet == null) return;
 
-        this.currentEntity = entity;
+        // Map animation state directly to the Spritesheet Row (0 = Entrance, 1 = Idle, etc.)
+        masterAnimator.setState(entity.getAnimationState().ordinal());
 
-        int targetRow;
-        int maxFrames;
+        // Ensure the animator is perfectly in sync with the model's physics tick
+        masterAnimator.setTime(entity.getStateTime());
 
-        if (!entity.isEntranceDone()) {
-            targetRow = 0;
-            maxFrames = getFramesCountForRow(targetRow);
-            updateAnimatorState(targetRow);
-
-            if (isRowCycleCompleted(maxFrames)) {
-                entity.setEntranceDone(true);
-                entity.setEnabled(true);
-                entity.shockwave().trigger(2.0, 1500, 15);
-                AudioManager.getInstance().playSFX("shockwave");
-                AudioManager.getInstance().playSFX("laugh");
-                updateAnimatorState(1);
-            }
-        } else {
-            AnimationState modelState = entity.getAnimationState();
-            targetRow = mapStateToRow(modelState);
-            maxFrames = getFramesCountForRow(targetRow);
-
-            updateAnimatorState(targetRow);
-
-            if (modelState == AnimationState.DEATH && !deathSfxTriggered) {
-                deathSfxTriggered = true;
-                AudioManager.getInstance().playSFX("shockwave");
-            }
-
-            if (modelState != AnimationState.IDLE && modelState != AnimationState.DEATH
-                    && isRowCycleCompleted(maxFrames)) {
-                updateAnimatorState(1);
-                entity.setAnimationState(AnimationState.IDLE);
-            }
-
-            if (modelState == AnimationState.DEATH && isRowCycleCompleted(maxFrames)) {
-                entity.completeKill();
-                return;
-            }
-        }
-
+        // Delegate to the superclass for translation, rotation, and internal drawing
         setupGraphicsContextAndDrawContent(entity, gc, 270.0, false);
     }
 
     @Override
     protected void drawContent(IscatMasterModel entity, GraphicsContext gc,
                                double x, double y, double width, double height) {
-        if (masterSheet == null) return;
 
         int currentRow = masterAnimator.getCurrentState();
-        int maxFrames = getFramesCountForRow(currentRow);
+        int maxFrames = entity.getFramesForState(entity.getAnimationState());
         double defaultFrameDuration = 1.0 / 6.0;
 
-        int localFrame = (int) (masterAnimator.getTime() / defaultFrameDuration) % Math.max(maxFrames, 1);
+        // Calculate visual frame based directly on the Model's state time
+        int localFrame = (int) (entity.getStateTime() / defaultFrameDuration) % Math.max(maxFrames, 1);
 
         Image frame = masterSheet.getFrame(currentRow, localFrame);
         if (frame == null) return;
@@ -123,43 +79,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
                 ThemeManager.getInstance().globalTintProperty().get());
         gc.drawImage(tinted, x, y, width, height);
 
+        // Draw internal model state VFX
         drawShockwave(gc, 0, 0, entity.shockwave());
-    }
-
-    private void updateAnimatorState(int row) {
-        masterAnimator.setState(row);
-        if (row != lastRow) {
-            masterAnimator.setTime(0);
-            if (currentEntity != null) currentEntity.setStateTime(0);
-            lastRow = row;
-        }
-    }
-
-    private boolean isRowCycleCompleted(int maxFrames) {
-        return masterAnimator.getTime() >= maxFrames * (1.0 / 6.0);
-    }
-
-    private int getFramesCountForRow(int row) {
-        return switch (row) {
-            case 0  -> 21;
-            case 1  -> 4;
-            case 2  -> 3;
-            case 3  -> 7;
-            case 4  -> 8;
-            case 5  -> 5;
-            case 6  -> 6;
-            default -> 1;
-        };
-    }
-
-    private int mapStateToRow(AnimationState state) {
-        return switch (state) {
-            case IDLE    -> 1;
-            case ATTACK1 -> 2;
-            case ATTACK2 -> 3;
-            case ATTACK3 -> 4;
-            case ATTACK4 -> 5;
-            case DEATH   -> 6;
-        };
     }
 }

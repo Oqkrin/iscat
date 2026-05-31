@@ -6,7 +6,9 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.universe.lib.interfaces.model.HasSprite;
 import uni.gaben.iscat.universe.player.PlayerModel;
+import uni.gaben.iscat.utils.Updatable;
 
 /**
  * Modello polimorfico universale per la gestione logica e fisica dei nemici.
@@ -14,7 +16,7 @@ import uni.gaben.iscat.universe.player.PlayerModel;
  * configurazione geometrica, i coefficienti d'attrito, i parametri di movimento e le routine di danno
  * a un'istanza di {@link GenericEntitySettings} interamente popolata da database.
  */
-public class GenericEntityModel extends LivingEntityModel {
+public class GenericEntityModel extends LivingEntityModel implements HasSprite {
 
     /** Archivio dei parametri strutturali e biologici caricati dal database per questa entità. */
     private final GenericEntitySettings settings;
@@ -97,4 +99,41 @@ public class GenericEntityModel extends LivingEntityModel {
     public GenericEntitySettings getSettings() {
         return settings;
     }
+
+    @Override
+    public String getSpritePath() {
+        return settings.spritePath;
+    }
+
+    @Override
+    public int getSpriteFrameWidth() {
+        return settings.frameW;
+    }
+
+    @Override
+    public double getFrameDuration() {
+        return UU.UNIVERSE_TICK * 6;
+        // TODO: ADD ANIMATION DURATION TO SETTINGS
+    }
+
+    @Override
+    public double getFrameDuration(int state, int frame) {
+        return getFrameDuration();
+    }
+
+    @Override
+    public int getSpriteFrameHeight() {
+        return settings.frameW;
+    }
+
+    @Override
+    public double getVisualScale() {
+        return settings.scale;
+    }
+
+    @Override
+    public double getVisualAngularOffsetDeg() {
+        return 0;
+    }
+
 }
