@@ -3,6 +3,9 @@ package uni.gaben.iscat.universe;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
 
+import uni.gaben.iscat.database.sqlite.EnemyDAO;
+import uni.gaben.iscat.database.sqlite.ScoreDAO;
+import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
@@ -15,6 +18,7 @@ import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
 import uni.gaben.iscat.universe.rendering.RenderRegistry;
+import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.Updatable;
 
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
@@ -32,6 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Controller principale del motore di gioco (Universe).
+ * Coordina il ciclo vitale di tutte le entità, l'elaborazione degli input del giocatore,
+ * l'avanzamento dei sistemi di Intelligenza Artificiale, lo spawn procedurale degli ostacoli,
+ * lo step del motore fisico e la sincronizzazione con i DAO del database SQLite per il salvataggio dei punteggi.
+ */
 public class UniverseController {
 
     private UniverseModel universeModel;
@@ -56,6 +66,14 @@ public class UniverseController {
         this.playerController = new PlayerController(universeModel.getPlayer());
     }
 
+    /**
+     * Esegue l'aggiornamento logico completo (tick) di tutti i sistemi del mondo di gioco.
+     * Viene invocato ciclicamente dal game loop principale.
+     *
+     * @param dt          Delta time (tempo trascorso in secondi dall'ultimo frame).
+     * @param inputs      Involucro contenente lo stato corrente delle periferiche di input.
+     * @param cameraModel Il modello geometrico della telecamera di gioco.
+     */
     public void updatev(double dt, GameInputs inputs, CameraModel cameraModel) {
         PlayerModel player = universeModel.getPlayer();
 
@@ -68,6 +86,7 @@ public class UniverseController {
         applyTerminalVelocityLimits();
         syncWormSegments();
 
+        // Avanzamento delle equazioni di vincolo e della dinamica dei corpi rigidi (Dyn4J)
         universeModel.stepPhysics(dt);
 
         processEntityCleanup(player);
@@ -82,11 +101,7 @@ public class UniverseController {
 
     private void processPlayerInputs(PlayerModel player, GameInputs inputs, CameraModel cameraModel, double dt) {
         if (player == null) return;
-        playerController.processInput(
-                inputs,
-                cameraModel,
-                dt
-        );
+        playerController.processInput(inputs, cameraModel, dt);
     }
 
     private void updateEntities(double dt) {
@@ -98,16 +113,18 @@ public class UniverseController {
     }
 
     private void updateAI(double dt) {
-        // Update all entity controllers (both old and new)
         for (IEntityController controller : new ArrayList<>(entityControllers)) {
             controller.update(universeModel, dt);
         }
-        // Worm controllers still have their own interface for now
         for (IscatWormController w : wormControllers) {
             w.update(universeModel, dt);
         }
     }
 
+    /**
+     * Applica i massimi vettoriali di velocità consentiti (Terminal Velocity) ai corpi fisici.
+     * Previene l'accelerazione incontrollata dovuta a forze cumulative del motore fisico.
+     */
     private void applyTerminalVelocityLimits() {
         for (Body body : universeModel.getBodies()) {
             if (body instanceof HasTerminalVelocity entity) {
@@ -122,6 +139,10 @@ public class UniverseController {
         }
     }
 
+    /**
+     * Allinea l'orientamento grafico (rotazione dello sprite) dei segmenti del verme cinematica
+     * basandosi sul loro vettore di movimento attuale.
+     */
     private void syncWormSegments() {
         for (Body body : universeModel.getBodies()) {
             if (body instanceof IscatWormSegment segment && segment.getType() != IscatWormSegment.Type.HEAD) {
@@ -133,6 +154,10 @@ public class UniverseController {
         }
     }
 
+    /**
+     * Aggiorna lo stato temporale dei proiettili e distrugge istantaneamente quelli
+     * che si muovono oltre i confini del viewport visibile della telecamera (più un margine).
+     */
     private void updateProjectiles(CameraModel cameraModel, double dt) {
         double zoom = cameraModel.getZoom();
         double worldLeft = cameraModel.getViewportLeftX();
@@ -159,6 +184,11 @@ public class UniverseController {
         }
     }
 
+    /**
+     * Ispeziona tutte le entità attive per identificare quelle rimosse o prive di punti vita.
+     * In caso di abbattimento valido di un nemico da parte del giocatore (o per eccezioni di boss speciali),
+     * assegna l'esperienza, aggiorna il punteggio di sessione e persiste l'incremento di uccisioni su SQLite.
+     */
     private void processEntityCleanup(PlayerModel player) {
         List<AbstractEntityModel> toRemove = new ArrayList<>();
 
@@ -182,14 +212,32 @@ public class UniverseController {
                 if (entity instanceof LivingEntityModel living &&
                         living != player &&
                         living.getXpReward() > 0 &&
-                        player != null &&
-                        living.isKilledByProjectile()) {
-                    player.addXp(living.getXpReward());
-                    SessionScoreTracker.getInstance().addScore((int) living.getXpReward());
+                        player != null) {
+
+                    String entityKey = living.getEntityKey();
+                    String cleanKey = entityKey != null ? entityKey.toLowerCase().trim() : "";
+
+                    // Condizione di sblocco speciale: Healer e Master bypassano il vincolo del colpo finale da proiettile
+                    boolean isSpecialEnemy = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
+
+                    if (living.isKilledByProjectile() || isSpecialEnemy) {
+                        player.addXp(living.getXpReward());
+                        SessionScoreTracker.getInstance().addScore((int) living.getXpReward());
+
+                        // Persistenza sul database SQLite dell'utente autenticato
+                        SessionUser user = SessionManager.getInstance().getCurrentUser();
+                        if (user != null) {
+                            ScoreDAO.increment(user.id(), "Deaths", 1);
+                            if (!cleanKey.isEmpty()) {
+                                EnemyDAO.incrementKill(user.id(), cleanKey);
+                            }
+                        }
+                    }
                 }
             }
         }
 
+        // Rimozione fisica dal motore d'animazione, dal mondo e disattivazione del thread cerebrale dell'IA
         for (AbstractEntityModel entity : toRemove) {
             universeModel.removeEntity(entity);
             RenderRegistry.getInstance().removeRenderer(entity);
@@ -200,6 +248,10 @@ public class UniverseController {
         }
     }
 
+    /**
+     * Aggiorna la posizione del target della telecamera applicando un effetto di anticipo visivo (Spring)
+     * proporzionale al vettore di velocità e orientamento del giocatore.
+     */
     private void updateCamera(PlayerModel player, CameraModel cameraModel, double dt) {
         if (player != null) {
             double targetX = UU.mToPx(player.getTransform().getTranslationX());
@@ -216,6 +268,10 @@ public class UniverseController {
         cameraModel.getSpringY().update(dt);
     }
 
+    /**
+     * Gestisce lo spawn ciclico procedurale di gruppi di asteroidi in una corona circolare
+     * esterna rispetto alla vista del giocatore, conferendo loro velocità vettoriali di deriva.
+     */
     private void spawnAsteroids(double dt, PlayerModel player) {
         asteroidCooldown.update(dt);
         if (!asteroidCooldown.isReady()) return;
@@ -247,7 +303,6 @@ public class UniverseController {
         }
     }
 
-    /** Add any IEntityController (old or new). */
     public void addEntityController(IEntityController controller) {
         entityControllers.add(controller);
     }

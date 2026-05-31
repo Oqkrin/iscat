@@ -12,6 +12,8 @@ import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.screens.base.IscatMenuController;
 import uni.gaben.iscat.view.AnimatedCanvas;
 import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.utils.SessionManager;
+import uni.gaben.iscat.screens.login.model.SessionUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +21,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Controller per la schermata del Bestiario.
+ * Gestisce l'interfaccia grafica JavaFX per la selezione, la visualizzazione animata
+ * dei render grafici (sprite) e la formattazione dei dati strutturali e di sessione dei nemici.
+ */
 public class BestiaryMenuController implements IscatMenuController {
 
+    /**
+     * Rappresenta le tre modalità (tab) di visualizzazione delle informazioni testuali.
+     */
     private enum InfoMode {
         DESCRIPTION, STATS, EXTRA
     }
@@ -28,8 +38,8 @@ public class BestiaryMenuController implements IscatMenuController {
     private final BestiaryData bestiaryData = new BestiaryData();
     private Map<String, BestiaryData.Enemy> enemies = new LinkedHashMap<>();
 
-    private static final double DISPLAY_SIZE = 160.0;
-    private static final double ICON_SIZE = 32.0;
+    private static final double DISPLAY_SIZE = 160.0; // Dimensione canvas di anteprima principale
+    private static final double ICON_SIZE = 32.0;     // Dimensione icone animate nei pulsanti della lista
 
     private String currentEnemyId = null;
     private InfoMode currentInfoMode = InfoMode.DESCRIPTION;
@@ -48,9 +58,12 @@ public class BestiaryMenuController implements IscatMenuController {
 
     private StackPane contentRoot;
     private AnimatedCanvas previewCanvas;
-
     private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
 
+    /**
+     * Inizializza i componenti grafici della UI, applica i font delle icone, registra
+     * il listener sui dati di sessione ed esegue il primo caricamento del bestiario.
+     */
     @FXML
     public void initialize() {
         previewCanvas = new AnimatedCanvas(DISPLAY_SIZE);
@@ -59,38 +72,79 @@ public class BestiaryMenuController implements IscatMenuController {
         description.setEditable(false);
         description.setWrapText(true);
 
+        // Applicazione icone grafiche ai pulsanti di navigazione/tab
         applyIconButton(btnRandom,      "fas-dice");
         applyIconButton(btnDescription, "fas-book");
         applyIconButton(btnStats,       "fas-chart-bar");
         applyIconButton(btnExtra,       "fas-info-circle");
         applyIconButton(btnBack,        "fas-arrow-left");
 
-        enemies = bestiaryData.loadEnemies();
-        createEnemyButtons();
+        // Aggiorna la UI se si verifica un salvataggio in background o un cambio utente
+        SessionManager.getInstance().saveDataProperty().addListener((obs, old, data) -> {
+            refreshBestiary();
+        });
 
-        if (!enemies.isEmpty()) {
-            String firstEnemyId = enemies.keySet().iterator().next();
-            showEnemyById(firstEnemyId);
-        }
-
+        refreshBestiary();
         registerEscHandler();
     }
 
+    /**
+     * Recupera l'utente in sessione, ricarica le mappe dal database tramite BestiaryData
+     * e rigenera i pulsanti, mantenendo la selezione sul nemico precedentemente visualizzato.
+     */
+    private void refreshBestiary() {
+        int userId = 0;
+        SessionUser user = SessionManager.getInstance().getCurrentUser();
+        if (user != null) {
+            userId = user.id();
+        }
+
+        String previousSelection = currentEnemyId;
+
+        // Caricamento dei record dal DB
+        enemies = bestiaryData.loadEnemies(userId);
+        createEnemyButtons();
+
+        // Ripristino selezione o fallback sul primo elemento della mappa
+        if (!enemies.isEmpty()) {
+            if (previousSelection != null && enemies.containsKey(previousSelection)) {
+                showEnemyById(previousSelection);
+            } else {
+                String firstEnemyId = enemies.keySet().iterator().next();
+                showEnemyById(firstEnemyId);
+            }
+        }
+    }
+
+    /**
+     * Genera dinamicamente la lista verticale di pulsanti nel VBox.
+     * Applica maschere oscurate ("???") e sprite generici se l'entità risulta ancora bloccata.
+     */
     private void createEnemyButtons() {
         enemyButtonsBox.getChildren().clear();
         buttonCanvases.clear();
 
         for (BestiaryData.Enemy enemy : enemies.values()) {
-            String safeId = enemy.entityKey().trim();
+            String safeId = enemy.entityKey().toLowerCase().trim();
+            boolean unlocked = bestiaryData.isUnlocked(safeId);
 
-            Button button = new Button(enemy.name());
+            String buttonText = unlocked ? enemy.name() : "???";
+
+            Button button = new Button(buttonText);
             button.setPrefWidth(250.0);
             button.setPrefHeight(42.0);
             button.setId(safeId);
 
             AnimatedCanvas iconCanvas = new AnimatedCanvas(ICON_SIZE);
             iconCanvas.setFrameDuration(0.20);
-            iconCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
+
+            // Caricamento skin differenziato in base allo stato di sblocco
+            if (unlocked) {
+                iconCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
+            } else {
+                iconCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
+                button.setStyle("-fx-opacity: 0.75;");
+            }
 
             buttonCanvases.add(iconCanvas);
             button.setGraphic(iconCanvas);
@@ -104,12 +158,15 @@ public class BestiaryMenuController implements IscatMenuController {
     }
 
     /**
-     * Carica il nemico mantenendo la tab informativa precedentemente scelta dall'utente.
+     * Aggiorna il pannello centrale di anteprima caricando lo sprite animato su scala
+     * maggiore ed innesca l'aggiornamento dei dettagli descrittivi.
+     *
+     * @param id La chiave del nemico selezionato.
      */
     private void showEnemyById(String id) {
         if (id == null) return;
 
-        String cleanId = id.trim();
+        String cleanId = id.toLowerCase().trim();
         BestiaryData.Enemy enemy = enemies.get(cleanId);
 
         if (enemy == null) {
@@ -118,82 +175,92 @@ public class BestiaryMenuController implements IscatMenuController {
         }
 
         currentEnemyId = cleanId;
-        skinNameLabel.setText(enemy.name().toUpperCase());
+
+        boolean unlocked = bestiaryData.isUnlocked(cleanId);
+        String nameToShow = unlocked ? enemy.name().toUpperCase() : "??? UNKNOWN ENTITY ???";
+        skinNameLabel.setText(nameToShow);
 
         refreshInfoZone();
 
         previewCanvas.setFrameDuration(0.20);
-        previewCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
-        previewCanvas.resize(DISPLAY_SIZE);
+        if (unlocked) {
+            previewCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
+        } else {
+            previewCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
+        }
 
-        playSpawnTween(previewContainer);
+        previewCanvas.resize(DISPLAY_SIZE);
+        playSpawnTween(previewContainer); // Effetto transizione grafica d'ingresso
     }
 
     /**
-     * Metodo centralizzato che smista i dati e aggiorna i titoli in base alla modalità attiva.
+     * Formatta e renderizza il testo all'interno della TextArea principale.
+     * Se l'entità è bloccata, maschera tutte le schede mostrando un avviso crittografato.
+     * Se è sbloccata, mostra i dati strutturali o i contatori di morte legati alla mappa extra.
      */
     private void refreshInfoZone() {
         if (currentEnemyId == null) return;
         BestiaryData.Enemy enemy = enemies.get(currentEnemyId);
         if (enemy == null) return;
 
+        boolean unlocked = bestiaryData.isUnlocked(currentEnemyId);
+        int currentKills = bestiaryData.getExtraKillCounts().getOrDefault(currentEnemyId, 0);
+
+        // Blocco di protezione per mostri non ancora affrontati/sconfitti
+        if (!unlocked) {
+            rightCardHeader.setText("LOCKED");
+            description.setText("[ INFO NASCOSTE ]\n\nSconfiggi questo nemico per sbloccarlo.");
+            return;
+        }
+
+        // Switch di smistamento in base alla scheda (tab) attualmente attiva
         switch (currentInfoMode) {
             case DESCRIPTION -> {
-                rightCardHeader.setText("DESCRIPTION!");
+                rightCardHeader.setText("DESCRIPTION");
                 description.setText(enemy.description());
             }
             case STATS -> {
-                rightCardHeader.setText("STATS!");
+                rightCardHeader.setText("STATS");
                 description.setText(String.format("""
-                    === STATISTICHE DI BASE ===
+                    STATISTICHE DI BASE
                     
                     ❤ Punti Vita: %d HP
                     ⚡ Velocità Massima: %d m/s
                     ✨ Ricompensa Esperienza: %d XP
+                    📐 Scala Moltiplicatore: %.1fx
+                    ⚓ Attrito Lineare: %.1f
                     """,
-                        enemy.initLife(),
-                        enemy.maxVelocity(),
-                        enemy.xpReward()
+                        enemy.initLife(), enemy.maxVelocity(), enemy.xpReward(),
+                        enemy.scale(), enemy.linearDamping()
                 ));
             }
             case EXTRA -> {
-                rightCardHeader.setText("EXTRA INFO!");
+                rightCardHeader.setText("EXTRA INFO");
                 description.setText(String.format("""
-                    === COMPORTAMENTO IA ===
+                    INFORMAZIONI EXTRA
                     
+                    🧠 Profilo Comportamento IA: %s
                     👁 Raggio di Avvistamento: %d unità
                     ⚔ Raggio di Combattimento: %d unità
                     ⏱ Cooldown Attacco: %d secondi
-                    
-                    ID Interno: %s
+                    🆔 ID : %s
+                    📊 Counter Morti: %d
                     """,
-                        enemy.detectionRange(),
-                        enemy.combatRange(),
-                        enemy.fireCooldownS(),
-                        enemy.entityKey()
+                        enemy.behaviorType() != null ? enemy.behaviorType().toUpperCase() : "STANDARD",
+                        enemy.detectionRange(), enemy.combatRange(), enemy.fireCooldownS(),
+                        enemy.entityKey(), currentKills
                 ));
             }
         }
     }
 
-    @FXML
-    private void showDescription() {
-        currentInfoMode = InfoMode.DESCRIPTION;
-        refreshInfoZone();
-    }
+    @FXML private void showDescription() { currentInfoMode = InfoMode.DESCRIPTION; refreshInfoZone(); }
+    @FXML private void showStats()       { currentInfoMode = InfoMode.STATS; refreshInfoZone(); }
+    @FXML private void showExtra()       { currentInfoMode = InfoMode.EXTRA; refreshInfoZone(); }
 
-    @FXML
-    private void showStats() {
-        currentInfoMode = InfoMode.STATS;
-        refreshInfoZone();
-    }
-
-    @FXML
-    private void showExtra() {
-        currentInfoMode = InfoMode.EXTRA;
-        refreshInfoZone();
-    }
-
+    /**
+     * Seleziona in modo pseudo-casuale un nemico differente da quello attualmente visualizzato.
+     */
     @FXML
     private void selectRandom() {
         var validIds = enemies.keySet().stream()
@@ -206,19 +273,8 @@ public class BestiaryMenuController implements IscatMenuController {
         showEnemyById(randomId);
     }
 
-    @Override
-    public void setContentRoot(StackPane contentRoot) {
-        this.contentRoot = contentRoot;
-    }
-
-    @Override
-    public Pane getRootPane() { return (Pane) btnBack.getParent().getParent(); }
-
-    @Override
-    public void handleBack() {
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
-    }
-
-    @FXML
-    private void handleBack(ActionEvent event) { handleBack(); }
+    @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
+    @Override public Pane getRootPane() { return (Pane) btnBack.getParent().getParent(); }
+    @Override public void handleBack() { IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU); }
+    @FXML private void handleBack(ActionEvent event) { handleBack(); }
 }

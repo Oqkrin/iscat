@@ -12,14 +12,23 @@ import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.UniverseWaveController;
 
+/**
+ * Modello base per tutte le entità dotate di punti vita, dinamiche di danno e stati di morte.
+ * Implementa l'interfaccia LifeDeath e funge da superclasse per il Giocatore e i Nemici,
+ * centralizzando la gestione dei drop, dei trigger audio e dell'assegnazione dei punti esperienza.
+ */
 public class LivingEntityModel extends AbstractEntityModel implements LifeDeath {
     protected DoubleProperty life = new SimpleDoubleProperty();
     protected double maxLife;
     protected double xpReward = 0.0;
 
+    /** Chiave univoca corrispondente al campo 'EntityKey' nella tabella 'Entita' del database. */
+    protected String entityKey = null;
+
     private Runnable onHurt;
     private Runnable onDeath;
 
+    /** Stato di abbattimento: true se il colpo di grazia finale è stato inferto da un proiettile del giocatore. */
     private boolean killedByProjectile = false;
 
     public LivingEntityModel(double x, double y, double life, double maxLife) {
@@ -28,6 +37,9 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
         this.maxLife = maxLife;
     }
 
+    public String getEntityKey() { return entityKey; }
+    public void setEntityKey(String entityKey) { this.entityKey = entityKey; }
+
     public void setKilledByProjectile(boolean value) { this.killedByProjectile = value; }
     public boolean isKilledByProjectile() { return killedByProjectile; }
 
@@ -35,6 +47,10 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
     public double getLife() { return life.get(); }
     public double getMaxLife() { return maxLife; }
 
+    /**
+     * Aggiorna i punti vita attuali forzandoli all'interno del range consentito [0, maxLife].
+     * Se la vita scende a 0, avvia automaticamente la procedura di rimozione e distruzione dell'entità.
+     */
     public void setLife(double life) {
         double clampedLife = Math.clamp(life, 0, maxLife);
         this.life.set(clampedLife);
@@ -62,17 +78,27 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
         kill(false);
     }
 
+    /**
+     * Gestisce la distruzione logica, fisica e acustica dell'entità.
+     * Incrementa i contatori delle ondate e, in caso di abbattimento da proiettile valido,
+     * aggiorna le statistiche di sessione del punteggio e calcola la probabilità di drop di un consumabile.
+     *
+     * @param silent Se true, disabilita la riproduzione degli effetti sonori di esplosione/morte.
+     */
     public void kill(boolean silent) {
         if (!shouldRemove()) {
             this.life.set(0);
             setShouldRemove(true);
+
             if (onDeath != null) {
                 onDeath.run();
             }
+
             boolean isProjectile = this instanceof Projectile;
             boolean isPlayer = this instanceof PlayerModel;
             boolean isHeart = this instanceof HeartModel;
 
+            // Riproduzione SFX differenziata per tipologia di entità
             if (!silent && !isProjectile && !isHeart) {
                 AudioManager.getInstance().playSFX("explosion");
             }
@@ -81,18 +107,15 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
                 AudioManager.getInstance().playSFX("heal");
             }
 
+            // Elaborazione logiche di gioco specifiche per i nemici comuni e speciali
             if (!isHeart && !isProjectile && !isPlayer) {
                 UniverseWaveController.incrementKills();
 
+                // Logiche di ricompensa e spawn attive solo se ucciso attivamente dal giocatore
                 if (killedByProjectile) {
                     uni.gaben.iscat.utils.SessionScoreTracker.getInstance().addDeaths(1);
 
-                    uni.gaben.iscat.screens.login.model.SessionUser user = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser();
-                    if (user != null) {
-                        uni.gaben.iscat.database.sqlite.ScoreDAO.increment(user.id(), "Deaths", 1);
-                    }
-
-                    // Logica di spawn del cuore (25% di probabilità)
+                    // Calcolo probabilistico del drop (25% di possibilità di spawnare un Cuore)
                     if (Math.random() < 0.25) {
                         double pixelX = UU.mToPx(this.getTransform().getTranslationX());
                         double pixelY = UU.mToPx(this.getTransform().getTranslationY());
@@ -108,10 +131,6 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
     @Override public void onDeath() {}
     @Override public double getBaseAccelerationPerTick() { return 0; }
 
-    public double getXpReward() {
-        return xpReward;
-    }
-    public void setXpReward(double xpReward) {
-        this.xpReward = xpReward;
-    }
+    public double getXpReward() { return xpReward; }
+    public void setXpReward(double xpReward) { this.xpReward = xpReward; }
 }

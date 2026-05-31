@@ -14,17 +14,23 @@ import uni.gaben.iscat.screens.base.IscatMenuController;
 import uni.gaben.iscat.screens.bestiary.BestiaryData;
 import uni.gaben.iscat.view.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;
+import uni.gaben.iscat.screens.login.model.SessionUser;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller per la schermata dei punteggi e delle statistiche globali del giocatore.
+ * Gestisce l'esposizione delle metriche di gioco (punteggio massimo, uccisioni totali, tempo, danni)
+ * ricavate dal sistema di salvataggio e dal database. Integra un sistema decorativo agli angoli
+ * della UI che renderizza i mostri di gioco animati tramite canvas dedicati.
+ */
 public class ScoreMenuController implements IscatMenuController {
 
     private StackPane contentRoot;
     private Runnable customBackAction = null;
 
-    // Label Icona
     @FXML private Label lblBestScore;
     @FXML private Label lblTotalEnemies;
     @FXML private Label lblBestTime;
@@ -48,11 +54,19 @@ public class ScoreMenuController implements IscatMenuController {
     @FXML private StackPane previewSW;
     @FXML private StackPane previewSE;
 
+    /** Lista dei canvas animati attivi negli angoli della schermata, tracciati per la corretta disallocazione. */
     private final List<AnimatedCanvas> activeCanvases = new ArrayList<>();
 
+    /**
+     * Inizializza la schermata configurando i vincoli di binding del titolo con lo username dell'utente,
+     * applicando i glifi iconici ai relativi componenti grafici e avviando l'ascolto delle variazioni
+     * sui dati di salvataggio per l'aggiornamento in tempo reale delle metriche.
+     */
     @FXML
     public void initialize() {
         registerEscHandler();
+
+        // Data-binding dinamico del titolo sul nome utente della sessione corrente
         titleLabel.textProperty().bind(
                 Bindings.createStringBinding(() -> {
                     String user = SessionManager.getInstance().usernameProperty().getValue();
@@ -63,6 +77,7 @@ public class ScoreMenuController implements IscatMenuController {
                 }, SessionManager.getInstance().usernameProperty())
         );
 
+        // Applicazione dei font iconici (FontAwesome) a etichette e pulsanti
         applyIconButton(exitBtn,         "fas-sign-out-alt");
         applyIconLabel(lblBestScore,     "fas-trophy");
         applyIconLabel(lblTotalEnemies,  "fas-skull");
@@ -73,16 +88,27 @@ public class ScoreMenuController implements IscatMenuController {
 
         setupCornerMobs();
 
+        // Monitoraggio del file di salvataggio per forzare il refresh dei dati a schermo
         SessionManager.getInstance().saveDataProperty().addListener(
                 (obs, old, data) -> refresh(data)
         );
         refresh(SessionManager.getInstance().getCurrentSaveData());
     }
 
+    /**
+     * Recupera le definizioni dal Bestiario caricate dal database e istanzia dei canvas animati
+     * distribuiti nei contenitori posizionati ai quattro angoli della schermata dei punteggi.
+     */
     private void setupCornerMobs() {
         try {
+            int userId = 0;
+            SessionUser user = SessionManager.getInstance().getCurrentUser();
+            if (user != null) {
+                userId = user.id();
+            }
+
             BestiaryData bestiaryData = new BestiaryData();
-            Map<String, BestiaryData.Enemy> enemiesMap = bestiaryData.loadEnemies();
+            Map<String, BestiaryData.Enemy> enemiesMap = bestiaryData.loadEnemies(userId);
 
             if (enemiesMap == null || enemiesMap.isEmpty()) return;
 
@@ -106,17 +132,41 @@ public class ScoreMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Sincronizza i testi delle etichette della UI con i valori numerici presenti nel DTO di salvataggio.
+     * Interroga la mappa dei contatori del Bestiario per calcolare la somma cumulativa e reale di tutte le uccisioni.
+     *
+     * @param data Oggetto contenente i dati e i record statistici aggregati dell'utente.
+     */
     private void refresh(SaveData data) {
         if (data == null) return;
 
         valBestScore.setText(String.valueOf(data.score()));
-        valTotalEnemies.setText(String.valueOf(data.deaths()));
+
+        int totalKills = 0;
+        SessionUser user = SessionManager.getInstance().getCurrentUser();
+        if (user != null) {
+            BestiaryData bestiaryData = new BestiaryData();
+            bestiaryData.loadEnemies(user.id());
+
+            // Somma dei contatori di uccisioni estratti dalla mappa di associazione delle tabelle extra
+            totalKills = bestiaryData.getExtraKillCounts().values().stream()
+                    .mapToInt(Integer::intValue)
+                    .sum();
+        } else {
+            // Fallback sul dato locale aggregato se la sessione non è temporaneamente raggiungibile
+            totalKills = data.deaths();
+        }
+
+        valTotalEnemies.setText(String.valueOf(totalKills));
         valBestTime.setText(formatTime(data.bestTime()));
         valDamageTaken.setText(String.valueOf(data.totalDamageReceived()));
         valDamageCaused.setText(String.valueOf(data.totalDamageDealt()));
-        // valBoosts.setText(String.valueOf(data.boosts()));
     }
 
+    /**
+     * Formatta un valore espresso in secondi nel formato standard MM:SS.
+     */
     private String formatTime(int seconds) {
         if (seconds <= 0) return "00:00";
         return String.format("%02d:%02d", seconds / 60, seconds % 60);
@@ -131,6 +181,11 @@ public class ScoreMenuController implements IscatMenuController {
         this.customBackAction = customBackAction;
     }
 
+    /**
+     * Gestisce la disattivazione controllata e l'uscita dalla schermata.
+     * Rimuove i vincoli di binding del titolo e interrompe i loop di rendering dei canvas
+     * per prevenire memory leak o spreco di CPU in background, prima di rientrare nel menu principale.
+     */
     @Override
     public void handleBack() {
         titleLabel.textProperty().unbind();
@@ -144,5 +199,4 @@ public class ScoreMenuController implements IscatMenuController {
 
     @Override
     public Pane getRootPane() { return rootPane; }
-
 }
