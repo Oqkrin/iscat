@@ -49,8 +49,8 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     }
 
     @Override
-    public void updateAnimator(double dt) {
-        masterAnimator.update(dt);
+    public void setAnimatorTime(double time) {
+        masterAnimator.update(time);
     }
 
     @Override

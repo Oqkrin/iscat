@@ -100,7 +100,7 @@ public class UniverseRenderer {
         if (renderer == null) return;
 
         if (renderer instanceof AbstractEntityView<?> view) {
-            view.updateAnimator(dt);
+            view.setAnimatorTime(entity.getStateTime());
         }
 
         renderer.draw(entity, gc);

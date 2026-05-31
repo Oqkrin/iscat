@@ -2,9 +2,12 @@ package uni.gaben.iscat.universe.enemies.generic;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
 import uni.gaben.iscat.universe.lib.interfaces.view.Drawable;
 import uni.gaben.iscat.universe.lib.interfaces.view.DrawableSpriteSheet;
+import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
@@ -19,12 +22,6 @@ import uni.gaben.iscat.utils.theme.ThemeManager;
  */
 public class GenericEntityView extends AbstractEntityView<GenericEntityModel>
         implements Drawable<GenericEntityModel>, DrawableSpriteSheet {
-
-    /** Durata standard di esposizione di un singolo frame dell'animazione (espressa in secondi, pari a 6 FPS). */
-    private static final double FRAME_DURATION = 1.0 / 6.0;
-
-    /** Compensazione angolare in gradi necessaria per allineare l'orientamento nativo delle texture (Nord) all'asse di Dyn4J. */
-    private static final double ANGULAR_OFFSET_DEG = 270.0;
 
     private final SpriteSheetsParser sheet;
     private final SpriteSheetsAnimator animator;
@@ -47,7 +44,7 @@ public class GenericEntityView extends AbstractEntityView<GenericEntityModel>
         int totalFrames = (sheet != null) ? sheet.getTotalFrames() : 1;
         int totalStates = (sheet != null) ? sheet.getTotalStates() : 1;
 
-        this.animator = new SpriteSheetsAnimator(FRAME_DURATION, totalFrames, totalStates);
+        this.animator = new SpriteSheetsAnimator(UU.UNIVERSE_TICK*10, totalFrames, totalStates);
     }
 
     @Override
@@ -60,11 +57,11 @@ public class GenericEntityView extends AbstractEntityView<GenericEntityModel>
      * Aggiorna i puntatori temporali dell'animatore interno avanzandone il ciclo di vita.
      * Invocato ad ogni tick logico dal loop di rendering della UI.
      *
-     * @param dt Delta time (tempo trascorso dall'ultimo frame).
+     * @param time Delta time (tempo trascorso dall'ultimo frame).
      */
     @Override
-    public void updateAnimator(double dt) {
-        animator.update(dt);
+    public void setAnimatorTime(double time) {
+        animator.setTime(time);
     }
 
     /**
@@ -77,7 +74,7 @@ public class GenericEntityView extends AbstractEntityView<GenericEntityModel>
     @Override
     public void draw(GenericEntityModel entity, GraphicsContext gc) {
         if (entity == null) return;
-        setupGraphicsContextAndDrawContent(entity, gc, ANGULAR_OFFSET_DEG, true);
+        setupGraphicsContextAndDrawContent(entity, gc, RenderingSettings.BASE_ROTRAD_OFFSET, true);
     }
 
     /**
@@ -97,11 +94,7 @@ public class GenericEntityView extends AbstractEntityView<GenericEntityModel>
                                double x, double y, double width, double height) {
         if (sheet == null) return;
 
-        int currentRow  = animator.getCurrentState(); // Costante 0: profilo ad animazione singola lineare
-        int maxFrames   = sheet.getTotalFrames();
-        int localFrame  = (int) (animator.getTime() / FRAME_DURATION) % Math.max(maxFrames, 1);
-
-        Image frame = sheet.getFrame(currentRow, localFrame);
+        Image frame = sheet.getFrame(animator.getCurrentState(), animator.getCurrentFrame());
         if (frame == null) return;
 
         // Applicazione dinamica del filtro colore dipendente dal tema di gioco attivo (es. Palette Notturna/Inversa)
