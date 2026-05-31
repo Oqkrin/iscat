@@ -38,8 +38,15 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
                 masterSheet != null ? masterSheet.getTotalStates() : 1);
     }
 
-    @Override public SpriteSheetsParser getSpriteSheet() { return masterSheet; }
-    @Override public SpriteSheetsAnimator getAnimator()  { return masterAnimator; }
+    @Override
+    public SpriteSheetsParser getSpriteSheet() {
+        return masterSheet;
+    }
+
+    @Override
+    public SpriteSheetsAnimator getAnimator() {
+        return masterAnimator;
+    }
 
     @Override
     public void updateAnimator(double dt) {
@@ -49,6 +56,9 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     @Override
     public void draw(IscatMasterModel entity, GraphicsContext gc) {
         if (entity == null) return;
+        if (entity.shouldRemove()) return;
+        if (masterSheet == null) return;
+
         this.currentEntity = entity;
 
         int targetRow;
@@ -87,6 +97,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
 
             if (modelState == AnimationState.DEATH && isRowCycleCompleted(maxFrames)) {
                 entity.completeKill();
+                return;
             }
         }
 
@@ -96,21 +107,21 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     @Override
     protected void drawContent(IscatMasterModel entity, GraphicsContext gc,
                                double x, double y, double width, double height) {
+        if (masterSheet == null) return;
+
         int currentRow = masterAnimator.getCurrentState();
         int maxFrames = getFramesCountForRow(currentRow);
         double defaultFrameDuration = 1.0 / 6.0;
 
         int localFrame = (int) (masterAnimator.getTime() / defaultFrameDuration) % Math.max(maxFrames, 1);
 
-        if (masterSheet != null) {
-            Image frame = masterSheet.getFrame(currentRow, localFrame);
-            if (frame != null) {
-                Image tinted = ThemeManager.getInstance().getTintedImage(
-                        frame,
-                        ThemeManager.getInstance().globalTintProperty().get());
-                gc.drawImage(tinted, x, y, width, height);
-            }
-        }
+        Image frame = masterSheet.getFrame(currentRow, localFrame);
+        if (frame == null) return;
+
+        Image tinted = ThemeManager.getInstance().getTintedImage(
+                frame,
+                ThemeManager.getInstance().globalTintProperty().get());
+        gc.drawImage(tinted, x, y, width, height);
 
         drawShockwave(gc, 0, 0, entity.shockwave());
     }

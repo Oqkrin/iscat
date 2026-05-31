@@ -14,6 +14,9 @@ import uni.gaben.iscat.view.StarryText;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UniverseRenderer {
 
     private final Canvas mainCanvas;
@@ -58,7 +61,6 @@ public class UniverseRenderer {
 
         // 3. Render Game Entities inside Camera Space Matrix
         gc.save();
-        //gc.translate(-cameraModel.getViewportLeftX(), -cameraModel.getViewportTopY());
 
         double cx = cameraModel.getX();
         double cy = cameraModel.getY();
@@ -71,9 +73,13 @@ public class UniverseRenderer {
 
         double dt = gameModel.getDt();
         boolean renderCollisionBoxes = debugPanelVisible && gameController.isDebugModeOn();
-        for (var entity : universe.getEntities()) {
+
+        // Crea una copia della lista per evitare ConcurrentModificationException
+        List<AbstractEntityModel> entitiesCopy = new ArrayList<>(universe.getEntities());
+        for (var entity : entitiesCopy) {
             drawEntity(entity, gc, renderCollisionBoxes, dt);
         }
+
         gc.restore();
 
         // 4. Render Independent Overlay HUD Canvas Components
@@ -90,7 +96,7 @@ public class UniverseRenderer {
     @SuppressWarnings("unchecked")
     private <T extends AbstractEntityModel> void drawEntity(T entity, GraphicsContext gc,
                                                             boolean renderCollisionBoxes, double dt) {
-        Drawable<T> renderer = RenderRegistry.getInstance().getRenderer(entity); // <-- entity, non class
+        Drawable<T> renderer = RenderRegistry.getInstance().getRenderer(entity);
         if (renderer == null) return;
 
         if (renderer instanceof AbstractEntityView<?> view) {
@@ -99,7 +105,7 @@ public class UniverseRenderer {
 
         renderer.draw(entity, gc);
 
-        if (renderCollisionBoxes && renderer instanceof AbstractEntityView<?>entityView) {
+        if (renderCollisionBoxes && renderer instanceof AbstractEntityView<?> entityView) {
             gc.save();
             ((AbstractEntityView<T>) entityView).setPos(entity);
             ((AbstractEntityView<T>) entityView).drawDebugCollision(entity, gc);
