@@ -29,6 +29,7 @@
                         <Label styleClass="card-header" text="CUSTOMIZE!" />
                         <Button fx:id="skinButton" contentDisplay="TOP" onAction="#openSkinMenu" styleClass="menu-button" text="CHANGE SKIN" />
                         <Button fx:id="bestiaryButton" contentDisplay="TOP" onAction="#openBestiaryMenu" styleClass="menu-button" text="BESTIARIO" />
+                        <Button fx:id="optionsButton" contentDisplay="TOP" onAction="#openOptionsMenu" styleClass="menu-button" text="OPTIONS" />
                     </VBox>
                 </VBox>
 
@@ -41,7 +42,6 @@
                     <VBox alignment="CENTER" rotate="-1.0" spacing="10.0" styleClass="glowing-border, main-card">
                         <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                         <Button fx:id="playButton" contentDisplay="TOP" onAction="#playGame" styleClass="menu-button, play-button" text="PLAY" />
-                        <Button fx:id="optionsButton" contentDisplay="TOP" onAction="#openOptionsMenu" styleClass="menu-button" text="OPTIONS" />
                         <Button fx:id="quitButton" contentDisplay="TOP" onAction="#quit" styleClass="menu-button, danger-button-weak" text="QUIT" />
                     </VBox>
                 </VBox>
@@ -51,6 +51,7 @@
                         <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0" /></padding>
                         <Label styleClass="card-header" text="PROFILE" />
                         <Button fx:id="scoreButton" contentDisplay="BOTTOM" onAction="#openScoreMenu" styleClass="menu-button" text="VIEW SCORE" />
+                        <Button fx:id="leaderboardButton" contentDisplay="BOTTOM" onAction="#openLeaderboardMenu" styleClass="menu-button" text="LEADERBOARD" />
                         <Button fx:id="logoutButton" contentDisplay="TOP" onAction="#logout" styleClass="menu-button, danger-button-weak" text="LOG OUT" />
                     </VBox>
                 </VBox>

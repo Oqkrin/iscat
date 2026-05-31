@@ -1,6 +1,8 @@
 package uni.gaben.iscat.database.dao;
 
 import uni.gaben.iscat.screens.scores.SaveData;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface ScoreDAO {
@@ -19,4 +21,8 @@ public interface ScoreDAO {
 
     /** Azzera tutte le statistiche di salvataggio per l'utente specificato */
     void reset(int userId);
+
+    /** Ottiene tutti gli score di tutti gli utenti per la leaderboard */
+    List<UserScoreEntry> getAllScores();
+    record UserScoreEntry(String username, int score) {}
 }

@@ -32,6 +32,7 @@ public class IscatModel {
             case MAIN_MENU,
                  SKIN_MENU,
                  BESTIARY_MENU,
+                 LEADERBOARD_MENU,
                  SCORE_MENU,
                  OPTIONS_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
             case GAME          -> "/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav";

@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class SQLiteScoreDAO implements ScoreDAO {
@@ -97,6 +99,35 @@ public class SQLiteScoreDAO implements ScoreDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Errore reset per userId: " + userId, e);
         }
+    }
+
+    @Override
+    public List<UserScoreEntry> getAllScores() {
+        List<UserScoreEntry> scores = new ArrayList<>();
+
+        String sql = """
+        SELECT u.Username, s.Score
+        FROM Utenti u
+        INNER JOIN Salvataggi s ON u.ID = s.UserID
+        ORDER BY s.Score DESC
+    """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                String username = rs.getString("Username");
+                int score = rs.getInt("Score");
+                scores.add(new UserScoreEntry(username, score));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Errore nel caricamento della leaderboard", e);
+        }
+
+        return scores;
     }
 
     private boolean isValidColumn(String column) {

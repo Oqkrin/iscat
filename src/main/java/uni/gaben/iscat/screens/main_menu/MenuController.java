@@ -19,6 +19,7 @@ public class MenuController implements IscatFxmlController {
     @FXML private Button bestiaryButton;
     @FXML private Button logoutButton;
     @FXML private Button quitButton;
+    @FXML private Button leaderboardButton;
 
     private StackPane contentRoot;
 
@@ -31,15 +32,17 @@ public class MenuController implements IscatFxmlController {
         setIcon(bestiaryButton,  "fas-bug");
         setIcon(logoutButton,    "fas-sign-out-alt");
         setIcon(quitButton,      "fas-door-open");
+        setIcon(leaderboardButton,"fas-door-open");
     }
 
-    @FXML public void playGame()         { navigate(IscatViews.GAME);          }
-    @FXML public void openOptionsMenu()  { navigate(IscatViews.OPTIONS_MENU);  }
-    @FXML public void openScoreMenu()    { navigate(IscatViews.SCORE_MENU);    }
-    @FXML public void openSkinMenu()     { navigate(IscatViews.SKIN_MENU);     }
-    @FXML public void openBestiaryMenu() { navigate(IscatViews.BESTIARY_MENU); }
-    @FXML public void logout()           { navigate(IscatViews.LOGIN_MENU);    }
-    @FXML public void quit()             { Platform.exit();                     }
+    @FXML public void playGame()            { navigate(IscatViews.GAME);             }
+    @FXML public void openOptionsMenu()     { navigate(IscatViews.OPTIONS_MENU);     }
+    @FXML public void openScoreMenu()       { navigate(IscatViews.SCORE_MENU);       }
+    @FXML public void openSkinMenu()        { navigate(IscatViews.SKIN_MENU);        }
+    @FXML public void openBestiaryMenu()    { navigate(IscatViews.BESTIARY_MENU);    }
+    @FXML public void logout()              { navigate(IscatViews.LOGIN_MENU);       }
+    @FXML public void openLeaderboardMenu() {navigate(IscatViews.LEADERBOARD_MENU);  }
+    @FXML public void quit()                { Platform.exit();                       }
 
     private void navigate(IscatViews scene) {
         IscatNavigator.getInstance().navigateWithFade(scene);
