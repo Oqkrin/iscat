@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyEvent;
-import uni.gaben.iscat.database.sqlite.SettingsDAO;
+import uni.gaben.iscat.database.dao.SettingsDAO;
 import uni.gaben.iscat.screens.login.model.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
 
@@ -13,6 +13,7 @@ public class OptionKeybindsController {
 
     private Button selectedButton = null;
     private String selectedColumn = null;
+    private SettingsDAO settingsDAO;
 
     @FXML
     public void initialize() {
@@ -58,7 +59,11 @@ public class OptionKeybindsController {
                 case "Dash1"     -> settings.setDash1(pressedKey);
                 case "Dash2"     -> settings.setDash2(pressedKey);
             }
-            SettingsDAO.updateControl(settings.getUserId(), selectedColumn, pressedKey);
+            if (settingsDAO != null) {
+                settingsDAO.updateControl(settings.getUserId(), selectedColumn, pressedKey);
+            } else {
+                System.err.println("SettingsDAO non iniettato in OptionKeybindsController");
+            }
         }
         selectedButton.setText(pressedKey);
         selectedButton = null;
@@ -71,10 +76,16 @@ public class OptionKeybindsController {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
         int uid = settings.getUserId();
-        SettingsDAO.updateControl(uid, "WalkUp", "W"); SettingsDAO.updateControl(uid, "WalkDown", "S");
-        SettingsDAO.updateControl(uid, "WalkLeft", "A"); SettingsDAO.updateControl(uid, "WalkRight", "D");
-        SettingsDAO.updateControl(uid, "Space", "Space"); SettingsDAO.updateControl(uid, "Dash2", "Middle Mouse");
-        SettingsDAO.updateControl(uid, "PauseGame", "ESC");
+        if (settingsDAO != null) {
+            settingsDAO.updateControl(uid, "WalkUp", "W");
+            settingsDAO.updateControl(uid, "WalkDown", "S");
+            settingsDAO.updateControl(uid, "WalkLeft", "A");
+            settingsDAO.updateControl(uid, "WalkRight", "D");
+            settingsDAO.updateControl(uid, "Space", "Space");
+            settingsDAO.updateControl(uid, "Dash2", "Middle Mouse");
+            settingsDAO.updateControl(uid, "PauseGame", "ESC");
+            refreshButtonLabels();
+        }
         refreshButtonLabels();
     }
 

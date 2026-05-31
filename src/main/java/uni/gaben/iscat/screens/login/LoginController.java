@@ -3,13 +3,14 @@ package uni.gaben.iscat.screens.login;
 import javafx.scene.input.KeyEvent;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.database.sqlite.SQLiteScoreDAO;
+import uni.gaben.iscat.database.sqlite.SQLiteSettingsDAO;
 import uni.gaben.iscat.screens.login.model.LoginAuth;
 import uni.gaben.iscat.screens.login.model.LoginModel;
 import uni.gaben.iscat.screens.login.model.LoginState;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.screens.scores.SaveData;
 import uni.gaben.iscat.utils.SessionManager;
-import uni.gaben.iscat.database.sqlite.SettingsDAO;
+import uni.gaben.iscat.database.dao.SettingsDAO;
 import uni.gaben.iscat.screens.login.model.UserSettings;
 import java.util.Optional;
 
@@ -23,16 +24,18 @@ public class LoginController {
     private final LoginModel model;
     private final LoginAuth loginAuth;
     private final ScoreDAO scoreDAO;
+    private final SettingsDAO settingsDAO;
 
     private final StringBuilder usernameBuffer = new StringBuilder();
     private final StringBuilder passwordBuffer = new StringBuilder();
 
     private LoginState currentLoginState = LoginState.USERNAME;
 
-    public LoginController(LoginModel model, LoginAuth loginAuth, ScoreDAO scoreDAO) {
+    public LoginController(LoginModel model, LoginAuth loginAuth, ScoreDAO scoreDAO, SettingsDAO settingsDAO) {
         this.model = model;
         this.loginAuth = loginAuth;
         this.scoreDAO = scoreDAO;
+        this.settingsDAO = settingsDAO;
 
         // Sincronizza lo stato logico del controller con la tipologia di focus (User o Pass)
         model.loginStateProperty().addListener((obs, old, isTypingPass) ->
@@ -40,11 +43,14 @@ public class LoginController {
     }
 
     public LoginController(LoginModel model, LoginAuth loginAuth) {
-        this(model, loginAuth, createDefaultScoreDAO());
+        this(model, loginAuth, createDefaultScoreDAO(), createDefaultSettingsDAO());
     }
 
     private static ScoreDAO createDefaultScoreDAO() {
         return new SQLiteScoreDAO();
+    }
+    private static SettingsDAO createDefaultSettingsDAO() {
+        return new SQLiteSettingsDAO();
     }
 
     public void onKeyPressed(KeyEvent e) {
@@ -153,7 +159,11 @@ public class LoginController {
                 SessionManager.getInstance().setCurrentUser(loggedUser);
 
                 // Carica e salva impostazioni personalizzate dell'utente dal DB
-                UserSettings settings = SettingsDAO.loadSettings(loggedUser.id());
+                UserSettings settings = settingsDAO.loadSettings(loggedUser.id())
+                        .orElseGet(() -> {
+                            settingsDAO.createDefault(loggedUser.id());
+                            return settingsDAO.loadSettings(loggedUser.id()).orElse(null);
+                        });
                 SessionManager.getInstance().setCurrentSettings(settings);
 
                 scoreDAO.createIfNotExists(loggedUser.id());
@@ -176,7 +186,11 @@ public class LoginController {
                 SessionManager.getInstance().setCurrentUser(newUser);
 
                 // Carica le impostazioni (generate di default nel DB durante la registrazione)
-                UserSettings settings = SettingsDAO.loadSettings(newUser.id());
+                UserSettings settings = settingsDAO.loadSettings(newUser.id())
+                        .orElseGet(() -> {
+                            settingsDAO.createDefault(newUser.id());
+                            return settingsDAO.loadSettings(newUser.id()).orElse(null);
+                        });
                 SessionManager.getInstance().setCurrentSettings(settings);
 
                 scoreDAO.createIfNotExists(newUser.id());

@@ -10,6 +10,8 @@
       fx:controller="uni.gaben.iscat.screens.options.OptionAccountController">
     <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
     <Label styleClass="card-header" text="ACCOUNT" />
+    <Button onAction="#changeUsername" text="Change Username" />
+    <Button onAction="#changePassword" text="Change Password" />
     <Button onAction="#resetAccount" text="Reset Account" />
     <Button onAction="#deleteAccount" style="-fx-text-fill: red;" text="Delete Account" />
 </VBox>

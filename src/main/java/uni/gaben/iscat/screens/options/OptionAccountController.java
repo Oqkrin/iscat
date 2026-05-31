@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.database.sqlite.SettingsDAO;
+import uni.gaben.iscat.database.dao.SettingsDAO;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.screens.confirmation_overlay.ConfirmationOverlayController;
 import uni.gaben.iscat.screens.login.model.UserSettings;
@@ -15,13 +15,10 @@ public class OptionAccountController {
 
     private ConfirmationOverlayController confirmOverlayController;
     private ScoreDAO scoreDAO;
+    private SettingsDAO settingsDAO;
 
     public void setConfirmOverlayController(ConfirmationOverlayController controller) {
         this.confirmOverlayController = controller;
-    }
-
-    public void setScoreDAO(ScoreDAO scoreDAO) {
-        this.scoreDAO = scoreDAO;
     }
 
     @FXML
@@ -47,7 +44,7 @@ public class OptionAccountController {
             confirmOverlayController.ask("Eliminare Account?", "L'azione è irreversibile.", () -> {
                 int userId = SessionManager.getInstance().getCurrentSettings().getUserId();
                 if (userId != -1) {
-                    SettingsDAO.delete(userId);
+                    settingsDAO.delete(userId);
                     SessionManager.getInstance().setCurrentUser(null);
                     SessionManager.getInstance().setCurrentSettings(null);
                     SessionManager.getInstance().setCurrentSaveData(null);
@@ -56,5 +53,12 @@ public class OptionAccountController {
                 }
             });
         }
+    }
+    @FXML
+    void changeUsername(ActionEvent event) {
+    }
+
+    @FXML
+    void changePassword(ActionEvent event) {
     }
 }
