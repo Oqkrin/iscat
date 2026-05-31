@@ -4,29 +4,13 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.enemies.fake.FakeIscatController;
-import uni.gaben.iscat.universe.enemies.fake.FakeIscatModel;
-import uni.gaben.iscat.universe.enemies.fallen_star_golem.FallenStarGolemController;
-import uni.gaben.iscat.universe.enemies.fallen_star_golem.FallenStarGolemModel;
-import uni.gaben.iscat.universe.enemies.core.IscatCoreController;
-import uni.gaben.iscat.universe.enemies.core.IscatCoreModel;
-import uni.gaben.iscat.universe.enemies.dasher.IscatDasherController;
-import uni.gaben.iscat.universe.enemies.dasher.IscatDasherModel;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterController;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
-import uni.gaben.iscat.universe.enemies.mother.IscatMotherController;
-import uni.gaben.iscat.universe.enemies.mother.IscatMotherModel;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormController;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormModel;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.enemies.eater.IscatEaterController;
-import uni.gaben.iscat.universe.enemies.eater.IscatEaterModel;
-import uni.gaben.iscat.universe.enemies.mob.IscatMobBrain;
-import uni.gaben.iscat.universe.enemies.mob.IscatMobModel;
-import uni.gaben.iscat.universe.enemies.bomber.IscatBomberController;
-import uni.gaben.iscat.universe.enemies.bomber.IscatBomberModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 
 import java.util.function.BiFunction;
@@ -61,15 +45,7 @@ public class UniverseSpawner {
         return switch (type) {
             case PLAYER            -> spawnPlayer(x, y);
             case ASTEROID          -> spawnEntity(new AsteroidModel(x, y, 50)); // simplified, adjust as needed
-            case ISCAT_MOB         -> spawnWithController(IscatMobModel::new, IscatMobBrain::new, x, y);
-            case ISCAT_MOTHER      -> spawnWithController(IscatMotherModel::new, IscatMotherController::new, x, y);
-            case ISCAT_BOMBER      -> spawnWithController(IscatBomberModel::new, IscatBomberController::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
-            case EATER             -> spawnWithController(IscatEaterModel::new, IscatEaterController::new, x, y);
-            case ISCAT_CORE        -> spawnWithController(IscatCoreModel::new, IscatCoreController::new, x, y);
-            case FAKE_ISCAT        -> spawnWithController(FakeIscatModel::new, FakeIscatController::new, x, y);
-            case FALLEN_STAR_GOLEM -> spawnWithController(FallenStarGolemModel::new, FallenStarGolemController::new, x, y);
-            case ISCAT_DASHER      -> spawnWithController(IscatDasherModel::new, IscatDasherController::new, x, y);
             case ISCAT_HEALER      -> spawnWithController(
                     uni.gaben.iscat.universe.enemies.healer.IscatHealerModel::new,
                     uni.gaben.iscat.universe.enemies.healer.IscatHealerController::new, x, y);
@@ -137,8 +113,7 @@ public class UniverseSpawner {
     }
 
     private Object spawnCustomRuntimeEntity(String id, double x, double y) {
-        // TODO: Database integration
-        System.out.println("[Runtime Spawner] Custom entity '" + id + "' at (" + x + "," + y + ")");
-        return null;
+        return uni.gaben.iscat.universe.enemies.generic.GenericEntityFactory
+                .spawn(id, x, y, model, controller);
     }
 }

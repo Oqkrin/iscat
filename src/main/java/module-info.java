@@ -38,8 +38,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.enviroment.asteroid;
     exports uni.gaben.iscat.universe.enviroment.starfield;
     exports uni.gaben.iscat.universe.projectiles;
-    exports uni.gaben.iscat.universe.enemies.mob;
-    exports uni.gaben.iscat.universe.enemies.eater;
     exports uni.gaben.iscat.universe.enemies.worm;
     exports uni.gaben.iscat.screens.options;
     exports uni.gaben.iscat.screens.main_menu;
@@ -66,4 +64,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.utils.theme;
     opens uni.gaben.iscat.utils.theme to javafx.fxml;
     exports uni.gaben.iscat.universe.brain.modifiers.flocking;
+    exports uni.gaben.iscat.database.sqlite;
+    opens uni.gaben.iscat.database.sqlite to javafx.fxml;
 }

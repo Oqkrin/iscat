@@ -15,6 +15,7 @@ import uni.gaben.iscat.controller.IscatViewController;
 import uni.gaben.iscat.controller.IscatWindowController;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.universe.enemies.generic.GenericEntityFactory;
 import uni.gaben.iscat.view.IscatTitleBar;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.IscatUtils;
@@ -47,6 +48,7 @@ public class IscatApplication extends Application {
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
         db.init();
+        GenericEntityFactory.preloadAll();
         IscatNavigator.getInstance().initialize(iscatModel);
         AudioManager.getInstance().loadDefaultAudio();
     }

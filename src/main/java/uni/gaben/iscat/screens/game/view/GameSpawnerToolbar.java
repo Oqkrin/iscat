@@ -1,48 +1,43 @@
 package uni.gaben.iscat.screens.game.view;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import uni.gaben.iscat.database.sqlite.EnemyDAO;
 import uni.gaben.iscat.screens.game.controller.GameController;
 import uni.gaben.iscat.universe.UniverseSpawnable;
-
+import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
 import uni.gaben.iscat.utils.design.CssHelper;
-
+import java.util.List;
 import java.util.Set;
 
-/**
- * Barra degli strumenti inferiore per lo spawning rapido di entità.
- * Permette di generare asteroidi o nemici con un click.
- */
 public class GameSpawnerToolbar extends StackPane {
 
     public final FlowPane spawnContainer;
     private final ScrollPane scroll;
 
-    // Spawn button che non dovrebbero esistere
     private static final Set<UniverseSpawnable> HIDDEN_SPAWNABLES = Set.of(
             UniverseSpawnable.PLAYER,
             UniverseSpawnable.PROJECTILE
     );
 
-
     public GameSpawnerToolbar(GameController controller) {
 
-        // ==================== SPAWN BUTTONS ====================
-        scroll = new ScrollPane();
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        VBox root = new VBox(8);
+        root.setPadding(new Insets(8, 0, 8, 0));
 
-        // FlowPane: va a capo automaticamente, nessuna riga/colonna fissa
-        spawnContainer = new FlowPane(10, 10); // hgap, vgap
+        Label hardcodedLabel = sectionLabel("Hardcoded entities");
+
+        spawnContainer = new FlowPane(10, 10);
         spawnContainer.setAlignment(Pos.BOTTOM_CENTER);
-        spawnContainer.setPadding(new Insets(10, 20, 10, 20));
-        // SPAWNERS BUTTONS
+        spawnContainer.setPadding(new Insets(4, 20, 4, 20));
+
         for (UniverseSpawnable spawnable : UniverseSpawnable.values()) {
             if (HIDDEN_SPAWNABLES.contains(spawnable)) continue;
             Button b = createSmallButton(spawnable.name());
@@ -50,21 +45,49 @@ public class GameSpawnerToolbar extends StackPane {
             spawnContainer.getChildren().add(b);
         }
 
-        scroll.setContent(spawnContainer);
-        getChildren().addAll(scroll);
+        Label genericLabel = sectionLabel("DATABASE LOADED");
 
-        // Style
+        FlowPane genericContainer = new FlowPane(10, 10);
+        genericContainer.setAlignment(Pos.BOTTOM_CENTER);
+        genericContainer.setPadding(new Insets(4, 20, 4, 20));
+
+        Thread.ofVirtual().start(() -> {
+            List<GenericEntitySettings> enemies = EnemyDAO.findAll();
+            Platform.runLater(() -> {
+                for (GenericEntitySettings s : enemies) {
+                    Button b = createSmallButton(s.entityKey);
+                    b.setTooltip(new javafx.scene.control.Tooltip(s.name));
+                    b.setOnAction(e -> controller.debugSpawn(s.entityKey));
+                    genericContainer.getChildren().add(b);
+                }
+            });
+        });
+
+        root.getChildren().addAll(hardcodedLabel, spawnContainer, genericLabel, genericContainer);
+
+        scroll = new ScrollPane(root);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroll.setFitToWidth(true);
+        scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        getChildren().add(scroll);
+
         CssHelper.sfondoScuro(this);
         CssHelper.bordoArrotondato(this);
         CssHelper.ombra3(this);
         CssHelper.bordoPrimario(this);
-        setStyle(getStyle() + "-fx-background-color: rgba(13, 15, 18, 0.92); -fx-border-width: 1.5;");
+        setStyle(getStyle() + "-fx-background-color: rgba(13,15,18,0.92); -fx-border-width: 1.5;");
         setVisible(false);
     }
 
-    /**
-     * Helper per creare un bottone piccolo con lo stile del menu principale.
-     */
+    private Label sectionLabel(String text) {
+        Label lbl = new Label(text);
+        lbl.setPadding(new Insets(2, 20, 0, 20));
+        CssHelper.testoSecondario(lbl);
+        return lbl;
+    }
+
     private Button createSmallButton(String text) {
         Button btn = new Button(text);
         btn.setPrefHeight(34);

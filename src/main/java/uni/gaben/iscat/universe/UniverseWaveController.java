@@ -102,15 +102,15 @@ public class UniverseWaveController {
             UniverseSpawnable enemyToSpawn = rollWeightProbability();
 
             // Controllo dei tetti massimi specifici richiesti
-            if (!canSpawnEnemyType(enemyToSpawn)) {
-                // Se un nemico speciale ha raggiunto il suo tetto massimo, ripiega sul mob base (se ha spazio)
-                if (enemyToSpawn != UniverseSpawnable.ISCAT_MOB && canSpawnEnemyType(UniverseSpawnable.ISCAT_MOB)) {
-                    enemyToSpawn = UniverseSpawnable.ISCAT_MOB;
-                } else {
-                    // Se anche il mob base è saturo, interrompiamo il riempimento per questo frame
-                    break;
-                }
-            }
+            //if (!canSpawnEnemyType(enemyToSpawn)) {
+            //    // Se un nemico speciale ha raggiunto il suo tetto massimo, ripiega sul mob base (se ha spazio)
+            //    if (enemyToSpawn != UniverseSpawnable.ISCAT_MOB && canSpawnEnemyType(UniverseSpawnable.ISCAT_MOB)) {
+            //        enemyToSpawn = UniverseSpawnable.ISCAT_MOB;
+            //    } else {
+            //        // Se anche il mob base è saturo, interrompiamo il riempimento per questo frame
+            //        break;
+            //    }
+            //}
 
             // CALCOLO DELLE COORDINATE DI SPAWN
             // margine di sicurezza oltre il bordo dello schermo
@@ -178,7 +178,6 @@ public class UniverseWaveController {
 
         return switch (type) {
             case WORM -> count < 5;          // Iscatworm: max 5
-            case ISCAT_MOTHER -> count < 2;  // Iscat Mother: max 2
             default -> count < 10;           // Tutti gli altri nemici standard: max 10
         };
     }
@@ -232,18 +231,10 @@ public class UniverseWaveController {
         double rollValue = random.nextDouble() * totalWeightSum;
         double currentSum = 0.0;
 
-        if ((currentSum += mobWeight) >= rollValue)    return UniverseSpawnable.ISCAT_MOB;
-        if ((currentSum += eaterWeight) >= rollValue)  return UniverseSpawnable.EATER;
-        if ((currentSum += fakeWeight) >= rollValue)   return UniverseSpawnable.FAKE_ISCAT;
-        if ((currentSum += bomberWeight) >= rollValue) return UniverseSpawnable.ISCAT_BOMBER;
-        if ((currentSum += dasherWeight) >= rollValue) return UniverseSpawnable.ISCAT_DASHER;
         if ((currentSum += healerWeight) >= rollValue) return UniverseSpawnable.ISCAT_HEALER;
-        if ((currentSum += golemWeight) >= rollValue)  return UniverseSpawnable.FALLEN_STAR_GOLEM;
-        if ((currentSum += coreWeight) >= rollValue)   return UniverseSpawnable.ISCAT_CORE;
         if ((currentSum += wormWeight) >= rollValue)   return UniverseSpawnable.WORM;
-        if ((currentSum += motherWeight) >= rollValue) return UniverseSpawnable.ISCAT_MOTHER;
 
-        return UniverseSpawnable.ISCAT_MOB;
+        return UniverseSpawnable.ISCAT_HEALER;
     }
 
     public void notifyBossSpawned() {

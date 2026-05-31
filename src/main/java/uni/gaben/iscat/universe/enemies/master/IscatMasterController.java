@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.behaviurs.AiController;
 import uni.gaben.iscat.universe.lib.behaviurs.AttackBehavior;
-import uni.gaben.iscat.universe.lib.behaviurs.LineOfSightChecker;  // <-- reusable class
+import uni.gaben.iscat.universe.lib.behaviurs.LineOfSightChecker;
 import uni.gaben.iscat.universe.lib.behaviurs.MovementStrategy;
 import uni.gaben.iscat.universe.lib.behaviurs.ShooterBehaviour;
 import uni.gaben.iscat.universe.lib.behaviurs.modifiers.ObstacleAvoidanceModifier;
@@ -16,47 +16,43 @@ import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.lib.implementations.attacks.*;
 import uni.gaben.iscat.universe.UniverseSpawnable;
 import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
 
 import java.util.Random;
-
-import static uni.gaben.iscat.universe.enemies.master.IscatMasterSettings.ISCATMASTER;
 
 public class IscatMasterController extends AiController {
 
     private final ShooterBehaviour shooterBehaviour;
     private final LineOfSightChecker losChecker;
     private final Random rand = new Random();
+    private final GenericEntitySettings s;
 
-    // For seek‑line‑of‑sight movement
     private double seekAngleSign = 1.0;
     private double seekTimer = 0.0;
     private Vector2 wanderTarget = null;
 
     public IscatMasterController(IscatMasterModel master) {
-        super(master, ISCATMASTER.force, ISCATMASTER.maxVelocity, ISCATMASTER.rotationSpeed);
+        super(master, master.getSettings().force,
+                master.getSettings().maxVelocity,
+                master.getSettings().rotationSpeed);
 
-        // Create LoS checker, ignoring the master's own body
-        this.losChecker = new LineOfSightChecker(master); // assumes getBody() exists
+        this.s = master.getSettings();
+        this.losChecker = new LineOfSightChecker(master);
 
-        // Movement strategy
         setMovementStrategy(new MasterMovementStrategy());
 
-        // Avoidance modifiers
-        addModifier(new SeparationModifier(UU.pxToM(32.0), ISCATMASTER.force * 0.8));
+        addModifier(new SeparationModifier(UU.pxToM(32.0), s.force * 0.8));
         addModifier(new ObstacleAvoidanceModifier());
         addModifier(new ProjectileAvoidanceModifier());
 
-        // Attack (wrapped to respect LoS)
         shooterBehaviour = new ShooterBehaviour(
                 80.0,
-                ISCATMASTER.combatRange,
-                ISCATMASTER.fireCooldownS,
+                s.combatRange,
+                s.fireCooldownS,
                 ProjectileType.ENEMY_BULLET,
-                new RepeaterAttack(3, new SummonAttack(1, UniverseSpawnable.ISCAT_DASHER, 0)),
                 new RepeaterAttack(3, new SummonAttack(1, UniverseSpawnable.ISCAT_HEALER, 0)),
-                new RepeaterAttack(3, new SummonAttack(1, UniverseSpawnable.ISCAT_CORE, 0)),
                 new RepeaterAttack(5, new MultiDirectionAttack(3, rand.nextInt(90),
-                        new SpreadAttack(rand.nextInt((int) ISCATMASTER.combatRange) / 3, rand.nextInt(180)))),
+                        new SpreadAttack(rand.nextInt((int) s.combatRange) / 3, rand.nextInt(180)))),
                 new RepeaterAttack(3, new FigureAttack(3, FigureAttack.FigureType.STAR))
         );
         addAttack(new LosAwareAttack(shooterBehaviour));
@@ -65,14 +61,14 @@ public class IscatMasterController extends AiController {
     @Override
     public void update(UniverseModel universe, double dt) {
         if (entity == null || entity.shouldRemove()) return;
-        if (entity instanceof IscatMasterModel iscatMasterModel) {
-            iscatMasterModel.shockwave().update(dt);
-            if (iscatMasterModel.getAnimationState() == IscatMasterModel.AnimationState.DEATH) return;
+        if (entity instanceof IscatMasterModel master) {
+            master.shockwave().update(dt);
+            if (master.getAnimationState() == IscatMasterModel.AnimationState.DEATH) return;
             super.update(universe, dt);
         }
     }
 
-    // ── Movement strategy ────────────────────────────────────────────────
+    // ── Movement strategy ─────────────────────────────────────────────────────
 
     private class MasterMovementStrategy implements MovementStrategy {
         @Override
@@ -90,11 +86,10 @@ public class IscatMasterController extends AiController {
             if (!losChecker.hasLineOfSight()) {
                 return computeSeekLineOfSightVelocity(pos, playerPos, dt);
             }
-
-            if (dist > ISCATMASTER.detectionRange) {
+            if (dist > s.detectionRange) {
                 return computeWanderVelocity(master, dt);
             } else {
-                return computeOrbitVelocity(pos, playerPos, ISCATMASTER.preferredRange, 45.0);
+                return computeOrbitVelocity(pos, playerPos, s.preferredRange, 45.0);
             }
         }
     }
@@ -107,18 +102,19 @@ public class IscatMasterController extends AiController {
         }
         Vector2 toPlayer = playerPos.copy().subtract(pos);
         double angle = toPlayer.getDirection() + Math.toRadians(45.0 * seekAngleSign);
-        Vector2 desiredDir = new Vector2(Math.cos(angle), Math.sin(angle));
-        return desiredDir.multiply(ISCATMASTER.maxVelocity);
+        return new Vector2(Math.cos(angle), Math.sin(angle)).multiply(s.maxVelocity);
     }
 
-    private Vector2 computeOrbitVelocity(Vector2 pos, Vector2 playerPos, double radius, double angleOffsetDeg) {
+    private Vector2 computeOrbitVelocity(Vector2 pos, Vector2 playerPos,
+                                         double radius, double angleOffsetDeg) {
         Vector2 toPlayer = playerPos.copy().subtract(pos);
         double dist = toPlayer.getMagnitude();
         double radialCorrection = (dist - radius) * 0.8;
         Vector2 radial = toPlayer.getNormalized().multiply(radialCorrection);
 
         double orbitAngle = toPlayer.getDirection() + Math.toRadians(angleOffsetDeg) + Math.PI / 2;
-        Vector2 tangent = new Vector2(Math.cos(orbitAngle), Math.sin(orbitAngle)).multiply(ISCATMASTER.maxVelocity * 0.7);
+        Vector2 tangent = new Vector2(Math.cos(orbitAngle), Math.sin(orbitAngle))
+                .multiply(s.maxVelocity * 0.7);
         return radial.add(tangent);
     }
 
@@ -134,17 +130,15 @@ public class IscatMasterController extends AiController {
             wanderTarget = null;
             return new Vector2();
         }
-        return toTarget.getNormalized().multiply(ISCATMASTER.maxVelocity * 0.5);
+        return toTarget.getNormalized().multiply(s.maxVelocity * 0.5);
     }
 
-    // ── LoS‑aware attack ─────────────────────────────────────────────────
+    // ── LoS-aware attack ──────────────────────────────────────────────────────
 
     private class LosAwareAttack implements AttackBehavior {
         private final AttackBehavior delegate;
 
-        LosAwareAttack(AttackBehavior delegate) {
-            this.delegate = delegate;
-        }
+        LosAwareAttack(AttackBehavior delegate) { this.delegate = delegate; }
 
         @Override
         public double getPriority(AbstractEntityModel entity, UniverseModel world) {
@@ -154,9 +148,7 @@ public class IscatMasterController extends AiController {
 
         @Override
         public void execute(AbstractEntityModel entity, UniverseModel world, double dt) {
-            if (losChecker.hasLineOfSight()) {
-                delegate.execute(entity, world, dt);
-            }
+            if (losChecker.hasLineOfSight()) delegate.execute(entity, world, dt);
         }
 
         @Override

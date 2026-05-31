@@ -11,13 +11,10 @@ import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
-import static uni.gaben.iscat.universe.enemies.master.IscatMasterSettings.*;
 import static uni.gaben.iscat.universe.enemies.master.IscatMasterModel.AnimationState;
 
 public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
         implements Drawable<IscatMasterModel>, DrawableSpriteSheet {
-
-    private static final String PATH_SINGLE_SHEET = "/uni/gaben/iscat/sprites/enemies/iscat_master.png";
 
     private final SpriteSheetsParser masterSheet;
     private final SpriteSheetsAnimator masterAnimator;
@@ -26,24 +23,23 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     private boolean deathSfxTriggered = false;
     private int lastRow = -1;
 
-    public IscatMasterView() {
-        spriteScale = IscatMasterSettings.ISCATMASTER.scale;
+    public IscatMasterView(IscatMasterModel entity) {
+        var s = entity.getSettings();
+        spriteScale = s.scale;
 
         masterSheet = SpritesLibrary.getInstance().getSprite(
-                PATH_SINGLE_SHEET,
-                (int) ISCATMASTER.dimSprite,
-                (int) ISCATMASTER.dimSprite
-        );
+                s.spritePath,
+                s.frameW,
+                s.frameH);
 
         masterAnimator = new SpriteSheetsAnimator(
                 1.0 / 6.0,
                 masterSheet != null ? masterSheet.getTotalFrames() : 1,
-                masterSheet != null ? masterSheet.getTotalStates() : 1
-        );
+                masterSheet != null ? masterSheet.getTotalStates() : 1);
     }
 
     @Override public SpriteSheetsParser getSpriteSheet() { return masterSheet; }
-    @Override public SpriteSheetsAnimator getAnimator() { return masterAnimator; }
+    @Override public SpriteSheetsAnimator getAnimator()  { return masterAnimator; }
 
     @Override
     public void updateAnimator(double dt) {
@@ -98,21 +94,21 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     }
 
     @Override
-    protected void drawContent(IscatMasterModel entity, GraphicsContext gc, double x, double y, double width, double height) {
+    protected void drawContent(IscatMasterModel entity, GraphicsContext gc,
+                               double x, double y, double width, double height) {
         int currentRow = masterAnimator.getCurrentState();
         int maxFrames = getFramesCountForRow(currentRow);
         double defaultFrameDuration = 1.0 / 6.0;
 
-        int localFrame = (int) (masterAnimator.getTime() / defaultFrameDuration) % maxFrames;
+        int localFrame = (int) (masterAnimator.getTime() / defaultFrameDuration) % Math.max(maxFrames, 1);
 
         if (masterSheet != null) {
-            Image smallSingleFrame = masterSheet.getFrame(currentRow, localFrame);
-            if (smallSingleFrame != null) {
-                Image tintedFrame = ThemeManager.getInstance().getTintedImage(
-                        smallSingleFrame,
-                        ThemeManager.getInstance().globalTintProperty().get()
-                );
-                gc.drawImage(tintedFrame, x, y, width, height);
+            Image frame = masterSheet.getFrame(currentRow, localFrame);
+            if (frame != null) {
+                Image tinted = ThemeManager.getInstance().getTintedImage(
+                        frame,
+                        ThemeManager.getInstance().globalTintProperty().get());
+                gc.drawImage(tinted, x, y, width, height);
             }
         }
 
@@ -133,9 +129,7 @@ public class IscatMasterView extends AbstractEntityView<IscatMasterModel>
     }
 
     private boolean isRowCycleCompleted(int maxFrames) {
-        double defaultFrameDuration = 1.0 / 6.0;
-        double totalRowDuration = maxFrames * defaultFrameDuration;
-        return masterAnimator.getTime() >= totalRowDuration;
+        return masterAnimator.getTime() >= maxFrames * (1.0 / 6.0);
     }
 
     private int getFramesCountForRow(int row) {
