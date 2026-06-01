@@ -91,13 +91,12 @@ public class IscatDB {
 
     private synchronized void preExecuteTask() {
         activeTasks++;
-        connectionCooldown.reset();
+        connectionCooldown.start();
     }
 
     private synchronized void postExecuteTask() {
         activeTasks--;
         if (activeTasks < 0) activeTasks = 0;
-        connectionCooldown.reset();
     }
 
     public void executeAsync(Runnable task) {
