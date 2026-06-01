@@ -150,4 +150,28 @@ public class SQLiteUserDAO implements UserDAO {
         Timestamp ts = rs.getTimestamp(columnName);
         return ts != null ? ts.toLocalDateTime() : null;
     }
+
+    @Override
+    public void updateUsername(int userId, String newUsername) {
+        String sql = "UPDATE Utenti SET Username = ? WHERE ID = ?";
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
+            stmt.setString(1, newUsername);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiornamento username per userId: " + userId, e);
+        }
+    }
+
+    @Override
+    public void updatePassword(int userId, String newPasswordHash) {
+        String sql = "UPDATE Utenti SET Password = ? WHERE ID = ?";
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
+            stmt.setString(1, newPasswordHash);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiornamento password per userId: " + userId, e);
+        }
+    }
 }

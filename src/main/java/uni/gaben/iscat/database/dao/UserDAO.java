@@ -15,4 +15,8 @@ public interface UserDAO {
     User create(String username, String rawPassword);
 
     void updateLastLogin(int userId, LocalDateTime loginTime);
+
+    void updateUsername(int userId, String newUsername);
+
+    void updatePassword(int userId, String newPasswordHash);
 }

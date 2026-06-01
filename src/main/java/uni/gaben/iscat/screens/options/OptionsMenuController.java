@@ -55,6 +55,10 @@ public class OptionsMenuController implements IscatMenuController {
 
     @Override
     public void handleBack() {
+        if (confirmOverlay != null && confirmOverlay.isVisible()) {
+            confirmOverlayController.handleBack();
+            return;
+        }
         if (subKeybindsController != null && subKeybindsController.hasActiveSelection()) {
             subKeybindsController.clearSelection();
             return;
