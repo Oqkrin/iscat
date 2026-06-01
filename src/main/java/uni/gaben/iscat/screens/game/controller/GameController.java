@@ -269,29 +269,39 @@ public class GameController {
 
         int userId = user.id();
         SessionScoreTracker tracker = SessionScoreTracker.getInstance();
-        int elapsed = (int) gameModel.getTotalElapsedSeconds();
 
-        SaveData current = scoreDAO.load(userId)
-                .orElse(new SaveData(userId, 0, 0, 0, 0, 0));
+        // 1. CAPTURE IMMUTABLE LOCAL SNAPSHOTS IMMEDIATELY (On JavaFX Thread)
+        final int scoreSnapshot = tracker.getScore();
+        final int elapsedSnapshot = (int) gameModel.getTotalElapsedSeconds();
+        final int damageDealtSnapshot = tracker.getDamageDealt();
+        final int damageReceivedSnapshot = tracker.getDamageReceived();
+        final int deathsSnapshot = tracker.getDeaths();
 
-        // solo se questa partita batte il record
-        if (tracker.getScore() > current.score()) {
-            scoreDAO.update(userId, "Score", tracker.getScore());
-        }
-
-        // solo se questa partita è durata di meno
-        if (elapsed > current.bestTime()) {
-            scoreDAO.update(userId, "BestTime", elapsed);
-        }
-
-        // Statistiche sempre incrementate indipendentemente dallo score
-        scoreDAO.increment(userId, "TotalDamageDealt",    tracker.getDamageDealt());
-        scoreDAO.increment(userId, "TotalDamageReceived", tracker.getDamageReceived());
-        scoreDAO.increment(userId, "Deaths",              tracker.getDeaths());
-
-        scoreDAO.load(userId).ifPresent(
-                SessionManager.getInstance()::setCurrentSaveData);
-
+        // 2. SAFE TO RESET TRACKERS IMMEDIATELY (On JavaFX Thread)
         tracker.reset();
+
+        // 3. SHIP THE ISOLATED VALUES TO THE ASYNC DATABASE EXECUTOR
+        IscatDB.getInstance().executeAsync(() -> {
+            // This runs safely on the background DB thread using fixed snapshot constants
+            SaveData current = scoreDAO.load(userId)
+                    .orElse(new SaveData(userId, 0, 0, 0, 0, 0));
+
+            if (scoreSnapshot > current.score()) {
+                scoreDAO.update(userId, "Score", scoreSnapshot);
+            }
+
+            if (elapsedSnapshot < current.bestTime()) {
+                scoreDAO.update(userId, "BestTime", elapsedSnapshot);
+            }
+
+            scoreDAO.increment(userId, "TotalDamageDealt",    damageDealtSnapshot);
+            scoreDAO.increment(userId, "TotalDamageReceived", damageReceivedSnapshot);
+            scoreDAO.increment(userId, "Deaths",              deathsSnapshot);
+
+            // Sync back UI context if necessary via Platform.runLater
+            scoreDAO.load(userId).ifPresent(newData ->
+                    Platform.runLater(() -> SessionManager.getInstance().setCurrentSaveData(newData))
+            );
+        });
     }
 }

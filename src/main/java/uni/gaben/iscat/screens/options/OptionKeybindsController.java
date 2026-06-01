@@ -1,9 +1,11 @@
 package uni.gaben.iscat.screens.options;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyEvent;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.SettingsDAO;
 import uni.gaben.iscat.screens.login.model.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
@@ -13,7 +15,12 @@ public class OptionKeybindsController {
 
     private Button selectedButton = null;
     private String selectedColumn = null;
-    private SettingsDAO settingsDAO;
+    private final SettingsDAO settingsDAO;
+
+    // Properly initialize the DAO using the singleton instance
+    public OptionKeybindsController() {
+        this.settingsDAO = IscatDB.getInstance().getSettingsDAO();
+    }
 
     @FXML
     public void initialize() {
@@ -50,7 +57,9 @@ public class OptionKeybindsController {
         if (selectedButton == null || selectedColumn == null) return false;
         String pressedKey = event.getCode().toString();
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+
         if (settings != null) {
+            // Update local model
             switch (selectedColumn) {
                 case "WalkUp"    -> settings.setWalkUp(pressedKey);
                 case "WalkDown"  -> settings.setWalkDown(pressedKey);
@@ -58,13 +67,15 @@ public class OptionKeybindsController {
                 case "WalkRight" -> settings.setWalkRight(pressedKey);
                 case "Dash1"     -> settings.setDash1(pressedKey);
                 case "Dash2"     -> settings.setDash2(pressedKey);
+                case "PauseGame" -> settings.setPauseGame(pressedKey);
             }
-            if (settingsDAO != null) {
+
+            // Execute the DB update asynchronously
+            IscatDB.getInstance().executeAsync(() -> {
                 settingsDAO.updateControl(settings.getUserId(), selectedColumn, pressedKey);
-            } else {
-                System.err.println("SettingsDAO non iniettato in OptionKeybindsController");
-            }
+            });
         }
+
         selectedButton.setText(pressedKey);
         selectedButton = null;
         selectedColumn = null;
@@ -76,17 +87,19 @@ public class OptionKeybindsController {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
         int uid = settings.getUserId();
-        if (settingsDAO != null) {
+
+        // Execute reset asynchronously to prevent UI lag
+        IscatDB.getInstance().executeAsync(() -> {
             settingsDAO.updateControl(uid, "WalkUp", "W");
             settingsDAO.updateControl(uid, "WalkDown", "S");
             settingsDAO.updateControl(uid, "WalkLeft", "A");
             settingsDAO.updateControl(uid, "WalkRight", "D");
-            settingsDAO.updateControl(uid, "Space", "Space");
-            settingsDAO.updateControl(uid, "Dash2", "Middle Mouse");
-            settingsDAO.updateControl(uid, "PauseGame", "ESC");
-            refreshButtonLabels();
-        }
-        refreshButtonLabels();
+            settingsDAO.updateControl(uid, "Dash1", "Q");
+            settingsDAO.updateControl(uid, "Dash2", "E");
+            settingsDAO.updateControl(uid, "PauseGame", "P");
+
+            Platform.runLater(this::refreshButtonLabels);
+        });
     }
 
     public boolean hasActiveSelection() { return selectedButton != null; }

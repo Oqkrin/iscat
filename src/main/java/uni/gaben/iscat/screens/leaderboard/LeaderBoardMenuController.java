@@ -41,12 +41,18 @@ public class LeaderBoardMenuController implements IscatMenuController {
     // ── Data loading ──────────────────────────────────────────────────────────
 
     private void loadLeaderboard() {
-        Thread.ofVirtual().start(() -> {
-            List<ScoreDAO.UserScoreEntry> scores = scoreDAO.getAllScores();
-            Platform.runLater(() -> populateRows(scores));
-        });
+        // Use the existing IscatDB utility instead of raw Virtual Threads
+        IscatDB.getInstance().queryAsync(() -> scoreDAO.getAllScores())
+                .thenAccept(scores -> {
+                    // This runs after the DB call finishes
+                    Platform.runLater(() -> populateRows(scores));
+                })
+                .exceptionally(ex -> {
+                    // Good practice: Handle errors that might occur during DB access
+                    ex.printStackTrace();
+                    return null;
+                });
     }
-
     private void populateRows(List<ScoreDAO.UserScoreEntry> scores) {
         leaderboardContainer.getChildren().clear();
 

@@ -1,8 +1,10 @@
 package uni.gaben.iscat.screens.options;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.database.dao.SettingsDAO;
 import uni.gaben.iscat.model.IscatViews;
@@ -14,8 +16,14 @@ import uni.gaben.iscat.utils.SessionManager;
 public class OptionAccountController {
 
     private ConfirmationOverlayController confirmOverlayController;
-    private ScoreDAO scoreDAO;
-    private SettingsDAO settingsDAO;
+    private final ScoreDAO scoreDAO;
+    private final SettingsDAO settingsDAO;
+
+    // Inizializzazione corretta tramite costruttore
+    public OptionAccountController() {
+        this.scoreDAO = IscatDB.getInstance().getScoreDAO();
+        this.settingsDAO = IscatDB.getInstance().getSettingsDAO();
+    }
 
     public void setConfirmOverlayController(ConfirmationOverlayController controller) {
         this.confirmOverlayController = controller;
@@ -27,12 +35,20 @@ public class OptionAccountController {
             confirmOverlayController.ask("Resettare Account?", "I progressi locali verranno azzerati.", () -> {
                 UserSettings settings = SessionManager.getInstance().getCurrentSettings();
                 if (settings != null) {
-                    scoreDAO.reset(settings.getUserId());
-                    scoreDAO.load(settings.getUserId()).ifPresent(saveData ->
-                            SessionManager.getInstance().setCurrentSaveData(saveData)
-                    );
+                    int userId = settings.getUserId();
 
-                    AudioManager.getInstance().playSFX("laugh");
+                    // Esecuzione asincrona per evitare blocchi della UI
+                    IscatDB.getInstance().executeAsync(() -> {
+                        scoreDAO.reset(userId);
+                        var updatedSave = scoreDAO.load(userId);
+
+                        Platform.runLater(() -> {
+                            updatedSave.ifPresent(saveData ->
+                                    SessionManager.getInstance().setCurrentSaveData(saveData)
+                            );
+                            AudioManager.getInstance().playSFX("laugh");
+                        });
+                    });
                 }
             });
         }
@@ -42,23 +58,27 @@ public class OptionAccountController {
     void deleteAccount(ActionEvent event) {
         if (confirmOverlayController != null) {
             confirmOverlayController.ask("Eliminare Account?", "L'azione è irreversibile.", () -> {
-                int userId = SessionManager.getInstance().getCurrentSettings().getUserId();
-                if (userId != -1) {
+                UserSettings currentSettings = SessionManager.getInstance().getCurrentSettings();
+                if (currentSettings == null) return;
+
+                int userId = currentSettings.getUserId();
+
+                // Esecuzione asincrona
+                IscatDB.getInstance().executeAsync(() -> {
                     settingsDAO.delete(userId);
-                    SessionManager.getInstance().setCurrentUser(null);
-                    SessionManager.getInstance().setCurrentSettings(null);
-                    SessionManager.getInstance().setCurrentSaveData(null);
-                    AudioManager.getInstance().playSFX("laugh");
-                    IscatNavigator.getInstance().navigateWithFade(IscatViews.LOGIN_MENU);
-                }
+
+                    Platform.runLater(() -> {
+                        SessionManager.getInstance().setCurrentUser(null);
+                        SessionManager.getInstance().setCurrentSettings(null);
+                        SessionManager.getInstance().setCurrentSaveData(null);
+                        AudioManager.getInstance().playSFX("laugh");
+                        IscatNavigator.getInstance().navigateWithFade(IscatViews.LOGIN_MENU);
+                    });
+                });
             });
         }
     }
-    @FXML
-    void changeUsername(ActionEvent event) {
-    }
 
-    @FXML
-    void changePassword(ActionEvent event) {
-    }
+    @FXML void changeUsername(ActionEvent event) { /* TODO */ }
+    @FXML void changePassword(ActionEvent event) { /* TODO */ }
 }

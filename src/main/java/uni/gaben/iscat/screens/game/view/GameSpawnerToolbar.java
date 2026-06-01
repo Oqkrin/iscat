@@ -51,17 +51,25 @@ public class GameSpawnerToolbar extends StackPane {
         genericContainer.setAlignment(Pos.BOTTOM_CENTER);
         genericContainer.setPadding(new Insets(4, 20, 4, 20));
 
-        Platform.runLater(() -> {
-            List<GenericEntitySettings> enemies = IscatDB.getInstance().getEnemyDAO().findAll();
-            Platform.runLater(() -> {
-                for (GenericEntitySettings s : enemies) {
-                    Button b = createSmallButton(s.entityKey);
-                    b.setTooltip(new javafx.scene.control.Tooltip(s.name));
-                    b.setOnAction(e -> controller.debugSpawn(s.entityKey));
-                    genericContainer.getChildren().add(b);
-                }
-            });
-        });
+        // Sostituisci il vecchio blocco Platform.runLater con questo:
+        IscatDB.getInstance().queryAsync(() -> IscatDB.getInstance().getEnemyDAO().findAll())
+                .thenAccept(enemies -> {
+                    // Una volta letti i dati in background, torniamo sul thread UI per modificare i nodi grafici
+                    Platform.runLater(() -> {
+                        for (GenericEntitySettings s : enemies) {
+                            if (s == null || s.entityKey == null) continue;
+
+                            Button b = createSmallButton(s.entityKey);
+                            b.setTooltip(new javafx.scene.control.Tooltip(s.name));
+                            b.setOnAction(e -> controller.debugSpawn(s.entityKey));
+                            genericContainer.getChildren().add(b);
+                        }
+                    });
+                }).exceptionally(ex -> {
+                    // Opzionale ma consigliato: intercetta eventuali errori di lettura dal DB
+                    System.err.println("[GameSpawnerToolbar] Errore nel caricamento dei nemici dal DB: " + ex.getMessage());
+                    return null;
+                });
 
         root.getChildren().addAll(hardcodedLabel, spawnContainer, genericLabel, genericContainer);
 

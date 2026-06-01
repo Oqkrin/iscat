@@ -1,10 +1,12 @@
 package uni.gaben.iscat.screens.login.model;
 
+import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.UserDAO;
 import uni.gaben.iscat.utils.PasswordHasher;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class LoginAuth {
     private final UserDAO users;
@@ -13,55 +15,37 @@ public class LoginAuth {
         this.users = users;
     }
 
-    /**
-     * Verifica l'esistenza di un utente nel database.
-     */
-    public boolean exists(String username) {
-        return users.exists(username);
+    public CompletableFuture<Boolean> exists(String username) {
+        return IscatDB.getInstance().queryAsync(() -> users.exists(username));
     }
 
-    /**
-     * Registra un nuovo utente e ne avvia immediatamente la sessione.
-     */
-    public Optional<SessionUser> register(String username, String password) {
-        // Crea l'utente (la query si occuperà di hashare la password internamente)
-        users.create(username, password);
-        // Effettua subito il login per popolare l'oggetto SessionUser
-        return login(username, password);
+    public CompletableFuture<Optional<SessionUser>> register(String username, String password) {
+        return IscatDB.getInstance().queryAsync(() -> {
+            users.create(username, password);
+            return loginInternal(username, password);
+        });
     }
 
-    public Optional<SessionUser> login(
-            String username,
-            String password
-    ) {
-        Optional<User> userOpt =
-                users.findByUsername(username);
+    public CompletableFuture<Optional<SessionUser>> login(String username, String password) {
+        return IscatDB.getInstance().queryAsync(() -> loginInternal(username, password));
+    }
 
-        if(userOpt.isEmpty()) {
+    // Helper method: runs inside the IscatDB background thread pool
+    private Optional<SessionUser> loginInternal(String username, String password) {
+        Optional<User> userOpt = users.findByUsername(username);
+
+        if (userOpt.isEmpty() || !PasswordHasher.verify(password, userOpt.get().passwordHash())) {
             return Optional.empty();
         }
 
         User user = userOpt.get();
+        users.updateLastLogin(user.id(), LocalDateTime.now());
 
-        if(!PasswordHasher.verify(
-                password,
-                user.passwordHash()
-        )) {
-            return Optional.empty();
-        }
-
-        users.updateLastLogin(
+        return Optional.of(new SessionUser(
                 user.id(),
+                user.username(),
+                user.dateOfCreation(),
                 LocalDateTime.now()
-        );
-
-        return Optional.of(
-                new SessionUser(
-                        user.id(),
-                        user.username(),
-                        user.dateOfCreation(),
-                        LocalDateTime.now()
-                )
-        );
+        ));
     }
 }
