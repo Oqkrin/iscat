@@ -15,7 +15,7 @@ import java.util.Optional;
 public class SQLiteEnemyDAO implements EnemyDAO {
 
     // Helper per ottenere connessione fresca
-    private Connection getConnection() throws SQLException {
+    private Connection getConnection() {
         return IscatDB.getInstance().getConnection();
     }
 
@@ -107,7 +107,7 @@ public class SQLiteEnemyDAO implements EnemyDAO {
         String sql = "SELECT * FROM Entita";
         List<GenericEntitySettings> results = new ArrayList<>();
 
-        try (Connection conn = getConnection();
+        try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 

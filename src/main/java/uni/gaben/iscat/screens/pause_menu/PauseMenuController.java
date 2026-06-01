@@ -60,7 +60,7 @@ public class PauseMenuController implements IscatFxmlController {
 
     @FXML
     private void handleResume() {
-        if (gameView != null) gameView.transitionTo(gameView.getGameState().onEscape());
+        if (gameView != null) gameView.transitionTo(gameController.getGameModel().getGameState().onEscape());
     }
 
     @FXML

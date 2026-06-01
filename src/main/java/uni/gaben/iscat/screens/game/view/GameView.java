@@ -36,9 +36,6 @@ import static javafx.application.Platform.runLater;
 
 public class GameView extends AbstractIscatStackPane {
 
-    private final ObjectProperty<GameState> gameState =
-            new SimpleObjectProperty<>(GameState.PLAYING);
-
     private final GameModel      gameModel;
     private final GameController gameController;
     private final StackPane      root;
@@ -177,14 +174,14 @@ public class GameView extends AbstractIscatStackPane {
         camera.screenHeightProperty().bind(canvas.heightProperty());
 
         gameOverMenu.visibleProperty().bind(
-                gameState.isEqualTo(GameState.GAME_OVER));
+                gameModel.gameStateProperty().isEqualTo(GameState.GAME_OVER));
         gameOverMenu.managedProperty().bind(gameOverMenu.visibleProperty());
 
         pauseMenu.visibleProperty().bind(
-                gameState.isEqualTo(GameState.IN_PAUSE));
+                gameModel.gameStateProperty().isEqualTo(GameState.IN_PAUSE));
         pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
 
-        gameState.addListener((obs, oldState, newState) -> {
+        gameModel.gameStateProperty().addListener((obs, oldState, newState) -> {
             syncGameModelFromState(newState);
             if (newState == GameState.PLAYING) {
                 runLater(() -> canvas.requestFocus());
@@ -220,9 +217,9 @@ public class GameView extends AbstractIscatStackPane {
 
     /** Unico punto di ingresso per cambiare stato. */
     public void transitionTo(GameState next) {
-        GameState current = gameState.get();
+        GameState current = gameModel.gameStateProperty().get();
         if (current == next) return;
-        gameState.set(next);
+        gameModel.setGameState(next);
     }
 
     /** Mantiene GameModel allineato allo stato enum (retrocompatibilità). */
@@ -236,8 +233,8 @@ public class GameView extends AbstractIscatStackPane {
 
         this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE
-                    && gameState.get() != GameState.IN_OPTIONS) {
-                transitionTo(gameState.get().onEscape());
+                    && gameModel.getGameState() != GameState.IN_OPTIONS) {
+                transitionTo(gameModel.getGameState().onEscape());
                 e.consume();
             }
         });
@@ -291,7 +288,7 @@ public class GameView extends AbstractIscatStackPane {
     @Override
     public void onHide() {
         super.onHide();
-        if (gameState.get() == GameState.PLAYING) {
+        if (gameModel.getGameState() == GameState.PLAYING) {
             transitionTo(GameState.IN_PAUSE);
         }
     }
@@ -340,7 +337,4 @@ public class GameView extends AbstractIscatStackPane {
         starryTimer.formText(timeStr, Font.font("Miracode", FontWeight.BOLD, 32));
     }
 
-    /** Esposto per PauseMenuController e simili che devono pilotare la navigazione. */
-    public GameState getGameState() { return gameState.get(); }
-    public ObjectProperty<GameState> gameStateProperty() { return gameState; }
 }

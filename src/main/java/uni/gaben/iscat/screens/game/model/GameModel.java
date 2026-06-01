@@ -2,6 +2,7 @@ package uni.gaben.iscat.screens.game.model;
 
 import javafx.beans.property.*;
 
+import uni.gaben.iscat.screens.game.controller.GameState;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
 
@@ -11,6 +12,8 @@ import uni.gaben.iscat.universe.camera.CameraModel;
  * e i riferimenti ai modelli principali dell'universo e della telecamera.
  */
 public class GameModel {
+    private ObjectProperty<GameState> gameState =
+            new SimpleObjectProperty<>(GameState.PLAYING);
     public static final double ONE_SECOND_IN_NANO_SECONDS = 1_000_000_000.0;
     public static final double ACCUMULATORUNIT = 0.25;
 
@@ -147,5 +150,17 @@ public class GameModel {
     }
     public BooleanProperty waveProperty() {
         return wave;
+    }
+
+    public GameState getGameState() {
+        return gameState.get();
+    }
+
+    public void setGameState(GameState state) {
+        gameState.set(state);
+    }
+
+    public ObjectProperty<GameState> gameStateProperty() {
+        return gameState;
     }
 }
