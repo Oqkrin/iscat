@@ -173,18 +173,29 @@ public class PlayerController {
     private void updateAttackPatternByLevel() {
         int level = player.getLevel();
 
-        if (level >= 9) {
+        // Reset base per evitare stati inconsistenti
+        double baseCd = PlayerSettings.COOLDOWN_FUOCO_SEC;
+
+        if (level >= 10) {
+            this.currentAttack = new FigureAttack(100, FigureAttack.FigureType.STAR);
+            player.setCooldownFuocoSec(baseCd * 0.8);
+
+        }
+        else if (level >= 7) {
+            this.currentAttack = new RepeaterAttack(2, new SpreadAttack(7, 45.0));
+            player.setCooldownFuocoSec(baseCd * 0.85);
+        }
+        else if (level >= 4) {
             this.currentAttack = new SpreadAttack(5, 30.0);
-            player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.4);
-        } else if (level >= 6) {
-            this.currentAttack = new SpreadAttack(3, 30.0);
-            player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC * 0.6);
-        } else if (level >= 3) {
-            this.currentAttack = new MultiDirectionAttack(16, 100, new SpreadAttack(7, 10));
-            player.setCooldownFuocoSec(0);
-        } else {
-            this.currentAttack = new MultiDirectionAttack(16, 100, new SpreadAttack(7, 10));
-            player.setCooldownFuocoSec(PlayerSettings.COOLDOWN_FUOCO_SEC);
+            player.setCooldownFuocoSec(baseCd * 0.9);
+        }
+        else if (level >= 2) {
+            this.currentAttack = new SpreadAttack(3, 15.0);
+            player.setCooldownFuocoSec(baseCd * 0.95);
+        }
+        else {
+            this.currentAttack = new SingleShotAttack();
+            player.setCooldownFuocoSec(baseCd);
         }
     }
 
