@@ -46,7 +46,7 @@ public class SkinMenuController implements IscatMenuController {
     private static final String[] SKIN_NAMES = {
             "Battle Ship", "Simple Battle Ship", "Friendly Ship",
             "Iscat Traitor", "Cubism Lover", "Space Goblin",
-            "Phantom", "Radar", "NO NAME"
+            "Phantom", "Radar", "PARADOX"
     };
 
     @FXML
