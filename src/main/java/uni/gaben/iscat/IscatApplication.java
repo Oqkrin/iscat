@@ -24,7 +24,6 @@ import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.Objects;
 
-
 /**
  * Application root — pure bootstrap, no business logic.
  * Constructs and wires all MVC triads, then hands off to IscatNavigator.
@@ -99,6 +98,10 @@ public class IscatApplication extends Application {
         scene.getStylesheets().addAll(colorTheme, typography, components);
     }
 
+    @Override
+    public void stop() throws Exception {
+        IscatDB.getInstance().shutdown();
+    }
 
     void printNodeInfo(Node node, int depth) {
         if (node == null) return;
@@ -119,5 +122,7 @@ public class IscatApplication extends Application {
             }
         }
     }
+
+
 
 }
