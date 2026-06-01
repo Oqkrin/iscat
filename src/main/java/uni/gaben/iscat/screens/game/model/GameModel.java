@@ -1,166 +1,111 @@
 package uni.gaben.iscat.screens.game.model;
 
 import javafx.beans.property.*;
-
 import uni.gaben.iscat.screens.game.controller.GameState;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
 
 /**
- * Modello dello stato globale di Gamenex.
- * Mantiene informazioni sul tempo di gioco, lo stato di pausa
- * e i riferimenti ai modelli principali dell'universo e della telecamera.
+ * Global game state for Gamenex.
+ * Holds time state, pause/over flags, and references to universe & camera models.
  */
 public class GameModel {
-    private ObjectProperty<GameState> gameState =
-            new SimpleObjectProperty<>(GameState.PLAYING);
-    public static final double ONE_SECOND_IN_NANO_SECONDS = 1_000_000_000.0;
-    public static final double ACCUMULATORUNIT = 0.25;
 
-    private UniverseModel universeModel = new UniverseModel();
-    private final CameraModel cameraModel = new CameraModel();
+    // ------------------------------------------------------------------------
+    // Constants
+    // ------------------------------------------------------------------------
+        public static final double ONE_SECOND_IN_NANOS = 1_000_000_000.0;
+        public static final double ACCUMULATORUNIT = 1d/4d;
 
-    private LongProperty lastUpdate = new SimpleLongProperty(0);
-    private DoubleProperty dt = new SimpleDoubleProperty(0);
-    private LongProperty now = new SimpleLongProperty(0);
-    private LongProperty start = new SimpleLongProperty(-1);
-    private DoubleProperty accumulator = new SimpleDoubleProperty(0);
-    private BooleanProperty paused = new SimpleBooleanProperty(false);
-    private BooleanProperty wave = new SimpleBooleanProperty(true);
-    private IntegerProperty timer = new SimpleIntegerProperty(0);
-    private final BooleanProperty gameOver = new SimpleBooleanProperty(false);
-
+    // ------------------------------------------------------------------------
+    // Time & game loop related properties
+    // ------------------------------------------------------------------------
+    private final DoubleProperty dt = new SimpleDoubleProperty(0);
+    private final LongProperty now = new SimpleLongProperty(0);
+    private final LongProperty start = new SimpleLongProperty(-1);
+    private final DoubleProperty accumulator = new SimpleDoubleProperty(0);
+    private final LongProperty lastUpdate = new SimpleLongProperty(0);
     private final DoubleProperty totalElapsedSeconds = new SimpleDoubleProperty(0.0);
 
-    public DoubleProperty totalElapsedSecondsProperty() {
-        return totalElapsedSeconds;
-    }
+    // ------------------------------------------------------------------------
+    // Game state flags
+    // ------------------------------------------------------------------------
+    private final BooleanProperty paused = new SimpleBooleanProperty(false);
+    private final BooleanProperty waveActive = new SimpleBooleanProperty(true);
+    private final BooleanProperty gameOver = new SimpleBooleanProperty(false);
+    private final ObjectProperty<GameState> gameState = new SimpleObjectProperty<>(GameState.PLAYING);
 
-    public double getTotalElapsedSeconds() {
-        return totalElapsedSeconds.get();
-    }
+    // ------------------------------------------------------------------------
+    // Misc UI counter (e.g. countdown before wave, etc.)
+    // ------------------------------------------------------------------------
+    private final IntegerProperty timer = new SimpleIntegerProperty(0);
 
-    public void setTotalElapsedSeconds(double value) {
-        this.totalElapsedSeconds.set(value);
-    }
+    // ------------------------------------------------------------------------
+    // Core models
+    // ------------------------------------------------------------------------
+    private UniverseModel universeModel;
+    private final CameraModel cameraModel = new CameraModel();
 
-    public BooleanProperty gameOverProperty() { return gameOver; }
-    public boolean isGameOver() { return gameOver.get(); }
-    public void setGameOver(boolean value) { gameOver.set(value); }
-
-
+    // ------------------------------------------------------------------------
+    // Constructor
+    // ------------------------------------------------------------------------
     public GameModel() {
-        dt.bind(now.subtract(lastUpdate).divide(ONE_SECOND_IN_NANO_SECONDS));
+        this.universeModel = new UniverseModel();
+        // dt = (now - lastUpdate) / ONE_SECOND_IN_NANOS
+        dt.bind(now.subtract(lastUpdate).divide(ONE_SECOND_IN_NANOS));
     }
 
-    public void setUniverseModel(UniverseModel universeModel) {
-        this.universeModel = universeModel;
-    }
+    // Time & loop
+    public double getDt() { return dt.get(); }
+    public DoubleProperty dtProperty() { return dt; }
 
-    public UniverseModel getUniverseModel() {
-        return universeModel;
-    }
+    public long getNow() { return now.get(); }
+    public LongProperty nowProperty() { return now; }
+    public void setNow(long now) { this.now.set(now); }
 
-    public CameraModel getCameraModel() {
-        return cameraModel;
-    }
+    public long getStart() { return start.get(); }
+    public LongProperty startProperty() { return start; }
+    public void setStart(long start) { this.start.set(start); }
 
-    public long getLastUpdate() {
-        return lastUpdate.get();
-    }
+    public double getAccumulator() { return accumulator.get(); }
+    public DoubleProperty accumulatorProperty() { return accumulator; }
+    public void setAccumulator(double accumulator) { this.accumulator.set(accumulator); }
 
-    public LongProperty lastUpdateProperty() {
-        return lastUpdate;
-    }
+    public long getLastUpdate() { return lastUpdate.get(); }
+    public LongProperty lastUpdateProperty() { return lastUpdate; }
+    public void setLastUpdate(long lastUpdate) { this.lastUpdate.set(lastUpdate); }
 
-    public void setLastUpdate(long lastUpdate) {
-        this.lastUpdate.set(lastUpdate);
-    }
+    public double getTotalElapsedSeconds() { return totalElapsedSeconds.get(); }
+    public DoubleProperty totalElapsedSecondsProperty() { return totalElapsedSeconds; }
+    public void setTotalElapsedSeconds(double value) { totalElapsedSeconds.set(value); }
 
-    public double getDt() {
-        return dt.get();
-    }
+    // Game state flags
+    public boolean isPaused() { return paused.get(); }
+    public BooleanProperty pausedProperty() { return paused; }
+    public void setPaused(boolean paused) { this.paused.set(paused); }
 
-    public DoubleProperty dtProperty() {
-        return dt;
-    }
+    public boolean isWaveActive() { return waveActive.get(); }
+    public BooleanProperty waveActiveProperty() { return waveActive; }
+    public void setWaveActive(boolean active) { this.waveActive.set(active); }
 
-    public long getNow() {
-        return now.get();
-    }
+    public boolean isGameOver() { return gameOver.get(); }
+    public BooleanProperty gameOverProperty() { return gameOver; }
+    public void setGameOver(boolean gameOver) { this.gameOver.set(gameOver); }
 
-    public LongProperty nowProperty() {
-        return now;
-    }
+    public GameState getGameState() { return gameState.get(); }
+    public ObjectProperty<GameState> gameStateProperty() { return gameState; }
+    public void setGameState(GameState state) { gameState.set(state); }
 
-    public void setNow(long now) {
-        this.now.set(now);
-    }
+    // Misc
+    public int getTimer() { return timer.get(); }
+    public IntegerProperty timerProperty() { return timer; }
+    public void setTimer(int value) { timer.set(value); }
 
-    public double getAccumulator() {
-        return accumulator.get();
-    }
+    // Models
+    public UniverseModel getUniverseModel() { return universeModel; }
+    public CameraModel getCameraModel() { return cameraModel; }
 
-    public DoubleProperty accumulatorProperty() {
-        return accumulator;
-    }
-
-    public void setAccumulator(double accumulator) {
-        this.accumulator.set(accumulator);
-    }
-
-    public boolean isPaused() {
-        return paused.get();
-    }
-
-    public void setPaused(boolean p) {
-        this.paused.set(p);
-    }
-
-    public BooleanProperty pausedProperty() {
-        return paused;
-    }
-
-    public long getStart() {
-        return start.get();
-    }
-
-    public LongProperty startProperty() {
-        return start;
-    }
-
-    public void setStart(long start) {
-        this.start.set(start);
-    }
-
-    public IntegerProperty timerProperty() {
-        return timer;
-    }
-
-    public final int getTimer() {
-        return timer.get();
-    }
-
-    public final void setTimer(int value) {
-        this.timer.set(value);
-    }
-
-    public boolean isWaveing() {
-        return wave.get();
-    }
-    public BooleanProperty waveProperty() {
-        return wave;
-    }
-
-    public GameState getGameState() {
-        return gameState.get();
-    }
-
-    public void setGameState(GameState state) {
-        gameState.set(state);
-    }
-
-    public ObjectProperty<GameState> gameStateProperty() {
-        return gameState;
+    public void resetUniverse() {
+        universeModel = new UniverseModel();
     }
 }

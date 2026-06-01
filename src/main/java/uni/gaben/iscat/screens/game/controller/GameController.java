@@ -57,10 +57,10 @@ public class GameController {
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
 
-        setupTimer(gameModel);
+        setupTimer();
     }
 
-    private void setupTimer(GameModel gameModel) {
+    private void setupTimer() {
         this.gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -74,7 +74,7 @@ public class GameController {
 
                 gameModel.setNow(now);
 
-                double totalSeconds = (now - gameModel.getStart()) / GameModel.ONE_SECOND_IN_NANO_SECONDS;
+                double totalSeconds = (now - gameModel.getStart()) / GameModel.ONE_SECOND_IN_NANOS;
 
                 // FIX: Synchronize the game model's internal tracker with the calculated elapsed runtime
                 gameModel.setTotalElapsedSeconds(totalSeconds);
@@ -91,7 +91,7 @@ public class GameController {
                     dt = GameModel.ACCUMULATORUNIT;
                 }
 
-                tick(dt);
+                update(dt);
 
                 if (drawCall != null) {
                     drawCall.run();
@@ -102,11 +102,11 @@ public class GameController {
         };
     }
 
-    private void tick(double dt) {
+    private void update(double dt) {
         if (!gameModel.isPaused()) {
             universeController.updatev(dt, gameInputs, getCameraModel());
 
-            if (waveController != null && gameModel.isWaveing()) {
+            if (waveController != null && gameModel.isWaveActive()) {
                 waveController.update(dt, getCameraModel(), gameModel);
             }
         }
@@ -140,16 +140,15 @@ public class GameController {
         double currentWidth = getUniverseModel().getWidth();
         double currentHeight = getUniverseModel().getHeight();
 
-        UniverseModel newUniverse = new UniverseModel();
 
-        gameModel.setUniverseModel(newUniverse);
-        this.universeController = new UniverseController(newUniverse);
+        gameModel.resetUniverse();
+        this.universeController = new UniverseController(getUniverseModel());
         this.waveController = new UniverseWaveController();
 
-        UniverseSpawner.getInstance().init(newUniverse, universeController, waveController);
+        UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
 
         universeController.getStarfieldController().regenerate(
-                newUniverse.getStarfieldModel(),
+                getUniverseModel().getStarfieldModel(),
                 currentWidth,
                 currentHeight
         );
@@ -158,50 +157,19 @@ public class GameController {
         double midY = currentHeight / 2.0;
 
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
-        newUniverse.getPlayer().setOnDeathCallback(this::onPlayerDeath);
+        getGameModel().getUniverseModel().getPlayer().setOnDeathCallback(this::onPlayerDeath);
 
-        spawnInitialAsteroidBelts(newUniverse, midX, midY);
+        UniverseSpawner.getInstance().spawnInitialAsteroidBelts(midX, midY);
 
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
 
         gameModel.startProperty().set(-1);
         gameModel.setLastUpdate(0);
-
-        // FIX: Reset total elapsed seconds to zero upon layout clear operations
         gameModel.setTotalElapsedSeconds(0.0);
     }
 
-    private void spawnInitialAsteroidBelts(UniverseModel universe, double centerX, double centerY) {
-        for (int clump = 0; clump < 6; clump++) {
-            double angle = (clump * (Math.PI * 2.0 / 6.0)) + (Math.random() * 0.5);
-            double dist = 600.0 + Math.random() * 1200.0;
 
-            double cx = centerX + Math.cos(angle) * dist;
-            double cy = centerY + Math.sin(angle) * dist;
-
-            int count = 3 + random.nextInt(3);
-            for (int i = 0; i < count; i++) {
-                double offsetAngle = Math.random() * Math.PI * 2.0;
-                double offsetDist = Math.random() * 180.0;
-
-                double ax = cx + Math.cos(offsetAngle) * offsetDist;
-                double ay = cy + Math.sin(offsetAngle) * offsetDist;
-
-                double radius = 20.0 + Math.random() * 70.0;
-                AsteroidModel ast = new AsteroidModel(ax, ay, radius);
-
-                double driftAngle = Math.random() * Math.PI * 2.0;
-                double speed = 0.5 + Math.random() * 2.0;
-                ast.setLinearVelocity(new org.dyn4j.geometry.Vector2(
-                        Math.cos(driftAngle) * speed,
-                        Math.sin(driftAngle) * speed
-                ));
-
-                UniverseSpawner.getInstance().spawnEntity(ast);
-            }
-        }
-    }
 
     public void quitToMainMenu() {
         setShowDebugMode(false);

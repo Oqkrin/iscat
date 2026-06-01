@@ -1,8 +1,6 @@
 package uni.gaben.iscat.screens.game.view;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -87,7 +85,7 @@ public class GameView extends AbstractIscatStackPane {
         debugButton = new Button("DEBUG");
         debugButton.setFocusTraversable(false);
 
-        toggleWave = new Button("|>");
+        toggleWave = new Button("pause wave");
         toggleWave.setFocusTraversable(false);
 
         debugButtonsContainer = new HBox(10, debugButton, toggleWave);
@@ -251,8 +249,8 @@ public class GameView extends AbstractIscatStackPane {
 
         toggleWave.setOnAction(event -> {
             if (gameController.isDebugModeOn()) {
-                gameModel.waveProperty().set(!gameModel.isWaveing());
-                toggleWave.setText(gameModel.isWaveing() ? "||" : "|>");
+                gameModel.waveActiveProperty().set(!gameModel.isWaveActive());
+                toggleWave.setText(gameModel.isWaveActive() ? "pause wave" : "restart wave");
                 canvas.requestFocus();
             }
         });
