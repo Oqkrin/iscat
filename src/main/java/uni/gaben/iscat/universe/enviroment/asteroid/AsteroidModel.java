@@ -1,9 +1,9 @@
 package uni.gaben.iscat.universe.enviroment.asteroid;
 
 import org.dyn4j.dynamics.BodyFixture;
-import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
+import org.dyn4j.geometry.Polygon;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.universe.UU;
@@ -11,127 +11,140 @@ import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.UniverseVelocitySettings;
 
-import java.util.Random;
+import java.util.*;
 
-/**
- * Model for an Asteroid entity.
- */
 public class AsteroidModel extends AbstractEntityModel {
-    private final double size;
+    private final double size; // Acts as diameter in pixels
     private final Vector2[] displayVertices;
 
-    /**
-     * @param x           initial x position in pixels
-     * @param y           initial y position in pixels
-     * @param radiusPixel collision radius in pixels
-     * @param minVertices minimum number of vertices for rendering
-     * @param variation   random variation for vertex count
-     * @param radiusMin   minimum radius multiplier for jagged edges
-     * @param radiusRange random radius range multiplier for jagged edges
-     */
+    // Durability Mechanics
+    private final double maxDurability;
+    private double currentDurability;
+    private final double splitAngle;
+
+    // Helper Constructor
+    public AsteroidModel(double x, double y, double radius) {
+        this(x, y, radius, AsteroidSettings.MIN_VERTICES, AsteroidSettings.VERTICE_VARIATION,
+                AsteroidSettings.RADIUS_VARIATION_MIN, AsteroidSettings.RADIUS_VARIATION_RANGE);
+    }
+
     public AsteroidModel(double x, double y, double radiusPixel,
-            int minVertices, int variation,
-            double radiusMin, double radiusRange) {
+                         int minVertices, int variation,
+                         double radiusMin, double radiusRange) {
         super(x, y);
         Random rand = new Random();
+        this.splitAngle = rand.nextDouble() * Math.PI * 2; // Pre-determine the fracture plane
+        // Normalize size definition: if radiusPixel is provided, diameter is radiusPixel * 2
         this.size = radiusPixel != 0 ? radiusPixel * 2 : (2 + rand.nextInt(AsteroidSettings.MAXPXSIZE));
-        double radiusMeters = UU.pxToM(size / 2);
+        double radiusMeters = UU.pxToM(size / 2.0);
 
         int numVertices = minVertices + (rand.nextInt(variation));
-        displayVertices = new Vector2[numVertices];
+        Vector2[] rawPoints = new Vector2[numVertices];
         double angleStep = Math.PI * 2 / numVertices;
 
         for (int i = 0; i < numVertices; i++) {
             double angle = i * angleStep;
             double r = radiusMeters * (radiusMin + Math.random() * radiusRange);
-            displayVertices[i] = new Vector2(Math.cos(angle) * r, Math.sin(angle) * r);
+            rawPoints[i] = new Vector2(Math.cos(angle) * r, Math.sin(angle) * r);
         }
 
-        // Use a circle for physics collision
-        BodyFixture fixture = addFixture(Geometry.createCircle(radiusMeters));
+        // FIX: Convert list to native Vector2 array for dyn4j constructor compatibility
+        List<Vector2> hullPoints = convexHull(rawPoints);
+        Polygon polygon = new Polygon(hullPoints.toArray(new Vector2[0]));
+
+        // CRUCIAL FIX FOR CRACK RENDERING ALIGNMENT:
+        // Force center alignment to local origin (0,0) before assigning display vertices
+        Vector2 center = polygon.getCenter();
+        polygon.translate(-center.x, -center.y);
+
+        // Feed the cleaned centered convex vertices back to the renderer so visuals match perfectly
+        this.displayVertices = polygon.getVertices();
+
+        BodyFixture fixture = addFixture(polygon);
         fixture.setFilter(UniverseCollisionLayers.ASTEROID_FILTER);
 
-        // Density scales quadratically with size to make bigger ones feel extremely heavy and immovable
+        // Density scales quadratically with size
         double density = 1.0 + Math.pow(size / 45.0, 2.0);
         fixture.setDensity(density);
 
+        // Set standard dyn4j mass tracking directly
         setMass(MassType.NORMAL);
 
-        // Linear and angular damping scale with size so larger asteroids are sluggish and slow down fast
         double damping = 0.5 + (size / 100.0);
         setLinearDamping(damping);
         setAngularDamping(damping);
 
-        // LOGICA DI SPLITTING: Quando colpito da un proiettile, si divide in due
-        // asteroidi minori
+        // Calculate density-based durability
+        this.maxDurability = AsteroidSettings.BASE_DURABILITY * density;
+        this.currentDurability = this.maxDurability;
+
+        // COLLISION MECHANISM
         this.setOnCollision(other -> {
-            if (other instanceof AbstractProjectileModel) {
-                if (this.shouldRemove())
-                    return;
-                this.setShouldRemove(true);
+            if (this.shouldRemove()) return;
 
-                // Solo se la dimensione dell'asteroide è sufficiente, lo dividiamo in due
-                if (this.size >= 24.0) {
-                    double asteroidX = UU.mToPx(this.getTransform().getTranslationX());
-                    double asteroidY = UU.mToPx(this.getTransform().getTranslationY());
-
-                    double smallerAsteroidARadius = (this.size / 4.0) * (0.8 + Math.random() * 0.4);
-                    double smallerAsteroidBRadius = (this.size / 4.0) * (0.8 + Math.random() * 0.4);
-
-                    // Angolo casuale per spingere i frammenti in direzioni opposte
-                    double angle = Math.random() * Math.PI * 2;
-                    double offsetPx = this.size / 3.0;
-
-                    double x1 = asteroidX + Math.cos(angle) * offsetPx;
-                    double y1 = asteroidY + Math.sin(angle) * offsetPx;
-                    double x2 = asteroidX - Math.cos(angle) * offsetPx;
-                    double y2 = asteroidY - Math.sin(angle) * offsetPx;
-
-                    AsteroidModel smallerAsteroidA = new AsteroidModel(x1, y1, smallerAsteroidARadius);
-                    AsteroidModel smallerAsteroidB = new AsteroidModel(x2, y2, smallerAsteroidBRadius);
-
-                    // Copia la velocità lineare del genitore e applica un impulso laterale per
-                    // farli dividere
-                    Vector2 asteroidLinearVelocity = this.getLinearVelocity();
-                    double pushForce = 3.0; // m/s di impulso di separazione
-
-                    Vector2 smallerAsteroidAVelocity = asteroidLinearVelocity.copy()
-                            .add(new Vector2(Math.cos(angle) * pushForce, Math.sin(angle) * pushForce));
-                    Vector2 smallerAsteroidBVelocity = asteroidLinearVelocity.copy()
-                            .subtract(new Vector2(Math.cos(angle) * pushForce, Math.sin(angle) * pushForce));
-
-                    smallerAsteroidA.setLinearVelocity(smallerAsteroidAVelocity);
-                    smallerAsteroidB.setLinearVelocity(smallerAsteroidBVelocity);
-
-                    // Spawna i figli nel mondo di gioco
-                    UniverseSpawner.getInstance().spawnEntity(smallerAsteroidA);
-                    UniverseSpawner.getInstance().spawnEntity(smallerAsteroidB);
-                }
+            if (other instanceof AbstractProjectileModel projectile) {
+                double damage = AsteroidSettings.PROJECTILE_DAMAGE_FACTOR;
+                takeDamage(damage);
+                projectile.setShouldRemove(true);
             }
         });
     }
 
-    /**
-     * Helper constructor using default settings.
-     */
-    public AsteroidModel(double x, double y, double radiusPixel) {
-        this(x, y, radiusPixel,
-                AsteroidSettings.MIN_VERTICES, AsteroidSettings.VERTICE_VARIATION,
-                AsteroidSettings.RADIUS_VARIATION_MIN, AsteroidSettings.RADIUS_VARIATION_RANGE);
+    public void takeDamage(double amount) {
+        this.currentDurability = Math.max(0, this.currentDurability - amount);
+        if (this.currentDurability <= 0) {
+            handleBreakup();
+        }
     }
 
-    public AsteroidModel(double x, double y) {
-        this(x, y, 0,
-                AsteroidSettings.MIN_VERTICES, AsteroidSettings.VERTICE_VARIATION,
-                AsteroidSettings.RADIUS_VARIATION_MIN, AsteroidSettings.RADIUS_VARIATION_RANGE);
+    private void handleBreakup() {
+        this.setShouldRemove(true);
+
+        // Only split if the size criteria is met
+        if (this.size >= AsteroidSettings.MIN_SPLIT_SIZE) {
+            // Read positions directly in METERS to match physics space coordinate rules
+            double asteroidXMeters = this.getTransform().getTranslationX();
+            double asteroidYMeters = this.getTransform().getTranslationY();
+
+            // Target child radius in pixels
+            double smallerAsteroidARadius = (this.size / 4.0) * (0.8 + Math.random() * 0.4);
+            double smallerAsteroidBRadius = (this.size / 4.0) * (0.8 + Math.random() * 0.4);
+
+            double angle = this.splitAngle;
+            double offsetMeters = UU.pxToM(this.size / 3.0); // Convert pixel offset distance to meters Safely
+
+            // Compute separation positions cleanly in METERS
+            double mX1 = asteroidXMeters + Math.cos(angle) * offsetMeters;
+            double mY1 = asteroidYMeters + Math.sin(angle) * offsetMeters;
+            double mX2 = asteroidXMeters - Math.cos(angle) * offsetMeters;
+            double mY2 = asteroidYMeters - Math.sin(angle) * offsetMeters;
+
+            // Convert back to pixels before passing to constructor (since super() maps parameters)
+            AsteroidModel smallerAsteroidA = new AsteroidModel(UU.mToPx(mX1), UU.mToPx(mY1), smallerAsteroidARadius);
+            AsteroidModel smallerAsteroidB = new AsteroidModel(UU.mToPx(mX2), UU.mToPx(mY2), smallerAsteroidBRadius);
+
+            // Handle outward velocity tracking forces
+            Vector2 asteroidLinearVelocity = this.getLinearVelocity();
+            double pushForce = 2.0;
+
+            Vector2 smallerAsteroidAVelocity = asteroidLinearVelocity.copy()
+                    .add(new Vector2(Math.cos(angle) * pushForce, Math.sin(angle) * pushForce));
+            Vector2 smallerAsteroidBVelocity = asteroidLinearVelocity.copy()
+                    .subtract(new Vector2(Math.cos(angle) * pushForce, Math.sin(angle) * pushForce));
+
+            smallerAsteroidA.setLinearVelocity(smallerAsteroidAVelocity);
+            smallerAsteroidB.setLinearVelocity(smallerAsteroidBVelocity);
+
+            UniverseSpawner.getInstance().spawnEntity(smallerAsteroidA);
+            UniverseSpawner.getInstance().spawnEntity(smallerAsteroidB);
+        }
     }
 
-    public double getSize() {
-        return size;
-    }
+    public double getSize() { return size; }
+    public Vector2[] getDisplayVertices() { return displayVertices; }
 
-    public Vector2[] getDisplayVertices() {
-        return displayVertices;
+    public double getDurabilityHealthRatio() {
+        return currentDurability / maxDurability;
     }
 
     @Override
@@ -139,4 +152,62 @@ public class AsteroidModel extends AbstractEntityModel {
         return UniverseVelocitySettings.asteroidTerminalVelocity(size);
     }
 
+    public static List<Vector2> convexHull(Vector2[] points) {
+        // FIX: Replaced .size() with .length for raw array property compatibility
+        if (points == null || points.length < 3) {
+            return points == null ? new ArrayList<>() : Arrays.asList(points);
+        }
+
+        // 1. Sort points lexicographically by X, then by Y
+        // FIX: Wrapped array inside Arrays.asList to properly feed standard collections builder
+        List<Vector2> sorted = new ArrayList<>(Arrays.asList(points));
+        sorted.sort((a, b) -> {
+            if (a.x != b.x) {
+                return Double.compare(a.x, b.x);
+            }
+            return Double.compare(a.y, b.y);
+        });
+
+        // 2. Build the Lower Hull
+        List<Vector2> lower = new ArrayList<>();
+        for (Vector2 point : sorted) {
+            while (lower.size() >= 2 && ccw(lower.get(lower.size() - 2), lower.get(lower.size() - 1), point) <= 0) {
+                lower.remove(lower.size() - 1);
+            }
+            lower.add(point);
+        }
+
+        // 3. Build the Upper Hull
+        List<Vector2> upper = new ArrayList<>();
+        for (int i = sorted.size() - 1; i >= 0; i--) {
+            Vector2 point = sorted.get(i);
+            while (upper.size() >= 2 && ccw(upper.get(upper.size() - 2), upper.get(upper.size() - 1), point) <= 0) {
+                upper.remove(upper.size() - 1);
+            }
+            upper.add(point);
+        }
+
+        // 4. Remove the last point of each hull list because it's duplicated at the turning extremities
+        lower.remove(lower.size() - 1);
+        upper.remove(upper.size() - 1);
+
+        // 5. Combine lower and upper hull.
+        List<Vector2> hull = new ArrayList<>();
+        hull.addAll(lower);
+        hull.addAll(upper);
+
+        return hull;
+    }
+
+    /**
+     * 2D Cross Product orientation test.
+     * Returns > 0 for Counter-Clockwise (Left Turn)
+     * Returns < 0 for Clockwise (Right Turn)
+     * Returns 0 if points are Collinear
+     */
+    private static double ccw(Vector2 a, Vector2 b, Vector2 c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    }
+
+    public double getSplitAngle() { return splitAngle; }
 }

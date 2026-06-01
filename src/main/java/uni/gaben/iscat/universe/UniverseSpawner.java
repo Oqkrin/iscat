@@ -22,7 +22,7 @@ public class UniverseSpawner {
     private UniverseModel model;
     private UniverseController controller;
     private UniverseWaveController waveController;
-    private Random random;
+    private Random random = new Random();
 
     private UniverseSpawner() {}
 
@@ -133,7 +133,7 @@ public class UniverseSpawner {
                 double ax = cx + Math.cos(offsetAngle) * offsetDist;
                 double ay = cy + Math.sin(offsetAngle) * offsetDist;
 
-                double radius = 20.0 + Math.random() * 700.0;
+                double radius = 20.0 + Math.random() * 350.0;
                 AsteroidModel ast = new AsteroidModel(ax, ay, radius);
 
                 double driftAngle = Math.random() * Math.PI * 2.0;

@@ -2,6 +2,7 @@ package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import org.dyn4j.geometry.Vector2;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
@@ -152,8 +153,13 @@ public final class EntityRenderer {
     private static void drawAsteroid(AbstractEntityModel e, GraphicsContext gc) {
         AsteroidModel asteroid = (AsteroidModel) e;
         Vector2[] vertices = asteroid.getDisplayVertices();
+        if (vertices == null || vertices.length == 0) return;
+
         double[] xPoints = new double[vertices.length];
         double[] yPoints = new double[vertices.length];
+
+        double centerX = UU.mToPx(asteroid.getTransform().getTranslationX());
+        double centerY = UU.mToPx(asteroid.getTransform().getTranslationY());
 
         for (int i = 0; i < vertices.length; i++) {
             Vector2 worldPoint = asteroid.getTransform().getTransformed(vertices[i]);
@@ -161,11 +167,79 @@ public final class EntityRenderer {
             yPoints[i] = UU.mToPx(worldPoint.y);
         }
 
+        // Draw Core Asteroid Body
         gc.setFill(ThemeManager.getInstance().getAccentTernary());
         gc.fillPolygon(xPoints, yPoints, vertices.length);
         gc.setStroke(ThemeManager.getInstance().getAccentPrimary());
         gc.setLineWidth(2);
         gc.strokePolygon(xPoints, yPoints, vertices.length);
+
+        double healthRatio = asteroid.getDurabilityHealthRatio();
+        if (healthRatio < 0.85) {
+            gc.save();
+            // Cracks expand in width as health deteriorates
+            double crackWidth = (1.0 - healthRatio) * 4.0;
+            gc.setLineWidth(Math.max(1.2, crackWidth));
+
+            // The structural fault plane is perpendicular to the child separation push angle
+            double localFaultAngle = (asteroid.getSplitAngle() + Math.PI / 2) % (Math.PI * 2);
+            if (localFaultAngle < 0) localFaultAngle += Math.PI * 2;
+
+            // Find the boundary vertex closest to our structural fault line direction
+            int startIndex = 0;
+            double minDiff = Double.MAX_VALUE;
+            for (int i = 0; i < vertices.length; i++) {
+                double vAngle = Math.atan2(vertices[i].y, vertices[i].x);
+                if (vAngle < 0) vAngle += Math.PI * 2;
+
+                double diff = Math.abs(vAngle - localFaultAngle);
+                diff = Math.min(diff, Math.PI * 2 - diff); // Keep difference inside circular bounds
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    startIndex = i;
+                }
+            }
+            // The opposing point across the polygon hull layout
+            int endIndex = (startIndex + vertices.length / 2) % vertices.length;
+
+            double startX = xPoints[startIndex];
+            double startY = yPoints[startIndex];
+            double endX = xPoints[endIndex];
+            double endY = yPoints[endIndex];
+
+            // Jitter amount increases as health falls, making the fault line look stressed
+            double jitterMag = (1.0 - healthRatio) * (asteroid.getSize() / 7.0);
+
+            // Use object hash code as a static seed to prevent crack lines from flickering erratically
+            double staticSeed = asteroid.hashCode();
+            double midX = (startX + endX) / 2.0 + Math.sin(staticSeed) * jitterMag;
+            double midY = (startY + endY) / 2.0 + Math.cos(staticSeed) * jitterMag;
+
+            // 1. Draw Primary Division Crack (cuts through the core completely)
+            gc.strokeLine(startX, startY, midX, midY);
+            gc.strokeLine(midX, midY, endX, endY);
+
+            // 2. Draw Secondary Transverse Branches if the asteroid is critically damaged (< 50% HP)
+            if (healthRatio < 0.5) {
+                gc.setLineWidth(Math.max(1.0, crackWidth * 0.65)); // Branch cracks are thinner
+
+                // Branch left towards an orthogonal vertex
+                int branchIndex1 = (startIndex + vertices.length / 4) % vertices.length;
+                double bMidX1 = (midX + xPoints[branchIndex1]) / 2.0 + Math.sin(staticSeed + 1) * (jitterMag * 0.4);
+                double bMidY1 = (midY + yPoints[branchIndex1]) / 2.0 + Math.cos(staticSeed + 1) * (jitterMag * 0.4);
+                gc.strokeLine(midX, midY, bMidX1, bMidY1);
+                gc.strokeLine(bMidX1, bMidY1, xPoints[branchIndex1], yPoints[branchIndex1]);
+
+                // Branch right towards the opposite orthogonal vertex
+                int branchIndex2 = (startIndex + (3 * vertices.length) / 4) % vertices.length;
+                double bMidX2 = (midX + xPoints[branchIndex2]) / 2.0 + Math.sin(staticSeed + 2) * (jitterMag * 0.4);
+                double bMidY2 = (midY + yPoints[branchIndex2]) / 2.0 + Math.cos(staticSeed + 2) * (jitterMag * 0.4);
+                gc.strokeLine(midX, midY, bMidX2, bMidY2);
+                gc.strokeLine(bMidX2, bMidY2, xPoints[branchIndex2], yPoints[branchIndex2]);
+            }
+
+            gc.restore();
+        }
     }
 
     private static void drawPlayer(AbstractEntityModel e, GraphicsContext gc) {
@@ -182,11 +256,9 @@ public final class EntityRenderer {
             double cy = UU.mToPx(player.getTransform().getTranslationY());
             gc.save();
             gc.translate(cx, cy);
-            gc.rotate(Math.toDegrees(player.getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET));
+            gc.rotate(Math.toDegrees(player.getTransform().getRotationAngle())+RenderingSettings.BASE_ROTDEG_OFFSET+player.getVisualAngularOffsetDeg());
             VFXRenderer.drawThrust(gc, thrustProvider.thrust());
             gc.restore();
         }
     }
-
-
 }
