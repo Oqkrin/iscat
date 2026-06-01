@@ -35,24 +35,45 @@ public class LeaderBoardMenuController implements IscatMenuController {
 
         applyIconButton(exitBtn, "fas-sign-out-alt");
 
+        // quando il menu è visibile aggiorniamo la leaderboard
+        rootPane.visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
+            if (isNowVisible) {
+                loadLeaderboard();
+            }
+        });
+
+        rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                loadLeaderboard();
+            }
+        });
+
         loadLeaderboard();
     }
 
-    // ── Data loading ──────────────────────────────────────────────────────────
 
     private void loadLeaderboard() {
-        // Use the existing IscatDB utility instead of raw Virtual Threads
+        leaderboardContainer.getChildren().clear();
+        Label loadingLabel = new Label("Caricamento classifica...");
+        loadingLabel.getStyleClass().add("score-stat");
+        leaderboardContainer.getChildren().add(loadingLabel);
+
         IscatDB.getInstance().queryAsync(() -> scoreDAO.getAllScores())
                 .thenAccept(scores -> {
-                    // This runs after the DB call finishes
                     Platform.runLater(() -> populateRows(scores));
                 })
                 .exceptionally(ex -> {
-                    // Good practice: Handle errors that might occur during DB access
                     ex.printStackTrace();
+                    Platform.runLater(() -> {
+                        leaderboardContainer.getChildren().clear();
+                        Label errorLabel = new Label("Errore nel caricamento dei dati.");
+                        errorLabel.getStyleClass().add("score-stat");
+                        leaderboardContainer.getChildren().add(errorLabel);
+                    });
                     return null;
                 });
     }
+
     private void populateRows(List<ScoreDAO.UserScoreEntry> scores) {
         leaderboardContainer.getChildren().clear();
 
@@ -113,7 +134,6 @@ public class LeaderBoardMenuController implements IscatMenuController {
         };
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────────
 
     @Override
     public void handleBack() {
@@ -122,8 +142,6 @@ public class LeaderBoardMenuController implements IscatMenuController {
 
     @FXML
     private void handleBackAction(ActionEvent event) { handleBack(); }
-
-    // ── IscatMenuController ───────────────────────────────────────────────────
 
     @Override
     public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
