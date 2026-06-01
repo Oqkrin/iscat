@@ -36,13 +36,17 @@ public class OptionsMenuController implements IscatMenuController {
 
         getRootPane().sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                Stage stage = (Stage) newScene.getWindow();
+                newScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+                    if (subKeybindsController != null && subKeybindsController.hasActiveSelection()) {
+                        boolean consumed = subKeybindsController.handleKeyPress(e);
+                        if (consumed) e.consume();
+                    }
+                });
 
-                // Delega il binding del fullscreen al suo rispettivo controller
+                Stage stage = (Stage) newScene.getWindow();
                 if (subDisplayController != null && stage != null) {
                     subDisplayController.bindFullscreenProperty(stage);
                 }
-
                 if (subThemeController != null) {
                     subThemeController.applyManualColorChanges();
                 }
