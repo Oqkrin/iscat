@@ -59,7 +59,7 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         dashDuration.update(dt);
         weaponCooldown.update(dt);
         updateThrust();
-
+        updateStateTime(dt);
         if (isInScatto()) {
             setLinearDamping(PlayerSettings.LINEAR_DAMPING_SCATTO);
         } else {
