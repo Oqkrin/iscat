@@ -10,50 +10,13 @@ import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasShockwave;
 import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
 import uni.gaben.iscat.universe.UniverseWaveController;
-import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.universe.enemies.generic.GenericEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 
-public class IscatMasterModel extends LivingEntityModel implements HasShockwave, Updatable, HasSprite {
+public class IscatMasterModel extends GenericEntityModel implements Updatable {
 
-    private static final String ENTITY_KEY = "iscat_master";
-
-    private final ShockwaveModel shockwaveModel = new ShockwaveModel();
-
-    @Override
-    public String getSpritePath() {
-        return settings.spritePath;
-    }
-
-    @Override
-    public int getSpriteFrameWidth() {
-        return settings.frameW;
-    }
-
-    @Override
-    public double getFrameDuration() {
-        return UU.UNIVERSE_TICK*6;
-    }
-
-    @Override
-    public double getFrameDuration(int state, int frame) {
-        return getFrameDuration();
-    }
-
-    @Override
-    public int getSpriteFrameHeight() {
-        return settings.frameH;
-    }
-
-    @Override
-    public double getVisualScale() {
-        return settings.scale;
-    }
-
-    @Override
-    public double getVisualAngularOffsetDeg() {
-        return 0;
-    }
+    public static final String ENTITY_KEY = "iscat_master";
 
     // The ENTRANCE state replaces the boolean entranceDone flag
     public enum AnimationState { ENTRANCE, IDLE, ATTACK1, ATTACK2, ATTACK3, ATTACK4, DEATH }
@@ -62,7 +25,6 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
     private boolean completeKillCalled = false;
 
     private final UniverseWaveController waveController;
-    private final GenericEntitySettings settings;
 
     public IscatMasterModel(double x, double y, UniverseWaveController waveController) {
         this(x, y, waveController, loadSettings());
@@ -70,20 +32,10 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
 
     private IscatMasterModel(double x, double y, UniverseWaveController waveController,
                              GenericEntitySettings s) {
-        super(x, y, s.initLife, s.initLife);
+        super(x, y, s);
         this.waveController = waveController;
-        this.settings = s;
 
-        setEntityKey(ENTITY_KEY);
-        setXpReward(s.xpReward);
-
-        BodyFixture fixture = addFixture(
-                Geometry.createCircle(
-                        UU.pxToM(s.dimSprite * s.scale / 2.0 * 0.9)));
-
-        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         setMass(MassType.FIXED_ANGULAR_VELOCITY);
-        setLinearDamping(s.dampingLineare);
 
         // Disabilitato di default fino al completamento dell'animazione di spawn intro
         setEnabled(false);
@@ -102,24 +54,50 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
         });
     }
 
-    public GenericEntitySettings getSettings() { return settings; }
 
-    @Override
-    public ShockwaveModel shockwave() { return shockwaveModel; }
-
-    @Override
-    public void update(double dt) {
-        super.update(dt); // Crucial: Advances the stateTime
-        shockwaveModel.update(dt);
-    }
 
     public AnimationState getAnimationState() { return animationState; }
+
+    @Override
+    public int getState() {
+        return animationState.ordinal();
+    }
 
     // State changes automatically reset the animation timer so the View always starts at frame 0
     public void setAnimationState(AnimationState state) {
         if (this.animationState != state) {
             this.animationState = state;
             this.setStateTime(0.0);
+        }
+    }
+
+    @Override
+    public void update(double dt) {
+        super.update(dt);
+
+        if (animationState == AnimationState.ENTRANCE) {
+            double duration = getFramesForState(AnimationState.ENTRANCE) * getFrameDuration();
+            if (getStateTime() >= duration) {
+                setEnabled(true);
+                setAnimationState(AnimationState.IDLE);
+                shockwave().trigger(2.0, 1500, 15);
+                try {
+                    uni.gaben.iscat.utils.AudioManager.getInstance().playSFX("shockwave");
+                    uni.gaben.iscat.utils.AudioManager.getInstance().playSFX("laugh");
+                } catch (Exception e) {
+                    // Ignore if audio is unavailable
+                }
+            }
+        } else if (animationState != AnimationState.IDLE && animationState != AnimationState.DEATH) {
+            double duration = getFramesForState(animationState) * getFrameDuration();
+            if (getStateTime() >= duration) {
+                setAnimationState(AnimationState.IDLE);
+            }
+        } else if (animationState == AnimationState.DEATH) {
+            double duration = getFramesForState(AnimationState.DEATH) * getFrameDuration();
+            if (getStateTime() >= duration && !completeKillCalled) {
+                completeKill();
+            }
         }
     }
 
@@ -158,7 +136,7 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
         try {
             var user = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser();
             if (user != null) {
-                IscatDB.getInstance().getEnemyDAO().incrementKill(user.id(), ENTITY_KEY);
+                IscatDB.getInstance().getEnemyDAO().incrementKill(user.id(), "iscat_master");
             }
         } catch (Exception e) {
             System.err.println("[ERRORE REGISTRAZIONE BOSS] Impossibile aggiornare i record di morte su DB");
@@ -169,9 +147,9 @@ public class IscatMasterModel extends LivingEntityModel implements HasShockwave,
             waveController.notifyBossDead();
         }
 
-        super.kill(true);
+        // Flag for removal so processEntityCleanup picks it up.
+        // We use setShouldRemove directly instead of super.kill(true) to avoid
+        // the heart-drop / explosion-SFX logic in LivingEntityModel.kill().
+        setShouldRemove(true);
     }
-
-    @Override
-    public double getTerminalVelocity() { return settings.maxVelocity; }
 }

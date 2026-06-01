@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.enemies.healer.IscatHealerModel;
+import uni.gaben.iscat.universe.enemies.generic.GenericEntityModel;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
 import uni.gaben.iscat.universe.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
@@ -13,7 +13,7 @@ public enum UniverseSpawnable {
     PLAYER(PlayerModel.class),
     ASTEROID(AsteroidModel.class),
     HEART(HeartModel.class),
-    ISCAT_HEALER(IscatHealerModel.class),
+    ISCAT_HEALER(GenericEntityModel.class),
     ISCAT_MASTER(IscatMasterModel.class),
     WORM(IscatWormSegment.class),
     PROJECTILE(Projectile.class);

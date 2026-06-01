@@ -9,13 +9,11 @@ import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.enemies.worm.IscatWormController;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
-import uni.gaben.iscat.universe.rendering.RenderRegistry;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.Updatable;
 
@@ -36,9 +34,12 @@ import java.util.Random;
 
 /**
  * Controller principale del motore di gioco (Universe).
- * Coordina il ciclo vitale di tutte le entità, l'elaborazione degli input del giocatore,
- * l'avanzamento dei sistemi di Intelligenza Artificiale, lo spawn procedurale degli ostacoli,
- * lo step del motore fisico e la sincronizzazione con i DAO del database SQLite per il salvataggio dei punteggi.
+ * Coordina il ciclo vitale di tutte le entità, l'elaborazione degli input del
+ * giocatore,
+ * l'avanzamento dei sistemi di Intelligenza Artificiale, lo spawn procedurale
+ * degli ostacoli,
+ * lo step del motore fisico e la sincronizzazione con i DAO del database SQLite
+ * per il salvataggio dei punteggi.
  */
 public class UniverseController {
 
@@ -55,12 +56,6 @@ public class UniverseController {
     private static final int MAX_ACTIVE_ASTEROIDS = 30;
     private final Random random = new Random();
 
-    private final List<IscatWormController> wormControllers = new ArrayList<>();
-
-    public void addWormController(IscatWormController wormController) {
-        wormControllers.add(wormController);
-    }
-
     public UniverseController(UniverseModel universeModel) {
         this.universeModel = universeModel;
         this.scoreDAO = IscatDB.getInstance().getScoreDAO();
@@ -69,11 +64,13 @@ public class UniverseController {
     }
 
     /**
-     * Esegue l'aggiornamento logico completo (tick) di tutti i sistemi del mondo di gioco.
+     * Esegue l'aggiornamento logico completo (tick) di tutti i sistemi del mondo di
+     * gioco.
      * Viene invocato ciclicamente dal game loop principale.
      *
      * @param dt          Delta time (tempo trascorso in secondi dall'ultimo frame).
-     * @param inputs      Involucro contenente lo stato corrente delle periferiche di input.
+     * @param inputs      Involucro contenente lo stato corrente delle periferiche
+     *                    di input.
      * @param cameraModel Il modello geometrico della telecamera di gioco.
      */
     public void updatev(double dt, GameInputs inputs, CameraModel cameraModel) {
@@ -88,7 +85,8 @@ public class UniverseController {
         applyTerminalVelocityLimits();
         syncWormSegments();
 
-        // Avanzamento delle equazioni di vincolo e della dinamica dei corpi rigidi (Dyn4J)
+        // Avanzamento delle equazioni di vincolo e della dinamica dei corpi rigidi
+        // (Dyn4J)
         universeModel.stepPhysics(dt);
 
         processEntityCleanup(player);
@@ -102,7 +100,8 @@ public class UniverseController {
     }
 
     private void processPlayerInputs(PlayerModel player, GameInputs inputs, CameraModel cameraModel, double dt) {
-        if (player == null) return;
+        if (player == null)
+            return;
         playerController.processInput(inputs, cameraModel, dt);
     }
 
@@ -115,17 +114,16 @@ public class UniverseController {
     }
 
     private void updateAI(double dt) {
-        for (IEntityController controller : new ArrayList<>(entityControllers)) {
+        for (IEntityController controller : entityControllers) {
             controller.update(universeModel, dt);
-        }
-        for (IscatWormController w : wormControllers) {
-            w.update(universeModel, dt);
         }
     }
 
     /**
-     * Applica i massimi vettoriali di velocità consentiti (Terminal Velocity) ai corpi fisici.
-     * Previene l'accelerazione incontrollata dovuta a forze cumulative del motore fisico.
+     * Applica i massimi vettoriali di velocità consentiti (Terminal Velocity) ai
+     * corpi fisici.
+     * Previene l'accelerazione incontrollata dovuta a forze cumulative del motore
+     * fisico.
      */
     private void applyTerminalVelocityLimits() {
         for (Body body : universeModel.getBodies()) {
@@ -134,15 +132,15 @@ public class UniverseController {
                 Vector2 velocity = body.getLinearVelocity();
                 if (velocity.getMagnitude() > maxSpeed) {
                     body.setLinearVelocity(
-                            velocity.getNormalized().setMagnitude(maxSpeed)
-                    );
+                            velocity.getNormalized().setMagnitude(maxSpeed));
                 }
             }
         }
     }
 
     /**
-     * Allinea l'orientamento grafico (rotazione dello sprite) dei segmenti del verme cinematica
+     * Allinea l'orientamento grafico (rotazione dello sprite) dei segmenti del
+     * verme cinematica
      * basandosi sul loro vettore di movimento attuale.
      */
     private void syncWormSegments() {
@@ -158,7 +156,8 @@ public class UniverseController {
 
     /**
      * Aggiorna lo stato temporale dei proiettili e distrugge istantaneamente quelli
-     * che si muovono oltre i confini del viewport visibile della telecamera (più un margine).
+     * che si muovono oltre i confini del viewport visibile della telecamera (più un
+     * margine).
      */
     private void updateProjectiles(CameraModel cameraModel, double dt) {
         double zoom = cameraModel.getZoom();
@@ -173,9 +172,10 @@ public class UniverseController {
         worldTop -= margin;
         worldBottom += margin;
 
-        for (AbstractProjectileModel p : new ArrayList<>(universeModel.getProjectiles())) {
+        for (AbstractProjectileModel p : universeModel.getProjectiles()) {
             p.deltaToLife(-dt);
-            if (p.shouldRemove()) continue;
+            if (p.shouldRemove())
+                continue;
 
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
@@ -187,15 +187,19 @@ public class UniverseController {
     }
 
     /**
-     * Ispeziona tutte le entità attive per identificare quelle rimosse o prive di punti vita.
-     * In caso di abbattimento valido di un nemico da parte del giocatore (o per eccezioni di boss speciali),
-     * assegna l'esperienza, aggiorna il punteggio di sessione e persiste l'incremento di uccisioni su SQLite.
+     * Ispeziona tutte le entità attive per identificare quelle rimosse o prive di
+     * punti vita.
+     * In caso di abbattimento valido di un nemico da parte del giocatore (o per
+     * eccezioni di boss speciali),
+     * assegna l'esperienza, aggiorna il punteggio di sessione e persiste
+     * l'incremento di uccisioni su SQLite.
      */
     private void processEntityCleanup(PlayerModel player) {
         List<AbstractEntityModel> toRemove = new ArrayList<>();
 
-        for (AbstractEntityModel entity : new ArrayList<>(universeModel.getEntities())) {
-            if (entity == null) continue;
+        for (AbstractEntityModel entity : universeModel.getEntities()) {
+            if (entity == null)
+                continue;
             boolean shouldRemove = false;
 
             if (entity.shouldRemove()) {
@@ -219,7 +223,8 @@ public class UniverseController {
                     String entityKey = living.getEntityKey();
                     String cleanKey = entityKey != null ? entityKey.toLowerCase().trim() : "";
 
-                    // Condizione di sblocco speciale: Healer e Master bypassano il vincolo del colpo finale da proiettile
+                    // Condizione di sblocco speciale: Healer e Master bypassano il vincolo del
+                    // colpo finale da proiettile
                     boolean isSpecialEnemy = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
 
                     if (living.isKilledByProjectile() || isSpecialEnemy) {
@@ -239,19 +244,19 @@ public class UniverseController {
             }
         }
 
-        // Rimozione fisica dal motore d'animazione, dal mondo e disattivazione del thread cerebrale dell'IA
+        // Rimozione fisica dal motore d'animazione, dal mondo e disattivazione del
+        // thread cerebrale dell'IA
         for (AbstractEntityModel entity : toRemove) {
             universeModel.removeEntity(entity);
-            RenderRegistry.getInstance().removeRenderer(entity);
 
             entityControllers.removeIf(
-                    ctrl -> (ctrl instanceof Brain<?> brain && brain.getEntity() == entity)
-            );
+                    ctrl -> (ctrl instanceof Brain<?> brain && brain.getEntity() == entity));
         }
     }
 
     /**
-     * Aggiorna la posizione del target della telecamera applicando un effetto di anticipo visivo (Spring)
+     * Aggiorna la posizione del target della telecamera applicando un effetto di
+     * anticipo visivo (Spring)
      * proporzionale al vettore di velocità e orientamento del giocatore.
      */
     private void updateCamera(PlayerModel player, CameraModel cameraModel, double dt) {
@@ -260,27 +265,29 @@ public class UniverseController {
             double targetY = UU.mToPx(player.getTransform().getTranslationY());
             double velocityMag = player.getLinearVelocity().getMagnitude();
             cameraModel.getSpringX().setTarget(
-                    targetX + Math.sin(player.getTransform().getRotationAngle()) * velocityMag
-            );
+                    targetX + Math.sin(player.getTransform().getRotationAngle()) * velocityMag);
             cameraModel.getSpringY().setTarget(
-                    targetY + Math.cos(player.getTransform().getRotationAngle()) * velocityMag
-            );
+                    targetY + Math.cos(player.getTransform().getRotationAngle()) * velocityMag);
         }
         cameraModel.getSpringX().update(dt);
         cameraModel.getSpringY().update(dt);
     }
 
     /**
-     * Gestisce lo spawn ciclico procedurale di gruppi di asteroidi in una corona circolare
-     * esterna rispetto alla vista del giocatore, conferendo loro velocità vettoriali di deriva.
+     * Gestisce lo spawn ciclico procedurale di gruppi di asteroidi in una corona
+     * circolare
+     * esterna rispetto alla vista del giocatore, conferendo loro velocità
+     * vettoriali di deriva.
      */
     private void spawnAsteroids(double dt, PlayerModel player) {
         asteroidCooldown.update(dt);
-        if (!asteroidCooldown.isReady()) return;
+        if (!asteroidCooldown.isReady())
+            return;
         asteroidCooldown.start(ASTEROID_SPAWN_INTERVAL);
 
         List<AsteroidModel> activeAsteroids = universeModel.getEntitiesOfType(AsteroidModel.class);
-        if (activeAsteroids.size() >= MAX_ACTIVE_ASTEROIDS || player == null) return;
+        if (activeAsteroids.size() >= MAX_ACTIVE_ASTEROIDS || player == null)
+            return;
 
         double playerX = UU.mToPx(player.getTransform().getTranslationX());
         double playerY = UU.mToPx(player.getTransform().getTranslationY());
@@ -299,7 +306,8 @@ public class UniverseController {
             AsteroidModel asteroid = new AsteroidModel(ax, ay, radius);
             double driftAngle = Math.random() * Math.PI * 2.0;
             double speed = UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN
-                    + Math.random() * (UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MAX - UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN);
+                    + Math.random() * (UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MAX
+                            - UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN);
             asteroid.setLinearVelocity(new Vector2(Math.cos(driftAngle) * speed, Math.sin(driftAngle) * speed));
             UniverseSpawner.getInstance().spawnEntity(asteroid);
         }

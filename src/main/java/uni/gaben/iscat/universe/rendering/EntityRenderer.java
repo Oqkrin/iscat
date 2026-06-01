@@ -112,11 +112,14 @@ public final class EntityRenderer {
         String key = sprite.getSpritePath() + "|" + sprite.getSpriteFrameWidth() + "x" + sprite.getSpriteFrameHeight();
         return ANIMATOR_CACHE.computeIfAbsent(key, k -> {
             SpriteSheetsParser sheet = getSheet(sprite);
-            int totalFrames = (sheet != null) ? sheet.getTotalFrames() : 1;
-            int totalStates = (sheet != null) ? sheet.getTotalStates() : 1;
-            // Use the default frame duration from HasSprite, or 1/6 as fallback
             double defDur = sprite.getFrameDuration();
-            return new SpriteSheetsAnimator(defDur, totalFrames, totalStates);
+
+            if (sheet != null) {
+                // Supply per-row frame counts so variable-length rows animate correctly
+                return new SpriteSheetsAnimator(defDur, sheet.getFramesPerRow());
+            } else {
+                return new SpriteSheetsAnimator(defDur, 1, 1);
+            }
         });
     }
 

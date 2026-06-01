@@ -7,8 +7,9 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
+import uni.gaben.iscat.universe.lib.interfaces.model.HasSprite;
 
-public class HeartModel extends LivingEntityModel {
+public class HeartModel extends LivingEntityModel implements HasSprite {
     public HeartModel(double x, double y) {
         super(x, y, 1, 1);
 
@@ -27,6 +28,41 @@ public class HeartModel extends LivingEntityModel {
     @Override
     public double getTerminalVelocity() {
         return 10; /*ISCATMOB.maxVelocity*/
+    }
+
+    @Override
+    public String getSpritePath() {
+        return HeartSettings.sprite;
+    }
+
+    @Override
+    public int getSpriteFrameWidth() {
+        return HeartSettings.DIM_SPRITE;
+    }
+
+    @Override
+    public double getFrameDuration() {
+        return UU.UNIVERSE_TICK*6;
+    }
+
+    @Override
+    public double getFrameDuration(int state, int frame) {
+        return getFrameDuration();
+    }
+
+    @Override
+    public int getSpriteFrameHeight() {
+        return HeartSettings.DIM_SPRITE;
+    }
+
+    @Override
+    public double getVisualScale() {
+        return HeartSettings.SCALE;
+    }
+
+    @Override
+    public double getVisualAngularOffsetDeg() {
+        return 0;
     }
 }
 

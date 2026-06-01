@@ -1,7 +1,6 @@
 package uni.gaben.iscat.universe.enemies.generic;
 
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.universe.rendering.RenderRegistry;
 
 import java.util.Map;
 import java.util.Optional;
@@ -54,12 +53,9 @@ public class GenericEntityFactory {
         // Assemblaggio dei tre componenti core dell'entità
         GenericEntityModel model = new GenericEntityModel(x, y, settings);
         GenericEntityBrain brain = new GenericEntityBrain(model);
-        GenericEntityView view = new GenericEntityView(settings);
-
         // Registrazione dei componenti nei rispettivi sottosistemi del motore di gioco
         universe.addEntity(model);
         controller.addEntityController(brain);
-        RenderRegistry.getInstance().register(model, view);
 
         return model;
     }

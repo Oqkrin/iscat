@@ -4,13 +4,13 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.utils.Updatable;
+import uni.gaben.iscat.universe.enemies.generic.GenericEntityModel;
+import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 
-public class IscatWormSegment extends LivingEntityModel implements Updatable {
+public class IscatWormSegment extends GenericEntityModel {
 
     public enum Type { HEAD, BODY, TAIL }
 
@@ -21,8 +21,10 @@ public class IscatWormSegment extends LivingEntityModel implements Updatable {
     private final Cooldown attackCooldown = new Cooldown();
 
     public IscatWormSegment(Type type, double x, double y) {
-        super(x, y, getHp(type), getHp(type));
+        super(x, y, createSettings(type));
         this.type = type;
+        setLife(getHp(type));
+        setMaxLife(getHp(type));
         setXpReward(IscatWormSettings.XP_REWARD);
 
         BodyFixture fixture = addFixture(Geometry.createCircle(UU.pxToM(getRadius(type))));
@@ -58,7 +60,7 @@ public class IscatWormSegment extends LivingEntityModel implements Updatable {
 
     @Override
     public void update(double dt) {
-        updateStateTime(dt);
+        super.update(dt);
         updateCooldowns(dt);
     }
 
@@ -96,4 +98,32 @@ public class IscatWormSegment extends LivingEntityModel implements Updatable {
     private static int    getHp(Type t)     { return switch(t){ case HEAD->IscatWormSettings.HEAD_HP; case BODY->IscatWormSettings.BODY_HP; case TAIL->IscatWormSettings.TAIL_HP; }; }
     private static double getRadius(Type t) { return switch(t){ case HEAD->IscatWormSettings.HEAD_SCALE; case BODY->IscatWormSettings.BODY_SCALE; case TAIL->IscatWormSettings.TAIL_SCALE; } * IscatWormSettings.DIM_SPRITE / 2 * 0.85; }
     private static double getDamping(Type t){ return switch(t){ case HEAD->2.8; case BODY->4.2; case TAIL->5.5; }; }
+
+    private static GenericEntitySettings createSettings(Type type) {
+        GenericEntitySettings s = new GenericEntitySettings();
+        s.entityKey = "iscat_worm_" + type.name().toLowerCase();
+        s.behaviorType = GenericEntitySettings.BehaviorType.WORM;
+        s.frameW = (int) IscatWormSettings.DIM_SPRITE;
+        s.frameH = (int) IscatWormSettings.DIM_SPRITE;
+        s.dimSprite = IscatWormSettings.DIM_SPRITE;
+        s.spritePath = switch (type) {
+            case HEAD -> "/uni/gaben/iscat/sprites/enemies/iscat_worm_head.png";
+            case BODY -> "/uni/gaben/iscat/sprites/enemies/iscat_worm_body_part.png";
+            case TAIL -> "/uni/gaben/iscat/sprites/enemies/iscat_worm_tail.png";
+        };
+        s.scale = switch (type) {
+            case HEAD -> IscatWormSettings.HEAD_SCALE;
+            case BODY -> IscatWormSettings.BODY_SCALE;
+            case TAIL -> IscatWormSettings.TAIL_SCALE;
+        };
+        s.dampingLineare = getDamping(type);
+        s.maxVelocity = IscatWormSettings.HEAD_MAX_SPEED; // Approximated
+        s.force = IscatWormSettings.HEAD_FORCE;
+        return s;
+    }
+
+    @Override
+    public double getVisualAngularOffsetDeg() {
+        return 180.0;
+    }
 }

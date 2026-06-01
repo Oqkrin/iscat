@@ -18,4 +18,6 @@ public class HeartSettings {
     public static final double RANGE_ATTIVAZIONE = UU.pxToM(300.0);
     /** Velocità di "scatto" del cuore */
     public static final double VELOCITA_INSEGUIMENTO = 8.0;
+
+    public static final String sprite = "/uni/gaben/iscat/sprites/boosts/heart.png";
 }

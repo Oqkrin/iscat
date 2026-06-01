@@ -60,7 +60,10 @@ public class GenericEntitySettings extends EntitySettings {
     public enum BehaviorType {
         WANDER_SHOOT,
         RAM,
-        IDLE;
+        IDLE,
+        HEALER,
+        MASTER,
+        WORM;
 
         /**
          * Converte in modo sicuro una stringa nella costante enumerativa corrispondente.
@@ -71,6 +74,9 @@ public class GenericEntitySettings extends EntitySettings {
             return switch (s.trim().toUpperCase()) {
                 case "RAM"  -> RAM;
                 case "IDLE" -> IDLE;
+                case "HEALER" -> HEALER;
+                case "MASTER" -> MASTER;
+                case "WORM" -> WORM;
                 default     -> WANDER_SHOOT;
             };
         }

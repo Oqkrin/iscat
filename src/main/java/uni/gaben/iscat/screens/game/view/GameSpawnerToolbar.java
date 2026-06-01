@@ -51,7 +51,7 @@ public class GameSpawnerToolbar extends StackPane {
         genericContainer.setAlignment(Pos.BOTTOM_CENTER);
         genericContainer.setPadding(new Insets(4, 20, 4, 20));
 
-        Thread.ofVirtual().start(() -> {
+        Platform.runLater(() -> {
             List<GenericEntitySettings> enemies = IscatDB.getInstance().getEnemyDAO().findAll();
             Platform.runLater(() -> {
                 for (GenericEntitySettings s : enemies) {

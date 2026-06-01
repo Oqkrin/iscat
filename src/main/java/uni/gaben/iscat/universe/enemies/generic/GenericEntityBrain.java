@@ -7,7 +7,19 @@ import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.AlignmentModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.CohesionModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.SeparationModifier;
+import uni.gaben.iscat.universe.brain.actions.HealAction;
+import uni.gaben.iscat.universe.brain.actions.shoot.RandomizedShootAction;
+import uni.gaben.iscat.universe.lib.implementations.attacks.RepeaterAttack;
+import uni.gaben.iscat.universe.lib.implementations.attacks.SummonAttack;
+import uni.gaben.iscat.universe.lib.implementations.attacks.MultiDirectionAttack;
+import uni.gaben.iscat.universe.lib.implementations.attacks.SpreadAttack;
+import uni.gaben.iscat.universe.lib.implementations.attacks.FigureAttack;
+import uni.gaben.iscat.universe.UniverseSpawnable;
+import uni.gaben.iscat.universe.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.enemies.healer.IscatHealerSettings;
+import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -94,6 +106,51 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
             case IDLE -> {
                 // Comportamento: Stato di quiete vegetativa. Il MovementGoal.idle() è già applicato dal supercostruttore.
+            }
+
+            case HEALER -> {
+                setMovementGoal(MovementGoal.flee(Target.ofPlayer(), s.maxVelocity));
+                setRotationGoal(RotationGoal.movement());
+                addModifier(new SeparationModifier(Target.ofEntities(world ->
+                        world.getEntities().stream().filter(e -> e instanceof GenericEntityModel).map(e -> (GenericEntityModel) e).collect(Collectors.toList())),
+                        s.detectionRange / 3, 2.0));
+                addAction(new HealAction(
+                        IscatHealerSettings.HEAL_COOLDOWN_S,
+                        IscatHealerSettings.HEAL_RADIUS_M,
+                        IscatHealerSettings.HEAL_AMOUNT));
+            }
+
+            case MASTER -> {
+                setMovementGoal(MovementGoal.kite(Target.ofPlayer(), s.maxVelocity, s.preferredRange));
+                setRotationGoal(RotationGoal.target(Target.ofPlayer()));
+                
+                addAction(RandomizedShootAction.targetingPlayer(
+                    s.combatRange,
+                    s.fireCooldownS,
+                    ProjectileType.ENEMY_BULLET,
+                    true,
+                    new RepeaterAttack(3, new SummonAttack(1, UniverseSpawnable.ISCAT_HEALER, 0)),
+                    new RepeaterAttack(5, new MultiDirectionAttack(3, 45,
+                        new SpreadAttack((int) s.combatRange / 3, 180))),
+                    new RepeaterAttack(3, new FigureAttack(3, FigureAttack.FigureType.STAR))
+                ));
+            }
+
+            case WORM -> {
+                if (entity instanceof IscatWormSegment segment) {
+                    if (segment.getType() == IscatWormSegment.Type.HEAD) {
+                        setMovementGoal(MovementGoal.chase(Target.ofPlayer(), s.maxVelocity));
+                        setRotationGoal(RotationGoal.target(Target.ofPlayer()));
+                    } else {
+                        setMovementGoal(MovementGoal.chase(Target.ofEntities(w -> {
+                            if (segment.getPreviousSegment() != null) {
+                                return java.util.Collections.singletonList(segment.getPreviousSegment());
+                            }
+                            return java.util.Collections.emptyList();
+                        }), s.maxVelocity));
+                        setRotationGoal(RotationGoal.movement());
+                    }
+                }
             }
         }
     }

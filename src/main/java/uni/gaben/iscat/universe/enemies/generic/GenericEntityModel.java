@@ -7,6 +7,8 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasSprite;
+import uni.gaben.iscat.universe.lib.interfaces.model.HasShockwave;
+import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.utils.Updatable;
 
@@ -16,10 +18,11 @@ import uni.gaben.iscat.utils.Updatable;
  * configurazione geometrica, i coefficienti d'attrito, i parametri di movimento e le routine di danno
  * a un'istanza di {@link GenericEntitySettings} interamente popolata da database.
  */
-public class GenericEntityModel extends LivingEntityModel implements HasSprite {
+public class GenericEntityModel extends LivingEntityModel implements HasSprite, HasShockwave {
 
     /** Archivio dei parametri strutturali e biologici caricati dal database per questa entità. */
     private final GenericEntitySettings settings;
+    private final ShockwaveModel shockwaveModel = new ShockwaveModel();
 
     /**
      * Costruisce il corpo fisico e le proprietà logiche del nemico instanziandolo nel mondo di gioco.
@@ -83,6 +86,12 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite {
      */
     public void update(double dt) {
         updateStateTime(dt);
+        shockwaveModel.update(dt);
+    }
+
+    @Override
+    public ShockwaveModel shockwave() {
+        return shockwaveModel;
     }
 
     /**
