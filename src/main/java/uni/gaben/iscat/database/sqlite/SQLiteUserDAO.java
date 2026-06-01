@@ -64,43 +64,46 @@ public class SQLiteUserDAO implements UserDAO {
     @Override
     public boolean exists(String username) {
         String sql = "SELECT 1 FROM Utenti WHERE LOWER(Username) = LOWER(?)";
-
         try (Connection connection = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setString(1, username.trim());
+            stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante la verifica esistenza utente: " + username, e);
+            throw new RuntimeException("Errore durante la verifica di esistenza di: " + username, e);
         }
     }
 
     @Override
     public User create(String username, String rawPassword) {
-        String sql = "INSERT INTO Utenti (Username, Password, DateOfCreation) VALUES (?, ?, ?)";
-        String hashedPassword = PasswordHasher.hash(rawPassword);
+        String sql = """
+                INSERT INTO Utenti (Username, Password, DateOfCreation, LastLogin)
+                VALUES (?, ?, ?, ?)
+                """;
         LocalDateTime now = LocalDateTime.now();
+        String hashedPassword = PasswordHasher.hash(rawPassword);
 
         try (Connection connection = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setString(1, username.trim());
+            stmt.setString(1, username);
             stmt.setString(2, hashedPassword);
             stmt.setTimestamp(3, Timestamp.valueOf(now));
+            stmt.setTimestamp(4, Timestamp.valueOf(now));
             stmt.executeUpdate();
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int id = generatedKeys.getInt(1);
-                    return new User(id, username, hashedPassword, now, null);
+                    return new User(id, username, hashedPassword, now, now);
                 } else {
-                    throw new SQLException("Creazione utente fallita, nessun ID autogenerato ottenuto.");
+                    throw new SQLException("Creazione utente fallita, nessun ID generato.");
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante la registrazione utente: " + username, e);
+            throw new RuntimeException("Errore durante la creazione dell'utente: " + username, e);
         }
     }
 

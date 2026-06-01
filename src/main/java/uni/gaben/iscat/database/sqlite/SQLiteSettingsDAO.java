@@ -18,8 +18,7 @@ public class SQLiteSettingsDAO implements SettingsDAO {
     @Override
     public Optional<UserSettings> loadSettings(int userId) {
         String sql = "SELECT * FROM ImpostazioniUtenti WHERE UserID = ?";
-        try (Connection conn = IscatDB.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -45,7 +44,7 @@ public class SQLiteSettingsDAO implements SettingsDAO {
     @Override
     public void updateControl(int userId, String columnName, String newKey) {
         if (!isValidControlColumn(columnName)) {
-            throw new IllegalArgumentException("Nome della colonna di controllo non valido: " + columnName);
+            throw new IllegalArgumentException("Nome colonna non valido o non autorizzato: " + columnName);
         }
 
         String sql = "UPDATE ImpostazioniUtenti SET " + columnName + " = ? WHERE UserID = ?";
@@ -56,25 +55,20 @@ public class SQLiteSettingsDAO implements SettingsDAO {
             stmt.setInt(2, userId);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore aggiornamento controllo " + columnName + " per utente " + userId, e);
+            throw new RuntimeException("Errore durante l'aggiornamento del controllo " + columnName + " per utente: " + userId, e);
         }
     }
 
     @Override
     public void delete(int userId) {
         String deleteSettingsSql = "DELETE FROM ImpostazioniUtenti WHERE UserID = ?";
-        String deleteSavesSql    = "DELETE FROM Salvataggi WHERE UserID = ?";
+        String deleteSavesSql = "DELETE FROM Salvataggi WHERE UserID = ?";
         String deleteBestiarySql = "DELETE FROM BestiarioUtente WHERE UserID = ?";
-        String deleteUserSql     = "DELETE FROM Utenti WHERE ID = ?";
+        String deleteUserSql = "DELETE FROM Utenti WHERE ID = ?";
 
-        // Gestione transazionale nativa ed atomica per evitare record orfani in caso di crash intermedi
         try (Connection conn = IscatDB.getInstance().getConnection()) {
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false); // Inizio blocco transazionale atomico
             try {
-                try (PreparedStatement stmtBestiary = conn.prepareStatement(deleteBestiarySql)) {
-                    stmtBestiary.setInt(1, userId);
-                    stmtBestiary.executeUpdate();
-                }
                 try (PreparedStatement stmtSettings = conn.prepareStatement(deleteSettingsSql)) {
                     stmtSettings.setInt(1, userId);
                     stmtSettings.executeUpdate();
@@ -82,6 +76,10 @@ public class SQLiteSettingsDAO implements SettingsDAO {
                 try (PreparedStatement stmtSaves = conn.prepareStatement(deleteSavesSql)) {
                     stmtSaves.setInt(1, userId);
                     stmtSaves.executeUpdate();
+                }
+                try (PreparedStatement stmtBestiary = conn.prepareStatement(deleteBestiarySql)) {
+                    stmtBestiary.setInt(1, userId);
+                    stmtBestiary.executeUpdate();
                 }
                 try (PreparedStatement stmtUser = conn.prepareStatement(deleteUserSql)) {
                     stmtUser.setInt(1, userId);

@@ -33,47 +33,41 @@ public class SQLiteEnemyDAO implements EnemyDAO {
                 KillCount = KillCount + 1;
             """;
 
-        try (Connection conn = IscatDB.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setInt(1, userId);
             stmt.setString(2, normalizedKey);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore incrementKill per l'entità: " + entityKey, e);
+            throw new RuntimeException("Errore durante incrementKill per nemico: " + entityKey, e);
         }
     }
 
     @Override
     public List<BestiarioEntry> getBestiarioForUser(int userId) {
-        List<BestiarioEntry> bestiario = new ArrayList<>();
+        List<BestiarioEntry> list = new ArrayList<>();
         String sql = """
-            SELECT e.Name, e.Description, e.SpritePath, COALESCE(b.KillCount, 0) AS KillCount,
-                   CASE WHEN b.KillCount IS NOT NULL AND b.KillCount > 0 THEN 1 ELSE 0 END AS IsUnlocked
+            SELECT e.Name, e.Description, e.SpritePath, COALESCE(b.KillCount, 0) AS KillCount
             FROM Entita e
             LEFT JOIN BestiarioUtente b ON e.ID = b.EnemyID AND b.UserID = ?
-            ORDER BY e.Name ASC
+            ORDER BY e.ID ASC
             """;
 
-        try (Connection conn = IscatDB.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    bestiario.add(new BestiarioEntry(
-                            rs.getString("Name"),
-                            rs.getString("Description"),
-                            rs.getString("SpritePath"),
-                            rs.getInt("KillCount"),
-                            rs.getInt("IsUnlocked") == 1
-                    ));
+                    String name = rs.getString("Name");
+                    String description = rs.getString("Description");
+                    String spritePath = rs.getString("SpritePath");
+                    int killCount = rs.getInt("KillCount");
+                    boolean isUnlocked = killCount > 0;
+                    list.add(new BestiarioEntry(name, description, spritePath, killCount, isUnlocked));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore nel recupero del bestiario per l'utente: " + userId, e);
+            throw new RuntimeException("Errore nel caricamento del bestiario per utente: " + userId, e);
         }
-        return bestiario;
+        return list;
     }
 
     @Override
@@ -81,9 +75,7 @@ public class SQLiteEnemyDAO implements EnemyDAO {
         if (entityKey == null) return Optional.empty();
         String sql = "SELECT * FROM Entita WHERE LOWER(EntityKey) = ?";
 
-        try (Connection conn = IscatDB.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, entityKey.toLowerCase().trim());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -91,27 +83,25 @@ public class SQLiteEnemyDAO implements EnemyDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante findByKey per l'entità: " + entityKey, e);
+            throw new RuntimeException("Errore durante la ricerca del nemico tramite chiave: " + entityKey, e);
         }
         return Optional.empty();
     }
 
     @Override
     public List<GenericEntitySettings> findAll() {
-        List<GenericEntitySettings> entities = new ArrayList<>();
+        List<GenericEntitySettings> list = new ArrayList<>();
         String sql = "SELECT * FROM Entita ORDER BY ID ASC";
 
-        try (Connection conn = IscatDB.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
-
             while (rs.next()) {
-                entities.add(mapRow(rs));
+                list.add(mapRow(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante il recupero di tutte le entità", e);
+            throw new RuntimeException("Errore durante il recupero di tutte le entità nemici", e);
         }
-        return entities;
+        return list;
     }
 
     private GenericEntitySettings mapRow(ResultSet rs) throws SQLException {
@@ -143,10 +133,9 @@ public class SQLiteEnemyDAO implements EnemyDAO {
             try {
                 s.shapeType = GenericEntitySettings.ShapeType.valueOf(shapeTypeStr.toUpperCase().trim());
             } catch (IllegalArgumentException e) {
-                s.shapeType = GenericEntitySettings.ShapeType.CIRCLE; // Default di ripiego sicuro
+                s.shapeType = GenericEntitySettings.ShapeType.CIRCLE; // Fallback di sicurezza
             }
         }
-
         return s;
     }
 }

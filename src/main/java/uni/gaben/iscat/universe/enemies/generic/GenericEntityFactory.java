@@ -4,6 +4,7 @@ import uni.gaben.iscat.database.IscatDB;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -13,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Si occupa di assemblare la triade architetturale di un nemico generico:
  * - Modello Fisico ({@link GenericEntityModel})
  * - Intelligenza Artificiale/Cervello ({@link GenericEntityBrain})
- * - Rendering Grafico/Vista ({@link GenericEntityView})
  */
 public class GenericEntityFactory {
 
@@ -88,14 +88,17 @@ public class GenericEntityFactory {
             return cached;
         }
 
-        Optional<GenericEntitySettings> found = IscatDB.getInstance().getEnemyDAO().findByKey(entityKey);
-        if (found.isPresent()) {
-            GenericEntitySettings settings = found.get();
-            System.out.println("[GenericEntityFactory] Caricamento dinamico di '" + entityKey + "' eseguito dal database.");
-            cache.put(entityKey, settings);
-            return settings;
-        }
-
-        return null;
+        // Effettuiamo la query asincrona, trasformiamo il risultato e attendiamo la risposta
+        return IscatDB.getInstance().queryAsync(
+                () -> IscatDB.getInstance().getEnemyDAO().findByKey(entityKey)
+        ).thenApply(genericEntitySettings -> {
+            if (genericEntitySettings.isPresent()) {
+                GenericEntitySettings settings = genericEntitySettings.get();
+                System.out.println("[GenericEntityFactory] Caricamento dinamico di '" + entityKey + "' eseguito dal database.");
+                cache.put(entityKey, settings);
+                return settings; // Questo valore verrà incapsulato nel CompletableFuture
+            }
+            return null;
+        }).join(); // .join() blocca il thread corrente finché il DB non ha finito e restituisce il GenericEntitySettings (o null)
     }
 }

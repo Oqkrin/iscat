@@ -234,9 +234,9 @@ public class UniverseController {
                         // Persistenza sul database SQLite dell'utente autenticato
                         SessionUser user = SessionManager.getInstance().getCurrentUser();
                         if (user != null) {
-                            scoreDAO.increment(user.id(), "Deaths", 1);
+                            IscatDB.getInstance().executeAsync(() -> scoreDAO.increment(user.id(), "Deaths", 1));
                             if (!cleanKey.isEmpty()) {
-                                enemyDAO.incrementKill(user.id(), cleanKey);
+                                IscatDB.getInstance().executeAsync(() -> enemyDAO.incrementKill(user.id(), cleanKey));
                             }
                         }
                     }
