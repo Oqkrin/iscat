@@ -24,5 +24,6 @@ public interface ScoreDAO {
 
     /** Ottiene tutti gli score di tutti gli utenti per la leaderboard */
     List<UserScoreEntry> getAllScores();
+
     record UserScoreEntry(String username, int score) {}
 }

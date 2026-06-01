@@ -14,9 +14,7 @@ import java.util.Optional;
 
 public class SQLiteEnemyDAO implements EnemyDAO {
 
-    // Helper per ottenere connessione fresca
-    private Connection getConnection() {
-        return IscatDB.getInstance().getConnection();
+    public SQLiteEnemyDAO() {
     }
 
     @Override
@@ -33,124 +31,121 @@ public class SQLiteEnemyDAO implements EnemyDAO {
             )
             ON CONFLICT(UserID, EnemyID) DO UPDATE SET 
                 KillCount = KillCount + 1;
-        """;
+            """;
 
-        try (Connection conn = getConnection();
+        try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             stmt.setString(2, normalizedKey);
             stmt.executeUpdate();
-
         } catch (SQLException e) {
-            throw new RuntimeException("Errore incrementKill per userId: " + userId + ", key: " + normalizedKey, e);
+            throw new RuntimeException("Errore incrementKill per l'entità: " + entityKey, e);
         }
     }
 
     @Override
-    public List<EnemyDAO.BestiarioEntry> getBestiarioForUser(int userId) {
-        List<EnemyDAO.BestiarioEntry> list = new ArrayList<>();
-
+    public List<BestiarioEntry> getBestiarioForUser(int userId) {
+        List<BestiarioEntry> bestiario = new ArrayList<>();
         String sql = """
-            SELECT e.Name, e.Description, e.SpritePath, COALESCE(b.KillCount, 0) AS Kills
+            SELECT e.Name, e.Description, e.SpritePath, COALESCE(b.KillCount, 0) AS KillCount,
+                   CASE WHEN b.KillCount IS NOT NULL AND b.KillCount > 0 THEN 1 ELSE 0 END AS IsUnlocked
             FROM Entita e
             LEFT JOIN BestiarioUtente b ON e.ID = b.EnemyID AND b.UserID = ?
-            ORDER BY e.ID ASC;
-        """;
+            ORDER BY e.Name ASC
+            """;
 
-        try (Connection conn = getConnection();
+        try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    int kills = rs.getInt("Kills");
-                    boolean unlocked = kills > 0;
-
-                    String name = unlocked ? rs.getString("Name") : "???";
-                    String desc = unlocked ? rs.getString("Description") : "Sconfiggi questo nemico nell'universo per sbloccare i suoi dati.";
-                    String sprite = rs.getString("SpritePath");
-
-                    list.add(new EnemyDAO.BestiarioEntry(name, desc, sprite, kills, unlocked));
+                    bestiario.add(new BestiarioEntry(
+                            rs.getString("Name"),
+                            rs.getString("Description"),
+                            rs.getString("SpritePath"),
+                            rs.getInt("KillCount"),
+                            rs.getInt("IsUnlocked") == 1
+                    ));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore getBestiarioForUser per userId: " + userId, e);
+            throw new RuntimeException("Errore nel recupero del bestiario per l'utente: " + userId, e);
         }
-        return list;
+        return bestiario;
     }
 
     @Override
     public Optional<GenericEntitySettings> findByKey(String entityKey) {
         if (entityKey == null) return Optional.empty();
-        String normalizedKey = entityKey.toLowerCase().trim();
+        String sql = "SELECT * FROM Entita WHERE LOWER(EntityKey) = ?";
 
-        String sql = "SELECT * FROM Entita WHERE LOWER(TRIM(EntityKey)) = ?";
-
-        try (Connection conn = getConnection();
+        try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, normalizedKey);
+            stmt.setString(1, entityKey.toLowerCase().trim());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapRow(rs));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore findByKey per entityKey: " + normalizedKey, e);
+            throw new RuntimeException("Errore durante findByKey per l'entità: " + entityKey, e);
         }
         return Optional.empty();
     }
 
     @Override
     public List<GenericEntitySettings> findAll() {
-        String sql = "SELECT * FROM Entita";
-        List<GenericEntitySettings> results = new ArrayList<>();
+        List<GenericEntitySettings> entities = new ArrayList<>();
+        String sql = "SELECT * FROM Entita ORDER BY ID ASC";
 
         try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                results.add(mapRow(rs));
+                entities.add(mapRow(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore findAll", e);
+            throw new RuntimeException("Errore durante il recupero di tutte le entità", e);
         }
-        return results;
+        return entities;
     }
 
-    /**
-     * Converte la riga corrente di un ResultSet nell'oggetto di configurazione tipizzato.
-     */
     private GenericEntitySettings mapRow(ResultSet rs) throws SQLException {
         GenericEntitySettings s = new GenericEntitySettings();
 
-        s.entityKey   = rs.getString("EntityKey");
-        s.name        = rs.getString("Name");
-        s.description = rs.getString("Description");
+        s.entityKey      = rs.getString("EntityKey");
+        s.name           = rs.getString("Name");
+        s.description    = rs.getString("Description");
+        s.spritePath     = rs.getString("SpritePath");
+        s.frameW         = rs.getInt("FrameW");
+        s.frameH         = rs.getInt("FrameH");
+        s.initLife       = rs.getDouble("InitLife");
+        s.dimSprite      = rs.getInt("FrameW");
+        s.scale          = rs.getDouble("Scale");
+        s.dampingLineare = rs.getDouble("LinearDamping");
+        s.maxVelocity    = rs.getDouble("MaxVelocity");
+        s.force          = rs.getDouble("Force");
+        s.rotationSpeed  = rs.getDouble("RotationSpeed");
+        s.xpReward       = rs.getInt("XPReward");
+        s.detectionRange = rs.getDouble("DetectionRange");
+        s.combatRange    = rs.getDouble("CombatRange");
+        s.preferredRange = rs.getDouble("PreferredRange");
+        s.fireCooldownS  = rs.getDouble("FireCooldownS");
+        s.customParam1   = rs.getDouble("CustomParam1");
+        s.customParam2   = rs.getDouble("CustomParam2");
 
-        s.spritePath  = rs.getString("SpritePath");
-        s.frameW      = rs.getInt("FrameW");
-        s.frameH      = rs.getInt("FrameH");
-
-        s.initLife        = rs.getDouble("InitLife");
-        s.dimSprite       = rs.getInt("FrameW");
-        s.scale           = rs.getDouble("Scale");
-        s.dampingLineare  = rs.getDouble("LinearDamping");
-        s.maxVelocity     = rs.getDouble("MaxVelocity");
-        s.force           = rs.getDouble("Force");
-        s.rotationSpeed   = rs.getDouble("RotationSpeed");
-        s.xpReward        = rs.getInt("XPReward");
-        s.detectionRange  = rs.getDouble("DetectionRange");
-        s.combatRange     = rs.getDouble("CombatRange");
-        s.preferredRange  = rs.getDouble("PreferredRange");
-        s.fireCooldownS   = rs.getDouble("FireCooldownS");
-        s.customParam1    = rs.getDouble("CustomParam1");
-        s.customParam2    = rs.getDouble("CustomParam2");
-
-        s.shapeType    = GenericEntitySettings.ShapeType.fromString(rs.getString("ShapeType"));
-        s.behaviorType = GenericEntitySettings.BehaviorType.fromString(rs.getString("BehaviorType"));
+        String shapeTypeStr = rs.getString("ShapeType");
+        if (shapeTypeStr != null) {
+            try {
+                s.shapeType = GenericEntitySettings.ShapeType.valueOf(shapeTypeStr.toUpperCase().trim());
+            } catch (IllegalArgumentException e) {
+                s.shapeType = GenericEntitySettings.ShapeType.CIRCLE; // Default di ripiego sicuro
+            }
+        }
 
         return s;
     }

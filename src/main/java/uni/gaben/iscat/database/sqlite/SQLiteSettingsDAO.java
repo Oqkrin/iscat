@@ -12,16 +12,15 @@ import java.util.Optional;
 
 public class SQLiteSettingsDAO implements SettingsDAO {
 
-    // Helper per ottenere connessione fresca
-    private Connection getConnection() throws SQLException {
-        return IscatDB.getInstance().getConnection();
+    public SQLiteSettingsDAO() {
     }
 
     @Override
     public Optional<UserSettings> loadSettings(int userId) {
         String sql = "SELECT * FROM ImpostazioniUtenti WHERE UserID = ?";
-        try (Connection conn = getConnection();
+        try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -45,60 +44,76 @@ public class SQLiteSettingsDAO implements SettingsDAO {
 
     @Override
     public void updateControl(int userId, String columnName, String newKey) {
-        // Whitelist per evitare SQL Injection
-        if (!columnName.matches("(?i)WalkUp|WalkDown|WalkLeft|WalkRight|Dash1|Dash2|PauseGame")) return;
+        if (!isValidControlColumn(columnName)) {
+            throw new IllegalArgumentException("Nome della colonna di controllo non valido: " + columnName);
+        }
 
         String sql = "UPDATE ImpostazioniUtenti SET " + columnName + " = ? WHERE UserID = ?";
-        try (Connection conn = getConnection();
+        try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, newKey);
             stmt.setInt(2, userId);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore updateControl per userId: " + userId, e);
+            throw new RuntimeException("Errore aggiornamento controllo " + columnName + " per utente " + userId, e);
         }
     }
 
     @Override
     public void delete(int userId) {
         String deleteSettingsSql = "DELETE FROM ImpostazioniUtenti WHERE UserID = ?";
-        String deleteSavesSql = "DELETE FROM Salvataggi WHERE UserID = ?";
-        String deleteUserSql = "DELETE FROM Utenti WHERE ID = ?";
+        String deleteSavesSql    = "DELETE FROM Salvataggi WHERE UserID = ?";
+        String deleteBestiarySql = "DELETE FROM BestiarioUtente WHERE UserID = ?";
+        String deleteUserSql     = "DELETE FROM Utenti WHERE ID = ?";
 
-        try (Connection conn = getConnection()) {
-            // Elimina le impostazioni dei controlli
-            try (PreparedStatement stmtSettings = conn.prepareStatement(deleteSettingsSql)) {
-                stmtSettings.setInt(1, userId);
-                stmtSettings.executeUpdate();
+        // Gestione transazionale nativa ed atomica per evitare record orfani in caso di crash intermedi
+        try (Connection conn = IscatDB.getInstance().getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement stmtBestiary = conn.prepareStatement(deleteBestiarySql)) {
+                    stmtBestiary.setInt(1, userId);
+                    stmtBestiary.executeUpdate();
+                }
+                try (PreparedStatement stmtSettings = conn.prepareStatement(deleteSettingsSql)) {
+                    stmtSettings.setInt(1, userId);
+                    stmtSettings.executeUpdate();
+                }
+                try (PreparedStatement stmtSaves = conn.prepareStatement(deleteSavesSql)) {
+                    stmtSaves.setInt(1, userId);
+                    stmtSaves.executeUpdate();
+                }
+                try (PreparedStatement stmtUser = conn.prepareStatement(deleteUserSql)) {
+                    stmtUser.setInt(1, userId);
+                    stmtUser.executeUpdate();
+                }
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
             }
-
-            // Elimina i salvataggi
-            try (PreparedStatement stmtSaves = conn.prepareStatement(deleteSavesSql)) {
-                stmtSaves.setInt(1, userId);
-                stmtSaves.executeUpdate();
-            }
-
-            // Elimina l'utente dalla tabella principale
-            try (PreparedStatement stmtUser = conn.prepareStatement(deleteUserSql)) {
-                stmtUser.setInt(1, userId);
-                stmtUser.executeUpdate();
-            }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Errore delete per userId: " + userId, e);
+            throw new RuntimeException("Errore durante l'eliminazione a cascata dell'utente: " + userId, e);
         }
     }
 
     @Override
     public void createDefault(int userId) {
-        String sql = "INSERT OR IGNORE INTO ImpostazioniUtenti (UserID, WalkUp, WalkDown, WalkLeft, WalkRight, Dash1, Dash2, PauseGame) " +
-                "VALUES (?, 'W', 'S', 'A', 'D', 'Q', 'E', 'P')";
-        try (Connection conn = getConnection();
+        String sql = """
+            INSERT OR IGNORE INTO ImpostazioniUtenti 
+            (UserID, WalkUp, WalkDown, WalkLeft, WalkRight, Dash1, Dash2, PauseGame) 
+            VALUES (?, 'W', 'S', 'A', 'D', 'Q', 'E', 'P')
+            """;
+        try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore createDefault per userId: " + userId, e);
+            throw new RuntimeException("Errore durante la creazione delle impostazioni predefinite per utente: " + userId, e);
         }
+    }
+
+    private boolean isValidControlColumn(String column) {
+        return column != null && column.matches("(?i)WalkUp|WalkDown|WalkLeft|WalkRight|Dash1|Dash2|PauseGame");
     }
 }
