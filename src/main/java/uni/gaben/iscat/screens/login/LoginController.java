@@ -15,14 +15,9 @@ import uni.gaben.iscat.utils.SessionManager;
 
 import java.util.Optional;
 
-/**
- * Controller ottimizzato per la schermata di login.
- * Protegge il thread grafico di JavaFX delegando le operazioni sul database SQLite
- * al thread pool asincrono di IscatDB.
- */
 public class LoginController {
 
-    private static final int MAX_INPUT_LENGTH = 20; // Previene rotture di layout
+    private static final int MAX_INPUT_LENGTH = 20;
 
     private final LoginModel model;
     private final LoginAuth loginAuth;
@@ -54,19 +49,12 @@ public class LoginController {
 
     public void onKeyTyped(KeyEvent e) {
         String character = e.getCharacter();
-        if (character == null || character.isEmpty() || character.charAt(0) < 32 || character.charAt(0) == 127 || character.charAt(0) == 27) {
-            return;
-        }
+        if (character == null || character.isEmpty() || character.charAt(0) < 32 || character.charAt(0) == 127 || character.charAt(0) == 27) return;
 
-        // Controllo della lunghezza massima per salvaguardare la UI
         if (currentLoginState == LoginState.USERNAME) {
-            if (usernameBuffer.length() < MAX_INPUT_LENGTH) {
-                usernameBuffer.append(character);
-            }
+            if (usernameBuffer.length() < MAX_INPUT_LENGTH) usernameBuffer.append(character);
         } else {
-            if (passwordBuffer.length() < MAX_INPUT_LENGTH) {
-                passwordBuffer.append(character);
-            }
+            if (passwordBuffer.length() < MAX_INPUT_LENGTH) passwordBuffer.append(character);
         }
         updateDisplay();
         checkUserExistenceAsync();
@@ -74,16 +62,10 @@ public class LoginController {
 
     private void onBackspace() {
         if (currentLoginState == LoginState.USERNAME) {
-            if (!usernameBuffer.isEmpty()) {
-                usernameBuffer.setLength(usernameBuffer.length() - 1);
-            }
+            if (!usernameBuffer.isEmpty()) usernameBuffer.setLength(usernameBuffer.length() - 1);
         } else {
-            if (!passwordBuffer.isEmpty()) {
-                passwordBuffer.setLength(passwordBuffer.length() - 1);
-            } else {
-                backToUsername();
-                return;
-            }
+            if (!passwordBuffer.isEmpty()) passwordBuffer.setLength(passwordBuffer.length() - 1);
+            else { backToUsername(); return; }
         }
         updateDisplay();
         checkUserExistenceAsync();
@@ -91,10 +73,9 @@ public class LoginController {
 
     private void onEnter() {
         if (currentLoginState == LoginState.USERNAME) {
-            String u = usernameBuffer.toString().trim();
-            if (!u.isEmpty()) {
+            if (!usernameBuffer.toString().trim().isEmpty()) {
                 model.setLoginState(true);
-                checkUserExistenceAsync(); // Forza aggiornamento stato scendendo sul campo pass
+                checkUserExistenceAsync();
             }
         } else {
             submitLoginAsync();
@@ -102,9 +83,7 @@ public class LoginController {
     }
 
     private void onEscape() {
-        if (currentLoginState == LoginState.PASSWORD) {
-            backToUsername();
-        }
+        if (currentLoginState == LoginState.PASSWORD) backToUsername();
     }
 
     private void backToUsername() {
@@ -114,10 +93,6 @@ public class LoginController {
         checkUserExistenceAsync();
     }
 
-    /**
-     * Controlla l'esistenza dell'utente in modo ASINCRONO.
-     * Evita microscatti dell'interfaccia grafica durante la digitazione.
-     */
     private void checkUserExistenceAsync() {
         String u = usernameBuffer.toString().trim();
         if (u.isEmpty()) {
@@ -126,67 +101,50 @@ public class LoginController {
             return;
         }
 
-        // Interroghiamo il DB sul thread pool dedicato
-        IscatDB.getInstance().queryAsync(() -> loginAuth.exists(u))
-                .thenAccept(exists -> Platform.runLater(() -> {
-                    // Ritorniamo sul thread di JavaFX per aggiornare il modello della UI
-                    model.setUserExists(exists);
-                    if (currentLoginState == LoginState.USERNAME) {
-                        model.setStatus(exists ? "giocatore esistente (premi INVIO)" : "nuovo giocatore (premi INVIO)");
-                    } else {
-                        model.setStatus(exists ? "inserisci password" : "crea nuova password");
-                    }
-                }));
+        loginAuth.exists(u).thenAccept(exists -> Platform.runLater(() -> {
+            model.setUserExists(exists);
+            model.setStatus(currentLoginState == LoginState.USERNAME
+                    ? (exists ? "giocatore esistente (premi INVIO)" : "nuovo giocatore (premi INVIO)")
+                    : (exists ? "inserisci password" : "crea nuova password"));
+        }));
     }
 
-    /**
-     * Avvia il processo pesante di Login/Registrazione e caricamento dati in background.
-     */
     private void submitLoginAsync() {
         String u = usernameBuffer.toString().trim();
         String p = passwordBuffer.toString();
 
         if (p.isEmpty() || model.isLoggedIn()) return;
-
         model.setStatus("ELABORAZIONE IN CORSO...");
 
-        // Spostiamo l'intera catena di query I/O sul thread asincrono del database
-        IscatDB.getInstance().queryAsync(() -> {
-            boolean userExists = loginAuth.exists(u);
-            Optional<SessionUser> sessionOpt = userExists ? loginAuth.login(u, p) : loginAuth.register(u, p);
+        // Chaining the async operations to avoid type mismatches
+        loginAuth.exists(u).thenCompose(userExists -> {
+            if (userExists) return loginAuth.login(u, p);
+            else return loginAuth.register(u, p);
+        }).thenApply(sessionOpt -> {
+            if (sessionOpt.isEmpty()) return new LoginResult("Credenziali errate o errore di registrazione");
 
-            if (sessionOpt.isPresent()) {
-                SessionUser user = sessionOpt.get();
+            SessionUser user = sessionOpt.get();
+            // Load associated data
+            UserSettings settings = settingsDAO.loadSettings(user.id()).orElseGet(() -> {
+                settingsDAO.createDefault(user.id());
+                return settingsDAO.loadSettings(user.id()).orElse(null);
+            });
+            scoreDAO.createIfNotExists(user.id());
+            SaveData saveData = scoreDAO.load(user.id()).orElse(new SaveData(user.id(), 0, 0, 0, 0, 0));
 
-                // Sincronizzazione atomica dei dati dell'utente
-                UserSettings settings = settingsDAO.loadSettings(user.id()).orElseGet(() -> {
-                    settingsDAO.createDefault(user.id());
-                    return settingsDAO.loadSettings(user.id()).orElse(null);
-                });
-
-                scoreDAO.createIfNotExists(user.id());
-                SaveData saveData = scoreDAO.load(user.id()).orElse(new SaveData(user.id(), 0, 0, 0, 0, 0));
-
-                // Restituiamo un pacchetto completo contenente tutto il necessario per la sessione
-                return new LoginResult(user, settings, saveData, userExists ? "ACCESSO EFFETTUATO!" : "REGISTRAZIONE COMPLETATA!");
-            }
-            return new LoginResult(userExists ? "password errata" : "errore di registrazione");
+            return new LoginResult(user, settings, saveData, "ACCESSO EFFETTUATO!");
         }).thenAccept(result -> Platform.runLater(() -> {
-            // Torniamo sul thread di JavaFX per applicare i risultati alla sessione e alla UI
             if (result.isSuccess()) {
-                model.setStatus(result.message());
-
-                // Iniettiamo i dati nel SessionManager in modo sicuro
                 SessionManager.getInstance().setCurrentUser(result.user());
                 SessionManager.getInstance().setCurrentSettings(result.settings());
                 SessionManager.getInstance().setCurrentSaveData(result.saveData());
-
+                model.setStatus(result.message());
                 model.setLoggedIn(true);
             } else {
                 handleError(result.message());
             }
         })).exceptionally(ex -> {
-            Platform.runLater(() -> handleError("Errore di connessione al database"));
+            Platform.runLater(() -> handleError("Errore di connessione"));
             return null;
         });
     }
@@ -216,13 +174,9 @@ public class LoginController {
 
     /** Record DTO interno per trasportare in sicurezza i dati letti dal thread DB al thread UI. */
     private record LoginResult(SessionUser user, UserSettings settings, SaveData saveData, String message, boolean isSuccess) {
-        // Costruttore per esito positivo
-        public LoginResult(SessionUser user, UserSettings settings, SaveData saveData, String message) {
-            this(user, settings, saveData, message, true);
-        }
-        // Costruttore per esito negativo
-        public LoginResult(String errorMessage) {
-            this(null, null, null, errorMessage, false);
-        }
+        public LoginResult(SessionUser u, UserSettings s, SaveData d, String m) { this(u, s, d, m, true); }
+        public LoginResult(String err) { this(null, null, null, err, false); }
     }
+
+
 }

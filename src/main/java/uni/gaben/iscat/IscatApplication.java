@@ -1,6 +1,7 @@
 package uni.gaben.iscat;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -48,7 +49,8 @@ public class IscatApplication extends Application {
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
         db.init();
-        GenericEntityFactory.preloadAllAsync();
+
+        Platform.runLater(GenericEntityFactory::preloadAllAsync);
         IscatNavigator.getInstance().initialize(iscatModel);
         AudioManager.getInstance().loadDefaultAudio();
     }
