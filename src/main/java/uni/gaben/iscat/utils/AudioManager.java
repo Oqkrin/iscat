@@ -3,6 +3,8 @@ package uni.gaben.iscat.utils;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.screens.login.model.UserSettings;
 
 import java.net.URI;
 import java.nio.file.*;
@@ -33,34 +35,70 @@ public class AudioManager {
     private String currentBgmPath = "";
     private final Map<String, AudioClip> sfxMap = new HashMap<>();
 
-    private double bgmVolume = AudioSettings.VOLUME_BGM;
-    private double sfxVolume = AudioSettings.VOLUME_SFX;
-
-    // --- Volumi ---
+    // --- Volumi e Canali ---
 
     /**
      * Sincronizza i volumi interni con quelli correnti in AudioSettings.
      * Da chiamare dopo un caricamento massivo dei settings da file.
      */
     public void syncVolumes() {
-        bgmVolume = AudioSettings.VOLUME_BGM;
-        sfxVolume = AudioSettings.VOLUME_SFX;
-        if (bgmPlayer != null) {
-            bgmPlayer.setVolume(bgmVolume);
+        updateBgmPlayerVolume();
+    }
+
+    public double getMasterVolume() {
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        return (settings != null) ? settings.getVolumeMaster() : 1.0;
+    }
+
+    public void setMasterVolume(double volume) {
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        if (settings != null) {
+            settings.setVolumeMaster(volume);
+            IscatDB.getInstance().executeAsync(() ->
+                    IscatDB.getInstance().getSettingsDAO().updateVolume(settings.getUserId(), "MasterVolume", volume)
+            );
         }
+        updateBgmPlayerVolume();
+    }
+
+    public double getBgmVolume() {
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        return (settings != null) ? settings.getVolumeBgm() : 1.0;
     }
 
     public void setBgmVolume(double volume) {
-        bgmVolume = volume;
-        AudioSettings.VOLUME_BGM = volume;
-        if (bgmPlayer != null) {
-            bgmPlayer.setVolume(volume);
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        if (settings != null) {
+            settings.setVolumeBgm(volume);
+            IscatDB.getInstance().executeAsync(() ->
+                    IscatDB.getInstance().getSettingsDAO().updateVolume(settings.getUserId(), "BGMVolume", volume)
+            );
         }
+        updateBgmPlayerVolume();
+    }
+
+    public double getSfxVolume() {
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        return (settings != null) ? settings.getVolumeSfx() : 0.3;
     }
 
     public void setSfxVolume(double volume) {
-        sfxVolume = volume;
-        AudioSettings.VOLUME_SFX = volume;
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        if (settings != null) {
+            settings.setVolumeSfx(volume);
+            IscatDB.getInstance().executeAsync(() ->
+                    IscatDB.getInstance().getSettingsDAO().updateVolume(settings.getUserId(), "SFXVolume", volume)
+            );
+        }
+    }
+
+    /**
+     * Helper interno per calcolare e aggiornare il volume reale del BGM (Canale * Master)
+     */
+    private void updateBgmPlayerVolume() {
+        if (bgmPlayer != null) {
+            bgmPlayer.setVolume(getBgmVolume() * getMasterVolume());
+        }
     }
 
     // --- BGM ---
@@ -72,7 +110,6 @@ public class AudioManager {
      * @param loop {@code true} per riproduzione in loop
      */
     public void playBGM(String path, boolean loop) {
-        // controlliamo se deve venir riprodotto lo stesso brano, se è lo stesso non facciamo nulla
         if (currentBgmPath != null && currentBgmPath.equals(path) && bgmPlayer != null) {
             return;
         }
@@ -83,7 +120,10 @@ public class AudioManager {
                     "Risorsa BGM non trovata: " + path
             );
             bgmPlayer = new MediaPlayer(new Media(url.toExternalForm()));
-            bgmPlayer.setVolume(bgmVolume);
+
+            // Applica il volume combinato BGM * Master
+            updateBgmPlayerVolume();
+
             if (loop) {
                 bgmPlayer.setCycleCount(MediaPlayer.INDEFINITE);
             }
@@ -108,17 +148,11 @@ public class AudioManager {
 
     // --- SFX ---
 
-    // Mappa per tracciare il timestamp (in millisecondi) dell'ultima riproduzione di ogni SFX
     private final Map<String, Long> lastPlayedMap = new HashMap<>();
-
-    // Cooldown minimo di default tra due SFX identici (in millisecondi) per evitare clipping
     private static final long DEFAULT_COOLDOWN_MS = 30;
 
     /**
      * Carica tutti i file .wav presenti nella cartella delle risorse indicata.
-     * Il nome del file (senza estensione) viene usato come chiave nella mappa SFX.
-     *
-     * @param directoryPath path della cartella risorse (es. "/uni/gaben/iscat/audio/SFX")
      */
     public void loadAllSFX(String directoryPath) {
         try {
@@ -176,7 +210,7 @@ public class AudioManager {
     }
 
     /**
-     * Riproduce un SFX applicando un filtro anti-baccano (Throttling)
+     * Riproduce un SFX applicando un filtro anti-baccano (Throttling) e calcolando il volume reale.
      *
      * @param name chiave identificativa dell'SFX (es. "shoot")
      */
@@ -197,7 +231,8 @@ public class AudioManager {
         }
 
         lastPlayedMap.put(name, now);
-        clip.play(sfxVolume);
+
+        clip.play(getSfxVolume() * getMasterVolume());
     }
 
     /**
@@ -209,7 +244,6 @@ public class AudioManager {
 
     // --- Utility ---
 
-    /** Rimuove l'estensione da un nome di file. */
     private static String stripExtension(String fileName) {
         int dot = fileName.lastIndexOf('.');
         return dot > 0 ? fileName.substring(0, dot) : fileName;

@@ -11,11 +11,19 @@ public class OptionAudioController {
 
     @FXML
     public void initialize() {
+        AudioManager am = AudioManager.getInstance();
+
+        masterSlider.setValue(am.getMasterVolume());
+        BGMSlider.setValue(am.getBgmVolume());
+        SFXSlider.setValue(am.getSfxVolume());
+
         masterSlider.valueProperty().addListener((obs, old, val) ->
-                AudioManager.getInstance().setBgmVolume(val.doubleValue()));
+                am.setMasterVolume(val.doubleValue()));
+
         BGMSlider.valueProperty().addListener((obs, old, val) ->
-                AudioManager.getInstance().setBgmVolume(val.doubleValue()));
+                am.setBgmVolume(val.doubleValue()));
+
         SFXSlider.valueProperty().addListener((obs, old, val) ->
-                AudioManager.getInstance().setSfxVolume(val.doubleValue()));
+                am.setSfxVolume(val.doubleValue()));
     }
 }

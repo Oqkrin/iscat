@@ -16,4 +16,7 @@ public interface SettingsDAO {
 
     /** Crea impostazioni di default per un nuovo utente (se necessario) */
     void createDefault(int userId);
+
+    /** Aggiorna un singolo canale audio */
+    void updateVolume(int userId, String columnName, double volumeValue);
 }

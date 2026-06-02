@@ -11,7 +11,13 @@ public class UserSettings {
     private String dash2;
     private String pauseGame;
 
-    public UserSettings(int userId, String walkUp, String walkDown, String walkLeft, String walkRight, String attack, String dash1, String dash2, String pauseGame) {
+    private double volumeMaster;
+    private double volumeBgm;
+    private double volumeSfx;
+
+    public UserSettings(int userId, String walkUp, String walkDown, String walkLeft, String walkRight,
+                        String attack, String dash1, String dash2, String pauseGame,
+                        double volumeMaster, double volumeBgm, double volumeSfx) {
         this.userId = userId;
         this.walkUp = walkUp;
         this.walkDown = walkDown;
@@ -21,6 +27,9 @@ public class UserSettings {
         this.dash1 = dash1;
         this.dash2 = dash2;
         this.pauseGame = pauseGame;
+        this.volumeMaster = volumeMaster;
+        this.volumeBgm = volumeBgm;
+        this.volumeSfx = volumeSfx;
     }
 
     public int getUserId() { return userId; }
@@ -48,4 +57,13 @@ public class UserSettings {
 
     public String getPauseGame() { return pauseGame; }
     public void setPauseGame(String pauseGame) { this.pauseGame = pauseGame; }
+
+    public double getVolumeMaster() { return volumeMaster; }
+    public void setVolumeMaster(double volumeMaster) { this.volumeMaster = volumeMaster; }
+
+    public double getVolumeBgm() { return volumeBgm; }
+    public void setVolumeBgm(double volumeBgm) { this.volumeBgm = volumeBgm; }
+
+    public double getVolumeSfx() { return volumeSfx; }
+    public void setVolumeSfx(double volumeSfx) { this.volumeSfx = volumeSfx; }
 }

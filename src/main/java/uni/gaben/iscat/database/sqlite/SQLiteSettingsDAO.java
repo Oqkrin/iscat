@@ -23,6 +23,10 @@ public class SQLiteSettingsDAO implements SettingsDAO {
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    double master = rs.getInt("MasterVolume") / 100.0;
+                    double bgm = rs.getInt("BGMVolume") / 100.0;
+                    double sfx = rs.getInt("SFXVolume") / 100.0;
+
                     return Optional.of(new UserSettings(
                             rs.getInt("UserID"),
                             rs.getString("WalkUp"),
@@ -32,7 +36,10 @@ public class SQLiteSettingsDAO implements SettingsDAO {
                             rs.getString("Attack"),
                             rs.getString("Dash1"),
                             rs.getString("Dash2"),
-                            rs.getString("PauseGame")
+                            rs.getString("PauseGame"),
+                            master,
+                            bgm,
+                            sfx
                     ));
                 }
             }
@@ -40,6 +47,26 @@ public class SQLiteSettingsDAO implements SettingsDAO {
             throw new RuntimeException("Errore loadSettings per userId: " + userId, e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public void updateVolume(int userId, String columnName, double volumeValue) {
+        if (!isValidVolumeColumn(columnName)) {
+            throw new IllegalArgumentException("Nome colonna audio non valido: " + columnName);
+        }
+
+        int dbVolumeValue = (int) Math.round(volumeValue * 100);
+
+        String sql = "UPDATE ImpostazioniUtenti SET " + columnName + " = ? WHERE UserID = ?";
+        try (Connection conn = IscatDB.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, dbVolumeValue);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante l'aggiornamento del volume " + columnName + " per utente: " + userId, e);
+        }
     }
 
     @Override
@@ -100,8 +127,11 @@ public class SQLiteSettingsDAO implements SettingsDAO {
     public void createDefault(int userId) {
         String sql = """
         INSERT OR IGNORE INTO ImpostazioniUtenti 
-        (UserID, WalkUp, WalkDown, WalkLeft, WalkRight,Attack, Dash1, Dash2 , PauseGame) 
-        VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'Q', 'E', 'P')
+        (UserID, WalkUp, WalkDown, WalkLeft, WalkRight, 
+               Attack, Dash1, Dash2, PauseGame, 
+               MasterVolume, BGMVolume, SFXVolume, 
+               Scale, ShowFPS, Fullscreen) 
+        VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'Q', 'E', 'P', 50, 50, 30, 50, 0, 1)
         """;
         try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -114,5 +144,9 @@ public class SQLiteSettingsDAO implements SettingsDAO {
 
     private boolean isValidControlColumn(String column) {
         return column != null && column.matches("(?i)WalkUp|WalkDown|WalkLeft|WalkRight|Dash1|Dash2|Attack|PauseGame");
+    }
+
+    private boolean isValidVolumeColumn(String column) {
+        return column != null && column.matches("(?i)MasterVolume|BGMVolume|SFXVolume");
     }
 }
