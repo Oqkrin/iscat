@@ -15,6 +15,7 @@ import uni.gaben.iscat.universe.brain.goals.MovementGoal;
 import uni.gaben.iscat.universe.brain.goals.RotationGoal;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.brain.modifiers.BoundaryAvoidanceModifier;
+import uni.gaben.iscat.universe.brain.modifiers.ObstaclesAvoidanceModifier;
 import uni.gaben.iscat.universe.brain.modifiers.ProjectileAvoidanceModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.AlignmentModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.CohesionModifier;
@@ -58,32 +59,27 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 entity.getSettings().force,
                 entity.getSettings().maxVelocity,
                 entity.getSettings().rotationSpeed);
-        ;
+
 
         GenericEntitySettings s = entity.getSettings();
 
-        // Flocking Target using broad‑phase detection
-        Target flock = universe -> {
-            AABB myAABB = entity.createAABB();
-            double range = s.detectionRange;  // in meters (convert if needed)
-            AABB expanded = new AABB(
-                    myAABB.getMinX() - range,
-                    myAABB.getMinY() - range,
-                    myAABB.getMaxX() + range,
-                    myAABB.getMaxY() + range
-            );
-            List<DetectResult<Body, BodyFixture>> items = universe.detect(expanded, new DetectFilter<>(true, true, null));
-            List<AbstractEntityModel> neighbours = new ArrayList<>();
-            for (DetectResult<Body, BodyFixture> item : items) {
-                neighbours.add((AbstractEntityModel) item.getBody());
-            }
-            return neighbours;
-        };
 
-        addModifier(new CohesionModifier(flock, s.detectionRange, 1));
-        addModifier(new AlignmentModifier(flock, s.detectionRange, 1));
-        addModifier(new SeparationModifier(flock, s.detectionRange / 2, 1.8));
-        addModifier(new ProjectileAvoidanceModifier(s.detectionRange, s.force));
-        addModifier(new BoundaryAvoidanceModifier());
+        addModifier(
+                new CohesionModifier(Target.neighbours(entity, s.detectionRange, new DetectFilter<>(true, true, null)),
+                        1));
+
+        addModifier(
+                new AlignmentModifier(Target.neighbours(entity, s.detectionRange, new DetectFilter<>(true, true, null)),
+                        1));
+
+        addModifier(
+                new SeparationModifier(Target.neighbours(entity, s.detectionRange/2, new DetectFilter<>(true, true, null)),
+                        1.7));
+
+        addModifier(
+                new ProjectileAvoidanceModifier(s.detectionRange, s.force));
+        addModifier(
+                new BoundaryAvoidanceModifier());
+        addModifier(new ObstaclesAvoidanceModifier(Target.neighbours(entity,s.detectionRange,new DetectFilter<>(true, true, null))));
     }
 }

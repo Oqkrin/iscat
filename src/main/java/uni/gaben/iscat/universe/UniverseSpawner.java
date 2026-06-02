@@ -9,8 +9,8 @@ import uni.gaben.iscat.universe.enemies.generic.GenericEntityBrain;
 import uni.gaben.iscat.universe.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormSegmentBrain;
-import uni.gaben.iscat.universe.enviroment.xxxx.xxxxBrain;
-import uni.gaben.iscat.universe.enviroment.xxxx.xxxxModel;
+import uni.gaben.iscat.universe.enviroment.blackhole.BlackHoleBrain;
+import uni.gaben.iscat.universe.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
@@ -51,7 +51,7 @@ public class UniverseSpawner {
         return switch (type) {
             case PLAYER            -> spawnPlayer(x, y);
             case ASTEROID          -> spawnEntity(new AsteroidModel(x, y, 50)); // simplified, adjust as needed
-            case BLACKHOLE         -> spawnWithController(xxxxModel::new, xxxxBrain::new, x, y);
+            case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
             case ISCAT_HEALER      -> spawnCustomRuntimeEntity("iscat_healer", x, y);
             case ISCAT_MASTER      -> spawnIscatMaster(x, y);

@@ -1,5 +1,6 @@
 package uni.gaben.iscat.universe.brain.modifiers;
 
+import org.dyn4j.geometry.AABB;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
@@ -10,11 +11,7 @@ import uni.gaben.iscat.utils.Interpolator;
 
 /**
  * Movement modifier that smoothly evades incoming hostile projectiles.
- * <p>
- * Instead of a simple perpendicular strafe, this uses <b>escape vectors</b> that push
- * the entity directly away from the bullet's path. The dodge direction is smoothed over
- * time to prevent oscillation, and multiple threats are blended by their urgency.
- * </p>
+ * Ottimizzato tramite query AABB (Broad-Phase) per analizzare solo le minacce vicine.
  */
 public class ProjectileAvoidanceModifier implements MovementModifier {
 
@@ -23,67 +20,76 @@ public class ProjectileAvoidanceModifier implements MovementModifier {
     private final double lookAheadTime;
     private final double smoothingFactor;
 
-    /** Persistent dodge direction (smoothed across frames). */
     private Vector2 currentDodgeVector = new Vector2();
 
     public ProjectileAvoidanceModifier(double detectionRadius, double sidestepStrength) {
         this.detectionRadius = detectionRadius;
         this.sidestepStrength = sidestepStrength;
-        this.lookAheadTime = 1.5;          // sensible default
-        this.smoothingFactor = 0.15;       // 15% blend per frame – smooth but responsive
-    }
-
-    public ProjectileAvoidanceModifier(double detectionRadius, double sidestepStrength,
-                                       double lookAheadTime, double smoothingFactor) {
-        this.detectionRadius = detectionRadius;
-        this.sidestepStrength = sidestepStrength;
-        this.lookAheadTime = lookAheadTime;
-        this.smoothingFactor = smoothingFactor;
+        this.lookAheadTime = 1.5;
+        this.smoothingFactor = 0.15;
     }
 
     @Override
     public Vector2 compute(AbstractEntityModel self, UniverseModel world, double maxForce, double dt) {
         Vector2 pos = self.getTransform().getTranslation();
         double hitRadius = self.getWidthMeters() / 2.0;
-        double evasionRadius = hitRadius * 2.5;   // start dodging before physical contact
+        double evasionRadius = hitRadius * 2.5;
 
         Vector2 targetDodge = new Vector2();
         boolean inDanger = false;
 
-        for (Projectile p : world.getEntitiesOfType(Projectile.class)) {
+        // 1. OTTIMIZZAZIONE BROAD-PHASE: Creiamo un AABB di rilevamento
+        AABB selfAabb = self.createAABB();
+        AABB detectionBox = new AABB(
+                selfAabb.getMinX() - detectionRadius,
+                selfAabb.getMinY() - detectionRadius,
+                selfAabb.getMaxX() + detectionRadius,
+                selfAabb.getMaxY() + detectionRadius
+        );
+
+        // 2. Chiediamo all'universo solo i corpi dentro questa zona (ipotizzando null filter per prendere tutto, o un filtro specifico)
+        // Usa il tuo metodo detect() di UniverseModel
+        var nearbyResults = world.detect(detectionBox, null);
+
+        for (var result : nearbyResults) {
+            AbstractEntityModel entity = (AbstractEntityModel) result.getBody();
+
+            // Filtriamo solo i proiettili
+            if (!(entity instanceof Projectile p)) continue;
+
             Vector2 projPos = p.getTransform().getTranslation();
             Vector2 projVel = p.getLinearVelocity();
 
             // --- Quick rejects ---
             if (!isHostile(p, self)) continue;
+
             double distToBullet = projPos.distance(pos);
             if (distToBullet > detectionRadius) continue;
+
             double projSpeedSq = projVel.getMagnitudeSquared();
-            if (projSpeedSq < 0.01) continue;          // stationary projectile – ignore
+            if (projSpeedSq < 0.01) continue;
 
             Vector2 projDir = projVel.getNormalized();
             Vector2 toEntity = pos.copy().subtract(projPos);
 
             // --- 1. Is the bullet heading toward us? ---
             double distanceAlongPath = toEntity.dot(projDir);
-            if (distanceAlongPath <= 0) continue;      // bullet is moving away
+            if (distanceAlongPath <= 0) continue;
 
             // --- 2. How close are we to the bullet's infinite line? ---
             double perpDistance = Math.abs(projVel.cross(toEntity)) / projVel.getMagnitude();
-            if (perpDistance > evasionRadius) continue; // we are safely outside the corridor
+            if (perpDistance > evasionRadius) continue;
 
-            // --- 3. Time‑to‑impact (using only bullet speed, ignoring own velocity) ---
+            // --- 3. Time-to-impact ---
             double t = distanceAlongPath / projVel.getMagnitude();
-            if (t > lookAheadTime) continue;            // not an immediate threat
+            if (t > lookAheadTime) continue;
 
             inDanger = true;
 
             // --- 4. Compute the ESCAPE VECTOR ---
-            // The point on the bullet's path closest to the entity.
             Vector2 closestPoint = projPos.copy().add(projDir.multiply(distanceAlongPath));
             Vector2 escapeDir = pos.copy().subtract(closestPoint);
 
-            // Fallback: if we are exactly on the line, dodge perpendicular.
             if (escapeDir.getMagnitudeSquared() < 0.001) {
                 escapeDir = projDir.getRightHandOrthogonalVector();
             }
@@ -95,9 +101,24 @@ public class ProjectileAvoidanceModifier implements MovementModifier {
             double proximityWeight = 1.0 - (distToBullet / detectionRadius);
 
             double threat = spatialWeight * temporalWeight * proximityWeight;
+            Vector2 singleDodgeForce = escapeDir.multiply(threat);
 
-            // Accumulate this bullet's contribution into the raw dodge target.
-            targetDodge.add(escapeDir.multiply(threat));
+            // --- TRAPPOLA RILEVATA (Isteresi e Scivolamento) ---
+            if (currentDodgeVector.getMagnitudeSquared() > 0.01) {
+                Vector2 currentDir = currentDodgeVector.getNormalized();
+                Vector2 forceDir = singleDodgeForce.getNormalized();
+                double alignment = forceDir.dot(currentDir);
+
+                if (alignment < -0.3) {
+                    Vector2 slideRail = projDir.copy();
+                    if (slideRail.dot(currentDodgeVector) < 0) slideRail.multiply(-1);
+                    singleDodgeForce = slideRail.multiply(threat * 1.5);
+                } else if (alignment > 0) {
+                    singleDodgeForce.multiply(1.2);
+                }
+            }
+
+            targetDodge.add(singleDodgeForce);
         }
 
         // --- 6. Smooth the raw dodge direction ---
@@ -107,18 +128,13 @@ public class ProjectileAvoidanceModifier implements MovementModifier {
             currentDodgeVector = Interpolator.lerp(currentDodgeVector, new Vector2(), smoothingFactor * 0.5);
         }
 
-        // --- 7. Restituisce la Forza di Schivata ---
+        // --- 7. Restituisce la Forza Pura ---
         if (currentDodgeVector.getMagnitudeSquared() > 0.01) {
             double magnitude = currentDodgeVector.getMagnitude();
-            // Cap the threat multiplier so dodging doesn't produce extreme forces when multiple bullets stack
             double cappedThreat = Math.min(magnitude, 1.5);
-
-            // Creiamo la vera e propria forza vettoriale (Direzione * Intensità Minaccia * Moltiplicatore Base * maxForce)
-            return currentDodgeVector.getNormalized()
-                    .multiply(cappedThreat * sidestepStrength * maxForce);
+            return currentDodgeVector.getNormalized().multiply(cappedThreat * sidestepStrength * maxForce);
         }
 
-        // Nessun pericolo, nessuna forza applicata
         return new Vector2();
     }
 

@@ -5,25 +5,24 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 
 public class AlignmentModifier extends AbstractFlockingModifier {
 
-    public AlignmentModifier(Target flock, double range, double multiplier) {
-        super(flock, range, multiplier);
+    public AlignmentModifier(Target flock, double multiplier) {
+        super(flock, multiplier);
     }
 
     @Override
     public Vector2 compute(AbstractEntityModel self, UniverseModel universe, double maxForce, double dt) {
         Vector2 averageVelocity = UU.vector2zero();
         int flockSize = 0;
-        Vector2 selfPos = self.getTransform().getTranslation();
 
         for (var body : flock.getEntities(universe)) {
-            if (selfPos.distance(body.getTransform().getTranslation()) < range) {
-                averageVelocity.add(body.getLinearVelocity());
-                flockSize++;
-            }
+            if(!(body instanceof LivingEntityModel) || body == self ) continue;
+            averageVelocity.add(body.getLinearVelocity());
+            flockSize++;
         }
 
         if (flockSize > 0) {

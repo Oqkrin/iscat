@@ -4,7 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import org.dyn4j.geometry.Vector2;
 
-import uni.gaben.iscat.universe.enviroment.xxxx.xxxxModel;
+import uni.gaben.iscat.universe.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasSprite;
 import uni.gaben.iscat.universe.lib.interfaces.model.HasShockwave;
@@ -36,11 +36,11 @@ public final class EntityRenderer {
         CUSTOM_RENDERERS.put(AsteroidModel.class, EntityRenderer::drawAsteroid);
         CUSTOM_RENDERERS.put(Projectile.class,   EntityRenderer::drawProjectile);
         CUSTOM_RENDERERS.put(PlayerModel.class,  EntityRenderer::drawPlayer);
-        CUSTOM_RENDERERS.put(xxxxModel.class,  EntityRenderer::drawBlackHole);
+        CUSTOM_RENDERERS.put(BlackHoleModel.class,  EntityRenderer::drawBlackHole);
     }
 
     private static void drawBlackHole(AbstractEntityModel abstractEntityModel, GraphicsContext gc) {
-        xxxxModel bh = (xxxxModel) abstractEntityModel;
+        BlackHoleModel bh = (BlackHoleModel) abstractEntityModel;
         double cx = UU.mToPx(bh.getTransform().getTranslationX());
         double cy = UU.mToPx(bh.getTransform().getTranslationY());
 

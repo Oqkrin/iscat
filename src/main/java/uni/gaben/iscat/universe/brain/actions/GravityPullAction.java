@@ -10,10 +10,10 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import java.util.Collections;
 
 
-public class xxxxPullAction extends Action {
+public class GravityPullAction extends Action {
     private final Target inRange;
     
-    public xxxxPullAction(Target target) {
+    public GravityPullAction(Target target) {
         super("GravityPull", ActionCategory.SPECIAL, Collections.emptySet());
         this.inRange = target;
     }

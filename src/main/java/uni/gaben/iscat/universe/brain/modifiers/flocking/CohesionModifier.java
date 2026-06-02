@@ -5,11 +5,12 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
+import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 
 public class CohesionModifier extends AbstractFlockingModifier {
 
-    public CohesionModifier(Target flock, double range, double multiplier) {
-        super(flock, range, multiplier);
+    public CohesionModifier(Target flock, double multiplier) {
+        super(flock, multiplier);
     }
 
     @Override
@@ -19,11 +20,9 @@ public class CohesionModifier extends AbstractFlockingModifier {
         Vector2 selfPos = self.getTransform().getTranslation();
 
         for (var body : flock.getEntities(universe)) {
-            Vector2 bodyPos = body.getTransform().getTranslation();
-            if (selfPos.distance(bodyPos) < range) {
-                centerOfMass.add(bodyPos);
-                flockSize++;
-            }
+            if(!(body instanceof LivingEntityModel) || body == self ) continue;
+            centerOfMass.add(body.getTransform().getTranslation());
+            flockSize++;
         }
 
         if (flockSize > 0) {

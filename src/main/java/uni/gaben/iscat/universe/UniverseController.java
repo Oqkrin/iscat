@@ -9,8 +9,8 @@ import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.enviroment.xxxx.xxxxBrain;
-import uni.gaben.iscat.universe.enviroment.xxxx.xxxxModel;
+import uni.gaben.iscat.universe.enviroment.blackhole.BlackHoleBrain;
+import uni.gaben.iscat.universe.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
@@ -314,7 +314,7 @@ public class UniverseController {
                             - UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN);
             asteroid.setLinearVelocity(new Vector2(Math.cos(driftAngle) * speed, Math.sin(driftAngle) * speed));
             if(!spawned) {
-                UniverseSpawner.getInstance().spawnWithController(xxxxModel::new, xxxxBrain::new, ax, ay);
+                UniverseSpawner.getInstance().spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, ax, ay);
                 spawned = true;
             }
             UniverseSpawner.getInstance().spawnEntity(asteroid);
