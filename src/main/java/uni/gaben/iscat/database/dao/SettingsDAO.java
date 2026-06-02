@@ -8,6 +8,8 @@ public interface SettingsDAO {
     /** Carica le impostazioni di un utente */
     Optional<UserSettings> loadSettings(int userId);
 
+    void updateDisplaySetting(int userId, String columnName, int value);
+
     /** Aggiorna un singolo controllo */
     void updateControl(int userId, String columnName, String newKey);
 

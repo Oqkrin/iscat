@@ -26,6 +26,8 @@ public class SQLiteSettingsDAO implements SettingsDAO {
                     double master = rs.getInt("MasterVolume") / 100.0;
                     double bgm = rs.getInt("BGMVolume") / 100.0;
                     double sfx = rs.getInt("SFXVolume") / 100.0;
+                    int showFps = rs.getInt("ShowFPS");
+                    int fullscreen = rs.getInt("Fullscreen");
 
                     return Optional.of(new UserSettings(
                             rs.getInt("UserID"),
@@ -39,7 +41,9 @@ public class SQLiteSettingsDAO implements SettingsDAO {
                             rs.getString("PauseGame"),
                             master,
                             bgm,
-                            sfx
+                            sfx,
+                            showFps,
+                            fullscreen
                     ));
                 }
             }
@@ -66,6 +70,24 @@ public class SQLiteSettingsDAO implements SettingsDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Errore durante l'aggiornamento del volume " + columnName + " per utente: " + userId, e);
+        }
+    }
+
+    @Override
+    public void updateDisplaySetting(int userId, String columnName, int value) {
+        if (columnName == null || !columnName.matches("(?i)ShowFPS|Fullscreen")) {
+            throw new IllegalArgumentException("Colonna display non valida: " + columnName);
+        }
+
+        String sql = "UPDATE ImpostazioniUtenti SET " + columnName + " = ? WHERE UserID = ?";
+        try (Connection conn = IscatDB.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, value);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore nell'aggiornare la colonna display " + columnName, e);
         }
     }
 

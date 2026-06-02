@@ -15,9 +15,13 @@ public class UserSettings {
     private double volumeBgm;
     private double volumeSfx;
 
+    private int showFps = 0;
+    private int fullscreen = 0;
+
     public UserSettings(int userId, String walkUp, String walkDown, String walkLeft, String walkRight,
                         String attack, String dash1, String dash2, String pauseGame,
-                        double volumeMaster, double volumeBgm, double volumeSfx) {
+                        double volumeMaster, double volumeBgm, double volumeSfx,
+                        int showFps, int fullscreen) {
         this.userId = userId;
         this.walkUp = walkUp;
         this.walkDown = walkDown;
@@ -30,6 +34,8 @@ public class UserSettings {
         this.volumeMaster = volumeMaster;
         this.volumeBgm = volumeBgm;
         this.volumeSfx = volumeSfx;
+        this.showFps = showFps;
+        this.fullscreen = fullscreen;
     }
 
     public int getUserId() { return userId; }
@@ -66,4 +72,10 @@ public class UserSettings {
 
     public double getVolumeSfx() { return volumeSfx; }
     public void setVolumeSfx(double volumeSfx) { this.volumeSfx = volumeSfx; }
+
+    public int getShowFps() { return showFps; }
+    public void setShowFps(int showFps) { this.showFps = showFps; }
+
+    public int getFullscreen() { return fullscreen; }
+    public void setFullscreen(int fullscreen) { this.fullscreen = fullscreen; }
 }
