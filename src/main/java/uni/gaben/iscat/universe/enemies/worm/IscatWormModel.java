@@ -1,6 +1,9 @@
 package uni.gaben.iscat.universe.enemies.worm;
 
+import org.dyn4j.dynamics.joint.DistanceJoint;
 import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.universe.UniverseModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,23 @@ public class IscatWormModel {  // NON estende LivingEntityModel
         tail.setPreviousSegment(previous); // ← era mancante
         segments.add(tail);
     }
+
+    // In IscatWormModel
+    public void connectSegments(UniverseModel universe) {
+        for (int i = 0; i < segments.size() - 1; i++) {
+            IscatWormSegment a = segments.get(i);
+            IscatWormSegment b = segments.get(i + 1);
+
+            DistanceJoint joint = new DistanceJoint(a, b,
+                    a.getPosition(), b.getPosition());
+            joint.setSpringFrequency(IscatWormSettings.JOINT_FREQUENCY);  // e.g., 5.0
+            joint.setSpringDampingRatio(IscatWormSettings.JOINT_DAMPING); // e.g., 0.7
+            joint.setRestDistance(IscatWormSettings.SEGMENT_SPACING_M);
+            universe.addJoint(joint);
+        }
+    }
+
+
 
     public List<IscatWormSegment> getSegments() { return segments; }
 

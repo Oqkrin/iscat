@@ -1,6 +1,10 @@
 package uni.gaben.iscat.universe.brain;
 
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.BodyFixture;
+import org.dyn4j.geometry.AABB;
 import org.dyn4j.geometry.Vector2;
+import org.dyn4j.world.DetectFilter;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
@@ -75,4 +79,22 @@ public interface Target {
     static Target ofEntities(Function<UniverseModel, List<AbstractEntityModel>> query) {
         return query::apply;
     }
+
+
+
+    static Target neighbours(Body body, double range, DetectFilter<Body, BodyFixture> filter) {
+
+        AABB aabb = body.createAABB();
+
+        AABB detectionRange = new AABB(
+                aabb.getMinX() - range,
+                aabb.getMinY() - range,
+                aabb.getMaxX() + range,
+                aabb.getMaxY() + range
+        );
+
+
+        return universe -> universe.detect(detectionRange, filter).stream().map((detectResult -> (AbstractEntityModel) detectResult.getBody())).toList();
+    }
+
 }

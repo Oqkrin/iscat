@@ -1,5 +1,6 @@
 package uni.gaben.iscat.universe;
 
+import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntityFactory;
 import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormModel;
@@ -7,6 +8,9 @@ import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntityBrain;
 import uni.gaben.iscat.universe.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.consumables.heart.HeartModel;
+import uni.gaben.iscat.universe.enemies.worm.IscatWormSegmentBrain;
+import uni.gaben.iscat.universe.enviroment.xxxx.xxxxBrain;
+import uni.gaben.iscat.universe.enviroment.xxxx.xxxxModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
@@ -47,6 +51,7 @@ public class UniverseSpawner {
         return switch (type) {
             case PLAYER            -> spawnPlayer(x, y);
             case ASTEROID          -> spawnEntity(new AsteroidModel(x, y, 50)); // simplified, adjust as needed
+            case BLACKHOLE         -> spawnWithController(xxxxModel::new, xxxxBrain::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
             case ISCAT_HEALER      -> spawnCustomRuntimeEntity("iscat_healer", x, y);
             case ISCAT_MASTER      -> spawnIscatMaster(x, y);
@@ -81,13 +86,16 @@ public class UniverseSpawner {
         IscatWormModel worm = new IscatWormModel(x, y);
         for (IscatWormSegment seg : worm.getSegments()) {
             model.addEntity(seg);
-            controller.addEntityController(new GenericEntityBrain(seg));
+            // Use custom brain instead of GenericEntityBrain
+            IscatWormSegmentBrain brain = new IscatWormSegmentBrain(seg, worm.getHead());
+            controller.addEntityController(brain);
         }
+        worm.connectSegments(model);   // add joints
         return worm;
     }
 
     // Generic spawn for any IEntityController factory (covers Brain and old controllers)
-    private <M extends AbstractEntityModel> M spawnWithController(
+    public  <M extends AbstractEntityModel> M spawnWithController(
             BiFunction<Double, Double, M> modelFactory,
             Function<M, IEntityController> controllerFactory,
             double x, double y) {
@@ -138,7 +146,7 @@ public class UniverseSpawner {
 
                 double driftAngle = Math.random() * Math.PI * 2.0;
                 double speed = 0.5 + Math.random() * 2.0;
-                ast.setLinearVelocity(new org.dyn4j.geometry.Vector2(
+                ast.setLinearVelocity(new Vector2(
                         Math.cos(driftAngle) * speed,
                         Math.sin(driftAngle) * speed
                 ));

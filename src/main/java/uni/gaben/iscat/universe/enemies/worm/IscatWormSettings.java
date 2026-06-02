@@ -1,5 +1,6 @@
 package uni.gaben.iscat.universe.enemies.worm;
 
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseVelocitySettings;
 
 public class IscatWormSettings {
@@ -18,11 +19,11 @@ public class IscatWormSettings {
     public static final double HEAD_SCALE           = 3;
     public static final double HEAD_MAX_SPEED       = UniverseVelocitySettings.WORM_HEAD_MAX_SPEED;
     public static final double HEAD_FORCE           = 800.0;
-    public static final double HEAD_ROTATION_SPEED  = 0.45;
+    public static final double HEAD_ROTATION_SPEED  = 2.5;
 
     // --- MECCANICHE DI ATTACCO DELLA TESTA ---
-    public static final int    HEAD_ATTACK_POWER         = 300;
-    public static final double HEAD_ATTACK_COOLDOWN      = 1.0;
+    public static final int    HEAD_ATTACK_POWER         = 3;
+    public static final double HEAD_ATTACK_COOLDOWN      = 5;
     public static final double PLUNGE_THRESHOLD_MULT     = 1.5; // Soglia di velocità (moltiplicatore) per attivare l'attacco in carica
     public static final double PLUNGE_DAMAGE_MULT        = 1.5; // Moltiplicatore del danno durante il plunge attack
 
@@ -40,4 +41,9 @@ public class IscatWormSettings {
     public static final double TAIL_PREFERRED_RANGE = 10.0;
     public static final double TAIL_FORCE           = 15.0;
     public static final double TAIL_FIRE_COOLDOWN   = 1.0;
+
+    public static final double JOINT_FREQUENCY = 8.0;   // spring stiffness
+    public static final double JOINT_DAMPING = 0.6;     // damping
+    public static final double SEGMENT_SPACING_M = UU.pxToM(SEGMENT_SPACING_PX);
+
 }

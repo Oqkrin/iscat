@@ -14,6 +14,8 @@ public class UU {
         return UNIVERSE_SCALE.get();
     }
 
+    public static final DoubleProperty UniversalGravitationalConstant = new SimpleDoubleProperty(UniverseVelocitySettings.PLAYER_DASH_IMPULSE / Math.PI);
+
     public static DoubleProperty UNIVERSE_SCALEProperty() {
         return UNIVERSE_SCALE;
     }
@@ -27,10 +29,10 @@ public class UU {
     // 1 tick = 1/60th of a second (assuming a standard 60Hz physics loop)
     public static final double UNIVERSE_TICK = 1.0 / 60.0;
 
-    private Double pixelValue = null;
-    private Double metersValue = null;
-    private Double secondsValue = null;
-    private Double ticksValue = null;
+    private DoubleProperty pixelValue = null;
+    private DoubleProperty metersValue = null;
+    private DoubleProperty secondsValue = null;
+    private DoubleProperty ticksValue = null;
 
     private UU() {}
 
@@ -38,20 +40,24 @@ public class UU {
     public UU(double value, units valueType) {
         switch(valueType) {
             case SECONDS -> {
-                secondsValue = value;
-                ticksValue = UU.sToTicks(secondsValue);
+                secondsValue = new SimpleDoubleProperty(value);
+                ticksValue = new SimpleDoubleProperty();
+                ticksValue.bind(secondsValue.divide(UNIVERSE_TICK));
             }
             case TICKS -> {
-                ticksValue = value * UU.UNIVERSE_TICK;
-                secondsValue = UU.ticksToS(ticksValue);
+                ticksValue = new SimpleDoubleProperty(value);
+                secondsValue = new SimpleDoubleProperty();
+                secondsValue.bind(ticksValue.multiply(UNIVERSE_TICK));
             }
             case METERS -> {
-                metersValue = value;
-                pixelValue = UU.mToPx(metersValue);
+                metersValue = new SimpleDoubleProperty(value);
+                pixelValue = new SimpleDoubleProperty();
+                pixelValue.bind(metersValue.multiply(UNIVERSE_SCALE));
             }
             case PIXELS -> {
-                pixelValue = value;
-                metersValue = UU.pxToM(pixelValue);
+                pixelValue = new SimpleDoubleProperty(value);
+                metersValue = new SimpleDoubleProperty();
+                metersValue.bind(pixelValue.divide(UNIVERSE_SCALE));
             }
         }
     }
@@ -88,19 +94,19 @@ public class UU {
         return seconds / UNIVERSE_TICK;
     }
 
-    public Double px() {
+    public DoubleProperty px() {
         return pixelValue;
     }
 
-    public Double m() {
+    public DoubleProperty m() {
         return metersValue;
     }
 
-    public Double ticks() {
+    public DoubleProperty ticks() {
         return ticksValue;
     }
 
-    public Double s() {
+    public DoubleProperty s() {
         return secondsValue;
     }
 

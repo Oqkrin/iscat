@@ -171,6 +171,7 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         setLife(getMaxLife());
 
         System.out.println("[LEVEL UP] Nuovo Livello: " + getLevel() + " | Prossimo livello a: " + this.xpNeeded + " XP");
+        applyImpulse(new Vector2(0, 0));
     }
 
     public void applyStun(double duration) {

@@ -8,6 +8,7 @@ import uni.gaben.iscat.universe.enemies.generic.GenericEntityModel;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
+import uni.gaben.iscat.universe.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
 
 public class IscatWormSegment extends GenericEntityModel {
@@ -35,23 +36,21 @@ public class IscatWormSegment extends GenericEntityModel {
             fixture.setFilter(UniverseCollisionLayers.WORM_BODY_FILTER);
         }
 
-        setMass(MassType.NORMAL);
+        setMass(MassType.FIXED_ANGULAR_VELOCITY);
         setLinearDamping(getDamping(type));
         setAngularDamping(0.0); // Curve fulminee
-
-        this.setOnCollision(other -> {
-            if (other instanceof uni.gaben.iscat.universe.player.PlayerModel player) {
-                if (this.type == Type.HEAD) {
-                    if (this.canAttack()) {
-                        Vector2 vel = this.getLinearVelocity();
-                        if (vel.getMagnitude() > IscatWormSettings.HEAD_MAX_SPEED * IscatWormSettings.PLUNGE_THRESHOLD_MULT) {
-                            player.deltaToLife(-IscatWormSettings.HEAD_ATTACK_POWER * IscatWormSettings.PLUNGE_DAMAGE_MULT);
-                        } else {
-                            player.deltaToLife(-IscatWormSettings.HEAD_ATTACK_POWER);
-                        }
-                        this.startAttackCooldown();
+        // In IscatWormSegment constructor
+        setOnCollision(other -> {
+            if (other instanceof PlayerModel player) {
+                if (type == Type.HEAD && canAttack()) {
+                    double damage = IscatWormSettings.HEAD_ATTACK_POWER;
+                    if (getLinearVelocity().getMagnitude() >
+                            IscatWormSettings.HEAD_MAX_SPEED * IscatWormSettings.PLUNGE_THRESHOLD_MULT) {
+                        damage *= IscatWormSettings.PLUNGE_DAMAGE_MULT;
                     }
-                } else {
+                    player.deltaToLife(-damage);
+                    startAttackCooldown();
+                } else if (type != Type.HEAD) {
                     player.deltaToLife(-IscatWormSettings.BODY_CONTACT_DAMAGE);
                 }
             }
@@ -77,6 +76,8 @@ public class IscatWormSegment extends GenericEntityModel {
         }
         setLinearDamping(getDamping(Type.HEAD));
     }
+
+
 
     public void updateCooldowns(double dt) {
         attackCooldown.update(dt);
@@ -120,10 +121,5 @@ public class IscatWormSegment extends GenericEntityModel {
         s.maxVelocity = IscatWormSettings.HEAD_MAX_SPEED; // Approximated
         s.force = IscatWormSettings.HEAD_FORCE;
         return s;
-    }
-
-    @Override
-    public double getVisualAngularOffsetDeg() {
-        return 180.0;
     }
 }

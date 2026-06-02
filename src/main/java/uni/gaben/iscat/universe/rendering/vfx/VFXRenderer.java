@@ -147,7 +147,7 @@ public final class VFXRenderer {
     }
 
     public static void drawShockwave(GraphicsContext gc,
-                                     uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel shockwave) {
+                                     ShockwaveModel shockwave) {
         double radius = shockwave.getRadius();
         double alpha  = shockwave.getAlpha();
         double d = radius * 2;

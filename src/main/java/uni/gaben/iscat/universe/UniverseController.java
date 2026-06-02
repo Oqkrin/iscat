@@ -9,6 +9,8 @@ import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.enviroment.xxxx.xxxxBrain;
+import uni.gaben.iscat.universe.enviroment.xxxx.xxxxModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
 import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
@@ -51,6 +53,7 @@ public class UniverseController {
     private final StarfieldController starfieldController = new StarfieldController();
     private final UniverseWaveController universeWaveController = new UniverseWaveController();
     private final Cooldown asteroidCooldown = new Cooldown();
+    boolean spawned = false; //???
 
     private static final double ASTEROID_SPAWN_INTERVAL = 3.0;
     private static final int MAX_ACTIVE_ASTEROIDS = 30;
@@ -280,6 +283,7 @@ public class UniverseController {
      * vettoriali di deriva.
      */
     private void spawnAsteroids(double dt, PlayerModel player) {
+
         asteroidCooldown.update(dt);
         if (!asteroidCooldown.isReady())
             return;
@@ -295,20 +299,24 @@ public class UniverseController {
         double dist = 900.0 + Math.random() * 600.0;
         double cx = playerX + Math.cos(angle) * dist;
         double cy = playerY + Math.sin(angle) * dist;
-        int count = 3 + random.nextInt(3);
+        int count = 3 + random.nextInt(9);
 
         for (int i = 0; i < count; i++) {
             double offsetAngle = Math.random() * Math.PI * 2.0;
             double offsetDist = Math.random() * 150.0;
             double ax = cx + Math.cos(offsetAngle) * offsetDist;
             double ay = cy + Math.sin(offsetAngle) * offsetDist;
-            double radius = 15.0 + Math.random() * 75.0;
+            double radius = 15.0 + Math.random() * 180.0;
             AsteroidModel asteroid = new AsteroidModel(ax, ay, radius);
             double driftAngle = Math.random() * Math.PI * 2.0;
             double speed = UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN
                     + Math.random() * (UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MAX
                             - UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN);
             asteroid.setLinearVelocity(new Vector2(Math.cos(driftAngle) * speed, Math.sin(driftAngle) * speed));
+            if(!spawned) {
+                UniverseSpawner.getInstance().spawnWithController(xxxxModel::new, xxxxBrain::new, ax, ay);
+                spawned = true;
+            }
             UniverseSpawner.getInstance().spawnEntity(asteroid);
         }
     }
