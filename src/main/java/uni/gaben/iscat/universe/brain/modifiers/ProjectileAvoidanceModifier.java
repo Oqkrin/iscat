@@ -15,17 +15,6 @@ import uni.gaben.iscat.utils.Interpolator;
  * the entity directly away from the bullet's path. The dodge direction is smoothed over
  * time to prevent oscillation, and multiple threats are blended by their urgency.
  * </p>
- *
- * <p><b>Configuration:</b></p>
- * <ul>
- *   <li>{@code detectionRadius} – how far (meters) the entity looks for threats.</li>
- *   <li>{@code sidestepStrength} – base multiplier for the dodge force.</li>
- *   <li>{@code lookAheadTime} – seconds into the future to predict collisions.</li>
- *   <li>{@code smoothingFactor} – how quickly the dodge direction changes (0=instant, 1=no smoothing).</li>
- * </ul>
- *
- * <p><b>Important:</b> Each entity must have its own instance of this modifier,
- * because it stores the current dodge vector as state.</p>
  */
 public class ProjectileAvoidanceModifier implements MovementModifier {
 
@@ -37,10 +26,6 @@ public class ProjectileAvoidanceModifier implements MovementModifier {
     /** Persistent dodge direction (smoothed across frames). */
     private Vector2 currentDodgeVector = new Vector2();
 
-    /**
-     * @param detectionRadius  how far the entity "sees" projectiles (world meters).
-     * @param sidestepStrength base strength of the dodge force (will be scaled by threat).
-     */
     public ProjectileAvoidanceModifier(double detectionRadius, double sidestepStrength) {
         this.detectionRadius = detectionRadius;
         this.sidestepStrength = sidestepStrength;
@@ -48,9 +33,6 @@ public class ProjectileAvoidanceModifier implements MovementModifier {
         this.smoothingFactor = 0.15;       // 15% blend per frame – smooth but responsive
     }
 
-    /**
-     * Full constructor for fine‑tuning.
-     */
     public ProjectileAvoidanceModifier(double detectionRadius, double sidestepStrength,
                                        double lookAheadTime, double smoothingFactor) {
         this.detectionRadius = detectionRadius;
@@ -60,8 +42,7 @@ public class ProjectileAvoidanceModifier implements MovementModifier {
     }
 
     @Override
-    public Vector2 modify(Vector2 desired, AbstractEntityModel self, UniverseModel world,
-                          double maxForce, double dt) {
+    public Vector2 compute(AbstractEntityModel self, UniverseModel world, double maxForce, double dt) {
         Vector2 pos = self.getTransform().getTranslation();
         double hitRadius = self.getWidthMeters() / 2.0;
         double evasionRadius = hitRadius * 2.5;   // start dodging before physical contact
@@ -109,16 +90,10 @@ public class ProjectileAvoidanceModifier implements MovementModifier {
             escapeDir.normalize();
 
             // --- 5. Threat weights ---
-            // Spatial: 1.0 when dead‑center, 0.0 at the edge of the evasion zone.
             double spatialWeight = 1.0 - (perpDistance / evasionRadius);
-
-            // Temporal: 1.0 when impact is immediate, fading to 0.0 at lookAheadTime.
             double temporalWeight = 1.0 - (t / lookAheadTime);
-
-            // Proximity: 1.0 when the bullet is right on top of us, 0.0 at detectionRadius.
             double proximityWeight = 1.0 - (distToBullet / detectionRadius);
 
-            // Combine weights – you can tune the exponents to change the urgency curve.
             double threat = spatialWeight * temporalWeight * proximityWeight;
 
             // Accumulate this bullet's contribution into the raw dodge target.
@@ -127,25 +102,24 @@ public class ProjectileAvoidanceModifier implements MovementModifier {
 
         // --- 6. Smooth the raw dodge direction ---
         if (inDanger && targetDodge.getMagnitudeSquared() > 0.001) {
-            // Blend toward the new target direction using linear interpolation.
             currentDodgeVector = Interpolator.lerp(currentDodgeVector, targetDodge, smoothingFactor);
         } else {
-            // Decay the dodge force when safe, so the entity recovers smoothly.
             currentDodgeVector = Interpolator.lerp(currentDodgeVector, new Vector2(), smoothingFactor * 0.5);
         }
 
-        // --- 7. Apply the dodge force to the desired velocity ---
+        // --- 7. Restituisce la Forza di Schivata ---
         if (currentDodgeVector.getMagnitudeSquared() > 0.01) {
-            // Scale the force by sidestepStrength, but cap it so physics don't explode.
             double magnitude = currentDodgeVector.getMagnitude();
-            double cappedMagnitude = Math.min(magnitude, 3.0);  // panic cap
-            Vector2 dodgeForce = currentDodgeVector.getNormalized()
-                    .multiply(cappedMagnitude * sidestepStrength);
+            // Cap the threat multiplier so dodging doesn't produce extreme forces when multiple bullets stack
+            double cappedThreat = Math.min(magnitude, 1.5);
 
-            desired.add(dodgeForce);
+            // Creiamo la vera e propria forza vettoriale (Direzione * Intensità Minaccia * Moltiplicatore Base * maxForce)
+            return currentDodgeVector.getNormalized()
+                    .multiply(cappedThreat * sidestepStrength * maxForce);
         }
 
-        return desired;
+        // Nessun pericolo, nessuna forza applicata
+        return new Vector2();
     }
 
     private boolean isHostile(Projectile p, AbstractEntityModel self) {

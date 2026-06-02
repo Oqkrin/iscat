@@ -44,7 +44,7 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
     private static GenericEntitySettings loadSettings() {
         return IscatDB.getInstance().getEnemyDAO().findByKey(ENTITY_KEY).orElseGet(() -> {
             GenericEntitySettings s = new GenericEntitySettings();
-            s.initLife       = 1;
+            s.initLife       = 5000;
             s.dimSprite      = 1;
             s.scale          = 1;
             s.dampingLineare = 1;

@@ -93,11 +93,12 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
             }
         }
 
-        Vector2 desired = currentMovementGoal.compute(entity, universe, dt);
+        Vector2 towardsGoal = currentMovementGoal.compute(entity, universe, dt);
+
         for (MovementModifier mod : modifiers) {
-            desired = mod.modify(desired, entity, universe, maxForce, dt);
+            towardsGoal.add(mod.compute(entity, universe, maxForce, dt));
         }
-        applySteering(desired, dt);
+        applySteering(towardsGoal, dt);
         if (rotationSpeed > 0) {
             Double desiredAngle = currentRotationGoal.compute(entity, universe, dt);
             if (desiredAngle != null) {
@@ -129,10 +130,6 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     private void applySteering(Vector2 desired, double dt) {
         Vector2 currentVel = entity.getLinearVelocity();
         Vector2 steering = desired.copy().subtract(currentVel);
-        double mag = steering.getMagnitude();
-        if (mag > maxForce) {
-            steering.multiply(maxForce / mag);
-        }
         entity.applyForce(steering);
     }
 

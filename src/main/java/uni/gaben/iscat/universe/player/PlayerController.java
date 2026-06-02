@@ -177,12 +177,12 @@ public class PlayerController {
         double baseCd = PlayerSettings.COOLDOWN_FUOCO_SEC;
 
         if (level >= 10) {
-            this.currentAttack = new FigureAttack(100, FigureAttack.FigureType.STAR);
+            this.currentAttack = new FigureAttack(30, FigureAttack.FigureType.STAR);
             player.setCooldownFuocoSec(baseCd * 0.8);
 
         }
         else if (level >= 7) {
-            this.currentAttack = new RepeaterAttack(2, new SpreadAttack(7, 45.0));
+            this.currentAttack = new SpreadAttack(7, 45.0);
             player.setCooldownFuocoSec(baseCd * 0.85);
         }
         else if (level >= 4) {

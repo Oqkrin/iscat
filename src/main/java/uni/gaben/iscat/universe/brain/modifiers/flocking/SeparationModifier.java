@@ -13,7 +13,7 @@ public class SeparationModifier extends AbstractFlockingModifier {
     }
 
     @Override
-    public Vector2 modify(Vector2 currentDesired, AbstractEntityModel self, UniverseModel universe, double maxForce, double dt) {
+    public Vector2 compute(AbstractEntityModel self, UniverseModel universe, double maxForce, double dt) {
         Vector2 sum = UU.vector2zero();
         int flockSize = 0;
 
@@ -48,14 +48,9 @@ public class SeparationModifier extends AbstractFlockingModifier {
             if (sum.getMagnitudeSquared() > 0) {
                 sum.normalize();
                 sum.multiply(maxForce*multiplier);
-
-
-                // Note: You can multiply 'sum' by a scalar weight here (e.g., sum.multiply(1.5))
-                // if you find your entities are clumping too tightly and need a stronger push.
-                currentDesired.add(sum);
             }
         }
 
-        return currentDesired;
+        return sum;
     }
 }

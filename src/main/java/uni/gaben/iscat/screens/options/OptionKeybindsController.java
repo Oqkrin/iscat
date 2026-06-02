@@ -71,9 +71,7 @@ public class OptionKeybindsController {
             }
 
             // Execute the DB update asynchronously
-            IscatDB.getInstance().executeAsync(() -> {
-                settingsDAO.updateControl(settings.getUserId(), selectedColumn, pressedKey);
-            });
+            IscatDB.getInstance().executeAsync(() -> settingsDAO.updateControl(settings.getUserId(), selectedColumn, pressedKey));
         }
 
         selectedButton.setText(pressedKey);

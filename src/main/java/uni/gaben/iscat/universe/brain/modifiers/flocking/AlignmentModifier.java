@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.brain.modifiers.flocking;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
@@ -13,8 +14,8 @@ public class AlignmentModifier extends AbstractFlockingModifier {
     }
 
     @Override
-    public Vector2 modify(Vector2 currentDesired, AbstractEntityModel self, UniverseModel universe, double maxForce, double dt) {
-        Vector2 averageVelocity = new Vector2();
+    public Vector2 compute(AbstractEntityModel self, UniverseModel universe, double maxForce, double dt) {
+        Vector2 averageVelocity = UU.vector2zero();
         int flockSize = 0;
         Vector2 selfPos = self.getTransform().getTranslation();
 
@@ -32,11 +33,9 @@ public class AlignmentModifier extends AbstractFlockingModifier {
             if (averageVelocity.getMagnitudeSquared() > 0) {
                 averageVelocity.normalize();
                 averageVelocity.multiply(maxForce*multiplier);
-                // You can add a weight multiplier here to scale alignment strength
-                currentDesired.add(averageVelocity);
             }
         }
 
-        return currentDesired;
+        return averageVelocity;
     }
 }

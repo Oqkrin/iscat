@@ -107,8 +107,10 @@ public class AsteroidModel extends AbstractEntityModel {
             double asteroidYMeters = this.getTransform().getTranslationY();
 
             // Target child radius in pixels
-            double smallerAsteroidARadius = (this.size / 4.0) * (0.8 + Math.random() * 0.4);
-            double smallerAsteroidBRadius = (this.size / 4.0) * (0.8 + Math.random() * 0.4);
+            double smallerAsteroidARadius = (this.size / 3.0) * (0.8 + Math.random() * 0.4);
+            double smallerAsteroidBRadius = (this.size / 3.0) * (0.8 + Math.random() * 0.4);
+            double smallerAsteroidCRadius = (this.size / 3.0) * (0.8 + Math.random() * 0.4);
+            double smallerAsteroidDRadius = (this.size / 3.0) * (0.8 + Math.random() * 0.4);
 
             double angle = this.splitAngle;
             double offsetMeters = UU.pxToM(this.size / 3.0); // Convert pixel offset distance to meters Safely
@@ -118,11 +120,16 @@ public class AsteroidModel extends AbstractEntityModel {
             double mY1 = asteroidYMeters + Math.sin(angle) * offsetMeters;
             double mX2 = asteroidXMeters - Math.cos(angle) * offsetMeters;
             double mY2 = asteroidYMeters - Math.sin(angle) * offsetMeters;
+            double mX3 = mX1;
+            double mY3 = mY2;
+            double mX4 = mX2;
+            double mY4 = mY1;
 
             // Convert back to pixels before passing to constructor (since super() maps parameters)
             AsteroidModel smallerAsteroidA = new AsteroidModel(UU.mToPx(mX1), UU.mToPx(mY1), smallerAsteroidARadius);
             AsteroidModel smallerAsteroidB = new AsteroidModel(UU.mToPx(mX2), UU.mToPx(mY2), smallerAsteroidBRadius);
-
+            AsteroidModel smallerAsteroidC = new AsteroidModel(UU.mToPx(mX3), UU.mToPx(mY3), smallerAsteroidARadius);
+            AsteroidModel smallerAsteroidD = new AsteroidModel(UU.mToPx(mX4), UU.mToPx(mY4), smallerAsteroidBRadius);
             // Handle outward velocity tracking forces
             Vector2 asteroidLinearVelocity = this.getLinearVelocity();
             double pushForce = 2.0;
@@ -131,12 +138,20 @@ public class AsteroidModel extends AbstractEntityModel {
                     .add(new Vector2(Math.cos(angle) * pushForce, Math.sin(angle) * pushForce));
             Vector2 smallerAsteroidBVelocity = asteroidLinearVelocity.copy()
                     .subtract(new Vector2(Math.cos(angle) * pushForce, Math.sin(angle) * pushForce));
+            Vector2 smallerAsteroidCVelocity = asteroidLinearVelocity.copy()
+                    .add(new Vector2(Math.cos(angle) * pushForce, Math.sin(angle) * pushForce)).getRightHandOrthogonalVector();
+            Vector2 smallerAsteroidDVelocity = asteroidLinearVelocity.copy()
+                    .subtract(new Vector2(Math.cos(angle) * pushForce, Math.sin(angle) * pushForce)).getRightHandOrthogonalVector();
 
             smallerAsteroidA.setLinearVelocity(smallerAsteroidAVelocity);
             smallerAsteroidB.setLinearVelocity(smallerAsteroidBVelocity);
+            smallerAsteroidC.setLinearVelocity(smallerAsteroidCVelocity);
+            smallerAsteroidD.setLinearVelocity(smallerAsteroidDVelocity);
 
             UniverseSpawner.getInstance().spawnEntity(smallerAsteroidA);
             UniverseSpawner.getInstance().spawnEntity(smallerAsteroidB);
+            UniverseSpawner.getInstance().spawnEntity(smallerAsteroidC);
+            UniverseSpawner.getInstance().spawnEntity(smallerAsteroidD);
         }
     }
 

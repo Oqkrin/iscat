@@ -7,12 +7,11 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 @FunctionalInterface
 public interface MovementModifier {
     /**
-     * @param currentDesired the desired velocity from the previous step
      * @param self           the entity being controlled
      * @param universe       the game universe
      * @param maxForce       acceleration
      * @param dt             timeunit
      * @return the new desired velocity after this modifier
      */
-    Vector2 modify(Vector2 currentDesired, AbstractEntityModel self, UniverseModel universe, double maxForce, double dt);
+    Vector2 compute(AbstractEntityModel self, UniverseModel universe, double maxForce, double dt);
 }

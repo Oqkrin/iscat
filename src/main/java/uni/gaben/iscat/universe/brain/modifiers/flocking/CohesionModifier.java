@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.brain.modifiers.flocking;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
@@ -12,7 +13,7 @@ public class CohesionModifier extends AbstractFlockingModifier {
     }
 
     @Override
-    public Vector2 modify(Vector2 currentDesired, AbstractEntityModel self, UniverseModel universe, double maxForce, double dt) {
+    public Vector2 compute(AbstractEntityModel self, UniverseModel universe, double maxForce, double dt) {
         Vector2 centerOfMass = new Vector2();
         int flockSize = 0;
         Vector2 selfPos = self.getTransform().getTranslation();
@@ -33,10 +34,11 @@ public class CohesionModifier extends AbstractFlockingModifier {
             if (steer.getMagnitudeSquared() > 0) {
                 steer.normalize();
                 steer.multiply(maxForce*multiplier);
-                currentDesired.add(steer);
             }
+
+            return steer;
         }
 
-        return currentDesired;
+        return UU.vector2zero();
     }
 }

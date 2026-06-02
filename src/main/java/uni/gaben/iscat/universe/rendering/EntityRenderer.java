@@ -158,9 +158,6 @@ public final class EntityRenderer {
         double[] xPoints = new double[vertices.length];
         double[] yPoints = new double[vertices.length];
 
-        double centerX = UU.mToPx(asteroid.getTransform().getTranslationX());
-        double centerY = UU.mToPx(asteroid.getTransform().getTranslationY());
-
         for (int i = 0; i < vertices.length; i++) {
             Vector2 worldPoint = asteroid.getTransform().getTransformed(vertices[i]);
             xPoints[i] = UU.mToPx(worldPoint.x);
@@ -179,7 +176,7 @@ public final class EntityRenderer {
             gc.save();
             // Cracks expand in width as health deteriorates
             double crackWidth = (1.0 - healthRatio) * 4.0;
-            gc.setLineWidth(Math.max(1.2, crackWidth));
+            gc.setLineWidth(Math.max(2, crackWidth));
 
             // The structural fault plane is perpendicular to the child separation push angle
             double localFaultAngle = (asteroid.getSplitAngle() + Math.PI / 2) % (Math.PI * 2);
