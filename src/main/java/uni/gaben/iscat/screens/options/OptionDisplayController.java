@@ -37,9 +37,11 @@ public class OptionDisplayController {
 
         stage.fullScreenProperty().addListener((obs, oldVal, newVal) -> {
             FullscreenCheck.setSelected(newVal);
-            if (settings != null) {
+
+            if (settings != null && FullscreenCheck.getScene() != null && FullscreenCheck.getScene().getWindow() != null) {
                 int fsValue = newVal ? 1 : 0;
                 settings.setFullscreen(fsValue);
+
                 IscatDB.getInstance().executeAsync(() ->
                         IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "Fullscreen", fsValue)
                 );
