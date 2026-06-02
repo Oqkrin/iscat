@@ -38,7 +38,6 @@ public class GameController {
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
     private final BooleanProperty optionsMenuOpen = new SimpleBooleanProperty(false);
     private UniverseWaveController waveController;
-    Random random = new Random();
 
     public GameController(GameModel gameModel) {
         this.gameModel = gameModel;
@@ -103,6 +102,9 @@ public class GameController {
     }
 
     private void update(double dt) {
+        if (gameInputs.consumePause()) {
+            togglePause();
+        }
         if (!gameModel.isPaused()) {
             universeController.updatev(dt, gameInputs, getCameraModel());
 
@@ -121,7 +123,11 @@ public class GameController {
     }
 
     public void togglePause() {
-        gameModel.setPaused(!gameModel.isPaused());
+        if (gameModel.getGameState() == GameState.PLAYING) {
+            gameModel.setGameState(GameState.IN_PAUSE);
+        } else if (gameModel.getGameState() == GameState.IN_PAUSE) {
+            gameModel.setGameState(GameState.PLAYING);
+        }
     }
 
     public void debugSpawn(String spawnableId) {

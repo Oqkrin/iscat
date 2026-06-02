@@ -14,13 +14,11 @@ import uni.gaben.iscat.screens.confirmation_overlay.ConfirmationOverlayControlle
 public class OptionsMenuController implements IscatMenuController {
 
     @FXML private VBox paneMaster;
-
     @FXML private OptionDisplayController subDisplayController;
     @FXML private OptionAudioController subAudioController;
     @FXML private OptionThemeController subThemeController;
     @FXML private OptionKeybindsController subKeybindsController;
     @FXML private OptionAccountController subAccountController;
-
     @FXML private StackPane confirmOverlay;
     @FXML private ConfirmationOverlayController confirmOverlayController;
 
@@ -31,14 +29,22 @@ public class OptionsMenuController implements IscatMenuController {
     public void initialize() {
         if (subThemeController != null) subThemeController.injectParentPane(paneMaster);
         if (subAccountController != null) subAccountController.setConfirmOverlayController(confirmOverlayController);
+        if (subKeybindsController != null) subKeybindsController.setConfirmOverlayController(confirmOverlayController);
 
         registerEscHandler();
 
         getRootPane().sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
-                    if (subKeybindsController != null && subKeybindsController.hasActiveSelection()) {
+                    if (subKeybindsController != null && subKeybindsController.isListening()) {
                         boolean consumed = subKeybindsController.handleKeyPress(e);
+                        if (consumed) e.consume();
+                    }
+                });
+
+                newScene.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, e -> {
+                    if (subKeybindsController != null && subKeybindsController.isListening()) {
+                        boolean consumed = subKeybindsController.handleMousePress(e);
                         if (consumed) e.consume();
                     }
                 });
@@ -60,6 +66,9 @@ public class OptionsMenuController implements IscatMenuController {
     @Override
     public void handleBack() {
         if (confirmOverlay != null && confirmOverlay.isVisible()) {
+            if (subKeybindsController != null && subKeybindsController.hasActiveSelection()) {
+                subKeybindsController.clearSelection();
+            }
             confirmOverlayController.handleBack();
             return;
         }

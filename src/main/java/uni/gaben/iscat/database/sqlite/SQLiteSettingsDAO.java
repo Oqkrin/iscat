@@ -29,6 +29,7 @@ public class SQLiteSettingsDAO implements SettingsDAO {
                             rs.getString("WalkDown"),
                             rs.getString("WalkLeft"),
                             rs.getString("WalkRight"),
+                            rs.getString("Attack"),
                             rs.getString("Dash1"),
                             rs.getString("Dash2"),
                             rs.getString("PauseGame")
@@ -98,10 +99,10 @@ public class SQLiteSettingsDAO implements SettingsDAO {
     @Override
     public void createDefault(int userId) {
         String sql = """
-            INSERT OR IGNORE INTO ImpostazioniUtenti 
-            (UserID, WalkUp, WalkDown, WalkLeft, WalkRight, Dash1, Dash2, PauseGame) 
-            VALUES (?, 'W', 'S', 'A', 'D', 'Q', 'E', 'P')
-            """;
+        INSERT OR IGNORE INTO ImpostazioniUtenti 
+        (UserID, WalkUp, WalkDown, WalkLeft, WalkRight,Attack, Dash1, Dash2 , PauseGame) 
+        VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'Q', 'E', 'P')
+        """;
         try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
@@ -112,6 +113,6 @@ public class SQLiteSettingsDAO implements SettingsDAO {
     }
 
     private boolean isValidControlColumn(String column) {
-        return column != null && column.matches("(?i)WalkUp|WalkDown|WalkLeft|WalkRight|Dash1|Dash2|PauseGame");
+        return column != null && column.matches("(?i)WalkUp|WalkDown|WalkLeft|WalkRight|Dash1|Dash2|Attack|PauseGame");
     }
 }

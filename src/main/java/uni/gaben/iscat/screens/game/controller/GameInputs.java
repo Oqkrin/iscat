@@ -9,71 +9,21 @@ import uni.gaben.iscat.utils.SessionManager;
 
 public class GameInputs {
     public boolean up, down, left, right;
+    public boolean shooting;
 
     private boolean dashRequested = false;
     private boolean dashMouseRequested = false;
 
-    public boolean shooting;
     public double mouseX, mouseY;
+
+    private boolean pauseRequested = false;
 
     public void attachToScene(Scene scene) {
         scene.setOnKeyPressed(e -> handleKey(e.getCode(), true));
         scene.setOnKeyReleased(e -> handleKey(e.getCode(), false));
-    }
 
-    public void resetInputs() {
-        up = false;
-        down = false;
-        left = false;
-        right = false;
-        dashRequested = false;
-        dashMouseRequested = false;
-        shooting = false;
-    }
-
-    private void handleKey(KeyCode code, boolean isPressed) {
-        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
-
-        if (settings != null) {
-            if (matchKey(code, settings.getWalkUp()))    up = isPressed;
-            if (matchKey(code, settings.getWalkDown()))  down = isPressed;
-            if (matchKey(code, settings.getWalkLeft()))  left = isPressed;
-            if (matchKey(code, settings.getWalkRight())) right = isPressed;
-
-            if (isPressed) {
-                if (matchKey(code, settings.getDash1())) dashRequested = true;
-                if (matchKey(code, settings.getDash2())) dashRequested = true;
-            }
-        } else {
-            // FALLBACK: Se i dati di sessione sono nulli, usa i comandi standard di fabbrica
-            switch (code) {
-                case W, UP    -> up = isPressed;
-                case S, DOWN  -> down = isPressed;
-                case A, LEFT  -> left = isPressed;
-                case D, RIGHT -> right = isPressed;
-                case SPACE    -> { if (isPressed) dashRequested = true; }
-                default -> {}
-            }
-        }
-    }
-
-    /**
-     * Helper per mappare la stringa del DB con il KeyCode di JavaFX.
-     * Gestisce anche le frecce direzionali se salvate come "UP", "DOWN", ecc.
-     */
-    private boolean matchKey(KeyCode code, String settingValue) {
-        if (settingValue == null) return false;
-        String dbKey = settingValue.trim().toUpperCase();
-        String fxKey = code.toString().toUpperCase();
-
-        // Mappatura di sicurezza per le frecce direzionali o formati custom
-        if (dbKey.equals("FRECCIA SU") || dbKey.equals("ARROW UP")) return code == KeyCode.UP;
-        if (dbKey.equals("FRECCIA GIÙ") || dbKey.equals("FRECCIA GIU") || dbKey.equals("ARROW DOWN")) return code == KeyCode.DOWN;
-        if (dbKey.equals("FRECCIA SINISTRA") || dbKey.equals("ARROW LEFT")) return code == KeyCode.LEFT;
-        if (dbKey.equals("FRECCIA DESTRA") || dbKey.equals("ARROW RIGHT")) return code == KeyCode.RIGHT;
-        if (dbKey.equals("SPAZIO") || dbKey.equals("SPACEBAR")) return code == KeyCode.SPACE;
-
-        return fxKey.equals(dbKey);
+        scene.setOnMousePressed(e -> handleMouse(e.getButton(), true));
+        scene.setOnMouseReleased(e -> handleMouse(e.getButton(), false));
     }
 
     public void attachToCanvas(Node canvas) {
@@ -85,37 +35,101 @@ public class GameInputs {
             mouseX = e.getX();
             mouseY = e.getY();
         });
-        canvas.setOnMousePressed(e -> {
-            if (e.getButton() == MouseButton.PRIMARY) shooting = true;
-
-            UserSettings settings = SessionManager.getInstance().getCurrentSettings();
-            if (settings != null) {
-                if (isMouseMatch(e.getButton(), settings.getDash1())) dashRequested = true;
-                if (isMouseMatch(e.getButton(), settings.getDash2())) dashMouseRequested = true;
-            } else {
-                if (e.getButton() == MouseButton.MIDDLE) dashMouseRequested = true;
-            }
-        });
-        canvas.setOnMouseReleased(e -> {
-            if (e.getButton() == MouseButton.PRIMARY) shooting = false;
-
-            UserSettings settings = SessionManager.getInstance().getCurrentSettings();
-            if (settings != null) {
-                if (isMouseMatch(e.getButton(), settings.getDash1())) dashRequested = false;
-                if (isMouseMatch(e.getButton(), settings.getDash2())) dashMouseRequested = false;
-            } else {
-                if (e.getButton() == MouseButton.MIDDLE) dashMouseRequested = false;
-            }
-        });
     }
 
-    private boolean isMouseMatch(MouseButton button, String settingValue) {
+    public void resetInputs() {
+        up = false;
+        down = false;
+        left = false;
+        right = false;
+        dashRequested = false;
+        dashMouseRequested = false;
+        shooting = false;
+        pauseRequested = false;
+    }
+
+    private void handleKey(KeyCode code, boolean isPressed) {
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+
+        if (settings != null) {
+            if (matchKey(code, settings.getWalkUp()))    up = isPressed;
+            if (matchKey(code, settings.getWalkDown()))  down = isPressed;
+            if (matchKey(code, settings.getWalkLeft()))  left = isPressed;
+            if (matchKey(code, settings.getWalkRight())) right = isPressed;
+            if (matchKey(code, settings.getAttack()))    shooting = isPressed;
+
+            if (isPressed) {
+                if (matchKey(code, settings.getDash1()))     dashRequested = true;
+                if (matchKey(code, settings.getDash2()))     dashMouseRequested = true;
+                if (matchKey(code, settings.getPauseGame())) pauseRequested = true;
+            } else {
+                if (matchKey(code, settings.getDash1()))    dashRequested = false;
+                if (matchKey(code, settings.getDash2()))    dashMouseRequested = false;
+            }
+        } else {
+            switch (code) {
+                case W, UP    -> up = isPressed;
+                case S, DOWN  -> down = isPressed;
+                case A, LEFT  -> left = isPressed;
+                case D, RIGHT -> right = isPressed;
+                case Z        -> shooting = isPressed;
+                case SPACE    -> { if (isPressed) dashRequested = true; }
+                case ESCAPE, P -> { if (isPressed) pauseRequested = true; }
+                default -> {}
+            }
+        }
+    }
+
+
+    private void handleMouse(MouseButton button, boolean isPressed) {
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+
+        if (settings != null) {
+            if (matchMouse(button, settings.getWalkUp()))    up = isPressed;
+            if (matchMouse(button, settings.getWalkDown()))  down = isPressed;
+            if (matchMouse(button, settings.getWalkLeft()))  left = isPressed;
+            if (matchMouse(button, settings.getWalkRight())) right = isPressed;
+            if (matchMouse(button, settings.getAttack()))    shooting = isPressed;
+
+            if (isPressed) {
+                if (matchMouse(button, settings.getDash1())) dashRequested = true;
+                if (matchMouse(button, settings.getDash2())) dashMouseRequested = true;
+                if (matchMouse(button, settings.getPauseGame())) pauseRequested = true;
+            } else {
+                if (matchMouse(button, settings.getDash1())) dashRequested = false;
+                if (matchMouse(button, settings.getDash2())) dashMouseRequested = false;
+            }
+        } else {
+            if (button == MouseButton.PRIMARY) shooting = isPressed;
+            if (button == MouseButton.MIDDLE) {
+                if (isPressed) dashMouseRequested = true;
+                else dashMouseRequested = false;
+            }
+        }
+    }
+
+    private boolean matchKey(KeyCode code, String settingValue) {
         if (settingValue == null) return false;
-        String val = settingValue.trim();
+        String dbKey = settingValue.trim().toUpperCase();
+        String fxKey = code.toString().toUpperCase();
+
+        if (dbKey.equals("UP")) return code == KeyCode.UP;
+        if (dbKey.equals("DOWN")) return code == KeyCode.DOWN;
+        if (dbKey.equals("LEFT")) return code == KeyCode.LEFT;
+        if (dbKey.equals("RIGHT")) return code == KeyCode.RIGHT;
+        if (dbKey.equals("SPACE")) return code == KeyCode.SPACE;
+
+        return fxKey.equals(dbKey);
+    }
+
+    private boolean matchMouse(MouseButton button, String settingValue) {
+        if (settingValue == null) return false;
+        String val = settingValue.trim().toUpperCase();
+
         return switch (button) {
-            case MIDDLE -> val.equalsIgnoreCase("Middle Mouse") || val.equalsIgnoreCase("MIDDLE");
-            case PRIMARY -> val.equalsIgnoreCase("Primary Mouse") || val.equalsIgnoreCase("PRIMARY");
-            case SECONDARY -> val.equalsIgnoreCase("Secondary Mouse") || val.equalsIgnoreCase("SECONDARY");
+            case PRIMARY   -> val.equals("MOUSEPRIMARY");
+            case SECONDARY -> val.equals("MOUSESECONDARY");
+            case MIDDLE    -> val.equals("MOUSEMIDDLE");
             default -> false;
         };
     }
@@ -130,5 +144,11 @@ public class GameInputs {
         boolean d = dashMouseRequested;
         dashMouseRequested = false;
         return d;
+    }
+
+    public boolean consumePause() {
+        boolean p = pauseRequested;
+        pauseRequested = false;
+        return p;
     }
 }
