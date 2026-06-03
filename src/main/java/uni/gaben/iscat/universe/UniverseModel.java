@@ -91,6 +91,7 @@ public class UniverseModel extends World<Body> {
             double vy = body.getLinearVelocity().y;
 
             if (body instanceof GenericEntityModel entity) {
+                System.out.println("UniverseModel");
                 System.out.println("Entity key: " + entity.getEntityKey());
             System.out.println("Body: " + body.getClass().getSimpleName());
             System.out.println("Position: " + tx + ", " + ty);
