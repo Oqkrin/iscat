@@ -17,6 +17,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
@@ -34,12 +35,7 @@ public class OptionThemeController {
     @FXML private ImageView themePreview;
     @FXML private Button prevThemeBtn, nextThemeBtn;
 
-    private final List<File> carouselImages = new ArrayList<>();
-    private int currentIndex = -1;
-    private AnimationTimer uiRainbowSyncTimer;
-    private ColorPicker activePicker = null;
-    private final List<Color> currentPalette = new ArrayList<>();
-    private final Map<ColorPicker, StackPane> pickerBoxes = new HashMap<>();
+
     private Pane paneMaster;
     private boolean isUpdatingProgrammatically = false;
 
@@ -96,23 +92,23 @@ public class OptionThemeController {
 
         HBox widget = new HBox(2, colorBox, arrowBtn);
         widget.setAlignment(Pos.CENTER_LEFT);
-        pickerBoxes.put(picker, colorBox);
+        SessionManager.getInstance().pickerBoxes.put(picker, colorBox);
 
         row.getChildren().add(widget);
     }
 
     private void setActivePicker(ColorPicker picker) {
-        pickerBoxes.values().forEach(box -> box.getStyleClass().remove("picker-active"));
-        if (picker != null && pickerBoxes.containsKey(picker)) {
-            pickerBoxes.get(picker).getStyleClass().add("picker-active");
+        SessionManager.getInstance().pickerBoxes.values().forEach(box -> box.getStyleClass().remove("picker-active"));
+        if (picker != null && SessionManager.getInstance().pickerBoxes.containsKey(picker)) {
+            SessionManager.getInstance().pickerBoxes.get(picker).getStyleClass().add("picker-active");
         }
-        activePicker = picker;
+        SessionManager.getInstance().activePicker = picker;
     }
 
     public void applyManualColorChanges() {
         if (paneMaster == null || paneMaster.getScene() == null) return;
         ThemeManager.getInstance().stopRainbowMode();
-        if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
+        if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
 
         List<String> hexPalette = List.of(toHex(accentPrimary.getValue()), toHex(accentSecondary.getValue()), toHex(accentTernary.getValue()), toHex(bgPrimary.getValue()));
         ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.2);
@@ -123,7 +119,7 @@ public class OptionThemeController {
         if (paneMaster.getScene() == null) return;
         if (ThemeManager.getInstance().isRainbowModeActive()) {
             ThemeManager.getInstance().stopRainbowMode();
-            if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
+            if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
             syncColorPickersWithTheme();
             AudioManager.getInstance().playSFX("laugh");
         } else {
@@ -138,26 +134,26 @@ public class OptionThemeController {
         FileChooser picker = new FileChooser();
         File chosen = picker.showOpenDialog(paneMaster.getScene().getWindow());
         if (chosen != null) {
-            carouselImages.add(chosen);
-            currentIndex = carouselImages.size() - 1;
+            SessionManager.getInstance().carouselImages.add(chosen);
+            SessionManager.getInstance().currentIndex = SessionManager.getInstance().carouselImages.size() - 1;
             applyTheme(chosen);
             updateCarouselButtons();
         }
     }
 
-    @FXML void nextTheme(ActionEvent event) { if (!carouselImages.isEmpty()) { currentIndex = (currentIndex + 1) % carouselImages.size(); applyTheme(carouselImages.get(currentIndex)); } }
-    @FXML void prevTheme(ActionEvent event) { if (!carouselImages.isEmpty()) { currentIndex = (currentIndex - 1 + carouselImages.size()) % carouselImages.size(); applyTheme(carouselImages.get(currentIndex)); } }
+    @FXML void nextTheme(ActionEvent event) { if (!SessionManager.getInstance().carouselImages.isEmpty()) { SessionManager.getInstance().currentIndex = (SessionManager.getInstance().currentIndex + 1) % SessionManager.getInstance().carouselImages.size(); applyTheme(SessionManager.getInstance().carouselImages.get(SessionManager.getInstance().currentIndex)); } }
+    @FXML void prevTheme(ActionEvent event) { if (!SessionManager.getInstance().carouselImages.isEmpty()) { SessionManager.getInstance().currentIndex = (SessionManager.getInstance().currentIndex - 1 + SessionManager.getInstance().carouselImages.size()) % SessionManager.getInstance().carouselImages.size(); applyTheme(SessionManager.getInstance().carouselImages.get(SessionManager.getInstance().currentIndex)); } }
 
     private void applyTheme(File imageFile) {
         try {
             ThemeManager.getInstance().stopRainbowMode();
-            if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
+            if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
             BufferedImage bufferedImage = ImageIO.read(imageFile);
             if (bufferedImage == null) return;
 
             int[][] rawPalette = ColorThief.getPalette(bufferedImage, 16, 1, false);
-            currentPalette.clear();
-            for (int[] rgb : rawPalette) currentPalette.add(Color.rgb(rgb[0], rgb[1], rgb[2]));
+            SessionManager.getInstance().currentPalette.clear();
+            for (int[] rgb : rawPalette) SessionManager.getInstance().currentPalette.add(Color.rgb(rgb[0], rgb[1], rgb[2]));
 
             rebuildPaletteUI();
             assignPickersFromPalette();
@@ -169,25 +165,25 @@ public class OptionThemeController {
 
     private void rebuildPaletteUI() {
         paletteHolder.getChildren().clear();
-        if (currentPalette.isEmpty()) return;
-        List<Color> sorted = currentPalette.stream().sorted(Comparator.comparingDouble(this::luminance)).toList();
+        if (SessionManager.getInstance().currentPalette.isEmpty()) return;
+        List<Color> sorted = SessionManager.getInstance().currentPalette.stream().sorted(Comparator.comparingDouble(this::luminance)).toList();
         double diameter = Math.max(8, Math.min(24, (theme.getWidth() - 28 - (5 * (sorted.size() - 1))) / sorted.size()));
 
         for (Color color : sorted) {
             Circle circle = new Circle(diameter / 2.0, color);
             circle.getStyleClass().add("palette-swatch");
-            circle.setOnMouseClicked(e -> { if (activePicker != null) { activePicker.setValue(color); applyManualColorChanges(); } });
+            circle.setOnMouseClicked(e -> { if (SessionManager.getInstance().activePicker != null) { SessionManager.getInstance().activePicker.setValue(color); applyManualColorChanges(); } });
             paletteHolder.getChildren().add(circle);
         }
     }
 
     private void assignPickersFromPalette() {
-        if (currentPalette.isEmpty()) return;
-        Color bg = currentPalette.stream().max(Comparator.comparingDouble(c -> lightModeCheck.isSelected() ? luminance(c) : -luminance(c))).orElse(Color.BLACK);
+        if (SessionManager.getInstance().currentPalette.isEmpty()) return;
+        Color bg = SessionManager.getInstance().currentPalette.stream().max(Comparator.comparingDouble(c -> lightModeCheck.isSelected() ? luminance(c) : -luminance(c))).orElse(Color.BLACK);
 
         isUpdatingProgrammatically = true;
         bgPrimary.setValue(bg);
-        List<Color> accents = currentPalette.stream().filter(c -> !c.equals(bg)).toList();
+        List<Color> accents = SessionManager.getInstance().currentPalette.stream().filter(c -> !c.equals(bg)).toList();
         if (!accents.isEmpty()) accentPrimary.setValue(accents.get(0));
         if (accents.size() >= 2) accentSecondary.setValue(accents.get(1));
         if (accents.size() >= 3) accentTernary.setValue(accents.get(2));
@@ -195,8 +191,8 @@ public class OptionThemeController {
     }
 
     private void startUiSyncTimer() {
-        if (uiRainbowSyncTimer != null) uiRainbowSyncTimer.stop();
-        uiRainbowSyncTimer = new AnimationTimer() {
+        if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
+        SessionManager.getInstance().uiRainbowSyncTimer = new AnimationTimer() {
             @Override public void handle(long now) {
                 Color c = ThemeManager.getInstance().getAccentPrimary();
 
@@ -207,12 +203,12 @@ public class OptionThemeController {
                 isUpdatingProgrammatically = false;
             }
         };
-        uiRainbowSyncTimer.start();
+        SessionManager.getInstance().uiRainbowSyncTimer.start();
     }
 
     @FXML void toggleThemeMode(ActionEvent event) { toggleThemeModeLogic(); }
     private void toggleThemeModeLogic() {
-        if (!carouselImages.isEmpty() && currentIndex >= 0) { applyTheme(carouselImages.get(currentIndex)); }
+        if (!SessionManager.getInstance().carouselImages.isEmpty() && SessionManager.getInstance().currentIndex >= 0) { applyTheme(SessionManager.getInstance().carouselImages.get(SessionManager.getInstance().currentIndex)); }
         else {
             Color cp = accentPrimary.getValue();
             bgPrimary.setValue(Color.hsb(cp.getHue(), cp.getSaturation() * 0.1, lightModeCheck.isSelected() ? 0.95 : 0.05));
@@ -232,6 +228,6 @@ public class OptionThemeController {
 
     private double luminance(Color c) { return 0.2126 * lin(c.getRed()) + 0.7152 * lin(c.getGreen()) + 0.0722 * lin(c.getBlue()); }
     private double lin(double ch) { return (ch <= 0.03928) ? ch / 12.92 : Math.pow((ch + 0.055) / 1.055, 2.4); }
-    private void updateCarouselButtons() { boolean show = carouselImages.size() > 1; prevThemeBtn.setVisible(show); nextThemeBtn.setVisible(show); }
+    private void updateCarouselButtons() { boolean show = SessionManager.getInstance().carouselImages.size() > 1; prevThemeBtn.setVisible(show); nextThemeBtn.setVisible(show); }
     private String toHex(Color c) { return String.format("#%02x%02x%02x", (int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255)); }
 }

@@ -1,13 +1,23 @@
 package uni.gaben.iscat.utils;
 
+import javafx.animation.AnimationTimer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.screens.login.model.UserSettings;
 import uni.gaben.iscat.screens.scores.SaveData;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SessionManager {
     private static SessionManager instance;
@@ -16,6 +26,14 @@ public class SessionManager {
     private UserSettings currentSettings;
     private final ObjectProperty<SaveData> currentSaveData = new SimpleObjectProperty<>();
     private final StringProperty username = new SimpleStringProperty();
+
+    public final List<File> carouselImages = new ArrayList<>();
+    public int currentIndex = -1;
+    public AnimationTimer uiRainbowSyncTimer;
+    public ColorPicker activePicker = null;
+    public final List<Color> currentPalette = new ArrayList<>();
+    public final Map<ColorPicker, StackPane> pickerBoxes = new HashMap<>();
+
 
     private SessionManager() {}
 
