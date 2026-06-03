@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.UniverseSpawnable;
-import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
+import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
 import uni.gaben.iscat.utils.design.CssHelper;
 
 import java.util.Set;
@@ -56,7 +56,7 @@ public class GameSpawnerToolbar extends StackPane {
                 .thenAccept(enemies -> {
                     // Una volta letti i dati in background, torniamo sul thread UI per modificare i nodi grafici
                     Platform.runLater(() -> {
-                        for (GenericPhysicalEntitySettings s : enemies) {
+                        for (GenericEntitySettings s : enemies) {
                             if (s == null || s.entityKey == null) continue;
 
                             Button b = createSmallButton(s.entityKey);

@@ -40,25 +40,24 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.controller.components.options;
 
     exports uni.gaben.iscat.universe;
-    exports uni.gaben.iscat.universe.brain;
-    exports uni.gaben.iscat.universe.brain.actions;
-    exports uni.gaben.iscat.universe.brain.goals;
-    exports uni.gaben.iscat.universe.brain.modifiers;
-    exports uni.gaben.iscat.universe.brain.modifiers.flocking;
+    exports uni.gaben.iscat.universe.entity.brain;
+    exports uni.gaben.iscat.universe.entity.brain.actions;
+    exports uni.gaben.iscat.universe.entity.brain.goals;
+    exports uni.gaben.iscat.universe.entity.brain.modifiers;
+    exports uni.gaben.iscat.universe.entity.brain.modifiers.flocking;
     exports uni.gaben.iscat.universe.camera;
-    exports uni.gaben.iscat.universe.consumables.heart;
-    exports uni.gaben.iscat.universe.enemies.worm;
-    exports uni.gaben.iscat.universe.enviroment.asteroid;
-    exports uni.gaben.iscat.universe.enviroment.starfield;
+    exports uni.gaben.iscat.universe.entity.consumables.heart;
+    exports uni.gaben.iscat.universe.entity.enemies.worm;
+    exports uni.gaben.iscat.universe.entity.enviroment.asteroid;
+    exports uni.gaben.iscat.universe.rendering.starfield;
     exports uni.gaben.iscat.universe.lib.abstracts;
-    exports uni.gaben.iscat.universe.lib.implementations.attacks;
-    exports uni.gaben.iscat.universe.lib.interfaces.controller;
-    exports uni.gaben.iscat.universe.lib.interfaces.model;
-    exports uni.gaben.iscat.universe.lib.interfaces.view;
-    exports uni.gaben.iscat.universe.player;
-    exports uni.gaben.iscat.universe.projectiles;
+    exports uni.gaben.iscat.universe.entity.projectiles.Shooters;
+    exports uni.gaben.iscat.universe.interfaces.model;
+    exports uni.gaben.iscat.universe.interfaces.view;
+    exports uni.gaben.iscat.universe.entity.player;
+    exports uni.gaben.iscat.universe.entity.projectiles;
     exports uni.gaben.iscat.universe.rendering;
-    exports uni.gaben.iscat.universe.brain.targets;
+    exports uni.gaben.iscat.universe.entity.brain.targets;
 
     exports uni.gaben.iscat.utils;
     exports uni.gaben.iscat.utils.sprite;
@@ -70,4 +69,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.model.user;
     exports uni.gaben.iscat.view.components;
     opens uni.gaben.iscat.view.components to javafx.fxml;
+    exports uni.gaben.iscat.universe.entity;
+    exports uni.gaben.iscat.universe.interfaces;
 }

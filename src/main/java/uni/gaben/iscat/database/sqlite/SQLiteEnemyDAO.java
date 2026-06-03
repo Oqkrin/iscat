@@ -2,8 +2,7 @@ package uni.gaben.iscat.database.sqlite;
 
 import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
-import uni.gaben.iscat.universe.lib.abstracts.PhysicalEntitySettings;
+import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -71,7 +70,7 @@ public class SQLiteEnemyDAO implements EnemyDAO {
     }
 
     @Override
-    public Optional<GenericPhysicalEntitySettings> findByKey(String entityKey) {
+    public Optional<GenericEntitySettings> findByKey(String entityKey) {
         if (entityKey == null) return Optional.empty();
         String sql = "SELECT * FROM Entity WHERE LOWER(EntityKey) = ?";
 
@@ -89,8 +88,8 @@ public class SQLiteEnemyDAO implements EnemyDAO {
     }
 
     @Override
-    public List<GenericPhysicalEntitySettings> findAll() {
-        List<GenericPhysicalEntitySettings> list = new ArrayList<>();
+    public List<GenericEntitySettings> findAll() {
+        List<GenericEntitySettings> list = new ArrayList<>();
         String sql = "SELECT * FROM Entity ORDER BY ID ASC";
 
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql);
@@ -105,12 +104,12 @@ public class SQLiteEnemyDAO implements EnemyDAO {
     }
 
     /**
-     * Maps a database row from the Entity table to a GenericPhysicalEntitySettings object.
+     * Maps a database row from the Entity table to a GenericEntitySettings object.
      * Follows the standardized schema defined in the Entity table.
      * All field mappings are explicit and match the database column names exactly.
      */
-    private GenericPhysicalEntitySettings mapRow(ResultSet rs) throws SQLException {
-        GenericPhysicalEntitySettings s = new GenericPhysicalEntitySettings();
+    private GenericEntitySettings mapRow(ResultSet rs) throws SQLException {
+        GenericEntitySettings s = new GenericEntitySettings();
 
         // Identity fields
         s.entityKey = rs.getString("EntityKey");
@@ -124,7 +123,7 @@ public class SQLiteEnemyDAO implements EnemyDAO {
         
         // Shape type (with safe parsing)
         String shapeTypeStr = rs.getString("ShapeType");
-        s.shapeType = GenericPhysicalEntitySettings.ShapeType.fromString(shapeTypeStr);
+        s.shapeType = GenericEntitySettings.ShapeType.fromString(shapeTypeStr);
 
         // Physical properties (from PhysicalEntitySettings base)
         s.scale = rs.getDouble("Scale");

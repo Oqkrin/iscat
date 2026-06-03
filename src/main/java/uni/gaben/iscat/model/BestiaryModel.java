@@ -2,7 +2,7 @@ package uni.gaben.iscat.model;
 
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.EnemyDAO;
-import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
+import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Gestisce il caricamento e l'estrazione dei dati del Bestiario dal database SQLite.
- * Utilizza direttamente {@link GenericPhysicalEntitySettings} come fonte unica di verità per i dati delle entità,
+ * Utilizza direttamente {@link GenericEntitySettings} come fonte unica di verità per i dati delle entità,
  * eliminando la ridondanza dei record personalizzati e mantenendo la coerenza con il resto del sistema.
  */
 public class BestiaryModel {
@@ -26,17 +26,17 @@ public class BestiaryModel {
      * Utilizza il DAO standardizzato per garantire coerenza con il resto del sistema.
      *
      * @param userId Identificativo numerico dell'utente per il recupero delle metriche personali.
-     * @return Una mappa ordinata che associa la chiave normalizzata del nemico al suo {@link GenericPhysicalEntitySettings}.
+     * @return Una mappa ordinata che associa la chiave normalizzata del nemico al suo {@link GenericEntitySettings}.
      */
-    public Map<String, GenericPhysicalEntitySettings> loadEnemies(int userId) {
-        Map<String, GenericPhysicalEntitySettings> enemies = new LinkedHashMap<>();
+    public Map<String, GenericEntitySettings> loadEnemies(int userId) {
+        Map<String, GenericEntitySettings> enemies = new LinkedHashMap<>();
         killCounts.clear();
 
         try {
             EnemyDAO enemyDAO = IscatDB.getInstance().getEnemyDAO();
             
             // Load all enemies from database (standardized DAO)
-            List<GenericPhysicalEntitySettings> allEnemies = enemyDAO.findAll();
+            List<GenericEntitySettings> allEnemies = enemyDAO.findAll();
             
             // Load bestiary entries with kill counts for this user
             List<EnemyDAO.BestiarioEntry> bestiaryEntries = enemyDAO.getBestiarioForUser(userId);
@@ -49,7 +49,7 @@ public class BestiaryModel {
             }
             
             // Populate enemies map with settings and kill counts
-            for (GenericPhysicalEntitySettings settings : allEnemies) {
+            for (GenericEntitySettings settings : allEnemies) {
                 String cleanKey = settings.entityKey.toLowerCase().trim();
                 enemies.put(cleanKey, settings);
                 

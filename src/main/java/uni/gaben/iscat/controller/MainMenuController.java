@@ -8,7 +8,7 @@ import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.universe.player.PlayerSettings;
+import uni.gaben.iscat.universe.entity.player.PlayerSettings;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 public class MainMenuController implements IscatFxmlController {

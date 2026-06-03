@@ -18,10 +18,9 @@ import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.controller.OptionsMenuController;
 import uni.gaben.iscat.controller.game.GamePauseMenuController;
-import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
+import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFX;
 import uni.gaben.iscat.universe.rendering.UniverseRenderer;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.design.CssHelper;
@@ -44,7 +43,7 @@ public class GameView extends AbstractIscatStackPane {
     private Canvas           timerCanvas;
     private StarryText       starryTimer;
     private UniverseRenderer universeRenderer;
-    private final StarfieldView starfieldView = new StarfieldView();
+    private final StarfieldVFX starfieldVFX = new StarfieldVFX();
 
     private GameSpawnerToolbar spawnerToolbar;
     private StackPane          pauseMenu;
@@ -98,7 +97,7 @@ public class GameView extends AbstractIscatStackPane {
         debugButtonsContainer.setPickOnBounds(false);
         spawnerToolbar.setPickOnBounds(false);
 
-        universeRenderer = new UniverseRenderer(canvas, gameController, starfieldView);
+        universeRenderer = new UniverseRenderer(canvas, gameController, starfieldVFX);
     }
 
     @Override
@@ -323,16 +322,9 @@ public class GameView extends AbstractIscatStackPane {
     private void onCanvasSizeChanged() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
-        System.out.println(">>> onCanvasSizeChanged: " + w + " x " + h);
         if (w <= 0 || h <= 0) return;
-
-        UniverseModel universe = gameController.getUniverseModel();
-        UniverseController uc  = gameController.getUniverseController();
-        if (universe == null || uc == null) return;
-
-        universe.setDimensions(w, h);
-        uc.getStarfieldController().regenerate(universe.getStarfieldModel(), w, h);
-        System.out.println(">>> Starfield regenerated with " + universe.getStarfieldModel().getStars().size() + " stars");
+        gameController.getUniverseModel().setDimensions(w, h);
+        gameController.getUniverseModel().getStarfieldModel().generate(w, h);
     }
 
     /**

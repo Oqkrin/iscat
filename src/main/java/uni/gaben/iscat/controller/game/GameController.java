@@ -160,8 +160,7 @@ public class GameController {
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
 
         // Regenerate the starfield at the correct canvas dimensions
-        universeController.getStarfieldController().regenerate(
-                getUniverseModel().getStarfieldModel(), canvasW, canvasH);
+        getUniverseModel().getStarfieldModel().generate(canvasW, canvasH);
 
         double midX = canvasW / 2.0;
         double midY = canvasH / 2.0;

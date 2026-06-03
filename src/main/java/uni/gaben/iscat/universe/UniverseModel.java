@@ -8,11 +8,11 @@ import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 
-import uni.gaben.iscat.universe.enemies.generic.GenericEntityModel;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
-import uni.gaben.iscat.universe.player.PlayerModel;
-import uni.gaben.iscat.universe.enviroment.starfield.StarfieldModel;
+import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityModel;
+import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFXModel;
+import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public class UniverseModel extends World<Body> {
 
     private final List<AbstractEntityModel>   entities    = new ArrayList<>();
     private final List<AbstractProjectileModel> projectiles = new ArrayList<>();
-    private final StarfieldModel starfieldModel           = new StarfieldModel(0, 0);
+    private final StarfieldVFXModel starfieldVFXModel = new StarfieldVFXModel(0, 0);
     private final Map<Class<?>, List<AbstractEntityModel>> entitiesByCategory = new HashMap<>();
 
     /** Default spawn centre when canvas dimensions are not yet available. */
@@ -194,6 +194,6 @@ public class UniverseModel extends World<Body> {
 
     public List<AbstractEntityModel>    getEntities()    { return entities; }
     public List<AbstractProjectileModel> getProjectiles() { return projectiles; }
-    public StarfieldModel               getStarfieldModel() { return starfieldModel; }
+    public StarfieldVFXModel getStarfieldModel() { return starfieldVFXModel; }
     public double                       getLifetime()    { return lifetime; }
 }

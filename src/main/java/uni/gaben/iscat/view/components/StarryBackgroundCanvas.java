@@ -4,9 +4,9 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.universe.enviroment.starfield.StarfieldModel;
-import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
-import uni.gaben.iscat.universe.enviroment.starfield.StarModel;
+import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFXModel;
+import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFX;
+import uni.gaben.iscat.universe.rendering.starfield.StarVFXModel;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.Random;
@@ -17,8 +17,8 @@ import java.util.Random;
  */
 public class StarryBackgroundCanvas extends Canvas {
 
-    private final StarfieldModel space;
-    private final StarfieldView spaceView = new SkinnyStarfieldView(); // Mantiene compatibilità strutturale
+    private final StarfieldVFXModel space;
+    private final StarfieldVFX spaceView = new SkinnyStarfieldVFX(); // Mantiene compatibilità strutturale
     private final AnimationTimer animationLoop;
 
     // Configurazione stelle
@@ -47,7 +47,7 @@ public class StarryBackgroundCanvas extends Canvas {
     private static final double DAMPING_SPEED = 8.0;
 
     public StarryBackgroundCanvas() {
-        this.space = new StarfieldModel(0, 0);
+        this.space = new StarfieldVFXModel(0, 0);
 
         widthProperty().addListener((obs, old, newWidth) -> {
             if (newWidth.doubleValue() > 0) {
@@ -106,7 +106,7 @@ public class StarryBackgroundCanvas extends Canvas {
             // Dimensione finale: range strutturato tra 0.7 e 3.5 pixel
             double size = 0.7 + (sizeBias * 2.8);
 
-            space.addStar(new StarModel(starX, starY, size));
+            space.addStar(new StarVFXModel(starX, starY, size));
         }
     }
 
@@ -164,7 +164,7 @@ public class StarryBackgroundCanvas extends Canvas {
         currentCameraX += (targetCameraX - currentCameraX) * lerpFactor;
         currentCameraY += (targetCameraY - currentCameraY) * lerpFactor;
 
-        // Aggiorna le proprietà reali lette dallo StarfieldView durante il disegno
+        // Aggiorna le proprietà reali lette dallo StarfieldVFX durante il disegno
         spaceView.setCameraX(currentCameraX);
         spaceView.setCameraY(currentCameraY);
     }
@@ -194,9 +194,9 @@ public class StarryBackgroundCanvas extends Canvas {
         if (animationLoop != null) animationLoop.stop();
     }
 
-    public StarfieldModel getSpace() { return space; }
-    public StarfieldView getSpaceView() { return spaceView; }
+    public StarfieldVFXModel getSpace() { return space; }
+    public StarfieldVFX getSpaceView() { return spaceView; }
 
     // Sotto-classe interna d'appoggio per raggirare in sicurezza l'estensione originaria se necessario
-    private static class SkinnyStarfieldView extends StarfieldView {}
+    private static class SkinnyStarfieldVFX extends StarfieldVFX {}
 }

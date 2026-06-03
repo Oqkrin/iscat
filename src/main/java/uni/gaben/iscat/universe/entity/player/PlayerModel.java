@@ -1,0 +1,231 @@
+package uni.gaben.iscat.universe.entity.player;
+
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import org.dyn4j.dynamics.BodyFixture;
+import org.dyn4j.geometry.Vector2;
+import org.dyn4j.geometry.Geometry;
+import org.dyn4j.geometry.MassType;
+
+import uni.gaben.iscat.universe.interfaces.HasSprite;
+import uni.gaben.iscat.universe.interfaces.HasThrust;
+import uni.gaben.iscat.universe.rendering.RenderingSettings;
+import uni.gaben.iscat.universe.rendering.vfx.ThrustModel;
+import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.universe.entity.LivingEntityModel;
+import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.universe.UniverseCollisionLayers;
+import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.SessionScoreTracker;
+
+public class PlayerModel extends LivingEntityModel implements HasSprite, HasThrust {
+
+    // LEVEL SYSTEM VARIABLES
+    private final IntegerProperty level = new SimpleIntegerProperty(1);
+    private final DoubleProperty xp = new SimpleDoubleProperty(0);
+    private double xpNeeded = PlayerSettings.XP_BASE_NECESSARIA;
+
+    private final Cooldown dashCooldown = new Cooldown();
+    private final Cooldown dashDuration = new Cooldown();
+    private final Cooldown weaponCooldown = new Cooldown();
+    private final Cooldown stunCooldown = new Cooldown();
+    private final ThrustModel thrust;
+    private Runnable onDeathCallback;
+
+    public void setOnDeathCallback(Runnable callback) {
+        this.onDeathCallback = callback;
+    }
+
+    public PlayerModel(double x, double y) {
+        super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
+
+        // Convert physics collision metrics through the UU boundary helper
+        double radiusInMeters = UU.pxToM(PlayerSettings.RAGGIO_COLLISIONE);
+        BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters));
+
+        fixture.setFilter(UniverseCollisionLayers.PLAYER_FILTER);
+        setMass(MassType.NORMAL);
+        setLinearDamping(PlayerSettings.LINEAR_DAMPING);
+
+        thrust = new ThrustModel();
+    }
+
+    public void update(double dt) {
+        // Uniform clock ticking processing via dt seconds
+        dashCooldown.update(dt);
+        dashDuration.update(dt);
+        weaponCooldown.update(dt);
+        updateThrust();
+        updateStateTime(dt);
+        if (isInScatto()) {
+            setLinearDamping(PlayerSettings.LINEAR_DAMPING_SCATTO);
+        } else {
+            setLinearDamping(PlayerSettings.LINEAR_DAMPING);
+        }
+    }
+
+    public void updateThrust() {
+        Vector2 worldVel = getLinearVelocity();
+        double speed = worldVel.getMagnitude();
+        double intensity = Math.min(speed / PlayerSettings.VELOCITA_MAX, 1.0);
+
+        double normVx = worldVel.x / PlayerSettings.VELOCITA_MAX;
+        double normVy = worldVel.y / PlayerSettings.VELOCITA_MAX;
+
+        // EXACT angle used by the renderer when drawing thrust:
+        //   gc.rotate( physicsAngle + BASE_ROTRAD_OFFSET )
+        double rotRad = getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET;
+        double cos = Math.cos(rotRad);
+        double sin = Math.sin(rotRad);
+
+        // These formulas are exactly as in the old PlayerView
+        double localDriftX = -normVx * cos - normVy * sin;
+        double localDriftY =  normVx * sin - normVy * cos;
+
+        thrust.update(intensity, new Vector2(localDriftX, localDriftY),
+                getWidthPx(), getHeightPx());
+    }
+
+
+    public void executeScatto(double angle) {
+        Vector2 dashDir = new Vector2(Math.cos(angle), Math.sin(angle));
+
+        // Directional Snap: instantly counter current momentum if dashing backwards
+        if (getLinearVelocity().dot(dashDir) < 0) {
+            setLinearVelocity(new Vector2(0, 0));
+        }
+
+        applyImpulse(dashDir.multiply(PlayerSettings.IMPULSO_SCATTO * getMass().getMass()));
+
+        dashDuration.start(PlayerSettings.DURATA_SCATTO_SEC);
+        dashCooldown.start(PlayerSettings.COOLDOWN_SCATTO_SEC);
+
+
+    }
+
+    // LEVEL SYSTEM GETTERS
+    public IntegerProperty levelProperty() { return level; }
+    public int getLevel() { return level.get(); }
+
+    public DoubleProperty xpProperty() { return xp; }
+    public double getXp() { return xp.get(); }
+    public double getXpNeeded() { return xpNeeded; }
+
+    public boolean isScattoDisponibile() { return dashCooldown.isReady(); }
+    public boolean isInScatto() { return dashDuration.isCoolingDown(); }
+    public boolean isSparoDisponibile() { return weaponCooldown.isReady(); }
+
+    public void startCooldownFuoco() {
+        weaponCooldown.start(PlayerSettings.COOLDOWN_FUOCO_SEC);
+    }
+
+    public void setCooldownFuocoSec(double new_value){
+        PlayerSettings.COOLDOWN_FUOCO_SEC = new_value;
+    }
+
+    /** Managed safe retrieval of current cooldown fraction for visual interface bars */
+    public double getDashMeter() {
+        return dashCooldown.getProgress();
+    }
+
+    @Override
+    public double getTerminalVelocity() {
+        return PlayerSettings.VELOCITA_MAX * (isInScatto() ? 10 : 1);
+    }
+
+    @Override
+    public void onDeath() {
+        if (onDeathCallback != null) onDeathCallback.run();
+    }
+
+    /**
+     * Aggiunge XP al giocatore e gestisce l'eventuale Level Up a catena.
+     */
+    public void addXp(double amount) {
+        if (amount <= 0) return;
+
+        this.xp.set(this.xp.get() + amount);
+
+        if (this.xpNeeded <= 0) {
+            this.xpNeeded = 100.0;
+        }
+
+        // Loop nel caso in cui l'XP ricevuta sia talmente tanta da fare più di un livello
+        while (this.xp.get() >= xpNeeded) {
+            levelUp();
+        }
+    }
+
+    private void levelUp() {
+        this.xp.set(this.xp.get() - xpNeeded);
+        this.level.set(this.level.get() + 1);
+        this.xpNeeded = this.xpNeeded * 1.2;
+
+        AudioManager.getInstance().playSFX("levelup");
+
+        // Aumento di statistiche + cura totale
+        setMaxLife(getMaxLife() + 100);
+        setLife(getMaxLife());
+
+        System.out.println("[LEVEL UP] Nuovo Livello: " + getLevel() + " | Prossimo livello a: " + this.xpNeeded + " XP");
+        applyImpulse(new Vector2(0, 0));
+    }
+
+    public void applyStun(double duration) {
+        stunCooldown.start(duration);
+    }
+
+    public boolean notStunned() {
+        return stunCooldown.isReady();
+    }
+
+    @Override
+    public void deltaToLife(double delta) {
+        super.deltaToLife(delta);
+        if (delta < 0) {
+            SessionScoreTracker.getInstance().addDamageReceived((int) Math.abs(delta));
+        }
+    }
+
+    @Override
+    public String getSpritePath() {
+        return PlayerSettings.getPlayerSkin();
+    }
+
+    @Override
+    public int getSpriteFrameWidth() {
+        return (int) PlayerSettings.DIMENSIONE_DA_DISEGNARE;
+    }
+
+    @Override
+    public double getFrameDuration() {
+        return UU.UNIVERSE_TICK*6;
+    }
+
+    @Override
+    public double getFrameDuration(int state, int frame) {
+        return getFrameDuration();
+    }
+
+    @Override
+    public int getSpriteFrameHeight() {
+        return (int) PlayerSettings.DIMENSIONE_DA_DISEGNARE;
+    }
+
+    @Override
+    public double getVisualScale() {
+        return PlayerSettings.MASSA;
+    }
+
+    @Override
+    public double getVisualAngularOffsetDeg() {
+        return 180;
+    }
+
+    @Override
+    public ThrustModel thrust() {
+        return thrust;
+    }
+}

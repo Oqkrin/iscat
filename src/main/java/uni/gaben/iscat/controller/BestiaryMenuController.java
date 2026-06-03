@@ -10,7 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.BestiaryModel;
-import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
+import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.utils.SessionManager;
@@ -37,7 +37,7 @@ public class BestiaryMenuController implements IscatMenuController {
     }
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
-    private Map<String, GenericPhysicalEntitySettings> enemies = new LinkedHashMap<>();
+    private Map<String, GenericEntitySettings> enemies = new LinkedHashMap<>();
 
     private static final double DISPLAY_SIZE = 160.0; // Dimensione canvas di anteprima principale
     private static final double ICON_SIZE = 32.0;     // Dimensione icone animate nei pulsanti della lista
@@ -125,7 +125,7 @@ public class BestiaryMenuController implements IscatMenuController {
         enemyButtonsBox.getChildren().clear();
         buttonCanvases.clear();
 
-        for (GenericPhysicalEntitySettings enemy : enemies.values()) {
+        for (GenericEntitySettings enemy : enemies.values()) {
             String safeId = enemy.entityKey.toLowerCase().trim();
             boolean unlocked = bestiaryModel.isUnlocked(safeId);
 
@@ -168,7 +168,7 @@ public class BestiaryMenuController implements IscatMenuController {
         if (id == null) return;
 
         String cleanId = id.toLowerCase().trim();
-        GenericPhysicalEntitySettings enemy = enemies.get(cleanId);
+        GenericEntitySettings enemy = enemies.get(cleanId);
 
         if (enemy == null) {
             System.err.println("ERRORE BESTIARIO: Impossibile trovare il nemico con l'EntityKey '" + cleanId + "'!");
@@ -201,7 +201,7 @@ public class BestiaryMenuController implements IscatMenuController {
      */
     private void refreshInfoZone() {
         if (currentEnemyId == null) return;
-        GenericPhysicalEntitySettings enemy = enemies.get(currentEnemyId);
+        GenericEntitySettings enemy = enemies.get(currentEnemyId);
         if (enemy == null) return;
 
         boolean unlocked = bestiaryModel.isUnlocked(currentEnemyId);

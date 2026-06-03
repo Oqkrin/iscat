@@ -1,6 +1,6 @@
 package uni.gaben.iscat.database.dao;
 
-import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
+import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +14,10 @@ public interface EnemyDAO {
     List<BestiarioEntry> getBestiarioForUser(int userId);
 
     /** Cerca un nemico per chiave */
-    Optional<GenericPhysicalEntitySettings> findByKey(String entityKey);
+    Optional<GenericEntitySettings> findByKey(String entityKey);
 
     /** Estrae tutti i nemici */
-    List<GenericPhysicalEntitySettings> findAll();
+    List<GenericEntitySettings> findAll();
 
     // DTO interno per il bestiario
     record BestiarioEntry(String name, String description, String spritePath, int killCount, boolean isUnlocked) {}

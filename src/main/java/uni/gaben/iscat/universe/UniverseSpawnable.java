@@ -1,14 +1,14 @@
 package uni.gaben.iscat.universe;
 
-import uni.gaben.iscat.universe.enviroment.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.enemies.generic.GenericEntityModel;
-import uni.gaben.iscat.universe.enemies.master.IscatMasterModel;
-import uni.gaben.iscat.universe.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.player.PlayerModel;
-import uni.gaben.iscat.universe.projectiles.Projectile;
-import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
+import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
+import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityModel;
+import uni.gaben.iscat.universe.entity.enemies.master.IscatMasterModel;
+import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.projectiles.Projectile;
+import uni.gaben.iscat.universe.entity.enemies.worm.IscatWormSegment;
 
 public enum UniverseSpawnable {
     PLAYER(PlayerModel.class),

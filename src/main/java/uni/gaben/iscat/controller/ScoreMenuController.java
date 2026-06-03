@@ -12,7 +12,7 @@ import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.BestiaryModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.ScoreModel;
-import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
+import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.model.user.SessionUser;
@@ -109,17 +109,17 @@ public class ScoreMenuController implements IscatMenuController {
             }
 
             BestiaryModel bestiaryModel = new BestiaryModel();
-            Map<String, GenericPhysicalEntitySettings> enemiesMap = bestiaryModel.loadEnemies(userId);
+            Map<String, GenericEntitySettings> enemiesMap = bestiaryModel.loadEnemies(userId);
 
             if (enemiesMap == null || enemiesMap.isEmpty()) return;
 
-            List<GenericPhysicalEntitySettings> enemyList = new ArrayList<>(enemiesMap.values());
+            List<GenericEntitySettings> enemyList = new ArrayList<>(enemiesMap.values());
             StackPane[] containers = { previewNW, previewNE, previewSW, previewSE };
 
             for (int i = 0; i < containers.length; i++) {
                 if (containers[i] == null) continue;
 
-                GenericPhysicalEntitySettings enemy = enemyList.get(i % enemyList.size());
+                GenericEntitySettings enemy = enemyList.get(i % enemyList.size());
 
                 AnimatedCanvas canvas = new AnimatedCanvas(140.0);
                 canvas.setFrameDuration(0.20);

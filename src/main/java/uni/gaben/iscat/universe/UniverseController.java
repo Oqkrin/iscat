@@ -8,18 +8,17 @@ import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.model.user.SessionUser;
-import uni.gaben.iscat.universe.brain.Brain;
+import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
-import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.enviroment.starfield.StarfieldController;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractProjectileModel;
-import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
-import uni.gaben.iscat.universe.lib.interfaces.controller.IEntityController;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasTerminalVelocity;
-import uni.gaben.iscat.universe.player.PlayerController;
-import uni.gaben.iscat.universe.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.enemies.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
+import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.LivingEntityModel;
+import uni.gaben.iscat.universe.entity.brain.IEntityController;
+import uni.gaben.iscat.universe.interfaces.HasTerminalVelocity;
+import uni.gaben.iscat.universe.entity.player.PlayerController;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
@@ -44,7 +43,6 @@ public class UniverseController {
 
     private final UniverseModel       universeModel;
     private final PlayerController    playerController;
-    private final StarfieldController starfieldController = new StarfieldController();
     private final List<IEntityController> entityControllers = new ArrayList<>();
     private final Cooldown asteroidCooldown = new Cooldown();
     private final Random   random = new Random();
@@ -278,5 +276,4 @@ public class UniverseController {
     }
 
     public UniverseModel       getUniverseModel()     { return universeModel; }
-    public StarfieldController getStarfieldController() { return starfieldController; }
 }
