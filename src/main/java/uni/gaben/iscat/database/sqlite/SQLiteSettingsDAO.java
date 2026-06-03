@@ -1,7 +1,8 @@
-package uni.gaben.iscat.database.sqlite.options;
+package uni.gaben.iscat.database.sqlite;
 
 import uni.gaben.iscat.database.dao.SettingsDAO;
 import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.database.sqlite.options.*;
 import uni.gaben.iscat.model.user.UserSettings;
 
 import java.sql.Connection;

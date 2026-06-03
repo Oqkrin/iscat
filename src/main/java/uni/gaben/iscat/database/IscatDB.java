@@ -2,7 +2,7 @@ package uni.gaben.iscat.database;
 
 import uni.gaben.iscat.database.dao.*;
 import uni.gaben.iscat.database.sqlite.*;
-import uni.gaben.iscat.database.sqlite.options.SQLiteSettingsDAO;
+import uni.gaben.iscat.database.sqlite.SQLiteSettingsDAO;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.sql.Connection;
