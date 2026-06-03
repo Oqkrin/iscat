@@ -16,7 +16,7 @@ import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
-import uni.gaben.iscat.universe.interfaces.HasTerminalVelocity;
+import uni.gaben.iscat.universe.entity.HasTerminalVelocity;
 import uni.gaben.iscat.universe.entity.player.PlayerController;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;

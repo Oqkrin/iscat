@@ -1,20 +1,19 @@
-package uni.gaben.iscat.universe.rendering.starfield;
+package uni.gaben.iscat.universe;
 
-import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class StarfieldVFXModel extends AbstractEntityModel {
-    private final List<StarVFXModel> stars = new ArrayList<>();
+public class Starfield extends AbstractEntityModel {
+    private final List<Star> stars = new ArrayList<>();
 
-    public StarfieldVFXModel(double x, double y) {
+    public Starfield(double x, double y) {
         super(x, y);
     }
 
-    public List<StarVFXModel> getStars() {
+    public List<Star> getStars() {
         return stars;
     }
 
@@ -22,7 +21,7 @@ public class StarfieldVFXModel extends AbstractEntityModel {
         stars.clear();
     }
 
-    public void addStar(StarVFXModel star) {
+    public void addStar(Star star) {
         stars.add(star);
     }
 
@@ -37,7 +36,7 @@ public class StarfieldVFXModel extends AbstractEntityModel {
             double y = rand.nextDouble() * Math.max(1, height);
             double r = rand.nextDouble();
             double size = UniverseSettings.STAR_MIN_SIZE + r * r * UniverseSettings.STAR_MAX_SIZE_ADD;
-            addStar(new StarVFXModel(x, y, size));
+            addStar(new Star(x, y, size));
         }
     }
 

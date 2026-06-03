@@ -6,9 +6,9 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
-import uni.gaben.iscat.universe.interfaces.HasSprite;
-import uni.gaben.iscat.universe.interfaces.HasShockwave;
-import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
+import uni.gaben.iscat.universe.entity.HasSprite;
+import uni.gaben.iscat.universe.entity.HasShockwave;
+import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 
 /**
@@ -21,7 +21,7 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
 
     /** Archivio dei parametri strutturali e biologici caricati dal database per questa entità. */
     private final GenericEntitySettings settings;
-    private final ShockwaveModel shockwaveModel = new ShockwaveModel();
+    private final Shockwave shockwave = new Shockwave();
 
     /**
      * Costruisce il corpo fisico e le proprietà logiche del nemico instanziandolo nel mondo di gioco.
@@ -85,12 +85,12 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
      */
     public void update(double dt) {
         updateStateTime(dt);
-        shockwaveModel.update(dt);
+        shockwave.update(dt);
     }
 
     @Override
-    public ShockwaveModel shockwave() {
-        return shockwaveModel;
+    public Shockwave shockwave() {
+        return shockwave;
     }
 
     /**

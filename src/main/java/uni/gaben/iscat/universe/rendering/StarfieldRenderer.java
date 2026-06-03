@@ -1,8 +1,9 @@
-package uni.gaben.iscat.universe.rendering.starfield;
+package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
 import uni.gaben.iscat.universe.UniverseSettings;
-import uni.gaben.iscat.universe.interfaces.Drawable;
+import uni.gaben.iscat.universe.Star;
+import uni.gaben.iscat.universe.Starfield;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 /**
@@ -12,7 +13,7 @@ import uni.gaben.iscat.utils.theme.ThemeManager;
  * the renderer — no JavaFX property bindings are needed or used. This
  * eliminates the binding leak that caused the black screen on game restart.</p>
  */
-public class StarfieldVFX implements Drawable<StarfieldVFXModel> {
+public class StarfieldRenderer implements Renderable<Starfield> {
 
     private double cameraX;
     private double cameraY;
@@ -20,7 +21,7 @@ public class StarfieldVFX implements Drawable<StarfieldVFXModel> {
     private double h = UniverseSettings.DEFAULT_HEIGHT;
 
     @Override
-    public void draw(StarfieldVFXModel model, GraphicsContext gc) {
+    public void render(Starfield model, GraphicsContext gc) {
         if (model == null || model.getStars().isEmpty()) return;
 
         ThemeManager theme = ThemeManager.getInstance();
@@ -29,7 +30,7 @@ public class StarfieldVFX implements Drawable<StarfieldVFXModel> {
 
         gc.setGlobalAlpha(UniverseSettings.STAR_ALPHA);
 
-        for (StarVFXModel star : model.getStars()) {
+        for (Star star : model.getStars()) {
             double s = star.getSize();
             double depth = UniverseSettings.PARALLAX_BASE
                     + (s / UniverseSettings.PARALLAX_SIZE_DIVISOR) * UniverseSettings.PARALLAX_FACTOR;

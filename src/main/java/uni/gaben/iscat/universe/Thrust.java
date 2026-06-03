@@ -1,20 +1,20 @@
-package uni.gaben.iscat.universe.rendering.vfx;
+package uni.gaben.iscat.universe;
 
 import org.dyn4j.geometry.Vector2;
 
-public class ThrustModel {
+public class Thrust {
     private double intensity;          // 0..1, based on current speed / max speed
-    private Vector2 localDrift;        // lateral drift vector in local space
+    private final Vector2 localDrift;        // lateral drift vector in local space
     private double shipWidth;          // width of the ship in pixels
     private double shipHeight;         // height of the ship in pixels
     private boolean active = true;
 
-    public ThrustModel() {
+    public Thrust() {
         this.localDrift = new Vector2();
     }
 
     public void update(double intensity, Vector2 localDrift, double shipWidth, double shipHeight) {
-        this.intensity = Math.max(0.0, Math.min(1.0, intensity));
+        this.intensity = Math.clamp(intensity, 0.0, 1.0);
         this.localDrift.set(localDrift);
         this.shipWidth = shipWidth;
         this.shipHeight = shipHeight;

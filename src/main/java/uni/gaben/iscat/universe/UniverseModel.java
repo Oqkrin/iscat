@@ -9,7 +9,6 @@ import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 
 import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityModel;
-import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFXModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
@@ -33,7 +32,7 @@ public class UniverseModel extends World<Body> {
 
     private final List<AbstractEntityModel>   entities    = new ArrayList<>();
     private final List<AbstractProjectileModel> projectiles = new ArrayList<>();
-    private final StarfieldVFXModel starfieldVFXModel = new StarfieldVFXModel(0, 0);
+    private final Starfield starfield = new Starfield(0, 0);
     private final Map<Class<?>, List<AbstractEntityModel>> entitiesByCategory = new HashMap<>();
 
     /** Default spawn centre when canvas dimensions are not yet available. */
@@ -194,6 +193,6 @@ public class UniverseModel extends World<Body> {
 
     public List<AbstractEntityModel>    getEntities()    { return entities; }
     public List<AbstractProjectileModel> getProjectiles() { return projectiles; }
-    public StarfieldVFXModel getStarfieldModel() { return starfieldVFXModel; }
+    public Starfield getStarfieldModel() { return starfield; }
     public double                       getLifetime()    { return lifetime; }
 }

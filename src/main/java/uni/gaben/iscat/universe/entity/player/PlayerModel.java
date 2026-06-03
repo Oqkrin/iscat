@@ -9,10 +9,10 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
-import uni.gaben.iscat.universe.interfaces.HasSprite;
-import uni.gaben.iscat.universe.interfaces.HasThrust;
+import uni.gaben.iscat.universe.entity.HasSprite;
+import uni.gaben.iscat.universe.entity.HasThrust;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
-import uni.gaben.iscat.universe.rendering.vfx.ThrustModel;
+import uni.gaben.iscat.universe.Thrust;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
 import uni.gaben.iscat.universe.UU;
@@ -31,7 +31,7 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
     private final Cooldown dashDuration = new Cooldown();
     private final Cooldown weaponCooldown = new Cooldown();
     private final Cooldown stunCooldown = new Cooldown();
-    private final ThrustModel thrust;
+    private final Thrust thrust;
     private Runnable onDeathCallback;
 
     public void setOnDeathCallback(Runnable callback) {
@@ -49,7 +49,7 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         setMass(MassType.NORMAL);
         setLinearDamping(PlayerSettings.LINEAR_DAMPING);
 
-        thrust = new ThrustModel();
+        thrust = new Thrust();
     }
 
     public void update(double dt) {
@@ -225,7 +225,7 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
     }
 
     @Override
-    public ThrustModel thrust() {
+    public Thrust thrust() {
         return thrust;
     }
 }

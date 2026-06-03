@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
-import uni.gaben.iscat.universe.interfaces.LifeDeath;
+import uni.gaben.iscat.universe.entity.LifeDeath;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
