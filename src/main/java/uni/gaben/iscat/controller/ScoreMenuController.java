@@ -9,6 +9,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.model.BestiaryModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.ScoreModel;
@@ -21,6 +23,7 @@ import uni.gaben.iscat.model.user.SessionUser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller per la schermata dei punteggi e delle statistiche globali del giocatore.
@@ -39,6 +42,8 @@ public class ScoreMenuController implements IscatMenuController {
     @FXML private Label lblDamageTaken;
     @FXML private Label lblDamageCaused;
     @FXML private Label lblBoosts;
+    @FXML private Label lblTimesPlayed;
+    @FXML private Label lblLongestTime;
 
     @FXML private Label valBestScore;
     @FXML private Label valTotalEnemies;
@@ -46,6 +51,8 @@ public class ScoreMenuController implements IscatMenuController {
     @FXML private Label valDamageTaken;
     @FXML private Label valDamageCaused;
     @FXML private Label valBoosts;
+    @FXML private Label valTimesPlayed;
+    @FXML private Label valLongestTime;
 
     @FXML private BorderPane rootPane;
     @FXML private Label titleLabel;
@@ -59,6 +66,10 @@ public class ScoreMenuController implements IscatMenuController {
     /** Lista dei canvas animati attivi negli angoli della schermata, tracciati per la corretta disallocazione. */
     private final List<AnimatedCanvas> activeCanvases = new ArrayList<>();
 
+    private BestiaryModel bestiaryModel;
+
+    private ScoreModel currentScore;
+
     /**
      * Inizializza la schermata configurando i vincoli di binding del titolo con lo username dell'utente,
      * applicando i glifi iconici ai relativi componenti grafici e avviando l'ascolto delle variazioni
@@ -67,6 +78,8 @@ public class ScoreMenuController implements IscatMenuController {
     @FXML
     public void initialize() {
         registerEscHandler();
+
+        bestiaryModel = new BestiaryModel();
 
         // Data-binding dinamico del titolo sul nome utente della sessione corrente
         titleLabel.textProperty().bind(
@@ -87,14 +100,38 @@ public class ScoreMenuController implements IscatMenuController {
         ComponentsUtils.applyIconLabel(lblDamageTaken,   "fas-heart-broken");
         ComponentsUtils.applyIconLabel(lblDamageCaused,  "fas-crosshairs");
         ComponentsUtils.applyIconLabel(lblBoosts,        "fas-bolt");
+        applyIconLabel(lblTimesPlayed,   "fas-clock");
+        applyIconLabel(lblLongestTime,   "fas-hourglass-half");
 
         setupCornerMobs();
+        loadInitialData();
+    }
 
-        // Monitoraggio del file di salvataggio per forzare il refresh dei dati a schermo
-        SessionManager.getInstance().saveDataProperty().addListener(
-                (obs, old, data) -> refresh(data)
-        );
-        refresh(SessionManager.getInstance().getCurrentSaveData());
+    /**
+     * Carica i dati iniziali dal database
+     */
+    private void loadInitialData() {
+        SessionUser user = SessionManager.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        try {
+            ScoreDAO scoreDAO = IscatDB.getInstance().getScoreDAO();
+            Optional<ScoreModel> scoreOpt = scoreDAO.load(user.id());
+
+            if (scoreOpt.isPresent()) {
+                currentScore = scoreOpt.get();
+                SessionManager.getInstance().setCurrentSaveData(currentScore);
+                refresh(currentScore);
+            } else {
+                // Crea nuovo record se non esiste
+                scoreDAO.createIfNotExists(user.id());
+                currentScore = new ScoreModel(user.id());
+                SessionManager.getInstance().setCurrentSaveData(currentScore);
+                refresh(currentScore);
+            }
+        } catch (Exception e) {
+            System.err.println("[ScoreMenuController] Errore caricamento score: " + e.getMessage());
+        }
     }
 
     /**
@@ -103,14 +140,10 @@ public class ScoreMenuController implements IscatMenuController {
      */
     private void setupCornerMobs() {
         try {
-            int userId = 0;
             SessionUser user = SessionManager.getInstance().getCurrentUser();
-            if (user != null) {
-                userId = user.id();
-            }
+            if (user == null) return;
 
-            BestiaryModel bestiaryModel = new BestiaryModel();
-            Map<String, GenericEntitySettings> enemiesMap = bestiaryModel.loadEnemies(userId);
+            Map<String, GenericEntitySettings> enemiesMap = bestiaryModel.loadEnemies(user.id());
 
             if (enemiesMap == null || enemiesMap.isEmpty()) return;
 
@@ -136,34 +169,27 @@ public class ScoreMenuController implements IscatMenuController {
 
     /**
      * Sincronizza i testi delle etichette della UI con i valori numerici presenti nel DTO di salvataggio.
-     * Interroga la mappa dei contatori del Bestiario per calcolare la somma cumulativa e reale di tutte le uccisioni.
      *
      * @param data Oggetto contenente i dati e i record statistici aggregati dell'utente.
      */
     private void refresh(ScoreModel data) {
         if (data == null) return;
 
-        valBestScore.setText(String.valueOf(data.score()));
-
-        int totalKills = 0;
-        SessionUser user = SessionManager.getInstance().getCurrentUser();
-        if (user != null) {
-            BestiaryModel bestiaryModel = new BestiaryModel();
-            bestiaryModel.loadEnemies(user.id());
-
-            // Somma dei contatori di uccisioni estratti dalla mappa di associazione delle tabelle extra
-            totalKills = bestiaryModel.getKillCounts().values().stream()
-                    .mapToInt(Integer::intValue)
-                    .sum();
-        } else {
-            // Fallback sul dato locale aggregato se la sessione non è temporaneamente raggiungibile
-            totalKills = data.deaths();
-        }
-
-        valTotalEnemies.setText(String.valueOf(totalKills));
+        valBestScore.setText(formatNumber(data.score()));
         valBestTime.setText(formatTime(data.bestTime()));
-        valDamageTaken.setText(String.valueOf(data.totalDamageReceived()));
-        valDamageCaused.setText(String.valueOf(data.totalDamageDealt()));
+        valDamageTaken.setText(formatNumber(data.totalDamageReceived()));
+        valDamageCaused.setText(formatNumber(data.totalDamageDealt()));
+        valBoosts.setText(formatNumber(data.boostCollected()));
+        valTimesPlayed.setText(formatNumber(data.timesPlayed()));
+        valLongestTime.setText(formatTime(data.longestTime()));
+        valTotalEnemies.setText(formatNumber(data.totalKills()));
+    }
+
+    /**
+     * Formatta un numero con separatori delle migliaia
+     */
+    private String formatNumber(int number) {
+        return String.format("%,d", number);
     }
 
     /**
@@ -171,7 +197,9 @@ public class ScoreMenuController implements IscatMenuController {
      */
     private String formatTime(int seconds) {
         if (seconds <= 0) return "00:00";
-        return String.format("%02d:%02d", seconds / 60, seconds % 60);
+        int minutes = seconds / 60;
+        int remainingSeconds = seconds % 60;
+        return String.format("%02d:%02d", minutes, remainingSeconds);
     }
 
     @Override
@@ -191,14 +219,30 @@ public class ScoreMenuController implements IscatMenuController {
     @Override
     public void handleBack() {
         titleLabel.textProperty().unbind();
-        activeCanvases.forEach(AnimatedCanvas::stop);
+
+        // Ferma e pulisci tutti i canvas animati
+        activeCanvases.forEach(canvas -> {
+            canvas.stop();
+            if (canvas.getParent() != null) {
+                ((StackPane) canvas.getParent()).getChildren().remove(canvas);
+            }
+        });
         activeCanvases.clear();
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+
+        if (customBackAction != null) {
+            customBackAction.run();
+        } else {
+            IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+        }
     }
 
     @FXML
-    private void handleBackAction(ActionEvent event) { handleBack(); }
+    private void handleBackAction(ActionEvent event) {
+        handleBack();
+    }
 
     @Override
-    public Pane getRootPane() { return rootPane; }
+    public Pane getRootPane() {
+        return rootPane;
+    }
 }

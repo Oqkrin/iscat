@@ -68,10 +68,7 @@ public class GameController {
         this.gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                // First frame: record start time
                 if (gameModel.getStart() == -1) gameModel.startProperty().set(now);
-
-                // Second frame: establish baseline for dt calculation
                 if (gameModel.getLastUpdate() == 0) {
                     gameModel.setLastUpdate(now);
                     return;
@@ -120,28 +117,15 @@ public class GameController {
             gameModel.setGameState(GameState.PLAYING);
     }
 
-    /**
-     * Resets the universe for a new run.
-     *
-     * <p>The game loop is <em>not</em> stopped here — callers that need to
-     * stop/restart the loop (e.g. {@link #retryGame()}) do so explicitly.
-     * This keeps {@link #quitToMainMenu()} from accidentally restarting the loop.</p>
-     *
-     * <p>After rebuilding the world, fires {@link #onUniverseResetCallback} so
-     * that {@link uni.gaben.iscat.view.game.GameView} can update its
-     * universe-related state (e.g. level label binding, starfield dimensions).</p>
-     */
     public void resetUniverse() {
         AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
         gameModel.setGameOver(false);
         gameModel.setPaused(false);
         SessionScoreTracker.getInstance().reset();
 
-        // Grab canvas dimensions from the camera model which is always bound to the canvas
         double canvasW = getCameraModel().getScreenWidth();
         double canvasH = getCameraModel().getScreenHeight();
-        
-        // Safety check: if canvas dimensions aren't set yet, use defaults
+
         if (canvasW <= 0 || canvasH <= 0) {
             System.err.println("!!! resetUniverse called with invalid canvas dimensions: " + canvasW + "x" + canvasH);
             System.err.println("!!! Using default dimensions");
@@ -149,17 +133,13 @@ public class GameController {
             canvasH = UniverseSettings.DEFAULT_HEIGHT;
         }
 
-        // Replace the universe and all its controllers
         gameModel.resetUniverse();
         this.universeController = new UniverseController(getUniverseModel());
         this.waveController     = new UniverseWaveController();
 
-        // Propagate canvas size to the new universe so spawn centres are correct
         getUniverseModel().setDimensions(canvasW, canvasH);
 
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
-
-        // Regenerate the starfield at the correct canvas dimensions
         getUniverseModel().getStarfieldModel().generate(canvasW, canvasH);
 
         double midX = canvasW / 2.0;
@@ -172,23 +152,19 @@ public class GameController {
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
 
-        // Reset the game timer
         gameModel.startProperty().set(-1);
         gameModel.setLastUpdate(0);
         gameModel.setTotalElapsedSeconds(0.0);
 
-        // Notify the view — it may need to re-bind the level label to the new player
         if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
 
-    /** Retry: stop loop → reset → restart loop. */
     public void retryGame() {
         stopGameLoop();
         resetUniverse();
         startGameLoop();
     }
 
-    /** Quit to main menu: stop loop → reset (for a clean state on re-entry) → navigate. */
     public void quitToMainMenu() {
         stopGameLoop();
         gameModel.setPaused(false);
@@ -234,20 +210,39 @@ public class GameController {
         final int dealt    = tracker.getDamageDealt();
         final int received = tracker.getDamageReceived();
         final int deaths   = tracker.getDeaths();
+        final int kills    = tracker.getKills();
+        final int boosts   = tracker.getBoosts();
 
         tracker.reset();
 
         IscatDB.getInstance().executeAsync(() -> {
             ScoreModel current = scoreDAO.load(userId)
-                    .orElse(new ScoreModel(userId, 0, 0, 0, 0, 0));
+                    .orElse(new ScoreModel(userId));
 
-            if (score   > current.score())    scoreDAO.update(userId, "Score",    score);
-            if (elapsed < current.bestTime()) scoreDAO.update(userId, "BestTime", elapsed);
+            // Aggiorna Score se maggiore
+            if (score > current.score()) {
+                scoreDAO.update(userId, "Score", score);
+            }
 
+            // Aggiorna BestTime se migliore
+            if (elapsed < current.bestTime() || current.bestTime() == 0) {
+                scoreDAO.update(userId, "BestTime", elapsed);
+            }
+
+            // Aggiorna LongestTime se maggiore
+            if (elapsed > current.longestTime()) {
+                scoreDAO.update(userId, "LongestTime", elapsed);
+            }
+
+            // Incrementa le statistiche cumulative
             scoreDAO.increment(userId, "TotalDamageDealt",    dealt);
             scoreDAO.increment(userId, "TotalDamageReceived", received);
             scoreDAO.increment(userId, "Deaths",              deaths);
+            scoreDAO.increment(userId, "TotalKills",          kills);
+            scoreDAO.increment(userId, "BoostCollected",      boosts);
+            scoreDAO.increment(userId, "TimesPlayed",         1);
 
+            // Ricarica i dati aggiornati e li mette in sessione
             scoreDAO.load(userId).ifPresent(data ->
                     Platform.runLater(() -> SessionManager.getInstance().setCurrentSaveData(data)));
         });

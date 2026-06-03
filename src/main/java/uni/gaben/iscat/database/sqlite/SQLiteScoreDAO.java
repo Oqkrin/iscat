@@ -18,7 +18,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
 
     @Override
     public void createIfNotExists(int userId) {
-        String sql = "INSERT OR IGNORE INTO Salvataggi (UserID) VALUES (?)";
+        String sql = "INSERT OR IGNORE INTO UserScore (UserID) VALUES (?)";
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setInt(1, userId);
             stmt.executeUpdate();
@@ -29,7 +29,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
 
     @Override
     public Optional<ScoreModel> load(int userId) {
-        String sql = "SELECT * FROM Salvataggi WHERE UserID = ?";
+        String sql = "SELECT * FROM UserScore WHERE UserID = ?";
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
@@ -38,15 +38,20 @@ public class SQLiteScoreDAO implements ScoreDAO {
                     return Optional.of(new ScoreModel(
                             rs.getInt("UserID"),
                             rs.getInt("Score"),
+                            rs.getInt("TotalKills"),
                             rs.getInt("Deaths"),
                             rs.getInt("TotalDamageDealt"),
                             rs.getInt("TotalDamageReceived"),
-                            rs.getInt("BestTime")
+                            rs.getInt("BestTime"),
+                            rs.getInt("BoostCollected"),
+                            rs.getInt("LongestTime"),
+                            rs.getInt("TimesPlayed"),
+                            rs.getInt("TimesLogged")
                     ));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante il caricamento del salvataggio per userId: " + userId, e);
+            throw new RuntimeException("Errore durante il caricamento dello score per userId: " + userId, e);
         }
         return Optional.empty();
     }
@@ -57,7 +62,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
             throw new IllegalArgumentException("Nome colonna statistica non valido: " + column);
         }
 
-        String sql = "UPDATE Salvataggi SET " + column + " = ? WHERE UserID = ?";
+        String sql = "UPDATE UserScore SET " + column + " = ?, LastUpdated = CURRENT_TIMESTAMP WHERE UserID = ?";
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setInt(1, value);
             stmt.setInt(2, userId);
@@ -73,7 +78,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
             throw new IllegalArgumentException("Nome colonna statistica non valido: " + column);
         }
 
-        String sql = "UPDATE Salvataggi SET " + column + " = " + column + " + ? WHERE UserID = ?";
+        String sql = "UPDATE UserScore SET " + column + " = " + column + " + ?, LastUpdated = CURRENT_TIMESTAMP WHERE UserID = ?";
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setInt(1, amount);
             stmt.setInt(2, userId);
@@ -86,8 +91,18 @@ public class SQLiteScoreDAO implements ScoreDAO {
     @Override
     public void reset(int userId) {
         String sql = """
-            UPDATE Salvataggi 
-            SET Score = 0, Deaths = 0, TotalDamageDealt = 0, TotalDamageReceived = 0, BestTime = 0 
+            UPDATE UserScore 
+            SET Score = 0, 
+                TotalKills = 0, 
+                Deaths = 0, 
+                TotalDamageDealt = 0, 
+                TotalDamageReceived = 0, 
+                BestTime = 0,
+                BoostCollected = 0,
+                LongestTime = 0,
+                TimesPlayed = 0,
+                TimesLogged = 0,
+                LastUpdated = CURRENT_TIMESTAMP
             WHERE UserID = ?
             """;
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
@@ -102,9 +117,9 @@ public class SQLiteScoreDAO implements ScoreDAO {
     public List<UserScoreEntry> getAllScores() {
         List<UserScoreEntry> scores = new ArrayList<>();
         String sql = """
-            SELECT u.Username, s.Score
+            SELECT u.Username, s.Score, s.TotalKills, s.BestTime
             FROM Utenti u
-            INNER JOIN Salvataggi s ON u.ID = s.UserID
+            INNER JOIN UserScore s ON u.ID = s.UserID
             ORDER BY s.Score DESC
             """;
 
@@ -114,7 +129,9 @@ public class SQLiteScoreDAO implements ScoreDAO {
             while (rs.next()) {
                 String username = rs.getString("Username");
                 int score = rs.getInt("Score");
-                scores.add(new UserScoreEntry(username, score));
+                int totalKills = rs.getInt("TotalKills");
+                int bestTime = rs.getInt("BestTime");
+                scores.add(new UserScoreEntry(username, score, totalKills, bestTime));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Errore nel caricamento della leaderboard globale", e);
@@ -122,7 +139,35 @@ public class SQLiteScoreDAO implements ScoreDAO {
         return scores;
     }
 
+    @Override
+    public List<UserScoreEntry> getTopScores(int limit) {
+        List<UserScoreEntry> scores = new ArrayList<>();
+        String sql = """
+            SELECT u.Username, s.Score, s.TotalKills, s.BestTime
+            FROM Utenti u
+            INNER JOIN UserScore s ON u.ID = s.UserID
+            ORDER BY s.Score DESC
+            LIMIT ?
+            """;
+
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String username = rs.getString("Username");
+                    int score = rs.getInt("Score");
+                    int totalKills = rs.getInt("TotalKills");
+                    int bestTime = rs.getInt("BestTime");
+                    scores.add(new UserScoreEntry(username, score, totalKills, bestTime));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore nel caricamento della top " + limit + " punteggi", e);
+        }
+        return scores;
+    }
+
     private boolean isValidColumn(String column) {
-        return column != null && column.matches("(?i)Score|Deaths|TotalDamageDealt|TotalDamageReceived|BestTime");
+        return column != null && column.matches("(?i)Score|TotalKills|Deaths|TotalDamageDealt|TotalDamageReceived|BestTime|BoostCollected|LongestTime|TimesPlayed|TimesLogged");
     }
 }

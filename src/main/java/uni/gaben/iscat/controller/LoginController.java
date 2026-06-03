@@ -122,7 +122,6 @@ public class LoginController {
         if (p.isEmpty() || model.isLoggedIn()) return;
         model.setStatus("ELABORAZIONE IN CORSO...");
 
-        // Chaining the async operations to avoid type mismatches
         loginAuth.exists(u).thenCompose(userExists -> {
             if (userExists) return loginAuth.login(u, p);
             else return loginAuth.register(u, p);
@@ -136,7 +135,9 @@ public class LoginController {
                 return settingsDAO.loadSettings(user.id()).orElse(null);
             });
             scoreDAO.createIfNotExists(user.id());
-            ScoreModel scoreModel = scoreDAO.load(user.id()).orElse(new ScoreModel(user.id(), 0, 0, 0, 0, 0));
+
+            ScoreModel scoreModel = scoreDAO.load(user.id())
+                    .orElse(new ScoreModel(user.id()));
 
             return new LoginResult(user, settings, scoreModel, "ACCESSO EFFETTUATO!");
         }).thenAccept(result -> Platform.runLater(() -> {
@@ -145,7 +146,11 @@ public class LoginController {
                 SessionManager.getInstance().setCurrentSettings(result.settings());
                 SessionManager.getInstance().setCurrentSaveData(result.scoreModel());
 
-                Scene activeScene = Window.getWindows().stream().filter(Window::isShowing).findFirst().map(Window::getScene).orElse(null);
+                Scene activeScene = Window.getWindows().stream()
+                        .filter(Window::isShowing)
+                        .findFirst()
+                        .map(Window::getScene)
+                        .orElse(null);
 
                 applyLoadedSettings(result.settings(), activeScene);
 
@@ -185,8 +190,12 @@ public class LoginController {
 
     /** Record DTO interno per trasportare in sicurezza i dati letti dal thread DB al thread UI. */
     private record LoginResult(SessionUser user, UserSettings settings, ScoreModel scoreModel, String message, boolean isSuccess) {
-        public LoginResult(SessionUser u, UserSettings s, ScoreModel d, String m) { this(u, s, d, m, true); }
-        public LoginResult(String err) { this(null, null, null, err, false); }
+        public LoginResult(SessionUser u, UserSettings s, ScoreModel d, String m) {
+            this(u, s, d, m, true);
+        }
+        public LoginResult(String err) {
+            this(null, null, null, err, false);
+        }
     }
 
     private void applyLoadedSettings(UserSettings settings, Scene currentScene) {
