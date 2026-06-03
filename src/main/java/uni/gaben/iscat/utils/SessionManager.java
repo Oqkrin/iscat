@@ -30,6 +30,8 @@ public class SessionManager {
     public final List<File> carouselImages = new ArrayList<>();
     public int currentIndex = -1;
     public AnimationTimer uiRainbowSyncTimer;
+    // Add this field inside your SessionManager class
+    public boolean isLightModeSelected = false;
     public ColorPicker activePicker = null;
     public final List<Color> currentPalette = new ArrayList<>();
     public final Map<ColorPicker, StackPane> pickerBoxes = new HashMap<>();

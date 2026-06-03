@@ -35,19 +35,65 @@ public class OptionThemeController {
     @FXML private ImageView themePreview;
     @FXML private Button prevThemeBtn, nextThemeBtn;
 
+    // Iniettiamo i due pulsanti di gestione delle immagini dall'FXML
+    @FXML private Button pickImageBtn;
+    @FXML private Button addImageBtn;
 
     private Pane paneMaster;
     private boolean isUpdatingProgrammatically = false;
 
     @FXML
     public void initialize() {
+        SessionManager session = SessionManager.getInstance();
+
+        // 1. Clean out stale JavaFX node references in the SessionManager map before rebuilding
+        session.pickerBoxes.clear();
+
+        // 2. Restore primitive view states from SessionManager
+        lightModeCheck.setSelected(session.isLightModeSelected);
+        rainbowModeCheck.setSelected(ThemeManager.getInstance().isRainbowModeActive());
+
+        // 3. Sync colors up from engine & build custom nodes
         syncColorPickersWithTheme();
         buildCustomPickers();
 
+        // 4. Aggancia l'azione di selezione immagine anche al pulsante del carosello
+        if (addImageBtn != null) {
+            addImageBtn.setOnAction(this::onImagePick);
+        }
+
+        // 5. Restore custom box active highlighting border
+        if (session.activePicker != null) {
+            setActivePicker(session.activePicker);
+        }
+
+        // 6. Restore color swatches UI if an image palette was already extracted
+        if (!session.currentPalette.isEmpty()) {
+            rebuildPaletteUI();
+        }
+
+        // 7. Restore image carousel preview view state
+        if (!session.carouselImages.isEmpty() && session.currentIndex >= 0 && session.currentIndex < session.carouselImages.size()) {
+            themePreview.setImage(new Image(session.carouselImages.get(session.currentIndex).toURI().toString()));
+        }
+        updateCarouselButtons();
+
+        // Layout bindings
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.fitWidthProperty().bind(theme.widthProperty());
         themePreview.fitHeightProperty().bind(theme.heightProperty().multiply(ScalareAureo.IPHI_D * ScalareAureo.IPHI_D));
+
+        // --- NUOVO: Arrotondamento dinamico a 16px per l'ImageView ---
+        Rectangle clip = new Rectangle();
+        clip.setArcWidth(16);
+        clip.setArcHeight(16);
+        // Ascolta le variazioni di dimensione reali del layout per adattare la maschera di ritaglio
+        themePreview.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            clip.setWidth(newBounds.getWidth());
+            clip.setHeight(newBounds.getHeight());
+        });
+        themePreview.setClip(clip);
     }
 
     public void injectParentPane(Pane paneMaster) {
@@ -92,8 +138,8 @@ public class OptionThemeController {
 
         HBox widget = new HBox(2, colorBox, arrowBtn);
         widget.setAlignment(Pos.CENTER_LEFT);
-        SessionManager.getInstance().pickerBoxes.put(picker, colorBox);
 
+        SessionManager.getInstance().pickerBoxes.put(picker, colorBox);
         row.getChildren().add(widget);
     }
 
@@ -109,6 +155,7 @@ public class OptionThemeController {
         if (paneMaster == null || paneMaster.getScene() == null) return;
         ThemeManager.getInstance().stopRainbowMode();
         if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
+        rainbowModeCheck.setSelected(false);
 
         List<String> hexPalette = List.of(toHex(accentPrimary.getValue()), toHex(accentSecondary.getValue()), toHex(accentTernary.getValue()), toHex(bgPrimary.getValue()));
         ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.2);
@@ -122,10 +169,12 @@ public class OptionThemeController {
             if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
             syncColorPickersWithTheme();
             AudioManager.getInstance().playSFX("laugh");
+            rainbowModeCheck.setSelected(false);
         } else {
             AudioManager.getInstance().playSFX("rainbow");
             ThemeManager.getInstance().startRainbowMode(paneMaster.getScene());
             startUiSyncTimer();
+            rainbowModeCheck.setSelected(true);
         }
     }
 
@@ -148,6 +197,8 @@ public class OptionThemeController {
         try {
             ThemeManager.getInstance().stopRainbowMode();
             if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
+            rainbowModeCheck.setSelected(false);
+
             BufferedImage bufferedImage = ImageIO.read(imageFile);
             if (bufferedImage == null) return;
 
@@ -206,7 +257,12 @@ public class OptionThemeController {
         SessionManager.getInstance().uiRainbowSyncTimer.start();
     }
 
-    @FXML void toggleThemeMode(ActionEvent event) { toggleThemeModeLogic(); }
+    @FXML
+    void toggleThemeMode(ActionEvent event) {
+        SessionManager.getInstance().isLightModeSelected = lightModeCheck.isSelected();
+        toggleThemeModeLogic();
+    }
+
     private void toggleThemeModeLogic() {
         if (!SessionManager.getInstance().carouselImages.isEmpty() && SessionManager.getInstance().currentIndex >= 0) { applyTheme(SessionManager.getInstance().carouselImages.get(SessionManager.getInstance().currentIndex)); }
         else {
@@ -228,6 +284,29 @@ public class OptionThemeController {
 
     private double luminance(Color c) { return 0.2126 * lin(c.getRed()) + 0.7152 * lin(c.getGreen()) + 0.0722 * lin(c.getBlue()); }
     private double lin(double ch) { return (ch <= 0.03928) ? ch / 12.92 : Math.pow((ch + 0.055) / 1.055, 2.4); }
-    private void updateCarouselButtons() { boolean show = SessionManager.getInstance().carouselImages.size() > 1; prevThemeBtn.setVisible(show); nextThemeBtn.setVisible(show); }
+
+    // --- NUOVO: Gestione intelligente della barra carosello / pulsanti aggiunta ---
+    private void updateCarouselButtons() {
+        int totalImages = SessionManager.getInstance().carouselImages.size();
+        boolean hasImages = totalImages > 0;
+        boolean showArrows = totalImages > 1;
+
+        // Gestione delle frecce (compaiono solo se c'è un vero e proprio carosello multifile)
+        prevThemeBtn.setVisible(showArrows);
+        prevThemeBtn.setManaged(showArrows);
+        nextThemeBtn.setVisible(showArrows);
+        nextThemeBtn.setManaged(showArrows);
+
+        // Se c'è almeno un'immagine inserita:
+        if (addImageBtn != null) {
+            addImageBtn.setVisible(hasImages);
+            addImageBtn.setManaged(hasImages); // Occupa spazio e compare fisicamente in mezzo alle frecce
+        }
+        if (pickImageBtn != null) {
+            pickImageBtn.setVisible(!hasImages);
+            pickImageBtn.setManaged(!hasImages); // Scompare dal centro dell'immagine se c'è un contenuto
+        }
+    }
+
     private String toHex(Color c) { return String.format("#%02x%02x%02x", (int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255)); }
 }
