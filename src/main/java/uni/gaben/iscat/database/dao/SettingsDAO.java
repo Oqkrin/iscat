@@ -21,4 +21,6 @@ public interface SettingsDAO {
 
     /** Aggiorna un singolo canale audio */
     void updateVolume(int userId, String columnName, double volumeValue);
+
+    void updateThemeSetting(int userId, String choosenTheme, String hexvalue);
 }

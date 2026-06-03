@@ -1,7 +1,10 @@
 package uni.gaben.iscat.controller;
 
 import javafx.application.Platform;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
@@ -14,6 +17,9 @@ import uni.gaben.iscat.model.ScoreModel;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
+import uni.gaben.iscat.utils.theme.ThemeManager;
+
+import java.util.List;
 
 public class LoginController {
 
@@ -183,7 +189,7 @@ public class LoginController {
         if (settings == null) return;
 
         // AUDIO
-        AudioManager audio = uni.gaben.iscat.utils.AudioManager.getInstance();
+        AudioManager audio = AudioManager.getInstance();
         audio.setMasterVolume(settings.getVolumeMaster());
         audio.setBgmVolume(settings.getVolumeBgm());
         audio.setSfxVolume(settings.getVolumeSfx());
@@ -191,7 +197,45 @@ public class LoginController {
         // FULLSCREEN
         boolean goFullscreen = (settings.getFullscreen() == 1);
         IscatNavigator.getInstance().getModel().setFullscreen(goFullscreen);
+
+        // THEMA
+        javafx.stage.Window activeWindow;
+        if (settings.getPrimaryTheme() != null && !settings.getPrimaryTheme().equalsIgnoreCase("#FFFFFF")) {
+            List<String> savedPalette = List.of(
+                    settings.getPrimaryTheme(),
+                    settings.getSecondaryTheme(),
+                    settings.getTertiaryTheme(),
+                    settings.getBackgroundTheme()
+            );
+
+            activeWindow = Window.getWindows().stream()
+                    .filter(Window::isShowing)
+                    .findFirst()
+                    .orElse(null);
+
+            if (activeWindow instanceof Stage stage) {
+                Scene currentScene = stage.getScene();
+                if (currentScene != null) {
+                    ThemeManager.getInstance().applyHexColorsTheme(currentScene, savedPalette, 0.0);
+                }
+            }
+        } else {
+            activeWindow = Window.getWindows().stream()
+                    .filter(Window::isShowing)
+                    .findFirst()
+                    .orElse(null);
+
+            if (activeWindow instanceof Stage stage) {
+                Scene currentScene = stage.getScene();
+                if (currentScene != null) {
+                    ThemeManager.getInstance().switchTheme(
+                            currentScene,
+                            "/uni/gaben/iscat/styles/iscat-color-theme.css",
+                            javafx.scene.paint.Color.WHITE,
+                            0.0
+                    );
+                }
+            }
+        }
     }
-
-
 }

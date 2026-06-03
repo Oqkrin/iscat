@@ -58,8 +58,8 @@ public class SQLiteSettingsDAO implements SettingsDAO {
         controlHelper.updateControl(userId, columnName, newKey);
     }
 
-    public void updateThemeSetting(int userId, String columnName, String hexColor) {
-        themeHelper.updateThemeSetting(userId, columnName, hexColor);
+    public void updateThemeSetting(int userId, String choosenTheme, String hexvalue) {
+        themeHelper.updateThemeSetting(userId, choosenTheme, hexvalue);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class SQLiteSettingsDAO implements SettingsDAO {
                Scale, ShowFPS, Fullscreen,
                DebugMode, Lightmode, RainbowMode,
                PrimaryTheme, SecondaryTheme, TertiaryTheme, BackgroundTheme) 
-        VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'Q', 'E', 'P', 50, 50, 30, 50, 0, 1, 0, 0, 0, '#FFFFFF', '#FFFFFF', '#FFFFFF', '#000000')
+        VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'Q', 'E', 'P', 50, 50, 30, 50, 0, 1, 0, 0, 0, '#cbcbcb', '#a9a9a9', '#333333', '#010203')
         """;
         try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

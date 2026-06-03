@@ -16,6 +16,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
+import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.database.dao.SettingsDAO;
+import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.design.ScalareAureo;
@@ -157,7 +160,39 @@ public class OptionThemeController {
         if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
         rainbowModeCheck.setSelected(false);
 
-        List<String> hexPalette = List.of(toHex(accentPrimary.getValue()), toHex(accentSecondary.getValue()), toHex(accentTernary.getValue()), toHex(bgPrimary.getValue()));
+        String hexPrimary = toHex(accentPrimary.getValue());
+        String hexSecondary = toHex(accentSecondary.getValue());
+        String hexTertiary = toHex(accentTernary.getValue());
+        String hexBg = toHex(bgPrimary.getValue());
+
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+
+        if (settings != null) {
+            System.out.println("[ISCAT DEBUG] Utente trovato! Sto salvando i colori: " + hexPrimary);
+
+            settings.setPrimaryTheme(hexPrimary);
+            settings.setSecondaryTheme(hexSecondary);
+            settings.setTertiaryTheme(hexTertiary);
+            settings.setBackgroundTheme(hexBg);
+
+            IscatDB.getInstance().executeAsync(() -> {
+                try {
+                    SettingsDAO dao = IscatDB.getInstance().getSettingsDAO();
+                    dao.updateThemeSetting(settings.getUserId(), "PrimaryTheme", hexPrimary);
+                    dao.updateThemeSetting(settings.getUserId(), "SecondaryTheme", hexSecondary);
+                    dao.updateThemeSetting(settings.getUserId(), "TertiaryTheme", hexTertiary);
+                    dao.updateThemeSetting(settings.getUserId(), "BackgroundTheme", hexBg);
+                    System.out.println("[ISCAT DEBUG] Database aggiornato con successo in background!");
+                } catch (Exception e) {
+                    System.err.println("[ISCAT ERROR] Errore durante la scrittura su DB: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            System.out.println("[ISCAT DEBUG] Impossibile salvare: l'oggetto CurrentSettings nella Sessione è NULL!");
+        }
+
+        List<String> hexPalette = List.of(hexPrimary, hexSecondary, hexTertiary, hexBg);
         ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.2);
     }
 
@@ -176,6 +211,27 @@ public class OptionThemeController {
             startUiSyncTimer();
             rainbowModeCheck.setSelected(true);
         }
+    }
+
+    public void loadAndApplySavedTheme() {
+        SessionManager session = uni.gaben.iscat.utils.SessionManager.getInstance();
+        UserSettings settings = session.getCurrentSettings();
+
+        isUpdatingProgrammatically = true;
+        if (settings != null && settings.getPrimaryTheme() != null && !settings.getPrimaryTheme().equalsIgnoreCase("#FFFFFF")) {
+            accentPrimary.setValue(Color.web(settings.getPrimaryTheme()));
+            accentSecondary.setValue(Color.web(settings.getSecondaryTheme()));
+            accentTernary.setValue(Color.web(settings.getTertiaryTheme()));
+            bgPrimary.setValue(Color.web(settings.getBackgroundTheme()));
+
+            List<String> dbPalette = List.of(settings.getPrimaryTheme(), settings.getSecondaryTheme(), settings.getTertiaryTheme(), settings.getBackgroundTheme());
+            if (paneMaster != null && paneMaster.getScene() != null) {
+                ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), dbPalette, 0.0);
+            }
+        } else {
+            syncColorPickersWithTheme();
+        }
+        isUpdatingProgrammatically = false;
     }
 
     @FXML

@@ -69,7 +69,7 @@ public class OptionsMenuController implements IscatMenuController {
         }
 
         if (subThemeController != null && getRootPane().getScene() != null) {
-            subThemeController.applyManualColorChanges();
+            subThemeController.loadAndApplySavedTheme();
         }
     }
 
