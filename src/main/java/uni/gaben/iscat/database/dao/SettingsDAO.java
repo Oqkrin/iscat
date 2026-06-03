@@ -1,6 +1,6 @@
 package uni.gaben.iscat.database.dao;
 
-import uni.gaben.iscat.screens.login.model.UserSettings;
+import uni.gaben.iscat.model.user.UserSettings;
 import java.util.Optional;
 
 public interface SettingsDAO {

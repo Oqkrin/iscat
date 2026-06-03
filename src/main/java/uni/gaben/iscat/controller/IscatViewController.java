@@ -7,7 +7,7 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.IscatMVCRegistry;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.view.AbstractIscatStackPane;
+import uni.gaben.iscat.view.components.AbstractIscatStackPane;
 import java.util.EnumMap;
 
 /**

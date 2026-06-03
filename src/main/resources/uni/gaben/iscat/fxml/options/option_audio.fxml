@@ -8,7 +8,7 @@
 <VBox alignment="TOP_CENTER" rotate="1.0" spacing="12.0"
       styleClass="glowing-border, audio-card" VBox.vgrow="NEVER"
       xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="uni.gaben.iscat.screens.options.OptionAudioController">
+      fx:controller="uni.gaben.iscat.controller.components.options.OptionAudioController">
     <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0" /></padding>
     <Label styleClass="card-header" text="AUDIO" />
     <HBox alignment="CENTER_LEFT" spacing="10.0">

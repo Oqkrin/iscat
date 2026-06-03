@@ -2,9 +2,8 @@ package uni.gaben.iscat.database.sqlite;
 
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.screens.scores.SaveData;
+import uni.gaben.iscat.model.ScoreModel;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,14 +28,14 @@ public class SQLiteScoreDAO implements ScoreDAO {
     }
 
     @Override
-    public Optional<SaveData> load(int userId) {
+    public Optional<ScoreModel> load(int userId) {
         String sql = "SELECT * FROM Salvataggi WHERE UserID = ?";
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new SaveData(
+                    return Optional.of(new ScoreModel(
                             rs.getInt("UserID"),
                             rs.getInt("Score"),
                             rs.getInt("Deaths"),

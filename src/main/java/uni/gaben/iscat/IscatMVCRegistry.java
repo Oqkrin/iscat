@@ -2,14 +2,14 @@ package uni.gaben.iscat;
 
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.screens.game.controller.GameController;
-import uni.gaben.iscat.screens.game.model.GameModel;
-import uni.gaben.iscat.screens.game.view.GameView;
-import uni.gaben.iscat.screens.login.LoginController;
-import uni.gaben.iscat.screens.login.model.LoginAuth;
-import uni.gaben.iscat.screens.login.model.LoginModel;
-import uni.gaben.iscat.screens.login.LoginView;
-import uni.gaben.iscat.view.AbstractIscatStackPane;
+import uni.gaben.iscat.controller.game.GameController;
+import uni.gaben.iscat.model.game.GameModel;
+import uni.gaben.iscat.view.game.GameView;
+import uni.gaben.iscat.controller.LoginController;
+import uni.gaben.iscat.model.login.LoginAuth;
+import uni.gaben.iscat.model.login.LoginModel;
+import uni.gaben.iscat.view.LoginView;
+import uni.gaben.iscat.view.components.AbstractIscatStackPane;
 import uni.gaben.iscat.view.GenericIscatView;
 
 public class IscatMVCRegistry {

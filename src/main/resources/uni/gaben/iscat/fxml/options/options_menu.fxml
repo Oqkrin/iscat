@@ -11,7 +11,7 @@
            stylesheets="@../../styles/screens/options-menu.css"
            xmlns="http://javafx.com/javafx/"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.screens.options.OptionsMenuController">
+           fx:controller="uni.gaben.iscat.controller.components.options.OptionsMenuController">
 
     <VBox fx:id="paneMaster" alignment="CENTER" styleClass="menu-background"
           StackPane.alignment="CENTER" VBox.vgrow="ALWAYS">

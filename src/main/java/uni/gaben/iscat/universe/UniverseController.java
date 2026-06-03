@@ -6,8 +6,8 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.screens.game.controller.GameInputs;
-import uni.gaben.iscat.screens.login.model.SessionUser;
+import uni.gaben.iscat.controller.game.GameInputsHandler;
+import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
@@ -34,7 +34,7 @@ import java.util.Random;
  *
  * <p>Coordinates every tick: player input, AI, physics step, asteroid spawning,
  * entity cleanup, and camera tracking. The external {@link UniverseWaveController}
- * is managed by {@link uni.gaben.iscat.screens.game.controller.GameController} and
+ * is managed by {@link uni.gaben.iscat.controller.game.GameController} and
  * is not duplicated here.</p>
  */
 public class UniverseController {
@@ -70,7 +70,7 @@ public class UniverseController {
      * @param inputs current input snapshot
      * @param camera camera model (for viewport-relative calculations)
      */
-    public void updatev(double dt, GameInputs inputs, CameraModel camera) {
+    public void updatev(double dt, GameInputsHandler inputs, CameraModel camera) {
         PlayerModel player = universeModel.getPlayer();
 
         syncPlayerController(player);
@@ -98,7 +98,7 @@ public class UniverseController {
         }
     }
 
-    private void processPlayerInputs(PlayerModel player, GameInputs inputs,
+    private void processPlayerInputs(PlayerModel player, GameInputsHandler inputs,
                                      CameraModel camera, double dt) {
         if (player == null) return;
         playerController.processInput(inputs, camera, dt);

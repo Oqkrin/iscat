@@ -21,11 +21,10 @@ module uni.gaben.iscat {
 
     opens uni.gaben.iscat.screens.bestiary to javafx.fxml;
     opens uni.gaben.iscat.screens.confirmation_overlay to javafx.fxml;
-    opens uni.gaben.iscat.screens.game.controller to javafx.fxml;
+    opens uni.gaben.iscat.controller.game to javafx.fxml;
     opens uni.gaben.iscat.screens.leaderboard to javafx.fxml;
     opens uni.gaben.iscat.screens.main_menu to javafx.fxml;
-    opens uni.gaben.iscat.screens.options to javafx.fxml;
-    opens uni.gaben.iscat.screens.pause_menu to javafx.fxml;
+    opens uni.gaben.iscat.controller.components.options to javafx.fxml;
     opens uni.gaben.iscat.screens.scores to javafx.fxml;
     opens uni.gaben.iscat.screens.skin_selection to javafx.fxml;
 
@@ -42,13 +41,13 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.model;
 
     exports uni.gaben.iscat.screens.confirmation_overlay;
-    exports uni.gaben.iscat.screens.game.controller;
-    exports uni.gaben.iscat.screens.game.model;
-    exports uni.gaben.iscat.screens.game.view;
+    exports uni.gaben.iscat.controller.game;
+    exports uni.gaben.iscat.model.game;
+    exports uni.gaben.iscat.view.game;
     exports uni.gaben.iscat.screens.login;
-    exports uni.gaben.iscat.screens.login.model;
+    exports uni.gaben.iscat.model.login;
     exports uni.gaben.iscat.screens.main_menu;
-    exports uni.gaben.iscat.screens.options;
+    exports uni.gaben.iscat.controller.components.options;
 
     exports uni.gaben.iscat.universe;
     exports uni.gaben.iscat.universe.brain;
@@ -75,4 +74,10 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.utils.sprite;
     exports uni.gaben.iscat.utils.theme;
     exports uni.gaben.iscat.view;
+    opens uni.gaben.iscat.model.game to javafx.fxml;
+    exports uni.gaben.iscat.controller.components;
+    opens uni.gaben.iscat.controller.components to javafx.fxml;
+    exports uni.gaben.iscat.model.user;
+    exports uni.gaben.iscat.view.components;
+    opens uni.gaben.iscat.view.components to javafx.fxml;
 }

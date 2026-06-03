@@ -1,6 +1,7 @@
 package uni.gaben.iscat.view;
 
 import javafx.scene.layout.StackPane;
+import uni.gaben.iscat.view.components.AbstractIscatStackPane;
 
 /**
  * View generica utilizzata per caricare al volo qualsiasi FXML

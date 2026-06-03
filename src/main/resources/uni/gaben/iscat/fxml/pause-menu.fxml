@@ -11,7 +11,7 @@
            stylesheets="@../styles/screens/game.css"
            xmlns="http://javafx.com/javafx/"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.screens.pause_menu.PauseMenuController">
+           fx:controller="uni.gaben.iscat.controller.game.GamePauseMenuController">
 
     <VBox alignment="CENTER" spacing="24.0" styleClass="game-pause-overlay">
         <padding>

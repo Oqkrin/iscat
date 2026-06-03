@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.lib.interfaces.model.AttackPattern;
 import uni.gaben.iscat.universe.lib.implementations.attacks.*;
 import uni.gaben.iscat.utils.AudioManager;
-import uni.gaben.iscat.screens.game.controller.GameInputs;
+import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
@@ -28,7 +28,7 @@ public class PlayerController {
         setPlayer(player);
     }
 
-    public void processInput(GameInputs input, CameraModel camera, double dt) {
+    public void processInput(GameInputsHandler input, CameraModel camera, double dt) {
         dashBuffer.update(dt);
 
         double dx = 0, dy = 0;
@@ -81,7 +81,7 @@ public class PlayerController {
     }
 
     private void handleDash(
-            GameInputs input,
+            GameInputsHandler input,
             double dx,
             double dy,
             double nextAngle
@@ -151,7 +151,7 @@ public class PlayerController {
         }
     }
 
-    private void handleShooting(GameInputs input) {
+    private void handleShooting(GameInputsHandler input) {
         if (player == null || shooter == null || currentAttack == null) return;
 
         if (input.shooting && player.isSparoDisponibile()) {

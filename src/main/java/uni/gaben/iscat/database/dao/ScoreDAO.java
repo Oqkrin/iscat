@@ -1,6 +1,6 @@
 package uni.gaben.iscat.database.dao;
 
-import uni.gaben.iscat.screens.scores.SaveData;
+import uni.gaben.iscat.model.ScoreModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,7 @@ public interface ScoreDAO {
     void createIfNotExists(int userId);
 
     /** Carica i dati di salvataggio dell'utente */
-    Optional<SaveData> load(int userId);
+    Optional<ScoreModel> load(int userId);
 
     /** Aggiorna un singolo campo numerico */
     void update(int userId, String column, int value);

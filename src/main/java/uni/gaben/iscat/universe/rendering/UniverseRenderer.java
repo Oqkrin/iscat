@@ -2,8 +2,8 @@ package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import uni.gaben.iscat.screens.game.controller.GameController;
-import uni.gaben.iscat.screens.game.model.GameModel;
+import uni.gaben.iscat.controller.game.GameController;
+import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
@@ -11,7 +11,7 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.rendering.vfx.VFXRenderer;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 import uni.gaben.iscat.utils.theme.ThemeManager;
-import uni.gaben.iscat.view.StarryText;
+import uni.gaben.iscat.view.components.StarryText;
 
 import java.util.ArrayList;
 import java.util.List;

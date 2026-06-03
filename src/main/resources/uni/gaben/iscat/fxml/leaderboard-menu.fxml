@@ -16,7 +16,7 @@
            stylesheets="@../styles/screens/score-menu.css"
            xmlns="http://javafx.com/javafx/"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.screens.leaderboard.LeaderBoardMenuController">
+           fx:controller="uni.gaben.iscat.controller.LeaderBoardMenuController">
 
     <BorderPane fx:id="rootPane" styleClass="menu-background">
 

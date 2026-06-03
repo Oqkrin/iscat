@@ -9,9 +9,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.screens.login.model.SessionUser;
-import uni.gaben.iscat.screens.login.model.UserSettings;
-import uni.gaben.iscat.screens.scores.SaveData;
+import uni.gaben.iscat.model.user.SessionUser;
+import uni.gaben.iscat.model.user.UserSettings;
+import uni.gaben.iscat.model.ScoreModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class SessionManager {
 
     private SessionUser currentUser;
     private UserSettings currentSettings;
-    private final ObjectProperty<SaveData> currentSaveData = new SimpleObjectProperty<>();
+    private final ObjectProperty<ScoreModel> currentSaveData = new SimpleObjectProperty<>();
     private final StringProperty username = new SimpleStringProperty();
 
     public final List<File> carouselImages = new ArrayList<>();
@@ -57,9 +57,9 @@ public class SessionManager {
     public UserSettings getCurrentSettings()   { return currentSettings; }
     public void setCurrentSettings(UserSettings s) { this.currentSettings = s; }
 
-    public SaveData getCurrentSaveData()               { return currentSaveData.get(); }
-    public void setCurrentSaveData(SaveData data)      { currentSaveData.set(data); }
-    public ObjectProperty<SaveData> saveDataProperty() { return currentSaveData; }
+    public ScoreModel getCurrentSaveData()               { return currentSaveData.get(); }
+    public void setCurrentSaveData(ScoreModel data)      { currentSaveData.set(data); }
+    public ObjectProperty<ScoreModel> saveDataProperty() { return currentSaveData; }
 
     public ObservableValue<String> usernameProperty()  { return username; }
 }

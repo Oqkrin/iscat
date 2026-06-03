@@ -9,7 +9,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import uni.gaben.iscat.model.IscatModel;
-import uni.gaben.iscat.view.IscatTitleBar;
+import uni.gaben.iscat.view.components.IscatTitleBar;
 
 public class IscatWindowController {
 

@@ -15,7 +15,7 @@
            managed="false"
            xmlns="http://javafx.com/javafx/"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.screens.confirmation_overlay.ConfirmationOverlayController">
+           fx:controller="uni.gaben.iscat.controller.components.ConfirmationOverlayController">
 
     <VBox alignment="CENTER" maxHeight="300.0" maxWidth="400.0" rotate="1.0" spacing="24.0" styleClass="glowing-border, main-card">
         <padding>

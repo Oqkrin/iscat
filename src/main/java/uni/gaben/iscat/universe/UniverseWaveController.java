@@ -4,7 +4,7 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.screens.game.model.GameModel;
+import uni.gaben.iscat.model.game.GameModel;
 
 import java.util.ArrayList;
 import java.util.List;

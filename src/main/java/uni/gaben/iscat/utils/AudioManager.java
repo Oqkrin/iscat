@@ -4,7 +4,7 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.screens.login.model.UserSettings;
+import uni.gaben.iscat.model.user.UserSettings;
 
 import java.net.URI;
 import java.nio.file.*;
