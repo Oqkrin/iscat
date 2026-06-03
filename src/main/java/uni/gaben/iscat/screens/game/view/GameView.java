@@ -47,6 +47,7 @@ public class GameView extends AbstractIscatStackPane {
 
     private GameSpawnerToolbar spawnerToolbar;
     private StackPane          pauseMenu;
+    private PauseMenuController pauseMenuController;
     private StackPane          gameOverMenu;
 
     private HBox   debugButtonsContainer;
@@ -162,6 +163,11 @@ public class GameView extends AbstractIscatStackPane {
 
         gameModel.gameStateProperty().addListener((obs, oldState, newState) -> {
             syncGameModelFromState(newState);
+
+            if (newState == GameState.IN_PAUSE && pauseMenuController != null) {
+                pauseMenuController.syncVisualState();
+            }
+
             if (newState == GameState.PLAYING) runLater(() -> canvas.requestFocus());
         });
 
@@ -362,7 +368,10 @@ public class GameView extends AbstractIscatStackPane {
 
     private StackPane loadPauseMenu() {
         return loadFxml("/uni/gaben/iscat/fxml/pause-menu.fxml",
-                (PauseMenuController c) -> c.initData(gameController, this));
+                (PauseMenuController c) -> {
+                    this.pauseMenuController = c;
+                    c.initData(gameController, this);
+                });
     }
 
     private StackPane loadGameOverMenu() {

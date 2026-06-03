@@ -31,20 +31,25 @@ public class OptionDisplayController {
 
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
-        if (settings != null) {
-            stage.setFullScreen(settings.getFullscreen() == 1);
+        if (stage.getScene() != null && stage.getScene().getWindow() != null) {
+            FullscreenCheck.setSelected(stage.isFullScreen());
         }
 
         stage.fullScreenProperty().addListener((obs, oldVal, newVal) -> {
-            FullscreenCheck.setSelected(newVal);
+            if (FullscreenCheck.isSelected() != newVal) {
+                FullscreenCheck.setSelected(newVal);
+            }
 
             if (settings != null && FullscreenCheck.getScene() != null && FullscreenCheck.getScene().getWindow() != null) {
                 int fsValue = newVal ? 1 : 0;
-                settings.setFullscreen(fsValue);
 
-                IscatDB.getInstance().executeAsync(() ->
-                        IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "Fullscreen", fsValue)
-                );
+                if (settings.getFullscreen() != fsValue) {
+                    settings.setFullscreen(fsValue);
+
+                    IscatDB.getInstance().executeAsync(() ->
+                            IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "Fullscreen", fsValue)
+                    );
+                }
             }
         });
     }
@@ -83,4 +88,6 @@ public class OptionDisplayController {
     public javafx.scene.control.CheckBox getDebugModeCheck() {
         return DebugModeCheck;
     }
+
+    public javafx.scene.control.CheckBox getFullscreenCheck() {return FullscreenCheck; }
 }
