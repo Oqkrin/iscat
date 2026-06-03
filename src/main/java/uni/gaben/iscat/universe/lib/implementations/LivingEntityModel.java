@@ -37,7 +37,15 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
         this.maxLife = maxLife;
     }
 
-    public String getEntityKey() { return entityKey; }
+    /**
+     * Returns the entity key from the database for GenericEntityModel,
+     * or the simple class name for other entity types.
+     */
+    @Override
+    public String getEntityKey() { 
+        return entityKey != null ? entityKey : super.getEntityKey(); 
+    }
+    
     public void setEntityKey(String entityKey) { this.entityKey = entityKey; }
 
     public void setKilledByProjectile(boolean value) { this.killedByProjectile = value; }

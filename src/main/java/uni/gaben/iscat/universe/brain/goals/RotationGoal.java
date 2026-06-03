@@ -9,73 +9,63 @@ import uni.gaben.iscat.utils.Cooldown;
 @FunctionalInterface
 public interface RotationGoal {
     /**
-     * Computes the desired rotation angle.
-     * @return the desired angle in radians, or null if the entity should not rotate.
+     * @return desired angle in radians, or Double.NaN if no rotation should occur.
      */
-    Double compute(AbstractEntityModel self, UniverseModel world, double dt);
+    double compute(AbstractEntityModel self, UniverseModel world, double dt);
 
-    // ── Face Movement Direction ──────────────────────────────────────────────
     static RotationGoal movement() {
         return (self, world, dt) -> {
             Vector2 vel = self.getLinearVelocity();
-            if (vel.getMagnitudeSquared() > 0.01) {
-                return vel.getDirection();
-            }
-            return null; // maintain current rotation if not moving significantly
+            return vel.getMagnitudeSquared() > 0.01 ? vel.getDirection() : Double.NaN;
         };
     }
 
-    // ── Face a Specific Target ─────────────────────────────────────────────
     static RotationGoal target(Target target) {
         return (self, world, dt) -> {
             Vector2 pos = target.getPosition(world);
-            if (pos == null) return null;
+            if (pos == null) return Double.NaN;
             Vector2 diff = pos.copy().subtract(self.getTransform().getTranslation());
-            if (diff.getMagnitudeSquared() > 0.01) {
-                return diff.getDirection();
-            }
-            return null;
+            return diff.getMagnitudeSquared() > 0.01 ? diff.getDirection() : Double.NaN;
         };
     }
 
-    // ── Idle (Do not rotate) ───────────────────────────────────────────────
     static RotationGoal idle() {
-        return (self, world, dt) -> null;
+        return (self, world, dt) -> Double.NaN;
     }
 
-    // ── Continuous Spin ────────────────────────────────────────────────────
-    static RotationGoal continuesSpin(double spinSpeedRadiansPerTicks) {
+    static RotationGoal continuesSpin(double spinSpeedRadiansPerTick) {
         return new RotationGoal() {
             private double currentAngle = Double.NaN;
-
             @Override
-            public Double compute(AbstractEntityModel self, UniverseModel world, double dt) {
+            public double compute(AbstractEntityModel self, UniverseModel world, double dt) {
                 if (Double.isNaN(currentAngle)) {
                     currentAngle = self.getTransform().getRotationAngle();
                 }
-                currentAngle += spinSpeedRadiansPerTicks * dt;
+                currentAngle += spinSpeedRadiansPerTick * dt;
                 return currentAngle;
             }
         };
     }
 
-    static RotationGoal intervalSpin(int spinSteps, double stepPauseSec, double stepSpeedRadiansPerTicks) {
+    static RotationGoal intervalSpin(int spinSteps, double stepPauseSec, double stepSpeedRadiansPerTick) {
         return new RotationGoal() {
             private double currentAngle = Double.NaN;
             private final Cooldown stepPause = new Cooldown(stepPauseSec);
             private double targetAngle = Double.NaN;
             @Override
-            public Double compute(AbstractEntityModel self, UniverseModel world, double dt) {
-                if(stepPause.isCoolingDown()) stepPause.update(dt);
+            public double compute(AbstractEntityModel self, UniverseModel world, double dt) {
+                if (stepPause.isCoolingDown()) stepPause.update(dt);
                 if (Double.isNaN(currentAngle)) {
                     currentAngle = self.getTransform().getRotationAngle();
-                    targetAngle = currentAngle + (Math.TAU/spinSteps);
+                    targetAngle = currentAngle + (Math.TAU / spinSteps);
                 }
                 if (currentAngle >= targetAngle) {
-                    targetAngle += (Math.TAU/spinSteps);
+                    targetAngle += (Math.TAU / spinSteps);
                     stepPause.start();
                 }
-                if (stepPause.isReady()) currentAngle += spinSteps * stepSpeedRadiansPerTicks * dt;
+                if (stepPause.isReady()) {
+                    currentAngle += spinSteps * stepSpeedRadiansPerTick * dt;
+                }
                 return currentAngle;
             }
         };

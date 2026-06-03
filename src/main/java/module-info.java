@@ -69,6 +69,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.player;
     exports uni.gaben.iscat.universe.projectiles;
     exports uni.gaben.iscat.universe.rendering;
+    exports uni.gaben.iscat.universe.brain.targets;
 
     exports uni.gaben.iscat.utils;
     exports uni.gaben.iscat.utils.sprite;

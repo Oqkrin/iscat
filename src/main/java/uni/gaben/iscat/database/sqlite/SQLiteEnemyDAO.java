@@ -2,9 +2,9 @@ package uni.gaben.iscat.database.sqlite;
 
 import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
+import uni.gaben.iscat.universe.lib.abstracts.PhysicalEntitySettings;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,11 +25,11 @@ public class SQLiteEnemyDAO implements EnemyDAO {
         String sql = """
             INSERT INTO BestiarioUtente (UserID, EnemyID, KillCount)
             VALUES (
-                ?, 
-                (SELECT ID FROM Entita WHERE LOWER(EntityKey) = ?), 
-                1
+                    ?,
+                    (SELECT ID FROM Entity WHERE LOWER(EntityKey) = ?),
+                    1
             )
-            ON CONFLICT(UserID, EnemyID) DO UPDATE SET 
+            ON CONFLICT(UserID, EnemyID) DO UPDATE SET
                 KillCount = KillCount + 1;
             """;
 
@@ -47,7 +47,7 @@ public class SQLiteEnemyDAO implements EnemyDAO {
         List<BestiarioEntry> list = new ArrayList<>();
         String sql = """
             SELECT e.Name, e.Description, e.SpritePath, COALESCE(b.KillCount, 0) AS KillCount
-            FROM Entita e
+            FROM Entity e
             LEFT JOIN BestiarioUtente b ON e.ID = b.EnemyID AND b.UserID = ?
             ORDER BY e.ID ASC
             """;
@@ -71,9 +71,9 @@ public class SQLiteEnemyDAO implements EnemyDAO {
     }
 
     @Override
-    public Optional<GenericEntitySettings> findByKey(String entityKey) {
+    public Optional<GenericPhysicalEntitySettings> findByKey(String entityKey) {
         if (entityKey == null) return Optional.empty();
-        String sql = "SELECT * FROM Entita WHERE LOWER(EntityKey) = ?";
+        String sql = "SELECT * FROM Entity WHERE LOWER(EntityKey) = ?";
 
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, entityKey.toLowerCase().trim());
@@ -89,9 +89,9 @@ public class SQLiteEnemyDAO implements EnemyDAO {
     }
 
     @Override
-    public List<GenericEntitySettings> findAll() {
-        List<GenericEntitySettings> list = new ArrayList<>();
-        String sql = "SELECT * FROM Entita ORDER BY ID ASC";
+    public List<GenericPhysicalEntitySettings> findAll() {
+        List<GenericPhysicalEntitySettings> list = new ArrayList<>();
+        String sql = "SELECT * FROM Entity ORDER BY ID ASC";
 
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -104,38 +104,48 @@ public class SQLiteEnemyDAO implements EnemyDAO {
         return list;
     }
 
-    private GenericEntitySettings mapRow(ResultSet rs) throws SQLException {
-        GenericEntitySettings s = new GenericEntitySettings();
+    /**
+     * Maps a database row from the Entity table to a GenericPhysicalEntitySettings object.
+     * Follows the standardized schema defined in the Entity table.
+     * All field mappings are explicit and match the database column names exactly.
+     */
+    private GenericPhysicalEntitySettings mapRow(ResultSet rs) throws SQLException {
+        GenericPhysicalEntitySettings s = new GenericPhysicalEntitySettings();
 
-        s.entityKey      = rs.getString("EntityKey");
-        s.name           = rs.getString("Name");
-        s.description    = rs.getString("Description");
-        s.spritePath     = rs.getString("SpritePath");
-        s.frameW         = rs.getInt("FrameW");
-        s.frameH         = rs.getInt("FrameH");
-        s.initLife       = rs.getDouble("InitLife");
-        s.dimSprite      = rs.getInt("FrameW");
-        s.scale          = rs.getDouble("Scale");
-        s.dampingLineare = rs.getDouble("LinearDamping");
-        s.maxVelocity    = rs.getDouble("MaxVelocity");
-        s.force          = rs.getDouble("Force");
-        s.rotationSpeed  = rs.getDouble("RotationSpeed");
-        s.xpReward       = rs.getInt("XPReward");
-        s.detectionRange = rs.getDouble("DetectionRange");
-        s.combatRange    = rs.getDouble("CombatRange");
-        s.preferredRange = rs.getDouble("PreferredRange");
-        s.fireCooldownS  = rs.getDouble("FireCooldownS");
-        s.customParam1   = rs.getDouble("CustomParam1");
-        s.customParam2   = rs.getDouble("CustomParam2");
+        // Identity fields
+        s.entityKey = rs.getString("EntityKey");
+        s.name = rs.getString("Name");
+        s.description = rs.getString("Description");
 
+        // Visual properties
+        s.spritePath = rs.getString("SpritePath");
+        s.frameW = rs.getInt("FrameW");
+        s.frameH = rs.getInt("FrameH");
+        
+        // Shape type (with safe parsing)
         String shapeTypeStr = rs.getString("ShapeType");
-        if (shapeTypeStr != null) {
-            try {
-                s.shapeType = GenericEntitySettings.ShapeType.valueOf(shapeTypeStr.toUpperCase().trim());
-            } catch (IllegalArgumentException e) {
-                s.shapeType = GenericEntitySettings.ShapeType.CIRCLE; // Fallback di sicurezza
-            }
-        }
+        s.shapeType = GenericPhysicalEntitySettings.ShapeType.fromString(shapeTypeStr);
+
+        // Physical properties (from PhysicalEntitySettings base)
+        s.scale = rs.getDouble("Scale");
+        s.initLife = rs.getDouble("InitLife");
+        s.linearDamping = rs.getDouble("LinearDamping");
+        s.mass = rs.getDouble("mass");
+
+        // Movement properties (from PhysicalEntitySettings base)
+        s.maxVelocity = rs.getDouble("MaxVelocity");
+        s.maxForce = rs.getDouble("MaxForce");
+        s.maxAngularVelocity = rs.getDouble("MaxAngularVelocity");
+
+        // Behavioral properties (from PhysicalEntitySettings base)
+        s.detectionRange = rs.getDouble("DetectionRange");
+        s.combatRange = rs.getDouble("CombatRange");
+        s.preferredRange = rs.getDouble("PreferredRange");
+        s.actionCooldownS = rs.getDouble("actionCooldownS");
+
+        // Rewards
+        s.xpReward = rs.getInt("XPReward");
+
         return s;
     }
 }

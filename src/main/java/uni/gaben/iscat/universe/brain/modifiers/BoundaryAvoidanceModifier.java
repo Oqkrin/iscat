@@ -5,49 +5,74 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 
+import static uni.gaben.iscat.universe.brain.goals.MovementGoal.ZERO;
+
+/**
+ * BoundaryAvoidanceModifier keeps entities within the world boundaries.
+ * 
+ * COORDINATE SYSTEM:
+ * - World boundaries are defined in PIXELS (0,0) to (1280, 720)
+ * - Entity positions are in METERS (dyn4j physics)
+ * - Conversion: 64 pixels = 1 meter (via UU.mToPx/pxToM)
+ * 
+ * IMPORTANT: Unlike the camera which centers on a target, entities exist
+ * in absolute world coordinates where (0,0) is top-left corner in pixels.
+ */
 public class BoundaryAvoidanceModifier implements MovementModifier {
 
+    // Workspace vector (reused per frame, zero allocation)
+    private final Vector2 avoidance = new Vector2();
+
     @Override
-    public Vector2 compute(AbstractEntityModel self, UniverseModel universe, double maxForce, double dt) {
+    public Vector2 computeForce(AbstractEntityModel self, UniverseModel world, double maxForce, double dt) {
+        // Reset workspace primitives
+        avoidance.x = 0;
+        avoidance.y = 0;
+
+        // Get entity position in PIXELS (world boundaries are in pixels)
         double px = UU.mToPx(self.getTransform().getTranslationX());
         double py = UU.mToPx(self.getTransform().getTranslationY());
-        double w = universe.getWidth();
-        double h = universe.getHeight();
 
-        // 1. Calcolo dinamico dello spazio di frenata
-        double currentSpeedMeters = self.getLinearVelocity().getMagnitude();
-        double mass = self.getMass().getMass();
-        if (mass <= 0) mass = 1.0;
+        // Entity radius in pixels
+        double radiusPx = UU.mToPx(self.getWidthMeters() / 2.0);
+        if (radiusPx <= 0) radiusPx = 10.0;
 
-        double acceleration = maxForce / mass;
+        // World boundaries in pixels: (0, 0) to (w, h)
+        double w = world.getWidth();   // 1280 pixels
+        double h = world.getHeight();  // 720 pixels
 
-        double brakingDistanceMeters = (currentSpeedMeters * currentSpeedMeters) / (2 * acceleration);
-        double dynamicMargin = UU.mToPx(brakingDistanceMeters) + 50.0;
-        double margin = Math.max(100.0, dynamicMargin);
+        // Fixed margin (no mass/braking calculations needed for velocity blending)
+        double margin = 150.0; // pixels
 
-        // 2. Creiamo un vettore vuoto che conterrà SOLO la forza repulsiva del bordo
-        Vector2 repulsionForce = new Vector2();
-
-        // --- ASSE X ---
+        // Compute boundary avoidance as velocity contribution
+        // Reynolds steering: desired velocity points AWAY from boundary
+        
+        // X-axis boundaries
         if (px < margin) {
-            double t = Math.max(0, Math.min(1, (margin - px) / margin));
-            repulsionForce.x = maxForce * t; // Spinge verso destra
+            // Too close to LEFT edge (x = 0)
+            // Push RIGHT (positive X direction)
+            double penetration = (margin - px) / Math.max(margin, 1.0); // 0..1 (1 = at edge, 0 = at margin limit)
+            avoidance.x = maxForce * penetration;
         } else if (px > w - margin) {
-            double t = Math.max(0, Math.min(1, (px - (w - margin)) / margin));
-            repulsionForce.x = -maxForce * t; // Spinge verso sinistra
+            // Too close to RIGHT edge (x = w)
+            // Push LEFT (negative X direction)
+            double penetration = (px - (w - margin)) / Math.max(margin, 1.0); // 0..1
+            avoidance.x = -maxForce * penetration;
         }
 
-        // --- ASSE Y ---
+        // Y-axis boundaries
         if (py < margin) {
-            double t = Math.max(0, Math.min(1, (margin - py) / margin));
-            repulsionForce.y = maxForce * t; // Spinge verso il basso
+            // Too close to TOP edge (y = 0)
+            // Push DOWN (positive Y direction)
+            double penetration = (margin - py) / Math.max(margin, 1.0); // 0..1
+            avoidance.y = maxForce * penetration;
         } else if (py > h - margin) {
-            double t = Math.max(0, Math.min(1, (py - (h - margin)) / margin));
-            repulsionForce.y = -maxForce * t; // Spinge verso l'alto
+            // Too close to BOTTOM edge (y = h)
+            // Push UP (negative Y direction)
+            double penetration = (py - (h - margin)) / Math.max(margin, 1.0); // 0..1
+            avoidance.y = -maxForce * penetration;
         }
 
-        // Se vogliamo assicurarci che i bordi abbiano la priorità assoluta su tutto il resto,
-        // possiamo moltiplicare questa forza repulsiva per un "peso" maggiore.
-        return repulsionForce.multiply(1.5);
+        return avoidance;
     }
 }

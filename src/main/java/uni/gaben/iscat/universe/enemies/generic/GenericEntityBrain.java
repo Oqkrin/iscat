@@ -1,18 +1,7 @@
 package uni.gaben.iscat.universe.enemies.generic;
 
-import org.dyn4j.collision.CollisionBody;
-import org.dyn4j.collision.CollisionItem;
-import org.dyn4j.collision.Fixture;
-import org.dyn4j.dynamics.Body;
-import org.dyn4j.dynamics.BodyFixture;
-import org.dyn4j.geometry.AABB;
-import org.dyn4j.geometry.Transform;
-import org.dyn4j.world.DetectFilter;
-import org.dyn4j.world.result.DetectResult;
-import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.brain.goals.MovementGoal;
-import uni.gaben.iscat.universe.brain.goals.RotationGoal;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.brain.modifiers.BoundaryAvoidanceModifier;
 import uni.gaben.iscat.universe.brain.modifiers.ObstaclesAvoidanceModifier;
@@ -20,28 +9,14 @@ import uni.gaben.iscat.universe.brain.modifiers.ProjectileAvoidanceModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.AlignmentModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.CohesionModifier;
 import uni.gaben.iscat.universe.brain.modifiers.flocking.SeparationModifier;
-import uni.gaben.iscat.universe.brain.actions.HealAction;
-import uni.gaben.iscat.universe.brain.actions.shoot.RandomizedShootAction;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
-import uni.gaben.iscat.universe.lib.implementations.attacks.RepeaterAttack;
-import uni.gaben.iscat.universe.lib.implementations.attacks.SummonAttack;
-import uni.gaben.iscat.universe.lib.implementations.attacks.MultiDirectionAttack;
-import uni.gaben.iscat.universe.lib.implementations.attacks.SpreadAttack;
-import uni.gaben.iscat.universe.lib.implementations.attacks.FigureAttack;
-import uni.gaben.iscat.universe.UniverseSpawnable;
-import uni.gaben.iscat.universe.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.enemies.healer.IscatHealerSettings;
-import uni.gaben.iscat.universe.enemies.worm.IscatWormSegment;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import uni.gaben.iscat.universe.lib.implementations.LivingEntityModel;
+import uni.gaben.iscat.universe.projectiles.Projectile;
 
 /**
  * Controller logico unificato per l'Intelligenza Artificiale delle entità generiche.
  * Sostituisce i vecchi controller rigidi cablati (hardcoded) guidando le routine decisionali
  * della CPU e i comportamenti cinematici interamente sulla base del parametro dinamico
- * {@link GenericEntitySettings#behaviorType} estratto dal database SQLite.
+ * {@link GenericPhysicalEntitySettings#behaviorType} estratto dal database SQLite.
  * Modella gli obiettivi di movimento, orientamento rotazionale e applica modificatori di forza correttivi.
  */
 public class GenericEntityBrain extends Brain<GenericEntityModel> {
@@ -54,32 +29,34 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
      * @param entity Il modello fisico e strutturale dell'entità da pilotare.
      */
     public GenericEntityBrain(GenericEntityModel entity) {
-        super(entity,
-                MovementGoal.idle(),
-                entity.getSettings().force,
+        super(entity, MovementGoal.idle(),
+                entity.getSettings().maxForce,
                 entity.getSettings().maxVelocity,
-                entity.getSettings().rotationSpeed);
+                entity.getSettings().maxAngularVelocity);
 
+        GenericPhysicalEntitySettings s = entity.getSettings();
 
-        GenericEntitySettings s = entity.getSettings();
+        // Inside GenericEntityBrain constructor
 
+// Raw target: all entities except projectiles (they are handled by ProjectileAvoidanceModifier)
+// and excluding self.
+        Target rawNearby = Target.neighboursCached(entity, s.detectionRange,
+                b -> !(b instanceof Projectile) && b != entity);
 
-        addModifier(
-                new CohesionModifier(Target.neighbours(entity, s.detectionRange, new DetectFilter<>(true, true, null)),
-                        1));
+// Flocking view: only LivingEntityModel
+        Target flockTarget = rawNearby.filtered(b -> b instanceof LivingEntityModel);
 
-        addModifier(
-                new AlignmentModifier(Target.neighbours(entity, s.detectionRange, new DetectFilter<>(true, true, null)),
-                        1));
+// Obstacle view: non‑living (and also not self, but self already excluded in raw)
+        Target obstacleTarget = rawNearby.filtered(b -> !(b instanceof LivingEntityModel));
 
-        addModifier(
-                new SeparationModifier(Target.neighbours(entity, s.detectionRange/2, new DetectFilter<>(true, true, null)),
-                        1.7));
-
-        addModifier(
-                new ProjectileAvoidanceModifier(s.detectionRange, s.force));
-        addModifier(
-                new BoundaryAvoidanceModifier());
-        addModifier(new ObstaclesAvoidanceModifier(Target.neighbours(entity,s.detectionRange,new DetectFilter<>(true, true, null))));
+        // Flocking modifiers with balanced weights (sum ≈ 0.5, leaving room for other behaviors)
+        addModifier(new CohesionModifier(flockTarget, 1));      // Gentle pull toward group center
+        addModifier(new AlignmentModifier(flockTarget, 1));     // Match group velocity
+        addModifier(new SeparationModifier(flockTarget, s.detectionRange/2, 1.8));  // Higher priority: avoid crowding
+        
+        // Environmental modifiers with higher priorities (sum ≈ 0.5)
+        addModifier(new ObstaclesAvoidanceModifier(obstacleTarget));  // Uses maxForce directly
+        addModifier(new ProjectileAvoidanceModifier(s.detectionRange, s.maxForce));  // High priority: dodge bullets
+        addModifier(new BoundaryAvoidanceModifier());  // Uses maxForce directly
     }
 }

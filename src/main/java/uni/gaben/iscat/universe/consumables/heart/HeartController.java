@@ -1,15 +1,11 @@
 package uni.gaben.iscat.universe.consumables.heart;
 
-import org.dyn4j.geometry.Vector2;
+
 import uni.gaben.iscat.universe.brain.Brain;
 import uni.gaben.iscat.universe.brain.Target;
 import uni.gaben.iscat.universe.brain.goals.MovementGoal;
-import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.lib.behaviurs.AiController;
-import uni.gaben.iscat.universe.lib.behaviurs.MovementStrategy;
 import uni.gaben.iscat.universe.player.PlayerModel;
-
 public class HeartController extends Brain<HeartModel> {
 
     private final HeartModel heart;
@@ -37,7 +33,7 @@ public class HeartController extends Brain<HeartModel> {
     public void update(UniverseModel universe, double dt) {
         if (heart == null || heart.shouldRemove() || collected) return;
         super.update(universe, dt);
-        if(universe.getPlayer().getTransform().getTranslation().distance(heart.getTransform().getTranslation()) < 15) {
+        if(universe.getPlayer().getTransform().getTranslation().distance(heart.getTransform().getTranslation()) < 3) {
             setMovementGoal(MovementGoal.chase(Target.ofPlayer(), 20));
         } else {
             setMovementGoal(MovementGoal.idle());

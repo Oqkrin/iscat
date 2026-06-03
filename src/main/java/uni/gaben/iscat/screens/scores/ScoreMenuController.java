@@ -12,6 +12,7 @@ import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.screens.base.IscatMenuController;
 import uni.gaben.iscat.screens.bestiary.BestiaryData;
+import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
 import uni.gaben.iscat.view.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.screens.login.model.SessionUser;
@@ -108,21 +109,21 @@ public class ScoreMenuController implements IscatMenuController {
             }
 
             BestiaryData bestiaryData = new BestiaryData();
-            Map<String, BestiaryData.Enemy> enemiesMap = bestiaryData.loadEnemies(userId);
+            Map<String, GenericPhysicalEntitySettings> enemiesMap = bestiaryData.loadEnemies(userId);
 
             if (enemiesMap == null || enemiesMap.isEmpty()) return;
 
-            List<BestiaryData.Enemy> enemyList = new ArrayList<>(enemiesMap.values());
+            List<GenericPhysicalEntitySettings> enemyList = new ArrayList<>(enemiesMap.values());
             StackPane[] containers = { previewNW, previewNE, previewSW, previewSE };
 
             for (int i = 0; i < containers.length; i++) {
                 if (containers[i] == null) continue;
 
-                BestiaryData.Enemy enemy = enemyList.get(i % enemyList.size());
+                GenericPhysicalEntitySettings enemy = enemyList.get(i % enemyList.size());
 
                 AnimatedCanvas canvas = new AnimatedCanvas(140.0);
                 canvas.setFrameDuration(0.20);
-                canvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
+                canvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
 
                 containers[i].getChildren().add(canvas);
                 activeCanvases.add(canvas);
@@ -150,7 +151,7 @@ public class ScoreMenuController implements IscatMenuController {
             bestiaryData.loadEnemies(user.id());
 
             // Somma dei contatori di uccisioni estratti dalla mappa di associazione delle tabelle extra
-            totalKills = bestiaryData.getExtraKillCounts().values().stream()
+            totalKills = bestiaryData.getKillCounts().values().stream()
                     .mapToInt(Integer::intValue)
                     .sum();
         } else {

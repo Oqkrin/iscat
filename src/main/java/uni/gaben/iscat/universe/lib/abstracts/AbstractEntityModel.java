@@ -32,6 +32,16 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
     private double statetime = 0.0;
 
     /**
+     * Returns a unique identifier for this entity type.
+     * For GenericEntityModel, this is the database entityKey.
+     * For other entities, this is the simple class name.
+     */
+    public String getEntityKey() {
+        // Override in subclasses if they have a specific key
+        return this.getClass().getSimpleName();
+    }
+
+    /**
      * Permette a un agente esterno (es. Controller) di definire cosa succede all'impatto.
      */
     public void setOnCollision(Consumer<AbstractEntityModel> callback) {
@@ -69,6 +79,7 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
 
     public String getEntityId() { return entityId; }
     public void setEntityId(String id) { this.entityId = id; }
+    
     @Override public double getTerminalVelocity() { return terminalVelocity; }
     @Override public double getBaseAccelerationPerTick() { return baseAccelerationPerTick; }
     public boolean shouldRemove() { return shouldRemove; }

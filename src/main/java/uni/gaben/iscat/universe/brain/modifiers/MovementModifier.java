@@ -7,11 +7,8 @@ import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 @FunctionalInterface
 public interface MovementModifier {
     /**
-     * @param self           the entity being controlled
-     * @param universe       the game universe
-     * @param maxForce       acceleration
-     * @param dt             timeunit
-     * @return the new desired velocity after this modifier
+     * Returns a steering force (in Newtons) that this modifier wants to apply.
+     * The force will be added to other modifier forces and clamped to maxForce.
      */
-    Vector2 compute(AbstractEntityModel self, UniverseModel universe, double maxForce, double dt);
+    Vector2 computeForce(AbstractEntityModel self, UniverseModel world, double maxForce, double dt);
 }

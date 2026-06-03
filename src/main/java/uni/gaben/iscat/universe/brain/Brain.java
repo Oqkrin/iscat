@@ -39,6 +39,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     private final RotationGoal defaultRotationGoal;
 
     private final double maxForce, maxVelocity, rotationSpeed;
+    private final Vector2 steeringAccumulator = new Vector2();
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -229,6 +230,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // ------------------------------------------------------------------------
     @Override
     public void update(UniverseModel universe, double dt) {
+        if (true) return;
         blockedCategories.clear();
         for (Action a : active.values()) {
             if (a == null) continue;
@@ -261,12 +263,42 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
             }
         }
 
-        Vector2 towardsGoal = currentMovementGoal.compute(entity, universe, dt);
+        // 2. Initialize the base steering target (e.g., from your MovementGoal)
+        Vector2 baseGoal = currentMovementGoal.compute(entity, universe, dt);
+        steeringAccumulator.x = baseGoal.x;
+        steeringAccumulator.y = baseGoal.y;
 
-        for (MovementModifier mod : modifiersMap.values()) {
-            towardsGoal.add(mod.compute(entity, universe, maxForce, dt));
+        // 3. Prioritized Acceleration Allocation Loop
+        double remainingForce = maxForce;
+
+        for (MovementModifier mod : modifiersOrder) {
+            // Modifiers must now return vectors scaled ONLY by their relative weight multiplier, NOT maxForce.
+            Vector2 forceToAdd = mod.computeForce(entity, universe, maxForce, dt);
+
+            double magnitude = forceToAdd.getMagnitude();
+            if (magnitude <= 0.0001) continue;
+
+            // How much of this force can we actually apply?
+            double forceToApply = Math.min(magnitude, remainingForce);
+
+            // Add the constrained portion to the accumulator
+            double scale = forceToApply / magnitude;
+            steeringAccumulator.x += forceToAdd.x * scale;
+            steeringAccumulator.y += forceToAdd.y * scale;
+
+            // Deduct from our force budget
+            remainingForce -= forceToApply;
+
+            // If the budget is exhausted, stop processing lower-priority modifiers entirely!
+            if (remainingForce <= 0.01) {
+                break;
+            }
         }
-        applySteering(towardsGoal, dt);
+
+        // 4. Apply the aggregated steering
+        if (steeringAccumulator.getMagnitudeSquared() > 0) {
+            applySteering(steeringAccumulator, dt);
+        }
 
         if (rotationSpeed > 0) {
             Double desiredAngle = currentRotationGoal.compute(entity, universe, dt);
@@ -277,9 +309,31 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     }
 
     private void applySteering(Vector2 desired, double dt) {
+        // Safety check: validate desired velocity
+        if (desired == null || Double.isNaN(desired.x) || Double.isNaN(desired.y)) {
+            return; // Skip invalid steering
+        }
+        
         Vector2 currentVel = entity.getLinearVelocity();
-        Vector2 steering = desired.copy().subtract(currentVel);
-        entity.applyForce(steering);
+        
+        // Safety check: validate current velocity
+        if (currentVel == null || Double.isNaN(currentVel.x) || Double.isNaN(currentVel.y)) {
+            // If current velocity is invalid, just apply desired as force
+            entity.applyForce(new Vector2(desired.x, desired.y));
+            return;
+        }
+        
+        // Compute steering force: desired - current
+        double steeringX = desired.x - currentVel.x;
+        double steeringY = desired.y - currentVel.y;
+        
+        // Safety check: validate steering force
+        if (Double.isNaN(steeringX) || Double.isNaN(steeringY)) {
+            return; // Skip invalid steering
+        }
+        
+        // Apply the steering force
+        entity.applyForce(new Vector2(steeringX, steeringY));
     }
 
     private void faceDirection(double targetAngle, double dt) {

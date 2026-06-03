@@ -50,7 +50,7 @@ public class UniverseSpawner {
     public Object spawn(UniverseSpawnable type, double x, double y) {
         return switch (type) {
             case PLAYER            -> spawnPlayer(x, y);
-            case ASTEROID          -> spawnEntity(new AsteroidModel(x, y, 50)); // simplified, adjust as needed
+                        case ASTEROID          -> spawnEntity(new AsteroidModel(x, y, 50)); // simplified, adjust as needed
             case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
             case ISCAT_HEALER      -> spawnCustomRuntimeEntity("iscat_healer", x, y);
@@ -126,6 +126,14 @@ public class UniverseSpawner {
     }
 
     public void spawnInitialAsteroidBelts(double centerX, double centerY) {
+        // Safety check: prevent NaN or invalid spawn positions
+        if (Double.isNaN(centerX) || Double.isNaN(centerY) || centerX == 0.0 || centerY == 0.0) {
+            System.err.println("!!! spawnInitialAsteroidBelts called with invalid center: " + centerX + ", " + centerY);
+            System.err.println("!!! Using default spawn center instead");
+            centerX = UniverseModel.DEFAULT_SPAWN_CENTER;
+            centerY = UniverseModel.DEFAULT_SPAWN_CENTER;
+        }
+        
         for (int clump = 0; clump < 6; clump++) {
             double angle = (clump * (Math.PI * 2.0 / 6.0)) + (Math.random() * 0.5);
             double dist = 600.0 + Math.random() * 1200.0;

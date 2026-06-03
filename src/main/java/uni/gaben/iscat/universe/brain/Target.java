@@ -1,17 +1,21 @@
 package uni.gaben.iscat.universe.brain;
 
+import javafx.collections.transformation.FilteredList;
+import org.dyn4j.collision.Filter;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.AABB;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.DetectFilter;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.brain.targets.CachedNeighboursTarget;
 import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityModel;
 import uni.gaben.iscat.universe.player.PlayerModel;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @FunctionalInterface
@@ -67,7 +71,6 @@ public interface Target {
         return world -> entity.shouldRemove() ? Collections.emptyList() : Collections.singletonList(entity);
     }
 
-    /** A common helper for enemy AI. */
     static Target ofPlayer() {
         return world -> {
             PlayerModel p = world.getPlayer();
@@ -75,26 +78,54 @@ public interface Target {
         };
     }
 
-    /** The ultimate dynamic query (perfect for Flocking Boids). */
     static Target ofEntities(Function<UniverseModel, List<AbstractEntityModel>> query) {
         return query::apply;
     }
 
 
 
+    /**
+     * Returns a Target that queries neighbours using a dynamic AABB (re‑computed every call).
+     * To avoid repeated queries, use neighboursCached() instead.
+     */
     static Target neighbours(Body body, double range, DetectFilter<Body, BodyFixture> filter) {
+        return universe -> {
+            AABB aabb = body.createAABB();
+            AABB detectionBox = new AABB(
+                    aabb.getMinX() - range,
+                    aabb.getMinY() - range,
+                    aabb.getMaxX() + range,
+                    aabb.getMaxY() + range
+            );
+            return universe.detect(detectionBox, filter).stream()
+                    .map(r -> (AbstractEntityModel) r.getBody())
+                    .collect(Collectors.toList());
+        };
+    }
 
-        AABB aabb = body.createAABB();
+    static Target neighboursCached(Body self, double range,
+                                   boolean ignoreSensors, boolean ignoreDisabled,
+                                   Filter categoryMaskFilter,
+                                   UniverseFilter universeFilter,
+                                   Predicate<Body> bodyPredicate) {
+        UniverseDetectFilter filter = new UniverseDetectFilter(
+                ignoreSensors, ignoreDisabled, categoryMaskFilter, universeFilter, bodyPredicate);
+        return new CachedNeighboursTarget(self, range, filter);
+    }
 
-        AABB detectionRange = new AABB(
-                aabb.getMinX() - range,
-                aabb.getMinY() - range,
-                aabb.getMaxX() + range,
-                aabb.getMaxY() + range
-        );
+    // Even simpler: only body predicate, no universe filter
+    static Target neighboursCached(Body self, double range, Predicate<Body> bodyPredicate) {
+        return neighboursCached(self, range, true, true, null, null, bodyPredicate);
+    }
 
+    // Inside Target.java
 
-        return universe -> universe.detect(detectionRange, filter).stream().map((detectResult -> (AbstractEntityModel) detectResult.getBody())).toList();
+    /**
+     * Returns a new Target that filters the entities of this target.
+     * The underlying list is still cached; filtering is applied on each call.
+     */
+    default Target filtered(Predicate<AbstractEntityModel> predicate) {
+        return world -> getEntities(world).stream().filter(predicate).toList();
     }
 
 }

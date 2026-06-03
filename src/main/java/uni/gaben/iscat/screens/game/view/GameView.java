@@ -12,24 +12,25 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import uni.gaben.iscat.screens.game.controller.GameState;
+import uni.gaben.iscat.screens.game.controller.GameController;
 import uni.gaben.iscat.screens.game.controller.GameOverMenuController;
+import uni.gaben.iscat.screens.game.controller.GameState;
+import uni.gaben.iscat.screens.game.model.GameModel;
 import uni.gaben.iscat.screens.options.OptionsMenuController;
 import uni.gaben.iscat.screens.pause_menu.PauseMenuController;
-import uni.gaben.iscat.view.AbstractIscatStackPane;
-import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.rendering.UniverseRenderer;
-import uni.gaben.iscat.screens.game.controller.GameController;
-import uni.gaben.iscat.screens.game.model.GameModel;
 import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
-import uni.gaben.iscat.view.StarryText;
-import uni.gaben.iscat.utils.theme.ThemeManager;
+import uni.gaben.iscat.universe.rendering.UniverseRenderer;
 import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.ScalareAureo;
+import uni.gaben.iscat.utils.theme.ThemeManager;
+import uni.gaben.iscat.view.AbstractIscatStackPane;
+import uni.gaben.iscat.view.StarryText;
 
 import java.util.Objects;
+
 import static javafx.application.Platform.runLater;
 
 public class GameView extends AbstractIscatStackPane {
@@ -38,15 +39,15 @@ public class GameView extends AbstractIscatStackPane {
     private final GameController gameController;
     private final StackPane      root;
 
-    private Canvas          canvas;
-    private Canvas          timerCanvas;
-    private StarryText      starryTimer;
+    private Canvas           canvas;
+    private Canvas           timerCanvas;
+    private StarryText       starryTimer;
     private UniverseRenderer universeRenderer;
     private final StarfieldView starfieldView = new StarfieldView();
 
     private GameSpawnerToolbar spawnerToolbar;
     private StackPane          pauseMenu;
-    private StackPane          gameOverMenu; // Modificato in StackPane (Nodo radice dell'FXML)
+    private StackPane          gameOverMenu;
 
     private HBox   debugButtonsContainer;
     private Button debugButton;
@@ -61,14 +62,21 @@ public class GameView extends AbstractIscatStackPane {
         this.gameModel      = gameController.getGameModel();
         this.root           = getContentRoot();
         this.gameController.setContentRoot(this.root);
-
         initialize();
     }
 
+    // -------------------------------------------------------------------------
+    // AbstractIscatStackPane lifecycle
+    // -------------------------------------------------------------------------
+
     @Override
     protected void initNodes() {
-        canvas = new Canvas();
+        canvas      = new Canvas();
+        timerCanvas = new Canvas(300, 100);
+        timerCanvas.setMouseTransparent(true);
+        timerCanvas.setFocusTraversable(false);
 
+        starryTimer    = new StarryText(300, 100);
         spawnerToolbar = new GameSpawnerToolbar(gameController);
         pauseMenu      = loadPauseMenu();
         gameOverMenu   = loadGameOverMenu();
@@ -76,11 +84,6 @@ public class GameView extends AbstractIscatStackPane {
         levelLabel = new Label("LEVEL 1");
         levelLabel.setFocusTraversable(false);
         levelLabel.setMouseTransparent(true);
-
-        timerCanvas = new Canvas(300, 100);
-        timerCanvas.setMouseTransparent(true);
-        timerCanvas.setFocusTraversable(false);
-        starryTimer = new StarryText(300, 100);
 
         debugButton = new Button("DEBUG");
         debugButton.setFocusTraversable(false);
@@ -96,35 +99,11 @@ public class GameView extends AbstractIscatStackPane {
         universeRenderer = new UniverseRenderer(canvas, gameController, starfieldView);
     }
 
-    private StackPane loadPauseMenu() {
-        return loadFxml("/uni/gaben/iscat/fxml/pause-menu.fxml",
-                (PauseMenuController c) -> c.initData(gameController, this));
-    }
-
-    private StackPane loadGameOverMenu() {
-        return loadFxml("/uni/gaben/iscat/fxml/game-over-menu.fxml",
-                (GameOverMenuController c) -> c.initData(gameController, this));
-    }
-
-    public void openOptions() {
-        transitionTo(GameState.IN_OPTIONS);
-        final StackPane[] optionsViewWrapper = new StackPane[1];
-        optionsViewWrapper[0] = loadFxml("/uni/gaben/iscat/fxml/options/options_menu.fxml",
-                (OptionsMenuController c) -> c.setCustomBackAction(() -> closeOptions(optionsViewWrapper[0])));
-        optionsViewWrapper[0].getStyleClass().add("game-pause-overlay");
-        root.getChildren().add(optionsViewWrapper[0]);
-    }
-
-    private void closeOptions(StackPane optionsView) {
-        root.getChildren().remove(optionsView);
-        transitionTo(GameState.IN_PAUSE);
-    }
-
     @Override
     protected void initStyles() {
         root.getStyleClass().add("game-view-container");
         getStylesheets().add(Objects.requireNonNull(
-                        GameView.class.getResource("/uni/gaben/iscat/styles/screens/game.css"))
+                GameView.class.getResource("/uni/gaben/iscat/styles/screens/game.css"))
                 .toExternalForm());
 
         CssHelper.stilePulsanteMenu(debugButton);
@@ -140,19 +119,15 @@ public class GameView extends AbstractIscatStackPane {
     @Override
     protected void initLayout() {
         root.getChildren().addAll(
-                canvas,
-                timerCanvas,
-                levelLabel,
-                spawnerToolbar,
-                debugButtonsContainer,
-                pauseMenu,
-                gameOverMenu
+                canvas, timerCanvas, levelLabel,
+                spawnerToolbar, debugButtonsContainer,
+                pauseMenu, gameOverMenu
         );
 
-        StackPane.setAlignment(spawnerToolbar,          Pos.BOTTOM_CENTER);
-        StackPane.setAlignment(debugButtonsContainer,   Pos.TOP_LEFT);
-        StackPane.setAlignment(timerCanvas,             Pos.TOP_CENTER);
-        StackPane.setAlignment(levelLabel,              Pos.BOTTOM_RIGHT);
+        StackPane.setAlignment(spawnerToolbar,        Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(debugButtonsContainer, Pos.TOP_LEFT);
+        StackPane.setAlignment(timerCanvas,           Pos.TOP_CENTER);
+        StackPane.setAlignment(levelLabel,            Pos.BOTTOM_RIGHT);
 
         StackPane.setMargin(debugButtonsContainer, new Insets(50, 0, 0, 50));
         StackPane.setMargin(timerCanvas,           new Insets(50, 0, 0, 0));
@@ -167,9 +142,15 @@ public class GameView extends AbstractIscatStackPane {
         spawnerToolbar.maxHeightProperty().bind(root.heightProperty().divide(5));
         spawnerToolbar.maxWidthProperty().bind(root.widthProperty().multiply(ScalareAureo.IPHI_D));
 
+        // Camera screen dimensions always track the canvas — this binding is permanent
         CameraModel camera = gameController.getCameraModel();
         camera.screenWidthProperty().bind(canvas.widthProperty());
         camera.screenHeightProperty().bind(canvas.heightProperty());
+
+        // Notify the universe when the canvas is resized so starfields and spawn
+        // centres remain accurate
+        canvas.widthProperty().addListener((obs, oldW, newW) -> onCanvasSizeChanged());
+        canvas.heightProperty().addListener((obs, oldH, newH) -> onCanvasSizeChanged());
 
         gameOverMenu.visibleProperty().bind(
                 gameModel.gameStateProperty().isEqualTo(GameState.GAME_OVER));
@@ -181,19 +162,17 @@ public class GameView extends AbstractIscatStackPane {
 
         gameModel.gameStateProperty().addListener((obs, oldState, newState) -> {
             syncGameModelFromState(newState);
-            if (newState == GameState.PLAYING) {
-                runLater(() -> canvas.requestFocus());
-            }
+            if (newState == GameState.PLAYING) runLater(() -> canvas.requestFocus());
         });
 
-        gameModel.gameOverProperty().addListener((obs, wasOver, isOver) -> {
+        gameModel.gameOverProperty().addListener((obs, was, isOver) -> {
             if (isOver) transitionTo(GameState.GAME_OVER);
         });
 
-        gameController.debugModeProperty().addListener((obs, oldV, isDebugActive) -> {
-            debugButtonsContainer.setVisible(isDebugActive);
-            debugButtonsContainer.setManaged(isDebugActive);
-            if (!isDebugActive) {
+        gameController.debugModeProperty().addListener((obs, oldV, debugOn) -> {
+            debugButtonsContainer.setVisible(debugOn);
+            debugButtonsContainer.setManaged(debugOn);
+            if (!debugOn) {
                 spawnerToolbar.setVisible(false);
                 spawnerToolbar.setManaged(false);
                 debugPanelVisible = false;
@@ -201,28 +180,14 @@ public class GameView extends AbstractIscatStackPane {
             }
         });
 
-        boolean initialDebug = gameController.isDebugModeOn();
-        debugButtonsContainer.setVisible(initialDebug);
-        debugButtonsContainer.setManaged(initialDebug);
+        boolean initDebug = gameController.isDebugModeOn();
+        debugButtonsContainer.setVisible(initDebug);
+        debugButtonsContainer.setManaged(initDebug);
         spawnerToolbar.setVisible(false);
         spawnerToolbar.setManaged(false);
 
-        gameModel.timerProperty().addListener(
-                (obs, oldVal, newVal) -> updateTimerText(newVal.intValue()));
+        gameModel.timerProperty().addListener((obs, oldV, newV) -> updateTimerText(newV.intValue()));
         runLater(() -> updateTimerText(gameModel.getTimer()));
-    }
-
-
-    /** Unico punto di ingresso per cambiare stato. */
-    public void transitionTo(GameState next) {
-        GameState current = gameModel.gameStateProperty().get();
-        if (current == next) return;
-        gameModel.setGameState(next);
-    }
-
-    /** Mantiene GameModel allineato allo stato enum (retrocompatibilità). */
-    private void syncGameModelFromState(GameState state) {
-        gameModel.setPaused(state.isPaused());
     }
 
     @Override
@@ -237,7 +202,7 @@ public class GameView extends AbstractIscatStackPane {
             }
         });
 
-        debugButton.setOnAction(event -> {
+        debugButton.setOnAction(ev -> {
             if (gameController.isDebugModeOn()) {
                 debugPanelVisible = !debugPanelVisible;
                 spawnerToolbar.setVisible(debugPanelVisible);
@@ -247,7 +212,7 @@ public class GameView extends AbstractIscatStackPane {
             }
         });
 
-        toggleWave.setOnAction(event -> {
+        toggleWave.setOnAction(ev -> {
             if (gameController.isDebugModeOn()) {
                 gameModel.waveActiveProperty().set(!gameModel.isWaveActive());
                 toggleWave.setText(gameModel.isWaveActive() ? "pause wave" : "restart wave");
@@ -256,7 +221,7 @@ public class GameView extends AbstractIscatStackPane {
         });
 
         this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if (gameController.getGameModel().isPaused()) return;
+            if (gameModel.isPaused()) return;
             if (e.getCode() == KeyCode.PLUS || e.getCode() == KeyCode.ADD) {
                 gameController.getCameraModel().addZoom(0.1);
                 e.consume();
@@ -267,28 +232,55 @@ public class GameView extends AbstractIscatStackPane {
         });
     }
 
+    // -------------------------------------------------------------------------
+    // Show / hide / unload
+    // -------------------------------------------------------------------------
+
     @Override
     public void onShow() {
         super.onShow();
         transitionTo(GameState.PLAYING);
+
         gameController.setDrawCall(
                 () -> universeRenderer.renderFrame(timerCanvas, starryTimer, debugPanelVisible));
         gameController.getInputManager().attachToScene(this.getScene());
-        gameController.startGameLoop();
 
-        UniverseController universeController = gameController.getUniverseController();
-        UniverseModel universe = universeController.getUniverseModel();
-        if (universe != null) setupUniverseBindings(universe, universeController);
+        // After reset the view needs to rebind the level label to the new player
+        gameController.setOnUniverseResetCallback(this::bindToCurrentUniverse);
 
-        runLater(() -> canvas.requestFocus());
+        // Defer the first dimension seeding + loop start to the next layout pulse.
+        // At this point the canvas is just being added to the scene — its width/height
+        // are still 0. We need one layout pass to complete so the canvas gets its real
+        // size bound from the root StackPane before we start the game loop or generate
+        // the starfield.
+        runLater(() -> {
+            System.out.println("=== GAME INIT DEBUG ===");
+            System.out.println("Canvas: " + canvas.getWidth() + " x " + canvas.getHeight());
+            System.out.println("Universe scale: " + uni.gaben.iscat.universe.UU.getUniverseScale());
+            
+            onCanvasSizeChanged();      // seeds universe dimensions + generates starfield
+            
+            UniverseModel u = gameController.getUniverseModel();
+            System.out.println("Universe: " + u.getWidth() + " x " + u.getHeight());
+            System.out.println("Starfield stars: " + u.getStarfieldModel().getStars().size());
+            System.out.println("Player pos (m): " + u.getPlayer().getTransform().getTranslationX() 
+                + ", " + u.getPlayer().getTransform().getTranslationY());
+            System.out.println("Player pos (px): " + uni.gaben.iscat.universe.UU.mToPx(u.getPlayer().getTransform().getTranslationX()) 
+                + ", " + uni.gaben.iscat.universe.UU.mToPx(u.getPlayer().getTransform().getTranslationY()));
+            System.out.println("Camera: " + gameController.getCameraModel().getX() + ", " + gameController.getCameraModel().getY());
+            System.out.println("======================");
+            
+            bindToCurrentUniverse();    // binds level label to the (now-ready) player
+            gameController.startGameLoop();
+            canvas.requestFocus();
+        });
     }
 
     @Override
     public void onHide() {
         super.onHide();
-        if (gameModel.getGameState() == GameState.PLAYING) {
+        if (gameModel.getGameState() == GameState.PLAYING)
             transitionTo(GameState.IN_PAUSE);
-        }
     }
 
     @Override
@@ -297,42 +289,86 @@ public class GameView extends AbstractIscatStackPane {
         gameController.stopGameLoop();
     }
 
-    private void setupUniverseBindings(UniverseModel universe,
-                                       UniverseController universeController) {
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    /** Single entry-point for state transitions. */
+    public void transitionTo(GameState next) {
+        if (gameModel.gameStateProperty().get() != next)
+            gameModel.setGameState(next);
+    }
+
+    private void syncGameModelFromState(GameState state) {
+        gameModel.setPaused(state.isPaused());
+    }
+
+    /**
+     * Called when the canvas changes size. Pushes the current dimensions into
+     * the active universe so spawn-centres and starfield wrapping stay correct.
+     */
+    private void onCanvasSizeChanged() {
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+        System.out.println(">>> onCanvasSizeChanged: " + w + " x " + h);
+        if (w <= 0 || h <= 0) return;
+
+        UniverseModel universe = gameController.getUniverseModel();
+        UniverseController uc  = gameController.getUniverseController();
+        if (universe == null || uc == null) return;
+
+        universe.setDimensions(w, h);
+        uc.getStarfieldController().regenerate(universe.getStarfieldModel(), w, h);
+        System.out.println(">>> Starfield regenerated with " + universe.getStarfieldModel().getStars().size() + " stars");
+    }
+
+    /**
+     * Re-binds UI elements that reference the current universe/player.
+     * Called once on first show (deferred via runLater) and again after every
+     * {@code resetUniverse()} callback (already on the FX thread).
+     */
+    private void bindToCurrentUniverse() {
         levelLabel.textProperty().unbind();
+        UniverseModel universe = gameController.getUniverseModel();
+        if (universe == null) return;
+        var player = universe.getPlayer();
+        if (player != null) {
+            levelLabel.textProperty().bind(
+                    Bindings.concat("LEVEL ", player.levelProperty().asString()));
+        }
+    }
 
-        universe.widthProperty().bind(canvas.widthProperty());
-        universe.heightProperty().bind(canvas.heightProperty());
+    public void openOptions() {
+        transitionTo(GameState.IN_OPTIONS);
+        final StackPane[] wrapper = new StackPane[1];
+        wrapper[0] = loadFxml("/uni/gaben/iscat/fxml/options/options_menu.fxml",
+                (OptionsMenuController c) -> c.setCustomBackAction(() -> closeOptions(wrapper[0])));
+        wrapper[0].getStyleClass().add("game-pause-overlay");
+        root.getChildren().add(wrapper[0]);
+    }
 
-        universe.widthProperty().addListener((obs, oldV, newV) ->
-                universeController.getStarfieldController()
-                        .regenerate(universe.getStarfieldModel(),
-                                newV.doubleValue(), universe.getHeight()));
-        universe.heightProperty().addListener((obs, oldV, newV) ->
-                universeController.getStarfieldController()
-                        .regenerate(universe.getStarfieldModel(),
-                                universe.getWidth(), newV.doubleValue()));
+    private void closeOptions(StackPane optionsView) {
+        root.getChildren().remove(optionsView);
+        transitionTo(GameState.IN_PAUSE);
+    }
 
-        starfieldView.wProperty().bind(canvas.widthProperty());
-        starfieldView.hProperty().bind(canvas.heightProperty());
+    private StackPane loadPauseMenu() {
+        return loadFxml("/uni/gaben/iscat/fxml/pause-menu.fxml",
+                (PauseMenuController c) -> c.initData(gameController, this));
+    }
 
-        runLater(() -> {
-            var player = universe.getPlayer();
-            if (player != null) {
-                levelLabel.textProperty().bind(
-                        Bindings.concat("LEVEL ", player.levelProperty().asString()));
-            }
-        });
+    private StackPane loadGameOverMenu() {
+        return loadFxml("/uni/gaben/iscat/fxml/game-over-menu.fxml",
+                (GameOverMenuController c) -> c.initData(gameController, this));
     }
 
     private void updateTimerText(int val) {
         int hours   = val / 10000;
         int minutes = (val % 10000) / 100;
         int seconds = val % 100;
-        String timeStr = hours > 0
+        String time = hours > 0
                 ? String.format("%02d:%02d:%02d", hours, minutes, seconds)
                 : String.format("%02d:%02d", minutes, seconds);
-        starryTimer.formText(timeStr, Font.font("Miracode", FontWeight.BOLD, 32));
+        starryTimer.formText(time, Font.font("Miracode", FontWeight.BOLD, 32));
     }
-
 }

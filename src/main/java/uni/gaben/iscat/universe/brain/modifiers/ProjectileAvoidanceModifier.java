@@ -9,133 +9,174 @@ import uni.gaben.iscat.universe.projectiles.Projectile;
 import uni.gaben.iscat.universe.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Interpolator;
 
-/**
- * Movement modifier that smoothly evades incoming hostile projectiles.
- * Ottimizzato tramite query AABB (Broad-Phase) per analizzare solo le minacce vicine.
- */
 public class ProjectileAvoidanceModifier implements MovementModifier {
-
     private final double detectionRadius;
     private final double sidestepStrength;
     private final double lookAheadTime;
     private final double smoothingFactor;
 
-    private Vector2 currentDodgeVector = new Vector2();
+    // Persistent state
+    private final Vector2 currentDodgeVector = new Vector2();
+
+    // Zero-allocation workspaces
+    private final Vector2 targetDodgeWorkspace = new Vector2();
+    private final Vector2 projDirWorkspace = new Vector2();
+    private final Vector2 toEntityWorkspace = new Vector2();
+    private final Vector2 closestPointWorkspace = new Vector2();
+    private final Vector2 escapeDirWorkspace = new Vector2();
+    private final Vector2 singleDodgeForceWorkspace = new Vector2();
+    private final Vector2 slideRailWorkspace = new Vector2();
+    private final Vector2 currentDirWorkspace = new Vector2();
+    private final Vector2 forceDirWorkspace = new Vector2();
+    private AABB detectionBox = new AABB(0,0,0,0); // Reusable AABB
 
     public ProjectileAvoidanceModifier(double detectionRadius, double sidestepStrength) {
+        this(detectionRadius, sidestepStrength, 1.5, 0.15);
+    }
+
+    public ProjectileAvoidanceModifier(double detectionRadius, double sidestepStrength,
+                                       double lookAheadTime, double smoothingFactor) {
         this.detectionRadius = detectionRadius;
         this.sidestepStrength = sidestepStrength;
-        this.lookAheadTime = 1.5;
-        this.smoothingFactor = 0.15;
+        this.lookAheadTime = lookAheadTime;
+        this.smoothingFactor = smoothingFactor;
     }
 
     @Override
-    public Vector2 compute(AbstractEntityModel self, UniverseModel world, double maxForce, double dt) {
+    public Vector2 computeForce(AbstractEntityModel self, UniverseModel world, double maxForce, double dt) {
         Vector2 pos = self.getTransform().getTranslation();
         double hitRadius = self.getWidthMeters() / 2.0;
         double evasionRadius = hitRadius * 2.5;
 
-        Vector2 targetDodge = new Vector2();
+        // 1. Configure the reusable Broad-phase AABB without instantiating a new one
+
+        AABB selfAabb = self.createAABB();
+        double expandedMinX = selfAabb.getMinX() - detectionRadius;
+        double expandedMinY = selfAabb.getMinY() - detectionRadius;
+        double expandedMaxX = selfAabb.getMaxX() + detectionRadius;
+        double expandedMaxY = selfAabb.getMaxY() + detectionRadius;
+        detectionBox = new AABB(expandedMinX, expandedMinY, expandedMaxX, expandedMaxY);
+
+        // Reset accumulation workspace
+        targetDodgeWorkspace.x = 0;
+        targetDodgeWorkspace.y = 0;
         boolean inDanger = false;
 
-        // 1. OTTIMIZZAZIONE BROAD-PHASE: Creiamo un AABB di rilevamento
-        AABB selfAabb = self.createAABB();
-        AABB detectionBox = new AABB(
-                selfAabb.getMinX() - detectionRadius,
-                selfAabb.getMinY() - detectionRadius,
-                selfAabb.getMaxX() + detectionRadius,
-                selfAabb.getMaxY() + detectionRadius
-        );
-
-        // 2. Chiediamo all'universo solo i corpi dentro questa zona (ipotizzando null filter per prendere tutto, o un filtro specifico)
-        // Usa il tuo metodo detect() di UniverseModel
-        var nearbyResults = world.detect(detectionBox, null);
-
-        for (var result : nearbyResults) {
-            AbstractEntityModel entity = (AbstractEntityModel) result.getBody();
-
-            // Filtriamo solo i proiettili
-            if (!(entity instanceof Projectile p)) continue;
+        for (var result : world.detect(detectionBox, null)) {
+            if (!(result.getBody() instanceof Projectile p)) continue;
+            if (!isHostile(p, self)) continue;
 
             Vector2 projPos = p.getTransform().getTranslation();
             Vector2 projVel = p.getLinearVelocity();
 
-            // --- Quick rejects ---
-            if (!isHostile(p, self)) continue;
-
-            double distToBullet = projPos.distance(pos);
+            double distToBullet = projPos.distance(pos); // primitive math
             if (distToBullet > detectionRadius) continue;
 
             double projSpeedSq = projVel.getMagnitudeSquared();
             if (projSpeedSq < 0.01) continue;
 
-            Vector2 projDir = projVel.getNormalized();
-            Vector2 toEntity = pos.copy().subtract(projPos);
+            // 2. Compute Direction Vectors safely
+            projDirWorkspace.x = projVel.x;
+            projDirWorkspace.y = projVel.y;
+            projDirWorkspace.normalize();
 
-            // --- 1. Is the bullet heading toward us? ---
-            double distanceAlongPath = toEntity.dot(projDir);
+            toEntityWorkspace.x = pos.x - projPos.x;
+            toEntityWorkspace.y = pos.y - projPos.y;
+
+            double distanceAlongPath = toEntityWorkspace.dot(projDirWorkspace);
             if (distanceAlongPath <= 0) continue;
 
-            // --- 2. How close are we to the bullet's infinite line? ---
-            double perpDistance = Math.abs(projVel.cross(toEntity)) / projVel.getMagnitude();
+            double projMagnitude = Math.sqrt(projSpeedSq);
+            double perpDistance = Math.abs(projVel.cross(toEntityWorkspace)) / projMagnitude;
             if (perpDistance > evasionRadius) continue;
 
-            // --- 3. Time-to-impact ---
-            double t = distanceAlongPath / projVel.getMagnitude();
+            double t = distanceAlongPath / projMagnitude;
             if (t > lookAheadTime) continue;
 
             inDanger = true;
 
-            // --- 4. Compute the ESCAPE VECTOR ---
-            Vector2 closestPoint = projPos.copy().add(projDir.multiply(distanceAlongPath));
-            Vector2 escapeDir = pos.copy().subtract(closestPoint);
+            // 3. Compute Escape Vector safely
+            closestPointWorkspace.x = projPos.x + (projDirWorkspace.x * distanceAlongPath);
+            closestPointWorkspace.y = projPos.y + (projDirWorkspace.y * distanceAlongPath);
 
-            if (escapeDir.getMagnitudeSquared() < 0.001) {
-                escapeDir = projDir.getRightHandOrthogonalVector();
+            escapeDirWorkspace.x = pos.x - closestPointWorkspace.x;
+            escapeDirWorkspace.y = pos.y - closestPointWorkspace.y;
+
+            if (escapeDirWorkspace.getMagnitudeSquared() < 0.001) {
+                // Fallback orthogonal
+                escapeDirWorkspace.x = -projDirWorkspace.y;
+                escapeDirWorkspace.y = projDirWorkspace.x;
             }
-            escapeDir.normalize();
+            escapeDirWorkspace.normalize();
 
-            // --- 5. Threat weights ---
+            // Threat weights
             double spatialWeight = 1.0 - (perpDistance / evasionRadius);
             double temporalWeight = 1.0 - (t / lookAheadTime);
             double proximityWeight = 1.0 - (distToBullet / detectionRadius);
-
             double threat = spatialWeight * temporalWeight * proximityWeight;
-            Vector2 singleDodgeForce = escapeDir.multiply(threat);
 
-            // --- TRAPPOLA RILEVATA (Isteresi e Scivolamento) ---
+            singleDodgeForceWorkspace.x = escapeDirWorkspace.x * threat;
+            singleDodgeForceWorkspace.y = escapeDirWorkspace.y * threat;
+
+            // 4. Hysteresis Check safely
             if (currentDodgeVector.getMagnitudeSquared() > 0.01) {
-                Vector2 currentDir = currentDodgeVector.getNormalized();
-                Vector2 forceDir = singleDodgeForce.getNormalized();
-                double alignment = forceDir.dot(currentDir);
+                currentDirWorkspace.x = currentDodgeVector.x;
+                currentDirWorkspace.y = currentDodgeVector.y;
+                currentDirWorkspace.normalize();
 
+                forceDirWorkspace.x = singleDodgeForceWorkspace.x;
+                forceDirWorkspace.y = singleDodgeForceWorkspace.y;
+                if (forceDirWorkspace.getMagnitudeSquared() > 0) { // avoid NaN if singleDodgeForce is 0
+                    forceDirWorkspace.normalize();
+                }
+
+                double alignment = forceDirWorkspace.dot(currentDirWorkspace);
                 if (alignment < -0.3) {
-                    Vector2 slideRail = projDir.copy();
-                    if (slideRail.dot(currentDodgeVector) < 0) slideRail.multiply(-1);
-                    singleDodgeForce = slideRail.multiply(threat * 1.5);
+                    slideRailWorkspace.x = projDirWorkspace.x;
+                    slideRailWorkspace.y = projDirWorkspace.y;
+
+                    if (slideRailWorkspace.dot(currentDodgeVector) < 0) {
+                        slideRailWorkspace.multiply(-1);
+                    }
+                    singleDodgeForceWorkspace.x = slideRailWorkspace.x * (threat * 1.5);
+                    singleDodgeForceWorkspace.y = slideRailWorkspace.y * (threat * 1.5);
                 } else if (alignment > 0) {
-                    singleDodgeForce.multiply(1.2);
+                    singleDodgeForceWorkspace.multiply(1.2);
                 }
             }
 
-            targetDodge.add(singleDodgeForce);
+            targetDodgeWorkspace.add(singleDodgeForceWorkspace);
         }
 
-        // --- 6. Smooth the raw dodge direction ---
-        if (inDanger && targetDodge.getMagnitudeSquared() > 0.001) {
-            currentDodgeVector = Interpolator.lerp(currentDodgeVector, targetDodge, smoothingFactor);
+        // 5. Smoothing
+        if (inDanger && targetDodgeWorkspace.getMagnitudeSquared() > 0.001) {
+            // Note: Ensure your Interpolator.lerp doesn't allocate new objects internally!
+            // If Interpolator.lerp returns a new Vector2, you must write it out manually here.
+            currentDodgeVector.x = Interpolator.lerp(currentDodgeVector.x, targetDodgeWorkspace.x, smoothingFactor);
+            currentDodgeVector.y = Interpolator.lerp(currentDodgeVector.y, targetDodgeWorkspace.y, smoothingFactor);
         } else {
-            currentDodgeVector = Interpolator.lerp(currentDodgeVector, new Vector2(), smoothingFactor * 0.5);
+            currentDodgeVector.x = Interpolator.lerp(currentDodgeVector.x, 0, smoothingFactor * 0.5);
+            currentDodgeVector.y = Interpolator.lerp(currentDodgeVector.y, 0, smoothingFactor * 0.5);
         }
 
-        // --- 7. Restituisce la Forza Pura ---
-        if (currentDodgeVector.getMagnitudeSquared() > 0.01) {
-            double magnitude = currentDodgeVector.getMagnitude();
-            double cappedThreat = Math.min(magnitude, 1.5);
-            return currentDodgeVector.getNormalized().multiply(cappedThreat * sidestepStrength * maxForce);
+        // 6. Return as velocity contribution (single-pass scaling, zero allocations)
+        double dodgeMagSq = currentDodgeVector.getMagnitudeSquared();
+        if (dodgeMagSq > 0.01) {
+            double magnitude = Math.sqrt(dodgeMagSq);
+            
+            // Compute desired velocity contribution strength
+            double velocityContribution = Math.min(magnitude * sidestepStrength, sidestepStrength * 2.0);
+            
+            // Single-pass scaling: avoid chained .normalize().multiply()
+            // Scale factor = velocityContribution / magnitude (normalizes and scales in one step)
+            double scale = velocityContribution / magnitude;
+            currentDodgeVector.x *= scale;
+            currentDodgeVector.y *= scale;
+        } else {
+            currentDodgeVector.x = 0;
+            currentDodgeVector.y = 0;
         }
-
-        return new Vector2();
+        return currentDodgeVector;
     }
 
     private boolean isHostile(Projectile p, AbstractEntityModel self) {

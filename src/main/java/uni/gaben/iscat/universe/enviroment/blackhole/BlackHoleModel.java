@@ -22,6 +22,17 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
     private final double maxRadiusM;
     private final double initialRadiusM;
 
+    // Growth limits
+    private static final double MAX_DENSITY = 80.0;          // soft cap for density
+    private static final double GROWTH_FACTOR = 0.5;         // density growth multiplier per kg absorbed
+    private static final double RADIUS_GROWTH_BASE = 0.02;   // radius growth per kg (before asymptotic damping)
+
+    // Hawking radiation parameters
+    private static final double RADIATION_RADIUS_DECAY = 0.002;   // fraction of current radius lost per second
+    private static final double RADIATION_DENSITY_DECAY = 0.001;  // density points lost per second
+    private static final double RADIATION_IDLE_TIME = 2.0;        // seconds without absorption before decay starts
+    private double timeSinceLastAbsorption = 0.0;
+
     public BlackHoleModel(double x, double y, double initialRadiusM) {
         super(x, y);
         this.initialRadiusM = initialRadiusM;
@@ -34,60 +45,90 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
     }
 
     public BlackHoleModel(double x, double y) {
-        this(x, y, Math.random());
+        this(x, y, Math.random() * 2.0 + 0.5); // random initial radius between 0.5 and 2.5 meters
     }
 
     private void createFixture() {
         if (fixture != null) removeFixture(fixture);
         fixture = addFixture(Geometry.createCircle(radius.m().get()));
         setMass(MassType.NORMAL);
+        shockwaveModel.trigger(1, radius.px().get(), 15);
+        shockwaveModel.update(0.85);
     }
 
     private void absorbEntity(AbstractEntityModel other) {
-        if (other == null || other.shouldRemove() || other instanceof AbstractProjectileModel) return;
+        if (other == null || other.shouldRemove()) return;
+        // Don't absorb other black holes or projectiles (projectiles just die)
+        if (other instanceof BlackHoleModel) return;
+        if (other instanceof AbstractProjectileModel) {
+            other.setShouldRemove(true);
+            return;
+        }
 
+        // Player collision: violent repulsion instead of instant death
         if (other instanceof PlayerModel p) {
             Vector2 pushDir = p.getTransform().getTranslation().subtract(this.getTransform().getTranslation());
-            if (pushDir.getMagnitudeSquared() > 0) {
-                p.applyImpulse(pushDir.getNormalized());
+            double dist = pushDir.getMagnitude();
+            if (dist > 0.01) {
+                pushDir.normalize();
+                // Impulse scales with current density (capped) and a fixed constant
+                double impulseMag = 800.0 * Math.min(fixture.getDensity(), MAX_DENSITY);
+                p.applyImpulse(pushDir.multiply(impulseMag));
             }
             return;
         }
 
         double absorbedMass = other.getMass().getMass();
 
-        // 1. CRESCITA LOGARITMICA DEL RAGGIO (Asintotica verso maxRadiusM)
+        // 1. Radius growth (logarithmic, asymptotic toward maxRadiusM)
         if (radius.m().get() < maxRadiusM) {
             double progress = (radius.m().get() - initialRadiusM) / (maxRadiusM - initialRadiusM);
-            // La crescita rallenta man mano che ci si avvicina al maxRadiusM
-            double logGrowth = absorbedMass * 0.1 * (1.0 - progress);
-            this.radius = new UU(Math.min(radius.m().get() + logGrowth, maxRadiusM), UU.units.METERS);
+            double growth = absorbedMass * RADIUS_GROWTH_BASE * (1.0 - progress);
+            this.radius = new UU(Math.min(radius.m().get() + growth, maxRadiusM), UU.units.METERS);
             createFixture();
         }
 
-        // 2. CRESCITA ESPONENZIALE/LINEARE DELLA DENSITÀ (Attrazione)
-        // Anche se il raggio è fermo, la densità aumenta esponenzialmente per una gravità brutale
+        // 2. Density growth (capped)
         double currentDensity = fixture.getDensity();
-        double growthFactor = 1.2; // Esponezione o moltiplicatore di crescita
-        fixture.setDensity(currentDensity + (absorbedMass * growthFactor));
+        double newDensity = Math.min(currentDensity + absorbedMass * GROWTH_FACTOR, MAX_DENSITY);
+        fixture.setDensity(newDensity);
 
-        // Forza il ricalcolo della massa totale basata sulla nuova densità (Area * Densità)
+        // Recalculate mass based on new density
         this.setMass(MassType.NORMAL);
 
+        // Kill the absorbed entity
         if (other instanceof LivingEntityModel l) l.kill();
         else other.setShouldRemove(true);
 
-        shockwaveModel.trigger(1, radius.px().get(), 15);
-        shockwaveModel.update(.9);
+        // Reset radiation timer
+        timeSinceLastAbsorption = 0.0;
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
-        shockwaveModel.update(dt);
+        timeSinceLastAbsorption += dt;
+
+        // Hawking radiation: slowly shrink if idle
+        if (timeSinceLastAbsorption > RADIATION_IDLE_TIME) {
+            // Decay radius toward initial
+            if (radius.m().get() > initialRadiusM) {
+                double decay = RADIATION_RADIUS_DECAY * radius.m().get() * dt;
+                this.radius = new UU(Math.max(initialRadiusM, radius.m().get() - decay), UU.units.METERS);
+                createFixture();
+            }
+            // Decay density toward a minimal value (1.0)
+            double currentDensity = fixture.getDensity();
+            if (currentDensity > 1.0) {
+                double newDensity = Math.max(1.0, currentDensity - RADIATION_DENSITY_DECAY * dt);
+                fixture.setDensity(newDensity);
+                this.setMass(MassType.NORMAL);
+            }
+        }
     }
 
     public UU getRadius() { return radius; }
+
     @Override
     public ShockwaveModel shockwave() { return shockwaveModel; }
 }

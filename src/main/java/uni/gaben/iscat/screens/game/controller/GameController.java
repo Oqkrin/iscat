@@ -5,50 +5,50 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.StackPane;
+import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.screens.login.model.SessionUser;
-import uni.gaben.iscat.screens.scores.SaveData;
-import uni.gaben.iscat.universe.UniverseWaveController;
-import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.universe.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.screens.game.model.GameModel;
-import uni.gaben.iscat.universe.UniverseController;
-import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.UniverseSpawner;
+import uni.gaben.iscat.screens.login.model.SessionUser;
+import uni.gaben.iscat.screens.scores.SaveData;
+import uni.gaben.iscat.universe.*;
+import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-import java.util.Random;
-
 public class GameController {
 
-    private final GameModel gameModel;
-    private final GameInputs gameInputs = new GameInputs();
+    private final GameModel   gameModel;
+    private final GameInputs  gameInputs = new GameInputs();
+    private final ScoreDAO    scoreDAO;
 
-    private UniverseController universeController;
-    private AnimationTimer gameLoop;
-    private Runnable drawCall;
-    private StackPane contentRoot;
-    private ScoreDAO scoreDAO;
-    private boolean showFps = false;
-    private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
-    private final BooleanProperty optionsMenuOpen = new SimpleBooleanProperty(false);
+    private UniverseController    universeController;
     private UniverseWaveController waveController;
+    private AnimationTimer        gameLoop;
+    private Runnable              drawCall;
+    private Runnable              onUniverseResetCallback;
+    private StackPane             contentRoot;
+
+    private boolean showFps = false;
+    private final BooleanProperty showDebugMode  = new SimpleBooleanProperty(false);
+    private final BooleanProperty optionsMenuOpen = new SimpleBooleanProperty(false);
+
+    // -------------------------------------------------------------------------
+    // Construction
+    // -------------------------------------------------------------------------
 
     public GameController(GameModel gameModel) {
-        this.gameModel = gameModel;
-        this.scoreDAO = IscatDB.getInstance().getScoreDAO();
+        this.gameModel        = gameModel;
+        this.scoreDAO         = IscatDB.getInstance().getScoreDAO();
         this.universeController = new UniverseController(gameModel.getUniverseModel());
-        this.waveController = new UniverseWaveController();
+        this.waveController   = new UniverseWaveController();
 
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
 
-        double midX = getUniverseModel().getWidth() / 2.0;
-        double midY = getUniverseModel().getHeight() / 2.0;
+        double midX = UniverseModel.DEFAULT_SPAWN_CENTER;
+        double midY = UniverseModel.DEFAULT_SPAWN_CENTER;
 
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
         getUniverseModel().getPlayer().setOnDeathCallback(this::onPlayerDeath);
@@ -56,16 +56,21 @@ public class GameController {
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
 
-        setupTimer();
+        buildGameLoop();
     }
 
-    private void setupTimer() {
+    // -------------------------------------------------------------------------
+    // Game loop
+    // -------------------------------------------------------------------------
+
+    private void buildGameLoop() {
         this.gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if(gameModel.getStart() == -1) {
-                    gameModel.startProperty().set(now);
-                }
+                // First frame: record start time
+                if (gameModel.getStart() == -1) gameModel.startProperty().set(now);
+
+                // Second frame: establish baseline for dt calculation
                 if (gameModel.getLastUpdate() == 0) {
                     gameModel.setLastUpdate(now);
                     return;
@@ -73,200 +78,149 @@ public class GameController {
 
                 gameModel.setNow(now);
 
-                double totalSeconds = (now - gameModel.getStart()) / GameModel.ONE_SECOND_IN_NANOS;
+                double totalSec = (now - gameModel.getStart()) / GameModel.ONE_SECOND_IN_NANOS;
+                gameModel.setTotalElapsedSeconds(totalSec);
 
-                // FIX: Synchronize the game model's internal tracker with the calculated elapsed runtime
-                gameModel.setTotalElapsedSeconds(totalSeconds);
+                int h = (int) (totalSec / 3600);
+                int m = (int) ((totalSec % 3600) / 60);
+                int s = (int) (totalSec % 60);
+                gameModel.timerProperty().set(h * 10000 + m * 100 + s);
 
-                int hours = (int) (totalSeconds / 3600);
-                int minutes = (int) ((totalSeconds % 3600) / 60);
-                int seconds = (int) (totalSeconds % 60);
+                double dt = Math.min(gameModel.getDt(), GameModel.ACCUMULATORUNIT);
+                tick(dt);
 
-                int packedTime = (hours * 10000) + (minutes * 100) + seconds;
-                gameModel.timerProperty().set(packedTime);
-
-                double dt = gameModel.getDt();
-                if (dt > GameModel.ACCUMULATORUNIT) {
-                    dt = GameModel.ACCUMULATORUNIT;
-                }
-
-                update(dt);
-
-                if (drawCall != null) {
-                    drawCall.run();
-                }
+                if (drawCall != null) drawCall.run();
 
                 gameModel.setLastUpdate(now);
             }
         };
     }
 
-    private void update(double dt) {
-        if (gameInputs.consumePause()) {
-            togglePause();
-        }
+    private void tick(double dt) {
+        if (gameInputs.consumePause()) togglePause();
         if (!gameModel.isPaused()) {
             universeController.updatev(dt, gameInputs, getCameraModel());
-
-            if (waveController != null && gameModel.isWaveActive()) {
+            if (waveController != null && gameModel.isWaveActive())
                 waveController.update(dt, getCameraModel(), gameModel);
-            }
         }
     }
 
-    public void startGameLoop() {
-        gameLoop.start();
-    }
+    public void startGameLoop() { gameLoop.start(); }
+    public void stopGameLoop()  { gameLoop.stop();  }
 
-    public void stopGameLoop() {
-        gameLoop.stop();
-    }
+    // -------------------------------------------------------------------------
+    // Game state control
+    // -------------------------------------------------------------------------
 
     public void togglePause() {
-        if (gameModel.getGameState() == GameState.PLAYING) {
+        if (gameModel.getGameState() == GameState.PLAYING)
             gameModel.setGameState(GameState.IN_PAUSE);
-        } else if (gameModel.getGameState() == GameState.IN_PAUSE) {
+        else if (gameModel.getGameState() == GameState.IN_PAUSE)
             gameModel.setGameState(GameState.PLAYING);
-        }
     }
 
-    public void debugSpawn(String spawnableId) {
-        double spawnUniverseX = getCameraModel().getX() + ((Math.random() - 0.5) * 400);
-        double spawnWorldY = getCameraModel().getY() + ((Math.random() - 0.5) * 400);
-        UniverseSpawner.getInstance().spawn(spawnableId, spawnUniverseX, spawnWorldY);
-    }
-
+    /**
+     * Resets the universe for a new run.
+     *
+     * <p>The game loop is <em>not</em> stopped here — callers that need to
+     * stop/restart the loop (e.g. {@link #retryGame()}) do so explicitly.
+     * This keeps {@link #quitToMainMenu()} from accidentally restarting the loop.</p>
+     *
+     * <p>After rebuilding the world, fires {@link #onUniverseResetCallback} so
+     * that {@link uni.gaben.iscat.screens.game.view.GameView} can update its
+     * universe-related state (e.g. level label binding, starfield dimensions).</p>
+     */
     public void resetUniverse() {
         AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
         gameModel.setGameOver(false);
         gameModel.setPaused(false);
-
         SessionScoreTracker.getInstance().reset();
 
-        double currentWidth = getUniverseModel().getWidth();
-        double currentHeight = getUniverseModel().getHeight();
+        // Grab canvas dimensions from the camera model which is always bound to the canvas
+        double canvasW = getCameraModel().getScreenWidth();
+        double canvasH = getCameraModel().getScreenHeight();
+        
+        // Safety check: if canvas dimensions aren't set yet, use defaults
+        if (canvasW <= 0 || canvasH <= 0) {
+            System.err.println("!!! resetUniverse called with invalid canvas dimensions: " + canvasW + "x" + canvasH);
+            System.err.println("!!! Using default dimensions");
+            canvasW = UniverseSettings.DEFAULT_WIDTH;
+            canvasH = UniverseSettings.DEFAULT_HEIGHT;
+        }
 
-
+        // Replace the universe and all its controllers
         gameModel.resetUniverse();
         this.universeController = new UniverseController(getUniverseModel());
-        this.waveController = new UniverseWaveController();
+        this.waveController     = new UniverseWaveController();
+
+        // Propagate canvas size to the new universe so spawn centres are correct
+        getUniverseModel().setDimensions(canvasW, canvasH);
 
         UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
 
+        // Regenerate the starfield at the correct canvas dimensions
         universeController.getStarfieldController().regenerate(
-                getUniverseModel().getStarfieldModel(),
-                currentWidth,
-                currentHeight
-        );
+                getUniverseModel().getStarfieldModel(), canvasW, canvasH);
 
-        double midX = currentWidth / 2.0;
-        double midY = currentHeight / 2.0;
+        double midX = canvasW / 2.0;
+        double midY = canvasH / 2.0;
 
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
-        getGameModel().getUniverseModel().getPlayer().setOnDeathCallback(this::onPlayerDeath);
-
+        getUniverseModel().getPlayer().setOnDeathCallback(this::onPlayerDeath);
         UniverseSpawner.getInstance().spawnInitialAsteroidBelts(midX, midY);
 
         getCameraModel().getSpringX().setPosition(midX);
         getCameraModel().getSpringY().setPosition(midY);
 
+        // Reset the game timer
         gameModel.startProperty().set(-1);
         gameModel.setLastUpdate(0);
         gameModel.setTotalElapsedSeconds(0.0);
+
+        // Notify the view — it may need to re-bind the level label to the new player
+        if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
 
+    /** Retry: stop loop → reset → restart loop. */
+    public void retryGame() {
+        stopGameLoop();
+        resetUniverse();
+        startGameLoop();
+    }
 
-
+    /** Quit to main menu: stop loop → reset (for a clean state on re-entry) → navigate. */
     public void quitToMainMenu() {
         setShowDebugMode(false);
         stopGameLoop();
         gameModel.setPaused(false);
         saveStats();
-        resetUniverse();
+        resetUniverse();            // cleans up the world; loop stays stopped
         AudioManager.getInstance().stopBGM();
-        SessionScoreTracker.getInstance().reset();
 
-        if (contentRoot != null) {
+        if (contentRoot != null)
             IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
-        }
     }
 
-    public void quitGame() {
-        Platform.exit();
+    public void quitGame() { Platform.exit(); }
+
+    public void debugSpawn(String spawnableId) {
+        double x = getCameraModel().getX() + ((Math.random() - 0.5) * 400);
+        double y = getCameraModel().getY() + ((Math.random() - 0.5) * 400);
+        UniverseSpawner.getInstance().spawn(spawnableId, x, y);
     }
 
-    public GameInputs getInputManager() {
-        return gameInputs;
-    }
-
-    public void setDrawCall(Runnable drawCall) {
-        this.drawCall = drawCall;
-    }
-
-    public void setContentRoot(StackPane contentRoot) {
-        this.contentRoot = contentRoot;
-    }
-
-    public void setShowFps(boolean show) {
-        this.showFps = show;
-    }
-
-    public boolean isFpsOn() {
-        return showFps;
-    }
-
-    public void setShowDebugMode(boolean show) {
-        this.showDebugMode.set(show);
-    }
-
-    public boolean isDebugModeOn() {
-        return showDebugMode.get();
-    }
-
-    public BooleanProperty debugModeProperty() {
-        return showDebugMode;
-    }
-
-    public UniverseModel getUniverseModel() {
-        return gameModel.getUniverseModel();
-    }
-
-    public UniverseController getUniverseController() {
-        return universeController;
-    }
-
-    public CameraModel getCameraModel() {
-        return gameModel.getCameraModel();
-    }
-
-    public BooleanProperty optionsMenuOpenProperty() {
-        return optionsMenuOpen;
-    }
-
-    public boolean isOptionsMenuOpen() {
-        return optionsMenuOpen.get();
-    }
-
-    public void setOptionsMenuOpen(boolean open) {
-        this.optionsMenuOpen.set(open);
-    }
-
-    public void retryGame() {
-        resetUniverse();
-    }
+    // -------------------------------------------------------------------------
+    // Callbacks
+    // -------------------------------------------------------------------------
 
     private void onPlayerDeath() {
         Platform.runLater(() -> {
             AudioManager.getInstance().stopBGM();
-            AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/gameover.wav",true);
+            AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/gameover.wav", true);
             gameModel.setGameOver(true);
             gameModel.setPaused(true);
             saveStats();
         });
-    }
-
-    public GameModel getGameModel() {
-        return gameModel;
     }
 
     private void saveStats() {
@@ -276,38 +230,52 @@ public class GameController {
         int userId = user.id();
         SessionScoreTracker tracker = SessionScoreTracker.getInstance();
 
-        // 1. CAPTURE IMMUTABLE LOCAL SNAPSHOTS IMMEDIATELY (On JavaFX Thread)
-        final int scoreSnapshot = tracker.getScore();
-        final int elapsedSnapshot = (int) gameModel.getTotalElapsedSeconds();
-        final int damageDealtSnapshot = tracker.getDamageDealt();
-        final int damageReceivedSnapshot = tracker.getDamageReceived();
-        final int deathsSnapshot = tracker.getDeaths();
+        final int score    = tracker.getScore();
+        final int elapsed  = (int) gameModel.getTotalElapsedSeconds();
+        final int dealt    = tracker.getDamageDealt();
+        final int received = tracker.getDamageReceived();
+        final int deaths   = tracker.getDeaths();
 
-        // 2. SAFE TO RESET TRACKERS IMMEDIATELY (On JavaFX Thread)
         tracker.reset();
 
-        // 3. SHIP THE ISOLATED VALUES TO THE ASYNC DATABASE EXECUTOR
         IscatDB.getInstance().executeAsync(() -> {
-            // This runs safely on the background DB thread using fixed snapshot constants
             SaveData current = scoreDAO.load(userId)
                     .orElse(new SaveData(userId, 0, 0, 0, 0, 0));
 
-            if (scoreSnapshot > current.score()) {
-                scoreDAO.update(userId, "Score", scoreSnapshot);
-            }
+            if (score   > current.score())    scoreDAO.update(userId, "Score",    score);
+            if (elapsed < current.bestTime()) scoreDAO.update(userId, "BestTime", elapsed);
 
-            if (elapsedSnapshot < current.bestTime()) {
-                scoreDAO.update(userId, "BestTime", elapsedSnapshot);
-            }
+            scoreDAO.increment(userId, "TotalDamageDealt",    dealt);
+            scoreDAO.increment(userId, "TotalDamageReceived", received);
+            scoreDAO.increment(userId, "Deaths",              deaths);
 
-            scoreDAO.increment(userId, "TotalDamageDealt",    damageDealtSnapshot);
-            scoreDAO.increment(userId, "TotalDamageReceived", damageReceivedSnapshot);
-            scoreDAO.increment(userId, "Deaths",              deathsSnapshot);
-
-            // Sync back UI context if necessary via Platform.runLater
-            scoreDAO.load(userId).ifPresent(newData ->
-                    Platform.runLater(() -> SessionManager.getInstance().setCurrentSaveData(newData))
-            );
+            scoreDAO.load(userId).ifPresent(data ->
+                    Platform.runLater(() -> SessionManager.getInstance().setCurrentSaveData(data)));
         });
     }
+
+    // -------------------------------------------------------------------------
+    // Accessors
+    // -------------------------------------------------------------------------
+
+    public void setOnUniverseResetCallback(Runnable callback) { this.onUniverseResetCallback = callback; }
+    public void setDrawCall(Runnable drawCall)                { this.drawCall = drawCall; }
+    public void setContentRoot(StackPane root)               { this.contentRoot = root; }
+
+    public GameModel           getGameModel()          { return gameModel; }
+    public GameInputs          getInputManager()       { return gameInputs; }
+    public UniverseModel       getUniverseModel()      { return gameModel.getUniverseModel(); }
+    public UniverseController  getUniverseController() { return universeController; }
+    public CameraModel         getCameraModel()        { return gameModel.getCameraModel(); }
+
+    public boolean             isFpsOn()               { return showFps; }
+    public void                setShowFps(boolean v)   { this.showFps = v; }
+
+    public boolean             isDebugModeOn()         { return showDebugMode.get(); }
+    public void                setShowDebugMode(boolean v) { showDebugMode.set(v); }
+    public BooleanProperty     debugModeProperty()     { return showDebugMode; }
+
+    public boolean             isOptionsMenuOpen()     { return optionsMenuOpen.get(); }
+    public void                setOptionsMenuOpen(boolean v) { optionsMenuOpen.set(v); }
+    public BooleanProperty     optionsMenuOpenProperty() { return optionsMenuOpen; }
 }

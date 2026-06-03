@@ -1,18 +1,12 @@
 package uni.gaben.iscat.universe.enemies.master;
 
-import org.dyn4j.dynamics.BodyFixture;
-import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.universe.enemies.generic.GenericEntitySettings;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasSprite;
+import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
+import uni.gaben.iscat.universe.lib.abstracts.PhysicalEntitySettings;
 import uni.gaben.iscat.utils.Updatable;
-import uni.gaben.iscat.universe.lib.interfaces.model.HasShockwave;
-import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
 import uni.gaben.iscat.universe.UniverseWaveController;
 import uni.gaben.iscat.universe.enemies.generic.GenericEntityModel;
-import uni.gaben.iscat.universe.UU;
-import uni.gaben.iscat.universe.UniverseCollisionLayers;
 
 public class IscatMasterModel extends GenericEntityModel implements Updatable {
 
@@ -31,7 +25,7 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
     }
 
     private IscatMasterModel(double x, double y, UniverseWaveController waveController,
-                             GenericEntitySettings s) {
+                             GenericPhysicalEntitySettings s) {
         super(x, y, s);
         this.waveController = waveController;
 
@@ -41,13 +35,12 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
         setEnabled(false);
     }
 
-    private static GenericEntitySettings loadSettings() {
+    private static GenericPhysicalEntitySettings loadSettings() {
         return IscatDB.getInstance().getEnemyDAO().findByKey(ENTITY_KEY).orElseGet(() -> {
-            GenericEntitySettings s = new GenericEntitySettings();
+            GenericPhysicalEntitySettings s = new GenericPhysicalEntitySettings();
             s.initLife       = 5000;
-            s.dimSprite      = 1;
             s.scale          = 1;
-            s.dampingLineare = 1;
+            s.linearDamping = 1;
             s.maxVelocity    = 1;
             s.xpReward       = 1;
             return s;

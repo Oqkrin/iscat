@@ -10,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.screens.base.IscatMenuController;
+import uni.gaben.iscat.universe.enemies.generic.GenericPhysicalEntitySettings;
 import uni.gaben.iscat.view.AnimatedCanvas;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.utils.SessionManager;
@@ -36,7 +37,7 @@ public class BestiaryMenuController implements IscatMenuController {
     }
 
     private final BestiaryData bestiaryData = new BestiaryData();
-    private Map<String, BestiaryData.Enemy> enemies = new LinkedHashMap<>();
+    private Map<String, GenericPhysicalEntitySettings> enemies = new LinkedHashMap<>();
 
     private static final double DISPLAY_SIZE = 160.0; // Dimensione canvas di anteprima principale
     private static final double ICON_SIZE = 32.0;     // Dimensione icone animate nei pulsanti della lista
@@ -124,11 +125,11 @@ public class BestiaryMenuController implements IscatMenuController {
         enemyButtonsBox.getChildren().clear();
         buttonCanvases.clear();
 
-        for (BestiaryData.Enemy enemy : enemies.values()) {
-            String safeId = enemy.entityKey().toLowerCase().trim();
+        for (GenericPhysicalEntitySettings enemy : enemies.values()) {
+            String safeId = enemy.entityKey.toLowerCase().trim();
             boolean unlocked = bestiaryData.isUnlocked(safeId);
 
-            String buttonText = unlocked ? enemy.name() : "???";
+            String buttonText = unlocked ? enemy.name : "???";
 
             Button button = new Button(buttonText);
             button.setPrefWidth(250.0);
@@ -140,7 +141,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
             // Caricamento skin differenziato in base allo stato di sblocco
             if (unlocked) {
-                iconCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
+                iconCanvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
             } else {
                 iconCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
                 button.setStyle("-fx-opacity: 0.75;");
@@ -167,7 +168,7 @@ public class BestiaryMenuController implements IscatMenuController {
         if (id == null) return;
 
         String cleanId = id.toLowerCase().trim();
-        BestiaryData.Enemy enemy = enemies.get(cleanId);
+        GenericPhysicalEntitySettings enemy = enemies.get(cleanId);
 
         if (enemy == null) {
             System.err.println("ERRORE BESTIARIO: Impossibile trovare il nemico con l'EntityKey '" + cleanId + "'!");
@@ -177,14 +178,14 @@ public class BestiaryMenuController implements IscatMenuController {
         currentEnemyId = cleanId;
 
         boolean unlocked = bestiaryData.isUnlocked(cleanId);
-        String nameToShow = unlocked ? enemy.name().toUpperCase() : "??? UNKNOWN ENTITY ???";
+        String nameToShow = unlocked ? enemy.name.toUpperCase() : "??? UNKNOWN ENTITY ???";
         skinNameLabel.setText(nameToShow);
 
         refreshInfoZone();
 
         previewCanvas.setFrameDuration(0.20);
         if (unlocked) {
-            previewCanvas.loadSkin(enemy.sprite(), enemy.frameW(), enemy.frameH());
+            previewCanvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
         } else {
             previewCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
         }
@@ -200,11 +201,11 @@ public class BestiaryMenuController implements IscatMenuController {
      */
     private void refreshInfoZone() {
         if (currentEnemyId == null) return;
-        BestiaryData.Enemy enemy = enemies.get(currentEnemyId);
+        GenericPhysicalEntitySettings enemy = enemies.get(currentEnemyId);
         if (enemy == null) return;
 
         boolean unlocked = bestiaryData.isUnlocked(currentEnemyId);
-        int currentKills = bestiaryData.getExtraKillCounts().getOrDefault(currentEnemyId, 0);
+        int currentKills = bestiaryData.getKillCount(currentEnemyId);
 
         // Blocco di protezione per mostri non ancora affrontati/sconfitti
         if (!unlocked) {
@@ -217,21 +218,23 @@ public class BestiaryMenuController implements IscatMenuController {
         switch (currentInfoMode) {
             case DESCRIPTION -> {
                 rightCardHeader.setText("DESCRIPTION");
-                description.setText(enemy.description());
+                description.setText(enemy.description);
             }
             case STATS -> {
                 rightCardHeader.setText("STATS");
                 description.setText(String.format("""
                     STATISTICHE DI BASE
                     
-                    ❤ Punti Vita: %d HP
-                    ⚡ Velocità Massima: %d m/s
+                    ❤ Punti Vita: %.0f HP
+                    ⚡ Velocità Massima: %.1f m/s
                     ✨ Ricompensa Esperienza: %d XP
                     📐 Scala Moltiplicatore: %.1fx
                     ⚓ Attrito Lineare: %.1f
+                    ⚙ Massa: %.1f kg
+                    💪 Forza Massima: %.1f N
                     """,
-                        enemy.initLife(), enemy.maxVelocity(), enemy.xpReward(),
-                        enemy.scale(), enemy.linearDamping()
+                        enemy.initLife, enemy.maxVelocity, enemy.xpReward,
+                        enemy.scale, enemy.linearDamping, enemy.mass, enemy.maxForce
                 ));
             }
             case EXTRA -> {
@@ -239,16 +242,15 @@ public class BestiaryMenuController implements IscatMenuController {
                 description.setText(String.format("""
                     INFORMAZIONI EXTRA
                     
-                    🧠 Profilo Comportamento IA: %s
-                    👁 Raggio di Avvistamento: %d unità
-                    ⚔ Raggio di Combattimento: %d unità
-                    ⏱ Cooldown Attacco: %d secondi
+                    👁 Raggio di Avvistamento: %.1f unità
+                    ⚔ Raggio di Combattimento: %.1f unità
+                    🎯 Raggio Preferito: %.1f unità
+                    ⏱ Cooldown Azione: %.1f secondi
                     🆔 ID : %s
                     📊 Counter Morti: %d
                     """,
-                        enemy.behaviorType() != null ? enemy.behaviorType().toUpperCase() : "STANDARD",
-                        enemy.detectionRange(), enemy.combatRange(), enemy.fireCooldownS(),
-                        enemy.entityKey(), currentKills
+                        enemy.detectionRange, enemy.combatRange, enemy.preferredRange,
+                        enemy.actionCooldownS, enemy.entityKey, currentKills
                 ));
             }
         }
@@ -264,7 +266,7 @@ public class BestiaryMenuController implements IscatMenuController {
     @FXML
     private void selectRandom() {
         var validIds = enemies.keySet().stream()
-                .filter(id -> !enemies.get(id).name().toUpperCase().equals(skinNameLabel.getText()))
+                .filter(id -> !enemies.get(id).name.toUpperCase().equals(skinNameLabel.getText()))
                 .toList();
 
         if (validIds.isEmpty()) return;

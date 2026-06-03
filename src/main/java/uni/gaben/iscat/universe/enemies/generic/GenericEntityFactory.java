@@ -15,7 +15,7 @@ public class GenericEntityFactory {
 
     private GenericEntityFactory() {}
 
-    private static final Map<String, GenericEntitySettings> cache = new ConcurrentHashMap<>();
+    private static final Map<String, GenericPhysicalEntitySettings> cache = new ConcurrentHashMap<>();
 
     /**
      * Instanzia, assembla e registra nel ciclo di gioco un'entità nemica basandosi sui dati del DB.
@@ -29,7 +29,7 @@ public class GenericEntityFactory {
         if (entityKey == null) return null;
         String normalizedKey = entityKey.toLowerCase().trim();
 
-        GenericEntitySettings settings = loadSettings(normalizedKey);
+        GenericPhysicalEntitySettings settings = loadSettings(normalizedKey);
         if (settings == null) {
             System.err.println("[GenericEntityFactory] Impossibile spawnare: EntityKey sconosciuta '" + normalizedKey + "'");
             return null;
@@ -52,7 +52,7 @@ public class GenericEntityFactory {
         // Scarichiamo l'intera operazione pesante sul thread dedicato al database
         return IscatDB.getInstance().queryAsync(() -> IscatDB.getInstance().getEnemyDAO().findAll())
                 .thenAccept(enemies -> {
-                    for (GenericEntitySettings s : enemies) {
+                    for (GenericPhysicalEntitySettings s : enemies) {
                         if (s != null && s.entityKey != null) {
                             cache.put(s.entityKey.toLowerCase().trim(), s);
                         }
@@ -68,8 +68,8 @@ public class GenericEntityFactory {
      * Ispeziona la cache. In caso di assenza (Cache-Miss), effettua un caricamento di ripiego (fallback)
      * sincrono dal DB, segnalando l'anomalia prestazionale.
      */
-    private static GenericEntitySettings loadSettings(String entityKey) {
-        GenericEntitySettings cached = cache.get(entityKey);
+    private static GenericPhysicalEntitySettings loadSettings(String entityKey) {
+        GenericPhysicalEntitySettings cached = cache.get(entityKey);
         if (cached != null) {
             return cached;
         }
@@ -80,10 +80,10 @@ public class GenericEntityFactory {
                 "La query sincrona su SQLite potrebbe causare microscatti.");
 
         // Eseguiamo la query sincrona diretta: inutile usare queryAsync().join() che aggiunge solo overhead
-        Optional<GenericEntitySettings> dbResult = IscatDB.getInstance().getEnemyDAO().findByKey(entityKey);
+        Optional<GenericPhysicalEntitySettings> dbResult = IscatDB.getInstance().getEnemyDAO().findByKey(entityKey);
 
         if (dbResult.isPresent()) {
-            GenericEntitySettings settings = dbResult.get();
+            GenericPhysicalEntitySettings settings = dbResult.get();
             cache.put(entityKey, settings);
             return settings;
         }
