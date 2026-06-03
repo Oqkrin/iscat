@@ -144,7 +144,11 @@ public class LoginController {
                 SessionManager.getInstance().setCurrentUser(result.user());
                 SessionManager.getInstance().setCurrentSettings(result.settings());
                 SessionManager.getInstance().setCurrentSaveData(result.scoreModel());
-                applyLoadedSettings(result.settings());
+
+                Scene activeScene = Window.getWindows().stream().filter(Window::isShowing).findFirst().map(Window::getScene).orElse(null);
+
+                applyLoadedSettings(result.settings(), activeScene);
+
                 model.setStatus(result.message());
                 model.setLoggedIn(true);
             } else {
@@ -185,8 +189,8 @@ public class LoginController {
         public LoginResult(String err) { this(null, null, null, err, false); }
     }
 
-    private void applyLoadedSettings(UserSettings settings) {
-        if (settings == null) return;
+    private void applyLoadedSettings(UserSettings settings, Scene currentScene) {
+        if (settings == null || currentScene == null) return;
 
         // AUDIO
         AudioManager audio = AudioManager.getInstance();
@@ -198,43 +202,34 @@ public class LoginController {
         boolean goFullscreen = (settings.getFullscreen() == 1);
         IscatNavigator.getInstance().getModel().setFullscreen(goFullscreen);
 
-        // THEMA
-        javafx.stage.Window activeWindow;
-        if (settings.getPrimaryTheme() != null && !settings.getPrimaryTheme().equalsIgnoreCase("#FFFFFF")) {
-            List<String> savedPalette = List.of(
-                    settings.getPrimaryTheme(),
-                    settings.getSecondaryTheme(),
-                    settings.getTertiaryTheme(),
-                    settings.getBackgroundTheme()
-            );
+        // RAINBOW MODE E LIGHT MODE
+        ThemeManager themeEngine = ThemeManager.getInstance();
+        SessionManager.getInstance().isLightModeSelected = (settings.getLightmode() == 1);
 
-            activeWindow = Window.getWindows().stream()
-                    .filter(Window::isShowing)
-                    .findFirst()
-                    .orElse(null);
-
-            if (activeWindow instanceof Stage stage) {
-                Scene currentScene = stage.getScene();
-                if (currentScene != null) {
-                    ThemeManager.getInstance().applyHexColorsTheme(currentScene, savedPalette, 0.0);
-                }
-            }
+        if (settings.getRainbowMode() == 1) {
+            themeEngine.startRainbowMode(currentScene);
         } else {
-            activeWindow = Window.getWindows().stream()
-                    .filter(Window::isShowing)
-                    .findFirst()
-                    .orElse(null);
+            themeEngine.stopRainbowMode();
+        }
 
-            if (activeWindow instanceof Stage stage) {
-                Scene currentScene = stage.getScene();
-                if (currentScene != null) {
-                    ThemeManager.getInstance().switchTheme(
-                            currentScene,
-                            "/uni/gaben/iscat/styles/iscat-color-theme.css",
-                            javafx.scene.paint.Color.WHITE,
-                            0.0
-                    );
-                }
+        // THEMA
+        // Applichiamo i colori statici solo se l'effetto Rainbow è spento
+        if (settings.getRainbowMode() != 1) {
+            if (settings.getPrimaryTheme() != null && !settings.getPrimaryTheme().equalsIgnoreCase("#FFFFFF")) {
+                List<String> savedPalette = List.of(
+                        settings.getPrimaryTheme(),
+                        settings.getSecondaryTheme(),
+                        settings.getTertiaryTheme(),
+                        settings.getBackgroundTheme()
+                );
+                themeEngine.applyHexColorsTheme(currentScene, savedPalette, 0.0);
+            } else {
+                themeEngine.switchTheme(
+                        currentScene,
+                        "/uni/gaben/iscat/styles/iscat-color-theme.css",
+                        javafx.scene.paint.Color.WHITE,
+                        0.0
+                );
             }
         }
     }

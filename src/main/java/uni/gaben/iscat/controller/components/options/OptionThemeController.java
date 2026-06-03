@@ -199,17 +199,36 @@ public class OptionThemeController {
     @FXML
     void toggleRainbowMode(ActionEvent event) {
         if (paneMaster.getScene() == null) return;
+        boolean isActiveNow;
+
         if (ThemeManager.getInstance().isRainbowModeActive()) {
             ThemeManager.getInstance().stopRainbowMode();
             if (SessionManager.getInstance().uiRainbowSyncTimer != null) SessionManager.getInstance().uiRainbowSyncTimer.stop();
             syncColorPickersWithTheme();
             AudioManager.getInstance().playSFX("laugh");
             rainbowModeCheck.setSelected(false);
+            isActiveNow = false;
         } else {
             AudioManager.getInstance().playSFX("rainbow");
             ThemeManager.getInstance().startRainbowMode(paneMaster.getScene());
             startUiSyncTimer();
             rainbowModeCheck.setSelected(true);
+            isActiveNow = true;
+        }
+
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        if (settings != null) {
+            int numericValue = isActiveNow ? 1 : 0;
+            settings.setRainbowMode(numericValue);
+
+            IscatDB.getInstance().executeAsync(() -> {
+                try {
+                    SettingsDAO dao = IscatDB.getInstance().getSettingsDAO();
+                    dao.updateThemeSetting(settings.getUserId(), "RainbowMode", String.valueOf(numericValue));
+                } catch (Exception e) {
+                    System.err.println("[ISCAT ERROR] Errore salvataggio RainbowMode: " + e.getMessage());
+                }
+            });
         }
     }
 
@@ -218,6 +237,21 @@ public class OptionThemeController {
         UserSettings settings = session.getCurrentSettings();
 
         isUpdatingProgrammatically = true;
+
+        if (settings != null) {
+            boolean dbLightMode = (settings.getLightmode() == 1);
+            boolean dbRainbowMode = (settings.getRainbowMode() == 1);
+
+            lightModeCheck.setSelected(dbLightMode);
+            session.isLightModeSelected = dbLightMode;
+            rainbowModeCheck.setSelected(dbRainbowMode);
+
+            if (dbRainbowMode && !ThemeManager.getInstance().isRainbowModeActive() && paneMaster != null && paneMaster.getScene() != null) {
+                ThemeManager.getInstance().startRainbowMode(paneMaster.getScene());
+                startUiSyncTimer();
+            }
+        }
+
         if (settings != null && settings.getPrimaryTheme() != null && !settings.getPrimaryTheme().equalsIgnoreCase("#FFFFFF")) {
             accentPrimary.setValue(Color.web(settings.getPrimaryTheme()));
             accentSecondary.setValue(Color.web(settings.getSecondaryTheme()));
@@ -315,7 +349,24 @@ public class OptionThemeController {
 
     @FXML
     void toggleThemeMode(ActionEvent event) {
-        SessionManager.getInstance().isLightModeSelected = lightModeCheck.isSelected();
+        boolean isLightSelected = lightModeCheck.isSelected();
+        SessionManager.getInstance().isLightModeSelected = isLightSelected;
+
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        if (settings != null) {
+            int numericValue = isLightSelected ? 1 : 0;
+            settings.setLightmode(numericValue);
+
+            IscatDB.getInstance().executeAsync(() -> {
+                try {
+                    SettingsDAO dao = IscatDB.getInstance().getSettingsDAO();
+                    dao.updateThemeSetting(settings.getUserId(), "Lightmode", String.valueOf(numericValue));
+                } catch (Exception e) {
+                    System.err.println("[ISCAT ERROR] Errore salvataggio Lightmode: " + e.getMessage());
+                }
+            });
+        }
+
         toggleThemeModeLogic();
     }
 

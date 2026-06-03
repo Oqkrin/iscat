@@ -8,8 +8,8 @@ import java.sql.SQLException;
 
 public class ThemeSettingsHelper {
 
-    public void updateThemeSetting(int userId, String columnName, String hexColor) {
-        if (columnName == null || !columnName.matches("(?i)PrimaryTheme|SecondaryTheme|TertiaryTheme|BackgroundTheme")) {
+    public void updateThemeSetting(int userId, String columnName, String value) {
+        if (columnName == null || !columnName.matches("(?i)PrimaryTheme|SecondaryTheme|TertiaryTheme|BackgroundTheme|RainbowMode|Lightmode")) {
             throw new IllegalArgumentException("Colonna tema non valida: " + columnName);
         }
 
@@ -17,7 +17,7 @@ public class ThemeSettingsHelper {
         try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, hexColor);
+            stmt.setString(1, value);
             stmt.setInt(2, userId);
             stmt.executeUpdate();
         } catch (SQLException e) {

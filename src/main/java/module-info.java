@@ -11,6 +11,7 @@ module uni.gaben.iscat {
     requires org.kordamp.ikonli.fontawesome5;
     requires org.kordamp.ikonli.javafx;
     requires org.xerial.sqlitejdbc;
+    requires org.slf4j;
 
     opens uni.gaben.iscat to javafx.fxml;
     opens uni.gaben.iscat.controller to javafx.fxml;
@@ -50,10 +51,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entity.enemies.worm;
     exports uni.gaben.iscat.universe.entity.enviroment.asteroid;
     exports uni.gaben.iscat.universe.rendering.starfield;
-    exports uni.gaben.iscat.universe.lib.abstracts;
     exports uni.gaben.iscat.universe.entity.projectiles.Shooters;
-    exports uni.gaben.iscat.universe.interfaces.model;
-    exports uni.gaben.iscat.universe.interfaces.view;
     exports uni.gaben.iscat.universe.entity.player;
     exports uni.gaben.iscat.universe.entity.projectiles;
     exports uni.gaben.iscat.universe.rendering;
