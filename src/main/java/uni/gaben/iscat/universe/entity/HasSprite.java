@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.interfaces;
+package uni.gaben.iscat.universe.entity;
 
 public interface HasSprite {
     String getSpritePath();

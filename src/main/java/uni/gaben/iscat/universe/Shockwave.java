@@ -1,6 +1,6 @@
-package uni.gaben.iscat.universe.rendering.vfx;
+package uni.gaben.iscat.universe;
 
-public class ShockwaveModel {
+public class Shockwave {
 
     private boolean active = false;
 

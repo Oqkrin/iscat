@@ -20,7 +20,7 @@ import uni.gaben.iscat.controller.OptionsMenuController;
 import uni.gaben.iscat.controller.game.GamePauseMenuController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFX;
+import uni.gaben.iscat.universe.rendering.StarfieldRenderer;
 import uni.gaben.iscat.universe.rendering.UniverseRenderer;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.design.CssHelper;
@@ -43,7 +43,7 @@ public class GameView extends AbstractIscatStackPane {
     private Canvas           timerCanvas;
     private StarryText       starryTimer;
     private UniverseRenderer universeRenderer;
-    private final StarfieldVFX starfieldVFX = new StarfieldVFX();
+    private final StarfieldRenderer starfieldRenderer = new StarfieldRenderer();
 
     private GameSpawnerToolbar spawnerToolbar;
     private StackPane          pauseMenu;
@@ -97,7 +97,7 @@ public class GameView extends AbstractIscatStackPane {
         debugButtonsContainer.setPickOnBounds(false);
         spawnerToolbar.setPickOnBounds(false);
 
-        universeRenderer = new UniverseRenderer(canvas, gameController, starfieldVFX);
+        universeRenderer = new UniverseRenderer(canvas, gameController, starfieldRenderer);
     }
 
     @Override

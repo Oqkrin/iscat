@@ -6,9 +6,7 @@ import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFX;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.rendering.vfx.VFXRenderer;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.view.components.StarryText;
@@ -22,7 +20,7 @@ import java.util.List;
  * <p>Order of operations each frame:
  * <ol>
  *   <li>Clear canvas and fill background colour.</li>
- *   <li>Draw parallax starfield (StarfieldVFX is updated with live canvas dims).</li>
+ *   <li>Draw parallax starfield (StarfieldRenderer is updated with live canvas dims).</li>
  *   <li>Apply camera transform and draw all game entities.</li>
  *   <li>Draw HUD (timer canvas).</li>
  *   <li>Optionally draw the FPS counter.</li>
@@ -34,17 +32,17 @@ public class UniverseRenderer {
     private final Canvas          mainCanvas;
     private final GameController  gameController;
     private final GameModel       gameModel;
-    private final StarfieldVFX starfieldVFX;
+    private final StarfieldRenderer starfieldRenderer;
 
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
     private int frameCount = 0;
 
-    public UniverseRenderer(Canvas mainCanvas, GameController gameController, StarfieldVFX starfieldVFX) {
+    public UniverseRenderer(Canvas mainCanvas, GameController gameController, StarfieldRenderer starfieldRenderer) {
         this.mainCanvas      = mainCanvas;
         this.gameController  = gameController;
         this.gameModel       = gameController.getGameModel();
-        this.starfieldVFX = starfieldVFX;
+        this.starfieldRenderer = starfieldRenderer;
     }
 
     /** Called every frame tick from the game loop via {@link GameController}. */
@@ -81,11 +79,11 @@ public class UniverseRenderer {
         }
 
         // 2. Starfield – push live canvas size so parallax wrap is always correct
-        starfieldVFX.setW(w);
-        starfieldVFX.setH(h);
-        starfieldVFX.setCameraX(camera.getX());
-        starfieldVFX.setCameraY(camera.getY());
-        starfieldVFX.draw(universe.getStarfieldModel(), gc);
+        starfieldRenderer.setW(w);
+        starfieldRenderer.setH(h);
+        starfieldRenderer.setCameraX(camera.getX());
+        starfieldRenderer.setCameraY(camera.getY());
+        starfieldRenderer.render(universe.getStarfieldModel(), gc);
 
         // 3. Camera transform + entities
         gc.save();

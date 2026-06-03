@@ -1,13 +1,14 @@
-package uni.gaben.iscat.universe.rendering.vfx;
+package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
+import uni.gaben.iscat.universe.Shockwave;
+import uni.gaben.iscat.universe.Thrust;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.interfaces.LifeDeath;
+import uni.gaben.iscat.universe.entity.LifeDeath;
 import uni.gaben.iscat.universe.entity.player.PlayerSettings;
-import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 
@@ -25,12 +26,12 @@ public final class VFXRenderer {
     private VFXRenderer() {}
 
     /**
-     * Draws an engine thrust effect based on the data stored in a {@link ThrustModel}.
+     * Draws an engine thrust effect based on the data stored in a {@link Thrust}.
      *
      * @param gc     graphics context already positioned and rotated at the entity’s pivot
      * @param thrust the thrust parameters (intensity, drift, dimensions)
      */
-    public static void drawThrust(GraphicsContext gc, ThrustModel thrust) {
+    public static void drawThrust(GraphicsContext gc, Thrust thrust) {
         if (thrust == null || !thrust.isActive() || thrust.getIntensity() < 0.01) return;
 
         double intensity = Math.min(thrust.getIntensity(), 1.0);
@@ -147,7 +148,7 @@ public final class VFXRenderer {
     }
 
     public static void drawShockwave(GraphicsContext gc,
-                                     ShockwaveModel shockwave) {
+                                     Shockwave shockwave) {
         double radius = shockwave.getRadius();
         double alpha  = shockwave.getAlpha();
         double d = radius * 2;

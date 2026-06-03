@@ -8,16 +8,16 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
-import uni.gaben.iscat.universe.interfaces.HasShockwave;
+import uni.gaben.iscat.universe.entity.HasShockwave;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
+import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.utils.Updatable;
 
 public class BlackHoleModel extends AbstractEntityModel implements Updatable, HasShockwave {
 
     private UU radius;
     private BodyFixture fixture;
-    private final ShockwaveModel shockwaveModel = new ShockwaveModel();
+    private final Shockwave shockwave = new Shockwave();
 
     private final double maxRadiusM;
     private final double initialRadiusM;
@@ -52,8 +52,8 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
         if (fixture != null) removeFixture(fixture);
         fixture = addFixture(Geometry.createCircle(radius.m().get()));
         setMass(MassType.NORMAL);
-        shockwaveModel.trigger(1, radius.px().get(), 15);
-        shockwaveModel.update(0.85);
+        shockwave.trigger(1, radius.px().get(), 15);
+        shockwave.update(0.85);
     }
 
     private void absorbEntity(AbstractEntityModel other) {
@@ -130,5 +130,5 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
     public UU getRadius() { return radius; }
 
     @Override
-    public ShockwaveModel shockwave() { return shockwaveModel; }
+    public Shockwave shockwave() { return shockwave; }
 }

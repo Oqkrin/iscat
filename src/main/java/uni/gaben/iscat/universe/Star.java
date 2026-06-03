@@ -1,9 +1,9 @@
-package uni.gaben.iscat.universe.rendering.starfield;
+package uni.gaben.iscat.universe;
 
-public class StarVFXModel {
+public class Star {
     private double x, y, size;
     
-    public StarVFXModel(double x, double y, double size) {
+    public Star(double x, double y, double size) {
         this.x = x; 
         this.y = y; 
         this.size = size;
