@@ -50,7 +50,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entity.consumables.heart;
     exports uni.gaben.iscat.universe.entity.enemies.worm;
     exports uni.gaben.iscat.universe.entity.enviroment.asteroid;
-    exports uni.gaben.iscat.universe.rendering.starfield;
     exports uni.gaben.iscat.universe.entity.projectiles.Shooters;
     exports uni.gaben.iscat.universe.entity.player;
     exports uni.gaben.iscat.universe.entity.projectiles;
@@ -68,5 +67,4 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.view.components;
     opens uni.gaben.iscat.view.components to javafx.fxml;
     exports uni.gaben.iscat.universe.entity;
-    exports uni.gaben.iscat.universe.interfaces;
 }

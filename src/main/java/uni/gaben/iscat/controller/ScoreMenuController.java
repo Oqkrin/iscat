@@ -13,6 +13,7 @@ import uni.gaben.iscat.model.BestiaryModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.ScoreModel;
 import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.model.user.SessionUser;
@@ -79,13 +80,13 @@ public class ScoreMenuController implements IscatMenuController {
         );
 
         // Applicazione dei font iconici (FontAwesome) a etichette e pulsanti
-        applyIconButton(exitBtn,         "fas-sign-out-alt");
-        applyIconLabel(lblBestScore,     "fas-trophy");
-        applyIconLabel(lblTotalEnemies,  "fas-skull");
-        applyIconLabel(lblBestTime,      "fas-stopwatch");
-        applyIconLabel(lblDamageTaken,   "fas-heart-broken");
-        applyIconLabel(lblDamageCaused,  "fas-crosshairs");
-        applyIconLabel(lblBoosts,        "fas-bolt");
+        ComponentsUtils.applyIconButton(exitBtn,         "fas-sign-out-alt");
+        ComponentsUtils.applyIconLabel(lblBestScore,     "fas-trophy");
+        ComponentsUtils.applyIconLabel(lblTotalEnemies,  "fas-skull");
+        ComponentsUtils.applyIconLabel(lblBestTime,      "fas-stopwatch");
+        ComponentsUtils.applyIconLabel(lblDamageTaken,   "fas-heart-broken");
+        ComponentsUtils.applyIconLabel(lblDamageCaused,  "fas-crosshairs");
+        ComponentsUtils.applyIconLabel(lblBoosts,        "fas-bolt");
 
         setupCornerMobs();
 

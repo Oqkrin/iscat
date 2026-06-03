@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
+import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.game.GameView;
 import uni.gaben.iscat.controller.components.options.OptionAudioController;
 import uni.gaben.iscat.controller.components.options.OptionDisplayController;
@@ -27,15 +28,15 @@ public class GamePauseMenuController implements IscatFxmlController {
 
     @FXML
     public void initialize() {
-        applyIconButton(resumeBtn, "fas-play");
-        applyIconButton(menuBtn,   "fas-home");
-        applyIconButton(quitBtn,   "fas-power-off");
-        applyIconButton(optionBtn, "fas-sliders-h");
+        ComponentsUtils.applyIconButton(resumeBtn, "fas-play");
+        ComponentsUtils.applyIconButton(menuBtn,   "fas-home");
+        ComponentsUtils.applyIconButton(quitBtn,   "fas-power-off");
+        ComponentsUtils.applyIconButton(optionBtn, "fas-sliders-h");
 
-        setupButtonHoverTween(resumeBtn);
-        setupButtonHoverTween(menuBtn);
-        setupButtonHoverTween(quitBtn);
-        setupButtonHoverTween(optionBtn);
+        ComponentsUtils.setupButtonHoverTween(resumeBtn);
+        ComponentsUtils.setupButtonHoverTween(menuBtn);
+        ComponentsUtils.setupButtonHoverTween(quitBtn);
+        ComponentsUtils.setupButtonHoverTween(optionBtn);
     }
 
     /**

@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entity.player.PlayerSettings;
+import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 import java.util.ArrayList;
@@ -53,9 +54,9 @@ public class SkinMenuController implements IscatMenuController {
         previewContainer.getChildren().add(previewCanvas);
 
         // Iniezione Icone stabili sui tasti di controllo
-        applyIconButton(confirmBtn, "fas-check");
-        applyIconButton(randomBtn,  "fas-dice");
-        applyIconButton(cancelBtn,  "fas-arrow-left");
+        ComponentsUtils.applyIconButton(confirmBtn, "fas-check");
+        ComponentsUtils.applyIconButton(randomBtn,  "fas-dice");
+        ComponentsUtils.applyIconButton(cancelBtn,  "fas-arrow-left");
 
         populateGrid();
 
@@ -145,7 +146,7 @@ public class SkinMenuController implements IscatMenuController {
         this.selectedSkinPath = path;
         this.skinNameLabel.setText(name.toUpperCase());
         previewCanvas.loadSkin(path);
-        playSpawnTween(previewBox);
+        ComponentsUtils.playSpawnTween(previewBox);
         updateDynamicScaling();
     }
 
@@ -163,11 +164,6 @@ public class SkinMenuController implements IscatMenuController {
 
     @Override
     public Pane getRootPane() { return skinStackPane; }
-
-    @Override
-    public void handleBack() {
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
-    }
 
     @FXML
     private void handleBack(ActionEvent event) { handleBack(); }

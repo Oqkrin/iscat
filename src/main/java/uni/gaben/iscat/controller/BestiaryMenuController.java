@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.BestiaryModel;
 import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.utils.SessionManager;
@@ -74,11 +75,11 @@ public class BestiaryMenuController implements IscatMenuController {
         description.setWrapText(true);
 
         // Applicazione icone grafiche ai pulsanti di navigazione/tab
-        applyIconButton(btnRandom,      "fas-dice");
-        applyIconButton(btnDescription, "fas-book");
-        applyIconButton(btnStats,       "fas-chart-bar");
-        applyIconButton(btnExtra,       "fas-info-circle");
-        applyIconButton(btnBack,        "fas-arrow-left");
+        ComponentsUtils.applyIconButton(btnRandom,      "fas-dice");
+        ComponentsUtils.applyIconButton(btnDescription, "fas-book");
+        ComponentsUtils.applyIconButton(btnStats,       "fas-chart-bar");
+        ComponentsUtils.applyIconButton(btnExtra,       "fas-info-circle");
+        ComponentsUtils.applyIconButton(btnBack,        "fas-arrow-left");
 
         // Aggiorna la UI se si verifica un salvataggio in background o un cambio utente
         SessionManager.getInstance().saveDataProperty().addListener((obs, old, data) -> {
@@ -151,7 +152,7 @@ public class BestiaryMenuController implements IscatMenuController {
             button.setGraphic(iconCanvas);
             button.setGraphicTextGap(14.0);
 
-            setupButtonHoverTween(button);
+            ComponentsUtils.setupButtonHoverTween(button);
             button.setOnAction(e -> showEnemyById(safeId));
 
             enemyButtonsBox.getChildren().add(button);
@@ -191,7 +192,7 @@ public class BestiaryMenuController implements IscatMenuController {
         }
 
         previewCanvas.resize(DISPLAY_SIZE);
-        playSpawnTween(previewContainer); // Effetto transizione grafica d'ingresso
+        ComponentsUtils.playSpawnTween(previewContainer); // Effetto transizione grafica d'ingresso
     }
 
     /**
@@ -277,6 +278,5 @@ public class BestiaryMenuController implements IscatMenuController {
 
     @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
     @Override public Pane getRootPane() { return (Pane) btnBack.getParent().getParent(); }
-    @Override public void handleBack() { IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU); }
     @FXML private void handleBack(ActionEvent event) { handleBack(); }
 }

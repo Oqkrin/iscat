@@ -316,14 +316,14 @@ src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:22:import uni.gabe
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:23:import uni.gaben.iscat.universe.rendering.UniverseRenderer;
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:26:import uni.gaben.iscat.universe.UniverseController;
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:27:import uni.gaben.iscat.universe.UniverseModel;
-src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:28:import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFX;
+src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:28:import uni.gaben.iscat.universe.rendering.StarfieldRenderer;
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:29:import uni.gaben.iscat.view.StarryText;
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:37:public class GameView extends AbstractIscatStackPane {
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:49:    private UniverseRenderer universeRenderer;
-src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:50:    private final StarfieldView starfieldVFX = new StarfieldView();
+src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:50:    private final StarfieldView starfieldRenderer = new StarfieldView();
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:63:    public GameView(GameController gameController) {
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:101:        universeRenderer = new UniverseRenderer(canvas, gameController, 
-starfieldVFX);
+starfieldRenderer);
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:116:        final StackPane[] optionsViewWrapper = new StackPane[1];
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:117:        optionsViewWrapper[0] = 
 loadFxml("/uni/gaben/iscat/fxml/options/options_menu.fxml",
@@ -356,8 +356,8 @@ src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:305:        univer
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:306:                universeController.getStarfieldController()
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:307:                        .regenerate(universe.getStarfieldModel(),
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:308:                                universe.getWidth(), newV.doubleValue()));
-src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:310:        starfieldVFX.wProperty().bind(canvas.widthProperty());
-src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:311:        starfieldVFX.hProperty().bind(canvas.heightProperty());
+src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:310:        starfieldRenderer.wProperty().bind(canvas.widthProperty());
+src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:311:        starfieldRenderer.hProperty().bind(canvas.heightProperty());
 src\main\java\uni\gaben\iscat\screens\game\view\GameView.java:313:        var player = universe.getPlayer();
 src\main\java\uni\gaben\iscat\screens\login\LoginView.java:14:import uni.gaben.iscat.view.AbstractIscatStackPane;
 src\main\java\uni\gaben\iscat\screens\login\LoginView.java:15:import uni.gaben.iscat.model.IscatViews;
@@ -497,7 +497,7 @@ src\main\java\uni\gaben\iscat\universe\UniverseController.java:12:import uni.gab
 src\main\java\uni\gaben\iscat\universe\UniverseController.java:13:import uni.gaben.iscat.universe.lib.behaviurs.AiController;
 src\main\java\uni\gaben\iscat\universe\UniverseController.java:14:import uni.gaben.iscat.universe.entity.brain.IEntityController;
 src\main\java\uni\gaben\iscat\universe\UniverseController.java:15:import uni.gaben.iscat.universe.entity.LivingEntityModel;
-src\main\java\uni\gaben\iscat\universe\UniverseController.java:16:import uni.gaben.iscat.universe.interfaces.HasTerminalVelocity;
+src\main\java\uni\gaben\iscat\universe\UniverseController.java:16:import uni.gaben.iscat.universe.entity.HasTerminalVelocity;
 src\main\java\uni\gaben\iscat\universe\UniverseController.java:19:import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 src\main\java\uni\gaben\iscat\universe\UniverseController.java:20:import uni.gaben.iscat.universe.entity.enemies.worm.IscatWormSegment;
 src\main\java\uni\gaben\iscat\universe\UniverseController.java:21:import uni.gaben.iscat.universe.entity.player.PlayerController;
@@ -550,7 +550,7 @@ src\main\java\uni\gaben\iscat\universe\UniverseModel.java:1:package uni.gaben.is
 src\main\java\uni\gaben\iscat\universe\UniverseModel.java:13:import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 src\main\java\uni\gaben\iscat\universe\UniverseModel.java:14:import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 src\main\java\uni\gaben\iscat\universe\UniverseModel.java:15:import uni.gaben.iscat.universe.entity.player.PlayerModel;
-src\main\java\uni\gaben\iscat\universe\UniverseModel.java:16:import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFXModel;
+src\main\java\uni\gaben\iscat\universe\UniverseModel.java:16:import uni.gaben.iscat.universe.Starfield;
 src\main\java\uni\gaben\iscat\universe\UniverseModel.java:20:public class UniverseModel extends World<Body> {
 src\main\java\uni\gaben\iscat\universe\UniverseModel.java:34:            new SimpleDoubleProperty(UniverseSettings.DEFAULT_WIDTH);
 src\main\java\uni\gaben\iscat\universe\UniverseModel.java:37:            new SimpleDoubleProperty(UniverseSettings.DEFAULT_HEIGHT);
@@ -953,7 +953,7 @@ src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartSettings.java:14: 
 src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartSettings.java:18:    public static final double RANGE_ATTIVAZIONE = UU.pxToM(300.0);
 src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartView.java:1:package uni.gaben.iscat.universe.entity.consumables.heart;
 src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartView.java:6:import uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartView.java:7:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\consumables\heart\HeartView.java:8:import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -1052,7 +1052,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\bomber\IscatBomberSettings.java:1
 UniverseVelocitySettings.BOMBER_MAX_VELOCITY;
 src\main\java\uni\gaben\iscat\universe\enemies\bomber\IscatBomberView.java:1:package uni.gaben.iscat.universe.entity.enemies.bomber;
 src\main\java\uni\gaben\iscat\universe\enemies\bomber\IscatBomberView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\bomber\IscatBomberView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\bomber\IscatBomberView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\bomber\IscatBomberView.java:6:import 
 uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\bomber\IscatBomberView.java:7:import uni.gaben.iscat.universe.UU;
@@ -1170,7 +1170,7 @@ UniverseVelocitySettings.CORE_MAX_VELOCITY;
 src\main\java\uni\gaben\iscat\universe\enemies\core\IscatCoreSettings.java:28:    public static final double BULLET_SPACING_M  = UU.pxToM(24.0);
 src\main\java\uni\gaben\iscat\universe\enemies\core\IscatCoreView.java:1:package uni.gaben.iscat.universe.entity.enemies.core;
 src\main\java\uni\gaben\iscat\universe\enemies\core\IscatCoreView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\core\IscatCoreView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\core\IscatCoreView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\core\IscatCoreView.java:6:import uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\core\IscatCoreView.java:7:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\enemies\core\IscatCoreView.java:8:import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -1259,7 +1259,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\dasher\IscatDasherSettings.java:2
 UU.pxToM(24.0); // meters
 src\main\java\uni\gaben\iscat\universe\enemies\dasher\IscatDasherView.java:1:package uni.gaben.iscat.universe.entity.enemies.dasher;
 src\main\java\uni\gaben\iscat\universe\enemies\dasher\IscatDasherView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\dasher\IscatDasherView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\dasher\IscatDasherView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\dasher\IscatDasherView.java:6:import 
 uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\dasher\IscatDasherView.java:7:import uni.gaben.iscat.universe.UU;
@@ -1338,7 +1338,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\eater\IscatEaterSettings.java:14:
 UniverseVelocitySettings.EATER_MAX_VELOCITY;
 src\main\java\uni\gaben\iscat\universe\enemies\eater\IscatEaterView.java:1:package uni.gaben.iscat.universe.entity.enemies.eater;
 src\main\java\uni\gaben\iscat\universe\enemies\eater\IscatEaterView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\eater\IscatEaterView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\eater\IscatEaterView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\eater\IscatEaterView.java:6:import uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\eater\IscatEaterView.java:7:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\enemies\eater\IscatEaterView.java:8:import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -1418,7 +1418,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\fake\FakeIscatSettings.java:14:  
 UniverseVelocitySettings.FAKE_ISCAT_MAX_VELOCITY;
 src\main\java\uni\gaben\iscat\universe\enemies\fake\FakeIscatView.java:1:package uni.gaben.iscat.universe.entity.enemies.fake;
 src\main\java\uni\gaben\iscat\universe\enemies\fake\FakeIscatView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\fake\FakeIscatView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\fake\FakeIscatView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\fake\FakeIscatView.java:6:import uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\fake\FakeIscatView.java:7:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\enemies\fake\FakeIscatView.java:8:import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -1514,7 +1514,7 @@ uni.gaben.iscat.universe.entity.enemies.fallen_star_golem;
 src\main\java\uni\gaben\iscat\universe\enemies\fallen_star_golem\FallenStarGolemView.java:4:import 
 uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
 src\main\java\uni\gaben\iscat\universe\enemies\fallen_star_golem\FallenStarGolemView.java:5:import 
-uni.gaben.iscat.universe.interfaces.Drawable;
+uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\fallen_star_golem\FallenStarGolemView.java:6:import 
 uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\fallen_star_golem\FallenStarGolemView.java:7:import uni.gaben.iscat.universe.UU;
@@ -1590,8 +1590,8 @@ UniverseModel world, double dt) {
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:1:package uni.gaben.iscat.universe.entity.enemies.healer;
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:6:import 
 uni.gaben.iscat.universe.entity.LivingEntityModel;
-src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:8:import uni.gaben.iscat.universe.interfaces.HasShockwave;
-src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:9:import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
+src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:8:import uni.gaben.iscat.universe.entity.HasShockwave;
+src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:9:import uni.gaben.iscat.universe.Shockwave;
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:10:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:11:import uni.gaben.iscat.universe.UniverseCollisionLayers;
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerModel.java:13:import static 
@@ -1605,7 +1605,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerSettings.java:1
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerSettings.java:11:        ISCATHEALER.scale          = 2.0;
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerView.java:1:package uni.gaben.iscat.universe.entity.enemies.healer;
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerView.java:6:import 
 uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\healer\IscatHealerView.java:7:import uni.gaben.iscat.universe.UU;
@@ -1686,8 +1686,8 @@ UniverseModel world, double dt) {
 src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterController.java:163:        public void tick(AbstractEntityModel entity, 
 UniverseModel world, double dt) {
 src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterModel.java:1:package uni.gaben.iscat.universe.entity.enemies.master;
-src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterModel.java:7:import uni.gaben.iscat.universe.interfaces.HasShockwave;
-src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterModel.java:8:import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
+src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterModel.java:7:import uni.gaben.iscat.universe.entity.HasShockwave;
+src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterModel.java:8:import uni.gaben.iscat.universe.Shockwave;
 src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterModel.java:9:import uni.gaben.iscat.universe.UniverseWaveController;
 src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterModel.java:10:import 
 uni.gaben.iscat.universe.entity.LivingEntityModel;
@@ -1712,7 +1712,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterSettings.java:1
 UniverseVelocitySettings.ISCAT_MASTER_MAX_VELOCITY;
 src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterView.java:1:package uni.gaben.iscat.universe.entity.enemies.master;
 src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterView.java:5:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterView.java:6:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterView.java:6:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterView.java:7:import 
 uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\master\IscatMasterView.java:9:import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -1779,7 +1779,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\mob\IscatMobSettings.java:14:    
 UniverseVelocitySettings.MOB_MAX_VELOCITY;
 src\main\java\uni\gaben\iscat\universe\enemies\mob\IscatMobView.java:1:package uni.gaben.iscat.universe.entity.enemies.mob;
 src\main\java\uni\gaben\iscat\universe\enemies\mob\IscatMobView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\mob\IscatMobView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\mob\IscatMobView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\mob\IscatMobView.java:6:import uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\mob\IscatMobView.java:7:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\enemies\mob\IscatMobView.java:8:import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -1923,7 +1923,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\mother\IscatMotherSettings.java:4
 UU.pxToM(60.0);
 src\main\java\uni\gaben\iscat\universe\enemies\mother\IscatMotherView.java:1:package uni.gaben.iscat.universe.entity.enemies.mother;
 src\main\java\uni\gaben\iscat\universe\enemies\mother\IscatMotherView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\mother\IscatMotherView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\mother\IscatMotherView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\mother\IscatMotherView.java:6:import 
 uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\mother\IscatMotherView.java:7:import uni.gaben.iscat.universe.UU;
@@ -2028,7 +2028,7 @@ src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormSettings.java:31:  
 src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormSettings.java:37:    public static final double TAIL_SCALE           = 2.0;
 src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormView.java:1:package uni.gaben.iscat.universe.entity.enemies.worm;
 src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormView.java:4:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormView.java:6:import uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormView.java:7:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\enemies\worm\IscatWormView.java:8:import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -2116,7 +2116,7 @@ UniverseVelocitySettings.asteroidTerminalVelocity(size);
 src\main\java\uni\gaben\iscat\universe\enviroment\asteroid\AsteroidSettings.java:1:package uni.gaben.iscat.universe.entity.enviroment.asteroid;
 src\main\java\uni\gaben\iscat\universe\enviroment\asteroid\AsteroidSettings.java:4:    public static final int MAXPXSIZE = 100;
 src\main\java\uni\gaben\iscat\universe\enviroment\asteroid\AsteroidView.java:1:package uni.gaben.iscat.universe.entity.enviroment.asteroid;
-src\main\java\uni\gaben\iscat\universe\enviroment\asteroid\AsteroidView.java:5:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enviroment\asteroid\AsteroidView.java:5:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enviroment\asteroid\AsteroidView.java:6:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\enviroment\asteroid\AsteroidView.java:10:public class AsteroidView implements Drawable<AsteroidModel> {
 src\main\java\uni\gaben\iscat\universe\enviroment\asteroid\AsteroidView.java:12:    public void draw(AsteroidModel entity, GraphicsContext gc) {
@@ -2136,7 +2136,7 @@ src\main\java\uni\gaben\iscat\universe\enviroment\starfield\StarfieldModel.java:
 src\main\java\uni\gaben\iscat\universe\enviroment\starfield\StarfieldModel.java:3:import 
 uni.gaben.iscat.universe.entity.AbstractEntityModel;
 src\main\java\uni\gaben\iscat\universe\enviroment\starfield\StarfieldView.java:1:package uni.gaben.iscat.universe.rendering.starfield;
-src\main\java\uni\gaben\iscat\universe\enviroment\starfield\StarfieldView.java:7:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\enviroment\starfield\StarfieldView.java:7:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\enviroment\starfield\StarfieldView.java:8:import uni.gaben.iscat.universe.UniverseSettings;
 src\main\java\uni\gaben\iscat\universe\enviroment\starfield\StarfieldView.java:11:public class StarfieldView implements Drawable<StarfieldModel> {
 src\main\java\uni\gaben\iscat\universe\enviroment\starfield\StarfieldView.java:15:    private final DoubleProperty w = new 
@@ -2192,7 +2192,7 @@ settings.scale / 2.0 * 0.9)));
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEnemyModel.java:26:        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityModel.java:1:package uni.gaben.iscat.universe.lib.abstracts;
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityModel.java:6:import 
-uni.gaben.iscat.universe.interfaces.HasTerminalVelocity;
+uni.gaben.iscat.universe.entity.HasTerminalVelocity;
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityModel.java:7:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityModel.java:27:        translate(UU.pxToM(x), UU.pxToM(y));
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityModel.java:63:    public double getWidthPx() { return 
@@ -2200,8 +2200,8 @@ UU.mToPx(getWidthMeters()); }
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityModel.java:66:    public double getHeightPx() { return 
 UU.mToPx(getHeightMeters()); }
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityView.java:1:package uni.gaben.iscat.universe.lib.abstracts;
-src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityView.java:6:import uni.gaben.iscat.universe.interfaces.LifeDeath;
-src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityView.java:7:import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
+src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityView.java:6:import uni.gaben.iscat.universe.entity.LifeDeath;
+src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityView.java:7:import uni.gaben.iscat.universe.Shockwave;
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityView.java:8:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityView.java:9:import uni.gaben.iscat.universe.entity.player.PlayerSettings;
 src\main\java\uni\gaben\iscat\universe\lib\abstracts\AbstractEntityView.java:10:import uni.gaben.iscat.universe.entity.projectiles.Projectile;
@@ -2374,7 +2374,7 @@ src\main\java\uni\gaben\iscat\universe\lib\behaviurs\strategies\TrailFollowStrat
 src\main\java\uni\gaben\iscat\universe\lib\implementations\LivingEntityModel.java:1:package uni.gaben.iscat.universe.lib.implementations;
 src\main\java\uni\gaben\iscat\universe\lib\implementations\LivingEntityModel.java:6:import 
 uni.gaben.iscat.universe.entity.AbstractEntityModel;
-src\main\java\uni\gaben\iscat\universe\lib\implementations\LivingEntityModel.java:7:import uni.gaben.iscat.universe.interfaces.LifeDeath;
+src\main\java\uni\gaben\iscat\universe\lib\implementations\LivingEntityModel.java:7:import uni.gaben.iscat.universe.entity.LifeDeath;
 src\main\java\uni\gaben\iscat\universe\lib\implementations\LivingEntityModel.java:8:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\lib\implementations\LivingEntityModel.java:9:import uni.gaben.iscat.universe.UniverseSpawner;
 src\main\java\uni\gaben\iscat\universe\lib\implementations\LivingEntityModel.java:10:import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
@@ -2492,7 +2492,7 @@ src\main\java\uni\gaben\iscat\universe\lib\interfaces\model\AttackPattern.java:4
 src\main\java\uni\gaben\iscat\universe\lib\interfaces\model\AttackPattern.java:5:import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 src\main\java\uni\gaben\iscat\universe\lib\interfaces\model\Gravitational.java:1:package uni.gaben.iscat.universe.interfaces.model;
 src\main\java\uni\gaben\iscat\universe\lib\interfaces\model\HasShockwave.java:1:package uni.gaben.iscat.universe.interfaces.model;
-src\main\java\uni\gaben\iscat\universe\lib\interfaces\model\HasShockwave.java:3:import uni.gaben.iscat.universe.rendering.vfx.ShockwaveModel;
+src\main\java\uni\gaben\iscat\universe\lib\interfaces\model\HasShockwave.java:3:import uni.gaben.iscat.universe.Shockwave;
 src\main\java\uni\gaben\iscat\universe\lib\interfaces\model\HasTerminalVelocity.java:1:package uni.gaben.iscat.universe.interfaces.model;
 src\main\java\uni\gaben\iscat\universe\lib\interfaces\model\LifeDeath.java:1:package uni.gaben.iscat.universe.interfaces.model;
 src\main\java\uni\gaben\iscat\universe\lib\interfaces\view\Drawable.java:1:package uni.gaben.iscat.universe.interfaces.view;
@@ -2552,7 +2552,7 @@ src\main\java\uni\gaben\iscat\universe\player\PlayerSettings.java:50:    public 
 src\main\java\uni\gaben\iscat\universe\player\PlayerSettings.java:51:    public static final double THRUST_PARTICLE_SIZE_VARIATION = 7.0;
 src\main\java\uni\gaben\iscat\universe\player\PlayerView.java:1:package uni.gaben.iscat.universe.entity.player;
 src\main\java\uni\gaben\iscat\universe\player\PlayerView.java:7:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\player\PlayerView.java:8:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\player\PlayerView.java:8:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\player\PlayerView.java:9:import uni.gaben.iscat.universe.interfaces.DrawableSpriteSheet;
 src\main\java\uni\gaben\iscat\universe\player\PlayerView.java:10:import uni.gaben.iscat.universe.UU;
 src\main\java\uni\gaben\iscat\universe\player\PlayerView.java:14:import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
@@ -2606,7 +2606,7 @@ src\main\java\uni\gaben\iscat\universe\projectiles\ProjectileType.java:13:    EN
 4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getColorError());
 src\main\java\uni\gaben\iscat\universe\projectiles\ProjectileView.java:1:package uni.gaben.iscat.universe.entity.projectiles;
 src\main\java\uni\gaben\iscat\universe\projectiles\ProjectileView.java:5:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\projectiles\ProjectileView.java:6:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\projectiles\ProjectileView.java:6:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\projectiles\ProjectileView.java:13:public class ProjectileView extends AbstractEntityView<Projectile> 
 implements Drawable<Projectile> {
 src\main\java\uni\gaben\iscat\universe\projectiles\ProjectileView.java:15:    public ProjectileView() {
@@ -2621,7 +2621,7 @@ src\main\java\uni\gaben\iscat\universe\projectiles\Shooter.java:7:import uni.gab
 src\main\java\uni\gaben\iscat\universe\projectiles\Shooter.java:8:import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 src\main\java\uni\gaben\iscat\universe\projectiles\Shooter.java:9:import uni.gaben.iscat.universe.entity.projectiles.AbstractShooterController;
 src\main\java\uni\gaben\iscat\universe\projectiles\Shooter.java:10:import uni.gaben.iscat.universe.entity.LivingEntityModel;
-src\main\java\uni\gaben\iscat\universe\projectiles\Shooter.java:11:import uni.gaben.iscat.universe.interfaces.LifeDeath;
+src\main\java\uni\gaben\iscat\universe\projectiles\Shooter.java:11:import uni.gaben.iscat.universe.entity.LifeDeath;
 src\main\java\uni\gaben\iscat\universe\projectiles\Shooter.java:12:import uni.gaben.iscat.universe.UniverseSpawner;
 src\main\java\uni\gaben\iscat\universe\projectiles\Shooter.java:102:        UniverseSpawner.getInstance().spawnEntity(p);
 src\main\java\uni\gaben\iscat\universe\projectiles\StunThreadProjectile.java:1:package uni.gaben.iscat.universe.entity.projectiles;
@@ -2631,7 +2631,7 @@ src\main\java\uni\gaben\iscat\universe\rendering\RenderingSettings.java:3:public
 src\main\java\uni\gaben\iscat\universe\rendering\RenderingSettings.java:4:    private RenderingSettings() {
 src\main\java\uni\gaben\iscat\universe\rendering\RenderRegistry.java:1:package uni.gaben.iscat.universe.rendering;
 src\main\java\uni\gaben\iscat\universe\rendering\RenderRegistry.java:3:import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-src\main\java\uni\gaben\iscat\universe\rendering\RenderRegistry.java:4:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\rendering\RenderRegistry.java:4:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\rendering\RenderRegistry.java:5:import uni.gaben.iscat.universe.UniverseSpawnable;
 src\main\java\uni\gaben\iscat\universe\rendering\RenderRegistry.java:6:import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidView;
 src\main\java\uni\gaben\iscat\universe\rendering\RenderRegistry.java:7:import uni.gaben.iscat.universe.entity.enemies.fake.FakeIscatView;
@@ -2685,24 +2685,24 @@ src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:1:package
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:5:import uni.gaben.iscat.universe.camera.CameraModel;
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:6:import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:7:import uni.gaben.iscat.universe.lib.abstracts.AbstractEntityView;
-src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:8:import uni.gaben.iscat.universe.interfaces.Drawable;
+src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:8:import uni.gaben.iscat.universe.rendering.Renderable;
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:9:import uni.gaben.iscat.universe.UniverseModel;
-src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:10:import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFX;
+src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:10:import uni.gaben.iscat.universe.rendering.StarfieldRenderer;
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:13:import uni.gaben.iscat.view.StarryText;
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:17:public class UniverseRenderer {
-src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:22:    private final StarfieldView starfieldVFX;
+src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:22:    private final StarfieldView starfieldRenderer;
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:27:    public UniverseRenderer(Canvas mainCanvas, GameController 
-gameController, StarfieldView starfieldVFX) {
-src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:31:        this.starfieldVFX = starfieldVFX;
+gameController, StarfieldView starfieldRenderer) {
+src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:31:        this.starfieldRenderer = starfieldRenderer;
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:37:    public void renderFrame(Canvas timerCanvas, StarryText starryTimer, 
 boolean debugPanelVisible) {
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:49:        UniverseModel universe = 
 gameController.getUniverseController().getUniverseModel();
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:50:        if (universe == null) return;
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:54:        // 2. Render Background Starfield
-src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:55:        starfieldVFX.setCameraX(cameraModel.getX());
-src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:56:        starfieldVFX.setCameraY(cameraModel.getY());
-src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:57:        starfieldVFX.draw(universe.getStarfieldModel(), gc);
+src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:55:        starfieldRenderer.setCameraX(cameraModel.getX());
+src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:56:        starfieldRenderer.setCameraY(cameraModel.getY());
+src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:57:        starfieldRenderer.draw(universe.getStarfieldModel(), gc);
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:59:        // 3. Render Game Entities inside Camera Space Matrix
 src\main\java\uni\gaben\iscat\universe\rendering\UniverseRenderer.java:61:        gc.translate(-cameraModel.getViewportLeftX(), 
 -cameraModel.getViewportTopY());
@@ -2883,9 +2883,9 @@ src\main\java\uni\gaben\iscat\view\IscatTitleBar.java:52:        leftCapsule.set
 src\main\java\uni\gaben\iscat\view\IscatTitleBar.java:53:        centerCapsule.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 src\main\java\uni\gaben\iscat\view\IscatTitleBar.java:54:        rightCapsule.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:1:package uni.gaben.iscat.view;
-src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:7:import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFXModel;
-src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:8:import uni.gaben.iscat.universe.rendering.starfield.StarfieldVFX;
-src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:9:import uni.gaben.iscat.universe.rendering.starfield.StarVFXModel;
+src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:7:import uni.gaben.iscat.universe.Starfield;
+src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:8:import uni.gaben.iscat.universe.rendering.StarfieldRenderer;
+src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:9:import uni.gaben.iscat.universe.Star;
 src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:21:    private final StarfieldView spaceView = new SkinnyStarfieldView(); // 
 Mantiene compatibilità strutturale
 src\main\java\uni\gaben\iscat\view\StarryBackgroundCanvas.java:54:                spaceView.setW(newWidth.doubleValue());

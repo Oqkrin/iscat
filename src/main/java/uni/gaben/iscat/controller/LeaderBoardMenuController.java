@@ -14,6 +14,7 @@ import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.utils.ComponentsUtils;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class LeaderBoardMenuController implements IscatMenuController {
 
         scoreDAO = IscatDB.getInstance().getScoreDAO();
 
-        applyIconButton(exitBtn, "fas-sign-out-alt");
+        ComponentsUtils.applyIconButton(exitBtn, "fas-sign-out-alt");
 
         // Ricarica la classifica quando il menu diventa visibile
         rootPane.visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
@@ -158,11 +159,6 @@ public class LeaderBoardMenuController implements IscatMenuController {
             case 3 -> "🥉 3°";
             default -> rank + "°";
         };
-    }
-
-    @Override
-    public void handleBack() {
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
     @FXML

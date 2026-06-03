@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.model.game.GameState;
+import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.game.GameView;
 
 public class GameOverMenuController implements IscatFxmlController {
@@ -19,13 +20,13 @@ public class GameOverMenuController implements IscatFxmlController {
 
     @FXML
     public void initialize() {
-        applyIconButton(retryBtn, "fas-redo");
-        applyIconButton(menuBtn,  "fas-home");
-        applyIconButton(quitBtn,  "fas-power-off");
+        ComponentsUtils.applyIconButton(retryBtn, "fas-redo");
+        ComponentsUtils.applyIconButton(menuBtn,  "fas-home");
+        ComponentsUtils.applyIconButton(quitBtn,  "fas-power-off");
 
-        setupButtonHoverTween(retryBtn);
-        setupButtonHoverTween(menuBtn);
-        setupButtonHoverTween(quitBtn);
+        ComponentsUtils.setupButtonHoverTween(retryBtn);
+        ComponentsUtils.setupButtonHoverTween(menuBtn);
+        ComponentsUtils.setupButtonHoverTween(quitBtn);
     }
 
     public void initData(GameController controller, GameView view) {
