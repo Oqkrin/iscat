@@ -100,8 +100,8 @@ public class ScoreMenuController implements IscatMenuController {
         ComponentsUtils.applyIconLabel(lblDamageTaken,   "fas-heart-broken");
         ComponentsUtils.applyIconLabel(lblDamageCaused,  "fas-crosshairs");
         ComponentsUtils.applyIconLabel(lblBoosts,        "fas-bolt");
-        applyIconLabel(lblTimesPlayed,   "fas-clock");
-        applyIconLabel(lblLongestTime,   "fas-hourglass-half");
+        ComponentsUtils.applyIconLabel(lblTimesPlayed,   "fas-clock");
+        ComponentsUtils.applyIconLabel(lblLongestTime,   "fas-hourglass-half");
 
         setupCornerMobs();
         loadInitialData();
