@@ -23,6 +23,7 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.enviroment.starfield.StarfieldView;
 import uni.gaben.iscat.universe.rendering.UniverseRenderer;
+import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
@@ -247,9 +248,10 @@ public class GameView extends AbstractIscatStackPane {
         super.onShow();
         transitionTo(GameState.PLAYING);
 
-        var currentSettings = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentSettings();
+        var currentSettings = SessionManager.getInstance().getCurrentSettings();
         if (currentSettings != null) {
             gameController.setShowFps(currentSettings.getShowFps() == 1);
+            gameController.setShowDebugMode(currentSettings.getDebugMode() == 1);
         }
 
         gameController.setDrawCall(

@@ -59,11 +59,9 @@ public class PauseMenuController implements IscatFxmlController {
     }
 
     public void syncVisualState() {
-        if (subDisplayController != null) {
-            if (gameController != null) {
-                subDisplayController.getCheckFps().setSelected(gameController.isFpsOn());
-                subDisplayController.getDebugModeCheck().setSelected(gameController.isDebugModeOn());
-            }
+        if (subDisplayController != null && gameController != null) {
+            subDisplayController.getCheckFps().setSelected(gameController.isFpsOn());
+            subDisplayController.getDebugModeCheck().setSelected(gameController.isDebugModeOn());
 
             if (resumeBtn != null && resumeBtn.getScene() != null) {
                 javafx.stage.Stage stage = (javafx.stage.Stage) resumeBtn.getScene().getWindow();

@@ -190,13 +190,12 @@ public class GameController {
 
     /** Quit to main menu: stop loop → reset (for a clean state on re-entry) → navigate. */
     public void quitToMainMenu() {
-        setShowDebugMode(false);
         stopGameLoop();
         gameModel.setPaused(false);
         saveStats();
-        resetUniverse();            // cleans up the world; loop stays stopped
+        resetUniverse();
         AudioManager.getInstance().stopBGM();
-
+        showDebugMode.set(false);
         if (contentRoot != null)
             IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }

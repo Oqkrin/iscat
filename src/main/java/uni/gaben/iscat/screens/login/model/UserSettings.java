@@ -2,6 +2,8 @@ package uni.gaben.iscat.screens.login.model;
 
 public class UserSettings {
     private final int userId;
+
+    // Controls
     private String walkUp;
     private String walkDown;
     private String walkLeft;
@@ -11,17 +13,35 @@ public class UserSettings {
     private String dash2;
     private String pauseGame;
 
+    // Audio
     private double volumeMaster;
     private double volumeBgm;
     private double volumeSfx;
 
+    // Display
     private int showFps = 0;
     private int fullscreen = 0;
+    private int debugMode = 0;
+
+    // Special Themes
+    private int lightmode = 0;
+    private int rainbowMode = 0;
+
+    // Themes
+    private String primaryTheme = "#FFFFFF";
+    private String secondaryTheme = "#FFFFFF";
+    private String tertiaryTheme = "#FFFFFF";
+    private String backgroundTheme = "#000000";
+
+    // Scale
+    private double scale;
 
     public UserSettings(int userId, String walkUp, String walkDown, String walkLeft, String walkRight,
                         String attack, String dash1, String dash2, String pauseGame,
                         double volumeMaster, double volumeBgm, double volumeSfx,
-                        int showFps, int fullscreen) {
+                        int showFps, int fullscreen, int debugMode, int lightmode, int rainbowMode,
+                        String primaryTheme, String secondaryTheme, String tertiaryTheme, String backgroundTheme,
+                        double scale) {
         this.userId = userId;
         this.walkUp = walkUp;
         this.walkDown = walkDown;
@@ -36,6 +56,14 @@ public class UserSettings {
         this.volumeSfx = volumeSfx;
         this.showFps = showFps;
         this.fullscreen = fullscreen;
+        this.debugMode = debugMode;
+        this.lightmode = lightmode;
+        this.rainbowMode = rainbowMode;
+        this.primaryTheme = primaryTheme;
+        this.secondaryTheme = secondaryTheme;
+        this.tertiaryTheme = tertiaryTheme;
+        this.backgroundTheme = backgroundTheme;
+        this.scale = scale;
     }
 
     public int getUserId() { return userId; }
@@ -78,4 +106,28 @@ public class UserSettings {
 
     public int getFullscreen() { return fullscreen; }
     public void setFullscreen(int fullscreen) { this.fullscreen = fullscreen; }
+
+    public int getDebugMode() { return debugMode; }
+    public void setDebugMode(int debugMode) { this.debugMode = debugMode; }
+
+    public int getLightmode() { return lightmode; }
+    public void setLightmode(int lightmode) { this.lightmode = lightmode; }
+
+    public int getRainbowMode() { return rainbowMode; }
+    public void setRainbowMode(int rainbowMode) { this.rainbowMode = rainbowMode; }
+
+    public String getPrimaryTheme() { return primaryTheme; }
+    public void setPrimaryTheme(String primaryTheme) { this.primaryTheme = primaryTheme; }
+
+    public String getSecondaryTheme() { return secondaryTheme; }
+    public void setSecondaryTheme(String secondaryTheme) { this.secondaryTheme = secondaryTheme; }
+
+    public String getTertiaryTheme() { return tertiaryTheme; }
+    public void setTertiaryTheme(String tertiaryTheme) { this.tertiaryTheme = tertiaryTheme; }
+
+    public String getBackgroundTheme() { return backgroundTheme; }
+    public void setBackgroundTheme(String backgroundTheme) { this.backgroundTheme = backgroundTheme; }
+
+    public double getScale() { return scale; }
+    public void setScale(double scale) { this.scale = scale; }
 }

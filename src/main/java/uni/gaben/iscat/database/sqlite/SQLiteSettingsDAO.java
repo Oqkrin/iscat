@@ -29,6 +29,15 @@ public class SQLiteSettingsDAO implements SettingsDAO {
                     int showFps = rs.getInt("ShowFPS");
                     int fullscreen = rs.getInt("Fullscreen");
 
+                    int debugMode = rs.getInt("DebugMode");
+                    int lightmode = rs.getInt("Lightmode");
+                    int rainbowMode = rs.getInt("RainbowMode");
+                    String primaryTheme = rs.getString("PrimaryTheme");
+                    String secondaryTheme = rs.getString("SecondaryTheme");
+                    String tertiaryTheme = rs.getString("TertiaryTheme");
+                    String backgroundTheme = rs.getString("BackgroundTheme");
+                    double scale = rs.getInt("Scale") / 100.0;
+
                     return Optional.of(new UserSettings(
                             rs.getInt("UserID"),
                             rs.getString("WalkUp"),
@@ -43,7 +52,15 @@ public class SQLiteSettingsDAO implements SettingsDAO {
                             bgm,
                             sfx,
                             showFps,
-                            fullscreen
+                            fullscreen,
+                            debugMode,
+                            lightmode,
+                            rainbowMode,
+                            primaryTheme,
+                            secondaryTheme,
+                            tertiaryTheme,
+                            backgroundTheme,
+                            scale
                     ));
                 }
             }
@@ -75,8 +92,8 @@ public class SQLiteSettingsDAO implements SettingsDAO {
 
     @Override
     public void updateDisplaySetting(int userId, String columnName, int value) {
-        if (columnName == null || !columnName.matches("(?i)ShowFPS|Fullscreen")) {
-            throw new IllegalArgumentException("Colonna display non valida: " + columnName);
+        if (columnName == null || !columnName.matches("(?i)ShowFPS|Fullscreen|DebugMode|Lightmode|RainbowMode")) {
+            throw new IllegalArgumentException("Colonna display/stato non valida: " + columnName);
         }
 
         String sql = "UPDATE ImpostazioniUtenti SET " + columnName + " = ? WHERE UserID = ?";
@@ -106,6 +123,23 @@ public class SQLiteSettingsDAO implements SettingsDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Errore durante l'aggiornamento del controllo " + columnName + " per utente: " + userId, e);
+        }
+    }
+
+    public void updateThemeSetting(int userId, String columnName, String hexColor) {
+        if (columnName == null || !columnName.matches("(?i)PrimaryTheme|SecondaryTheme|TertiaryTheme|BackgroundTheme")) {
+            throw new IllegalArgumentException("Colonna tema non valida: " + columnName);
+        }
+
+        String sql = "UPDATE ImpostazioniUtenti SET " + columnName + " = ? WHERE UserID = ?";
+        try (Connection conn = IscatDB.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, hexColor);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore nell'aggiornare la colonna tema " + columnName, e);
         }
     }
 
@@ -152,8 +186,10 @@ public class SQLiteSettingsDAO implements SettingsDAO {
         (UserID, WalkUp, WalkDown, WalkLeft, WalkRight, 
                Attack, Dash1, Dash2, PauseGame, 
                MasterVolume, BGMVolume, SFXVolume, 
-               Scale, ShowFPS, Fullscreen) 
-        VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'Q', 'E', 'P', 50, 50, 30, 50, 0, 1)
+               Scale, ShowFPS, Fullscreen,
+               DebugMode, Lightmode, RainbowMode,
+               PrimaryTheme, SecondaryTheme, TertiaryTheme, BackgroundTheme) 
+        VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'Q', 'E', 'P', 50, 50, 30, 50, 0, 1, 0, 0, 0, '#FFFFFF', '#FFFFFF', '#FFFFFF', '#000000')
         """;
         try (Connection conn = IscatDB.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

@@ -20,11 +20,14 @@ public class OptionDisplayController {
         if (settings != null) {
             checkFps.setSelected(settings.getShowFps() == 1);
             FullscreenCheck.setSelected(settings.getFullscreen() == 1);
+            if (DebugModeCheck != null) {
+                DebugModeCheck.setSelected(settings.getDebugMode() == 1);
+            }
         }
     }
 
     /**
-     * Sincronizza in modo sicuro ed efficiente lo stato del Fullscreen tra Finestra e Database.
+     * Sincronizza in modo sicuro ed efficiente lo stato del pannello video tra Finestra e Database.
      */
     public void bindDisplayProperties(Stage stage) {
         if (stage == null) return;
@@ -37,6 +40,9 @@ public class OptionDisplayController {
             }
             if (FullscreenCheck != null) {
                 FullscreenCheck.setSelected(stage.isFullScreen());
+            }
+            if (DebugModeCheck != null) {
+                DebugModeCheck.setSelected(settings.getDebugMode() == 1);
             }
         } else if (FullscreenCheck != null) {
             FullscreenCheck.setSelected(stage.isFullScreen());
@@ -86,6 +92,15 @@ public class OptionDisplayController {
 
     @FXML
     void toggleDebugMode(ActionEvent event) {
+        UserSettings settings = SessionManager.getInstance().getCurrentSettings();
+        if (settings != null && DebugModeCheck != null) {
+            int debugValue = DebugModeCheck.isSelected() ? 1 : 0;
+            settings.setDebugMode(debugValue);
+
+            IscatDB.getInstance().executeAsync(() ->
+                    IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "DebugMode", debugValue)
+            );
+        }
     }
 
     public javafx.scene.control.CheckBox getCheckFps() {
@@ -96,5 +111,7 @@ public class OptionDisplayController {
         return DebugModeCheck;
     }
 
-    public javafx.scene.control.CheckBox getFullscreenCheck() {return FullscreenCheck; }
+    public javafx.scene.control.CheckBox getFullscreenCheck() {
+        return FullscreenCheck;
+    }
 }
