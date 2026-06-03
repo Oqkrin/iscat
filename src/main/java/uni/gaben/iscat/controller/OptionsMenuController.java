@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller.components.options;
+package uni.gaben.iscat.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -7,8 +7,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.controller.components.options.*;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.controller.IscatMenuController;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 
 public class OptionsMenuController implements IscatMenuController {
