@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller.components;
+package uni.gaben.iscat.controller;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -13,7 +13,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.controller.IscatMenuController;
 import uni.gaben.iscat.universe.player.PlayerSettings;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 

@@ -8,6 +8,8 @@ import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.universe.player.PlayerSettings;
+import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 public class MainMenuController implements IscatFxmlController {
 
@@ -19,6 +21,7 @@ public class MainMenuController implements IscatFxmlController {
     @FXML private Button logoutButton;
     @FXML private Button quitButton;
     @FXML private Button leaderboardButton;
+    AnimatedCanvas skin = new AnimatedCanvas(128);
 
     private StackPane contentRoot;
 
@@ -49,9 +52,18 @@ public class MainMenuController implements IscatFxmlController {
 
     private void setIcon(Button btn, String iconCode) {
         if (btn == null) return;
-        FontIcon icon = new FontIcon(iconCode);
-        icon.iconSizeProperty().bind(btn.textProperty().length().multiply(10));
-        btn.setGraphic(icon);
+        if(!iconCode.equals("fas-gift")) {
+            FontIcon icon = new FontIcon(iconCode);
+            icon.iconSizeProperty().bind(btn.textProperty().length().multiply(10));
+            btn.setGraphic(icon);
+        } else {
+            PlayerSettings.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
+                skin.loadSkin(newValue, 32, 32);
+            });
+            skin.loadSkin(PlayerSettings.getPlayerSkin(), 32, 32);
+
+            btn.setGraphic(skin);
+        }
         btn.setContentDisplay(ContentDisplay.TOP);
     }
 
