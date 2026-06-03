@@ -49,6 +49,11 @@ public class IscatWindowController {
         this.iscatTitleBar = iscatTitleBar;
 
         model.pinnedProperty().addListener((obs, old, isPinned) -> syncWindowState());
+        model.fullscreenProperty().addListener((obs, old, isFsNow) -> {
+            if (stage.isFullScreen() != isFsNow) {
+                stage.setFullScreen(isFsNow);
+            }
+        });
         wireCustomDecoration();
         initializeWindow();
     }
@@ -161,7 +166,12 @@ public class IscatWindowController {
         iscatTitleBar.fullscreenBtn.setOnAction(e -> stage.setFullScreen(!stage.isFullScreen()));
         iscatTitleBar.pinBtn.setOnAction(e -> stage.setAlwaysOnTop(!stage.isAlwaysOnTop()));
 
-        stage.fullScreenProperty().addListener((obs, wasFs, isFs) -> handleFullscreenBar(isFs));
+        stage.fullScreenProperty().addListener((obs, wasFs, isFs) -> {
+            if (model.isFullscreen() != isFs) {
+                model.setFullscreen(isFs);
+            }
+            handleFullscreenBar(isFs);
+        });
     }
 
     private void handleFullscreenBar(boolean isFs) {

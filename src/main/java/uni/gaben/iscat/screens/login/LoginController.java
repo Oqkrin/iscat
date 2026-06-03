@@ -2,6 +2,7 @@ package uni.gaben.iscat.screens.login;
 
 import javafx.application.Platform;
 import javafx.scene.input.KeyEvent;
+import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.database.dao.SettingsDAO;
@@ -11,6 +12,7 @@ import uni.gaben.iscat.screens.login.model.LoginState;
 import uni.gaben.iscat.screens.login.model.SessionUser;
 import uni.gaben.iscat.screens.scores.SaveData;
 import uni.gaben.iscat.screens.login.model.UserSettings;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
 
 import java.util.Optional;
@@ -138,6 +140,7 @@ public class LoginController {
                 SessionManager.getInstance().setCurrentUser(result.user());
                 SessionManager.getInstance().setCurrentSettings(result.settings());
                 SessionManager.getInstance().setCurrentSaveData(result.saveData());
+                applyLoadedSettings(result.settings());
                 model.setStatus(result.message());
                 model.setLoggedIn(true);
             } else {
@@ -176,6 +179,20 @@ public class LoginController {
     private record LoginResult(SessionUser user, UserSettings settings, SaveData saveData, String message, boolean isSuccess) {
         public LoginResult(SessionUser u, UserSettings s, SaveData d, String m) { this(u, s, d, m, true); }
         public LoginResult(String err) { this(null, null, null, err, false); }
+    }
+
+    private void applyLoadedSettings(UserSettings settings) {
+        if (settings == null) return;
+
+        // AUDIO
+        AudioManager audio = uni.gaben.iscat.utils.AudioManager.getInstance();
+        audio.setMasterVolume(settings.getVolumeMaster());
+        audio.setBgmVolume(settings.getVolumeBgm());
+        audio.setSfxVolume(settings.getVolumeSfx());
+
+        // FULLSCREEN
+        boolean goFullscreen = (settings.getFullscreen() == 1);
+        IscatNavigator.getInstance().getModel().setFullscreen(goFullscreen);
     }
 
 

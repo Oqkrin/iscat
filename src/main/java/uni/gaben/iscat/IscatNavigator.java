@@ -18,6 +18,8 @@ public class IscatNavigator {
         return instance;
     }
 
+    public IscatModel getModel() { return model; }
+
     public void initialize(IscatModel model) {
         this.model = model;
     }

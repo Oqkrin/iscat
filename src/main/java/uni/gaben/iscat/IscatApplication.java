@@ -78,6 +78,8 @@ public class IscatApplication extends Application {
         IscatUtils.roundRectangle(iscatApplicationRoot, IscatSettings.BORDER_RADIUS);
         addIscatStyles(iscatRootScene);
 
+        iscatWindowBorderOverlay.visibleProperty().bind(iscatModel.fullscreenProperty().not());
+
         iscatWindowController = new IscatWindowController(iscatModel, stage, iscatRootScene, iscatTitleBar);
         iscatViewController = new IscatViewController(iscatModel, iscatContentRoot);
         iscatViewController.showInitialView(IscatViews.LOGIN_MENU);

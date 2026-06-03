@@ -80,6 +80,21 @@ public class OptionsMenuController implements IscatMenuController {
         else IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
+    public void initGameContext(uni.gaben.iscat.screens.game.controller.GameController gameController) {
+        if (gameController == null || subDisplayController == null) return;
+
+        // Allinea lo stato iniziale dei checkbox con lo stato del gioco
+        subDisplayController.getCheckFps().setSelected(gameController.isFpsOn());
+        subDisplayController.getDebugModeCheck().setSelected(gameController.isDebugModeOn());
+
+        // Aggiunge listener reattivi per aggiornare il gioco in tempo reale al click
+        subDisplayController.getCheckFps().selectedProperty().addListener((obs, oldV, newV) ->
+                gameController.setShowFps(newV));
+
+        subDisplayController.getDebugModeCheck().selectedProperty().addListener((obs, oldV, newV) ->
+                gameController.setShowDebugMode(newV));
+    }
+
     @FXML
     void handleBackAction(ActionEvent event) { handleBack(); }
 

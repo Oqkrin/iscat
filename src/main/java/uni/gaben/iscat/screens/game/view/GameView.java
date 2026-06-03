@@ -241,6 +241,11 @@ public class GameView extends AbstractIscatStackPane {
         super.onShow();
         transitionTo(GameState.PLAYING);
 
+        var currentSettings = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentSettings();
+        if (currentSettings != null) {
+            gameController.setShowFps(currentSettings.getShowFps() == 1);
+        }
+
         gameController.setDrawCall(
                 () -> universeRenderer.renderFrame(timerCanvas, starryTimer, debugPanelVisible));
         gameController.getInputManager().attachToScene(this.getScene());
@@ -342,7 +347,10 @@ public class GameView extends AbstractIscatStackPane {
         transitionTo(GameState.IN_OPTIONS);
         final StackPane[] wrapper = new StackPane[1];
         wrapper[0] = loadFxml("/uni/gaben/iscat/fxml/options/options_menu.fxml",
-                (OptionsMenuController c) -> c.setCustomBackAction(() -> closeOptions(wrapper[0])));
+                (OptionsMenuController c) -> {
+                    c.initGameContext(gameController);
+                    c.setCustomBackAction(() -> closeOptions(wrapper[0]));
+                });
         wrapper[0].getStyleClass().add("game-pause-overlay");
         root.getChildren().add(wrapper[0]);
     }
