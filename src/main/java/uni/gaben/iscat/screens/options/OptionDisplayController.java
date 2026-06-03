@@ -26,28 +26,38 @@ public class OptionDisplayController {
     /**
      * Sincronizza in modo sicuro ed efficiente lo stato del Fullscreen tra Finestra e Database.
      */
-    public void bindFullscreenProperty(Stage stage) {
-        if (stage == null || FullscreenCheck == null) return;
+    public void bindDisplayProperties(Stage stage) {
+        if (stage == null) return;
 
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
-        if (stage.getScene() != null && stage.getScene().getWindow() != null) {
+        if (settings != null) {
+            if (checkFps != null) {
+                checkFps.setSelected(settings.getShowFps() == 1);
+            }
+            if (FullscreenCheck != null) {
+                FullscreenCheck.setSelected(stage.isFullScreen());
+            }
+        } else if (FullscreenCheck != null) {
             FullscreenCheck.setSelected(stage.isFullScreen());
         }
+
+        if (FullscreenCheck == null) return;
 
         stage.fullScreenProperty().addListener((obs, oldVal, newVal) -> {
             if (FullscreenCheck.isSelected() != newVal) {
                 FullscreenCheck.setSelected(newVal);
             }
 
-            if (settings != null && FullscreenCheck.getScene() != null && FullscreenCheck.getScene().getWindow() != null) {
+            UserSettings currentSettings = SessionManager.getInstance().getCurrentSettings();
+            if (currentSettings != null && FullscreenCheck.getScene() != null && FullscreenCheck.getScene().getWindow() != null) {
                 int fsValue = newVal ? 1 : 0;
 
-                if (settings.getFullscreen() != fsValue) {
-                    settings.setFullscreen(fsValue);
+                if (currentSettings.getFullscreen() != fsValue) {
+                    currentSettings.setFullscreen(fsValue);
 
                     IscatDB.getInstance().executeAsync(() ->
-                            IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "Fullscreen", fsValue)
+                            IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(currentSettings.getUserId(), "Fullscreen", fsValue)
                     );
                 }
             }
@@ -68,9 +78,6 @@ public class OptionDisplayController {
         if (settings != null) {
             int fpsValue = checkFps.isSelected() ? 1 : 0;
             settings.setShowFps(fpsValue);
-
-            // TODO: connettere al game
-
             IscatDB.getInstance().executeAsync(() ->
                     IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "ShowFPS", fpsValue)
             );

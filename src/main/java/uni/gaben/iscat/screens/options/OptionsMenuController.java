@@ -33,6 +33,8 @@ public class OptionsMenuController implements IscatMenuController {
 
         registerEscHandler();
 
+        syncAllProperties();
+
         getRootPane().sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
@@ -49,15 +51,26 @@ public class OptionsMenuController implements IscatMenuController {
                     }
                 });
 
-                Stage stage = (Stage) newScene.getWindow();
-                if (subDisplayController != null && stage != null) {
-                    subDisplayController.bindFullscreenProperty(stage);
-                }
-                if (subThemeController != null) {
-                    subThemeController.applyManualColorChanges();
-                }
+                syncAllProperties();
             }
         });
+    }
+
+    public void syncAllProperties() {
+        if (subAudioController != null) {
+            subAudioController.bindAudioProperties();
+        }
+
+        if (subDisplayController != null && getRootPane().getScene() != null) {
+            Stage stage = (Stage) getRootPane().getScene().getWindow();
+            if (stage != null) {
+                subDisplayController.bindDisplayProperties(stage);
+            }
+        }
+
+        if (subThemeController != null && getRootPane().getScene() != null) {
+            subThemeController.applyManualColorChanges();
+        }
     }
 
     @Override

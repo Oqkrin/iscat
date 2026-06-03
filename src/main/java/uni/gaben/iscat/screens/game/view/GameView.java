@@ -356,6 +356,7 @@ public class GameView extends AbstractIscatStackPane {
                 (OptionsMenuController c) -> {
                     c.initGameContext(gameController);
                     c.setCustomBackAction(() -> closeOptions(wrapper[0]));
+                    c.syncAllProperties();
                 });
         wrapper[0].getStyleClass().add("game-pause-overlay");
         root.getChildren().add(wrapper[0]);
