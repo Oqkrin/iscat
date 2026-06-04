@@ -37,7 +37,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "iscat_mob":
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS,
+                        settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),
@@ -50,7 +50,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "iscat_bomber":
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS,
+                        settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         new SummonPatternShooter(3, "BLACKHOLE", settings.detectionRange),
                         Target.ofPlayer(),
