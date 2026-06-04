@@ -48,6 +48,15 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_bomber":
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS,
+                        ProjectileType.ENEMY_BULLET,
+                        new SummonPatternShooter(3, "BLACKHOLE", settings.detectionRange),
+                        Target.ofPlayer(),
+                        true
+
+                ));
                 break;
 
             case "iscat_core":
@@ -116,7 +125,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),
-                        false
+                        true
                 ));
                 break;
 
@@ -124,7 +133,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_healer":
-                addAction(new HealAction(settings.actionCooldownMS / 500, settings.combatRange, 10));
+                addAction(new HealAction(settings.actionCooldownMS, settings.combatRange, settings.initLife/10));
                 break;
 
             default:
@@ -134,7 +143,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),
-                        false
+                        true
                 ));
                 break;
         }
