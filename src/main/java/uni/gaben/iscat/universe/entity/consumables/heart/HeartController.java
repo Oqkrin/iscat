@@ -34,9 +34,9 @@ public class HeartController extends Brain<HeartModel> {
         if (heart == null || heart.shouldRemove() || collected) return;
         super.update(universe, dt);
         if(universe.getPlayer().getTransform().getTranslation().distance(heart.getTransform().getTranslation()) < 3) {
-            setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), 0));
+            setMovementGoal(SteeringGoal.pursuit(Target.ofPlayer(), 0));
         } else {
-            setSteeringGoal(SteeringGoal.idle());
+            setMovementGoal(SteeringGoal.idle());
         }
     }
 
