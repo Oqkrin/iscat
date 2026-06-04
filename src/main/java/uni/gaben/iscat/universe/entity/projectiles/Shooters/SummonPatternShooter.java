@@ -1,10 +1,9 @@
 package uni.gaben.iscat.universe.entity.projectiles.Shooters;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.UniverseSpawnable;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel; // Importiamo il player
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
@@ -12,16 +11,16 @@ import uni.gaben.iscat.universe.UU;
 
 import java.util.function.Consumer;
 
-/** Evoca n entità nel raggio indicato */
+/** Evoca n entità nel raggio indicato usando l'ID del Database */
 public class SummonPatternShooter implements PatternShooter {
 
     private final int count;
-    private final UniverseSpawnable type;
+    private final String enemyId;
     private final double spawnRadiusPx;
 
-    public SummonPatternShooter(int count, UniverseSpawnable type, double spawnRadiusPx) {
+    public SummonPatternShooter(int count, String enemyId, double spawnRadiusPx) {
         this.count = count;
-        this.type = type;
+        this.enemyId = enemyId;
         this.spawnRadiusPx = spawnRadiusPx;
     }
 
@@ -29,11 +28,9 @@ public class SummonPatternShooter implements PatternShooter {
     public void execute(Shooter<?> shooter, ProjectileType pType, double angle, Consumer<Projectile> customizer) {
         var model = shooter.getModel();
 
-        // GESTIONE ANIMAZIONI
         if (model instanceof IscatMasterModel master) {
             master.setAnimationState(IscatMasterModel.AnimationState.ATTACK3);
         } else if (model instanceof PlayerModel player) {
-            // ...
         }
 
         Vector2 originPos = model.getTransform().getTranslation();
@@ -41,14 +38,12 @@ public class SummonPatternShooter implements PatternShooter {
         double angleStep = (2.0 * Math.PI) / count;
 
         for (int i = 0; i < count; i++) {
-            // Usiamo l'angolo di puntamento (angle) come offset iniziale,
-            // così i minion spawnano orientati rispetto a dove guarda il player!
             double currentAngle = angle + (i * angleStep);
 
             double spawnX = UU.mToPx(originPos.x + Math.cos(currentAngle) * spawnRadiusM);
             double spawnY = UU.mToPx(originPos.y + Math.sin(currentAngle) * spawnRadiusM);
 
-            UniverseSpawner.getInstance().spawn(type, spawnX, spawnY);
+            UniverseSpawner.getInstance().spawn(enemyId, spawnX, spawnY);
         }
     }
 }
