@@ -52,7 +52,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "iscat_core":
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS,
+                        settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         new MultiDirectionPatternShooter(4, 0, new ParallelLinePatternShooter(3, 30)),
                         Target.ofPlayer(),
