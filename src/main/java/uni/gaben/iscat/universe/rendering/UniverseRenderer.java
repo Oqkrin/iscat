@@ -91,9 +91,24 @@ public class UniverseRenderer {
         gc.translate(w / 2 - camera.getX() * zoom, h / 2 - camera.getY() * zoom);
         gc.scale(zoom, zoom);
 
+        // CALCOLO DEI CONFINI DELLA VISUALE (In World Pixels)
+        // Invertiamo la matrice di traslazione del canvas per scoprire dove cadono i bordi dello schermo nel mondo
+        double halfViewW = (w / 2.0) / zoom;
+        double halfViewH = (h / 2.0) / zoom;
+        double minX = camera.getX() - halfViewW;
+        double maxX = camera.getX() + halfViewW;
+        double minY = camera.getY() - halfViewH;
+        double maxY = camera.getY() + halfViewH;
+
         boolean debug = debugPanelVisible && gameController.isDebugModeOn();
         List<AbstractEntityModel> snapshot = new ArrayList<>(universe.getEntities());
         for (AbstractEntityModel entity : snapshot) {
+
+            //  FILTRO CULLING: Se l'entità è fuori dai confini calcolati, non perdere tempo a disegnarla
+            if (!entity.isInsideViewport(minX, maxX, minY, maxY)) {
+                continue;
+            }
+
             EntityRenderer.draw(entity, gc);
             if (debug) VFXRenderer.drawDebugCollision(entity, gc);
         }

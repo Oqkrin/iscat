@@ -56,6 +56,23 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
         }
     }
 
+    /**
+     * Verifica se l'entità interseca l'area visibile dello schermo (in World Pixels).
+     * Sfrutta un raggio di tolleranza basato sulla dimensione massima per evitare pop-in taglienti.
+     */
+    public boolean isInsideViewport(double minX, double maxX, double minY, double maxY) {
+        // Trasformiamo la posizione fisica (metri) dell'entità in world pixels
+        double cx = uni.gaben.iscat.universe.UU.mToPx(this.getTransform().getTranslationX());
+        double cy = uni.gaben.iscat.universe.UU.mToPx(this.getTransform().getTranslationY());
+
+        // Margine di tolleranza per evitare il pop-in visivo sui bordi
+        double padding = Math.max(getWidthPx(), getHeightPx());
+
+        // Verifica intersezione dei rettangoli (AABB)
+        return (cx + padding >= minX) && (cx - padding <= maxX) &&
+                (cy + padding >= minY) && (cy - padding <= maxY);
+    }
+
     /** Calcola la larghezza totale racchiusa dalla shape di collisione (in Metri) */
     public double getWidthMeters() {
         if (getFixtureCount() == 0) return 0.0;
