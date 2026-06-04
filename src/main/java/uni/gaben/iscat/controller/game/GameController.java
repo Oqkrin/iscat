@@ -12,14 +12,13 @@ import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.SessionScoreTracker;
 
 public class GameController {
 
     private final GameModel gameModel;
     private final GameInputsHandler inputs = new GameInputsHandler();
     private final GameStatsManager statsManager = new GameStatsManager();
-    private final GameResetManager resetManager;
-
     private UniverseController universeController;
     private UniverseWaveController waveController;
     private AnimationTimer gameLoop;
@@ -33,8 +32,6 @@ public class GameController {
     public GameController(GameModel gameModel) {
         this.gameModel = gameModel;
 
-        // Fix 1: Pass the whole GameModel to ResetManager
-        this.resetManager = new GameResetManager(gameModel, statsManager);
         this.universeController = new UniverseController(gameModel.getUniverseModel());
         this.waveController = new UniverseWaveController();
 
@@ -119,22 +116,44 @@ public class GameController {
             canvasH = UniverseSettings.DEFAULT_HEIGHT;
         }
 
-        // Resets UniverseModel entirely
-        resetManager.reset(canvasW, canvasH);
-        // Reset game loop timing and input flags
-        inputs.resetInputs();
-        gameModel.startProperty().set(-1);    // forces timer restart
-        gameModel.setLastUpdate(0);           // avoids delta spike
-        gameModel.setTotalElapsedSeconds(0.0);
+        // 1. Reset the universe model (fresh physics world)
+        gameModel.resetUniverse();
+        UniverseModel freshUniverse = gameModel.getUniverseModel();
+        freshUniverse.setDimensions(canvasW, canvasH);
+        freshUniverse.getStarfieldModel().generate(canvasW, canvasH);
 
-        // Re-wire the universe controller and wave controller after reset
-        this.universeController = new UniverseController(getUniverseModel());
+        // 2. Create brand new controllers for the fresh universe
+        this.universeController = new UniverseController(freshUniverse);
         this.waveController = new UniverseWaveController();
         waveController.reset();
-        UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
 
-        // Re-attach death callback
-        getUniverseModel().getPlayer().setOnDeathCallback(this::onPlayerDeath);
+        // 3. Re‑initialise the UniverseSpawner with the new universe and controllers
+        UniverseSpawner.getInstance().init(freshUniverse, universeController, waveController);
+
+        // 4. Spawn player and asteroids (spawner now points to the fresh universe)
+        double midX = canvasW / 2.0;
+        double midY = canvasH / 2.0;
+        UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+        UniverseSpawner.getInstance().spawnInitialAsteroidBelts(midX, midY);
+
+        // 5. Reset camera springs to the new player position
+        CameraModel camera = getCameraModel();
+        camera.getSpringX().setPosition(midX);
+        camera.getSpringY().setPosition(midY);
+        camera.getSpringX().snap();
+        camera.getSpringY().snap();
+
+        // 6. Re‑attach death callback (player is guaranteed to exist now)
+        freshUniverse.getPlayer().setOnDeathCallback(this::onPlayerDeath);
+
+        // 7. Reset input flags and game loop timing
+        inputs.resetInputs();
+        gameModel.startProperty().set(-1);
+        gameModel.setLastUpdate(0);
+        gameModel.setTotalElapsedSeconds(0.0);
+
+        // 8. Reset session score tracker (previously done inside GameResetManager)
+        SessionScoreTracker.getInstance().reset();
 
         if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
