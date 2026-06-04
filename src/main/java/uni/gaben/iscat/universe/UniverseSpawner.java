@@ -53,7 +53,6 @@ public class UniverseSpawner {
                         case ASTEROID          -> spawnEntity(new AsteroidModel(x, y, 50)); // simplified, adjust as needed
             case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
-            case ISCAT_HEALER      -> spawnCustomRuntimeEntity("iscat_healer", x, y);
             case ISCAT_MASTER      -> spawnIscatMaster(x, y);
             case WORM              -> spawnWorm(x, y);
             case PROJECTILE        -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");

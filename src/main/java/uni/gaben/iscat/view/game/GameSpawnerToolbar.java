@@ -112,7 +112,11 @@ public class GameSpawnerToolbar extends StackPane {
     }
 
     private Button createSpawnButton(String text) {
-        Button btn = new Button(text);
+        String formattedText = text.replace("_", " ")
+                .replace("-", " ")
+                .toUpperCase();
+
+        Button btn = new Button(formattedText);
         btn.setPrefHeight(34);
         btn.setMinWidth(120);
         btn.setFocusTraversable(false);
