@@ -21,35 +21,37 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Controller per la schermata del Bestiario.
- * Gestisce l'interfaccia grafica JavaFX per la selezione, la visualizzazione animata
- * dei render grafici (sprite) e la formattazione dei dati strutturali e di sessione dei nemici.
- */
 public class BestiaryMenuController implements IscatMenuController {
 
-    /**
-     * Rappresenta le tre modalità (tab) di visualizzazione delle informazioni testuali.
-     */
     private enum InfoMode {
         DESCRIPTION, STATS, EXTRA
     }
 
-    private final BestiaryModel bestiaryModel = new BestiaryModel();
-    private Map<String, GenericEntitySettings> enemies = new LinkedHashMap<>();
+    private enum CategoryMode {
+        ENEMIES, PLAYERS
+    }
 
-    private static final double DISPLAY_SIZE = 160.0; // Dimensione canvas di anteprima principale
-    private static final double ICON_SIZE = 32.0;     // Dimensione icone animate nei pulsanti della lista
+    private final BestiaryModel bestiaryModel = new BestiaryModel();
+    private Map<String, GenericEntitySettings> rawEnemiesMap = new LinkedHashMap<>();
+
+    private final Map<String, GenericEntitySettings> filteredEnemies = new LinkedHashMap<>();
+
+    private static final double DISPLAY_SIZE = 160.0;
+    private static final double ICON_SIZE = 32.0;
 
     private String currentEnemyId = null;
     private InfoMode currentInfoMode = InfoMode.DESCRIPTION;
+
+    private CategoryMode currentCategory = CategoryMode.ENEMIES;
 
     @FXML private StackPane previewContainer;
     @FXML private Label skinNameLabel;
     @FXML private Label rightCardHeader;
     @FXML private TextArea description;
     @FXML private VBox enemyButtonsBox;
+    @FXML private Label listHeaderLabel;
 
+    @FXML private Button btnToggleCategory;
     @FXML private Button btnRandom;
     @FXML private Button btnDescription;
     @FXML private Button btnStats;
@@ -60,10 +62,6 @@ public class BestiaryMenuController implements IscatMenuController {
     private AnimatedCanvas previewCanvas;
     private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
 
-    /**
-     * Inizializza i componenti grafici della UI, applica i font delle icone, registra
-     * il listener sui dati di sessione ed esegue il primo caricamento del bestiario.
-     */
     @FXML
     public void initialize() {
         previewCanvas = new AnimatedCanvas(DISPLAY_SIZE);
@@ -72,26 +70,20 @@ public class BestiaryMenuController implements IscatMenuController {
         description.setEditable(false);
         description.setWrapText(true);
 
-        // Applicazione icone grafiche ai pulsanti di navigazione/tab
-        ComponentsUtils.applyIconButton(btnRandom,      "fas-dice");
-        ComponentsUtils.applyIconButton(btnDescription, "fas-book");
-        ComponentsUtils.applyIconButton(btnStats,       "fas-chart-bar");
-        ComponentsUtils.applyIconButton(btnExtra,       "fas-info-circle");
-        ComponentsUtils.applyIconButton(btnBack,        "fas-arrow-left");
+        ComponentsUtils.applyIconButton(btnToggleCategory, "fas-exchange-alt");
+        ComponentsUtils.applyIconButton(btnRandom,         "fas-dice");
+        ComponentsUtils.applyIconButton(btnDescription,    "fas-book");
+        ComponentsUtils.applyIconButton(btnStats,          "fas-chart-bar");
+        ComponentsUtils.applyIconButton(btnExtra,          "fas-info-circle");
+        ComponentsUtils.applyIconButton(btnBack,           "fas-arrow-left");
 
-        // Aggiorna la UI se si verifica un salvataggio in background o un cambio utente
         SessionManager.getInstance().saveDataProperty().addListener((obs, old, data) -> {
             refreshBestiary();
         });
 
         refreshBestiary();
-        registerEscHandler();
     }
 
-    /**
-     * Recupera l'utente in sessione, ricarica le mappe dal database tramite BestiaryModel
-     * e rigenera i pulsanti, mantenendo la selezione sul nemico precedentemente visualizzato.
-     */
     private void refreshBestiary() {
         int userId = 0;
         SessionUser user = SessionManager.getInstance().getCurrentUser();
@@ -101,30 +93,70 @@ public class BestiaryMenuController implements IscatMenuController {
 
         String previousSelection = currentEnemyId;
 
-        // Caricamento dei record dal DB
-        enemies = bestiaryModel.loadEnemies(userId);
-        createEnemyButtons();
+        rawEnemiesMap = bestiaryModel.loadEnemies(userId);
 
-        // Ripristino selezione o fallback sul primo elemento della mappa
-        if (!enemies.isEmpty()) {
-            if (previousSelection != null && enemies.containsKey(previousSelection)) {
+        applyFilterAndRebuildUI();
+
+        if (!filteredEnemies.isEmpty()) {
+            if (previousSelection != null && filteredEnemies.containsKey(previousSelection)) {
                 showEnemyById(previousSelection);
             } else {
-                String firstEnemyId = enemies.keySet().iterator().next();
-                showEnemyById(firstEnemyId);
+                String firstId = filteredEnemies.keySet().iterator().next();
+                showEnemyById(firstId);
             }
         }
     }
 
-    /**
-     * Genera dinamicamente la lista verticale di pulsanti nel VBox.
-     * Applica maschere oscurate ("???") e sprite generici se l'entità risulta ancora bloccata.
-     */
+    private void applyFilterAndRebuildUI() {
+        filteredEnemies.clear();
+
+        for (Map.Entry<String, GenericEntitySettings> entry : rawEnemiesMap.entrySet()) {
+            String key = entry.getKey().toLowerCase().trim();
+
+            boolean isPlayerEntity = key.contains("player") || entry.getValue().name.toLowerCase().contains("player");
+
+            if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity) {
+                filteredEnemies.put(entry.getKey(), entry.getValue());
+            } else if (currentCategory == CategoryMode.ENEMIES && !isPlayerEntity) {
+                filteredEnemies.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        if (currentCategory == CategoryMode.ENEMIES) {
+            listHeaderLabel.setText("ENEMIES");
+            btnToggleCategory.setText("CHANGE TO PLAYERS");
+        } else {
+            listHeaderLabel.setText("PLAYERS");
+            btnToggleCategory.setText("CHANGE TO ENEMIES");
+        }
+
+        createEnemyButtons();
+    }
+
+
+    @FXML
+    private void toggleCategory() {
+        if (currentCategory == CategoryMode.ENEMIES) {
+            currentCategory = CategoryMode.PLAYERS;
+        } else {
+            currentCategory = CategoryMode.ENEMIES;
+        }
+
+        applyFilterAndRebuildUI();
+
+        if (!filteredEnemies.isEmpty()) {
+            showEnemyById(filteredEnemies.keySet().iterator().next());
+        } else {
+            skinNameLabel.setText("NO ENTITIES FOUND");
+            description.setText("");
+        }
+    }
+
     private void createEnemyButtons() {
         enemyButtonsBox.getChildren().clear();
         buttonCanvases.clear();
 
-        for (GenericEntitySettings enemy : enemies.values()) {
+        for (GenericEntitySettings enemy : filteredEnemies.values()) {
             String safeId = enemy.entityKey.toLowerCase().trim();
             boolean unlocked = bestiaryModel.isUnlocked(safeId);
 
@@ -138,7 +170,6 @@ public class BestiaryMenuController implements IscatMenuController {
             AnimatedCanvas iconCanvas = new AnimatedCanvas(ICON_SIZE);
             iconCanvas.setFrameDuration(0.20);
 
-            // Caricamento skin differenziato in base allo stato di sblocco
             if (unlocked) {
                 iconCanvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
             } else {
@@ -157,20 +188,13 @@ public class BestiaryMenuController implements IscatMenuController {
         }
     }
 
-    /**
-     * Aggiorna il pannello centrale di anteprima caricando lo sprite animato su scala
-     * maggiore ed innesca l'aggiornamento dei dettagli descrittivi.
-     *
-     * @param id La chiave del nemico selezionato.
-     */
     private void showEnemyById(String id) {
         if (id == null) return;
 
         String cleanId = id.toLowerCase().trim();
-        GenericEntitySettings enemy = enemies.get(cleanId);
+        GenericEntitySettings enemy = filteredEnemies.get(cleanId);
 
         if (enemy == null) {
-            System.err.println("ERRORE BESTIARIO: Impossibile trovare il nemico con l'EntityKey '" + cleanId + "'!");
             return;
         }
 
@@ -190,30 +214,23 @@ public class BestiaryMenuController implements IscatMenuController {
         }
 
         previewCanvas.resize(DISPLAY_SIZE);
-        ComponentsUtils.playSpawnTween(previewContainer); // Effetto transizione grafica d'ingresso
+        ComponentsUtils.playSpawnTween(previewContainer);
     }
 
-    /**
-     * Formatta e renderizza il testo all'interno della TextArea principale.
-     * Se l'entità è bloccata, maschera tutte le schede mostrando un avviso crittografato.
-     * Se è sbloccata, mostra i dati strutturali o i contatori di morte legati alla mappa extra.
-     */
     private void refreshInfoZone() {
         if (currentEnemyId == null) return;
-        GenericEntitySettings enemy = enemies.get(currentEnemyId);
+        GenericEntitySettings enemy = filteredEnemies.get(currentEnemyId);
         if (enemy == null) return;
 
         boolean unlocked = bestiaryModel.isUnlocked(currentEnemyId);
         int currentKills = bestiaryModel.getKillCount(currentEnemyId);
 
-        // Blocco di protezione per mostri non ancora affrontati/sconfitti
         if (!unlocked) {
             rightCardHeader.setText("LOCKED");
-            description.setText("[ INFO NASCOSTE ]\n\nSconfiggi questo nemico per sbloccarlo.");
+            description.setText("[ INFO NASCOSTE ]\n\nSconfiggi o sblocca questa entità per visualizzarla.");
             return;
         }
 
-        // Switch di smistamento in base alla scheda (tab) attualmente attiva
         switch (currentInfoMode) {
             case DESCRIPTION -> {
                 rightCardHeader.setText("DESCRIPTION");
@@ -246,7 +263,7 @@ public class BestiaryMenuController implements IscatMenuController {
                     🎯 Raggio Preferito: %.1f unità
                     ⏱ Cooldown Azione: %.1f secondi
                     🆔 ID : %s
-                    📊 Counter Morti: %d
+                    📊 Counter Morti/Utilizzi: %d
                     """,
                         enemy.detectionRange, enemy.combatRange, enemy.preferredRange,
                         enemy.actionCooldownMS/1000, enemy.entityKey, currentKills
@@ -259,13 +276,10 @@ public class BestiaryMenuController implements IscatMenuController {
     @FXML private void showStats()       { currentInfoMode = InfoMode.STATS; refreshInfoZone(); }
     @FXML private void showExtra()       { currentInfoMode = InfoMode.EXTRA; refreshInfoZone(); }
 
-    /**
-     * Seleziona in modo pseudo-casuale un nemico differente da quello attualmente visualizzato.
-     */
     @FXML
     private void selectRandom() {
-        var validIds = enemies.keySet().stream()
-                .filter(id -> !enemies.get(id).name.toUpperCase().equals(skinNameLabel.getText()))
+        var validIds = filteredEnemies.keySet().stream()
+                .filter(id -> !filteredEnemies.get(id).name.toUpperCase().equals(skinNameLabel.getText()))
                 .toList();
 
         if (validIds.isEmpty()) return;

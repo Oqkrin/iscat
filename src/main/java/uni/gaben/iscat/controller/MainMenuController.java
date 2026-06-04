@@ -52,19 +52,27 @@ public class MainMenuController implements IscatFxmlController {
 
     private void setIcon(Button btn, String iconCode) {
         if (btn == null) return;
-        if(!iconCode.equals("fas-gift")) {
+
+        if (!iconCode.equals("fas-gift")) {
             FontIcon icon = new FontIcon(iconCode);
-            icon.iconSizeProperty().bind(btn.textProperty().length().multiply(10));
+            icon.setIconSize(18);
             btn.setGraphic(icon);
         } else {
+
             PlayerSettings.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
                 skin.loadSkin(newValue, 32, 32);
+                skin.resize(32.0);
             });
+
             skin.loadSkin(PlayerSettings.getPlayerSkin(), 32, 32);
+            skin.resize(32.0);
+            skin.setFrameDuration(0.20);
 
             btn.setGraphic(skin);
         }
-        btn.setContentDisplay(ContentDisplay.TOP);
+
+        btn.setContentDisplay(ContentDisplay.LEFT);
+        btn.setGraphicTextGap(14.0);
     }
 
     @Override

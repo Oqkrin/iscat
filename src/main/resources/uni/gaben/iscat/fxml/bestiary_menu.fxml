@@ -20,7 +20,8 @@
                 <VBox alignment="TOP_CENTER" maxWidth="270.0" minWidth="190.0" spacing="14.0" HBox.hgrow="ALWAYS">
                     <VBox alignment="TOP_CENTER" rotate="-2.0" spacing="8.0" styleClass="glowing-border, secondary-card" VBox.vgrow="ALWAYS">
                         <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0"/></padding>
-                        <Label styleClass="card-header" text="ENEMIES"/>
+
+                        <Label fx:id="listHeaderLabel" styleClass="card-header" text="ENEMIES"/>
 
                         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
                             <content>
@@ -36,6 +37,8 @@
 
                         <StackPane fx:id="previewContainer" prefHeight="140.0" prefWidth="140.0"/>
                         <Label fx:id="skinNameLabel" styleClass="card-header" text="ENEMY NAME" wrapText="true"/>
+
+                        <Button fx:id="btnToggleCategory" alignment="CENTER" maxWidth="Infinity" onAction="#toggleCategory" styleClass="menu-button" text="SHOW: ENEMIES" style="-fx-text-fill: #ffaa00;"/>
 
                         <Button fx:id="btnRandom" alignment="CENTER" maxWidth="Infinity" onAction="#selectRandom" styleClass="menu-button" text="RANDOM"/>
                         <Button fx:id="btnDescription" alignment="CENTER" maxWidth="Infinity" onAction="#showDescription" styleClass="menu-button" text="DESCRIPTION"/>
