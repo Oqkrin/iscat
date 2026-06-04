@@ -4,7 +4,7 @@ import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.RotationGoal;
-import uni.gaben.iscat.universe.entity.brain.actions.HealAction;
+import uni.gaben.iscat.universe.entity.brain.actions.shoot.RandomizedShootAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.ShootAction;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooters.MultiDirectionPatternShooter;
@@ -19,8 +19,10 @@ import uni.gaben.iscat.universe.entity.projectiles.Shooters.SingleShotPatternSho
 public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
     public GenericEntityBrain(GenericEntityModel entity) {
+        // NOTA: Rimosso il parametro 'mass' finale per allinearsi perfettamente
+        // alla firma del costruttore a 5 parametri della classe base Brain.
         super(entity,
-                SteeringGoal.idle(),
+                SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity),
                 entity.getSettings().maxForce,
                 entity.getSettings().maxVelocity,
                 entity.getSettings().maxAngularVelocity,
@@ -34,10 +36,9 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
         switch (settings.entityKey) {
 
             case "iscat_mob":
-                setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity));
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        settings.actionCooldownMS,
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),
@@ -53,7 +54,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "iscat_core":
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        settings.actionCooldownMS,
                         ProjectileType.ENEMY_BULLET,
                         new MultiDirectionPatternShooter(4, 0, new ParallelLinePatternShooter(3, 30)),
                         Target.ofPlayer(),
@@ -62,7 +63,6 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_mother":
-                setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity));
                 addAction(new ShootAction(
                         settings.detectionRange,
                         settings.actionCooldownMS / 1000,
@@ -74,11 +74,9 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "fake_iscat":
-                setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity));
-
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        settings.actionCooldownMS,
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         //new RandomizedShootAction(),
@@ -99,11 +97,9 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "eater":
-                setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity));
                 break;
 
             case "iscat_worm_head":
-                setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity));
                 break;
 
             case "iscat_worm_body_part":
@@ -113,7 +109,6 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_master":
-                setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity));
                 addAction(new ShootAction(
                         settings.detectionRange,
                         settings.actionCooldownMS / 1000,
@@ -125,19 +120,28 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_dasher":
-                setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity));
                 break;
 
             case "iscat_healer":
-                setSteeringGoal(SteeringGoal.evade(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity));
-                addAction(new HealAction(
-                        settings.actionCooldownMS/1000,
-                        settings.combatRange,
-                        settings.xpReward
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS / 1000,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        Target.ofPlayer(),
+                        false
                 ));
                 break;
 
             default:
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS / 1000,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        Target.ofPlayer(),
+                        false
+                ));
                 break;
         }
 
