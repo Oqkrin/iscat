@@ -66,8 +66,8 @@ public class ComponentsUtils {
         TranslateTransition translate = new TranslateTransition(Duration.millis(120), button);
         ScaleTransition scale = new ScaleTransition(Duration.millis(120), button);
 
-        translate.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
-        scale.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        translate.setInterpolator(Interpolator.EASE_OUT);
+        scale.setInterpolator(Interpolator.EASE_OUT);
 
         button.setOnMouseEntered(e -> {
             translate.stop();

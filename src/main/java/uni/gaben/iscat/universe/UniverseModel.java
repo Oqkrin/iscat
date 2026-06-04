@@ -8,7 +8,7 @@ import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityModel;
+import uni.gaben.iscat.universe.entity.GenericEntityModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;

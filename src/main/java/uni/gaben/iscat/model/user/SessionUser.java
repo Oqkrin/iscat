@@ -7,5 +7,4 @@ public record SessionUser(
         String username,
         LocalDateTime dateOfCreation,
         LocalDateTime lastLogin
-) {
-}
+) {}

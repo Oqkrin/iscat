@@ -1,70 +1,201 @@
 package uni.gaben.iscat.universe.entity.brain;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.actions.Action;
 import uni.gaben.iscat.universe.entity.brain.actions.ActionCategory;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.goals.MovementGoal;
 import uni.gaben.iscat.universe.entity.brain.goals.RotationGoal;
-import uni.gaben.iscat.universe.entity.brain.modifiers.MovementModifier;
+import uni.gaben.iscat.universe.entity.brain.modifiers.SteeringModifier;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
 import java.util.*;
 
 public class Brain<T extends AbstractEntityModel> implements IEntityController {
+
+    // Cache the Enum array globally to prevent allocation on every single values() call
+    private static final ActionCategory[] CATEGORIES = ActionCategory.values();
+
+    // ========================================================================
+    // FIELDS
+    // ========================================================================
+
+    // Core Dependencies
     private final T entity;
     private final Shooter<T> shooter;
 
-    // Modifiers: ordered list (preserves order) + map for lookup
-    private final List<MovementModifier> modifiersOrder = new ArrayList<>();
-    private final Map<String, MovementModifier> modifiersMap = new HashMap<>();
+    // Tuning & Configuration Parameters
+    private final double maxForce;
+    private final double maxVelocity;
+    private final double maxAngularVelocity;
+    private final double mass;
 
-    // Actions: per‑category list (order = priority) + global map for lookup
-    private final Map<ActionCategory, List<Action>> actionsByCategory = new EnumMap<>(ActionCategory.class);
-    private final Map<String, Action> actionsMap = new HashMap<>();
+    // Completely contained zero-GC mathematical vector workspaces
+    private final Vector2 steerForce = UU.vector2zero();
+    private final Vector2 modifierWorkspace = new Vector2();
 
-    // One active action per category
-    private final Map<ActionCategory, Action> active = new EnumMap<>(ActionCategory.class);
-    // Categories blocked by running actions
-    private final Set<ActionCategory> blockedCategories = new HashSet<>();
-
-    private MovementGoal currentMovementGoal;
+    // Movement & Rotation Goals
     private final MovementGoal defaultMovementGoal;
-
-    private RotationGoal currentRotationGoal;
     private final RotationGoal defaultRotationGoal;
+    private MovementGoal currentMovementGoal;
+    private RotationGoal currentRotationGoal;
 
-    private final double maxForce, maxVelocity, rotationSpeed;
-    private final Vector2 steeringAccumulator = new Vector2();
+    // Action Registries & State Management
+    private final Map<String, Action> actionsMap = new HashMap<>();
+    private final Map<ActionCategory, List<Action>> actionsByCategory = new EnumMap<>(ActionCategory.class);
+    private final Map<ActionCategory, Action> activeActions = new EnumMap<>(ActionCategory.class);
+    private final Set<ActionCategory> blockedCategories = new HashSet<>();
+    private final List<ActionCategory> finishedCategoriesList = new ArrayList<>(CATEGORIES.length);
 
-    // ------------------------------------------------------------------------
-    // Constructor
-    // ------------------------------------------------------------------------
-    public Brain(T entity, MovementGoal defaultGoal,
-                 double maxForce, double maxVelocity, double rotationSpeed) {
+    // Modifier Registries & State Management
+    private final Map<String, SteeringModifier> modifiersMap = new HashMap<>();
+    private final List<SteeringModifier> modifiersOrder = new ArrayList<>();
+
+    // ========================================================================
+    // CONSTRUCTOR
+    // ========================================================================
+
+    public Brain(T entity, MovementGoal defaultGoal, double maxForce, double maxVelocity, double maxAngularVelocity, double mass) {
         this.entity = entity;
         this.shooter = new Shooter<>(entity);
-        this.defaultMovementGoal = defaultGoal;
-        this.currentMovementGoal = defaultGoal;
-        this.defaultRotationGoal = RotationGoal.movement();
-        this.currentRotationGoal = defaultRotationGoal;
+
         this.maxForce = maxForce;
         this.maxVelocity = maxVelocity;
-        this.rotationSpeed = rotationSpeed;
+        this.maxAngularVelocity = maxAngularVelocity;
+        this.mass = mass;
+
+        this.defaultMovementGoal = defaultGoal;
+        this.currentMovementGoal = defaultGoal;
+        this.defaultRotationGoal = maxAngularVelocity > 0 ? RotationGoal.movement() : RotationGoal.idle();
+
+        this.currentRotationGoal = defaultRotationGoal;
     }
 
-    // ------------------------------------------------------------------------
-    // Adding / removing / retrieving actions
-    // ------------------------------------------------------------------------
+    // ========================================================================
+    // CORE UPDATE LOOP
+    // ========================================================================
+
+    @Override
+    public void update(UniverseModel universe, double dt) {
+        processActionLifecycles(universe, dt);
+        computeAndApplySteering(universe, dt);
+        processRotation(universe, dt);
+    }
+
+    // ========================================================================
+    // UPDATE LOOP HELPERS (Private Lifecycle Pipeline)
+    // ========================================================================
+
+    private void processActionLifecycles(UniverseModel universe, double dt) {
+        blockedCategories.clear();
+        finishedCategoriesList.clear();
+
+        // 1. Refresh blocked categories based on what's active (No Iterator allocation)
+        for (int i = 0; i < CATEGORIES.length; i++) {
+            Action action = activeActions.get(CATEGORIES[i]);
+            if (action != null) {
+                blockedCategories.add(action.getCategory());
+                blockedCategories.addAll(action.getBlockedCategories());
+            }
+        }
+
+        // 2. Tick current active actions, gather completed categories
+        for (int i = 0; i < CATEGORIES.length; i++) {
+            ActionCategory cat = CATEGORIES[i];
+            Action action = activeActions.get(cat);
+            if (action != null) {
+                if (!action.update(this, universe, dt)) {
+                    finishedCategoriesList.add(cat);
+                }
+            }
+        }
+
+        // Prune the finished actions
+        for (int i = 0; i < finishedCategoriesList.size(); i++) {
+            activeActions.remove(finishedCategoriesList.get(i));
+        }
+
+        // 3. Attempt to evaluate and wake up higher priority idle actions
+        for (int i = 0; i < CATEGORIES.length; i++) {
+            ActionCategory cat = CATEGORIES[i];
+            if (blockedCategories.contains(cat) || activeActions.containsKey(cat)) {
+                continue;
+            }
+            List<Action> catActions = actionsByCategory.get(cat);
+            if (catActions == null || catActions.isEmpty()) {
+                continue;
+            }
+            for (int j = 0; j < catActions.size(); j++) {
+                Action action = catActions.get(j);
+                if (action.canActivate(entity, universe, dt)) {
+                    activeActions.put(cat, action);
+                    action.onActivate(this, universe);
+                    break;
+                }
+            }
+        }
+    }
 
     /**
-     * Adds an action with a unique identifier.
-     * @param id     unique identifier (e.g., "shoot", "heal")
-     * @param action the action to add
-     * @throws IllegalArgumentException if an action with the same id already exists
+     * Integrated Steering Engine: Computes independent forces, sums them,
+     * bounds them, and processes mass mechanics smoothly without GC churn.
      */
+    private void computeAndApplySteering(UniverseModel universe, double dt) {
+        Vector2 desiredVelocity = currentMovementGoal.computeDesiredVelocity(entity, maxVelocity, universe, dt);
+
+        if (desiredVelocity == null || desiredVelocity.isZero()) {
+            steerForce.set(0, 0);
+        } else {
+            steerForce.set(desiredVelocity).subtract(entity.getLinearVelocity());
+        }
+
+        if (!modifiersOrder.isEmpty()) {
+            for (int i = 0; i < modifiersOrder.size(); i++) {
+                modifierWorkspace.set(0, 0); // Isolate the modifier math completely
+                modifiersOrder.get(i).computeSteer(entity, universe, maxForce, dt, modifierWorkspace);
+                steerForce.add(modifierWorkspace); // Sum into total force
+            }
+        }
+
+        if (mass > 0.0 && mass != 1.0) {
+            steerForce.divide(mass);
+        }
+
+        entity.applyForce(steerForce);
+    }
+
+    private void processRotation(UniverseModel universe, double dt) {
+        if (maxAngularVelocity <= 0) return;
+
+        double desiredAngle = currentRotationGoal.compute(entity, universe, dt);
+        if (Double.isNaN(desiredAngle)) return;
+
+        double currentAngle = entity.getTransform().getRotationAngle();
+
+        double diff = desiredAngle - currentAngle;
+        while (diff < -Math.PI) diff += 2 * Math.PI;
+        while (diff > Math.PI) diff -= 2 * Math.PI;
+
+        double angVel = entity.getAngularVelocity();
+        if (Math.abs(diff) < 0.01 && Math.abs(angVel) < 0.1) {
+            entity.setAngularVelocity(0);
+            entity.getTransform().setRotation(desiredAngle); // snap to avoid drift
+            return;
+        }
+
+        double kp = maxAngularVelocity * 2.0;
+        double kd = maxAngularVelocity * 0.5;
+
+        entity.applyTorque(kp * diff - kd * angVel);
+    }
+
+    // ========================================================================
+    // ACTION API
+    // ========================================================================
+
     public void addAction(String id, Action action) {
         if (actionsMap.containsKey(id)) {
             throw new IllegalArgumentException("Action with id '" + id + "' already exists");
@@ -73,52 +204,50 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         actionsByCategory.computeIfAbsent(action.getCategory(), k -> new ArrayList<>()).add(action);
     }
 
-    /**
-     * Adds an action with an auto‑generated UUID.
-     * @return the generated ID
-     */
     public String addAction(Action action) {
         String id = UUID.randomUUID().toString();
         addAction(id, action);
         return id;
     }
 
-    /**
-     * Removes an action by its ID.
-     * @param id the action identifier
-     * @return true if removed, false if not found
-     */
     public boolean removeAction(String id) {
         Action action = actionsMap.remove(id);
         if (action == null) return false;
+
         List<Action> catList = actionsByCategory.get(action.getCategory());
         if (catList != null) {
             catList.remove(action);
             if (catList.isEmpty()) actionsByCategory.remove(action.getCategory());
         }
-        // If this action was currently active, deactivate it
-        if (active.get(action.getCategory()) == action) {
-            active.remove(action.getCategory());
+        if (activeActions.get(action.getCategory()) == action) {
+            activeActions.remove(action.getCategory());
         }
         return true;
     }
 
-    /**
-     * Retrieves an action by its ID for modification.
-     */
-    public Action getAction(String id) {
-        return actionsMap.get(id);
+    public boolean replaceAction(String id, Action newAction) {
+        Action oldAction = actionsMap.get(id);
+        if (oldAction == null) return false;
+
+        List<Action> catList = actionsByCategory.get(oldAction.getCategory());
+        if (catList != null) {
+            int idx = catList.indexOf(oldAction);
+            if (idx != -1) catList.set(idx, newAction);
+        }
+        if (activeActions.get(oldAction.getCategory()) == oldAction) {
+            activeActions.put(oldAction.getCategory(), newAction);
+        }
+        actionsMap.put(id, newAction);
+        return true;
     }
 
-    // ------------------------------------------------------------------------
-    // Adding / removing / retrieving modifiers
-    // ------------------------------------------------------------------------
+    public Action getAction(String id) { return actionsMap.get(id); }
 
-    /**
-     * Adds a movement modifier with a unique identifier.
-     * Modifiers are applied in the order they are added.
-     */
-    public void addModifier(String id, MovementModifier modifier) {
+    // ========================================================================
+    // MODIFIER API
+    // ========================================================================
+
+    public void addModifier(String id, SteeringModifier modifier) {
         if (modifiersMap.containsKey(id)) {
             throw new IllegalArgumentException("Modifier with id '" + id + "' already exists");
         }
@@ -126,41 +255,23 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         modifiersOrder.add(modifier);
     }
 
-    /**
-     * Adds a modifier with an auto‑generated UUID.
-     * @return the generated ID
-     */
-    public String addModifier(MovementModifier modifier) {
+    public String addModifier(SteeringModifier modifier) {
         String id = UUID.randomUUID().toString();
         addModifier(id, modifier);
         return id;
     }
 
-    /**
-     * Removes a modifier by its ID.
-     * @return true if removed, false if not found
-     */
     public boolean removeModifier(String id) {
-        MovementModifier mod = modifiersMap.remove(id);
+        SteeringModifier mod = modifiersMap.remove(id);
         if (mod == null) return false;
         modifiersOrder.remove(mod);
         return true;
     }
 
-    /**
-     * Retrieves a modifier by its ID for modification.
-     */
-    public MovementModifier getModifier(String id) {
-        return modifiersMap.get(id);
-    }
-
-    /**
-     * Replaces an existing modifier with a new one (same ID, different object).
-     * Useful for dynamically changing parameters (e.g., strength, range).
-     */
-    public boolean replaceModifier(String id, MovementModifier newModifier) {
+    public boolean replaceModifier(String id, SteeringModifier newModifier) {
         if (!modifiersMap.containsKey(id)) return false;
-        MovementModifier oldMod = modifiersMap.get(id);
+
+        SteeringModifier oldMod = modifiersMap.get(id);
         int index = modifiersOrder.indexOf(oldMod);
         if (index != -1) {
             modifiersOrder.set(index, newModifier);
@@ -169,52 +280,16 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         return true;
     }
 
-    /**
-     * Replaces an existing action (same ID, different object).
-     * Useful for dynamically changing attack patterns or cooldowns.
-     */
-    public boolean replaceAction(String id, Action newAction) {
-        Action oldAction = actionsMap.get(id);
-        if (oldAction == null) return false;
-        // Remove old from category list
-        List<Action> catList = actionsByCategory.get(oldAction.getCategory());
-        if (catList != null) {
-            int idx = catList.indexOf(oldAction);
-            if (idx != -1) catList.set(idx, newAction);
-        }
-        // Update active mapping if this action was running
-        if (active.get(oldAction.getCategory()) == oldAction) {
-            active.put(oldAction.getCategory(), newAction);
-        }
-        actionsMap.put(id, newAction);
-        return true;
-    }
+    public SteeringModifier getModifier(String id) { return modifiersMap.get(id); }
 
-    // ------------------------------------------------------------------------
-    // Movement / rotation goals (can be changed anytime)
-    // ------------------------------------------------------------------------
-    public void setMovementGoal(MovementGoal goal) { this.currentMovementGoal = goal; }
-    public MovementGoal getMovementGoal() { return currentMovementGoal; }
-    public MovementGoal getDefaultGoal() { return defaultMovementGoal; }
-
-    public void setRotationGoal(RotationGoal goal) { this.currentRotationGoal = goal; }
-    public RotationGoal getRotationGoal() { return currentRotationGoal; }
-    public RotationGoal getDefaultRotationGoal() { return defaultRotationGoal; }
-
-    // ------------------------------------------------------------------------
-    // Getters for tuning parameters (not final anymore)
-    // ------------------------------------------------------------------------
-    public double getMaxForce() { return maxForce; }
-    public double getMaxVelocity() { return maxVelocity; }
-    public double getRotationSpeed() { return rotationSpeed; }
-
-    public T getEntity() { return entity; }
-    public Shooter<T> getShooter() { return shooter; }
+    // ========================================================================
+    // UTILITY & MATHEMATICAL HELPERS
+    // ========================================================================
 
     public double angleToTarget(Vector2 pos) {
-        return pos.copy()
-                .subtract(entity.getTransform().getTranslation())
-                .getDirection();
+        // Optimized to stack-allocated primitives to bypass dyn4j .copy() object generation
+        Vector2 selfPos = entity.getTransform().getTranslation();
+        return Math.atan2(pos.y - selfPos.y, pos.x - selfPos.x);
     }
 
     public double angleToPlayer(UniverseModel world) {
@@ -223,124 +298,22 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         return angleToTarget(player.getTransform().getTranslation());
     }
 
-    // ------------------------------------------------------------------------
-    // Core update loop (unchanged logic, uses the ordered structures)
-    // ------------------------------------------------------------------------
-    @Override
-    public void update(UniverseModel universe, double dt) {
-        if (true) return;
-        blockedCategories.clear();
-        for (Action a : active.values()) {
-            if (a == null) continue;
-            blockedCategories.add(a.getCategory());
-            blockedCategories.addAll(a.getBlockedCategories());
-        }
+    // ========================================================================
+    // GETTERS & SETTERS
+    // ========================================================================
 
-        Set<ActionCategory> finishedCategories = new HashSet<>();
-        for (Map.Entry<ActionCategory, Action> entry : active.entrySet()) {
-            Action a = entry.getValue();
-            if (a == null) continue;
-            if (!a.update(this, universe, dt)) {
-                finishedCategories.add(entry.getKey());
-            }
-        }
-        finishedCategories.forEach(active::remove);
+    public void setMovementGoal(MovementGoal goal) { this.currentMovementGoal = goal; }
+    public MovementGoal getMovementGoal() { return currentMovementGoal; }
+    public MovementGoal getDefaultGoal() { return defaultMovementGoal; }
 
-        // Activate new actions for each category if not blocked and no active action
-        for (ActionCategory cat : ActionCategory.values()) {
-            if (blockedCategories.contains(cat)) continue;
-            if (active.containsKey(cat)) continue;
-            List<Action> catActions = actionsByCategory.get(cat);
-            if (catActions == null || catActions.isEmpty()) continue;
-            for (Action a : catActions) {
-                if (a.canActivate(entity, universe, dt)) {
-                    active.put(cat, a);
-                    a.onActivate(this, universe);
-                    break;
-                }
-            }
-        }
+    public void setRotationGoal(RotationGoal goal) { this.currentRotationGoal = goal; }
+    public RotationGoal getRotationGoal() { return currentRotationGoal; }
+    public RotationGoal getDefaultRotationGoal() { return defaultRotationGoal; }
 
-        // 2. Initialize the base steering target (e.g., from your MovementGoal)
-        Vector2 baseGoal = currentMovementGoal.compute(entity, universe, dt);
-        steeringAccumulator.x = baseGoal.x;
-        steeringAccumulator.y = baseGoal.y;
+    public double getMaxForce() { return maxForce; }
+    public double getMaxVelocity() { return maxVelocity; }
+    public double getMaxAngularVelocity() { return maxAngularVelocity; }
 
-        // 3. Prioritized Acceleration Allocation Loop
-        double remainingForce = maxForce;
-
-        for (MovementModifier mod : modifiersOrder) {
-            // Modifiers must now return vectors scaled ONLY by their relative weight multiplier, NOT maxForce.
-            Vector2 forceToAdd = mod.computeForce(entity, universe, maxForce, dt);
-
-            double magnitude = forceToAdd.getMagnitude();
-            if (magnitude <= 0.0001) continue;
-
-            // How much of this force can we actually apply?
-            double forceToApply = Math.min(magnitude, remainingForce);
-
-            // Add the constrained portion to the accumulator
-            double scale = forceToApply / magnitude;
-            steeringAccumulator.x += forceToAdd.x * scale;
-            steeringAccumulator.y += forceToAdd.y * scale;
-
-            // Deduct from our force budget
-            remainingForce -= forceToApply;
-
-            // If the budget is exhausted, stop processing lower-priority modifiers entirely!
-            if (remainingForce <= 0.01) {
-                break;
-            }
-        }
-
-        // 4. Apply the aggregated steering
-        if (steeringAccumulator.getMagnitudeSquared() > 0) {
-            applySteering(steeringAccumulator, dt);
-        }
-
-        if (rotationSpeed > 0) {
-            Double desiredAngle = currentRotationGoal.compute(entity, universe, dt);
-            if (desiredAngle != null) {
-                faceDirection(desiredAngle, dt);
-            }
-        }
-    }
-
-    private void applySteering(Vector2 desired, double dt) {
-        // Safety check: validate desired velocity
-        if (desired == null || Double.isNaN(desired.x) || Double.isNaN(desired.y)) {
-            return; // Skip invalid steering
-        }
-        
-        Vector2 currentVel = entity.getLinearVelocity();
-        
-        // Safety check: validate current velocity
-        if (currentVel == null || Double.isNaN(currentVel.x) || Double.isNaN(currentVel.y)) {
-            // If current velocity is invalid, just apply desired as force
-            entity.applyForce(new Vector2(desired.x, desired.y));
-            return;
-        }
-        
-        // Compute steering force: desired - current
-        double steeringX = desired.x - currentVel.x;
-        double steeringY = desired.y - currentVel.y;
-        
-        // Safety check: validate steering force
-        if (Double.isNaN(steeringX) || Double.isNaN(steeringY)) {
-            return; // Skip invalid steering
-        }
-        
-        // Apply the steering force
-        entity.applyForce(new Vector2(steeringX, steeringY));
-    }
-
-    private void faceDirection(double targetAngle, double dt) {
-        double current = entity.getTransform().getRotationAngle();
-        double diff = targetAngle - current;
-        while (diff < -Math.PI) diff += 2 * Math.PI;
-        while (diff > Math.PI) diff -= 2 * Math.PI;
-        double step = rotationSpeed * dt;
-        if (Math.abs(diff) < step) step = Math.abs(diff);
-        entity.getTransform().setRotation(current + Math.signum(diff) * step);
-    }
+    public T getEntity() { return entity; }
+    public Shooter<T> getShooter() { return shooter; }
 }

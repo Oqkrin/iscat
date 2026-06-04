@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.enemies.generic;
+package uni.gaben.iscat.universe.entity;
 
 import uni.gaben.iscat.database.IscatDB;
 import java.util.Map;

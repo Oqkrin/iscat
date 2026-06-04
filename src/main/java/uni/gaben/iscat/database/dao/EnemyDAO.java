@@ -1,6 +1,6 @@
 package uni.gaben.iscat.database.dao;
 
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 
 import java.util.List;
 import java.util.Optional;

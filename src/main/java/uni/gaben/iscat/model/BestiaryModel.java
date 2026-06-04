@@ -2,7 +2,7 @@ package uni.gaben.iscat.model;
 
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.EnemyDAO;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 
 import java.util.LinkedHashMap;
 import java.util.List;

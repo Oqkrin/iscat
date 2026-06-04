@@ -1,11 +1,11 @@
-package uni.gaben.iscat.universe.entity.enemies.worm;
+package uni.gaben.iscat.universe.entity.special.worm;
 
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityModel;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.GenericEntityModel;
+import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;

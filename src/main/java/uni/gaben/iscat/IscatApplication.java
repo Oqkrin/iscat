@@ -16,7 +16,7 @@ import uni.gaben.iscat.controller.IscatViewController;
 import uni.gaben.iscat.controller.IscatWindowController;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityFactory;
+import uni.gaben.iscat.universe.entity.GenericEntityFactory;
 import uni.gaben.iscat.view.components.IscatTitleBar;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.IscatUtils;

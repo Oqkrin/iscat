@@ -156,7 +156,7 @@ public class SkinMenuController implements IscatMenuController {
         String path;
         do {
             idx = java.util.concurrent.ThreadLocalRandom.current().nextInt(TOTAL_SKINS);
-            path = "/uni/gaben/iscat/sprites/players/player" + (idx + 1) + ".png";
+            path = STR."/uni/gaben/iscat/sprites/players/player\{idx + 1}.png";
         } while (path.equals(selectedSkinPath));
 
         selectSkin(path, SKIN_NAMES[idx]);

@@ -10,7 +10,7 @@ import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.enemies.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;

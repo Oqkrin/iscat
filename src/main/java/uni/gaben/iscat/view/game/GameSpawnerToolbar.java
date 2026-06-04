@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.UniverseSpawnable;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 import uni.gaben.iscat.utils.design.CssHelper;
 
 import java.util.Set;

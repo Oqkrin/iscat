@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.enemies.worm;
+package uni.gaben.iscat.universe.entity.special.worm;
 
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import uni.gaben.iscat.universe.UU;

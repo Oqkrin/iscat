@@ -1,6 +1,4 @@
-package uni.gaben.iscat.universe.entity.enemies.generic;
-
-import uni.gaben.iscat.universe.entity.PhysicalEntitySettings;
+package uni.gaben.iscat.universe.entity;
 
 /**
  * Estende {@link PhysicalEntitySettings} per mappare i campi aggiuntivi della tabella 'Entity'.

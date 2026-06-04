@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.enemies.healer;
+package uni.gaben.iscat.universe.entity.special.healer;
 
 
 public class IscatHealerSettings {

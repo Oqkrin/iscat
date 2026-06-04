@@ -10,20 +10,15 @@ import uni.gaben.iscat.universe.entity.brain.goals.MovementGoal;
 
 public class BlackHoleBrain extends Brain<BlackHoleModel> {
     public BlackHoleBrain(BlackHoleModel entity) {
-        super(entity, MovementGoal.idle(), 0, 0, 0);
+        super(entity, MovementGoal.idle(), 0, 0, 0, 0);
         addAction("gravity",
                 new GravityPullAction(Target.neighbours(entity, entity.getRadius().m().get()*10, new DetectFilter<>(true, true, null)))
         );
 
-        entity.getRadius().m().addListener((observable, oldValue, newRange) -> {
-            removeAction("gravity");
-
-                    addAction("gravity",
-                            new GravityPullAction(Target.neighbours(entity, (Double) newRange*10, new DetectFilter<>(true, true, null)))
-                    );
-
-                }
-        );
-
+        entity.getRadius().m().addListener(
+                (_, _, newRadius)
+                        -> replaceAction("gravity",
+                        new GravityPullAction(Target.neighbours(entity, (double)newRadius*10, new DetectFilter<>(true, true, null)))
+                ));
     }
 }

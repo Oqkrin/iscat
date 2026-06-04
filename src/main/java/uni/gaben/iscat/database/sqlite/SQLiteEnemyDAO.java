@@ -2,7 +2,7 @@ package uni.gaben.iscat.database.sqlite;
 
 import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

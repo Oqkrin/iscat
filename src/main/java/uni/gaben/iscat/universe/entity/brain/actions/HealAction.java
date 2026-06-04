@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityModel;
+import uni.gaben.iscat.universe.entity.GenericEntityModel;
 import java.util.Collections;
 
 public class HealAction extends Action {

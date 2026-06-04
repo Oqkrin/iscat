@@ -1,13 +1,10 @@
-package uni.gaben.iscat.universe.entity.enemies.generic;
+package uni.gaben.iscat.universe.entity;
 
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
-import uni.gaben.iscat.universe.entity.HasSprite;
-import uni.gaben.iscat.universe.entity.HasShockwave;
 import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 
@@ -54,7 +51,7 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
 
         // Assegnazione del layer per la gestione selettiva dei contatti
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
-        setMass(MassType.NORMAL);
+        setMass(settings.maxAngularVelocity > 0 ? MassType.NORMAL : MassType.FIXED_LINEAR_VELOCITY);
         setLinearDamping(settings.linearDamping);
 
         // Iniezione della logica di collisione per i nemici con attacco da sfondamento (RAM)
@@ -120,7 +117,7 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
 
     @Override
     public double getFrameDuration() {
-        return UU.UNIVERSE_TICK * 6;
+        return UU.UNIVERSE_TICK * 3;
         // TODO: ADD ANIMATION DURATION TO SETTINGS
     }
 

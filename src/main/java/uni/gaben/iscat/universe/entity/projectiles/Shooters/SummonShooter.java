@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entity.projectiles.Shooters;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseSpawnable;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.universe.entity.enemies.master.IscatMasterModel;
+import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel; // Importiamo il player
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;

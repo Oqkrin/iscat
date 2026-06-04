@@ -1,14 +1,14 @@
 package uni.gaben.iscat.universe;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityFactory;
-import uni.gaben.iscat.universe.entity.enemies.master.IscatMasterModel;
-import uni.gaben.iscat.universe.entity.enemies.worm.IscatWormModel;
-import uni.gaben.iscat.universe.entity.enemies.worm.IscatWormSegment;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntityBrain;
+import uni.gaben.iscat.universe.entity.GenericEntityFactory;
+import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
+import uni.gaben.iscat.universe.entity.special.worm.IscatWormModel;
+import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.GenericEntityBrain;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.entity.enemies.worm.IscatWormSegmentBrain;
+import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegmentBrain;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleBrain;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;

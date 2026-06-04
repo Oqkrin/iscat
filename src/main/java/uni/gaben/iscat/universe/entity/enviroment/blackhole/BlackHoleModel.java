@@ -23,13 +23,13 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
     private final double initialRadiusM;
 
     // Growth limits
-    private static final double MAX_DENSITY = 80.0;          // soft cap for density
-    private static final double GROWTH_FACTOR = 0.5;         // density growth multiplier per kg absorbed
-    private static final double RADIUS_GROWTH_BASE = 0.02;   // radius growth per kg (before asymptotic damping)
+    private static final double MAX_DENSITY = 40.0;          // soft cap for density
+    private static final double GROWTH_FACTOR = .1;         // density growth multiplier per kg absorbed
+    private static final double RADIUS_GROWTH_BASE = 0.002;   // radius growth per kg (before asymptotic damping)
 
     // Hawking radiation parameters
-    private static final double RADIATION_RADIUS_DECAY = 0.002;   // fraction of current radius lost per second
-    private static final double RADIATION_DENSITY_DECAY = 0.001;  // density points lost per second
+    private static final double RADIATION_RADIUS_DECAY = 0.02;   // fraction of current radius lost per second
+    private static final double RADIATION_DENSITY_DECAY = 0.01;  // density points lost per second
     private static final double RADIATION_IDLE_TIME = 2.0;        // seconds without absorption before decay starts
     private double timeSinceLastAbsorption = 0.0;
 

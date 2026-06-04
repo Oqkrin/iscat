@@ -19,19 +19,19 @@ public class UserSettings {
     private double volumeSfx;
 
     // Display
-    private int showFps = 0;
-    private int fullscreen = 0;
-    private int debugMode = 0;
+    private int showFps;
+    private int fullscreen;
+    private int debugMode;
 
     // Special Themes
     private int lightmode = 0;
     private int rainbowMode = 0;
 
     // Themes
-    private String primaryTheme = "#FFFFFF";
-    private String secondaryTheme = "#FFFFFF";
-    private String tertiaryTheme = "#FFFFFF";
-    private String backgroundTheme = "#000000";
+    private String primaryTheme;
+    private String secondaryTheme;
+    private String tertiaryTheme;
+    private String backgroundTheme;
 
     // Scale
     private double scale;

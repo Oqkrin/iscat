@@ -8,12 +8,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.BestiaryModel;
-import uni.gaben.iscat.universe.entity.enemies.generic.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
-import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.model.user.SessionUser;
 

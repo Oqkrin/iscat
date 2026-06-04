@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.enemies.worm;
+package uni.gaben.iscat.universe.entity.special.worm;
 
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.Target;
@@ -12,12 +12,12 @@ public class IscatWormSegmentBrain extends Brain<IscatWormSegment> {
         super(segment, MovementGoal.idle(),
                 segment.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_FORCE : 0,
                 segment.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_MAX_SPEED : 0,
-                segment.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_ROTATION_SPEED : 0);
+                segment.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_ROTATION_SPEED : 0, 30);
 
         this.head = head;
 
         if(segment.getType() == IscatWormSegment.Type.HEAD) setRotationGoal(RotationGoal.target(Target.ofPlayer()));
-        if(segment.getType() == IscatWormSegment.Type.HEAD) setMovementGoal(MovementGoal.chase(Target.ofPlayer(), IscatWormSettings.HEAD_FORCE));
+        if(segment.getType() == IscatWormSegment.Type.HEAD) setMovementGoal(MovementGoal.pursuit(Target.ofPlayer()));
 
 
     }
