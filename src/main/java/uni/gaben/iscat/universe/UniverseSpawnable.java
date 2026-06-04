@@ -15,7 +15,6 @@ public enum UniverseSpawnable {
     ASTEROID(AsteroidModel.class),
     BLACKHOLE(BlackHoleModel.class),
     HEART(HeartModel.class),
-    ISCAT_HEALER(GenericEntityModel.class),
     ISCAT_MASTER(IscatMasterModel.class),
     WORM(IscatWormSegment.class),
     PROJECTILE(Projectile.class);
