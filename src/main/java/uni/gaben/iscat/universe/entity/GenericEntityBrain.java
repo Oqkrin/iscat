@@ -4,8 +4,11 @@ import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.RotationGoal;
+import uni.gaben.iscat.universe.entity.brain.actions.shoot.RandomizedShootAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.ShootAction;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.projectiles.Shooters.MultiDirectionPatternShooter;
+import uni.gaben.iscat.universe.entity.projectiles.Shooters.ParallelLinePatternShooter;
 import uni.gaben.iscat.universe.entity.projectiles.Shooters.SingleShotPatternShooter;
 
 /**
@@ -30,15 +33,117 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
         GenericEntitySettings settings = entity.getSettings();
 
-        addAction(new ShootAction(
-                settings.detectionRange,
-                settings.actionCooldownMS /1000,
-                ProjectileType.ENEMY_BULLET,
-                new SingleShotPatternShooter(),
-                Target.ofPlayer(),
-                false//,
-                //Math.PI/4,
-                //entity
+        switch (settings.entityKey) {
+
+            case "iscat_mob":
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        Target.ofPlayer(),
+                        false//,
+                        // Math.PI/4,
+                        // entity
                 ));
+                break;
+
+            case "iscat_bomber":
+                break;
+
+            case "iscat_core":
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS,
+                        ProjectileType.ENEMY_BULLET,
+                        new MultiDirectionPatternShooter(4, 0, new ParallelLinePatternShooter(3, 30)),
+                        Target.ofPlayer(),
+                        false
+                ));
+                break;
+
+            case "iscat_mother":
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS / 1000,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        Target.ofPlayer(),
+                        false
+                ));
+                break;
+
+            case "fake_iscat":
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        //new RandomizedShootAction(),
+                        Target.ofPlayer(),
+                        false
+                ));
+                break;
+
+            case "fallen_star_golem":
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS / 1000,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        Target.ofPlayer(),
+                        false
+                ));
+                break;
+
+            case "eater":
+                break;
+
+            case "iscat_worm_head":
+                break;
+
+            case "iscat_worm_body_part":
+                break;
+
+            case "iscat_worm_tail":
+                break;
+
+            case "iscat_master":
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS / 1000,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        Target.ofPlayer(),
+                        false
+                ));
+                break;
+
+            case "iscat_dasher":
+                break;
+
+            case "iscat_healer":
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS / 1000,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        Target.ofPlayer(),
+                        false
+                ));
+                break;
+
+            default:
+                addAction(new ShootAction(
+                        settings.detectionRange,
+                        settings.actionCooldownMS / 1000,
+                        ProjectileType.ENEMY_BULLET,
+                        new SingleShotPatternShooter(),
+                        Target.ofPlayer(),
+                        false
+                ));
+                break;
+        }
+
     }
 }
