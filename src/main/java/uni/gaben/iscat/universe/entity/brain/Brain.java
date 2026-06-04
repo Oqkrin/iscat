@@ -35,7 +35,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
     // Completely contained zero-GC mathematical vector workspaces
     private final Vector2 steerForce = UU.vector2zero();
-    private final Vector2 modifierWorkspace = new Vector2();
+    private final Vector2 modifierSteer = new Vector2();
 
     // Movement & Rotation Goals
     private final MovementGoal defaultMovementGoal;
@@ -154,9 +154,9 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
         if (!modifiersOrder.isEmpty()) {
             for (int i = 0; i < modifiersOrder.size(); i++) {
-                modifierWorkspace.set(0, 0); // Isolate the modifier math completely
-                modifiersOrder.get(i).computeSteer(entity, universe, maxForce, dt, modifierWorkspace);
-                steerForce.add(modifierWorkspace); // Sum into total force
+                modifierSteer.set(0, 0); // Isolate the modifier math completely
+                modifiersOrder.get(i).computeSteer(entity, universe, maxForce, dt, modifierSteer);
+                steerForce.add(modifierSteer); // Sum into total force
             }
         }
 
