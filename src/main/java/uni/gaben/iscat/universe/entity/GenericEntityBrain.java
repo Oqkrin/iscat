@@ -74,11 +74,12 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "fake_iscat":
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS,
+                        settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         new RandomPatternShooter(
                                 new SpreadPatternShooter(3, 30),
                                 new MultiDirectionPatternShooter(8, 0, new SingleShotPatternShooter()),
+                                //new RandomizedShootAction(),
                                 new RepeaterPatternShooter(3,0.25, new SingleShotPatternShooter())
                         ),
                         Target.ofPlayer(),
@@ -89,7 +90,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "fallen_star_golem":
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS,
+                        settings.actionCooldownMS / 1000,
                         ProjectileType.ENEMY_BULLET,
                         new RepeaterPatternShooter(2, 0.5, new RingPatternShooter(16)),
                         Target.ofPlayer(),
