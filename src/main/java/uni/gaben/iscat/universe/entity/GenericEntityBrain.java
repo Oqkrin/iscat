@@ -7,9 +7,7 @@ import uni.gaben.iscat.universe.entity.brain.RotationGoal;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.RandomizedShootAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.ShootAction;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.MultiDirectionPatternShooter;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.ParallelLinePatternShooter;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.SingleShotPatternShooter;
+import uni.gaben.iscat.universe.entity.projectiles.Shooters.*;
 
 /**
  * Controller logico unificato per l'Intelligenza Artificiale delle entità genericamente configurate.
@@ -78,8 +76,11 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         settings.detectionRange,
                         settings.actionCooldownMS,
                         ProjectileType.ENEMY_BULLET,
-                        new SingleShotPatternShooter(),
-                        //new RandomizedShootAction(),
+                        new RandomPatternShooter(
+                                new SpreadPatternShooter(3, 30),
+                                new MultiDirectionPatternShooter(8, 0, new SingleShotPatternShooter()),
+                                new RepeaterPatternShooter(3,0.25, new SingleShotPatternShooter())
+                        ),
                         Target.ofPlayer(),
                         false
                 ));
@@ -88,9 +89,9 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "fallen_star_golem":
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS / 1000,
+                        settings.actionCooldownMS,
                         ProjectileType.ENEMY_BULLET,
-                        new SingleShotPatternShooter(),
+                        new RepeaterPatternShooter(2, 0.5, new RingPatternShooter(16)),
                         Target.ofPlayer(),
                         false
                 ));
