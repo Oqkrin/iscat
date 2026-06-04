@@ -79,11 +79,19 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         new RandomPatternShooter(
                                 new SpreadPatternShooter(3, 30),
                                 new MultiDirectionPatternShooter(8, 0, new SingleShotPatternShooter()),
-                                //new RandomizedShootAction(),
                                 new RepeaterPatternShooter(3,0.25, new SingleShotPatternShooter())
                         ),
                         Target.ofPlayer(),
                         false
+                ));
+                addAction(RandomizedShootAction.targetingPlayer(
+                        settings.detectionRange,
+                        settings.actionCooldownMS/1000,
+                        ProjectileType.ENEMY_BULLET,
+                        true,
+                        new SpreadPatternShooter(3, 30),
+                        new MultiDirectionPatternShooter(8, 0, new SingleShotPatternShooter()),
+                        new RepeaterPatternShooter(3,0.25, new SingleShotPatternShooter())
                 ));
                 break;
 
