@@ -1,10 +1,8 @@
 package uni.gaben.iscat.controller.game;
 
-import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.game.GameModel;
@@ -12,19 +10,20 @@ import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.AudioManager;
-import uni.gaben.iscat.utils.SessionScoreTracker;
 
 public class GameController {
 
     private final GameModel gameModel;
     private final GameInputsHandler inputs = new GameInputsHandler();
     private final GameStatsManager statsManager = new GameStatsManager();
+    
+    private final GameLoopTimer gameLoop;
+    private final GameLifecycleManager lifecycleManager;
+
     private UniverseController universeController;
     private UniverseWaveController waveController;
-    private AnimationTimer gameLoop;
-    private Runnable drawCall;
     private Runnable onUniverseResetCallback;
-    private StackPane contentRoot;
+    
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
     private final BooleanProperty optionsMenuOpen = new SimpleBooleanProperty(false);
@@ -32,54 +31,12 @@ public class GameController {
     public GameController(GameModel gameModel) {
         this.gameModel = gameModel;
 
-        this.universeController = new UniverseController(gameModel.getUniverseModel());
-        this.waveController = new UniverseWaveController();
+        this.gameLoop = new GameLoopTimer(gameModel, this::tick);
+        this.lifecycleManager = new GameLifecycleManager(gameModel, inputs, gameLoop);
 
-        UniverseSpawner.getInstance().init(getUniverseModel(), universeController, waveController);
-
-        double midX = UniverseModel.DEFAULT_SPAWN_CENTER;
-        double midY = UniverseModel.DEFAULT_SPAWN_CENTER;
-        UniverseSpawner.getInstance().spawnPlayer(midX, midY);
-        getUniverseModel().getPlayer().setOnDeathCallback(this::onPlayerDeath);
-
-        getCameraModel().getSpringX().setPosition(midX);
-        getCameraModel().getSpringY().setPosition(midY);
-
-        buildGameLoop();
-    }
-
-    // -------------------------------------------------------------------------
-    // Game loop
-    // -------------------------------------------------------------------------
-
-    private void buildGameLoop() {
-        this.gameLoop = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                if (gameModel.getStart() == -1) gameModel.startProperty().set(now);
-                if (gameModel.getLastUpdate() == 0) {
-                    gameModel.setLastUpdate(now);
-                    return;
-                }
-
-                gameModel.setNow(now);
-
-                double totalSec = (now - gameModel.getStart()) / GameModel.ONE_SECOND_IN_NANOS;
-                gameModel.setTotalElapsedSeconds(totalSec);
-
-                int h = (int) (totalSec / 3600);
-                int m = (int) ((totalSec % 3600) / 60);
-                int s = (int) (totalSec % 60);
-                gameModel.timerProperty().set(h * 10000 + m * 100 + s);
-
-                double dt = Math.min(gameModel.getDt(), GameModel.ACCUMULATORUNIT);
-                tick(dt);
-
-                if (drawCall != null) drawCall.run();
-
-                gameModel.setLastUpdate(now);
-            }
-        };
+        var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath);
+        this.universeController = bundle.universeController();
+        this.waveController = bundle.waveController();
     }
 
     private void tick(double dt) {
@@ -109,51 +66,9 @@ public class GameController {
         AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
         gameModel.setGameState(GameState.PLAYING);
 
-        double canvasW = getCameraModel().getScreenWidth();
-        double canvasH = getCameraModel().getScreenHeight();
-        if (canvasW <= 0 || canvasH <= 0) {
-            canvasW = UniverseSettings.DEFAULT_WIDTH;
-            canvasH = UniverseSettings.DEFAULT_HEIGHT;
-        }
-
-        // 1. Reset the universe model (fresh physics world)
-        gameModel.resetUniverse();
-        UniverseModel freshUniverse = gameModel.getUniverseModel();
-        freshUniverse.setDimensions(canvasW, canvasH);
-        freshUniverse.getStarfieldModel().generate(canvasW, canvasH);
-
-        // 2. Create brand new controllers for the fresh universe
-        this.universeController = new UniverseController(freshUniverse);
-        this.waveController = new UniverseWaveController();
-        waveController.reset();
-
-        // 3. Re‑initialise the UniverseSpawner with the new universe and controllers
-        UniverseSpawner.getInstance().init(freshUniverse, universeController, waveController);
-
-        // 4. Spawn player and asteroids (spawner now points to the fresh universe)
-        double midX = canvasW / 2.0;
-        double midY = canvasH / 2.0;
-        UniverseSpawner.getInstance().spawnPlayer(midX, midY);
-        UniverseSpawner.getInstance().spawnInitialAsteroidBelts(midX, midY);
-
-        // 5. Reset camera springs to the new player position
-        CameraModel camera = getCameraModel();
-        camera.getSpringX().setPosition(midX);
-        camera.getSpringY().setPosition(midY);
-        camera.getSpringX().snap();
-        camera.getSpringY().snap();
-
-        // 6. Re‑attach death callback (player is guaranteed to exist now)
-        freshUniverse.getPlayer().setOnDeathCallback(this::onPlayerDeath);
-
-        // 7. Reset input flags and game loop timing
-        inputs.resetInputs();
-        gameModel.startProperty().set(-1);
-        gameModel.setLastUpdate(0);
-        gameModel.setTotalElapsedSeconds(0.0);
-
-        // 8. Reset session score tracker (previously done inside GameResetManager)
-        SessionScoreTracker.getInstance().reset();
+        var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath);
+        this.universeController = bundle.universeController();
+        this.waveController = bundle.waveController();
 
         if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
@@ -164,8 +79,7 @@ public class GameController {
         resetGame(); // clean state for next play
         AudioManager.getInstance().stopBGM();
         showDebugMode.set(false);
-        if (contentRoot != null)
-            IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
     public void quitGame() { Platform.exit(); }
@@ -185,19 +99,22 @@ public class GameController {
         UniverseSpawner.getInstance().spawn(id, x, y);
     }
 
-    public void setDrawCall(Runnable drawCall) { this.drawCall = drawCall; }
-    public void setContentRoot(StackPane root) { this.contentRoot = root; }
+    public void setDrawCall(Runnable drawCall) { this.gameLoop.setDrawCall(drawCall); }
     public void setOnUniverseResetCallback(Runnable cb) { this.onUniverseResetCallback = cb; }
+    
     public GameModel getGameModel() { return gameModel; }
     public GameInputsHandler getInputManager() { return inputs; }
     public UniverseModel getUniverseModel() { return gameModel.getUniverseModel(); }
     public UniverseController getUniverseController() { return universeController; }
     public CameraModel getCameraModel() { return gameModel.getCameraModel(); }
+    
     public boolean isFpsOn() { return showFps; }
     public void setShowFps(boolean v) { this.showFps = v; }
+    
     public boolean isDebugModeOn() { return showDebugMode.get(); }
     public void setShowDebugMode(boolean v) { showDebugMode.set(v); }
     public BooleanProperty debugModeProperty() { return showDebugMode; }
+    
     public boolean isOptionsMenuOpen() { return optionsMenuOpen.get(); }
     public void setOptionsMenuOpen(boolean v) { optionsMenuOpen.set(v); }
     public BooleanProperty optionsMenuOpenProperty() { return optionsMenuOpen; }

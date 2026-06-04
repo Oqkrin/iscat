@@ -64,7 +64,6 @@ public class GameView extends AbstractIscatStackPane {
         super(new StackPane());
         this.gameController = gameController;
         this.gameModel      = gameController.getGameModel();
-        this.gameController.setContentRoot(getContentRoot());
         initialize();
     }
 
