@@ -61,29 +61,19 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_mother":
-                addAction(new ShootAction(
+                addAction(RandomizedShootAction.targetingPlayer(
                         settings.detectionRange,
-                        settings.actionCooldownMS / 1000,
+                        settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
-                        new SingleShotPatternShooter(),
-                        Target.ofPlayer(),
-                        false
+                        true,
+                        new SummonPatternShooter(3,"iscat_mob",100),
+                        new SummonPatternShooter(1,"fake_iscat",100),
+                        new SummonPatternShooter(2,"iscat_healer",100),
+                        new RepeaterPatternShooter(4,1, new SpreadPatternShooter(5, 30))
                 ));
                 break;
 
             case "fake_iscat":
-                addAction(new ShootAction(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
-                        ProjectileType.ENEMY_BULLET,
-                        new RandomPatternShooter(
-                                new SpreadPatternShooter(3, 30),
-                                new MultiDirectionPatternShooter(8, 0, new SingleShotPatternShooter()),
-                                new RepeaterPatternShooter(3,0.25, new SingleShotPatternShooter())
-                        ),
-                        Target.ofPlayer(),
-                        false
-                ));
                 addAction(RandomizedShootAction.targetingPlayer(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
