@@ -52,10 +52,10 @@ public interface MovementGoal {
                     targetPosition.y + (targetVelocity.y * lookAheadTime)
             );
 
-            pursuitVelocity.set(pursuitPos).subtract(selfPos);
+            pursuitVelocity.set(pursuitPos).subtract(selfPos).normalize();
 
 
-            return pursuitVelocity;
+            return pursuitVelocity.setMagnitude(maxVelocity);
         };
     }
 
