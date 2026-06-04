@@ -4,6 +4,7 @@ import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.RotationGoal;
+import uni.gaben.iscat.universe.entity.brain.actions.HealAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.RandomizedShootAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.ShootAction;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
@@ -123,14 +124,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_healer":
-                addAction(new ShootAction(
-                        settings.detectionRange,
-                        settings.actionCooldownMS / 1000,
-                        ProjectileType.ENEMY_BULLET,
-                        new SingleShotPatternShooter(),
-                        Target.ofPlayer(),
-                        false
-                ));
+                addAction(new HealAction(settings.actionCooldownMS / 500, settings.combatRange, 10));
                 break;
 
             default:
