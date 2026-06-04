@@ -17,7 +17,7 @@ public class IscatWormSegmentBrain extends Brain<IscatWormSegment> {
         this.head = head;
 
         if(segment.getType() == IscatWormSegment.Type.HEAD) setRotationGoal(RotationGoal.target(Target.ofPlayer()));
-        if(segment.getType() == IscatWormSegment.Type.HEAD) setMovementGoal(SteeringGoal.pursuit(Target.ofPlayer(), 2));
+        if(segment.getType() == IscatWormSegment.Type.HEAD) setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), 2));
 
 
     }
