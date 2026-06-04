@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
 import java.util.function.Consumer;
 
-public class FigureShooter implements ShooterPattern {
+public class FigurePatternShooter implements PatternShooter {
 
     private final int count;
     public enum FigureType {
@@ -22,7 +22,7 @@ public class FigureShooter implements ShooterPattern {
      * @param count Numero totale di proiettili che compongono la figura.
      * @param type  La forma geometrica dell'onda (CIRCLE, SQUARE, TRIANGLE, STAR).
      */
-    public FigureShooter(int count, FigureType type) {
+    public FigurePatternShooter(int count, FigureType type) {
         this.count = count;
         this.type = type;
     }
@@ -57,7 +57,7 @@ public class FigureShooter implements ShooterPattern {
     private double calculateGeometricFactor(double angle) {
         switch (type) {
             case NONE:
-                System.err.println("[FigureShooter] Devi selezionare una figura geometrica!");
+                System.err.println("[FigurePatternShooter] Devi selezionare una figura geometrica!");
                 return 1.0;
             case SQUARE:
                 return 1.0 / Math.max(Math.abs(Math.cos(angle)), Math.abs(Math.sin(angle)));

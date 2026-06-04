@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.RotationGoal;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.ShootAction;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.SingleShotShooter;
+import uni.gaben.iscat.universe.entity.projectiles.Shooters.SingleShotPatternShooter;
 
 /**
  * Controller logico unificato per l'Intelligenza Artificiale delle entità genericamente configurate.
@@ -34,7 +34,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 settings.detectionRange,
                 settings.actionCooldownMS /1000,
                 ProjectileType.ENEMY_BULLET,
-                new SingleShotShooter(),
+                new SingleShotPatternShooter(),
                 Target.ofPlayer(),
                 false//,
                 //Math.PI/4,

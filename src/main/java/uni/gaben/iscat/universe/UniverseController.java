@@ -150,9 +150,7 @@ public class UniverseController {
         double bottom = top  + (camera.getScreenHeight() / zoom) + 400.0;
 
         for (AbstractProjectileModel p : universeModel.getProjectiles()) {
-            p.deltaToLife(-dt);
             if (p.shouldRemove()) continue;
-
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
             if (px < left || px > right || py < top || py > bottom) p.kill(true);

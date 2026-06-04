@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
 import java.util.function.Consumer;
 
-public interface ShooterPattern {
+public interface PatternShooter {
     /**
      * Esegue l'attacco custom.
      * @param shooter Lo shooter (es. il controller o l'entità che spara)

@@ -26,7 +26,7 @@ public class Cooldown implements Updatable {
 
     /** Start with the preset default duration. */
     public void start() {
-        if (defaultDuration <= 0) {
+        if (defaultDuration < 0) {
             throw new IllegalStateException("No default duration set; use start(double)");
         }
         start(defaultDuration);

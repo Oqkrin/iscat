@@ -82,23 +82,6 @@ public class UniverseModel extends World<Body> {
     // -------------------------------------------------------------------------
 
     public void stepPhysics(double dt) {
-        // Check for NaN/Infinite values in all bodies BEFORE physics step
-        for (Body body : getBodies()) {
-            double tx = body.getTransform().getTranslationX();
-            double ty = body.getTransform().getTranslationY();
-            double vx = body.getLinearVelocity().x;
-            double vy = body.getLinearVelocity().y;
-
-            if (body instanceof GenericEntityModel entity) {
-                System.out.println("UniverseModel");
-                System.out.println("Entity key: " + entity.getEntityKey());
-            System.out.println("Body: " + body.getClass().getSimpleName());
-            System.out.println("Position: " + tx + ", " + ty);
-            System.out.println("Velocity: " + vx + ", " + vy);
-            System.out.println("mass " + body.getMass().getMass());
-            System.out.println("Tick: " + debugTickCount + " Lifetime: " + lifetime);
-            }
-        }
         super.updatev(dt);
         lifetime += dt;
     }

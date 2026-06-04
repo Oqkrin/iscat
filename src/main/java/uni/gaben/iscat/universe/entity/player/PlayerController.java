@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe.entity.player;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.ShooterPattern;
+import uni.gaben.iscat.universe.entity.projectiles.Shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.projectiles.Shooters.*;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.controller.game.GameInputsHandler;
@@ -22,7 +22,7 @@ public class PlayerController {
 
     private final Cooldown dashBuffer = new Cooldown();
     private boolean bufferedDashIsWASD = false;
-    private ShooterPattern currentAttack;
+    private PatternShooter currentAttack;
 
     public PlayerController(PlayerModel player) {
         setPlayer(player);
@@ -139,7 +139,7 @@ public class PlayerController {
         if (player != null) {
             this.shooter = new Shooter<>(player);
 
-            this.currentAttack = new SingleShotShooter();
+            this.currentAttack = new SingleShotPatternShooter();
 
             this.player.lifeProperty().addListener((observable, oldValue, newValue) -> {
                 if(oldValue.doubleValue() > newValue.doubleValue()) {
@@ -177,24 +177,24 @@ public class PlayerController {
         double baseCd = PlayerSettings.COOLDOWN_FUOCO_SEC;
 
         if (level >= 10) {
-            this.currentAttack = new FigureShooter(30, FigureShooter.FigureType.STAR);
+            this.currentAttack = new FigurePatternShooter(30, FigurePatternShooter.FigureType.STAR);
             player.setCooldownFuocoSec(baseCd * 0.8);
 
         }
         else if (level >= 7) {
-            this.currentAttack = new SpreadShooter(7, 45.0);
+            this.currentAttack = new SpreadPatternShooter(7, 45.0);
             player.setCooldownFuocoSec(baseCd * 0.85);
         }
         else if (level >= 4) {
-            this.currentAttack = new SpreadShooter(5, 30.0);
+            this.currentAttack = new SpreadPatternShooter(5, 30.0);
             player.setCooldownFuocoSec(baseCd * 0.9);
         }
         else if (level >= 2) {
-            this.currentAttack = new SpreadShooter(3, 15.0);
+            this.currentAttack = new SpreadPatternShooter(3, 15.0);
             player.setCooldownFuocoSec(baseCd * 0.95);
         }
         else {
-            this.currentAttack = new SingleShotShooter();
+            this.currentAttack = new SingleShotPatternShooter();
             player.setCooldownFuocoSec(baseCd);
         }
     }

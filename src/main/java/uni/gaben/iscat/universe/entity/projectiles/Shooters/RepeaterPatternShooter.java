@@ -8,12 +8,12 @@ import java.util.function.Consumer;
 /**
  * Attacco che definisce quanti colpi di fila deve eseguire un determinato attacco.
  */
-public class RepeaterShooter implements ShooterPattern {
+public class RepeaterPatternShooter implements PatternShooter {
 
     private final int times;
-    private final ShooterPattern inner;
+    private final PatternShooter inner;
 
-    public RepeaterShooter(int times, ShooterPattern inner) {
+    public RepeaterPatternShooter(int times, PatternShooter inner) {
         this.times = times;
         this.inner = inner;
     }
@@ -22,7 +22,7 @@ public class RepeaterShooter implements ShooterPattern {
         return times;
     }
 
-    public ShooterPattern getInner() {
+    public PatternShooter getInner() {
         return inner;
     }
 

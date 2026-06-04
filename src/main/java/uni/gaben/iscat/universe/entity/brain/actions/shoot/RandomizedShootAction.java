@@ -2,8 +2,8 @@ package uni.gaben.iscat.universe.entity.brain.actions.shoot;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.RepeaterShooter;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.ShooterPattern;
+import uni.gaben.iscat.universe.entity.projectiles.Shooters.PatternShooter;
+import uni.gaben.iscat.universe.entity.projectiles.Shooters.RepeaterPatternShooter;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
@@ -14,25 +14,25 @@ import java.util.function.Consumer;
 public class RandomizedShootAction extends AbstractShootAction {
     private static final double BURST_INTERVAL_S = 0.15;
 
-    private final List<ShooterPattern> attackPool;
+    private final List<PatternShooter> attackPool;
     private final Random rand = new Random();
     private Consumer<Projectile> customizer;
 
     // Burst state
     private int burstLeft = 0;
-    private ShooterPattern burstPattern = null;
+    private PatternShooter burstPattern = null;
 
     public RandomizedShootAction(double combatRange, double cooldownSec,
                                  ProjectileType bulletType,
                                  Target target, boolean aimAtTarget,
-                                 ShooterPattern... attacks) {
+                                 PatternShooter... attacks) {
         super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget);
         this.attackPool = List.of(attacks);
     }
 
     public static RandomizedShootAction targetingPlayer(double combatRange, double cooldownSec,
                                                         ProjectileType bulletType, boolean aimAtTarget,
-                                                        ShooterPattern... attacks) {
+                                                        PatternShooter... attacks) {
         return new RandomizedShootAction(combatRange, cooldownSec, bulletType, universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget,
                 attacks);
     }
@@ -40,9 +40,9 @@ public class RandomizedShootAction extends AbstractShootAction {
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
         double angle = getAimAngle(brain, world);
-        ShooterPattern selected = attackPool.get(rand.nextInt(attackPool.size()));
+        PatternShooter selected = attackPool.get(rand.nextInt(attackPool.size()));
 
-        if (selected instanceof RepeaterShooter repeater) {
+        if (selected instanceof RepeaterPatternShooter repeater) {
             burstPattern = repeater.getInner();
             burstLeft = repeater.getTimes();
             burstPattern.execute(brain.getShooter(), bulletType, angle, customizer);

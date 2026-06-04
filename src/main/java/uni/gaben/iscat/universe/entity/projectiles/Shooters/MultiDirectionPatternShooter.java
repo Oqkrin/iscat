@@ -7,18 +7,18 @@ import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 import java.util.function.Consumer;
 
 /** spara un tipo di attacco in n direzioni  */
-public class MultiDirectionShooter implements ShooterPattern {
+public class MultiDirectionPatternShooter implements PatternShooter {
 
     private final int directions;
     private final double angleOffset;
-    private final ShooterPattern inner;
+    private final PatternShooter inner;
 
     /**
      * @param directions  Numero di direzioni in cui replicare l'attacco (es. 4 -> Croce).
      * @param angleOffset Offset angolare iniziale in radianti rispetto alla mira.
      * @param inner       Il pattern di attacco da eseguire in ogni singola direzione.
      */
-    public MultiDirectionShooter(int directions, double angleOffset, ShooterPattern inner) {
+    public MultiDirectionPatternShooter(int directions, double angleOffset, PatternShooter inner) {
         this.directions = directions;
         this.angleOffset = angleOffset;
         this.inner = inner;

@@ -13,13 +13,13 @@ import uni.gaben.iscat.universe.UU;
 import java.util.function.Consumer;
 
 /** Evoca n entità nel raggio indicato */
-public class SummonShooter implements ShooterPattern {
+public class SummonPatternShooter implements PatternShooter {
 
     private final int count;
     private final UniverseSpawnable type;
     private final double spawnRadiusPx;
 
-    public SummonShooter(int count, UniverseSpawnable type, double spawnRadiusPx) {
+    public SummonPatternShooter(int count, UniverseSpawnable type, double spawnRadiusPx) {
         this.count = count;
         this.type = type;
         this.spawnRadiusPx = spawnRadiusPx;

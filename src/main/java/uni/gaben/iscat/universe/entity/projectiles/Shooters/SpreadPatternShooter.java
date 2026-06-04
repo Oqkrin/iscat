@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
 import java.util.function.Consumer;
 
-public class SpreadShooter implements ShooterPattern {
+public class SpreadPatternShooter implements PatternShooter {
     private final int count;
     private final double spreadAngleRad;
 
@@ -14,7 +14,7 @@ public class SpreadShooter implements ShooterPattern {
      * @param count           Numero di proiettili nel ventaglio.
      * @param spreadAngleDeg  Ampiezza totale del ventaglio in gradi (es. 30°).
      */
-    public SpreadShooter(int count, double spreadAngleDeg) {
+    public SpreadPatternShooter(int count, double spreadAngleDeg) {
         this.count = count;
         this.spreadAngleRad = Math.toRadians(spreadAngleDeg);
     }

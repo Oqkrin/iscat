@@ -7,7 +7,7 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.DetectFilter;
 import org.dyn4j.world.result.RaycastResult;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.ShooterPattern;
+import uni.gaben.iscat.universe.entity.projectiles.Shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
@@ -19,7 +19,7 @@ public class LineOfSightShootAction extends ShootAction {
     private final DetectFilter<Body, BodyFixture> losFilter;
 
     public LineOfSightShootAction(double combatRange, double cooldownSec,
-                                  ProjectileType bulletType, ShooterPattern pattern,
+                                  ProjectileType bulletType, PatternShooter pattern,
                                   Target target, boolean aimAtTarget, double maxAngle,
                                   AbstractEntityModel self) {
         super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget);

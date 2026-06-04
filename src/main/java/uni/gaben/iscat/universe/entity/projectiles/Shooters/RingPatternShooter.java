@@ -8,14 +8,14 @@ import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 import java.util.function.Consumer;
 
 /** Spara n proiettili in ogni direzione a farma d'anello */
-public class RingShooter implements ShooterPattern {
+public class RingPatternShooter implements PatternShooter {
 
     private final int count;
 
     /**
      * @param count Numero totale di proiettili distribuiti nell'anello a 360°.
      */
-    public RingShooter(int count) {
+    public RingPatternShooter(int count) {
         this.count = count;
     }
 
