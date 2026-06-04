@@ -86,7 +86,7 @@ public interface MovementGoal {
             double distance = targetPosition.distance(selfPos);
 
             // Calculate look-ahead time identical to pursuit
-            double lookAheadTime = distance / maxVelocity;
+            double lookAheadTime = distance / targetVelocity.getMagnitude();
 
             // Predict future position of the threat
             predictedPos.set(
