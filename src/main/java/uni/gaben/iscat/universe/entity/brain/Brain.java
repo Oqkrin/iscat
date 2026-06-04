@@ -6,9 +6,6 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.actions.Action;
 import uni.gaben.iscat.universe.entity.brain.actions.ActionCategory;
-import uni.gaben.iscat.universe.entity.brain.goals.MovementGoal;
-import uni.gaben.iscat.universe.entity.brain.goals.RotationGoal;
-import uni.gaben.iscat.universe.entity.brain.modifiers.SteeringModifier;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
@@ -17,31 +14,31 @@ import java.util.*;
 public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
     // Cache the Enum array globally to prevent allocation on every single values() call
-    private static final ActionCategory[] CATEGORIES = ActionCategory.values();
+    protected static final ActionCategory[] CATEGORIES = ActionCategory.values();
 
     // ========================================================================
     // FIELDS
     // ========================================================================
 
     // Core Dependencies
-    private final T entity;
-    private final Shooter<T> shooter;
+    protected final T entity;
+    protected final Shooter<T> shooter;
 
     // Tuning & Configuration Parameters
-    private final double maxForce;
-    private final double maxVelocity;
-    private final double maxAngularVelocity;
-    private final double mass;
+    protected final double maxForce;
+    protected final double maxVelocity;
+    protected final double maxAngularVelocity;
+    protected final double mass;
 
     // Completely contained zero-GC mathematical vector workspaces
     private final Vector2 steerForce = UU.vector2zero();
     private final Vector2 modifierSteer = new Vector2();
 
     // Movement & Rotation Goals
-    private final MovementGoal defaultMovementGoal;
-    private final RotationGoal defaultRotationGoal;
-    private MovementGoal currentMovementGoal;
-    private RotationGoal currentRotationGoal;
+    protected final SteeringGoal defaultSteeringGoal;
+    protected final RotationGoal defaultRotationGoal;
+    protected SteeringGoal currentSteeringGoal;
+    protected RotationGoal currentRotationGoal;
 
     // Action Registries & State Management
     private final Map<String, Action> actionsMap = new HashMap<>();
@@ -58,7 +55,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // CONSTRUCTOR
     // ========================================================================
 
-    public Brain(T entity, MovementGoal defaultGoal, double maxForce, double maxVelocity, double maxAngularVelocity, double mass) {
+    public Brain(T entity, SteeringGoal defaultGoal, double maxForce, double maxVelocity, double maxAngularVelocity, double mass) {
         this.entity = entity;
         this.shooter = new Shooter<>(entity);
 
@@ -67,8 +64,8 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         this.maxAngularVelocity = maxAngularVelocity;
         this.mass = mass;
 
-        this.defaultMovementGoal = defaultGoal;
-        this.currentMovementGoal = defaultGoal;
+        this.defaultSteeringGoal = defaultGoal;
+        this.currentSteeringGoal = defaultGoal;
         this.defaultRotationGoal = maxAngularVelocity > 0 ? RotationGoal.movement() : RotationGoal.idle();
 
         this.currentRotationGoal = defaultRotationGoal;
@@ -144,7 +141,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
      * bounds them, and processes mass mechanics smoothly without GC churn.
      */
     private void computeAndApplySteering(UniverseModel universe, double dt) {
-        Vector2 desiredVelocity = currentMovementGoal.computeDesiredVelocity(entity, maxVelocity, universe, dt);
+        Vector2 desiredVelocity = currentSteeringGoal.computeDesiredVelocity(entity, maxVelocity, universe, dt);
 
         if (desiredVelocity == null || desiredVelocity.isZero()) {
             steerForce.set(0, 0);
@@ -302,9 +299,9 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // GETTERS & SETTERS
     // ========================================================================
 
-    public void setMovementGoal(MovementGoal goal) { this.currentMovementGoal = goal; }
-    public MovementGoal getMovementGoal() { return currentMovementGoal; }
-    public MovementGoal getDefaultGoal() { return defaultMovementGoal; }
+    public void setMovementGoal(SteeringGoal goal) { this.currentSteeringGoal = goal; }
+    public SteeringGoal getMovementGoal() { return currentSteeringGoal; }
+    public SteeringGoal getDefaultGoal() { return defaultSteeringGoal; }
 
     public void setRotationGoal(RotationGoal goal) { this.currentRotationGoal = goal; }
     public RotationGoal getRotationGoal() { return currentRotationGoal; }

@@ -14,7 +14,7 @@ import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 
 public class LineOfSightShootAction extends ShootAction {
     private final double maxAngle;
-    private final Ray ray = new Ray(new Vector2(), new Vector2());
+    private final Ray ray = new Ray(new Vector2(), Vector2.create(1, Math.PI));
     private final Vector2 forward = new Vector2();
     private final DetectFilter<Body, BodyFixture> losFilter;
 

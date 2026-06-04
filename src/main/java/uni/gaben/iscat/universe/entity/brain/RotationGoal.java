@@ -1,8 +1,7 @@
-package uni.gaben.iscat.universe.entity.brain.goals;
+package uni.gaben.iscat.universe.entity.brain;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.utils.Cooldown;
 

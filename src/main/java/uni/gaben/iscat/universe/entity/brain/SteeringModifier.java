@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain.modifiers;
+package uni.gaben.iscat.universe.entity.brain;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
@@ -11,4 +11,17 @@ public interface SteeringModifier {
      * The force will be added to the total steering force accumulator and clamped to maxForce.
      */
     void computeSteer(AbstractEntityModel self, UniverseModel world, double maxForce, double dt, Vector2 outForce);
+
+
+    static SteeringModifier separation(Target flock, double range) {
+
+
+
+        return (self, world, maxForce, dt, outForce) -> {
+            outForce.set(0, 0);
+
+
+        };
+
+    }
 }

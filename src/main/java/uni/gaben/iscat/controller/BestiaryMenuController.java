@@ -249,7 +249,7 @@ public class BestiaryMenuController implements IscatMenuController {
                     📊 Counter Morti: %d
                     """,
                         enemy.detectionRange, enemy.combatRange, enemy.preferredRange,
-                        enemy.actionCooldownS, enemy.entityKey, currentKills
+                        enemy.actionCooldownMS/1000, enemy.entityKey, currentKills
                 ));
             }
         }

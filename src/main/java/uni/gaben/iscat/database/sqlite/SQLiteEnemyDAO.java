@@ -140,7 +140,7 @@ public class SQLiteEnemyDAO implements EnemyDAO {
         s.detectionRange = rs.getDouble("DetectionRange");
         s.combatRange = rs.getDouble("CombatRange");
         s.preferredRange = rs.getDouble("PreferredRange");
-        s.actionCooldownS = rs.getDouble("actionCooldownS");
+        s.actionCooldownMS = rs.getDouble("actionCooldownS");
 
         // Rewards
         s.xpReward = rs.getInt("XPReward");

@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entity.consumables.heart;
 
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.Target;
-import uni.gaben.iscat.universe.entity.brain.goals.MovementGoal;
+import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 public class HeartController extends Brain<HeartModel> {
@@ -12,7 +12,7 @@ public class HeartController extends Brain<HeartModel> {
     private boolean collected = false;
 
     public HeartController(HeartModel heart) {
-        super(heart, MovementGoal.idle() ,heart.getBaseAccelerationPerTick(), heart.getTerminalVelocity(), 0.0, 0);
+        super(heart, SteeringGoal.idle() ,heart.getBaseAccelerationPerTick(), heart.getTerminalVelocity(), 0.0, 0);
         this.heart = heart;
 
         // Collision callback
@@ -34,9 +34,9 @@ public class HeartController extends Brain<HeartModel> {
         if (heart == null || heart.shouldRemove() || collected) return;
         super.update(universe, dt);
         if(universe.getPlayer().getTransform().getTranslation().distance(heart.getTransform().getTranslation()) < 3) {
-            setMovementGoal(MovementGoal.pursuit(Target.ofPlayer()));
+            setMovementGoal(SteeringGoal.pursuit(Target.ofPlayer(), 0));
         } else {
-            setMovementGoal(MovementGoal.idle());
+            setMovementGoal(SteeringGoal.idle());
         }
     }
 
