@@ -9,6 +9,7 @@ import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.UniverseWaveController;
+import uni.gaben.iscat.utils.SessionScoreTracker;
 
 /**
  * Modello base per tutte le entità dotate di punti vita, dinamiche di danno e stati di morte.
@@ -119,7 +120,7 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
 
                 // Logiche di ricompensa e spawn attive solo se ucciso attivamente dal giocatore
                 if (killedByProjectile) {
-                    uni.gaben.iscat.utils.SessionScoreTracker.getInstance().addDeaths(1);
+                    SessionScoreTracker.getInstance().addDeaths(1);
 
                     // Calcolo probabilistico del drop (25% di possibilità di spawnare un Cuore)
                     if (Math.random() < 0.25) {

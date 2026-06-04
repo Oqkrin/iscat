@@ -50,6 +50,8 @@ public class UniverseController {
     private final ScoreDAO scoreDAO;
     private final EnemyDAO enemyDAO;
 
+    private int activeAsteroidCount = 0;
+
     public UniverseController(UniverseModel universeModel) {
         this.universeModel   = universeModel;
         this.scoreDAO        = IscatDB.getInstance().getScoreDAO();
@@ -206,6 +208,9 @@ public class UniverseController {
         }
 
         for (AbstractEntityModel entity : toRemove) {
+            if (entity instanceof AsteroidModel) {
+                activeAsteroidCount--;
+            }
             universeModel.removeEntity(entity);
             entityControllers.removeIf(
                     ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
@@ -229,39 +234,38 @@ public class UniverseController {
         camera.getSpringY().update(dt);
     }
 
-    /**
-     * Periodically spawns asteroid clusters in a ring around the player,
-     * capped at {@link #MAX_ACTIVE_ASTEROIDS}.
-     */
     private void spawnAsteroids(double dt, PlayerModel player) {
         asteroidCooldown.update(dt);
         if (!asteroidCooldown.isReady()) return;
         asteroidCooldown.start(ASTEROID_SPAWN_INTERVAL);
 
-        if (universeModel.getEntitiesOfType(AsteroidModel.class).size() >= MAX_ACTIVE_ASTEROIDS
-                || player == null) return;
 
-        double px    = UU.mToPx(player.getTransform().getTranslationX());
-        double py    = UU.mToPx(player.getTransform().getTranslationY());
-        double angle = random.nextDouble() * Math.PI * 2.0;
-        double dist  = 900.0 + random.nextDouble() * 600.0;
-        double cx    = px + Math.cos(angle) * dist;
-        double cy    = py + Math.sin(angle) * dist;
-        int    count = 3 + random.nextInt(9);
+        if (activeAsteroidCount >= MAX_ACTIVE_ASTEROIDS || player == null) return;
+
+        final double TAU = Math.PI * 2.0;
+        final double SPEED_MIN = UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN;
+        final double SPEED_RANGE = UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MAX - SPEED_MIN;
+
+        double px = UU.mToPx(player.getTransform().getTranslationX());
+        double py = UU.mToPx(player.getTransform().getTranslationY());
+        double angle = random.nextDouble() * TAU;
+        double dist = 900.0 + random.nextDouble() * 600.0;
+        double cx = px + Math.cos(angle) * dist;
+        double cy = py + Math.sin(angle) * dist;
+        int count = 3 + random.nextInt(9);
 
         for (int i = 0; i < count; i++) {
-            double off  = random.nextDouble() * Math.PI * 2.0;
-            double r    = random.nextDouble() * 150.0;
-            double ax   = cx + Math.cos(off) * r;
-            double ay   = cy + Math.sin(off) * r;
+            double off = random.nextDouble() * TAU;
+            double r = random.nextDouble() * 150.0;
+            double ax = cx + Math.cos(off) * r;
+            double ay = cy + Math.sin(off) * r;
             double size = 15.0 + random.nextDouble() * 180.0;
             AsteroidModel ast = new AsteroidModel(ax, ay, size);
-            double da    = random.nextDouble() * Math.PI * 2.0;
-            double speed = UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN
-                    + random.nextDouble() * (UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MAX
-                    - UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN);
+            double da = random.nextDouble() * TAU;
+            double speed = SPEED_MIN + random.nextDouble() * SPEED_RANGE;
             ast.setLinearVelocity(new Vector2(Math.cos(da) * speed, Math.sin(da) * speed));
             UniverseSpawner.getInstance().spawnEntity(ast);
+            activeAsteroidCount++;
         }
     }
 

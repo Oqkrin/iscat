@@ -11,18 +11,18 @@
 }
 
 .pause-settings-box {
-    /* Eventuale stile del box impostazioni */
+    /* Settings box style */
 }
 
 /* ============================================
-   PULSANTI COINVOLTI NEI MENU DI GIOCO
+   GAME MENU BUTTONS
    ============================================ */
 .pulsante-menu {
-    /* Non serve riscrivere gradienti o ombre! Modifichiamo solo le dimensioni */
+    /* No need to rewrite gradients or shadows! We only modify dimensions */
     -fx-text-fill: -accent-primary;
 }
 
-/* Varianti speciali del pulsante menu */
+/* Primary (filled) variant */
 .pulsante-menu.primario {
     -fx-background-color: -accent-primary;
     -fx-text-fill: -bg-primary;
@@ -30,7 +30,12 @@
 .pulsante-menu.primario:hover {
     -fx-background-color: -accent-secondary;
 }
+/* Icon inside a filled primary button must contrast with the light background */
+.pulsante-menu.primario .button-icon {
+    -fx-icon-color: -bg-primary;
+}
 
+/* Danger variant */
 .pulsante-menu.pericolo {
     -fx-border-color: -color-error;
     -fx-text-fill: -color-error;

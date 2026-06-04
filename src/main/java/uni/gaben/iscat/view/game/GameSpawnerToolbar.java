@@ -17,77 +17,92 @@ import uni.gaben.iscat.utils.design.CssHelper;
 
 import java.util.Set;
 
+/**
+ * Debug toolbar that lets the developer spawn any entity into the active universe.
+ * Only shown when debug mode is enabled in {@link GameView}.
+ */
 public class GameSpawnerToolbar extends StackPane {
-
-    public final FlowPane spawnContainer;
-    private final ScrollPane scroll;
 
     private static final Set<UniverseSpawnable> HIDDEN_SPAWNABLES = Set.of(
             UniverseSpawnable.PLAYER,
             UniverseSpawnable.PROJECTILE
     );
 
-    public GameSpawnerToolbar(GameController controller) {
+    private final FlowPane spawnContainer;
+    private final ScrollPane scroll;
 
+    public GameSpawnerToolbar(GameController controller) {
+        spawnContainer = new FlowPane(10, 10);
+        scroll         = new ScrollPane();
+        buildNodes(controller);
+        applyStyles();
+    }
+
+    // -------------------------------------------------------------------------
+    // Build
+    // -------------------------------------------------------------------------
+
+    private void buildNodes(GameController controller) {
         VBox root = new VBox(8);
         root.setPadding(new Insets(8, 0, 8, 0));
 
-        Label hardcodedLabel = sectionLabel("Hardcoded entities");
-
-        spawnContainer = new FlowPane(10, 10);
+        // --- Hardcoded entities (enum-driven) ---
         spawnContainer.setAlignment(Pos.BOTTOM_CENTER);
         spawnContainer.setPadding(new Insets(4, 20, 4, 20));
 
         for (UniverseSpawnable spawnable : UniverseSpawnable.values()) {
             if (HIDDEN_SPAWNABLES.contains(spawnable)) continue;
-            Button b = createSmallButton(spawnable.name());
+            Button b = createSpawnButton(spawnable.name());
             b.setOnAction(e -> controller.debugSpawn(spawnable.name()));
             spawnContainer.getChildren().add(b);
         }
 
-        Label genericLabel = sectionLabel("DATABASE LOADED");
-
+        // --- Database-loaded entities (async) ---
         FlowPane genericContainer = new FlowPane(10, 10);
         genericContainer.setAlignment(Pos.BOTTOM_CENTER);
         genericContainer.setPadding(new Insets(4, 20, 4, 20));
 
-        // Sostituisci il vecchio blocco Platform.runLater con questo:
         IscatDB.getInstance().queryAsync(() -> IscatDB.getInstance().getEnemyDAO().findAll())
-                .thenAccept(enemies -> {
-                    // Una volta letti i dati in background, torniamo sul thread UI per modificare i nodi grafici
-                    Platform.runLater(() -> {
-                        for (GenericEntitySettings s : enemies) {
-                            if (s == null || s.entityKey == null) continue;
-
-                            Button b = createSmallButton(s.entityKey);
-                            b.setTooltip(new javafx.scene.control.Tooltip(s.name));
-                            b.setOnAction(e -> controller.debugSpawn(s.entityKey));
-                            genericContainer.getChildren().add(b);
-                        }
-                    });
-                }).exceptionally(ex -> {
-                    // Opzionale ma consigliato: intercetta eventuali errori di lettura dal DB
-                    System.err.println("[GameSpawnerToolbar] Errore nel caricamento dei nemici dal DB: " + ex.getMessage());
+                .thenAccept(enemies -> Platform.runLater(() -> {
+                    for (GenericEntitySettings s : enemies) {
+                        if (s == null || s.entityKey == null) continue;
+                        Button b = createSpawnButton(s.entityKey);
+                        b.setTooltip(new javafx.scene.control.Tooltip(s.name));
+                        b.setOnAction(e -> controller.debugSpawn(s.entityKey));
+                        genericContainer.getChildren().add(b);
+                    }
+                }))
+                .exceptionally(ex -> {
+                    System.err.println("[GameSpawnerToolbar] Failed to load enemies from DB: " + ex.getMessage());
                     return null;
                 });
 
-        root.getChildren().addAll(hardcodedLabel, spawnContainer, genericLabel, genericContainer);
+        root.getChildren().addAll(
+                sectionLabel("Hardcoded entities"), spawnContainer,
+                sectionLabel("Database loaded"),    genericContainer
+        );
 
-        scroll = new ScrollPane(root);
+        scroll.setContent(root);
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setFitToWidth(true);
         scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         getChildren().add(scroll);
+    }
 
+    private void applyStyles() {
         CssHelper.sfondoScuro(this);
         CssHelper.bordoArrotondato(this);
         CssHelper.ombra3(this);
         CssHelper.bordoPrimario(this);
+        // Fine-tuned background and border — extends the CSS class defaults
         setStyle(getStyle() + "-fx-background-color: rgba(13,15,18,0.92); -fx-border-width: 1.5;");
-        setVisible(false);
     }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
 
     private Label sectionLabel(String text) {
         Label lbl = new Label(text);
@@ -96,7 +111,7 @@ public class GameSpawnerToolbar extends StackPane {
         return lbl;
     }
 
-    private Button createSmallButton(String text) {
+    private Button createSpawnButton(String text) {
         Button btn = new Button(text);
         btn.setPrefHeight(34);
         btn.setMinWidth(120);

@@ -21,12 +21,12 @@ public final class UniverseVelocitySettings {
     public static final double PLAYER_BULLET_VELOCITY = 12.0;
 
     /** Velocity of a generic enemy bullet (m/s). */
-    public static final double ENEMY_BULLET_VELOCITY  = 11;
+    public static final double ENEMY_BULLET_VELOCITY  = PLAYER_BULLET_VELOCITY;
 
     // ─── PLAYER ───────────────────────────────────────────────────────────────
 
     /** Top speed the player ship can reach under thrust (m/s). */
-    public static final double PLAYER_MAX_VELOCITY    = ENEMY_BULLET_VELOCITY*.9;
+    public static final double PLAYER_MAX_VELOCITY    = ENEMY_BULLET_VELOCITY*.8;
 
     /** Impulse magnitude of the player dash (m/s added instantly). */
     public static final double PLAYER_DASH_IMPULSE    = ENEMY_BULLET_VELOCITY;

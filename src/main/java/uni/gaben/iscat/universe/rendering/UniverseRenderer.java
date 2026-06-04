@@ -36,12 +36,11 @@ public class UniverseRenderer {
 
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
-    private int frameCount = 0;
 
     public UniverseRenderer(Canvas mainCanvas, GameController gameController, StarfieldRenderer starfieldRenderer) {
-        this.mainCanvas      = mainCanvas;
-        this.gameController  = gameController;
-        this.gameModel       = gameController.getGameModel();
+        this.mainCanvas       = mainCanvas;
+        this.gameController   = gameController;
+        this.gameModel        = gameController.getGameModel();
         this.starfieldRenderer = starfieldRenderer;
     }
 
@@ -53,32 +52,17 @@ public class UniverseRenderer {
         double w = mainCanvas.getWidth();
         double h = mainCanvas.getHeight();
 
-        if (frameCount < 5) {
-            System.out.println("=== RENDER FRAME " + frameCount + " ===");
-            System.out.println("Canvas: " + w + " x " + h);
-        }
-
         // 1. Clear + background fill
         gc.clearRect(0, 0, w, h);
         gc.setFill(ThemeManager.getInstance().getBgPrimary());
         gc.fillRect(0, 0, w, h);
 
         UniverseModel universe = gameController.getUniverseController().getUniverseModel();
-        if (universe == null) {
-            if (frameCount < 5) System.out.println("Universe is NULL!");
-            return;
-        }
+        if (universe == null) return;
 
         CameraModel camera = gameController.getCameraModel();
 
-        if (frameCount < 5) {
-            System.out.println("Universe: " + universe.getWidth() + " x " + universe.getHeight());
-            System.out.println("Camera: " + camera.getX() + ", " + camera.getY() + " zoom: " + camera.getZoom());
-            System.out.println("Starfield: " + universe.getStarfieldModel().getStars().size() + " stars");
-            System.out.println("Entities: " + universe.getEntities().size());
-        }
-
-        // 2. Starfield – push live canvas size so parallax wrap is always correct
+        // 2. Starfield — push live canvas size so parallax wrap is always correct
         starfieldRenderer.setW(w);
         starfieldRenderer.setH(h);
         starfieldRenderer.setCameraX(camera.getX());
@@ -91,8 +75,8 @@ public class UniverseRenderer {
         gc.translate(w / 2 - camera.getX() * zoom, h / 2 - camera.getY() * zoom);
         gc.scale(zoom, zoom);
 
-        // CALCOLO DEI CONFINI DELLA VISUALE (In World Pixels)
-        // Invertiamo la matrice di traslazione del canvas per scoprire dove cadono i bordi dello schermo nel mondo
+        // Compute viewport bounds in world-pixels by inverting the canvas translation matrix.
+        // Entities outside this frustum are culled (skipped) to save draw calls.
         double halfViewW = (w / 2.0) / zoom;
         double halfViewH = (h / 2.0) / zoom;
         double minX = camera.getX() - halfViewW;
@@ -103,12 +87,7 @@ public class UniverseRenderer {
         boolean debug = debugPanelVisible && gameController.isDebugModeOn();
         List<AbstractEntityModel> snapshot = new ArrayList<>(universe.getEntities());
         for (AbstractEntityModel entity : snapshot) {
-
-            //  FILTRO CULLING: Se l'entità è fuori dai confini calcolati, non perdere tempo a disegnarla
-            if (!entity.isInsideViewport(minX, maxX, minY, maxY)) {
-                continue;
-            }
-
+            if (!entity.isInsideViewport(minX, maxX, minY, maxY)) continue;
             EntityRenderer.draw(entity, gc);
             if (debug) VFXRenderer.drawDebugCollision(entity, gc);
         }
@@ -124,8 +103,6 @@ public class UniverseRenderer {
 
         // 5. FPS overlay
         if (gameController.isFpsOn()) drawFps(gc, w);
-        
-        frameCount++;
     }
 
     private void drawFps(GraphicsContext gc, double canvasWidth) {

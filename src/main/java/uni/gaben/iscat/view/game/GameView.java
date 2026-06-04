@@ -35,9 +35,12 @@ import static javafx.application.Platform.runLater;
 
 public class GameView extends AbstractIscatStackPane {
 
+    // Timer canvas dimensions (must match StarryText size)
+    private static final int TIMER_W = 300;
+    private static final int TIMER_H = 100;
+
     private final GameModel      gameModel;
     private final GameController gameController;
-    private final StackPane      root;
 
     private Canvas           canvas;
     private Canvas           timerCanvas;
@@ -45,10 +48,10 @@ public class GameView extends AbstractIscatStackPane {
     private UniverseRenderer universeRenderer;
     private final StarfieldRenderer starfieldRenderer = new StarfieldRenderer();
 
-    private GameSpawnerToolbar spawnerToolbar;
-    private StackPane          pauseMenu;
+    private GameSpawnerToolbar      spawnerToolbar;
+    private StackPane               pauseMenu;
     private GamePauseMenuController gamePauseMenuController;
-    private StackPane          gameOverMenu;
+    private StackPane               gameOverMenu;
 
     private HBox   debugButtonsContainer;
     private Button debugButton;
@@ -61,8 +64,7 @@ public class GameView extends AbstractIscatStackPane {
         super(new StackPane());
         this.gameController = gameController;
         this.gameModel      = gameController.getGameModel();
-        this.root           = getContentRoot();
-        this.gameController.setContentRoot(this.root);
+        this.gameController.setContentRoot(getContentRoot());
         initialize();
     }
 
@@ -73,11 +75,11 @@ public class GameView extends AbstractIscatStackPane {
     @Override
     protected void initNodes() {
         canvas      = new Canvas();
-        timerCanvas = new Canvas(300, 100);
+        timerCanvas = new Canvas(TIMER_W, TIMER_H);
         timerCanvas.setMouseTransparent(true);
         timerCanvas.setFocusTraversable(false);
 
-        starryTimer    = new StarryText(300, 100);
+        starryTimer    = new StarryText(TIMER_W, TIMER_H);
         spawnerToolbar = new GameSpawnerToolbar(gameController);
         pauseMenu      = loadPauseMenu();
         gameOverMenu   = loadGameOverMenu();
@@ -102,9 +104,9 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initStyles() {
-        root.getStyleClass().add("game-view-container");
+        getContentRoot().getStyleClass().add("game-view-container");
         getStylesheets().add(Objects.requireNonNull(
-                GameView.class.getResource("/uni/gaben/iscat/styles/screens/game.css"))
+                        GameView.class.getResource("/uni/gaben/iscat/styles/screens/game.css"))
                 .toExternalForm());
 
         CssHelper.stilePulsanteMenu(debugButton);
@@ -119,7 +121,7 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initLayout() {
-        root.getChildren().addAll(
+        getContentRoot().getChildren().addAll(
                 canvas, timerCanvas, levelLabel,
                 spawnerToolbar, debugButtonsContainer,
                 pauseMenu, gameOverMenu
@@ -137,22 +139,20 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initBindings() {
-        canvas.widthProperty().bind(root.widthProperty());
-        canvas.heightProperty().bind(root.heightProperty());
+        canvas.widthProperty().bind(getContentRoot().widthProperty());
+        canvas.heightProperty().bind(getContentRoot().heightProperty());
 
-        spawnerToolbar.maxHeightProperty().bind(root.heightProperty().divide(5));
-        spawnerToolbar.maxWidthProperty().bind(root.widthProperty().multiply(ScalareAureo.IPHI_D));
+        spawnerToolbar.maxHeightProperty().bind(getContentRoot().heightProperty().divide(5));
+        spawnerToolbar.maxWidthProperty().bind(getContentRoot().widthProperty().multiply(ScalareAureo.IPHI_D));
 
-        // Camera screen dimensions always track the canvas — this binding is permanent
         CameraModel camera = gameController.getCameraModel();
         camera.screenWidthProperty().bind(canvas.widthProperty());
         camera.screenHeightProperty().bind(canvas.heightProperty());
 
-        // Notify the universe when the canvas is resized so starfields and spawn
-        // centres remain accurate
         canvas.widthProperty().addListener((obs, oldW, newW) -> onCanvasSizeChanged());
         canvas.heightProperty().addListener((obs, oldH, newH) -> onCanvasSizeChanged());
 
+        // Menu visibility driven by gameState
         gameOverMenu.visibleProperty().bind(
                 gameModel.gameStateProperty().isEqualTo(GameState.GAME_OVER));
         gameOverMenu.managedProperty().bind(gameOverMenu.visibleProperty());
@@ -162,17 +162,12 @@ public class GameView extends AbstractIscatStackPane {
         pauseMenu.managedProperty().bind(pauseMenu.visibleProperty());
 
         gameModel.gameStateProperty().addListener((obs, oldState, newState) -> {
-            syncGameModelFromState(newState);
-
             if (newState == GameState.IN_PAUSE && gamePauseMenuController != null) {
                 gamePauseMenuController.syncVisualState();
             }
-
-            if (newState == GameState.PLAYING) runLater(() -> canvas.requestFocus());
-        });
-
-        gameModel.gameOverProperty().addListener((obs, was, isOver) -> {
-            if (isOver) transitionTo(GameState.GAME_OVER);
+            if (newState == GameState.PLAYING) {
+                runLater(() -> canvas.requestFocus());
+            }
         });
 
         gameController.debugModeProperty().addListener((obs, oldV, debugOn) -> {
@@ -200,10 +195,23 @@ public class GameView extends AbstractIscatStackPane {
     protected void initEventHandlers() {
         gameController.getInputManager().attachToCanvas(canvas);
 
+        // Single handler covers both ESC (pause toggle) and +/- (camera zoom)
         this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == KeyCode.ESCAPE
-                    && gameModel.getGameState() != GameState.IN_OPTIONS) {
+            KeyCode code = e.getCode();
+
+            if (code == KeyCode.ESCAPE && gameModel.getGameState() != GameState.IN_OPTIONS) {
                 transitionTo(gameModel.getGameState().onEscape());
+                e.consume();
+                return;
+            }
+
+            if (gameModel.getGameState().isPaused()) return;
+
+            if (code == KeyCode.PLUS || code == KeyCode.ADD) {
+                gameController.getCameraModel().addZoom(0.1);
+                e.consume();
+            } else if (code == KeyCode.MINUS || code == KeyCode.SUBTRACT) {
+                gameController.getCameraModel().addZoom(-0.1);
                 e.consume();
             }
         });
@@ -225,17 +233,6 @@ public class GameView extends AbstractIscatStackPane {
                 canvas.requestFocus();
             }
         });
-
-        this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if (gameModel.isPaused()) return;
-            if (e.getCode() == KeyCode.PLUS || e.getCode() == KeyCode.ADD) {
-                gameController.getCameraModel().addZoom(0.1);
-                e.consume();
-            } else if (e.getCode() == KeyCode.MINUS || e.getCode() == KeyCode.SUBTRACT) {
-                gameController.getCameraModel().addZoom(-0.1);
-                e.consume();
-            }
-        });
     }
 
     // -------------------------------------------------------------------------
@@ -255,34 +252,15 @@ public class GameView extends AbstractIscatStackPane {
 
         gameController.setDrawCall(
                 () -> universeRenderer.renderFrame(timerCanvas, starryTimer, debugPanelVisible));
+
+        // Correct place to attach scene inputs
         gameController.getInputManager().attachToScene(this.getScene());
 
-        // After reset the view needs to rebind the level label to the new player
         gameController.setOnUniverseResetCallback(this::bindToCurrentUniverse);
 
-        // Defer the first dimension seeding + loop start to the next layout pulse.
-        // At this point the canvas is just being added to the scene — its width/height
-        // are still 0. We need one layout pass to complete so the canvas gets its real
-        // size bound from the root StackPane before we start the game loop or generate
-        // the starfield.
         runLater(() -> {
-            System.out.println("=== GAME INIT DEBUG ===");
-            System.out.println("Canvas: " + canvas.getWidth() + " x " + canvas.getHeight());
-            System.out.println("Universe scale: " + uni.gaben.iscat.universe.UU.getUniverseScale());
-            
-            onCanvasSizeChanged();      // seeds universe dimensions + generates starfield
-            
-            UniverseModel u = gameController.getUniverseModel();
-            System.out.println("Universe: " + u.getWidth() + " x " + u.getHeight());
-            System.out.println("Starfield stars: " + u.getStarfieldModel().getStars().size());
-            System.out.println("Player pos (m): " + u.getPlayer().getTransform().getTranslationX() 
-                + ", " + u.getPlayer().getTransform().getTranslationY());
-            System.out.println("Player pos (px): " + uni.gaben.iscat.universe.UU.mToPx(u.getPlayer().getTransform().getTranslationX()) 
-                + ", " + uni.gaben.iscat.universe.UU.mToPx(u.getPlayer().getTransform().getTranslationY()));
-            System.out.println("Camera: " + gameController.getCameraModel().getX() + ", " + gameController.getCameraModel().getY());
-            System.out.println("======================");
-            
-            bindToCurrentUniverse();    // binds level label to the (now-ready) player
+            onCanvasSizeChanged();
+            bindToCurrentUniverse();
             gameController.startGameLoop();
             canvas.requestFocus();
         });
@@ -305,14 +283,9 @@ public class GameView extends AbstractIscatStackPane {
     // Helpers
     // -------------------------------------------------------------------------
 
-    /** Single entry-point for state transitions. */
     public void transitionTo(GameState next) {
         if (gameModel.gameStateProperty().get() != next)
             gameModel.setGameState(next);
-    }
-
-    private void syncGameModelFromState(GameState state) {
-        gameModel.setPaused(state.isPaused());
     }
 
     /**
@@ -327,11 +300,6 @@ public class GameView extends AbstractIscatStackPane {
         gameController.getUniverseModel().getStarfieldModel().generate(w, h);
     }
 
-    /**
-     * Re-binds UI elements that reference the current universe/player.
-     * Called once on first show (deferred via runLater) and again after every
-     * {@code resetUniverse()} callback (already on the FX thread).
-     */
     private void bindToCurrentUniverse() {
         levelLabel.textProperty().unbind();
         UniverseModel universe = gameController.getUniverseModel();
@@ -353,11 +321,11 @@ public class GameView extends AbstractIscatStackPane {
                     c.syncAllProperties();
                 });
         wrapper[0].getStyleClass().add("game-pause-overlay");
-        root.getChildren().add(wrapper[0]);
+        getContentRoot().getChildren().add(wrapper[0]);
     }
 
     private void closeOptions(StackPane optionsView) {
-        root.getChildren().remove(optionsView);
+        getContentRoot().getChildren().remove(optionsView);
         transitionTo(GameState.IN_PAUSE);
     }
 

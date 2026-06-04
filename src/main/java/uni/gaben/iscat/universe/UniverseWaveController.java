@@ -72,7 +72,7 @@ public class UniverseWaveController {
      * @param gameModel Riferimento al modello macroscopico dello stato del gioco.
      */
     public void update(double dt, CameraModel camera, GameModel gameModel) {
-        if (gameModel == null) return;
+        if (gameModel == null || gameModel.getUniverseModel().getPlayer() == null) return;
 
         // Pulizia automatica e rimozione dal tracciamento dei corpi fisici distrutti
         activeEnemies.removeIf(ae -> ae.model == null || ae.model.shouldRemove());
