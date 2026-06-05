@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane minHeight="720.0" minWidth="1280.0"
+           stylesheets="@../../styles/screens/options-menu.css"
+           xmlns="http://javafx.com/javafx/"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="uni.gaben.iscat.controller.OptionsMenuController">
+
+    <VBox fx:id="paneMaster" alignment="CENTER" styleClass="menu-background"
+          StackPane.alignment="CENTER" VBox.vgrow="ALWAYS">
+
+        <Region minHeight="40.0" prefHeight="40.0" VBox.vgrow="NEVER" />
+
+        <HBox spacing="32.0" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets bottom="32.0" left="32.0" right="32.0" top="16.0" />
+            </padding>
+
+            <VBox alignment="TOP_CENTER" maxWidth="340.0" minWidth="280.0" HBox.hgrow="NEVER">
+
+                <VBox alignment="TOP_CENTER" spacing="24.0" styleClass="secondary-card" VBox.vgrow="NEVER">
+                    <padding>
+                        <Insets bottom="24.0" left="20.0" right="20.0" top="24.0" />
+                    </padding>
+
+                    <Button fx:id="btnMainSettings" prefWidth="130.0" prefHeight="110.0" rotate="1.5"
+                            onAction="#showMainSettings" styleClass="square-menu-button, glowing-border" />
+
+                    <Button fx:id="btnControls" prefWidth="130.0" prefHeight="110.0" rotate="-2.0"
+                            onAction="#showControls" styleClass="square-menu-button, glowing-border" />
+
+                    <Button fx:id="btnTheme" prefWidth="130.0" prefHeight="110.0" rotate="1.0"
+                            onAction="#showTheme" styleClass="square-menu-button, glowing-border" />
+
+                    <Button fx:id="btnAccount" prefWidth="130.0" prefHeight="110.0" rotate="-1.5"
+                            onAction="#showAccount" styleClass="square-menu-button, glowing-border" />
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox alignment="BOTTOM_CENTER" styleClass="secondary-card" VBox.vgrow="NEVER">
+                    <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                    </padding>
+                    <Button fx:id="ExitBtn" maxWidth="Infinity" prefHeight="48.0" onAction="#handleBack" styleClass="back-button, glowing-border" text="MAIN MENU" />
+                </VBox>
+
+            </VBox>
+
+            <StackPane fx:id="tabContentContainer" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="main-card">
+                <padding>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                </padding>
+
+                <VBox fx:id="tabMainSettings" alignment="CENTER" spacing="20.0" visible="true">
+                    <fx:include fx:id="subDisplay" source="option_display.fxml" />
+                    <Region minHeight="10.0" prefHeight="20.0" />
+                    <fx:include fx:id="subAudio" source="option_audio.fxml" />
+                </VBox>
+
+                <VBox fx:id="tabControls" alignment="CENTER" visible="false">
+                    <fx:include fx:id="subKeybinds" source="option_keybinds.fxml" />
+                </VBox>
+
+                <VBox fx:id="tabTheme" alignment="CENTER" visible="false">
+                    <fx:include fx:id="subTheme" source="option_theme.fxml" />
+                </VBox>
+
+                <VBox fx:id="tabAccount" alignment="CENTER" visible="false">
+                    <fx:include fx:id="subAccount" source="option_account.fxml" />
+                </VBox>
+            </StackPane>
+
+        </HBox>
+
+        <Region minHeight="24.0" prefHeight="24.0" VBox.vgrow="NEVER" />
+    </VBox>
+
+    <fx:include fx:id="confirmOverlay" source="../confirmation-overlay.fxml" />
+</StackPane>

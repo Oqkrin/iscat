@@ -1,34 +1,27 @@
 package uni.gaben.iscat;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.controller.IscatViewController;
+import uni.gaben.iscat.controller.IscatWindowController;
+import uni.gaben.iscat.model.IscatModel;
+import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.universe.entity.GenericEntityFactory;
+import uni.gaben.iscat.view.components.IscatTitleBar;
+import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.IscatUtils;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 
-import uni.gaben.iscat.game.controller.GameController;
-
-import uni.gaben.iscat.game.universe.UniverseController;
-import uni.gaben.iscat.game.universe.UniverseModel;
-import uni.gaben.iscat.game.view.GameView;
-import uni.gaben.iscat.game.view.camera.CameraModel;
-import uni.gaben.iscat.menus.bestiary_menu.BestiaryView;
-import uni.gaben.iscat.menus.login_menu.controller.LoginController;
-import uni.gaben.iscat.menus.login_menu.model.LoginData;
-import uni.gaben.iscat.menus.login_menu.model.LoginModel;
-import uni.gaben.iscat.menus.login_menu.view.LoginView;
-import uni.gaben.iscat.menus.main_menu.MenuController;
-import uni.gaben.iscat.menus.main_menu.MenuView;
-import uni.gaben.iscat.menus.options_menu.OptionsMenuView;
-import uni.gaben.iscat.menus.score_menu.ScoreMenuView;
-import uni.gaben.iscat.menus.skin_menu.SkinMenuView;
-import uni.gaben.iscat.utils.ThemeColors;
-
-import java.util.EnumMap;
 import java.util.Objects;
 
 /**
@@ -37,90 +30,100 @@ import java.util.Objects;
  */
 public class IscatApplication extends Application {
 
-    IscatModel iscatModel = new IscatModel();
+    private final IscatModel iscatModel = new IscatModel();
 
-    // --- Login Menu ---
-    LoginData       loginData       = LoginData.withDefaults();
-    LoginModel      loginModel      = new LoginModel();
-    LoginController loginController = new LoginController(loginModel, loginData);
-
-    // --- Main Menu ---
-    MenuController menuController = new MenuController();
-
-    // --- Gamenex game ---
-    UniverseModel     universeModel     = new UniverseModel();
-    CameraModel       cameraModel       = new CameraModel();
-    uni.gaben.iscat.game.model.GameModel gameModel = new uni.gaben.iscat.game.model.GameModel(universeModel, cameraModel);
-    UniverseController universeController = new UniverseController(universeModel);
-    GameController gameController = new GameController(gameModel, universeController);
-
-    EnumMap<IscatScenes, AbstractIscatStackPane> scenes =  new EnumMap<>(IscatScenes.class);
     private final StackPane iscatApplicationRoot = new StackPane();
-    private final StackPane isactContentRoot = new StackPane(); // The new dynamic inner container
-    private IscatTitleBar iscatTitleBar;
+    private final Scene iscatRootScene = new Scene(iscatApplicationRoot);
+    private final StackPane iscatContentRoot = new StackPane();
+    private final IscatTitleBar iscatTitleBar = new IscatTitleBar();
+    private final Region iscatWindowBorderOverlay = new Region();
+    private final IscatDB db = IscatDB.getInstance();
+    private IscatWindowController iscatWindowController;
+    private IscatViewController iscatViewController;
+
+    boolean sentOnce = false; //TODO DA ELIMINARE
+
 
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
-        putScenes();
-        IscatNavigator.getInstance().initialize(iscatModel, scenes);
-        IscatAudioManager.getInstance().loadDefaultAudio();
-    }
+        db.init();
 
-    private void putScenes() {
-        scenes.put(IscatScenes.LOGIN_MENU,    new LoginView(loginModel, loginController));
-        scenes.put(IscatScenes.MAIN_MENU,     new MenuView(menuController));
-        scenes.put(IscatScenes.GAMEN,         new GameView(gameController, gameModel));
-        scenes.put(IscatScenes.SCORE_MENU,    new ScoreMenuView());
-        scenes.put(IscatScenes.SKIN_MENU,     new SkinMenuView());
-        scenes.put(IscatScenes.OPTIONS_MENU,  new OptionsMenuView());
-        scenes.put(IscatScenes.BESTIARY_MENU, new BestiaryView());
+        Platform.runLater(GenericEntityFactory::preloadAllAsync);
+        IscatNavigator.getInstance().initialize(iscatModel);
+        AudioManager.getInstance().loadDefaultAudio();
     }
 
     @Override
     public void start(Stage stage) {
-        Scene iscatScene = new Scene(iscatApplicationRoot);
-        iscatScene.setFill(ThemeColors.parsedColors.get("bg-primary"));
+        iscatRootScene.setFill(ThemeManager.getInstance().getBgPrimary());
+        iscatTitleBar.setMaxHeight(56.0);
 
-        iscatTitleBar = new IscatTitleBar();
-        iscatTitleBar.setMaxHeight(Region.USE_PREF_SIZE);
+        iscatRootScene.widthProperty().addListener((observable, oldValue, newValue) -> {
 
-        Region iscatWindowBorderOverlay = new Region();
-        iscatWindowBorderOverlay.getStyleClass().add("window-border-overlay");
+            printNodeInfo(iscatRootScene.getRoot(), 0);
+        });
+
+        //this might fix scalings
+        iscatContentRoot.prefWidthProperty().bind(iscatApplicationRoot.widthProperty());
+        iscatContentRoot.prefHeightProperty().bind(iscatApplicationRoot.heightProperty());
+
+
+        iscatWindowBorderOverlay.getStyleClass().add("window-border");
         iscatWindowBorderOverlay.setMouseTransparent(true);
         StackPane.setAlignment(iscatTitleBar, Pos.TOP_CENTER);
-        iscatApplicationRoot.getChildren().addAll(isactContentRoot, iscatTitleBar, iscatWindowBorderOverlay);
 
-        // 3. Apply global rounded clips to the master root once
-        Rectangle clip = new Rectangle();
-        clip.setArcWidth(32.0);
-        clip.setArcHeight(32.0);
-        clip.widthProperty().bind(iscatApplicationRoot.widthProperty());
-        clip.heightProperty().bind(iscatApplicationRoot.heightProperty());
-        iscatApplicationRoot.setClip(clip);
+        iscatApplicationRoot.getChildren().addAll(iscatContentRoot, iscatTitleBar, iscatWindowBorderOverlay);
 
+        IscatUtils.roundRectangle(iscatApplicationRoot, IscatSettings.BORDER_RADIUS);
+        addIscatStyles(iscatRootScene);
+
+        iscatWindowBorderOverlay.visibleProperty().bind(iscatModel.fullscreenProperty().not());
+
+        iscatWindowController = new IscatWindowController(iscatModel, stage, iscatRootScene, iscatTitleBar);
+        iscatViewController = new IscatViewController(iscatModel, iscatContentRoot);
+        iscatViewController.showInitialView(IscatViews.LOGIN_MENU);
+
+        stage.initStyle(StageStyle.UNDECORATED);
+        stage.setScene(iscatRootScene);
+        stage.show();
+        stage.centerOnScreen();
+    }
+
+    private void addIscatStyles(Scene scene) {
         String colorTheme = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-color-theme.css")).toExternalForm();
         String typography = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-typography.css")).toExternalForm();
         String components = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-components-shared.css")).toExternalForm();
-
-        iscatScene.getStylesheets().addAll(colorTheme, typography, components);
-
-        IscatController iscatController = new IscatController(
-                iscatModel, stage, iscatScene, isactContentRoot, iscatTitleBar, scenes
-        );
-
-        iscatController.wireCustomDecoration();
-
-        stage.initStyle(StageStyle.UNDECORATED);
-        stage.setScene(iscatScene);
-        iscatController.initializeScene();
-        stage.show();
-        stage.centerOnScreen();
+        scene.getStylesheets().addAll(colorTheme, typography, components);
     }
 
+    @Override
+    public void stop() throws Exception {
+        IscatDB.getInstance().shutdown();
+    }
+
+    void printNodeInfo(Node node, int depth) {
+        if (node == null) return;
+
+        // Indent for readability
+        String indent = "  ".repeat(depth);
+
+
+        if (!sentOnce)
+            System.out.println("[IscatApplication] ho disabilitato il mega output dei bounds, riga 104 di IscatApplication se ti serve ancora");
+        sentOnce = true;
+        //System.out.println(indent + node.getClass().getSimpleName() +
+                //" | Bounds: " + node.getBoundsInParent());
+
+        if (node instanceof Parent p) {
+            for (Node child : p.getChildrenUnmodifiable()) {
+                printNodeInfo(child, depth + 1);
+            }
+        }
+    }
 
 
 

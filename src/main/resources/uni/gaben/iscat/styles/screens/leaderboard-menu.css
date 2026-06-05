@@ -1,0 +1,16 @@
+.leaderboard-row {
+    -fx-padding: 6 0 6 0;
+    -fx-border-color: transparent transparent -accent-primary transparent;
+    -fx-border-width: 0 0 0.5 0;
+    -fx-opacity: 0.9;
+}
+
+.leaderboard-row:hover {
+    -fx-opacity: 1.0;
+    -fx-background-color: rgba(255,255,255,0.03);
+}
+
+.leaderboard-gold {
+    -fx-text-fill: #FFD700;
+    -fx-font-weight: bold;
+}

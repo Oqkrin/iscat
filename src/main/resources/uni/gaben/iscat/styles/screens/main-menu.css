@@ -1,0 +1,43 @@
+/* ============================================
+   TITLE (FORZATO PER IL MAIN MENU)
+   ============================================ */
+
+/* Specifichiamo che è una Label per sovrascrivere lo shared */
+.menu-title.label {
+    -fx-text-fill: -accent-primary;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0, 0, 0);
+}
+
+/* ============================================
+   BUTTONS & INTERNAL LABELS
+   ============================================ */
+
+/* Struttura del bottone principale */
+.menu-button {
+    -fx-alignment: center-left;
+    -fx-text-fill: -accent-primary;
+
+}
+
+/* ============================================
+   ICONS (IMAGE VIEW / IKONLI)
+   ============================================ */
+
+/* Gestione icone standard */
+.menu-button .image-view {
+    -fx-text-fill: -accent-primary;
+}
+
+/* Gestione icone vettoriali Ikonli */
+.menu-button .ikonli-font-icon {
+    -fx-icon-color: -accent-primary;
+}
+
+.menu-button:hover .ikonli-font-icon {
+    -fx-icon-color: -accent-primary;
+}
+
+.menu-button:pressed .ikonli-font-icon {
+    -fx-icon-color: -accent-primary;
+}

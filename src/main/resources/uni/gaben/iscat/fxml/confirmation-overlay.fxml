@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="rootPane"
+           style="-fx-background-color: rgba(0, 0, 0, 0.75);"
+           visible="false"
+           managed="false"
+           xmlns="http://javafx.com/javafx/"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="uni.gaben.iscat.controller.components.ConfirmationOverlayController">
+
+    <VBox alignment="CENTER" maxHeight="300.0" maxWidth="400.0" rotate="1.0" spacing="24.0" styleClass="glowing-border, main-card">
+        <padding>
+            <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
+        </padding>
+
+        <Label fx:id="titleLabel" styleClass="card-header" text="SEI SICURO?" />
+        <Label fx:id="descLabel" styleClass="card-subheader" text="L'azione è irreversibile." textAlignment="CENTER" wrapText="true" />
+
+        <TextField fx:id="normalTextField" promptText="Inserisci testo..." visible="false" managed="false" styleClass="menu-input-field" />
+        <PasswordField fx:id="passwordTextField" promptText="Inserisci password..." visible="false" managed="false" styleClass="menu-input-field" />
+        <Button fx:id="keybindBtn" visible="false" managed="false" text="CLICCA PER ASSEGNARE" />
+
+        <HBox alignment="CENTER" spacing="20.0">
+            <Button fx:id="yesBtn" onAction="#handleYes" prefWidth="120.0" styleClass="menu-button, play-button" text="SÌ" />
+            <Button fx:id="noBtn" onAction="#handleNo" prefWidth="120.0" styleClass="menu-button, back-button" text="NO" />
+        </HBox>
+    </VBox>
+</StackPane>

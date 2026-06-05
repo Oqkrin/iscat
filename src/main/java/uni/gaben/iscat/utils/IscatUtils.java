@@ -2,6 +2,8 @@ package uni.gaben.iscat.utils;
 
 import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.layout.Region;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -24,5 +26,14 @@ public class IscatUtils {
         return Screen.getScreensForRectangle(
                 stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()
         );
+    }
+
+    public static void roundRectangle(Region toClip, Double clipBorderRadius) {
+        Rectangle clip = new Rectangle();
+        clip.setArcWidth(clipBorderRadius);
+        clip.setArcHeight(clipBorderRadius);
+        clip.widthProperty().bind(toClip.widthProperty());
+        clip.heightProperty().bind(toClip.heightProperty());
+        toClip.setClip(clip);
     }
 }

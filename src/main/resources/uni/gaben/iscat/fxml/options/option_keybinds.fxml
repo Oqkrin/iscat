@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane alignment="CENTER" rotate="1.0" scaleX="1.25" scaleY="1.25" maxWidth="450.0" minWidth="380.0" VBox.vgrow="NEVER"
+           xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="uni.gaben.iscat.controller.components.options.OptionKeybindsController">
+
+    <Region styleClass="glowing-border, controls-card" />
+
+    <VBox alignment="TOP_CENTER" spacing="16.0">
+        <padding>
+            <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
+        </padding>
+
+        <VBox alignment="CENTER" spacing="4.0">
+            <Label styleClass="card-header" text="KEYBINDINGS" />
+            <Label styleClass="card-subheader" text="CLICCA UN PULSANTE PER CAMBIARE IL TASTO" />
+        </VBox>
+
+        <Region minHeight="4.0" prefHeight="4.0" />
+
+        <VBox alignment="CENTER" spacing="6.0" styleClass="movement-box">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+            <Label styleClass="movement-header" text="MOVEMENT" />
+
+            <Button fx:id="walkUp" onAction="#changeControl" text="W" prefWidth="40.0" prefHeight="36.0" />
+
+            <HBox alignment="CENTER" spacing="6.0">
+                <Button fx:id="walkLeft" onAction="#changeControl" text="A" prefWidth="40.0" prefHeight="36.0" />
+                <Button fx:id="walkDown" onAction="#changeControl" text="S" prefWidth="40.0" prefHeight="36.0" />
+                <Button fx:id="walkRight" onAction="#changeControl" text="D" prefWidth="40.0" prefHeight="36.0" />
+            </HBox>
+        </VBox>
+
+        <Region minHeight="4.0" prefHeight="4.0" />
+
+        <VBox spacing="10.0" alignment="CENTER">
+
+            <HBox alignment="CENTER_LEFT" styleClass="keybind-row">
+                <Label text="Attack" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="attack" onAction="#changeControl" text="MOUSEPRIMARY" minWidth="130.0" prefHeight="32.0" />
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" styleClass="keybind-row">
+                <Label text="Dash Primario" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="dash1" onAction="#changeControl" text="Q" minWidth="130.0" prefHeight="32.0" />
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" styleClass="keybind-row">
+                <Label text="Dash Secondario" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="dash2" onAction="#changeControl" text="E" minWidth="130.0" prefHeight="32.0" />
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" styleClass="keybind-row">
+                <Label text="Pause Menu" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="esc" onAction="#changeControl" text="P" minWidth="130.0" prefHeight="32.0" />
+            </HBox>
+
+        </VBox>
+
+        <Region minHeight="8.0" prefHeight="8.0" VBox.vgrow="ALWAYS" />
+
+        <Button fx:id="resetControlsBtn" styleClass="reset-button" maxWidth="Infinity" prefHeight="38.0" onAction="#resetControls"
+                text="RESTORE DEFAULTS" />
+    </VBox>
+</StackPane>

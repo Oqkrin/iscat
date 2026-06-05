@@ -1,0 +1,5 @@
+@import url("../components/iscat-text-inputs.css");
+
+.button-icon {
+    -fx-icon-color: -accent-primary;
+}

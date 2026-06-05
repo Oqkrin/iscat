@@ -2,7 +2,7 @@
 *.db-journal
 *.db-wal
 *.db-shm
-# *.db
+*.db
 
 # intellij
 .idea/

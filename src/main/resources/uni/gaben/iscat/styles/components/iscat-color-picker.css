@@ -1,0 +1,36 @@
+/* ============================================
+   COLOR PICKER COMPONENT
+   ============================================ */
+
+.color-picker {
+    -fx-background-color: -bg-primary;
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+}
+
+.color-picker > .color-box {
+    -fx-background-color: -bg-primary;
+    -fx-background-radius: 8px;
+    -fx-padding: 0px;
+}
+
+.color-picker .color-picker-label,
+.color-picker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.color-picker .color-picker-label .text {
+    -fx-fill: -fx-color;
+    -fx-font-weight: bold;
+}
+
+/* --- Active picker (glow when selected) --- */
+.color-picker.picker-active {
+    -fx-border-color: -accent-primary;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.4, 0, 0);
+    -fx-border-width: 2px;
+}

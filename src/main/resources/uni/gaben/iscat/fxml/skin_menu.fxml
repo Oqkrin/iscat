@@ -1,54 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.layout.Pane?>
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/skin-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.menus.skin_menu.SkinMenuController">
-   <top>
-      <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
-         <padding>
-            <Insets top="40.0" />
-         </padding>
-         <Label text="PLAYER SKINS" textFill="WHITE">
-            <font>
-               <Font name="System Bold" size="80.0" />
-            </font>
-         </Label>
-      </VBox>
-   </top>
-   <center>
-      <HBox alignment="CENTER" spacing="80.0" BorderPane.alignment="CENTER">
-         <GridPane fx:id="skinGrid" alignment="CENTER" hgap="15.0" minHeight="0" minWidth="0" vgap="15.0" />            <VBox fx:id="previewBox" alignment="CENTER" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
-            <padding>
-               <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-            </padding>
-            <Label text="PREVIEW" textFill="WHITE">
-               <font>
-                  <Font name="System Bold" size="35.0" />
-               </font>
-            </Label>
+<StackPane fx:id="skinStackPane" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/skin-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.SkinMenuController">
 
-            <Pane fx:id="previewContainer" prefWidth="160" prefHeight="160" />
+    <BorderPane styleClass="menu-background">
+        <center>
+            <HBox alignment="CENTER" spacing="32.0">
+                <padding>
+                    <Insets bottom="32.0" left="32.0" right="32.0" top="32.0"/>
+                </padding>
 
-            <Label fx:id="skinNameLabel" ellipsisString="" text="SELEZIONA UNA SKIN" textFill="#00ffcc">
-               <font>
-                  <Font name="System Italic" size="25.0" />
-               </font>
-            </Label>
+                <VBox alignment="TOP_CENTER" maxWidth="440.0" minWidth="280.0" spacing="14.0" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets top="40.0"/>
+                    </padding>
 
-            <VBox alignment="CENTER" spacing="15.0">
-               <Button ellipsisString="" onAction="#handleConfirm" styleClass="confirm-button" text="CONFERMA" />
-               <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ANNULLA" />
-            </VBox>
-         </VBox>
-      </HBox>
-   </center>
-</BorderPane>
+                    <VBox alignment="TOP_CENTER" rotate="-1.5" spacing="10.0" styleClass="glowing-border, secondary-card" VBox.vgrow="ALWAYS">
+                        <padding><Insets bottom="16.0" left="16.0" right="16.0" top="20.0"/></padding>
+
+                        <Label styleClass="card-header" text="SKINS"/>
+
+                        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
+                            <content>
+                                <StackPane alignment="CENTER">
+                                    <padding>
+                                        <Insets top="50.0" bottom="30.0" left="16.0" right="16.0"/>
+                                    </padding>
+                                    <children>
+                                        <GridPane fx:id="skinGrid" alignment="CENTER" hgap="12.0" vgap="12.0" />
+                                    </children>
+                                </StackPane>
+                            </content>
+                        </ScrollPane>
+
+                        <Label fx:id="underGridLabel" alignment="CENTER" styleClass="card-subheader" text="SELEZIONA UNA SKIN!"/>
+                    </VBox>
+                </VBox>
+
+                <VBox fx:id="previewBox" alignment="CENTER" maxWidth="290.0" minWidth="220.0" spacing="16.0" HBox.hgrow="ALWAYS">
+                    <VBox alignment="CENTER" rotate="1.5" spacing="14.0" styleClass="glowing-border, main-card">
+                        <padding><Insets bottom="20.0" left="18.0" right="18.0" top="20.0"/></padding>
+                        <Label styleClass="card-header" text="PREVIEW"/>
+
+                        <StackPane fx:id="previewContainer" prefHeight="140.0" prefWidth="140.0"/>
+
+                        <Label fx:id="skinNameLabel" styleClass="card-subheader" text="Skin Name"/>
+
+                        <Button fx:id="confirmBtn" maxWidth="Infinity" onAction="#handleConfirm" styleClass="menu-button, play-button" text="CONFERMA"/>
+                        <Button fx:id="randomBtn" maxWidth="Infinity" onAction="#selectRandom" styleClass="menu-button" text="RANDOM"/>
+                        <Button fx:id="cancelBtn" maxWidth="Infinity" onAction="#handleBack" styleClass="menu-button, back-button" text="ANNULLA"/>
+                    </VBox>
+                </VBox>
+            </HBox>
+        </center>
+    </BorderPane>
+</StackPane>

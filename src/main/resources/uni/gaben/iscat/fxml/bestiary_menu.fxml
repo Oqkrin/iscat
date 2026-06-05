@@ -1,73 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.layout.Pane?>
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" stylesheets="@../styles/bestiary-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.menus.bestiary_menu.BestiaryMenuController">
-   <top>
-      <VBox spacing="10.0" BorderPane.alignment="TOP_LEFT">
-         <padding>
-            <Insets top="40.0" />
-         </padding>
-         <Label prefHeight="39.0" prefWidth="368.0" text="BESTIARY" textAlignment="CENTER" textFill="WHITE">
-            <font>
-               <Font name="System Bold" size="40.0" />
-            </font>
-         </Label>
-      </VBox>
-   </top>
-   <center>
-      <HBox alignment="CENTER" spacing="80.0" BorderPane.alignment="CENTER">
-         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="250.0">
-            <Button fx:id="iscat_mob" contentDisplay="CENTER" mnemonicParsing="false" onAction="#showEnemy"
-                    prefHeight="26.0" prefWidth="250.0" text="Iscat Mob"/>
-            <Button fx:id="iscat_bomber" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
-                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Bomber"/>
-            <Button fx:id="iscat_core" contentDisplay="CENTER" layoutX="10.0" layoutY="36.0" mnemonicParsing="false"
-                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Core"/>
-            <Button fx:id="iscat_mother" contentDisplay="CENTER" layoutX="10.0" layoutY="61.0" mnemonicParsing="false"
-                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Iscat Mother"/>
-            <Button fx:id="fake_iscat" contentDisplay="CENTER" layoutX="10.0" layoutY="87.0" mnemonicParsing="false"
-                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Fake Iscat"/>
-            <Button fx:id="fallen_star_golem" contentDisplay="CENTER" layoutX="10.0" layoutY="112.0"
-                    mnemonicParsing="false" onAction="#showEnemy" prefWidth="250.0" text="Fallen Star Golem"/>
-            <Button fx:id="eater" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0" mnemonicParsing="false"
-                    onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0" text="Eater"/>
-            <Button fx:id="iscat_worm_head" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0"
-                    mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0"
-                    text="Iscat Worm Head"/>
-            <Button fx:id="iscat_worm_body_part" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0"
-                    mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0"
-                    text="Iscat Worm Body Part"/>
-            <Button fx:id="iscat_worm_tail" contentDisplay="CENTER" layoutX="10.0" layoutY="138.0"
-                    mnemonicParsing="false" onAction="#showEnemy" prefHeight="26.0" prefWidth="250.0"
-                    text="Iscat Worm Tail"/>
-         </VBox>            <VBox fx:id="previewBox" alignment="CENTER" prefWidth="303.0" spacing="30.0" style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20;">
-            <padding>
-               <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-            </padding>
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/bestiary-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.BestiaryMenuController">
 
-            <Pane fx:id="previewContainer" prefWidth="160" prefHeight="160" />
+    <BorderPane fx:id="rootPane" styleClass="menu-background">
+        <top>
+            <Region minHeight="56.0" prefHeight="56.0"/>
+        </top>
 
-            <Label fx:id="skinNameLabel" ellipsisString="" text="Enemy Name" textFill="#00ffcc" wrapText="true">
-               <font>
-                  <Font name="System Italic" size="25.0" />
-               </font>
-            </Label>
+        <center>
+            <HBox alignment="CENTER" spacing="32.0">
+                <padding>
+                    <Insets bottom="16.0" left="32.0" right="32.0" top="16.0"/>
+                </padding>
 
-            <VBox alignment="CENTER" spacing="15.0">
-               <Button ellipsisString="" onAction="#handleBack" styleClass="back-button" text="ESCI" />
-            </VBox>
-         </VBox>
-         <TextArea fx:id="description" prefHeight="200.0" prefWidth="400.0" />
-      </HBox>
-   </center>
-</BorderPane>
+                <VBox alignment="TOP_CENTER" maxWidth="270.0" minWidth="190.0" spacing="14.0" HBox.hgrow="ALWAYS">
+                    <VBox alignment="TOP_CENTER" rotate="-2.0" spacing="8.0" styleClass="glowing-border, secondary-card" VBox.vgrow="ALWAYS">
+                        <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0"/></padding>
+
+                        <Label fx:id="listHeaderLabel" styleClass="card-header" text="ENEMIES"/>
+
+                        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="enemyButtonsBox" alignment="TOP_CENTER" spacing="8.0" />
+                            </content>
+                        </ScrollPane>
+                    </VBox>
+                </VBox>
+
+                <VBox alignment="CENTER" maxWidth="300.0" minWidth="220.0" spacing="16.0" HBox.hgrow="ALWAYS">
+                    <VBox alignment="CENTER" rotate="-1.0" spacing="14.0" styleClass="glowing-border, main-card" VBox.vgrow="ALWAYS">
+                        <padding><Insets bottom="20.0" left="18.0" right="18.0" top="20.0"/></padding>
+
+                        <StackPane fx:id="previewContainer" prefHeight="140.0" prefWidth="140.0"/>
+                        <Label fx:id="skinNameLabel" styleClass="card-header" text="ENEMY NAME" wrapText="true"/>
+
+                        <Button fx:id="btnToggleCategory" alignment="CENTER" maxWidth="Infinity" onAction="#toggleCategory" styleClass="menu-button" text="SHOW: ENEMIES" style="-fx-text-fill: #ffaa00;"/>
+
+                        <Button fx:id="btnRandom" alignment="CENTER" maxWidth="Infinity" onAction="#selectRandom" styleClass="menu-button" text="RANDOM"/>
+                        <Button fx:id="btnDescription" alignment="CENTER" maxWidth="Infinity" onAction="#showDescription" styleClass="menu-button" text="DESCRIPTION"/>
+                        <Button fx:id="btnStats" alignment="CENTER" maxWidth="Infinity" onAction="#showStats" styleClass="menu-button" text="STATS"/>
+                        <Button fx:id="btnExtra" alignment="CENTER" maxWidth="Infinity" onAction="#showExtra" styleClass="menu-button" text="EXTRA"/>
+                        <Button fx:id="btnBack" alignment="CENTER" maxWidth="Infinity" onAction="#handleBack" styleClass="back-button" text="MAIN MENU"/>
+                    </VBox>
+                </VBox>
+
+                <VBox alignment="TOP_CENTER" maxWidth="320.0" minWidth="240.0" spacing="14.0" HBox.hgrow="ALWAYS">
+                    <VBox alignment="TOP_CENTER" rotate="2.0" spacing="10.0" styleClass="glowing-border, secondary-card" VBox.vgrow="ALWAYS">
+                        <padding><Insets bottom="14.0" left="14.0" right="14.0" top="14.0"/></padding>
+                        <Label fx:id="rightCardHeader" styleClass="card-header" text="DESCRIPTION!"/>
+                        <TextArea fx:id="description" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </VBox>
+            </HBox>
+        </center>
+
+    </BorderPane>
+</StackPane>

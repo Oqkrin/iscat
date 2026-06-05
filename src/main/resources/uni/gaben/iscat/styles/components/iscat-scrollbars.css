@@ -1,0 +1,69 @@
+/* ============================================
+   GLOBAL SCROLLBARS
+   ============================================ */
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+/* Track */
+.scroll-bar .track {
+    -fx-background-color: -bg-secondary;
+    -fx-border-color: -bg-tertiary;
+    -fx-background-radius: 0;
+}
+
+.scroll-bar:vertical .track {
+    -fx-border-width: 0 0 0 1px;
+}
+
+.scroll-bar:horizontal .track {
+    -fx-border-width: 1px 0 0 0;
+}
+
+/* Thumb */
+.scroll-bar .thumb {
+    -fx-background-color: -bg-elevated;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+/* Hover */
+.scroll-bar .thumb:hover {
+    -fx-background-color: -accent-primary;
+
+    -fx-effect:
+        dropshadow(
+            gaussian,
+            -accent-primary,
+            6,
+            0.3,
+            0,
+            0
+        );
+}
+
+/* Pressed */
+.scroll-bar .thumb:pressed {
+    -fx-background-color: white;
+}
+
+/* Hide arrows */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: "";
+}
+
+/* Corner */
+.scroll-pane .corner {
+    -fx-background-color: -bg-secondary;
+}

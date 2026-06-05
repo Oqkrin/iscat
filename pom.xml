@@ -58,6 +58,27 @@
             <artifactId>dyn4j</artifactId>
             <version>5.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.45.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.13</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.13</version>
+        </dependency>
+        <dependency>
+            <groupId>de.androidpit</groupId>
+            <artifactId>color-thief</artifactId>
+            <version>1.1.2</version>
+        </dependency>
     </dependencies>
 
     <build>

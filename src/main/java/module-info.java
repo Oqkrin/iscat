@@ -1,46 +1,68 @@
 module uni.gaben.iscat {
+
+    requires color.thief;
+    requires java.desktop;
+    requires java.sql;
     requires javafx.controls;
     requires javafx.fxml;
-    requires org.kordamp.ikonli.javafx;
-    requires org.kordamp.ikonli.fontawesome5;
-    requires java.desktop;
     requires javafx.media;
-    requires org.dyn4j;
     requires jdk.unsupported.desktop;
+    requires org.dyn4j;
+    requires org.kordamp.ikonli.fontawesome5;
+    requires org.kordamp.ikonli.javafx;
+    requires org.xerial.sqlitejdbc;
+    requires org.slf4j;
 
     opens uni.gaben.iscat to javafx.fxml;
+    opens uni.gaben.iscat.controller to javafx.fxml;
+    opens uni.gaben.iscat.database to javafx.fxml;
+    opens uni.gaben.iscat.database.dao to javafx.fxml;
+    opens uni.gaben.iscat.database.sqlite to javafx.fxml;
+    opens uni.gaben.iscat.model to javafx.fxml;
+    opens uni.gaben.iscat.controller.game to javafx.fxml;
+    opens uni.gaben.iscat.controller.components.options to javafx.fxml;
+
     opens uni.gaben.iscat.utils to javafx.fxml;
-    opens uni.gaben.iscat.menus.skin_menu to javafx.fxml;
-    opens uni.gaben.iscat.menus.score_menu to javafx.fxml;
-    opens uni.gaben.iscat.menus.bestiary_menu to javafx.fxml;
-    opens uni.gaben.iscat.menus.options_menu to javafx.fxml;
+    opens uni.gaben.iscat.utils.sprite to javafx.fxml;
+    opens uni.gaben.iscat.utils.theme to javafx.fxml;
+    opens uni.gaben.iscat.view to javafx.fxml;
 
     exports uni.gaben.iscat;
-    exports uni.gaben.iscat.utils;
-    exports uni.gaben.iscat.utils.components;
-    exports uni.gaben.iscat.menus.login_menu.controller;
-    exports uni.gaben.iscat.menus.login_menu.model;
-    exports uni.gaben.iscat.menus.login_menu.view;
-    exports uni.gaben.iscat.game.model;
-    exports uni.gaben.iscat.game.controller;
-    exports uni.gaben.iscat.game.view;
-    exports uni.gaben.iscat.game.view.camera;
-    exports uni.gaben.iscat.game.lib.abstracts;
-    exports uni.gaben.iscat.game.lib.interfaces.model;
-    exports uni.gaben.iscat.game.lib.interfaces.view;
-    exports uni.gaben.iscat.game.lib.interfaces.controller;
-    exports uni.gaben.iscat.game.universe;
-    exports uni.gaben.iscat.game.universe.player;
-    exports uni.gaben.iscat.game.universe.hearth;
-    exports uni.gaben.iscat.game.universe.asteroid;
-    exports uni.gaben.iscat.game.universe.starfield;
-    exports uni.gaben.iscat.game.universe.projectiles;
-    exports uni.gaben.iscat.game.universe.enemies.iscat_mob;
-    exports uni.gaben.iscat.game.universe.enemies.iscat_eater;
-    exports uni.gaben.iscat.game.universe.enemies.iscat_worm;
-    exports uni.gaben.iscat.menus.options_menu;
-    exports uni.gaben.iscat.menus.main_menu;
-    exports uni.gaben.iscat.utils.sprite;
+    exports uni.gaben.iscat.controller;
+    exports uni.gaben.iscat.database;
+    exports uni.gaben.iscat.database.dao;
+    exports uni.gaben.iscat.database.sqlite;
+    exports uni.gaben.iscat.model;
 
-    opens uni.gaben.iscat.utils.sprite to javafx.fxml;
+    exports uni.gaben.iscat.controller.game;
+    exports uni.gaben.iscat.model.game;
+    exports uni.gaben.iscat.view.game;
+    exports uni.gaben.iscat.model.login;
+    exports uni.gaben.iscat.controller.components.options;
+
+    exports uni.gaben.iscat.universe;
+    exports uni.gaben.iscat.universe.entity.brain;
+    exports uni.gaben.iscat.universe.entity.brain.actions;
+    exports uni.gaben.iscat.universe.camera;
+    exports uni.gaben.iscat.universe.entity.consumables.heart;
+    exports uni.gaben.iscat.universe.entity.special.worm;
+    exports uni.gaben.iscat.universe.entity.enviroment.asteroid;
+    exports uni.gaben.iscat.universe.entity.projectiles.shooters;
+    exports uni.gaben.iscat.universe.entity.player;
+    exports uni.gaben.iscat.universe.entity.projectiles;
+    exports uni.gaben.iscat.universe.rendering;
+    exports uni.gaben.iscat.universe.entity.brain.targets;
+
+    exports uni.gaben.iscat.utils;
+    exports uni.gaben.iscat.utils.sprite;
+    exports uni.gaben.iscat.utils.theme;
+    exports uni.gaben.iscat.view;
+    opens uni.gaben.iscat.model.game to javafx.fxml;
+    exports uni.gaben.iscat.controller.components;
+    opens uni.gaben.iscat.controller.components to javafx.fxml;
+    exports uni.gaben.iscat.model.user;
+    exports uni.gaben.iscat.view.components;
+    opens uni.gaben.iscat.view.components to javafx.fxml;
+    exports uni.gaben.iscat.universe.entity;
+    opens uni.gaben.iscat.universe to javafx.fxml;
 }
