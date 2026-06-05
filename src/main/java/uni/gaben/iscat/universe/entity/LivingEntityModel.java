@@ -77,6 +77,15 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
         setLife(getLife());
     }
 
+    /**
+     * Sets maxLife and brings life up to the new maximum WITHOUT triggering the kill-check.
+     * Use this in customizers applied after a projectile is already alive.
+     */
+    public void setMaxLifeDirect(double maxLife) {
+        this.maxLife = maxLife;
+        this.life.set(maxLife);
+    }
+
     public void setOnHurt(Runnable callback) { this.onHurt = callback; }
     public void setOnDeath(Runnable callback) { this.onDeath = callback; }
 

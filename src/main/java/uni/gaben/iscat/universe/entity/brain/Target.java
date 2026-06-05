@@ -52,7 +52,7 @@ public interface Target {
         // Bypass getPositions() entirely. Compute the average directly to avoid building a List<Vector2>
         for (int i = 0; i < entities.size(); i++) {
             AbstractEntityModel e = entities.get(i);
-            if (!e.shouldRemove()) {
+            if (e != null && !e.shouldRemove()) {
                 Vector2 pos = e.getTransform().getTranslation();
                 sumX += pos.x;
                 sumY += pos.y;

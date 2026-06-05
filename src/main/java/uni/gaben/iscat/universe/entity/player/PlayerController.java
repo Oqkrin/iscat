@@ -158,8 +158,8 @@ public class PlayerController {
             double angle = player.getTransform().getRotationAngle();
 
             Consumer<Projectile> customized = bullet -> {
-                bullet.setMaxLife(bullet.getLife() + player.getLevel());
-                bullet.setLife(bullet.getMaxLife());
+                double boostedLife = bullet.getLife() + player.getLevel();
+                bullet.setMaxLifeDirect(boostedLife);
             };
 
             updateAttackPatternByLevel();

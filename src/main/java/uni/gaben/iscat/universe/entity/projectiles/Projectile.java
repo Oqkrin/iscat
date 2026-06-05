@@ -7,6 +7,10 @@ import uni.gaben.iscat.universe.UU;
 
 public class Projectile extends AbstractProjectileModel {
     private ProjectileType type;
+    private boolean inPool = false;
+
+    public boolean isInPool() { return inPool; }
+    public void setInPool(boolean inPool) { this.inPool = inPool; }
 
     public Projectile(ProjectileType type) {
         super(type.energy);
@@ -26,8 +30,11 @@ public class Projectile extends AbstractProjectileModel {
 
         // Propaga i parametri balistici all'abstract base
         setTerminalVelocity(type.terminalVelocity);
+        // Set life directly on the property BEFORE setMaxLife to prevent the kill-trigger
+        // in setLife(). When recycled, life == 0, so setMaxLife calls setLife(0) which
+        // re-triggers kill() — bypassing this by writing the field directly first.
+        this.life.set(type.energy);
         setMaxLife(type.energy);
-        setLife(type.energy);
     }
 
     public ProjectileType getType() { return type; }

@@ -97,7 +97,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "fallen_star_golem":
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS / 1000,
+                        settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         new RepeaterPatternShooter(2, 0.5, new RingPatternShooter(16)),
                         Target.ofPlayer(),
@@ -132,7 +132,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         new SummonPatternShooter(3,"eater",100),
                         new SummonPatternShooter(2,"iscat_dasher",100),
                         new RepeaterPatternShooter(3,0.25, new RingPatternShooter(24)),
-                        new RepeaterPatternShooter(2,0.25, new SpreadPatternShooter(24, 0))
+                        new RepeaterPatternShooter(2,0.25, new SpreadPatternShooter(24, 60))
                 ));
                 break;
 
@@ -146,7 +146,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             default:
                 addAction(new ShootAction(
                         settings.detectionRange,
-                        settings.actionCooldownMS / 1000,
+                        settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),

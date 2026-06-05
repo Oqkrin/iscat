@@ -1,16 +1,10 @@
 package uni.gaben.iscat.universe.entity.projectiles;
 
-import org.dyn4j.collision.CollisionBody;
-
-public abstract class AbstractShooterController<T extends CollisionBody> {
-
-    protected T model;
-
-    protected AbstractShooterController(T model) {
-        this.model = model;
-    }
-
-    public abstract void shoot(ProjectileType type);
-
-    protected abstract AbstractProjectileModel shootingLogic(ProjectileType type);
+// This class is intentionally left empty.
+// AbstractShooterController was previously the base class for Shooter,
+// but has been inlined into Shooter directly. Kept as a stub to avoid
+// breaking any external references during refactoring.
+@Deprecated
+public abstract class AbstractShooterController<T> {
+    protected AbstractShooterController() {}
 }

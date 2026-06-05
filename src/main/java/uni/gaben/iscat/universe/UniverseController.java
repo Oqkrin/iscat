@@ -98,7 +98,9 @@ public class UniverseController {
     }
 
     private void updateAI(double dt) {
-        for (IEntityController ctrl : entityControllers) ctrl.update(universeModel, dt);
+        for (IEntityController ctrl : entityControllers) {
+            System.out.println(ctrl.getClass().getSimpleName());
+            ctrl.update(universeModel, dt); }
     }
 
     /** Clamps every body's speed to its declared terminal velocity. */
