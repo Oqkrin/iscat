@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity.brain.actions.shoot;
 
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.PatternShooter;
+import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 

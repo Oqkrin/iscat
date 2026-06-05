@@ -3,11 +3,10 @@ package uni.gaben.iscat.universe.entity.brain.actions;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.SummonPatternShooter;
+import uni.gaben.iscat.universe.entity.projectiles.shooters.SummonPatternShooter;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 
 public class LifeBasedSummonAction extends Action {
 

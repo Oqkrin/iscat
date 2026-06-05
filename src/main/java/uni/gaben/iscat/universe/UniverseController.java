@@ -211,4 +211,7 @@ public class UniverseController {
 
     public UniverseModel       getUniverseModel()     { return universeModel; }
 
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
 }

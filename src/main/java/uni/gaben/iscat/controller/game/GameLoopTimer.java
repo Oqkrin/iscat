@@ -61,15 +61,12 @@ public class GameLoopTimer extends AnimationTimer {
             gameModel.timerProperty().set(h * 10000 + m * 100 + s);
         }
 
-        // Clamp dt to avoid physics spiral of death
         double clampedDt = Math.min(dt, GameModel.ACCUMULATORUNIT);
 
-        // Always invoke update so input (like toggling pause) is still processed
         if (updateCall != null) {
-            updateCall.accept(clampedDt);
+            updateCall.accept(clampedDt * gameModel.getTimeScale());
         }
 
-        // Always draw to keep the screen (and FPS counter) alive
         if (drawCall != null) {
             drawCall.run();
         }

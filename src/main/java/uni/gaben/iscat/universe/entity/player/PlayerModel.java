@@ -41,10 +41,8 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
     public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
 
-        // Convert physics collision metrics through the UU boundary helper
         double radiusInMeters = UU.pxToM(PlayerSettings.RAGGIO_COLLISIONE);
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters));
-
         fixture.setFilter(UniverseCollisionLayers.PLAYER_FILTER);
         setMass(MassType.NORMAL);
         setLinearDamping(PlayerSettings.LINEAR_DAMPING);
@@ -53,17 +51,12 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
     }
 
     public void update(double dt) {
-        // Uniform clock ticking processing via dt seconds
         dashCooldown.update(dt);
         dashDuration.update(dt);
         weaponCooldown.update(dt);
         updateThrust();
         updateStateTime(dt);
-        if (isInScatto()) {
-            setLinearDamping(PlayerSettings.LINEAR_DAMPING_SCATTO);
-        } else {
-            setLinearDamping(PlayerSettings.LINEAR_DAMPING);
-        }
+        setLinearDamping(isInScatto() ? PlayerSettings.LINEAR_DAMPING_SCATTO : PlayerSettings.LINEAR_DAMPING);
     }
 
     public void updateThrust() {
@@ -74,13 +67,10 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         double normVx = worldVel.x / PlayerSettings.VELOCITA_MAX;
         double normVy = worldVel.y / PlayerSettings.VELOCITA_MAX;
 
-        // EXACT angle used by the renderer when drawing thrust:
-        //   gc.rotate( physicsAngle + BASE_ROTRAD_OFFSET )
         double rotRad = getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET;
         double cos = Math.cos(rotRad);
         double sin = Math.sin(rotRad);
 
-        // These formulas are exactly as in the old PlayerView
         double localDriftX = -normVx * cos - normVy * sin;
         double localDriftY =  normVx * sin - normVy * cos;
 
@@ -88,21 +78,14 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
                 getWidthPx(), getHeightPx());
     }
 
-
     public void executeScatto(double angle) {
         Vector2 dashDir = new Vector2(Math.cos(angle), Math.sin(angle));
-
-        // Directional Snap: instantly counter current momentum if dashing backwards
         if (getLinearVelocity().dot(dashDir) < 0) {
             setLinearVelocity(new Vector2(0, 0));
         }
-
         applyImpulse(dashDir.multiply(PlayerSettings.IMPULSO_SCATTO * getMass().getMass()));
-
         dashDuration.start(PlayerSettings.DURATA_SCATTO_SEC);
         dashCooldown.start(PlayerSettings.COOLDOWN_SCATTO_SEC);
-
-
     }
 
     // LEVEL SYSTEM GETTERS
@@ -121,11 +104,10 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         weaponCooldown.start(PlayerSettings.COOLDOWN_FUOCO_SEC);
     }
 
-    public void setCooldownFuocoSec(double new_value){
+    public void setCooldownFuocoSec(double new_value) {
         PlayerSettings.COOLDOWN_FUOCO_SEC = new_value;
     }
 
-    /** Managed safe retrieval of current cooldown fraction for visual interface bars */
     public double getDashMeter() {
         return dashCooldown.getProgress();
     }
@@ -140,19 +122,10 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         if (onDeathCallback != null) onDeathCallback.run();
     }
 
-    /**
-     * Aggiunge XP al giocatore e gestisce l'eventuale Level Up a catena.
-     */
     public void addXp(double amount) {
         if (amount <= 0) return;
-
         this.xp.set(this.xp.get() + amount);
-
-        if (this.xpNeeded <= 0) {
-            this.xpNeeded = 100.0;
-        }
-
-        // Loop nel caso in cui l'XP ricevuta sia talmente tanta da fare più di un livello
+        if (this.xpNeeded <= 0) this.xpNeeded = 100.0;
         while (this.xp.get() >= xpNeeded) {
             levelUp();
         }
@@ -164,12 +137,9 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         this.xpNeeded = this.xpNeeded * 1.2;
 
         AudioManager.getInstance().playSFX("levelup");
-
-        // Aumento di statistiche + cura totale
         setMaxLife(getMaxLife() + 100);
         setLife(getMaxLife());
-
-        System.out.println("[LEVEL UP] Nuovo Livello: " + getLevel() + " | Prossimo livello a: " + this.xpNeeded + " XP");
+        System.out.println("[LEVEL UP] New Level: " + getLevel() + " | Next: " + this.xpNeeded + " XP");
         applyImpulse(new Vector2(0, 0));
     }
 
@@ -189,6 +159,7 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         }
     }
 
+    // ---- HasSprite implementation ----
     @Override
     public String getSpritePath() {
         return PlayerSettings.getPlayerSkin();
@@ -200,18 +171,18 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
     }
 
     @Override
+    public int getSpriteFrameHeight() {
+        return (int) PlayerSettings.DIMENSIONE_DA_DISEGNARE;
+    }
+
+    @Override
     public double getFrameDuration() {
-        return UU.UNIVERSE_TICK*6;
+        return UU.UNIVERSE_TICK * 6;
     }
 
     @Override
     public double getFrameDuration(int state, int frame) {
         return getFrameDuration();
-    }
-
-    @Override
-    public int getSpriteFrameHeight() {
-        return (int) PlayerSettings.DIMENSIONE_DA_DISEGNARE;
     }
 
     @Override

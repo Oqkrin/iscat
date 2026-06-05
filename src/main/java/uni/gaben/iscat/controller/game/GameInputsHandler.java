@@ -7,12 +7,23 @@ import javafx.scene.input.MouseButton;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
 
-public class GameInputsHandler{
+/**
+ * Handles raw keyboard/mouse input for the game.
+ * State is read directly every frame – no buffered consumption for movement or dash.
+ * Pause uses a one‑shot consumption pattern to avoid multiple toggles.
+ */
+public class GameInputsHandler {
+
+    // Movement and shooting (read each frame)
     public boolean up, down, left, right;
     public boolean shooting;
 
-    private boolean dashRequested = false;
-    private boolean dashMouseRequested = false;
+    // Dash triggers (read and then consumed)
+    public boolean dashKeyPressed;
+    public boolean dashMousePressed;   // triggers keyboard dash? Actually we use for slow-motion
+
+    // Slow‑motion (mouse dodge button held)
+    public boolean slowMotionRequested;
 
     public double mouseX, mouseY;
 
@@ -21,7 +32,6 @@ public class GameInputsHandler{
     public void attachToScene(Scene scene) {
         scene.setOnKeyPressed(e -> handleKey(e.getCode(), true));
         scene.setOnKeyReleased(e -> handleKey(e.getCode(), false));
-
         scene.setOnMousePressed(e -> handleMouse(e.getButton(), true));
         scene.setOnMouseReleased(e -> handleMouse(e.getButton(), false));
     }
@@ -38,13 +48,11 @@ public class GameInputsHandler{
     }
 
     public void resetInputs() {
-        up = false;
-        down = false;
-        left = false;
-        right = false;
-        dashRequested = false;
-        dashMouseRequested = false;
+        up = down = left = right = false;
         shooting = false;
+        dashKeyPressed = false;
+        dashMousePressed = false;
+        slowMotionRequested = false;
         pauseRequested = false;
     }
 
@@ -59,32 +67,34 @@ public class GameInputsHandler{
             if (matchKey(code, settings.getAttack()))    shooting = isPressed;
 
             if (isPressed) {
-                if (matchKey(code, settings.getDash1()))     dashRequested = true;
-                if (matchKey(code, settings.getDash2()))     dashMouseRequested = true;
+                if (matchKey(code, settings.getDash1())) dashKeyPressed = true;
+                if (matchKey(code, settings.getDash2())) dashMousePressed = true; // used for slow?
                 if (matchKey(code, settings.getPauseGame())) pauseRequested = true;
             } else {
-                if (matchKey(code, settings.getDash1()))    dashRequested = false;
-                if (matchKey(code, settings.getDash2()))    dashMouseRequested = false;
+                // No consumption, just clear state on release
+                if (matchKey(code, settings.getDash1())) dashKeyPressed = false;
+                if (matchKey(code, settings.getDash2())) dashMousePressed = false;
             }
         } else {
+            // Default fallback
             switch (code) {
                 case W, UP    -> up = isPressed;
                 case S, DOWN  -> down = isPressed;
                 case A, LEFT  -> left = isPressed;
                 case D, RIGHT -> right = isPressed;
                 case Z        -> shooting = isPressed;
-                case SPACE    -> { if (isPressed) dashRequested = true; }
+                case SPACE    -> { if (isPressed) dashKeyPressed = true; }
                 case ESCAPE, P -> { if (isPressed) pauseRequested = true; }
                 default -> {}
             }
         }
     }
 
-
     private void handleMouse(MouseButton button, boolean isPressed) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
         if (settings != null) {
+            // Movement via mouse? (optional, keep for completeness)
             if (matchMouse(button, settings.getWalkUp()))    up = isPressed;
             if (matchMouse(button, settings.getWalkDown()))  down = isPressed;
             if (matchMouse(button, settings.getWalkLeft()))  left = isPressed;
@@ -92,22 +102,26 @@ public class GameInputsHandler{
             if (matchMouse(button, settings.getAttack()))    shooting = isPressed;
 
             if (isPressed) {
-                if (matchMouse(button, settings.getDash1())) dashRequested = true;
-                if (matchMouse(button, settings.getDash2())) dashMouseRequested = true;
+                if (matchMouse(button, settings.getDash1())) dashKeyPressed = true;
+                if (matchMouse(button, settings.getDash2())) {
+                    // Mouse dodge → request slow‑motion
+                    slowMotionRequested = true;
+                }
                 if (matchMouse(button, settings.getPauseGame())) pauseRequested = true;
             } else {
-                if (matchMouse(button, settings.getDash1())) dashRequested = false;
-                if (matchMouse(button, settings.getDash2())) dashMouseRequested = false;
+                if (matchMouse(button, settings.getDash1())) dashKeyPressed = false;
+                if (matchMouse(button, settings.getDash2())) slowMotionRequested = false;
             }
         } else {
+            // Default mouse fallback
             if (button == MouseButton.PRIMARY) shooting = isPressed;
             if (button == MouseButton.MIDDLE) {
-                if (isPressed) dashMouseRequested = true;
-                else dashMouseRequested = false;
+                slowMotionRequested = isPressed;
             }
         }
     }
 
+    // ----- Match helpers -----
     private boolean matchKey(KeyCode code, String settingValue) {
         if (settingValue == null) return false;
         String dbKey = settingValue.trim().toUpperCase();
@@ -125,27 +139,15 @@ public class GameInputsHandler{
     private boolean matchMouse(MouseButton button, String settingValue) {
         if (settingValue == null) return false;
         String val = settingValue.trim().toUpperCase();
-
         return switch (button) {
-            case PRIMARY   -> val.equals("MOUSEPRIMARY");
+            case PRIMARY -> val.equals("MOUSEPRIMARY");
             case SECONDARY -> val.equals("MOUSESECONDARY");
-            case MIDDLE    -> val.equals("MOUSEMIDDLE");
+            case MIDDLE -> val.equals("MOUSEMIDDLE");
             default -> false;
         };
     }
 
-    public boolean consumeDash() {
-        boolean d = dashRequested;
-        dashRequested = false;
-        return d;
-    }
-
-    public boolean consumeDashMouse() {
-        boolean d = dashMouseRequested;
-        dashMouseRequested = false;
-        return d;
-    }
-
+    // Pause is still consumed (one‑shot)
     public boolean consumePause() {
         boolean p = pauseRequested;
         pauseRequested = false;

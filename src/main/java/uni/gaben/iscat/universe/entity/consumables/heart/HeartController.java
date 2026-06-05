@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.entity.consumables.heart;
 
 
+import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
@@ -31,9 +32,10 @@ public class HeartController extends Brain<HeartModel> {
 
     @Override
     public void update(UniverseModel universe, double dt) {
-        if (heart == null || heart.shouldRemove() || collected) return;
+        AbstractEntityModel player = universe.getPlayer();
+        if (heart == null || heart.shouldRemove() || collected || player == null) return;
         super.update(universe, dt);
-        if(universe.getPlayer().getTransform().getTranslation().distance(heart.getTransform().getTranslation()) < 3) {
+        if(player.getTransform().getTranslation().distance(heart.getTransform().getTranslation()) < 3) {
             setMovementGoal(SteeringGoal.pursuit(Target.ofPlayer(), 0));
         } else {
             setMovementGoal(SteeringGoal.idle());

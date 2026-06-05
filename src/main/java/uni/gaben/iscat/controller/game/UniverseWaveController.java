@@ -17,7 +17,7 @@ import java.util.Random;
  * della difficoltà basandosi sui tempi di gioco e sul livello del giocatore, e gestisce
  * l'algoritmo di estrazione probabilistica pesata (RNG) per la selezione delle tipologie di nemici.
  */
-public class GameWaveController {
+public class UniverseWaveController {
 
     /**
      * Struttura dati interna per la mappatura e il tracciamento accoppiato

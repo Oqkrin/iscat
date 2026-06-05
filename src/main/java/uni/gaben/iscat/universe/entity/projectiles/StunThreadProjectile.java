@@ -45,8 +45,8 @@ public class StunThreadProjectile extends Projectile {
         setLinearVelocity(direction.multiply(speed));
 
         // Override damage: stun threads should not hurt, only disable
-        setLife(0.0);
-        setMaxLife(0.0);
+        setLife(1.0);
+        setMaxLife(1.0);
 
         // Custom collision handler: apply stun to player, then vanish
         setOnCollision(other -> {

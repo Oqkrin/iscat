@@ -1,11 +1,7 @@
 package uni.gaben.iscat.controller.game;
 
 import uni.gaben.iscat.model.game.GameModel;
-import uni.gaben.iscat.universe.UniverseController;
-import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.UniverseSettings;
-import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.controller.game.GameWaveController;
+import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
@@ -28,7 +24,7 @@ public class GameLifecycleManager {
      * Resets the entire universe physics state and recreates necessary controllers.
      *
      * @param onPlayerDeath Callback to execute when the player dies.
-     * @return The freshly constructed UniverseController and GameWaveController.
+     * @return The freshly constructed UniverseController and UniverseWaveController.
      */
     public ControllersBundle resetUniverse(Runnable onPlayerDeath) {
         CameraModel camera = gameModel.getCameraModel();
@@ -48,7 +44,7 @@ public class GameLifecycleManager {
 
         // 2. Create brand new controllers for the fresh universe
         UniverseController newUniverseController = new UniverseController(freshUniverse);
-        GameWaveController newWaveController = new GameWaveController();
+        UniverseWaveController newWaveController = new UniverseWaveController();
         newWaveController.reset();
 
         // 3. Re‑initialise the UniverseSpawner with the new universe and controllers
@@ -80,5 +76,5 @@ public class GameLifecycleManager {
         return new ControllersBundle(newUniverseController, newWaveController);
     }
 
-    public record ControllersBundle(UniverseController universeController, GameWaveController waveController) {}
+    public record ControllersBundle(UniverseController universeController, UniverseWaveController waveController) {}
 }

@@ -30,7 +30,7 @@ public class GameController {
     private final GameLifecycleManager lifecycleManager;
 
     private UniverseController universeController;
-    private GameWaveController waveController;
+    private UniverseWaveController waveController;
     private Runnable onUniverseResetCallback;
     
     private final ScoreDAO scoreDAO = IscatDB.getInstance().getScoreDAO();
@@ -50,6 +50,7 @@ public class GameController {
         this.universeController = bundle.universeController();
         this.waveController = bundle.waveController();
         this.universeController.setEntityDeathListener(this::onEntityDied);
+        this.universeController.getPlayerController().setGameModel(gameModel);
     }
 
     private void tick(double dt) {
@@ -109,7 +110,7 @@ public class GameController {
 
     private void onEntityDied(AbstractEntityModel entity, boolean killedByProjectile) {
         if (entity instanceof LivingEntityModel living) {
-            GameWaveController.incrementKills();
+            UniverseWaveController.incrementKills();
 
             if (living.getXpReward() > 0) {
                 String key = living.getEntityKey();

@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.projectiles.Shooters;
+package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;

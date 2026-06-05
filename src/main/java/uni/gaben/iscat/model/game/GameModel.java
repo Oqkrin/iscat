@@ -27,6 +27,7 @@ public class GameModel {
     private final LongProperty   start               = new SimpleLongProperty(-1);
     private final LongProperty   lastUpdate          = new SimpleLongProperty(0);
     private final DoubleProperty totalElapsedSeconds = new SimpleDoubleProperty(0.0);
+    private final DoubleProperty timeScale = new SimpleDoubleProperty(1.0);
 
     // ------------------------------------------------------------------------
     // Game state
@@ -89,6 +90,11 @@ public class GameModel {
     public int getTimer()              { return timer.get(); }
     public IntegerProperty timerProperty() { return timer; }
     public void setTimer(int value)    { timer.set(value); }
+
+
+    public double getTimeScale() { return timeScale.get(); }
+    public DoubleProperty timeScaleProperty() { return timeScale; }
+    public void setTimeScale(double scale) { timeScale.set(scale); }
 
     // Models
     public UniverseModel getUniverseModel() { return universeModel; }

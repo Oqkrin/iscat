@@ -1,8 +1,6 @@
-package uni.gaben.iscat.controller.game;
+package uni.gaben.iscat.universe;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 
 import java.util.Random;

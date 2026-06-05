@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.projectiles.Shooters;
+package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseSpawner;

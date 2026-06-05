@@ -2,8 +2,8 @@ package uni.gaben.iscat.universe.entity.brain.actions.shoot;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.PatternShooter;
-import uni.gaben.iscat.universe.entity.projectiles.Shooters.RepeaterPatternShooter;
+import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
+import uni.gaben.iscat.universe.entity.projectiles.shooters.RepeaterPatternShooter;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
@@ -51,9 +51,9 @@ public class RandomizedShootAction extends AbstractShootAction {
         PatternShooter selected = attackPool.get(rand.nextInt(attackPool.size()));
 
         if (selected instanceof RepeaterPatternShooter repeater) {
-            burstPattern = repeater.getInner();
-            burstLeft = repeater.getTimes() - 1; // first shot fires now
-            burstInterval = repeater.getIntervalSeconds();
+            burstPattern = repeater.inner();
+            burstLeft = repeater.times() - 1; // first shot fires now
+            burstInterval = repeater.intervalSeconds();
             burstTimer = burstInterval;
             // Fire the first burst immediately
             burstPattern.execute(brain.getShooter(), bulletType, angle, customizer);
