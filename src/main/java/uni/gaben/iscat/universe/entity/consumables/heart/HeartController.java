@@ -12,7 +12,7 @@ public class HeartController extends Brain<HeartModel> {
     private boolean collected = false;
 
     public HeartController(HeartModel heart) {
-        super(heart, SteeringGoal.idle() ,heart.getBaseAccelerationPerTick(), heart.getTerminalVelocity(), 0.0, 0);
+        super(heart, SteeringGoal.idle());
         this.heart = heart;
 
         // Collision callback

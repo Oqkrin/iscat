@@ -3,11 +3,7 @@ package uni.gaben.iscat.universe;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
 
-import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.database.dao.EnemyDAO;
-import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.controller.game.GameInputsHandler;
-import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
@@ -19,9 +15,7 @@ import uni.gaben.iscat.universe.entity.brain.IEntityController;
 import uni.gaben.iscat.universe.entity.HasTerminalVelocity;
 import uni.gaben.iscat.universe.entity.player.PlayerController;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.utils.Cooldown;
-import uni.gaben.iscat.utils.SessionManager;
-import uni.gaben.iscat.utils.SessionScoreTracker;
+import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
@@ -38,25 +32,19 @@ import java.util.Random;
  */
 public class UniverseController {
 
-    private static final double ASTEROID_SPAWN_INTERVAL = 3.0;
-    private static final int    MAX_ACTIVE_ASTEROIDS    = 30;
-
     private final UniverseModel       universeModel;
     private final PlayerController    playerController;
     private final List<IEntityController> entityControllers = new ArrayList<>();
-    private final Cooldown asteroidCooldown = new Cooldown();
-    private final Random   random = new Random();
-
-    private final ScoreDAO scoreDAO;
-    private final EnemyDAO enemyDAO;
-
-    private int activeAsteroidCount = 0;
+    
+    private EntityDeathListener entityDeathListener;
 
     public UniverseController(UniverseModel universeModel) {
         this.universeModel   = universeModel;
-        this.scoreDAO        = IscatDB.getInstance().getScoreDAO();
-        this.enemyDAO        = IscatDB.getInstance().getEnemyDAO();
         this.playerController = new PlayerController(universeModel.getPlayer());
+    }
+
+    public void setEntityDeathListener(EntityDeathListener listener) {
+        this.entityDeathListener = listener;
     }
 
     // -------------------------------------------------------------------------
@@ -74,7 +62,6 @@ public class UniverseController {
         PlayerModel player = universeModel.getPlayer();
 
         syncPlayerController(player);
-        spawnAsteroids(dt, player);
         processPlayerInputs(player, inputs, camera, dt);
         updateProjectiles(camera, dt);
         updateEntities(dt);
@@ -179,41 +166,19 @@ public class UniverseController {
 
             if (remove) {
                 toRemove.add(entity);
-                if (entity instanceof LivingEntityModel living
-                        && living != player
-                        && living.getXpReward() > 0
-                        && player != null) {
-
-                    String key      = living.getEntityKey();
-                    String cleanKey = key != null ? key.toLowerCase().trim() : "";
-                    // Healer and Master bypass the projectile-kill requirement
-                    boolean isSpecial = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
-
-                    if (living.isKilledByProjectile() || isSpecial) {
-                        player.addXp(living.getXpReward());
-                        SessionScoreTracker.getInstance().addScore((int) living.getXpReward());
-
-                        SessionUser user = SessionManager.getInstance().getCurrentUser();
-                        if (user != null) {
-                            IscatDB.getInstance().executeAsync(
-                                    () -> scoreDAO.increment(user.id(), "Deaths", 1));
-                            if (!cleanKey.isEmpty()) {
-                                IscatDB.getInstance().executeAsync(
-                                        () -> enemyDAO.incrementKill(user.id(), cleanKey));
-                            }
-                        }
-                    }
+                if (entity instanceof LivingEntityModel living && living != player && entityDeathListener != null) {
+                    entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
                 }
             }
         }
 
         for (AbstractEntityModel entity : toRemove) {
-            if (entity instanceof AsteroidModel) {
-                activeAsteroidCount--;
-            }
             universeModel.removeEntity(entity);
             entityControllers.removeIf(
                     ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
+            if (entity instanceof uni.gaben.iscat.universe.entity.projectiles.Projectile p) {
+                uni.gaben.iscat.universe.entity.projectiles.ProjectilePool.release(p);
+            }
         }
     }
 
@@ -234,41 +199,6 @@ public class UniverseController {
         camera.getSpringY().update(dt);
     }
 
-    private void spawnAsteroids(double dt, PlayerModel player) {
-        asteroidCooldown.update(dt);
-        if (!asteroidCooldown.isReady()) return;
-        asteroidCooldown.start(ASTEROID_SPAWN_INTERVAL);
-
-
-        if (activeAsteroidCount >= MAX_ACTIVE_ASTEROIDS || player == null) return;
-
-        final double TAU = Math.PI * 2.0;
-        final double SPEED_MIN = UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MIN;
-        final double SPEED_RANGE = UniverseVelocitySettings.ASTEROID_SPAWN_SPEED_MAX - SPEED_MIN;
-
-        double px = UU.mToPx(player.getTransform().getTranslationX());
-        double py = UU.mToPx(player.getTransform().getTranslationY());
-        double angle = random.nextDouble() * TAU;
-        double dist = 900.0 + random.nextDouble() * 600.0;
-        double cx = px + Math.cos(angle) * dist;
-        double cy = py + Math.sin(angle) * dist;
-        int count = 3 + random.nextInt(9);
-
-        for (int i = 0; i < count; i++) {
-            double off = random.nextDouble() * TAU;
-            double r = random.nextDouble() * 150.0;
-            double ax = cx + Math.cos(off) * r;
-            double ay = cy + Math.sin(off) * r;
-            double size = 15.0 + random.nextDouble() * 180.0;
-            AsteroidModel ast = new AsteroidModel(ax, ay, size);
-            double da = random.nextDouble() * TAU;
-            double speed = SPEED_MIN + random.nextDouble() * SPEED_RANGE;
-            ast.setLinearVelocity(new Vector2(Math.cos(da) * speed, Math.sin(da) * speed));
-            UniverseSpawner.getInstance().spawnEntity(ast);
-            activeAsteroidCount++;
-        }
-    }
-
     // -------------------------------------------------------------------------
     // Public API
     // -------------------------------------------------------------------------
@@ -278,4 +208,5 @@ public class UniverseController {
     }
 
     public UniverseModel       getUniverseModel()     { return universeModel; }
+
 }

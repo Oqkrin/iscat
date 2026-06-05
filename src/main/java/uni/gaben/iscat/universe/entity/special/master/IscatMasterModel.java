@@ -4,7 +4,7 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 import uni.gaben.iscat.utils.Updatable;
-import uni.gaben.iscat.universe.UniverseWaveController;
+import uni.gaben.iscat.controller.game.GameWaveController;
 import uni.gaben.iscat.universe.entity.GenericEntityModel;
 
 public class IscatMasterModel extends GenericEntityModel implements Updatable {
@@ -17,13 +17,13 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
 
     private boolean completeKillCalled = false;
 
-    private final UniverseWaveController waveController;
+    private final GameWaveController waveController;
 
-    public IscatMasterModel(double x, double y, UniverseWaveController waveController) {
+    public IscatMasterModel(double x, double y, GameWaveController waveController) {
         this(x, y, waveController, loadSettings());
     }
 
-    private IscatMasterModel(double x, double y, UniverseWaveController waveController,
+    private IscatMasterModel(double x, double y, GameWaveController waveController,
                              GenericEntitySettings s) {
         super(x, y, s);
         this.waveController = waveController;

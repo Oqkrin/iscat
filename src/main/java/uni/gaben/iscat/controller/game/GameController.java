@@ -10,6 +10,15 @@ import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.database.dao.EnemyDAO;
+import uni.gaben.iscat.database.dao.ScoreDAO;
+import uni.gaben.iscat.model.user.SessionUser;
+import uni.gaben.iscat.utils.SessionManager;
+import uni.gaben.iscat.utils.SessionScoreTracker;
+import uni.gaben.iscat.universe.entity.LivingEntityModel;
+import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 
 public class GameController {
 
@@ -21,8 +30,11 @@ public class GameController {
     private final GameLifecycleManager lifecycleManager;
 
     private UniverseController universeController;
-    private UniverseWaveController waveController;
+    private GameWaveController waveController;
     private Runnable onUniverseResetCallback;
+    
+    private final ScoreDAO scoreDAO = IscatDB.getInstance().getScoreDAO();
+    private final EnemyDAO enemyDAO = IscatDB.getInstance().getEnemyDAO();
     
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
@@ -37,6 +49,7 @@ public class GameController {
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath);
         this.universeController = bundle.universeController();
         this.waveController = bundle.waveController();
+        this.universeController.setEntityDeathListener(this::onEntityDied);
     }
 
     private void tick(double dt) {
@@ -69,6 +82,7 @@ public class GameController {
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath);
         this.universeController = bundle.universeController();
         this.waveController = bundle.waveController();
+        this.universeController.setEntityDeathListener(this::onEntityDied);
 
         if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
@@ -91,6 +105,34 @@ public class GameController {
             gameModel.setGameState(GameState.GAME_OVER);
             statsManager.saveStats((int) gameModel.getTotalElapsedSeconds());
         });
+    }
+
+    private void onEntityDied(AbstractEntityModel entity, boolean killedByProjectile) {
+        if (entity instanceof LivingEntityModel living) {
+            GameWaveController.incrementKills();
+
+            if (living.getXpReward() > 0) {
+                String key = living.getEntityKey();
+                String cleanKey = key != null ? key.toLowerCase().trim() : "";
+                boolean isSpecial = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
+
+                if (killedByProjectile || isSpecial) {
+                    PlayerModel player = gameModel.getUniverseModel().getPlayer();
+                    if (player != null) player.addXp(living.getXpReward());
+                    SessionScoreTracker.getInstance().addScore((int) living.getXpReward());
+
+                    SessionUser user = SessionManager.getInstance().getCurrentUser();
+                    if (user != null) {
+                        IscatDB.getInstance().executeAsync(
+                                () -> scoreDAO.increment(user.id(), "Deaths", 1)); // Wait, should be Kills? "Deaths" was in original
+                        if (!cleanKey.isEmpty()) {
+                            IscatDB.getInstance().executeAsync(
+                                    () -> enemyDAO.incrementKill(user.id(), cleanKey));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void debugSpawn(String id) {

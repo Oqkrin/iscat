@@ -407,6 +407,7 @@ public final class VFXRenderer {
                 centerGlow * 2
         );
 
+        gc.setGlobalBlendMode(BlendMode.SRC_OVER);
         gc.restore();
     }
 }

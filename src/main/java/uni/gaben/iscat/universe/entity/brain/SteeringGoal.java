@@ -10,11 +10,11 @@ import java.util.List;
 @FunctionalInterface
 public interface SteeringGoal {
 
-    Vector2 computeDesiredVelocity(AbstractEntityModel self, double maxVelocity, UniverseModel universe, double dt);
+    Vector2 computeDesiredVelocity(AbstractEntityModel self, UniverseModel universe, double dt);
 
     static SteeringGoal idle() {
         Vector2 idleVelocity = UU.vector2zero();
-        return (_, _, _, _) -> idleVelocity;
+        return (_, _, _) -> idleVelocity;
     }
 
     /**
@@ -29,7 +29,7 @@ public interface SteeringGoal {
         Vector2 selfForward = UU.vector2zero();
         Vector2 targetForward = UU.vector2zero();
 
-        return (self, maxVelocity, universe, dt) -> {
+        return (self, universe, dt) -> {
             List<AbstractEntityModel> targets = target.getEntities(universe);
             if (targets == null || targets.isEmpty()) return pursuitVelocity.set(0, 0);
 
@@ -58,6 +58,7 @@ public interface SteeringGoal {
             double forwardness = selfForward.dot(unitOffset);
 
             // 4. Calculate direct baseline travel time (with a safe floor to avoid dividing by 0)
+            double maxVelocity = self.getMaxVelocity();
             double currentSpeed = self.getLinearVelocity().getMagnitude();
             double speedBaseline = currentSpeed > 0.1 ? currentSpeed : maxVelocity;
             double directTravelTime = distance / speedBaseline;
@@ -129,7 +130,7 @@ public interface SteeringGoal {
         Vector2 evadeVelocity = UU.vector2zero();
         Vector2 predictedPos = UU.vector2zero();
 
-        return (self, maxVelocity, universe, dt) -> {
+        return (self, universe, dt) -> {
             List<AbstractEntityModel> targets = target.getEntities(universe);
             if (targets == null || targets.isEmpty()) return evadeVelocity.set(0, 0);
 
@@ -145,6 +146,7 @@ public interface SteeringGoal {
 
             // OpenSteer Evade Formula: Prediction time is proportional to distance
             // divided by the sum of our max capabilities and their current speed.
+            double maxVelocity = self.getMaxVelocity();
             double lookAheadTime = distance / (maxVelocity + threatSpeed);
             if (lookAheadTime > maxPredictionTime) {
                 lookAheadTime = maxPredictionTime;

@@ -34,7 +34,7 @@ public class Shooter<T extends CollisionBody> extends AbstractShooterController<
     }
 
     public void shoot(ProjectileType type, Consumer<Projectile> customizer) {
-        Projectile bullet = new Projectile(type);
+        Projectile bullet = ProjectilePool.acquire(type);
         if (customizer != null) {
             customizer.accept(bullet);
         }
@@ -52,7 +52,7 @@ public class Shooter<T extends CollisionBody> extends AbstractShooterController<
     }
 
     public void shoot(ProjectileType type, double angle, Consumer<Projectile> customizer) {
-        Projectile bullet = new Projectile(type);
+        Projectile bullet = ProjectilePool.acquire(type);
         if (customizer != null) {
             customizer.accept(bullet);
         }
@@ -68,7 +68,7 @@ public class Shooter<T extends CollisionBody> extends AbstractShooterController<
     }
 
     public void shoot(ProjectileType type, Vector2 position, double angle, Consumer<Projectile> customizer) {
-        Projectile bullet = new Projectile(type);
+        Projectile bullet = ProjectilePool.acquire(type);
         if (customizer != null) {
             customizer.accept(bullet);
         }
@@ -102,7 +102,7 @@ public class Shooter<T extends CollisionBody> extends AbstractShooterController<
 
     @Override
     protected AbstractProjectileModel shootingLogic(ProjectileType type) {
-        Projectile bullet = new Projectile(type);
+        Projectile bullet = ProjectilePool.acquire(type);
         bullet.setTransform(model.getTransform());
         bullet.translate(Vector2.create(distance, model.getTransform().getRotationAngle()));
         bullet.setLinearVelocity(

@@ -18,22 +18,24 @@ import uni.gaben.iscat.universe.entity.projectiles.Shooters.*;
 public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
     public GenericEntityBrain(GenericEntityModel entity) {
-        // NOTA: Rimosso il parametro 'mass' finale per allinearsi perfettamente
-        // alla firma del costruttore a 5 parametri della classe base Brain.
         super(entity,
-                SteeringGoal.pursuit(Target.ofPlayer(), entity.getSettings().maxForce/entity.getSettings().maxVelocity),
-                entity.getSettings().maxForce,
-                entity.getSettings().maxVelocity,
-                entity.getSettings().maxAngularVelocity,
-                entity.getSettings().mass
+                SteeringGoal.pursuit(Target.ofPlayer(), entity.getMaxForce() / entity.getMaxVelocity())
         );
 
         setRotationGoal(RotationGoal.target(Target.ofPlayer()));
 
         GenericEntitySettings settings = entity.getSettings();
 
-        switch (settings.entityKey) {
+        loadBehaviorsFromSettings(settings);
+    }
 
+    /**
+     * STUB: Temporary hardcoded mapping of EntityKeys to AI Actions.
+     * In the future, this will be replaced by an ActionBuilder/BehaviorProvider
+     * that parses the JSON/String definitions from GenericEntitySettings.
+     */
+    private void loadBehaviorsFromSettings(GenericEntitySettings settings) {
+        switch (settings.entityKey) {
             case "iscat_mob":
                 addAction(new ShootAction(
                         settings.detectionRange,
@@ -41,9 +43,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),
-                        false//,
-                        // Math.PI/4,
-                        // entity
+                        false
                 ));
                 break;
 
@@ -55,7 +55,6 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         new SummonPatternShooter(3, "BLACKHOLE", settings.detectionRange),
                         Target.ofPlayer(),
                         true
-
                 ));
                 break;
 
@@ -107,11 +106,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "eater":
-                break;
-
             case "iscat_worm_head":
-                break;
-
             case "iscat_worm_body_part":
                 break;
 
@@ -159,6 +154,5 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 ));
                 break;
         }
-
     }
 }

@@ -98,6 +98,12 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
     
     @Override public double getTerminalVelocity() { return terminalVelocity; }
     @Override public double getBaseAccelerationPerTick() { return baseAccelerationPerTick; }
+    
+    // Physical capability getters
+    public double getMaxVelocity() { return getTerminalVelocity(); }
+    public double getMaxForce() { return getBaseAccelerationPerTick(); }
+    public double getMaxAngularVelocity() { return 0.0; } // Default 0 for entities that don't rotate dynamically
+    
     public boolean shouldRemove() { return shouldRemove; }
     public void setShouldRemove(boolean shouldRemove) { this.shouldRemove = shouldRemove; }
 

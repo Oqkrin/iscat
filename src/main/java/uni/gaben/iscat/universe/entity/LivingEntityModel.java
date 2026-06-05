@@ -8,7 +8,7 @@ import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
-import uni.gaben.iscat.universe.UniverseWaveController;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 /**
@@ -116,8 +116,6 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
 
             // Elaborazione logiche di gioco specifiche per i nemici comuni e speciali
             if (!isHeart && !isProjectile && !isPlayer) {
-                UniverseWaveController.incrementKills();
-
                 // Logiche di ricompensa e spawn attive solo se ucciso attivamente dal giocatore
                 if (killedByProjectile) {
                     SessionScoreTracker.getInstance().addDeaths(1);

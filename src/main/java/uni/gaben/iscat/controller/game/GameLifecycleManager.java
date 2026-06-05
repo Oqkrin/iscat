@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.universe.UniverseWaveController;
+import uni.gaben.iscat.controller.game.GameWaveController;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
@@ -28,7 +28,7 @@ public class GameLifecycleManager {
      * Resets the entire universe physics state and recreates necessary controllers.
      *
      * @param onPlayerDeath Callback to execute when the player dies.
-     * @return The freshly constructed UniverseController and UniverseWaveController.
+     * @return The freshly constructed UniverseController and GameWaveController.
      */
     public ControllersBundle resetUniverse(Runnable onPlayerDeath) {
         CameraModel camera = gameModel.getCameraModel();
@@ -48,7 +48,7 @@ public class GameLifecycleManager {
 
         // 2. Create brand new controllers for the fresh universe
         UniverseController newUniverseController = new UniverseController(freshUniverse);
-        UniverseWaveController newWaveController = new UniverseWaveController();
+        GameWaveController newWaveController = new GameWaveController();
         newWaveController.reset();
 
         // 3. Re‑initialise the UniverseSpawner with the new universe and controllers
@@ -58,7 +58,8 @@ public class GameLifecycleManager {
         double midX = canvasW / 2.0;
         double midY = canvasH / 2.0;
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
-        UniverseSpawner.getInstance().spawnInitialAsteroidBelts(midX, midY);
+        AsteroidFieldManager asteroidFieldManager = new AsteroidFieldManager();
+        asteroidFieldManager.spawnInitialAsteroidBelts(midX, midY);
 
         // 5. Reset camera springs to the new player position
         camera.getSpringX().setPosition(midX);
@@ -79,5 +80,5 @@ public class GameLifecycleManager {
         return new ControllersBundle(newUniverseController, newWaveController);
     }
 
-    public record ControllersBundle(UniverseController universeController, UniverseWaveController waveController) {}
+    public record ControllersBundle(UniverseController universeController, GameWaveController waveController) {}
 }

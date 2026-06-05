@@ -5,6 +5,7 @@ import uni.gaben.iscat.universe.entity.GenericEntityFactory;
 import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
+import uni.gaben.iscat.controller.game.GameWaveController;
 import uni.gaben.iscat.universe.entity.GenericEntityBrain;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
@@ -25,7 +26,7 @@ public class UniverseSpawner {
     private static UniverseSpawner instance;
     private UniverseModel model;
     private UniverseController controller;
-    private UniverseWaveController waveController;
+    private GameWaveController waveController;
     private Random random = new Random();
 
     private UniverseSpawner() {}
@@ -35,7 +36,7 @@ public class UniverseSpawner {
         return instance;
     }
 
-    public void init(UniverseModel model, UniverseController controller, UniverseWaveController waveController) {
+    public void init(UniverseModel model, UniverseController controller, GameWaveController waveController) {
         this.model = model;
         this.controller = controller;
         this.waveController = waveController;
@@ -124,43 +125,6 @@ public class UniverseSpawner {
                 .spawn(id, x, y, model, controller);
     }
 
-    public void spawnInitialAsteroidBelts(double centerX, double centerY) {
-        // Safety check: prevent NaN or invalid spawn positions
-        if (Double.isNaN(centerX) || Double.isNaN(centerY) || centerX == 0.0 || centerY == 0.0) {
-            System.err.println("!!! spawnInitialAsteroidBelts called with invalid center: " + centerX + ", " + centerY);
-            System.err.println("!!! Using default spawn center instead");
-            centerX = UniverseModel.DEFAULT_SPAWN_CENTER;
-            centerY = UniverseModel.DEFAULT_SPAWN_CENTER;
-        }
-        
-        for (int clump = 0; clump < 6; clump++) {
-            double angle = (clump * (Math.PI * 2.0 / 6.0)) + (Math.random() * 0.5);
-            double dist = 600.0 + Math.random() * 1200.0;
 
-            double cx = centerX + Math.cos(angle) * dist;
-            double cy = centerY + Math.sin(angle) * dist;
-
-            int count = random.nextInt(3, 18);
-            for (int i = 0; i < count; i++) {
-                double offsetAngle = Math.random() * Math.PI * 2.0;
-                double offsetDist = Math.random() * 180.0;
-
-                double ax = cx + Math.cos(offsetAngle) * offsetDist;
-                double ay = cy + Math.sin(offsetAngle) * offsetDist;
-
-                double radius = 20.0 + Math.random() * 350.0;
-                AsteroidModel ast = new AsteroidModel(ax, ay, radius);
-
-                double driftAngle = Math.random() * Math.PI * 2.0;
-                double speed = 0.5 + Math.random() * 2.0;
-                ast.setLinearVelocity(new Vector2(
-                        Math.cos(driftAngle) * speed,
-                        Math.sin(driftAngle) * speed
-                ));
-
-                UniverseSpawner.getInstance().spawnEntity(ast);
-            }
-        }
-    }
 
 }

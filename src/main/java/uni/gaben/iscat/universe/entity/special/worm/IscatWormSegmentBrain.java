@@ -9,10 +9,7 @@ public class IscatWormSegmentBrain extends Brain<IscatWormSegment> {
     private final IscatWormSegment head;
 
     public IscatWormSegmentBrain(IscatWormSegment segment, IscatWormSegment head) {
-        super(segment, SteeringGoal.idle(),
-                segment.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_FORCE : 0,
-                segment.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_MAX_SPEED : 0,
-                segment.getType() == IscatWormSegment.Type.HEAD ? IscatWormSettings.HEAD_ROTATION_SPEED : 0, 30);
+        super(segment, SteeringGoal.idle());
 
         this.head = head;
 

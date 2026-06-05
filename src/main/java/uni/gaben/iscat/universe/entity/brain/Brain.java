@@ -24,12 +24,6 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     protected final T entity;
     protected final Shooter<T> shooter;
 
-    // Tuning & Configuration Parameters
-    protected final double maxForce;
-    protected final double maxVelocity;
-    protected final double maxAngularVelocity;
-    protected final double mass;
-
     // Completely contained zero-GC mathematical vector workspaces
     private final Vector2 steerForce = UU.vector2zero();
     private final Vector2 modifierSteer = new Vector2();
@@ -55,18 +49,13 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // CONSTRUCTOR
     // ========================================================================
 
-    public Brain(T entity, SteeringGoal defaultGoal, double maxForce, double maxVelocity, double maxAngularVelocity, double mass) {
+    public Brain(T entity, SteeringGoal defaultGoal) {
         this.entity = entity;
         this.shooter = new Shooter<>(entity);
 
-        this.maxForce = maxForce;
-        this.maxVelocity = maxVelocity;
-        this.maxAngularVelocity = maxAngularVelocity;
-        this.mass = mass;
-
         this.defaultSteeringGoal = defaultGoal;
         this.currentSteeringGoal = defaultGoal;
-        this.defaultRotationGoal = maxAngularVelocity > 0 ? RotationGoal.movement() : RotationGoal.idle();
+        this.defaultRotationGoal = entity.getMaxAngularVelocity() > 0 ? RotationGoal.movement() : RotationGoal.idle();
 
         this.currentRotationGoal = defaultRotationGoal;
     }
@@ -141,7 +130,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
      * bounds them, and processes mass mechanics smoothly without GC churn.
      */
     private void computeAndApplySteering(UniverseModel universe, double dt) {
-        Vector2 desiredVelocity = currentSteeringGoal.computeDesiredVelocity(entity, maxVelocity, universe, dt);
+        Vector2 desiredVelocity = currentSteeringGoal.computeDesiredVelocity(entity, universe, dt);
 
         if (desiredVelocity == null || desiredVelocity.isZero()) {
             steerForce.set(0, 0);
@@ -150,6 +139,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         }
 
         if (!modifiersOrder.isEmpty()) {
+            double maxForce = entity.getMaxForce();
             for (int i = 0; i < modifiersOrder.size(); i++) {
                 modifierSteer.set(0, 0); // Isolate the modifier math completely
                 modifiersOrder.get(i).computeSteer(entity, universe, maxForce, dt, modifierSteer);
@@ -157,14 +147,16 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
             }
         }
 
-        if (mass > 0.0 && mass != 1.0) {
-            steerForce.divide(mass);
+        double currentMass = entity.getMass().getMass();
+        if (currentMass > 0.0 && currentMass != 1.0) {
+            steerForce.divide(currentMass);
         }
 
         entity.applyForce(steerForce);
     }
 
     private void processRotation(UniverseModel universe, double dt) {
+        double maxAngularVelocity = entity.getMaxAngularVelocity();
         if (maxAngularVelocity <= 0) return;
 
         double desiredAngle = currentRotationGoal.compute(entity, universe, dt);
@@ -306,10 +298,6 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     public void setRotationGoal(RotationGoal goal) { this.currentRotationGoal = goal; }
     public RotationGoal getRotationGoal() { return currentRotationGoal; }
     public RotationGoal getDefaultRotationGoal() { return defaultRotationGoal; }
-
-    public double getMaxForce() { return maxForce; }
-    public double getMaxVelocity() { return maxVelocity; }
-    public double getMaxAngularVelocity() { return maxAngularVelocity; }
 
     public T getEntity() { return entity; }
     public Shooter<T> getShooter() { return shooter; }

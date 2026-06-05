@@ -38,27 +38,9 @@ public class AsteroidModel extends AbstractEntityModel {
         this.size = radiusPixel != 0 ? radiusPixel * 2 : (2 + rand.nextInt(AsteroidSettings.MAXPXSIZE));
         double radiusMeters = UU.pxToM(size / 2.0);
 
-        int numVertices = minVertices + (rand.nextInt(variation));
-        Vector2[] rawPoints = new Vector2[numVertices];
-        double angleStep = Math.PI * 2 / numVertices;
-
-        for (int i = 0; i < numVertices; i++) {
-            double angle = i * angleStep;
-            double r = radiusMeters * (radiusMin + Math.random() * radiusRange);
-            rawPoints[i] = new Vector2(Math.cos(angle) * r, Math.sin(angle) * r);
-        }
-
-        // FIX: Convert list to native Vector2 array for dyn4j constructor compatibility
-        List<Vector2> hullPoints = convexHull(rawPoints);
-        Polygon polygon = new Polygon(hullPoints.toArray(new Vector2[0]));
-
-        // CRUCIAL FIX FOR CRACK RENDERING ALIGNMENT:
-        // Force center alignment to local origin (0,0) before assigning display vertices
-        Vector2 center = polygon.getCenter();
-        polygon.translate(-center.x, -center.y);
-
-        // Feed the cleaned centered convex vertices back to the renderer so visuals match perfectly
-        this.displayVertices = polygon.getVertices();
+        // Use pre-computed shapes from AsteroidShapeFactory
+        this.displayVertices = AsteroidShapeFactory.getScaledShape(radiusMeters);
+        Polygon polygon = new Polygon(this.displayVertices);
 
         BodyFixture fixture = addFixture(polygon);
         fixture.setFilter(UniverseCollisionLayers.ASTEROID_FILTER);
@@ -165,63 +147,6 @@ public class AsteroidModel extends AbstractEntityModel {
     @Override
     public double getTerminalVelocity() {
         return UniverseVelocitySettings.asteroidTerminalVelocity(size);
-    }
-
-    public static List<Vector2> convexHull(Vector2[] points) {
-        // FIX: Replaced .size() with .length for raw array property compatibility
-        if (points == null || points.length < 3) {
-            return points == null ? new ArrayList<>() : Arrays.asList(points);
-        }
-
-        // 1. Sort points lexicographically by X, then by Y
-        // FIX: Wrapped array inside Arrays.asList to properly feed standard collections builder
-        List<Vector2> sorted = new ArrayList<>(Arrays.asList(points));
-        sorted.sort((a, b) -> {
-            if (a.x != b.x) {
-                return Double.compare(a.x, b.x);
-            }
-            return Double.compare(a.y, b.y);
-        });
-
-        // 2. Build the Lower Hull
-        List<Vector2> lower = new ArrayList<>();
-        for (Vector2 point : sorted) {
-            while (lower.size() >= 2 && ccw(lower.get(lower.size() - 2), lower.get(lower.size() - 1), point) <= 0) {
-                lower.remove(lower.size() - 1);
-            }
-            lower.add(point);
-        }
-
-        // 3. Build the Upper Hull
-        List<Vector2> upper = new ArrayList<>();
-        for (int i = sorted.size() - 1; i >= 0; i--) {
-            Vector2 point = sorted.get(i);
-            while (upper.size() >= 2 && ccw(upper.get(upper.size() - 2), upper.get(upper.size() - 1), point) <= 0) {
-                upper.remove(upper.size() - 1);
-            }
-            upper.add(point);
-        }
-
-        // 4. Remove the last point of each hull list because it's duplicated at the turning extremities
-        lower.remove(lower.size() - 1);
-        upper.remove(upper.size() - 1);
-
-        // 5. Combine lower and upper hull.
-        List<Vector2> hull = new ArrayList<>();
-        hull.addAll(lower);
-        hull.addAll(upper);
-
-        return hull;
-    }
-
-    /**
-     * 2D Cross Product orientation test.
-     * Returns > 0 for Counter-Clockwise (Left Turn)
-     * Returns < 0 for Clockwise (Right Turn)
-     * Returns 0 if points are Collinear
-     */
-    private static double ccw(Vector2 a, Vector2 b, Vector2 c) {
-        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
     }
 
     public double getSplitAngle() { return splitAngle; }

@@ -98,6 +98,21 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
         return settings.maxVelocity;
     }
 
+    @Override
+    public double getMaxVelocity() {
+        return settings.maxVelocity;
+    }
+
+    @Override
+    public double getMaxForce() {
+        return settings.maxForce;
+    }
+
+    @Override
+    public double getMaxAngularVelocity() {
+        return settings.maxAngularVelocity;
+    }
+
     /**
      * Ritorna l'istanza delle impostazioni associate a questo specifico modello.
      */
