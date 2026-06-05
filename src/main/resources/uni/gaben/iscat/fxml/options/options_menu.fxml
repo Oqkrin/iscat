@@ -23,16 +23,24 @@
                 <Insets bottom="32.0" left="32.0" right="32.0" top="16.0" />
             </padding>
 
-            <VBox alignment="TOP_CENTER" maxWidth="300.0" minWidth="240.0" HBox.hgrow="NEVER">
+            <VBox alignment="TOP_CENTER" maxWidth="340.0" minWidth="280.0" HBox.hgrow="NEVER">
 
-                <VBox alignment="TOP_CENTER" spacing="14.0" styleClass="glowing-border, secondary-card" VBox.vgrow="NEVER">
+                <VBox alignment="TOP_CENTER" spacing="24.0" styleClass="glowing-border, secondary-card" VBox.vgrow="NEVER">
                     <padding>
-                        <Insets bottom="20.0" left="16.0" right="16.0" top="20.0" />
+                        <Insets bottom="24.0" left="20.0" right="20.0" top="24.0" />
                     </padding>
-                    <Button fx:id="btnMainSettings" maxWidth="Infinity" prefHeight="45.0" onAction="#showMainSettings" styleClass="menu-button" text="MAIN SETTINGS" />
-                    <Button fx:id="btnControls" maxWidth="Infinity" prefHeight="45.0" onAction="#showControls" styleClass="menu-button" text="CONTROLS" />
-                    <Button fx:id="btnTheme" maxWidth="Infinity" prefHeight="45.0" onAction="#showTheme" styleClass="menu-button" text="THEME" />
-                    <Button fx:id="btnAccount" maxWidth="Infinity" prefHeight="45.0" onAction="#showAccount" styleClass="menu-button" text="ACCOUNT" />
+
+                    <Button fx:id="btnMainSettings" prefWidth="130.0" prefHeight="110.0" rotate="1.5"
+                            onAction="#showMainSettings" styleClass="square-menu-button" />
+
+                    <Button fx:id="btnControls" prefWidth="130.0" prefHeight="110.0" rotate="-2.0"
+                            onAction="#showControls" styleClass="square-menu-button" />
+
+                    <Button fx:id="btnTheme" prefWidth="130.0" prefHeight="110.0" rotate="1.0"
+                            onAction="#showTheme" styleClass="square-menu-button" />
+
+                    <Button fx:id="btnAccount" prefWidth="130.0" prefHeight="110.0" rotate="-1.5"
+                            onAction="#showAccount" styleClass="square-menu-button" />
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS" />
@@ -46,7 +54,7 @@
 
             </VBox>
 
-            <StackPane fx:id="tabContentContainer" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="glowing-border, main-card">
+            <StackPane fx:id="tabContentContainer" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="main-card">
                 <padding>
                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                 </padding>

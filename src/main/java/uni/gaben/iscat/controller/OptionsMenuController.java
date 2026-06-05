@@ -3,15 +3,16 @@ package uni.gaben.iscat.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.controller.components.options.*;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
-import uni.gaben.iscat.utils.ComponentsUtils;
 
 public class OptionsMenuController implements IscatMenuController {
 
@@ -41,11 +42,19 @@ public class OptionsMenuController implements IscatMenuController {
 
     @FXML
     public void initialize() {
-        ComponentsUtils.applyIconButton(btnMainSettings, "fas-sliders-h");
-        ComponentsUtils.applyIconButton(btnControls,     "fas-keyboard");
-        ComponentsUtils.applyIconButton(btnTheme,        "fas-palette");
-        ComponentsUtils.applyIconButton(btnAccount,      "fas-user-cog");
-        ComponentsUtils.applyIconButton(ExitBtn,         "fas-arrow-left");
+        setSquareButton(btnMainSettings, "fas-sliders-h", "SETTINGS");
+        setSquareButton(btnControls,     "fas-keyboard",  "CONTROLS");
+        setSquareButton(btnTheme,        "fas-palette",   "THEME");
+        setSquareButton(btnAccount,      "fas-user-cog",  "ACCOUNT");
+
+        if (ExitBtn != null) {
+            FontIcon backIcon = new FontIcon("fas-arrow-left");
+            backIcon.setIconSize(18);
+            ExitBtn.setGraphic(backIcon);
+            ExitBtn.setText("MAIN MENU");
+            ExitBtn.setContentDisplay(ContentDisplay.LEFT);
+            ExitBtn.setGraphicTextGap(14.0);
+        }
 
         if (subThemeController != null) subThemeController.injectParentPane(paneMaster);
         if (subAccountController != null) subAccountController.setConfirmOverlayController(confirmOverlayController);
@@ -77,15 +86,25 @@ public class OptionsMenuController implements IscatMenuController {
         });
     }
 
+    private void setSquareButton(Button btn, String iconCode, String labelText) {
+        if (btn == null) return;
+
+        FontIcon icon = new FontIcon(iconCode);
+        icon.setIconSize(28);
+        icon.getStyleClass().add("button-icon");
+
+        btn.setText(labelText);
+        btn.setGraphic(icon);
+
+        btn.setContentDisplay(ContentDisplay.TOP);
+        btn.setGraphicTextGap(10.0);
+    }
 
     @FXML private void showMainSettings() { switchTab(tabMainSettings); }
     @FXML private void showControls()     { switchTab(tabControls);     }
     @FXML private void showTheme()        { switchTab(tabTheme);        }
     @FXML private void showAccount()      { switchTab(tabAccount);      }
 
-    /**
-     * Rende visibile solo il contenitore passato, nascondendo tutti gli altri.
-     */
     private void switchTab(VBox activeTab) {
         tabMainSettings.setVisible(tabMainSettings == activeTab);
         tabControls.setVisible(tabControls == activeTab);
