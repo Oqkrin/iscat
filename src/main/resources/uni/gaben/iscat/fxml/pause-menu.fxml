@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
@@ -13,23 +14,41 @@
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="uni.gaben.iscat.controller.game.GamePauseMenuController">
 
-    <VBox alignment="CENTER" spacing="24.0" styleClass="game-pause-overlay">
+    <VBox alignment="CENTER" styleClass="game-pause-overlay">
         <padding>
-            <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+            <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
         </padding>
 
-        <Label styleClass="pause-title" text="GAME PAUSED" />
+        <HBox alignment="CENTER" spacing="120.0" VBox.vgrow="ALWAYS">
 
-        <HBox alignment="CENTER" spacing="40.0">
-            <fx:include fx:id="subDisplay" source="options/option_display.fxml" />
+            <VBox alignment="CENTER" fillWidth="false" scaleX="0.75" scaleY="0.75" HBox.hgrow="ALWAYS">
+                <fx:include fx:id="subDisplay" source="options/option_display.fxml" />
+            </VBox>
 
-            <fx:include fx:id="subAudio" source="options/option_audio.fxml" />
+            <VBox alignment="CENTER" spacing="40.0" minWidth="320.0" HBox.hgrow="NEVER">
+
+                <VBox alignment="CENTER" spacing="10.0">
+                    <Label styleClass="pause-title" text="GAME PAUSED">
+                        <font>
+                            <Font name="System Bold" size="48.0" />
+                        </font>
+                    </Label>
+                </VBox>
+
+                <VBox alignment="CENTER" spacing="16.0">
+                    <Button fx:id="resumeBtn" alignment="CENTER" onAction="#handleResume" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu, primario" text="RESUME GAME" />
+                    <Button fx:id="optionBtn" alignment="CENTER" onAction="#openOptionMenu" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu" text="OPTIONS" />
+                    <Button fx:id="menuBtn" alignment="CENTER" onAction="#handleQuitToMenu" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu" text="QUIT TO MENU" />
+                    <Button fx:id="quitBtn" alignment="CENTER" onAction="#handleQuitGame" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu, pericolo" text="QUIT GAME" />
+                </VBox>
+
+            </VBox>
+
+            <VBox alignment="CENTER" fillWidth="false" scaleX="0.75" scaleY="0.75" HBox.hgrow="ALWAYS">
+                <fx:include fx:id="subAudio" source="options/option_audio.fxml" />
+            </VBox>
+
         </HBox>
-
-        <Button fx:id="resumeBtn" alignment="CENTER" onAction="#handleResume" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu, primario" text="RESUME GAME" />
-        <Button fx:id="menuBtn" alignment="CENTER" onAction="#handleQuitToMenu" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu" text="QUIT TO MENU" />
-        <Button fx:id="optionBtn" alignment="CENTER" onAction="#openOptionMenu" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu" text="OPTIONS" />
-        <Button fx:id="quitBtn" alignment="CENTER" onAction="#handleQuitGame" prefHeight="50.0" prefWidth="300.0" styleClass="pulsante-menu, pericolo" text="QUIT GAME" />
     </VBox>
 
     <fx:include fx:id="confirmOverlay" source="confirmation-overlay.fxml" />
