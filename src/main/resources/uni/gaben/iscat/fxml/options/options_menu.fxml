@@ -25,31 +25,31 @@
 
             <VBox alignment="TOP_CENTER" maxWidth="340.0" minWidth="280.0" HBox.hgrow="NEVER">
 
-                <VBox alignment="TOP_CENTER" spacing="24.0" styleClass="glowing-border, secondary-card" VBox.vgrow="NEVER">
+                <VBox alignment="TOP_CENTER" spacing="24.0" styleClass="secondary-card" VBox.vgrow="NEVER">
                     <padding>
                         <Insets bottom="24.0" left="20.0" right="20.0" top="24.0" />
                     </padding>
 
                     <Button fx:id="btnMainSettings" prefWidth="130.0" prefHeight="110.0" rotate="1.5"
-                            onAction="#showMainSettings" styleClass="square-menu-button" />
+                            onAction="#showMainSettings" styleClass="square-menu-button, glowing-border" />
 
                     <Button fx:id="btnControls" prefWidth="130.0" prefHeight="110.0" rotate="-2.0"
-                            onAction="#showControls" styleClass="square-menu-button" />
+                            onAction="#showControls" styleClass="square-menu-button, glowing-border" />
 
                     <Button fx:id="btnTheme" prefWidth="130.0" prefHeight="110.0" rotate="1.0"
-                            onAction="#showTheme" styleClass="square-menu-button" />
+                            onAction="#showTheme" styleClass="square-menu-button, glowing-border" />
 
                     <Button fx:id="btnAccount" prefWidth="130.0" prefHeight="110.0" rotate="-1.5"
-                            onAction="#showAccount" styleClass="square-menu-button" />
+                            onAction="#showAccount" styleClass="square-menu-button, glowing-border" />
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS" />
 
-                <VBox alignment="BOTTOM_CENTER" styleClass="glowing-border, secondary-card" VBox.vgrow="NEVER">
+                <VBox alignment="BOTTOM_CENTER" styleClass="secondary-card" VBox.vgrow="NEVER">
                     <padding>
                         <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
                     </padding>
-                    <Button fx:id="ExitBtn" maxWidth="Infinity" prefHeight="48.0" onAction="#handleBack" styleClass="back-button" text="MAIN MENU" />
+                    <Button fx:id="ExitBtn" maxWidth="Infinity" prefHeight="48.0" onAction="#handleBack" styleClass="back-button, glowing-border" text="MAIN MENU" />
                 </VBox>
 
             </VBox>
