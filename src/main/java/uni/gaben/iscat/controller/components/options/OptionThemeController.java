@@ -21,7 +21,6 @@ import uni.gaben.iscat.database.dao.SettingsDAO;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
-import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import javax.imageio.ImageIO;
@@ -34,11 +33,13 @@ public class OptionThemeController {
     @FXML private ColorPicker accentPrimary, accentSecondary, accentTernary, bgPrimary;
     @FXML private CheckBox lightModeCheck, rainbowModeCheck;
     @FXML private HBox paletteHolder, pickerRow1, pickerRow2;
-    @FXML private VBox theme;
+
+    @FXML private HBox theme;
+
+    @FXML private StackPane imageArea;
     @FXML private ImageView themePreview;
     @FXML private Button prevThemeBtn, nextThemeBtn;
 
-    // Iniettiamo i due pulsanti di gestione delle immagini dall'FXML
     @FXML private Button pickImageBtn;
     @FXML private Button addImageBtn;
 
@@ -49,49 +50,40 @@ public class OptionThemeController {
     public void initialize() {
         SessionManager session = SessionManager.getInstance();
 
-        // 1. Clean out stale JavaFX node references in the SessionManager map before rebuilding
         session.pickerBoxes.clear();
 
-        // 2. Restore primitive view states from SessionManager
         lightModeCheck.setSelected(session.isLightModeSelected);
         rainbowModeCheck.setSelected(ThemeManager.getInstance().isRainbowModeActive());
 
-        // 3. Sync colors up from engine & build custom nodes
         syncColorPickersWithTheme();
         buildCustomPickers();
 
-        // 4. Aggancia l'azione di selezione immagine anche al pulsante del carosello
         if (addImageBtn != null) {
             addImageBtn.setOnAction(this::onImagePick);
         }
 
-        // 5. Restore custom box active highlighting border
         if (session.activePicker != null) {
             setActivePicker(session.activePicker);
         }
 
-        // 6. Restore color swatches UI if an image palette was already extracted
         if (!session.currentPalette.isEmpty()) {
             rebuildPaletteUI();
         }
 
-        // 7. Restore image carousel preview view state
         if (!session.carouselImages.isEmpty() && session.currentIndex >= 0 && session.currentIndex < session.carouselImages.size()) {
             themePreview.setImage(new Image(session.carouselImages.get(session.currentIndex).toURI().toString()));
         }
         updateCarouselButtons();
 
-        // Layout bindings
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
-        themePreview.fitWidthProperty().bind(theme.widthProperty());
-        themePreview.fitHeightProperty().bind(theme.heightProperty().multiply(ScalareAureo.IPHI_D * ScalareAureo.IPHI_D));
 
-        // --- NUOVO: Arrotondamento dinamico a 16px per l'ImageView ---
+        themePreview.setFitWidth(320);
+        themePreview.setFitHeight(180);
+
         Rectangle clip = new Rectangle();
         clip.setArcWidth(16);
         clip.setArcHeight(16);
-        // Ascolta le variazioni di dimensione reali del layout per adattare la maschera di ritaglio
         themePreview.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
             clip.setWidth(newBounds.getWidth());
             clip.setHeight(newBounds.getHeight());
@@ -168,8 +160,6 @@ public class OptionThemeController {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
         if (settings != null) {
-            System.out.println("[ISCAT DEBUG] Utente trovato! Sto salvando i colori: " + hexPrimary);
-
             settings.setPrimaryTheme(hexPrimary);
             settings.setSecondaryTheme(hexSecondary);
             settings.setTertiaryTheme(hexTertiary);
@@ -182,14 +172,10 @@ public class OptionThemeController {
                     dao.updateThemeSetting(settings.getUserId(), "SecondaryTheme", hexSecondary);
                     dao.updateThemeSetting(settings.getUserId(), "TertiaryTheme", hexTertiary);
                     dao.updateThemeSetting(settings.getUserId(), "BackgroundTheme", hexBg);
-                    System.out.println("[ISCAT DEBUG] Database aggiornato con successo in background!");
                 } catch (Exception e) {
-                    System.err.println("[ISCAT ERROR] Errore durante la scrittura su DB: " + e.getMessage());
-                    e.printStackTrace();
+                    System.err.println("[ISCAT ERROR] Errore di scrittura nel Database: " + e.getMessage());
                 }
             });
-        } else {
-            System.out.println("[ISCAT DEBUG] Impossibile salvare: l'oggetto CurrentSettings nella Sessione è NULL!");
         }
 
         List<String> hexPalette = List.of(hexPrimary, hexSecondary, hexTertiary, hexBg);
@@ -226,14 +212,14 @@ public class OptionThemeController {
                     SettingsDAO dao = IscatDB.getInstance().getSettingsDAO();
                     dao.updateThemeSetting(settings.getUserId(), "RainbowMode", String.valueOf(numericValue));
                 } catch (Exception e) {
-                    System.err.println("[ISCAT ERROR] Errore salvataggio RainbowMode: " + e.getMessage());
+                    System.err.println("[ISCAT ERROR] Impossibile salvare lo stato RainbowMode: " + e.getMessage());
                 }
             });
         }
     }
 
     public void loadAndApplySavedTheme() {
-        SessionManager session = uni.gaben.iscat.utils.SessionManager.getInstance();
+        SessionManager session = SessionManager.getInstance();
         UserSettings settings = session.getCurrentSettings();
 
         isUpdatingProgrammatically = true;
@@ -308,12 +294,20 @@ public class OptionThemeController {
         paletteHolder.getChildren().clear();
         if (SessionManager.getInstance().currentPalette.isEmpty()) return;
         List<Color> sorted = SessionManager.getInstance().currentPalette.stream().sorted(Comparator.comparingDouble(this::luminance)).toList();
-        double diameter = Math.max(8, Math.min(24, (theme.getWidth() - 28 - (5 * (sorted.size() - 1))) / sorted.size()));
+
+        // Calcolo sicuro del diametro: usiamo una misura base fissa di 300px (la larghezza della card dei controlli meno i padding)
+        double targetWidth = 300.0;
+        double diameter = Math.max(8, Math.min(24, (targetWidth - (5 * (sorted.size() - 1))) / sorted.size()));
 
         for (Color color : sorted) {
             Circle circle = new Circle(diameter / 2.0, color);
             circle.getStyleClass().add("palette-swatch");
-            circle.setOnMouseClicked(e -> { if (SessionManager.getInstance().activePicker != null) { SessionManager.getInstance().activePicker.setValue(color); applyManualColorChanges(); } });
+            circle.setOnMouseClicked(e -> {
+                if (SessionManager.getInstance().activePicker != null) {
+                    SessionManager.getInstance().activePicker.setValue(color);
+                    applyManualColorChanges();
+                }
+            });
             paletteHolder.getChildren().add(circle);
         }
     }
@@ -371,8 +365,9 @@ public class OptionThemeController {
     }
 
     private void toggleThemeModeLogic() {
-        if (!SessionManager.getInstance().carouselImages.isEmpty() && SessionManager.getInstance().currentIndex >= 0) { applyTheme(SessionManager.getInstance().carouselImages.get(SessionManager.getInstance().currentIndex)); }
-        else {
+        if (!SessionManager.getInstance().carouselImages.isEmpty() && SessionManager.getInstance().currentIndex >= 0) {
+            applyTheme(SessionManager.getInstance().carouselImages.get(SessionManager.getInstance().currentIndex));
+        } else {
             Color cp = accentPrimary.getValue();
             bgPrimary.setValue(Color.hsb(cp.getHue(), cp.getSaturation() * 0.1, lightModeCheck.isSelected() ? 0.95 : 0.05));
             applyManualColorChanges();
@@ -392,26 +387,23 @@ public class OptionThemeController {
     private double luminance(Color c) { return 0.2126 * lin(c.getRed()) + 0.7152 * lin(c.getGreen()) + 0.0722 * lin(c.getBlue()); }
     private double lin(double ch) { return (ch <= 0.03928) ? ch / 12.92 : Math.pow((ch + 0.055) / 1.055, 2.4); }
 
-    // --- NUOVO: Gestione intelligente della barra carosello / pulsanti aggiunta ---
     private void updateCarouselButtons() {
         int totalImages = SessionManager.getInstance().carouselImages.size();
         boolean hasImages = totalImages > 0;
         boolean showArrows = totalImages > 1;
 
-        // Gestione delle frecce (compaiono solo se c'è un vero e proprio carosello multifile)
         prevThemeBtn.setVisible(showArrows);
         prevThemeBtn.setManaged(showArrows);
         nextThemeBtn.setVisible(showArrows);
         nextThemeBtn.setManaged(showArrows);
 
-        // Se c'è almeno un'immagine inserita:
         if (addImageBtn != null) {
             addImageBtn.setVisible(hasImages);
-            addImageBtn.setManaged(hasImages); // Occupa spazio e compare fisicamente in mezzo alle frecce
+            addImageBtn.setManaged(hasImages);
         }
         if (pickImageBtn != null) {
             pickImageBtn.setVisible(!hasImages);
-            pickImageBtn.setManaged(!hasImages); // Scompare dal centro dell'immagine se c'è un contenuto
+            pickImageBtn.setManaged(!hasImages);
         }
     }
 

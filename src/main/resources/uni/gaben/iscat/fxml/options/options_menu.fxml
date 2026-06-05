@@ -16,42 +16,63 @@
     <VBox fx:id="paneMaster" alignment="CENTER" styleClass="menu-background"
           StackPane.alignment="CENTER" VBox.vgrow="ALWAYS">
 
-        <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="ALWAYS" />
+        <Region minHeight="40.0" prefHeight="40.0" VBox.vgrow="NEVER" />
 
-        <HBox spacing="16.0" VBox.vgrow="ALWAYS">
+        <HBox spacing="32.0" VBox.vgrow="ALWAYS">
             <padding>
-                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                <Insets bottom="32.0" left="32.0" right="32.0" top="16.0" />
             </padding>
 
-            <VBox alignment="TOP_CENTER" spacing="20.0" HBox.hgrow="ALWAYS">
+            <VBox alignment="TOP_CENTER" maxWidth="300.0" minWidth="240.0" HBox.hgrow="NEVER">
+
+                <VBox alignment="TOP_CENTER" spacing="14.0" styleClass="glowing-border, secondary-card" VBox.vgrow="NEVER">
+                    <padding>
+                        <Insets bottom="20.0" left="16.0" right="16.0" top="20.0" />
+                    </padding>
+                    <Button fx:id="btnMainSettings" maxWidth="Infinity" prefHeight="45.0" onAction="#showMainSettings" styleClass="menu-button" text="MAIN SETTINGS" />
+                    <Button fx:id="btnControls" maxWidth="Infinity" prefHeight="45.0" onAction="#showControls" styleClass="menu-button" text="CONTROLS" />
+                    <Button fx:id="btnTheme" maxWidth="Infinity" prefHeight="45.0" onAction="#showTheme" styleClass="menu-button" text="THEME" />
+                    <Button fx:id="btnAccount" maxWidth="Infinity" prefHeight="45.0" onAction="#showAccount" styleClass="menu-button" text="ACCOUNT" />
+                </VBox>
+
                 <Region VBox.vgrow="ALWAYS" />
 
-                <fx:include fx:id="subDisplay" source="option_display.fxml" />
+                <VBox alignment="BOTTOM_CENTER" styleClass="glowing-border, secondary-card" VBox.vgrow="NEVER">
+                    <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                    </padding>
+                    <Button fx:id="ExitBtn" maxWidth="Infinity" prefHeight="48.0" onAction="#handleBack" styleClass="back-button" text="MAIN MENU" />
+                </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
-
-                <fx:include fx:id="subAccount" source="option_account.fxml" />
-
-                <Region VBox.vgrow="ALWAYS" />
             </VBox>
 
-            <fx:include fx:id="subTheme" source="option_theme.fxml" />
+            <StackPane fx:id="tabContentContainer" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="glowing-border, main-card">
+                <padding>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                </padding>
 
-            <VBox alignment="TOP_CENTER" spacing="20.0" HBox.hgrow="ALWAYS">
+                <VBox fx:id="tabMainSettings" alignment="CENTER" spacing="20.0" visible="true">
+                    <fx:include fx:id="subDisplay" source="option_display.fxml" />
+                    <Region minHeight="10.0" prefHeight="20.0" />
+                    <fx:include fx:id="subAudio" source="option_audio.fxml" />
+                </VBox>
 
-                <fx:include fx:id="subAudio" source="option_audio.fxml" />
+                <VBox fx:id="tabControls" alignment="CENTER" visible="false">
+                    <fx:include fx:id="subKeybinds" source="option_keybinds.fxml" />
+                </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
+                <VBox fx:id="tabTheme" alignment="CENTER" visible="false">
+                    <fx:include fx:id="subTheme" source="option_theme.fxml" />
+                </VBox>
 
-                <fx:include fx:id="subKeybinds" source="option_keybinds.fxml" />
-            </VBox>
+                <VBox fx:id="tabAccount" alignment="CENTER" visible="false">
+                    <fx:include fx:id="subAccount" source="option_account.fxml" />
+                </VBox>
+            </StackPane>
+
         </HBox>
 
-        <HBox alignment="CENTER" minHeight="56.0" prefHeight="56.0" VBox.vgrow="ALWAYS">
-            <Button fx:id="ExitBtn" onAction="#handleBack" styleClass="back-button"
-                    text="Main Menu" />
-        </HBox>
-        <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="NEVER" />
+        <Region minHeight="24.0" prefHeight="24.0" VBox.vgrow="NEVER" />
     </VBox>
 
     <fx:include fx:id="confirmOverlay" source="../confirmation-overlay.fxml" />
