@@ -1,0 +1,89 @@
+#ISCAT
+Progetto Java User Interface
+
+#SVILLUPATO DA
+Circosta Gabriele e Benito Gallello
+
+#LEAD DEVELOPER
+Circosta Gabriele e Benito Gallello
+
+#GRAFICA E DESIGN
+Circosta Gabriele e Benito Gallello
+
+#ANIMAZIONI
+Circosta Gabriele e Benito Gallello
+
+#TESTERS
+Circosta Gabriele e Benito Gallello
+
+#CREDITI BACKGROUND MUSIC (BGM)
+
+#ORBITALCOLOSSUS
+Matthew Pablo (CC-BY 3.0)
+https://opengameart.org/content/space-boss-battle-theme
+
+#TREMLOADINGLOOPL
+Brandon Morris (CC0)
+https://opengameart.org/content/loading-screen-loop
+
+#AWESOMENESS
+mrpoly (CC0)
+https://opengameart.org/content/menu-music
+
+#BOSS
+InspectorJ (CC-BY 3.0)
+https://opengameart.org/content/a-slave-to-no-one-rpg-orchestral-essentials-boss-music
+
+#GAMEOVER
+NBJDLukasAbsolute (CC0)
+https://opengameart.org/content/game-over-diamond-dust
+
+#CREDITI SOUND EFFECTS (SFX)
+
+#SHOOT
+teckpow (CC0)
+https://opengameart.org/content/lasershootingsx
+
+#FART_ALT (1, 2, 3)
+aPebble (Royalty-Free)
+https://pixabay.com/it/sound-effects/search/fart/
+
+#HURT
+TeamAlpha (CC-BY 3.0)
+https://opengameart.org/content/8-bitnes-explosion-sound-effecs
+
+#EXPLOSION
+TinyWorlds (CC0)
+https://opengameart.org/content/explosion-0
+
+#LEVELUP
+wobbleboxx (CC0)
+https://opengameart.org/content/level-up-power-up-coin-get-13-sounds
+
+#HEAL
+DoKashiteru (CC-BY 3.0, GPL 2.0, GPL 3.0)
+https://opengameart.org/content/3-heal-spells
+
+#SHOCKWAVE
+Retimer (CC-BY 3.0)
+https://opengameart.org/content/wgs-sound-fx-explosion-1
+
+#LAUGH
+AppPro (CC0)
+https://opengameart.org/content/evil-cyber-laugh
+
+#RAINBOW
+JaggedStone (CC0)
+https://opengameart.org/content/magic-spell-sfx
+
+#SPECIAL THANKS
+Aseprite per averci permesso di disegnare
+SceneBuilder per la creazione dei menu tramite FXML
+Inteju per lo sviluppo
+DYN4J per la fisica
+I professori del corso
+E tu che stai giocando!
+
+#GRAZIE PER AVER GIOCATO!
+
+#BYE

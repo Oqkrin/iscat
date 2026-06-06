@@ -5,7 +5,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
@@ -13,8 +12,7 @@ import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entity.player.PlayerSettings;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
-import javax.swing.event.ChangeListener;
-import java.beans.PropertyChangeListener;
+import java.util.List;
 
 public class MainMenuController implements IscatFxmlController {
 
@@ -27,44 +25,48 @@ public class MainMenuController implements IscatFxmlController {
     @FXML private Button quitButton;
     @FXML private Button leaderboardButton;
     @FXML private Button creditsButton;
-    AnimatedCanvas skin = new AnimatedCanvas(128);
+
+    private final AnimatedCanvas skin = new AnimatedCanvas(128);
+    private final AnimatedCanvas mobCanvas = new AnimatedCanvas(128);
 
     private StackPane contentRoot;
 
-    DoubleProperty playMaxSide =  new SimpleDoubleProperty(0);
-    DoubleProperty settingsMaxSide =   new SimpleDoubleProperty(0);
-    DoubleProperty skinMaxSide =  new SimpleDoubleProperty(0);
+    private final DoubleProperty sideButtonsMaxSide = new SimpleDoubleProperty(0);
 
     @FXML
     public void initialize() {
-        playButton.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if(newVal.doubleValue() > playButton.getHeight()) {
-                playMaxSide.set(newVal.doubleValue());
+        List<Button> sideButtons = List.of(leaderboardButton, scoreButton, bestiaryButton, skinButton);
+
+        for (Button btn : sideButtons) {
+            btn.widthProperty().addListener((obs, oldVal, newVal) -> updateMaxSide(newVal.doubleValue()));
+            btn.heightProperty().addListener((obs, oldVal, newVal) -> updateMaxSide(newVal.doubleValue()));
+        }
+
+        sideButtonsMaxSide.addListener((obs, oldVal, newVal) -> {
+            double size = newVal.doubleValue();
+            for (Button btn : sideButtons) {
+                btn.setMinWidth(size);
+                btn.setMaxWidth(size);
+                btn.setMinHeight(size);
+                btn.setMaxHeight(size);
             }
         });
 
-        playButton.heightProperty().addListener((obs, oldVal, newVal) -> {
-            if(newVal.doubleValue() > playButton.getWidth()) {
-                playMaxSide.set(newVal.doubleValue());
-            }
-        });
+        setIcon(playButton,        "fas-rocket");
+        setIcon(optionsButton,     "fas-cog");
+        setIcon(scoreButton,       "fas-eye");
+        setIcon(skinButton,        "fas-gift");
+        setIcon(bestiaryButton,    "fas-bug");
+        setIcon(logoutButton,      "fas-sign-out-alt");
+        setIcon(quitButton,        "fas-door-open");
+        setIcon(leaderboardButton, "fas-list-ol");
+        setIcon(creditsButton,     "fab-creative-commons");
+    }
 
-        playMaxSide.addListener((obs, oldVal, newVal) -> {
-           playButton.minHeightProperty().set(newVal.doubleValue());
-           playButton.maxHeightProperty().set(newVal.doubleValue());
-           playButton.minWidthProperty().set(newVal.doubleValue());
-           playButton.maxWidthProperty().set(newVal.doubleValue());
-        });
-
-        setIcon(playButton,      "fas-rocket");
-        setIcon(optionsButton,   "fas-cog");
-        setIcon(scoreButton,     "fas-eye");
-        setIcon(skinButton,      "fas-gift");
-        setIcon(bestiaryButton,  "fas-bug");
-        setIcon(logoutButton,    "fas-sign-out-alt");
-        setIcon(quitButton,      "fas-door-open");
-        setIcon(leaderboardButton,"fas-door-open");
-        setIcon(creditsButton, "fab-creative-commons");
+    private void updateMaxSide(double value) {
+        if (value > sideButtonsMaxSide.get()) {
+            sideButtonsMaxSide.set(value);
+        }
     }
 
     @FXML public void playGame()            { navigate(IscatViews.GAME);             }
@@ -84,22 +86,35 @@ public class MainMenuController implements IscatFxmlController {
     private void setIcon(Button btn, String iconCode) {
         if (btn == null) return;
 
-        if (!iconCode.equals("fas-gift")) {
-            FontIcon icon = new FontIcon(iconCode);
-            icon.setIconSize(32);
-            btn.setGraphic(icon);
-        } else {
-
-            PlayerSettings.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
-                skin.loadSkin(newValue, 32, 32);
+        try {
+            if (iconCode.equals("fas-gift")) {
+                PlayerSettings.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
+                    skin.loadSkin(newValue, 32, 32);
+                    skin.resize(128.0);
+                });
+                skin.loadSkin(PlayerSettings.getPlayerSkin(), 32, 32);
                 skin.resize(128.0);
-            });
+                skin.setFrameDuration(0.20);
+                btn.setGraphic(skin);
 
-            skin.loadSkin(PlayerSettings.getPlayerSkin(), 32, 32);
-            skin.resize(128.0);
-            skin.setFrameDuration(0.20);
+            } else if (iconCode.equals("fas-bug")) {
+                mobCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/iscat_mob.png", 32, 32);
+                mobCanvas.resize(128.0);
+                mobCanvas.setFrameDuration(0.20);
+                btn.setGraphic(mobCanvas);
 
-            btn.setGraphic(skin);
+            } else if (iconCode.equals("fas-eye") || iconCode.equals("fas-list-ol")) {
+                FontIcon icon = new FontIcon(iconCode);
+                icon.setIconSize(128);
+                btn.setGraphic(icon);
+
+            } else {
+                FontIcon icon = new FontIcon(iconCode);
+                icon.setIconSize(32);
+                btn.setGraphic(icon);
+            }
+        } catch (Exception e) {
+            System.err.println("Impossibile caricare l'icona: " + iconCode + " per il bottone " + btn.getId());
         }
     }
 
@@ -108,6 +123,3 @@ public class MainMenuController implements IscatFxmlController {
         this.contentRoot = contentRoot;
     }
 }
-
-
-
