@@ -15,7 +15,6 @@
 
 /* Struttura del bottone principale */
 .menu-button {
-    -fx-alignment: center-left;
     -fx-text-fill: -accent-primary;
 
 }

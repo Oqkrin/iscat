@@ -9,5 +9,5 @@ public enum IscatViews {
     BESTIARY_MENU,
     SCORE_MENU,
     OPTIONS_MENU,
-    LEADERBOARD_MENU
+    CREDITS, LEADERBOARD_MENU
 }

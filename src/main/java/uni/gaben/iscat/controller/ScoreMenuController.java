@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
@@ -54,7 +55,7 @@ public class ScoreMenuController implements IscatMenuController {
     @FXML private Label valTimesPlayed;
     @FXML private Label valLongestTime;
 
-    @FXML private BorderPane rootPane;
+    @FXML private VBox rootPane;
     @FXML private Label titleLabel;
     @FXML private Button exitBtn;
 
@@ -145,7 +146,10 @@ public class ScoreMenuController implements IscatMenuController {
 
             Map<String, GenericEntitySettings> enemiesMap = bestiaryModel.loadEnemies(user.id());
 
-            if (enemiesMap == null || enemiesMap.isEmpty()) return;
+            if (enemiesMap == null || enemiesMap.isEmpty()) {
+                System.err.println("[ScoreMenuController] no enemies found for user: " + user.id());
+                return;
+            }
 
             List<GenericEntitySettings> enemyList = new ArrayList<>(enemiesMap.values());
             StackPane[] containers = { previewNW, previewNE, previewSW, previewSE };
@@ -155,9 +159,10 @@ public class ScoreMenuController implements IscatMenuController {
 
                 GenericEntitySettings enemy = enemyList.get(i % enemyList.size());
 
-                AnimatedCanvas canvas = new AnimatedCanvas(140.0);
-                canvas.setFrameDuration(0.20);
+                AnimatedCanvas canvas = new AnimatedCanvas(128.0);
+                canvas.setFrameDuration(.5);
                 canvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
+                canvas.resize(128.0, 128.0);
 
                 containers[i].getChildren().add(canvas);
                 activeCanvases.add(canvas);

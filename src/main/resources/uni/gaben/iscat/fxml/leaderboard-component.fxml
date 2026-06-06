@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootPane" alignment="TOP_CENTER" spacing="8.0" styleClass="glowing-border, main-card" stylesheets="@../styles/screens/score-menu.css" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.LeaderboardComponentController">
+    <padding>
+        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+    </padding>
+
+    <Label styleClass="score-title" text="LEADERBOARD" />
+
+    <GridPane>
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES"/>
+            <ColumnConstraints hgrow="ALWAYS" />
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES"/>
+        </columnConstraints>
+        <children>
+            <Label styleClass="score-stat" text="POS" GridPane.columnIndex="0" />
+            <Label styleClass="score-stat" text="GIOCATORE" GridPane.columnIndex="1" />
+            <Label styleClass="score-stat" text="PUNTEGGIO" GridPane.columnIndex="2" />
+        </children>
+        <rowConstraints>
+            <RowConstraints />
+        </rowConstraints>
+    </GridPane>
+
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background: transparent; -fx-background-color: transparent;" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
+        <content>
+            <VBox fx:id="leaderboardContainer" spacing="6.0" />
+        </content>
+    </ScrollPane>
+</VBox>

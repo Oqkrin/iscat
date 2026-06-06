@@ -36,7 +36,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
     private final Map<String, GenericEntitySettings> filteredEnemies = new LinkedHashMap<>();
 
-    private static final double DISPLAY_SIZE = 160.0;
+    private static final double DISPLAY_SIZE = 196.0;
     private static final double ICON_SIZE = 32.0;
 
     private String currentEnemyId = null;
@@ -117,9 +117,8 @@ public class BestiaryMenuController implements IscatMenuController {
 
             if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity) {
                 filteredEnemies.put(entry.getKey(), entry.getValue());
-            } else if (currentCategory == CategoryMode.ENEMIES && !isPlayerEntity) {
+            } else if (currentCategory == CategoryMode.ENEMIES && !isPlayerEntity)
                 filteredEnemies.put(entry.getKey(), entry.getValue());
-            }
         }
 
         if (currentCategory == CategoryMode.ENEMIES) {
@@ -206,7 +205,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
         refreshInfoZone();
 
-        previewCanvas.setFrameDuration(0.20);
+        previewCanvas.setFrameDuration(0.1);
         if (unlocked) {
             previewCanvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
         } else {

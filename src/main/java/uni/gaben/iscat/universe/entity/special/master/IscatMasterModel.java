@@ -4,7 +4,7 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 import uni.gaben.iscat.utils.Updatable;
-import uni.gaben.iscat.controller.game.UniverseWaveController;
+import uni.gaben.iscat.universe.UniverseWaveController;
 import uni.gaben.iscat.universe.entity.GenericEntityModel;
 
 public class IscatMasterModel extends GenericEntityModel implements Updatable {

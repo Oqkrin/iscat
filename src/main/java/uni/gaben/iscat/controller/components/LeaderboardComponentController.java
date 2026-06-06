@@ -1,62 +1,39 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.components;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
+import javafx.geometry.HPos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
-import uni.gaben.iscat.IscatNavigator;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.utils.ComponentsUtils;
 
 import java.util.List;
 
 /**
- * Controller per la schermata della classifica (Leaderboard).
- * Mostra i migliori punteggi di tutti gli utenti ordinati in modo decrescente.
+ * Controller per il componente della classifica (Leaderboard).
+ * Può essere iniettato in qualsiasi altra schermata o layout flessibile.
  */
-public class LeaderBoardMenuController implements IscatMenuController {
+public class LeaderboardComponentController {
 
     @FXML private VBox rootPane;
     @FXML private VBox leaderboardContainer;
-    @FXML private Button exitBtn;
 
-    private StackPane contentRoot;
     private ScoreDAO scoreDAO;
 
     @FXML
     public void initialize() {
-        //registerEscHandler();
-
         scoreDAO = IscatDB.getInstance().getScoreDAO();
-
-        ComponentsUtils.applyIconButton(exitBtn, "fas-sign-out-alt");
-
-        /*
-        // Ricarica la classifica quando il menu diventa visibile
-        rootPane.visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
-            if (isNowVisible) {
-                loadLeaderboard();
-            }
-        });
-
-        // Ricarica la classifica quando viene associata una scena
-        rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                loadLeaderboard();
-            }
-        });
-        */
         loadLeaderboard();
     }
 
     /**
      * Carica i dati della classifica dal database in modo asincrono.
      */
-    private void loadLeaderboard() {
+    public void loadLeaderboard() {
         leaderboardContainer.getChildren().clear();
         Label loadingLabel = new Label("Caricamento classifica...");
         loadingLabel.getStyleClass().add("score-stat");
@@ -79,7 +56,6 @@ public class LeaderBoardMenuController implements IscatMenuController {
 
     /**
      * Popola il container con le righe della classifica.
-     * @param scores Lista di punteggi da visualizzare
      */
     private void populateRows(List<ScoreDAO.UserScoreEntry> scores) {
         leaderboardContainer.getChildren().clear();
@@ -99,22 +75,22 @@ public class LeaderBoardMenuController implements IscatMenuController {
     }
 
     /**
-     * Costruisce una singola riga della classifica.
-     * @param rank Posizione in classifica
-     * @param entry Dati dell'utente (username e punteggio)
-     * @return Griglia contenente la riga formattata
+     * Costruisce una singola riga della classifica fluida.
      */
     private GridPane buildRow(int rank, ScoreDAO.UserScoreEntry entry) {
         GridPane row = new GridPane();
         row.getStyleClass().add("leaderboard-row");
 
-        // Configurazione colonne
-        ColumnConstraints rankCol = new javafx.scene.layout.ColumnConstraints();
+        // Configurazione fluida delle colonne (Abbandonate le dimensioni fisse)
+        ColumnConstraints rankCol = new ColumnConstraints();
+        rankCol.setHgrow(Priority.SOMETIMES);
 
-        javafx.scene.layout.ColumnConstraints nameCol = new javafx.scene.layout.ColumnConstraints();
+        ColumnConstraints nameCol = new ColumnConstraints();
+        nameCol.setHgrow(Priority.ALWAYS);
 
-        javafx.scene.layout.ColumnConstraints scoreCol = new javafx.scene.layout.ColumnConstraints();
-        scoreCol.setHalignment(javafx.geometry.HPos.RIGHT);
+        ColumnConstraints scoreCol = new ColumnConstraints();
+        scoreCol.setHgrow(Priority.SOMETIMES);
+        scoreCol.setHalignment(HPos.RIGHT);
 
         row.getColumnConstraints().addAll(rankCol, nameCol, scoreCol);
 
@@ -141,11 +117,6 @@ public class LeaderBoardMenuController implements IscatMenuController {
         return row;
     }
 
-    /**
-     * Restituisce il badge testuale per la posizione in classifica.
-     * @param rank Posizione (1 = oro, 2 = argento, 3 = bronzo)
-     * @return Stringa formattata con emoji e numero
-     */
     private String rankBadge(int rank) {
         return switch (rank) {
             case 1 -> "🥇 1°";
@@ -153,20 +124,5 @@ public class LeaderBoardMenuController implements IscatMenuController {
             case 3 -> "🥉 3°";
             default -> rank + "°";
         };
-    }
-
-    @FXML
-    private void handleBackAction(ActionEvent event) {
-        handleBack();
-    }
-
-    @Override
-    public void setContentRoot(StackPane contentRoot) {
-        this.contentRoot = contentRoot;
-    }
-
-    @Override
-    public Pane getRootPane() {
-        return rootPane;
     }
 }

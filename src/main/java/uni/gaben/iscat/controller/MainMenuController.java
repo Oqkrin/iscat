@@ -1,6 +1,8 @@
 package uni.gaben.iscat.controller;
 
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
@@ -24,12 +26,36 @@ public class MainMenuController implements IscatFxmlController {
     @FXML private Button logoutButton;
     @FXML private Button quitButton;
     @FXML private Button leaderboardButton;
+    @FXML private Button creditsButton;
     AnimatedCanvas skin = new AnimatedCanvas(128);
 
     private StackPane contentRoot;
 
+    DoubleProperty playMaxSide =  new SimpleDoubleProperty(0);
+    DoubleProperty settingsMaxSide =   new SimpleDoubleProperty(0);
+    DoubleProperty skinMaxSide =  new SimpleDoubleProperty(0);
+
     @FXML
     public void initialize() {
+        playButton.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if(newVal.doubleValue() > playButton.getHeight()) {
+                playMaxSide.set(newVal.doubleValue());
+            }
+        });
+
+        playButton.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if(newVal.doubleValue() > playButton.getWidth()) {
+                playMaxSide.set(newVal.doubleValue());
+            }
+        });
+
+        playMaxSide.addListener((obs, oldVal, newVal) -> {
+           playButton.minHeightProperty().set(newVal.doubleValue());
+           playButton.maxHeightProperty().set(newVal.doubleValue());
+           playButton.minWidthProperty().set(newVal.doubleValue());
+           playButton.maxWidthProperty().set(newVal.doubleValue());
+        });
+
         setIcon(playButton,      "fas-rocket");
         setIcon(optionsButton,   "fas-cog");
         setIcon(scoreButton,     "fas-eye");
@@ -38,6 +64,7 @@ public class MainMenuController implements IscatFxmlController {
         setIcon(logoutButton,    "fas-sign-out-alt");
         setIcon(quitButton,      "fas-door-open");
         setIcon(leaderboardButton,"fas-door-open");
+        setIcon(creditsButton, "fab-creative-commons");
     }
 
     @FXML public void playGame()            { navigate(IscatViews.GAME);             }
@@ -46,7 +73,8 @@ public class MainMenuController implements IscatFxmlController {
     @FXML public void openSkinMenu()        { navigate(IscatViews.SKIN_MENU);        }
     @FXML public void openBestiaryMenu()    { navigate(IscatViews.BESTIARY_MENU);    }
     @FXML public void logout()              { navigate(IscatViews.LOGIN_MENU);       }
-    @FXML public void openLeaderboardMenu() {navigate(IscatViews.LEADERBOARD_MENU);  }
+    @FXML public void openLeaderboardMenu() { navigate(IscatViews.LEADERBOARD_MENU); }
+    @FXML public void openCreditsMenu()     { navigate(IscatViews.CREDITS);          }
     @FXML public void quit()                { Platform.exit();                       }
 
     private void navigate(IscatViews scene) {
@@ -73,8 +101,6 @@ public class MainMenuController implements IscatFxmlController {
 
             btn.setGraphic(skin);
         }
-
-        btn.setContentDisplay(ContentDisplay.TOP);
     }
 
     @Override

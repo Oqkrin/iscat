@@ -4,7 +4,6 @@ import uni.gaben.iscat.universe.entity.GenericEntityFactory;
 import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
-import uni.gaben.iscat.controller.game.UniverseWaveController;
 import uni.gaben.iscat.universe.entity.GenericEntityBrain;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;

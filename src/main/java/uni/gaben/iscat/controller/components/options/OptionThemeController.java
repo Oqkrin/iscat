@@ -34,7 +34,7 @@ public class OptionThemeController {
     @FXML private CheckBox lightModeCheck, rainbowModeCheck;
     @FXML private HBox paletteHolder, pickerRow1, pickerRow2;
 
-    @FXML private HBox theme;
+    @FXML private VBox theme;
 
     @FXML private StackPane imageArea;
     @FXML private ImageView themePreview;

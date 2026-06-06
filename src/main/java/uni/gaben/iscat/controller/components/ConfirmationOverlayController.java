@@ -14,8 +14,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import uni.gaben.iscat.controller.IscatMenuController;
+import uni.gaben.iscat.utils.design.ScalareAureo;
 
 import java.util.function.Consumer;
 
@@ -24,6 +26,8 @@ import java.util.function.Consumer;
  * Gestisce dialoghi modali con supporto per testo, input testuale, password e keybind.
  */
 public class ConfirmationOverlayController implements IscatMenuController {
+
+
 
     /** Tipo di input richiesto dall'overlay */
     public enum InputType {
@@ -41,6 +45,7 @@ public class ConfirmationOverlayController implements IscatMenuController {
     @FXML private Button keybindBtn;
     @FXML private Button yesBtn;
     @FXML private Button noBtn;
+    @FXML private VBox dialog;
 
     private StackPane contentRoot;
     private Consumer<String> onConfirmWithInput;
@@ -77,6 +82,12 @@ public class ConfirmationOverlayController implements IscatMenuController {
         // Binding visibilità per pulsanti azione
         yesBtn.managedProperty().bind(yesBtn.visibleProperty());
         noBtn.managedProperty().bind(noBtn.visibleProperty());
+
+        dialog.minWidthProperty().bind(rootPane.widthProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
+        dialog.minHeightProperty().bind(rootPane.heightProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
+        dialog.maxWidthProperty().bind(rootPane.widthProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
+        dialog.maxHeightProperty().bind(rootPane.heightProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
+
     }
 
     @Override
@@ -90,7 +101,9 @@ public class ConfirmationOverlayController implements IscatMenuController {
     }
 
     @Override
-    public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
+    public void setContentRoot(StackPane contentRoot) {
+        this.contentRoot = contentRoot;
+    }
 
     /**
      * Mostra un overlay di conferma semplice.

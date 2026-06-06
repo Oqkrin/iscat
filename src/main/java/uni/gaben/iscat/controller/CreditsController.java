@@ -5,11 +5,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
-import uni.gaben.iscat.IscatNavigator;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.utils.ComponentsUtils;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
  * Controller per la schermata della classifica (Leaderboard).
  * Mostra i migliori punteggi di tutti gli utenti ordinati in modo decrescente.
  */
-public class LeaderBoardMenuController implements IscatMenuController {
+public class CreditsController implements IscatMenuController {
 
     @FXML private VBox rootPane;
     @FXML private VBox leaderboardContainer;
@@ -29,13 +30,12 @@ public class LeaderBoardMenuController implements IscatMenuController {
 
     @FXML
     public void initialize() {
-        //registerEscHandler();
+        registerEscHandler();
 
         scoreDAO = IscatDB.getInstance().getScoreDAO();
 
         ComponentsUtils.applyIconButton(exitBtn, "fas-sign-out-alt");
 
-        /*
         // Ricarica la classifica quando il menu diventa visibile
         rootPane.visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
             if (isNowVisible) {
@@ -49,7 +49,7 @@ public class LeaderBoardMenuController implements IscatMenuController {
                 loadLeaderboard();
             }
         });
-        */
+
         loadLeaderboard();
     }
 
@@ -106,12 +106,15 @@ public class LeaderBoardMenuController implements IscatMenuController {
      */
     private GridPane buildRow(int rank, ScoreDAO.UserScoreEntry entry) {
         GridPane row = new GridPane();
+        row.setHgap(20);
         row.getStyleClass().add("leaderboard-row");
 
         // Configurazione colonne
-        ColumnConstraints rankCol = new javafx.scene.layout.ColumnConstraints();
+        javafx.scene.layout.ColumnConstraints rankCol = new javafx.scene.layout.ColumnConstraints();
+        rankCol.setMinWidth(60);
 
         javafx.scene.layout.ColumnConstraints nameCol = new javafx.scene.layout.ColumnConstraints();
+        nameCol.setHgrow(javafx.scene.layout.Priority.ALWAYS);
 
         javafx.scene.layout.ColumnConstraints scoreCol = new javafx.scene.layout.ColumnConstraints();
         scoreCol.setHalignment(javafx.geometry.HPos.RIGHT);

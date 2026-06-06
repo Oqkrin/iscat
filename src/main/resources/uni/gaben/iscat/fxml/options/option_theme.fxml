@@ -11,88 +11,61 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox fx:id="theme" alignment="CENTER" spacing="110.0" VBox.vgrow="NEVER"
-      xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="uni.gaben.iscat.controller.components.options.OptionThemeController">
 
-    <padding>
-        <Insets left="40.0" right="40.0" />
-    </padding>
-
-    <StackPane alignment="CENTER" rotate="1.0" scaleX="1.25" scaleY="1.25" maxWidth="420.0" minWidth="360.0" HBox.hgrow="ALWAYS">
-        <HBox.margin>
-            <Insets right="20.0" />
-        </HBox.margin>
-
-        <Region styleClass="glowing-border, controls-card" />
-
-        <VBox alignment="TOP_CENTER" spacing="16.0">
+<VBox fx:id="theme" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.options.OptionThemeController">
+   <children>
+   
+           <VBox alignment="CENTER" spacing="16.0" VBox.vgrow="ALWAYS">
             <padding>
-                <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
-
-            <VBox alignment="CENTER" spacing="4.0">
-                <Label styleClass="card-header" text="THEME" />
-            </VBox>
-
-            <VBox spacing="10.0" alignment="CENTER" styleClass="theme-modes-box">
+   
+               <Label styleClass="card-header" text="PREVIEW" />
+   
+               <StackPane fx:id="imageArea" maxHeight="180.0" maxWidth="320.0" minHeight="180.0" styleClass="theme-preview-container" VBox.vgrow="NEVER">
+                <ImageView fx:id="themePreview" fitHeight="180" fitWidth="320" preserveRatio="true" />
+                <Button fx:id="pickImageBtn" onAction="#onImagePick" styleClass="action-button" text="Pick Image" StackPane.alignment="CENTER" />
+            </StackPane>
+   
+               <HBox alignment="CENTER" spacing="12.0" styleClass="theme-navigation-row">
+                <Button fx:id="prevThemeBtn" onAction="#prevTheme" styleClass="nav-button" text="&lt;" />
+                <Button fx:id="addImageBtn" managed="false" styleClass="action-button" text="ADD IMAGE" visible="false" />
+                <Button fx:id="nextThemeBtn" onAction="#nextTheme" styleClass="nav-button" text="&gt;" />
+            </HBox>
+      
+                <VBox fx:id="hiddenPickers" alignment="CENTER" managed="false" visible="false">
+              <ColorPicker fx:id="accentTernary" />
+              <ColorPicker fx:id="bgPrimary" />
+              <ColorPicker fx:id="accentSecondary" />
+              <ColorPicker fx:id="accentPrimary" />
+          </VBox>
+   
+                  <HBox fx:id="pickerRow1" alignment="CENTER" spacing="8.0" styleClass="color-picker-row" />
+            <HBox fx:id="pickerRow2" alignment="CENTER" spacing="8.0" styleClass="color-picker-row" />
+             <Label styleClass="palette-hint" text="Premi un selettore, poi un colore" />
+             <HBox fx:id="paletteHolder" alignment="CENTER" spacing="6" styleClass="palette-holder" VBox.vgrow="NEVER" />
+        </VBox>
+   
+           <VBox alignment="TOP_CENTER" spacing="16.0" VBox.vgrow="SOMETIMES">
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding>
+   
+               <VBox alignment="CENTER" spacing="10.0" styleClass="theme-modes-box">
                 <HBox alignment="CENTER_LEFT" styleClass="theme-mode-row">
-                    <Label text="Light Mode" styleClass="theme-row-label" />
+                    <Label styleClass="theme-row-label" text="Light Mode" />
                     <Region HBox.hgrow="ALWAYS" />
                     <CheckBox fx:id="lightModeCheck" onAction="#toggleThemeMode" text="" />
                 </HBox>
-
-                <HBox alignment="CENTER_LEFT" styleClass="theme-mode-row">
-                    <Label text="Rainbow Mode" styleClass="theme-row-label" />
+   
+                   <HBox alignment="CENTER_LEFT" styleClass="theme-mode-row">
+                    <Label styleClass="theme-row-label" text="Rainbow Mode" />
                     <Region HBox.hgrow="ALWAYS" />
                     <CheckBox fx:id="rainbowModeCheck" onAction="#toggleRainbowMode" text="" />
                 </HBox>
             </VBox>
-
-            <HBox fx:id="pickerRow1" alignment="CENTER" spacing="8.0" styleClass="color-picker-row" />
-            <HBox fx:id="pickerRow2" alignment="CENTER" spacing="8.0" styleClass="color-picker-row" />
-
-            <Region minHeight="4.0" prefHeight="4.0" VBox.vgrow="ALWAYS" />
-
-            <VBox alignment="CENTER" spacing="8.0" styleClass="palette-section">
-                <Label text="Premi un selettore, poi un colore" styleClass="palette-hint" />
-                <HBox fx:id="paletteHolder" alignment="CENTER" spacing="6" VBox.vgrow="NEVER" styleClass="palette-holder" />
-            </VBox>
+   
+               <Region minHeight="4.0" prefHeight="4.0" VBox.vgrow="ALWAYS" />
         </VBox>
-    </StackPane>
-
-    <StackPane alignment="CENTER" rotate="-1.0" scaleX="1.25" scaleY="1.25" maxWidth="360.0" minWidth="360.0" HBox.hgrow="NEVER">
-        <HBox.margin>
-            <Insets left="20.0" />
-        </HBox.margin>
-
-        <Region styleClass="glowing-border, theme-card" />
-
-        <VBox alignment="CENTER" spacing="16.0">
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
-
-            <Label styleClass="card-header" text="PREVIEW" />
-
-            <StackPane fx:id="imageArea" minHeight="180.0" maxHeight="180.0" maxWidth="320.0" styleClass="theme-preview-container" VBox.vgrow="NEVER">
-                <ImageView fx:id="themePreview" fitHeight="180" fitWidth="320" preserveRatio="true" />
-                <Button fx:id="pickImageBtn" onAction="#onImagePick" text="Pick Image" styleClass="action-button" StackPane.alignment="CENTER" />
-            </StackPane>
-
-            <HBox alignment="CENTER" spacing="12.0" styleClass="theme-navigation-row">
-                <Button fx:id="prevThemeBtn" onAction="#prevTheme" text="&lt;" styleClass="nav-button" />
-                <Button fx:id="addImageBtn" text="ADD IMAGE" visible="false" managed="false" styleClass="action-button" />
-                <Button fx:id="nextThemeBtn" onAction="#nextTheme" text="&gt;" styleClass="nav-button" />
-            </HBox>
-        </VBox>
-    </StackPane>
-
-    <VBox fx:id="hiddenPickers" managed="false" visible="false">
-        <ColorPicker fx:id="accentPrimary" />
-        <ColorPicker fx:id="accentSecondary" />
-        <ColorPicker fx:id="accentTernary" />
-        <ColorPicker fx:id="bgPrimary" />
-    </VBox>
-
-</HBox>
+   </children>
+</VBox>
