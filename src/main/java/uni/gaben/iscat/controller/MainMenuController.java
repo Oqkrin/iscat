@@ -11,6 +11,9 @@ import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entity.player.PlayerSettings;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
+import javax.swing.event.ChangeListener;
+import java.beans.PropertyChangeListener;
+
 public class MainMenuController implements IscatFxmlController {
 
     @FXML private Button playButton;
@@ -55,17 +58,17 @@ public class MainMenuController implements IscatFxmlController {
 
         if (!iconCode.equals("fas-gift")) {
             FontIcon icon = new FontIcon(iconCode);
-            icon.setIconSize(18);
+            icon.setIconSize(32);
             btn.setGraphic(icon);
         } else {
 
             PlayerSettings.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
                 skin.loadSkin(newValue, 32, 32);
-                skin.resize(32.0);
+                skin.resize(128.0);
             });
 
             skin.loadSkin(PlayerSettings.getPlayerSkin(), 32, 32);
-            skin.resize(32.0);
+            skin.resize(128.0);
             skin.setFrameDuration(0.20);
 
             btn.setGraphic(skin);

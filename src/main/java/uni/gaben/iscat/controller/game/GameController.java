@@ -84,6 +84,7 @@ public class GameController {
         this.universeController = bundle.universeController();
         this.waveController = bundle.waveController();
         this.universeController.setEntityDeathListener(this::onEntityDied);
+        this.universeController.getPlayerController().setGameModel(gameModel);
 
         if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
