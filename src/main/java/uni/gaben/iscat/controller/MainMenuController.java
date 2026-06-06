@@ -71,8 +71,7 @@ public class MainMenuController implements IscatFxmlController {
             btn.setGraphic(skin);
         }
 
-        btn.setContentDisplay(ContentDisplay.LEFT);
-        btn.setGraphicTextGap(14.0);
+        btn.setContentDisplay(ContentDisplay.TOP);
     }
 
     @Override
