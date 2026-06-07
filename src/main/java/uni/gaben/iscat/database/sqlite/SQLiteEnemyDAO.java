@@ -17,24 +17,25 @@ public class SQLiteEnemyDAO implements EnemyDAO {
     }
 
     @Override
-    public void incrementKill(int userId, String entityKey) {
-        if (entityKey == null) return;
+    public void incrementKill(int userId, String entityKey, int killCount) {
+        if (entityKey == null || killCount <= 0) return;
         String normalizedKey = entityKey.toLowerCase().trim();
 
         String sql = """
             INSERT INTO BestiarioUtente (UserID, EnemyID, KillCount)
             VALUES (
-                    ?,
-                    (SELECT ID FROM Entity WHERE LOWER(EntityKey) = ?),
-                    1
+                ?,
+                (SELECT ID FROM Entity WHERE LOWER(EntityKey) = ?),
+                ?
             )
             ON CONFLICT(UserID, EnemyID) DO UPDATE SET
-                KillCount = KillCount + 1;
+                KillCount = KillCount + excluded.KillCount
             """;
 
         try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setInt(1, userId);
             stmt.setString(2, normalizedKey);
+            stmt.setInt(3, killCount);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Errore durante incrementKill per nemico: " + entityKey, e);
@@ -103,46 +104,34 @@ public class SQLiteEnemyDAO implements EnemyDAO {
         return list;
     }
 
-    /**
-     * Maps a database row from the Entity table to a GenericEntitySettings object.
-     * Follows the standardized schema defined in the Entity table.
-     * All field mappings are explicit and match the database column names exactly.
-     */
     private GenericEntitySettings mapRow(ResultSet rs) throws SQLException {
         GenericEntitySettings s = new GenericEntitySettings();
 
-        // Identity fields
         s.entityKey = rs.getString("EntityKey");
         s.name = rs.getString("Name");
         s.description = rs.getString("Description");
 
-        // Visual properties
         s.spritePath = rs.getString("SpritePath");
         s.frameW = rs.getInt("FrameW");
         s.frameH = rs.getInt("FrameH");
-        
-        // Shape type (with safe parsing)
+
         String shapeTypeStr = rs.getString("ShapeType");
         s.shapeType = GenericEntitySettings.ShapeType.fromString(shapeTypeStr);
 
-        // Physical properties (from PhysicalEntitySettings base)
         s.scale = rs.getDouble("Scale");
         s.initLife = rs.getDouble("InitLife");
         s.linearDamping = rs.getDouble("LinearDamping");
         s.mass = rs.getDouble("mass");
 
-        // Movement properties (from PhysicalEntitySettings base)
         s.maxVelocity = rs.getDouble("MaxVelocity");
         s.maxForce = rs.getDouble("MaxForce");
         s.maxAngularVelocity = rs.getDouble("MaxAngularVelocity");
 
-        // Behavioral properties (from PhysicalEntitySettings base)
         s.detectionRange = rs.getDouble("DetectionRange");
         s.combatRange = rs.getDouble("CombatRange");
         s.preferredRange = rs.getDouble("PreferredRange");
         s.actionCooldownMS = rs.getDouble("actionCooldownS");
 
-        // Rewards
         s.xpReward = rs.getInt("XPReward");
 
         return s;

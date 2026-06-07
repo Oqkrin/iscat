@@ -10,11 +10,6 @@ import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.AudioManager;
-import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.database.dao.EnemyDAO;
-import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.model.user.SessionUser;
-import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
@@ -25,17 +20,14 @@ public class GameController {
     private final GameModel gameModel;
     private final GameInputsHandler inputs = new GameInputsHandler();
     private final GameStatsManager statsManager = new GameStatsManager();
-    
+
     private final GameLoopTimer gameLoop;
     private final GameLifecycleManager lifecycleManager;
 
     private UniverseController universeController;
     private UniverseWaveController waveController;
     private Runnable onUniverseResetCallback;
-    
-    private final ScoreDAO scoreDAO = IscatDB.getInstance().getScoreDAO();
-    private final EnemyDAO enemyDAO = IscatDB.getInstance().getEnemyDAO();
-    
+
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
     private final BooleanProperty optionsMenuOpen = new SimpleBooleanProperty(false);
@@ -121,17 +113,11 @@ public class GameController {
                 if (killedByProjectile || isSpecial) {
                     PlayerModel player = gameModel.getUniverseModel().getPlayer();
                     if (player != null) player.addXp(living.getXpReward());
-                    SessionScoreTracker.getInstance().addScore((int) living.getXpReward());
 
-                    SessionUser user = SessionManager.getInstance().getCurrentUser();
-                    if (user != null) {
-                        IscatDB.getInstance().executeAsync(
-                                () -> scoreDAO.increment(user.id(), "Deaths", 1)); // Wait, should be Kills? "Deaths" was in original
-                        if (!cleanKey.isEmpty()) {
-                            IscatDB.getInstance().executeAsync(
-                                    () -> enemyDAO.incrementKill(user.id(), cleanKey));
-                        }
-                    }
+                    SessionScoreTracker tracker = SessionScoreTracker.getInstance();
+                    tracker.addKill();
+                    tracker.addScore((int) living.getXpReward() + 100);
+                    tracker.addEnemyKill(cleanKey); // accumulato in mappa, scritto in batch a fine partita
                 }
             }
         }
@@ -145,20 +131,20 @@ public class GameController {
 
     public void setDrawCall(Runnable drawCall) { this.gameLoop.setDrawCall(drawCall); }
     public void setOnUniverseResetCallback(Runnable cb) { this.onUniverseResetCallback = cb; }
-    
+
     public GameModel getGameModel() { return gameModel; }
     public GameInputsHandler getInputManager() { return inputs; }
     public UniverseModel getUniverseModel() { return gameModel.getUniverseModel(); }
     public UniverseController getUniverseController() { return universeController; }
     public CameraModel getCameraModel() { return gameModel.getCameraModel(); }
-    
+
     public boolean isFpsOn() { return showFps; }
     public void setShowFps(boolean v) { this.showFps = v; }
-    
+
     public boolean isDebugModeOn() { return showDebugMode.get(); }
     public void setShowDebugMode(boolean v) { showDebugMode.set(v); }
     public BooleanProperty debugModeProperty() { return showDebugMode; }
-    
+
     public boolean isOptionsMenuOpen() { return optionsMenuOpen.get(); }
     public void setOptionsMenuOpen(boolean v) { optionsMenuOpen.set(v); }
     public BooleanProperty optionsMenuOpenProperty() { return optionsMenuOpen; }

@@ -1,11 +1,11 @@
 package uni.gaben.iscat.controller;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -24,14 +24,7 @@ import uni.gaben.iscat.model.user.SessionUser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-/**
- * Controller per la schermata dei punteggi e delle statistiche globali del giocatore.
- * Gestisce l'esposizione delle metriche di gioco (punteggio massimo, uccisioni totali, tempo, danni)
- * ricavate dal sistema di salvataggio e dal database. Integra un sistema decorativo agli angoli
- * della UI che renderizza i mostri di gioco animati tramite canvas dedicati.
- */
 public class ScoreMenuController implements IscatMenuController {
 
     private StackPane contentRoot;
@@ -64,36 +57,23 @@ public class ScoreMenuController implements IscatMenuController {
     @FXML private StackPane previewSW;
     @FXML private StackPane previewSE;
 
-    /** Lista dei canvas animati attivi negli angoli della schermata, tracciati per la corretta disallocazione. */
     private final List<AnimatedCanvas> activeCanvases = new ArrayList<>();
-
     private BestiaryModel bestiaryModel;
 
-    private ScoreModel currentScore;
-
-    /**
-     * Inizializza la schermata configurando i vincoli di binding del titolo con lo username dell'utente,
-     * applicando i glifi iconici ai relativi componenti grafici e avviando l'ascolto delle variazioni
-     * sui dati di salvataggio per l'aggiornamento in tempo reale delle metriche.
-     */
     @FXML
     public void initialize() {
         registerEscHandler();
 
         bestiaryModel = new BestiaryModel();
 
-        // Data-binding dinamico del titolo sul nome utente della sessione corrente
         titleLabel.textProperty().bind(
                 Bindings.createStringBinding(() -> {
                     String user = SessionManager.getInstance().usernameProperty().getValue();
-                    if (user == null || user.isBlank()) {
-                        return "PLAYER SCORE";
-                    }
+                    if (user == null || user.isBlank()) return "PLAYER SCORE";
                     return user.toUpperCase() + " SCORE";
                 }, SessionManager.getInstance().usernameProperty())
         );
 
-        // Applicazione dei font iconici (FontAwesome) a etichette e pulsanti
         ComponentsUtils.applyIconButton(exitBtn,         "fas-sign-out-alt");
         ComponentsUtils.applyIconLabel(lblBestScore,     "fas-trophy");
         ComponentsUtils.applyIconLabel(lblTotalEnemies,  "fas-skull");
@@ -104,59 +84,50 @@ public class ScoreMenuController implements IscatMenuController {
         ComponentsUtils.applyIconLabel(lblTimesPlayed,   "fas-clock");
         ComponentsUtils.applyIconLabel(lblLongestTime,   "fas-hourglass-half");
 
+        SessionManager.getInstance().saveDataProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) refresh(newVal);
+        });
+
+        ScoreModel cached = SessionManager.getInstance().getCurrentSaveData();
+        if (cached != null) {
+            refresh(cached);
+        }
+
+        loadFromDB();
+
         setupCornerMobs();
-        loadInitialData();
     }
 
     /**
-     * Carica i dati iniziali dal database
+     * Carica i dati dal DB in modo asincrono.
+     * Quando il dato arriva, aggiorna la sessione → il listener chiama refresh().
      */
-    private void loadInitialData() {
+    private void loadFromDB() {
         SessionUser user = SessionManager.getInstance().getCurrentUser();
         if (user == null) return;
 
-        try {
+        IscatDB.getInstance().executeAsync(() -> {
             ScoreDAO scoreDAO = IscatDB.getInstance().getScoreDAO();
-            Optional<ScoreModel> scoreOpt = scoreDAO.load(user.id());
-
-            if (scoreOpt.isPresent()) {
-                currentScore = scoreOpt.get();
-                SessionManager.getInstance().setCurrentSaveData(currentScore);
-                refresh(currentScore);
-            } else {
-                // Crea nuovo record se non esiste
-                scoreDAO.createIfNotExists(user.id());
-                currentScore = new ScoreModel(user.id());
-                SessionManager.getInstance().setCurrentSaveData(currentScore);
-                refresh(currentScore);
-            }
-        } catch (Exception e) {
-            System.err.println("[ScoreMenuController] Errore caricamento score: " + e.getMessage());
-        }
+            scoreDAO.createIfNotExists(user.id());
+            scoreDAO.load(user.id()).ifPresent(data ->
+                    Platform.runLater(() -> SessionManager.getInstance().setCurrentSaveData(data))
+            );
+        });
     }
 
-    /**
-     * Recupera le definizioni dal Bestiario caricate dal database e istanzia dei canvas animati
-     * distribuiti nei contenitori posizionati ai quattro angoli della schermata dei punteggi.
-     */
     private void setupCornerMobs() {
         try {
             SessionUser user = SessionManager.getInstance().getCurrentUser();
             if (user == null) return;
 
             Map<String, GenericEntitySettings> enemiesMap = bestiaryModel.loadEnemies(user.id());
-
-            if (enemiesMap == null || enemiesMap.isEmpty()) {
-                System.err.println("[ScoreMenuController] no enemies found for user: " + user.id());
-                return;
-            }
+            if (enemiesMap == null || enemiesMap.isEmpty()) return;
 
             List<GenericEntitySettings> enemyList = new ArrayList<>(enemiesMap.values());
             StackPane[] containers = { previewNW, previewNE, previewSW, previewSE };
 
             for (int i = 0; i < containers.length; i++) {
                 if (containers[i] == null) continue;
-
                 GenericEntitySettings enemy = enemyList.get(i % enemyList.size());
 
                 AnimatedCanvas canvas = new AnimatedCanvas(128.0);
@@ -172,11 +143,6 @@ public class ScoreMenuController implements IscatMenuController {
         }
     }
 
-    /**
-     * Sincronizza i testi delle etichette della UI con i valori numerici presenti nel DTO di salvataggio.
-     *
-     * @param data Oggetto contenente i dati e i record statistici aggregati dell'utente.
-     */
     private void refresh(ScoreModel data) {
         if (data == null) return;
 
@@ -190,16 +156,10 @@ public class ScoreMenuController implements IscatMenuController {
         valTotalEnemies.setText(formatNumber(data.totalKills()));
     }
 
-    /**
-     * Formatta un numero con separatori delle migliaia
-     */
     private String formatNumber(int number) {
         return String.format("%,d", number);
     }
 
-    /**
-     * Formatta un valore espresso in secondi nel formato standard MM:SS.
-     */
     private String formatTime(int seconds) {
         if (seconds <= 0) return "00:00";
         int minutes = seconds / 60;
@@ -216,16 +176,10 @@ public class ScoreMenuController implements IscatMenuController {
         this.customBackAction = customBackAction;
     }
 
-    /**
-     * Gestisce la disattivazione controllata e l'uscita dalla schermata.
-     * Rimuove i vincoli di binding del titolo e interrompe i loop di rendering dei canvas
-     * per prevenire memory leak o spreco di CPU in background, prima di rientrare nel menu principale.
-     */
     @Override
     public void handleBack() {
         titleLabel.textProperty().unbind();
 
-        // Ferma e pulisci tutti i canvas animati
         activeCanvases.forEach(canvas -> {
             canvas.stop();
             if (canvas.getParent() != null) {

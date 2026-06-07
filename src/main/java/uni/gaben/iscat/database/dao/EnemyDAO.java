@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface EnemyDAO {
 
     /** Incrementa il contatore delle uccisioni per un utente e nemico */
-    void incrementKill(int userId, String entityKey);
+    void incrementKill(int userId, String entityKey, int count);
 
     /** Estrae la lista completa del bestiario per un utente */
     List<BestiarioEntry> getBestiarioForUser(int userId);

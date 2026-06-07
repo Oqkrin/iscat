@@ -128,7 +128,7 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
         try {
             var user = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser();
             if (user != null) {
-                IscatDB.getInstance().getEnemyDAO().incrementKill(user.id(), "iscat_master");
+                IscatDB.getInstance().getEnemyDAO().incrementKill(user.id(), "iscat_master",1);
             }
         } catch (Exception e) {
             System.err.println("[ERRORE REGISTRAZIONE BOSS] Impossibile aggiornare i record di morte su DB");
