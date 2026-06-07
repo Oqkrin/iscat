@@ -10,7 +10,7 @@ import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
 
 public class BlackHoleBrain extends Brain<BlackHoleModel> {
     public BlackHoleBrain(BlackHoleModel entity) {
-        super(entity, SteeringGoal.idle());
+        super(entity);
         addAction("gravity",
                 new GravityPullAction(Target.neighbours(entity, entity.getRadius().m().get()*10, new DetectFilter<>(true, true, null)))
         );

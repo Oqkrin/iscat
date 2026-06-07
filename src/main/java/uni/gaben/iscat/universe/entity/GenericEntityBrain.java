@@ -19,9 +19,7 @@ import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
 public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
     public GenericEntityBrain(GenericEntityModel entity) {
-        super(entity,
-                SteeringGoal.pursuit(Target.ofPlayer(), entity.getMaxForce() / entity.getMaxVelocity())
-        );
+        super(entity);
 
         setRotationGoal(RotationGoal.idle());
 
@@ -38,6 +36,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
     private void loadBehaviorsFromSettings(GenericEntitySettings settings) {
         switch (settings.entityKey) {
             case "iscat_mob":
+                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 2.5, settings.combatRange, settings.combatRange));
                 setRotationGoal(RotationGoal.target(Target.ofPlayer()));
                 addAction(new ShootAction(
                         settings.detectionRange,
@@ -45,11 +44,12 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),
-                        false
+                        true
                 ));
                 break;
 
             case "iscat_bomber":
+                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 5, settings.combatRange, settings.combatRange));
                 setRotationGoal(RotationGoal.target(Target.ofPlayer()));
                 addAction(new ShootAction(
                         settings.detectionRange,
@@ -67,7 +67,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
-                        new MultiDirectionPatternShooter(4, 0, new ParallelLinePatternShooter(3, 30)),
+                        new MultiDirectionPatternShooter(4, 0, new ParallelLinePatternShooter(3, 32)),
                         Target.ofPlayer(),
                         false
                 ));
@@ -78,6 +78,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_mother":
+                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 3, settings.combatRange, settings.combatRange));
                 addAction(RandomizedShootAction.targetingPlayer(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
@@ -91,6 +92,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "fake_iscat":
+                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 2, settings.combatRange, settings.combatRange));
                 addAction(RandomizedShootAction.targetingPlayer(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
@@ -115,6 +117,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "eater":
+                setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), 1));
             case "iscat_worm_head":
             case "iscat_worm_body_part":
                 break;
@@ -149,18 +152,11 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_healer":
+                setSteeringGoal(SteeringGoal.evadeWithRange(Target.ofPlayer(), 3, settings.combatRange));
                 addAction(new HealAction(settings.actionCooldownMS, settings.combatRange/2, settings.initLife/200));
                 break;
 
             default:
-                addAction(new ShootAction(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
-                        ProjectileType.ENEMY_BULLET,
-                        new SingleShotPatternShooter(),
-                        Target.ofPlayer(),
-                        true
-                ));
                 break;
         }
     }

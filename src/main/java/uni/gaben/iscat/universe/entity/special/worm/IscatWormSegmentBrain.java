@@ -9,12 +9,12 @@ public class IscatWormSegmentBrain extends Brain<IscatWormSegment> {
     private final IscatWormSegment head;
 
     public IscatWormSegmentBrain(IscatWormSegment segment, IscatWormSegment head) {
-        super(segment, SteeringGoal.idle());
+        super(segment);
 
         this.head = head;
 
         if(segment.getType() == IscatWormSegment.Type.HEAD) setRotationGoal(RotationGoal.target(Target.ofPlayer()));
-        if(segment.getType() == IscatWormSegment.Type.HEAD) setMovementGoal(SteeringGoal.pursuit(Target.ofPlayer(), 2));
+        if(segment.getType() == IscatWormSegment.Type.HEAD) setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), 2));
 
 
     }

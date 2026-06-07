@@ -13,7 +13,7 @@ public class HeartController extends Brain<HeartModel> {
     private boolean collected = false;
 
     public HeartController(HeartModel heart) {
-        super(heart, SteeringGoal.idle());
+        super(heart);
         this.heart = heart;
 
         // Collision callback
@@ -36,9 +36,9 @@ public class HeartController extends Brain<HeartModel> {
         if (heart == null || heart.shouldRemove() || collected || player == null) return;
         super.update(universe, dt);
         if(player.getTransform().getTranslation().distance(heart.getTransform().getTranslation()) < 3) {
-            setMovementGoal(SteeringGoal.pursuit(Target.ofPlayer(), 0));
+            setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), 0));
         } else {
-            setMovementGoal(SteeringGoal.idle());
+            setSteeringGoal(SteeringGoal.idle());
         }
     }
 

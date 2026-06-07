@@ -18,115 +18,45 @@ public interface SteeringGoal {
     }
 
     /**
-     * Classic Craig Reynolds Pursuit using the empirical 9-case matrix from OpenSteer.
-     * @param maxPredictionTime Strict cap on how many seconds into the future the AI can predict.
+     * Classic Craig Reynolds Pursuit using generalized matrix heuristics.
      */
     static SteeringGoal pursuit(Target target, double maxPredictionTime) {
         Vector2 pursuitVelocity = UU.vector2zero();
         Vector2 pursuitPos = UU.vector2zero();
-        Vector2 offset = UU.vector2zero();
-        Vector2 unitOffset = UU.vector2zero();
-        Vector2 selfForward = UU.vector2zero();
-        Vector2 targetForward = UU.vector2zero();
 
         return (self, universe, dt) -> {
             List<AbstractEntityModel> targets = target.getEntities(universe);
             if (targets == null || targets.isEmpty()) return pursuitVelocity.set(0, 0);
 
-            AbstractEntityModel entity = targets.get(0);
+            AbstractEntityModel entity = targets.getFirst();
             if (entity.shouldRemove()) return pursuitVelocity.set(0, 0);
 
             Vector2 selfPos = self.getTransform().getTranslation();
-            Vector2 targetPosition = entity.getTransform().getTranslation();
+            Vector2 targetPos = entity.getTransform().getTranslation();
 
-            // 1. Calculate basic distance metrics
-            offset.set(targetPosition).subtract(selfPos);
-            double distance = offset.getMagnitude();
-            if (distance < 0.001) return pursuitVelocity.set(0, 0);
-
-            unitOffset.set(offset).divide(distance);
-
-            // 2. Derive 2D heading vectors from entity rotation angles
-            double selfAngle = self.getTransform().getRotationAngle();
-            selfForward.set(Math.cos(selfAngle), Math.sin(selfAngle));
-
-            double targetAngle = entity.getTransform().getRotationAngle();
-            targetForward.set(Math.cos(targetAngle), Math.sin(targetAngle));
-
-            // 3. Compute geometric dot products (Reynolds Heuristics)
-            double parallelness = selfForward.dot(targetForward);
-            double forwardness = selfForward.dot(unitOffset);
-
-            // 4. Calculate direct baseline travel time (with a safe floor to avoid dividing by 0)
-            double maxVelocity = self.getMaxVelocity();
-            double currentSpeed = self.getLinearVelocity().getMagnitude();
-            double speedBaseline = currentSpeed > 0.1 ? currentSpeed : maxVelocity;
-            double directTravelTime = distance / speedBaseline;
-
-            // Map continuous dot-product spaces into discrete [-1, 0, 1] intervals (~45 degree cones)
-            double et = getEt(forwardness, parallelness, directTravelTime);
-            double lookAheadTime = Math.min(et, maxPredictionTime);
-
-            Vector2 targetVelocity = entity.getLinearVelocity();
-            pursuitPos.set(
-                    targetPosition.x + (targetVelocity.x * lookAheadTime),
-                    targetPosition.y + (targetVelocity.y * lookAheadTime)
+            double lookAheadTime = Predictor.calculatePursuitTime(
+                    selfPos, self.getTransform().getRotationAngle(),
+                    targetPos, entity.getTransform().getRotationAngle(),
+                    self.getLinearVelocity().getMagnitude(), self.getMaxVelocity()
             );
+            lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
-            // 7. Standard Reynolds Seek toward predicted point
+            // Generalization usage: Zero allocations extrapolate
+            Predictor.extrapolate(target, universe, lookAheadTime, pursuitPos);
+
             pursuitVelocity.set(pursuitPos).subtract(selfPos);
             if (!pursuitVelocity.isZero()) {
-                pursuitVelocity.setMagnitude(maxVelocity);
+                pursuitVelocity.setMagnitude(self.getMaxVelocity());
             }
 
             return pursuitVelocity;
         };
     }
 
-    private static double getEt(double forwardness, double parallelness, double directTravelTime) {
-        int f = intervalComparison(forwardness, -0.707, 0.707);
-        int p = intervalComparison(parallelness, -0.707, 0.707);
-
-        // 5. Evaluate the OpenSteer 9-Case Matrix
-        double timeFactor = 0.0;
-        timeFactor = switch (f) {
-            case 1 -> // Target is Ahead
-                // Ahead, Anti-Parallel
-                    switch (p) {
-                        case 1 -> 4.0; // Ahead, Parallel
-                        case 0 -> 1.8; // Ahead, Perpendicular
-                        case -1 -> 0.85;
-                        default -> timeFactor;
-                    };
-            case 0 -> // Target is Aside
-                // Aside, Anti-Parallel
-                    switch (p) {
-                        case 1 -> 1.0; // Aside, Parallel
-                        case 0 -> 0.8; // Aside, Perpendicular
-                        case -1 -> 4.0;
-                        default -> timeFactor;
-                    };
-            case -1 -> // Target is Behind
-                // Behind, Anti-Parallel
-                    switch (p) {
-                        case 1 -> 0.5; // Behind, Parallel
-                        case 0 -> 2.0; // Behind, Perpendicular
-                        case -1 -> 2.0;
-                        default -> timeFactor;
-                    };
-            default -> 0.0;
-        };
-
-        // 6. Predict future intersection target
-        return directTravelTime * timeFactor;
-    }
-
     /**
-     * Classic OpenSteer Evade. Uses combined relative closing speeds
-     * to determine look-ahead time, then flies directly away.
+     * Classic OpenSteer Evade using capability closing limits.
      */
     static SteeringGoal evade(Target target, double maxPredictionTime) {
-        // Hoisted workspace objects
         Vector2 evadeVelocity = UU.vector2zero();
         Vector2 predictedPos = UU.vector2zero();
 
@@ -134,34 +64,23 @@ public interface SteeringGoal {
             List<AbstractEntityModel> targets = target.getEntities(universe);
             if (targets == null || targets.isEmpty()) return evadeVelocity.set(0, 0);
 
-            AbstractEntityModel entity = targets.get(0);
+            AbstractEntityModel entity = targets.getFirst();
             if (entity.shouldRemove()) return evadeVelocity.set(0, 0);
 
             Vector2 selfPos = self.getTransform().getTranslation();
-            Vector2 targetPosition = entity.getTransform().getTranslation();
-            Vector2 targetVelocity = entity.getLinearVelocity();
+            Vector2 targetPos = entity.getTransform().getTranslation();
 
-            double distance = targetPosition.distance(selfPos);
-            double threatSpeed = targetVelocity.getMagnitude();
-
-            // OpenSteer Evade Formula: Prediction time is proportional to distance
-            // divided by the sum of our max capabilities and their current speed.
-            double maxVelocity = self.getMaxVelocity();
-            double lookAheadTime = distance / (maxVelocity + threatSpeed);
-            if (lookAheadTime > maxPredictionTime) {
-                lookAheadTime = maxPredictionTime;
-            }
-
-            // Predict where the threat will be
-            predictedPos.set(
-                    targetPosition.x + (targetVelocity.x * lookAheadTime),
-                    targetPosition.y + (targetVelocity.y * lookAheadTime)
+            double lookAheadTime = Predictor.calculateEvadeTime(
+                    selfPos, targetPos, self.getMaxVelocity(), entity.getLinearVelocity().getMagnitude()
             );
+            lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
-            // True Evade: Flee directly away from the future threat position
+            // Generalization usage: Zero allocations extrapolate
+            Predictor.extrapolate(target, universe, lookAheadTime, predictedPos);
+
             evadeVelocity.set(selfPos).subtract(predictedPos);
             if (!evadeVelocity.isZero()) {
-                evadeVelocity.setMagnitude(maxVelocity);
+                evadeVelocity.setMagnitude(self.getMaxVelocity());
             }
 
             return evadeVelocity;
@@ -169,12 +88,108 @@ public interface SteeringGoal {
     }
 
     /**
-     * Helper mapping a value into continuous intervals [-1, 0, 1].
-     * Matches OpenSteer's intervalComparison function utility.
+     * Craig Reynolds Pursuit with an integrated comfort zone interval [minDistance, maxDistance].
+     * - Outside maxDistance: Pursues the predicted position at max velocity.
+     * - Inside minDistance: Backs away (Evades) from the predicted position at max velocity.
+     * - Within the interval: Smoothly matches the target's velocity to maintain distance.
      */
-    private static int intervalComparison(double value, double lower, double upper) {
-        if (value < lower) return -1;
-        if (value > upper) return 1;
-        return 0;
+    static SteeringGoal pursuitWithRange(Target target, double maxPredictionTime, double minDistance, double maxDistance) {
+        Vector2 desiredVelocity = UU.vector2zero();
+        Vector2 predictedPos = UU.vector2zero();
+
+        return (self, universe, dt) -> {
+            List<AbstractEntityModel> targets = target.getEntities(universe);
+            if (targets == null || targets.isEmpty()) return desiredVelocity.set(0, 0);
+
+            AbstractEntityModel entity = targets.getFirst();
+            if (entity.shouldRemove()) return desiredVelocity.set(0, 0);
+
+            Vector2 selfPos = self.getTransform().getTranslation();
+            Vector2 targetPos = entity.getTransform().getTranslation();
+
+            double lookAheadTime = Predictor.calculatePursuitTime(
+                    selfPos, self.getTransform().getRotationAngle(),
+                    targetPos, entity.getTransform().getRotationAngle(),
+                    self.getLinearVelocity().getMagnitude(), self.getMaxVelocity()
+            );
+            lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
+
+            // Zero allocations extrapolate
+            Predictor.extrapolate(target, universe, lookAheadTime, predictedPos);
+
+            // Calculate vector pointing from self to the predicted location
+            desiredVelocity.set(predictedPos).subtract(selfPos);
+            double distance = desiredVelocity.getMagnitude();
+
+            if (distance > maxDistance) {
+                // State A: Too far away -> Close the gap at maximum velocity
+                if (distance > 0) {
+                    desiredVelocity.setMagnitude(self.getMaxVelocity());
+                }
+            } else if (distance < minDistance) {
+                // State B: Too close -> Invert direction and back off (Evade)
+                if (distance > 0) {
+                    desiredVelocity.multiply(-1.0);
+                    desiredVelocity.setMagnitude(self.getMaxVelocity());
+                } else {
+                    // Fallback to prevent NaN if perfectly overlapping
+                    desiredVelocity.set(1, 0).setMagnitude(self.getMaxVelocity());
+                }
+            } else {
+                // State C: Comfort Zone -> Shadow the target smoothly by matching its velocity
+                // Alternatively, use desiredVelocity.set(0, 0) if you want it to halt completely
+                desiredVelocity.set(entity.getLinearVelocity());
+            }
+
+            return desiredVelocity;
+        };
     }
+
+    /**
+     * OpenSteer Evade with a safety range parameter.
+     * - Inside safetyDistance: Actively evades the predicted threat position.
+     * - Outside safetyDistance: Threat is neutralized/ignored; sets desired velocity to zero.
+     */
+    static SteeringGoal evadeWithRange(Target target, double maxPredictionTime, double safetyDistance) {
+        Vector2 desiredVelocity = UU.vector2zero();
+        Vector2 predictedPos = UU.vector2zero();
+
+        return (self, universe, dt) -> {
+            List<AbstractEntityModel> targets = target.getEntities(universe);
+            if (targets == null || targets.isEmpty()) return desiredVelocity.set(0, 0);
+
+            AbstractEntityModel entity = targets.getFirst();
+            if (entity.shouldRemove()) return desiredVelocity.set(0, 0);
+
+            Vector2 selfPos = self.getTransform().getTranslation();
+            Vector2 targetPos = entity.getTransform().getTranslation();
+
+            double lookAheadTime = Predictor.calculateEvadeTime(
+                    selfPos, targetPos, self.getMaxVelocity(), entity.getLinearVelocity().getMagnitude()
+            );
+            lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
+
+            // Zero allocations extrapolate
+            Predictor.extrapolate(target, universe, lookAheadTime, predictedPos);
+
+            // Calculate vector pointing from predicted threat to self
+            desiredVelocity.set(selfPos).subtract(predictedPos);
+            double distance = desiredVelocity.getMagnitude();
+
+            if (distance < safetyDistance) {
+                // Threat is inside the safety bubble -> Flee at max capability
+                if (distance > 0) {
+                    desiredVelocity.setMagnitude(self.getMaxVelocity());
+                } else {
+                    desiredVelocity.set(1, 0).setMagnitude(self.getMaxVelocity());
+                }
+            } else {
+                // Threat is safely out of range -> Stand down
+                desiredVelocity.set(0, 0);
+            }
+
+            return desiredVelocity;
+        };
+    }
+
 }

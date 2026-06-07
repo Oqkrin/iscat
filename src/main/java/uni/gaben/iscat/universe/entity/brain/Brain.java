@@ -49,14 +49,14 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // CONSTRUCTOR
     // ========================================================================
 
-    public Brain(T entity, SteeringGoal defaultGoal) {
+    public Brain(T entity) {
         this.entity = entity;
         this.shooter = new Shooter<>(entity);
 
-        this.defaultSteeringGoal = defaultGoal;
-        this.currentSteeringGoal = defaultGoal;
-        this.defaultRotationGoal = entity.getMaxAngularVelocity() > 0 ? RotationGoal.movement() : RotationGoal.idle();
+        this.defaultSteeringGoal = SteeringGoal.idle();
+        this.currentSteeringGoal = defaultSteeringGoal;
 
+        this.defaultRotationGoal = entity.getMaxAngularVelocity() > 0 ? RotationGoal.movement() : RotationGoal.idle();
         this.currentRotationGoal = defaultRotationGoal;
     }
 
@@ -292,7 +292,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // GETTERS & SETTERS
     // ========================================================================
 
-    public void setMovementGoal(SteeringGoal goal) { this.currentSteeringGoal = goal; }
+    public void setSteeringGoal(SteeringGoal goal) { this.currentSteeringGoal = goal; }
     public SteeringGoal getMovementGoal() { return currentSteeringGoal; }
     public SteeringGoal getDefaultGoal() { return defaultSteeringGoal; }
 

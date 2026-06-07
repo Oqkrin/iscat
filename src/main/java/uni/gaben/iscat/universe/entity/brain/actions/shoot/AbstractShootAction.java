@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.entity.brain.actions.shoot;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.actions.Action;
@@ -15,7 +16,8 @@ public abstract class AbstractShootAction extends Action {
     protected final Cooldown cooldown;
     protected final double combatRange;
     protected final ProjectileType bulletType;
-    protected final Target target;   // <-- was Function<...>
+    protected final Target target;
+    protected Vector2 targetPos = UU.vector2zero();
     protected final boolean aimAtTarget;
 
     protected AbstractShootAction(String name, double combatRange, double cooldownSec,
@@ -30,9 +32,10 @@ public abstract class AbstractShootAction extends Action {
 
     @Override
     public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+        targetPos.set(0, 0);
         cooldown.update(dt);
         if (cooldown.isCoolingDown()) return false;
-        Vector2 targetPos = target.getPosition(world);
+        targetPos = target.getPosition(world);
         if (targetPos == null) return false;
         if (combatRange >= 0) {
             double dist = self.getTransform().getTranslation().distance(targetPos);
@@ -42,8 +45,9 @@ public abstract class AbstractShootAction extends Action {
     }
 
     protected double getAimAngle(Brain<?> brain, UniverseModel universe, double velocity) {
+        targetPos.set(0, 0);
         if (aimAtTarget) {
-            Vector2 targetPos = target.predictedPosition(universe, brain.getEntity().getTransform().getTranslation(), velocity);
+            target.predictedPosition(universe, brain.getEntity().getTransform().getTranslation(), velocity, targetPos);
             return targetPos != null ? brain.angleToTarget(targetPos) : brain.getEntity().getTransform().getRotationAngle();
         } else {
             return brain.getEntity().getTransform().getRotationAngle();

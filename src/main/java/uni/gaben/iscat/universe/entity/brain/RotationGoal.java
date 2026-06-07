@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.entity.brain;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.utils.Cooldown;
@@ -20,11 +21,10 @@ public interface RotationGoal {
     }
 
     static RotationGoal target(Target target) {
+        Vector2 pos = UU.vector2zero();
         return (self, world, dt) -> {
-            Vector2 pos = target.getPosition(world);
-            if (pos == null) return Double.NaN;
-            Vector2 diff = pos.copy().subtract(self.getTransform().getTranslation());
-            return diff.getMagnitudeSquared() > 0.01 ? diff.getDirection() : Double.NaN;
+            target.predictedPosition(world, self.getTransform().getTranslation(), self.getMaxAngularVelocity(), pos);
+            return pos.subtract(self.getTransform().getTranslation()).getDirection();
         };
     }
 
