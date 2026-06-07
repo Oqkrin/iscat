@@ -49,7 +49,7 @@ public class UniverseSpawner {
     public Object spawn(UniverseSpawnable type, double x, double y) {
         return switch (type) {
             case PLAYER            -> spawnPlayer(x, y);
-                        case ASTEROID          -> spawnEntity(new AsteroidModel(x, y, 50)); // simplified, adjust as needed
+            case ASTEROID          -> spawnEntity(new AsteroidModel(x, y)); // simplified, adjust as needed
             case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
             case ISCAT_MASTER      -> spawnIscatMaster(x, y);

@@ -25,7 +25,8 @@ public class UniverseModel extends World<Body> {
     private final Map<Class<?>, List<AbstractEntityModel>> entitiesByCategory = new HashMap<>();
     private final Map<Class<?>, List<Class<?>>> classHierarchyCache = new ConcurrentHashMap<>();
 
-    public static final double DEFAULT_SPAWN_CENTER = UniverseSettings.DEFAULT_WIDTH / 2.0;
+    public static final double DEFAULT_SPAWN_WIDTHCENTER = UniverseSettings.DEFAULT_WIDTH / 2.0;
+    public static final double DEFAULT_SPAWN_HEIGHTCENTER = UniverseSettings.DEFAULT_HEIGHT / 2.0;
 
     private double width = UniverseSettings.DEFAULT_WIDTH;
     private double height = UniverseSettings.DEFAULT_HEIGHT;

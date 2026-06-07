@@ -1,5 +1,7 @@
 package uni.gaben.iscat.universe.camera;
 
+import uni.gaben.iscat.utils.Updatable;
+
 /**
  * Controller that updates the {@link CameraModel} to follow a target position.
  *
@@ -29,32 +31,34 @@ public class CameraController {
      * @param viewH        current canvas height (screen pixels, must be > 0 for snapping)
      * @param dt           timestep in seconds (used for spring integration)
      */
-    public void update(CameraModel model,
-                       double targetWorldX,
-                       double targetWorldY,
-                       double viewW,
-                       double viewH,
-                       double dt) {
+    public void update(CameraModel model, double targetWorldX, double targetWorldY,
+                       double viewW, double viewH, double mouseWorldX, double mouseWorldY, double dt) {
 
-        // Desired camera centre: centre the target in the viewport
         double zoom = model.getZoom();
-        double targetCentreX = targetWorldX - (viewW / zoom) / 2.0;
-        double targetCentreY = targetWorldY - (viewH / zoom) / 2.0;
 
-        // Tell the springs where we want them to go
+        // 1. Calculate Look-Ahead (toward mouse)
+        double offsetX = (mouseWorldX - targetWorldX) * 0.15;
+        double offsetY = (mouseWorldY - targetWorldY) * 0.15;
+
+        // 2. Clamp it
+        double maxOffset = 150 / zoom;
+        offsetX = Math.clamp(offsetX, -maxOffset, maxOffset);
+        offsetY = Math.clamp(offsetY, -maxOffset, maxOffset);
+
+        // 3. SET TARGET AS WORLD CENTER (Remove the -viewW/2 logic)
+        double targetCentreX = targetWorldX + offsetX;
+        double targetCentreY = targetWorldY + offsetY;
+
         model.getSpringX().setTarget(targetCentreX);
         model.getSpringY().setTarget(targetCentreY);
 
-        // Snap the camera to the target on the first valid frame.
-        // Without this, the springs would interpolate from their initial (0,0)
-        // position, causing a distracting "camera flies into place" effect.
+        // Snap on first frame
         if (!model.isSnapped() && viewW > 0 && viewH > 0) {
             model.getSpringX().setPosition(targetCentreX);
             model.getSpringY().setPosition(targetCentreY);
             model.setSnapped(true);
         }
 
-        // Advance the spring simulations
         model.getSpringX().update(dt);
         model.getSpringY().update(dt);
     }

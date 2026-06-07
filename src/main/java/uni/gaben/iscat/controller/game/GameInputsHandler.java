@@ -127,13 +127,15 @@ public class GameInputsHandler {
         String dbKey = settingValue.trim().toUpperCase();
         String fxKey = code.toString().toUpperCase();
 
-        if (dbKey.equals("UP")) return code == KeyCode.UP;
-        if (dbKey.equals("DOWN")) return code == KeyCode.DOWN;
-        if (dbKey.equals("LEFT")) return code == KeyCode.LEFT;
-        if (dbKey.equals("RIGHT")) return code == KeyCode.RIGHT;
-        if (dbKey.equals("SPACE")) return code == KeyCode.SPACE;
+        return switch (dbKey) {
+            case "UP" -> code == KeyCode.UP;
+            case "DOWN" -> code == KeyCode.DOWN;
+            case "LEFT" -> code == KeyCode.LEFT;
+            case "RIGHT" -> code == KeyCode.RIGHT;
+            case "SPACE" -> code == KeyCode.SPACE;
+            default -> fxKey.equals(dbKey);
+        };
 
-        return fxKey.equals(dbKey);
     }
 
     private boolean matchMouse(MouseButton button, String settingValue) {

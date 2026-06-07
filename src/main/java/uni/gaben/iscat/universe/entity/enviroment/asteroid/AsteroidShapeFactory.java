@@ -1,18 +1,22 @@
 package uni.gaben.iscat.universe.entity.enviroment.asteroid;
 
+import org.dyn4j.geometry.Polygon;
 import org.dyn4j.geometry.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class AsteroidShapeFactory {
-    
+    private AsteroidShapeFactory() {
+        /* This utility class should not be instantiated */
+    }
+
     // Cache of pre-computed normalized hulls (radius = 1.0)
     private static final List<Vector2[]> CACHED_SHAPES = new ArrayList<>();
     private static final int SHAPE_VARIANTS = 15;
     
     static {
-        Random rand = new Random(12345); // Fixed seed for consistent shapes
+        Random rand = new Random(12345);
         for (int i = 0; i < SHAPE_VARIANTS; i++) {
             int numVertices = AsteroidSettings.MIN_VERTICES + rand.nextInt(AsteroidSettings.VERTICE_VARIATION);
             Vector2[] rawPoints = new Vector2[numVertices];
@@ -25,8 +29,8 @@ public class AsteroidShapeFactory {
             }
 
             List<Vector2> hull = convexHull(rawPoints);
-            // Center it at 0,0
-            org.dyn4j.geometry.Polygon tempPoly = new org.dyn4j.geometry.Polygon(hull.toArray(new Vector2[0]));
+
+            Polygon tempPoly = new Polygon(hull.toArray(new Vector2[0]));
             Vector2 center = tempPoly.getCenter();
             tempPoly.translate(-center.x, -center.y);
             
@@ -63,8 +67,8 @@ public class AsteroidShapeFactory {
 
         List<Vector2> lower = new ArrayList<>();
         for (Vector2 point : sorted) {
-            while (lower.size() >= 2 && ccw(lower.get(lower.size() - 2), lower.get(lower.size() - 1), point) <= 0) {
-                lower.remove(lower.size() - 1);
+            while (lower.size() >= 2 && ccw(lower.get(lower.size() - 2), lower.getLast(), point) <= 0) {
+                lower.removeLast();
             }
             lower.add(point);
         }
@@ -72,14 +76,14 @@ public class AsteroidShapeFactory {
         List<Vector2> upper = new ArrayList<>();
         for (int i = sorted.size() - 1; i >= 0; i--) {
             Vector2 point = sorted.get(i);
-            while (upper.size() >= 2 && ccw(upper.get(upper.size() - 2), upper.get(upper.size() - 1), point) <= 0) {
-                upper.remove(upper.size() - 1);
+            while (upper.size() >= 2 && ccw(upper.get(upper.size() - 2), upper.getLast(), point) <= 0) {
+                upper.removeLast();
             }
             upper.add(point);
         }
 
-        lower.remove(lower.size() - 1);
-        upper.remove(upper.size() - 1);
+        lower.removeLast();
+        upper.removeLast();
 
         List<Vector2> hull = new ArrayList<>();
         hull.addAll(lower);

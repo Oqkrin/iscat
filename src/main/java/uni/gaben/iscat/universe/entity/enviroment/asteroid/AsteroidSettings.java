@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity.enviroment.asteroid;
 
 public final class AsteroidSettings {
-    public static final int MAXPXSIZE = 100;
+    public static final int MAXPXSIZE = 64;
 
     private AsteroidSettings() {}
 
@@ -16,6 +16,6 @@ public final class AsteroidSettings {
     /** Scale factor determining how much damage projectiles deal to asteroids. */
     public static final double PROJECTILE_DAMAGE_FACTOR = 10.0;
     /** Below this pixel size, the asteroid shatters into dust instead of splitting. */
-    public static final double MIN_SPLIT_SIZE = 30.0;
+    public static final double MIN_SPLIT_SIZE = 32.0;
 
 }

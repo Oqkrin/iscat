@@ -4,6 +4,8 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
 
 import uni.gaben.iscat.controller.game.GameInputsHandler;
+import uni.gaben.iscat.universe.camera.CameraController;
+import uni.gaben.iscat.universe.entity.GenericEntityBrain;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
@@ -15,7 +17,6 @@ import uni.gaben.iscat.universe.entity.brain.IEntityController;
 import uni.gaben.iscat.universe.entity.HasTerminalVelocity;
 import uni.gaben.iscat.universe.entity.player.PlayerController;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class UniverseController {
 
     private final UniverseModel       universeModel;
     private final PlayerController    playerController;
+    private final CameraController cameraController = new CameraController();
     private final List<IEntityController> entityControllers = new ArrayList<>();
     
     private EntityDeathListener entityDeathListener;
@@ -60,6 +62,7 @@ public class UniverseController {
      */
     public void updatev(double dt, GameInputsHandler inputs, CameraModel camera) {
         PlayerModel player = universeModel.getPlayer();
+        if(player == null || player.shouldRemove()) return;
 
         syncPlayerController(player);
         processPlayerInputs(player, inputs, camera, dt);
@@ -72,7 +75,7 @@ public class UniverseController {
         universeModel.stepPhysics(dt);
 
         processEntityCleanup(player);
-        updateCamera(player, camera, dt);
+        updateCamera(player, camera, inputs, dt);
     }
 
     // -------------------------------------------------------------------------
@@ -99,6 +102,7 @@ public class UniverseController {
 
     private void updateAI(double dt) {
         for (IEntityController ctrl : entityControllers) {
+            if(ctrl instanceof Brain  b && b.getEntity().shouldRemove() ) continue;
             ctrl.update(universeModel, dt); }
     }
 
@@ -187,17 +191,78 @@ public class UniverseController {
      * Updates the camera spring targets using the player's position and velocity,
      * adding a small look-ahead in the movement direction.
      */
-    private void updateCamera(PlayerModel player, CameraModel camera, double dt) {
+    private void updateCamera(PlayerModel player, CameraModel camera, GameInputsHandler inputs, double dt) {
         if (player != null) {
             double px  = UU.mToPx(player.getTransform().getTranslationX());
             double py  = UU.mToPx(player.getTransform().getTranslationY());
-            double mag = player.getLinearVelocity().getMagnitude();
-            double rot = player.getTransform().getRotationAngle();
-            camera.getSpringX().setTarget(px + Math.sin(rot) * mag);
-            camera.getSpringY().setTarget(py + Math.cos(rot) * mag);
+
+            // =====================================================================
+            // 1. VELOCITY-BASED DYNAMIC ZOOM
+            // =====================================================================
+            // Get current movement speed in physics engine units (meters per second)
+            double newZoom = getSpeedFOV(player, camera, dt);
+
+            // Apply the newly calculated zoom back into the model
+            camera.setZoom(newZoom);
+
+            // =====================================================================
+            // 2. MOUSE TARGET LOOK-AHEAD
+            // =====================================================================
+            double screenCenterX = camera.getScreenWidth() / 2.0;
+            double screenCenterY = camera.getScreenHeight() / 2.0;
+
+            // CRITICAL: We read the freshly updated zoom value so mouse targeting scales accurately
+            double updatedZoom = camera.getZoom();
+            double cx = camera.getX();
+            double cy = camera.getY();
+
+            double mouseWorldX = cx + (inputs.mouseX - screenCenterX) / updatedZoom;
+            double mouseWorldY = cy + (inputs.mouseY - screenCenterY) / updatedZoom;
+
+            // 3. Delegate tracking and spring updates to the actual CameraController
+            cameraController.update(
+                    camera,
+                    px,
+                    py,
+                    camera.getScreenWidth(),
+                    camera.getScreenHeight(),
+                    mouseWorldX,
+                    mouseWorldY,
+                    dt
+            );
+        } else {
+            // If player is missing/dead, still tick springs so the camera doesn't freeze jarringly
+            camera.getSpringX().update(dt);
+            camera.getSpringY().update(dt);
         }
-        camera.getSpringX().update(dt);
-        camera.getSpringY().update(dt);
+    }
+
+    private static double getSpeedFOV(PlayerModel player, CameraModel camera, double dt) {
+        double speed = player.getLinearVelocity().getMagnitude();
+
+        // Use your global max velocity constant to find how fast the player is going relatively
+        double maxVel = UniverseVelocitySettings.PLAYER_MAX_VELOCITY;
+        if (maxVel <= 0) maxVel = 15.0; // Fail-safe default fallback
+
+        // Calculate a normalized ratio (0.0 = completely still, 1.0 = top speed)
+        double speedRatio = Math.clamp(speed / maxVel, 0.0, 1.0);
+
+        // Tuning parameters for the zoom behavior:
+        double baseZoom   = 1.15; // Zoom scale when stationary (closer for precision dodging)
+        double targetZoom = baseZoom;
+
+        // If the player is moving, calculate how far out the camera should pull
+        if (speedRatio > 0.05) { // 5% deadzone to prevent jitter when microscopically drifting
+            double maxZoomOutModifier = 0.35; // How much zoom is lost at top speed (1.15 - 0.35 = 0.80)
+            targetZoom = baseZoom - (speedRatio * maxZoomOutModifier);
+        }
+
+        // Smoothly interpolate the current zoom toward the target zoom.
+        // We use an exponential decay lerp here to keep it framerate independent.
+        double currentZoom = camera.getZoom();
+        double zoomSmoothingSpeed = 3.5; // Higher = snappier zoom changes; Lower = lazy/smoother zoom
+        double newZoom = currentZoom + (targetZoom - currentZoom) * (1.0 - Math.exp(-zoomSmoothingSpeed * dt));
+        return newZoom;
     }
 
     // -------------------------------------------------------------------------

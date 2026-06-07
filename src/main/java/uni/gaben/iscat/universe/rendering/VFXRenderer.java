@@ -135,19 +135,18 @@ public final class VFXRenderer {
     }
 
     public static void drawHpBar(LifeDeath entity, GraphicsContext gc, double w, double h) {
-        double barWidth = w;
-        double barX = -barWidth / 2;
+        double barX = -w / 2;
         double barY = -h / 2 - PlayerSettings.HP_BAR_OFFSET_Y;
 
         gc.setFill(ThemeManager.getInstance().getColorError());
-        gc.fillRect(barX, barY, barWidth, PlayerSettings.HP_BAR_HEIGHT);
+        gc.fillRect(barX, barY, w, PlayerSettings.HP_BAR_HEIGHT);
 
         gc.setFill(ThemeManager.getInstance().getColorSuccess());
         double percent = entity.getLife() / entity.getMaxLife();
-        gc.fillRect(barX, barY, barWidth * percent, PlayerSettings.HP_BAR_HEIGHT);
+        gc.fillRect(barX, barY, w * percent, PlayerSettings.HP_BAR_HEIGHT);
     }
 
-    /*public static void drawShockwave(GraphicsContext gc,
+    public static void drawShockwave(GraphicsContext gc,
                                      Shockwave shockwave) {
         double radius = shockwave.getRadius();
         double alpha  = shockwave.getAlpha();
@@ -167,9 +166,9 @@ public final class VFXRenderer {
         gc.setStroke(Color.rgb(255,255,255, alpha));
         gc.setLineWidth(shockwave.getLineWidth());
         gc.strokeOval(-radius, -radius, d, d);
-    }*/
+    }
 
-    public static void drawShockwave(GraphicsContext gc,
+    public static void drawBlackHole(GraphicsContext gc,
                                      Shockwave shockwave) {
 
         double radius = shockwave.getRadius();

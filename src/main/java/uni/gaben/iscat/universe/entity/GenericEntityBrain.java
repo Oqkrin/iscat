@@ -140,7 +140,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_healer":
-                addAction(new HealAction(settings.actionCooldownMS, settings.combatRange, settings.initLife/10));
+                addAction(new HealAction(settings.actionCooldownMS, settings.combatRange, settings.initLife/100));
                 break;
 
             default:

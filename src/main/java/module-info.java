@@ -65,4 +65,5 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.view.components to javafx.fxml;
     exports uni.gaben.iscat.universe.entity;
     opens uni.gaben.iscat.universe to javafx.fxml;
+    opens uni.gaben.iscat.universe.entity.enviroment.asteroid to javafx.fxml;
 }

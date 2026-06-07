@@ -41,11 +41,10 @@ public abstract class AbstractShootAction extends Action {
         return true;
     }
 
-    protected double getAimAngle(Brain<?> brain, UniverseModel world) {
+    protected double getAimAngle(Brain<?> brain, UniverseModel universe, double velocity) {
         if (aimAtTarget) {
-            Vector2 targetPos = target.getPosition(world);
-            return targetPos != null ? brain.angleToTarget(targetPos)
-                    : brain.getEntity().getTransform().getRotationAngle();
+            Vector2 targetPos = target.predictedPosition(universe, brain.getEntity().getTransform().getTranslation(), velocity);
+            return targetPos != null ? brain.angleToTarget(targetPos) : brain.getEntity().getTransform().getRotationAngle();
         } else {
             return brain.getEntity().getTransform().getRotationAngle();
         }

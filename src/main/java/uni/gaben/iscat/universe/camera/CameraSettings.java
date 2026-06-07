@@ -20,7 +20,7 @@ public final class CameraSettings {
      * The value is derived from the player's maximum velocity to maintain a
      * natural visual relationship between movement and camera lag.</p>
      */
-    public static final double SPRING_STIFFNESS = UniverseVelocitySettings.PLAYER_MAX_VELOCITY / 2;
+    public static final double SPRING_STIFFNESS = UniverseVelocitySettings.PLAYER_MAX_VELOCITY/2;
 
     /**
      * Spring mass (m) for both X and Y springs.

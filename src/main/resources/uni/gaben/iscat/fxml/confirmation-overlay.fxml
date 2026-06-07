@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="rootPane" managed="false" style="-fx-background-color: rgba(0, 0, 0, 0.75);" visible="false" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.ConfirmationOverlayController">
+<StackPane fx:id="rootPane" managed="false" style="-fx-background-color: rgba(0, 0, 0, 0.75);" visible="false" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.ConfirmationOverlayController">
 
     <VBox fx:id="dialog" alignment="CENTER" rotate="1.0" spacing="16.0" styleClass="glowing-border, main-card">
         <padding>

@@ -66,6 +66,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
     @Override
     public void update(UniverseModel universe, double dt) {
+        if(entity == null || entity.shouldRemove()) return;
         processActionLifecycles(universe, dt);
         computeAndApplySteering(universe, dt);
         processRotation(universe, dt);

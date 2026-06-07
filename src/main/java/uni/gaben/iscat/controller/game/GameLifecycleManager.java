@@ -3,6 +3,7 @@ package uni.gaben.iscat.controller.game;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidMazeGenerator;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 /**
@@ -26,7 +27,7 @@ public class GameLifecycleManager {
      * @param onPlayerDeath Callback to execute when the player dies.
      * @return The freshly constructed UniverseController and UniverseWaveController.
      */
-    public ControllersBundle resetUniverse(Runnable onPlayerDeath) {
+    public GameControllers resetUniverse(Runnable onPlayerDeath) {
         CameraModel camera = gameModel.getCameraModel();
         double canvasW = camera.getScreenWidth();
         double canvasH = camera.getScreenHeight();
@@ -38,24 +39,24 @@ public class GameLifecycleManager {
 
         // 1. Reset the universe model (fresh physics world)
         gameModel.resetUniverse();
-        UniverseModel freshUniverse = gameModel.getUniverseModel();
-        freshUniverse.setDimensions(canvasW, canvasH);
-        freshUniverse.getStarfieldModel().generate(canvasW, canvasH);
+        UniverseModel newUniverse = gameModel.getUniverseModel();
+        newUniverse.setDimensions(canvasW, canvasH);
+        newUniverse.getStarfieldModel().generate(canvasW, canvasH);
 
         // 2. Create brand new controllers for the fresh universe
-        UniverseController newUniverseController = new UniverseController(freshUniverse);
+        UniverseController newUniverseController = new UniverseController(newUniverse);
         UniverseWaveController newWaveController = new UniverseWaveController();
         newWaveController.reset();
 
         // 3. Re‑initialise the UniverseSpawner with the new universe and controllers
-        UniverseSpawner.getInstance().init(freshUniverse, newUniverseController, newWaveController);
+        UniverseSpawner.getInstance().init(newUniverse, newUniverseController, newWaveController);
 
         // 4. Spawn player and asteroids
         double midX = canvasW / 2.0;
         double midY = canvasH / 2.0;
         UniverseSpawner.getInstance().spawnPlayer(midX, midY);
-        AsteroidFieldManager asteroidFieldManager = new AsteroidFieldManager();
-        asteroidFieldManager.spawnInitialAsteroidBelts(midX, midY);
+        AsteroidMazeGenerator asteroidMazeGenerator = new AsteroidMazeGenerator();
+        asteroidMazeGenerator.generate(midX, midY);
 
         // 5. Reset camera springs to the new player position
         camera.getSpringX().setPosition(midX);
@@ -64,7 +65,7 @@ public class GameLifecycleManager {
         camera.getSpringY().snap();
 
         // 6. Re‑attach death callback
-        freshUniverse.getPlayer().setOnDeathCallback(onPlayerDeath);
+        newUniverse.getPlayer().setOnDeathCallback(onPlayerDeath);
 
         // 7. Reset input flags and loop timer
         inputs.resetInputs();
@@ -73,8 +74,8 @@ public class GameLifecycleManager {
         // 8. Reset session score tracker
         SessionScoreTracker.getInstance().reset();
 
-        return new ControllersBundle(newUniverseController, newWaveController);
+        return new GameControllers(newUniverseController, newWaveController);
     }
 
-    public record ControllersBundle(UniverseController universeController, UniverseWaveController waveController) {}
+    public record GameControllers(UniverseController universeController, UniverseWaveController waveController) {}
 }

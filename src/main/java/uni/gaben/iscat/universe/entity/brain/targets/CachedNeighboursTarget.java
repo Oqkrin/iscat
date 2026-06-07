@@ -25,12 +25,11 @@ public class CachedNeighboursTarget implements Target {
 
     @Override
     public List<AbstractEntityModel> getEntities(UniverseModel universe) {
-        double now = universe.getLifetime(); // or getTick()
+        double now = universe.getPhysicsLifetime();
         if (cachedEntities != null && lastQueryTime == now) {
             return cachedEntities;
         }
 
-        // Inject the current universe into the filter
         filter.setUniverse(universe);
 
         AABB aabb = self.createAABB();
@@ -43,8 +42,7 @@ public class CachedNeighboursTarget implements Target {
 
         cachedEntities = universe.detect(detectionBox, filter).stream()
                 .map(r -> (AbstractEntityModel) r.getBody())
-                .filter(e -> e != self)
-                .collect(Collectors.toList());
+                .filter(e -> e != self).toList();
         lastQueryTime = now;
         return cachedEntities;
     }

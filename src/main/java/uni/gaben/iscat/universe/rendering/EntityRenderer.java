@@ -1,6 +1,8 @@
 package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import org.dyn4j.geometry.Vector2;
 
@@ -30,6 +32,7 @@ public final class EntityRenderer {
     private static final Map<String, SpriteSheetsParser> SHEET_CACHE = new HashMap<>();
     // Cache: path|frameW|frameH -> shared SpriteSheetsAnimator
     private static final Map<String, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
+    private static final Effect projectileEffect = new GaussianBlur();
 
     static {
         CUSTOM_RENDERERS.put(AsteroidModel.class, EntityRenderer::drawAsteroid);
@@ -45,7 +48,7 @@ public final class EntityRenderer {
 
         gc.save();
         gc.translate(cx, cy);
-        if(bh.shockwave().isActive()) VFXRenderer.drawShockwave(gc, bh.shockwave());
+        if(bh.shockwave().isActive()) VFXRenderer.drawBlackHole(gc, bh.shockwave());
         gc.restore();
 
     }
@@ -111,7 +114,8 @@ public final class EntityRenderer {
 
         // Shockwave
         if (entity instanceof HasShockwave sw && sw.shockwave().isActive()) {
-            VFXRenderer.drawShockwave(gc, sw.shockwave());
+                if(entity.getEntityKey() == "iscat-master") VFXRenderer.drawBlackHole(gc, sw.shockwave());
+                else VFXRenderer.drawShockwave(gc, sw.shockwave());
         }
 
         // HP bar
@@ -157,6 +161,7 @@ public final class EntityRenderer {
         double cy = UU.mToPx(e.getTransform().getTranslationY());
 
         gc.save();
+        gc.setEffect(projectileEffect);
         gc.translate(cx, cy);
         gc.setFill(p.getType().color);
         gc.fillOval(-w / 2, -h / 2, w, h);
@@ -192,23 +197,7 @@ public final class EntityRenderer {
             gc.setLineWidth(Math.max(2, crackWidth));
 
             // The structural fault plane is perpendicular to the child separation push angle
-            double localFaultAngle = (asteroid.getSplitAngle() + Math.PI / 2) % (Math.PI * 2);
-            if (localFaultAngle < 0) localFaultAngle += Math.PI * 2;
-
-            // Find the boundary vertex closest to our structural fault line direction
-            int startIndex = 0;
-            double minDiff = Double.MAX_VALUE;
-            for (int i = 0; i < vertices.length; i++) {
-                double vAngle = Math.atan2(vertices[i].y, vertices[i].x);
-                if (vAngle < 0) vAngle += Math.PI * 2;
-
-                double diff = Math.abs(vAngle - localFaultAngle);
-                diff = Math.min(diff, Math.PI * 2 - diff); // Keep difference inside circular bounds
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    startIndex = i;
-                }
-            }
+            int startIndex = getStartIndex(asteroid, vertices);
             // The opposing point across the polygon hull layout
             int endIndex = (startIndex + vertices.length / 2) % vertices.length;
 
@@ -250,6 +239,27 @@ public final class EntityRenderer {
 
             gc.restore();
         }
+    }
+
+    private static int getStartIndex(AsteroidModel asteroid, Vector2[] vertices) {
+        double localFaultAngle = (asteroid.getSplitAngle() + Math.PI / 2) % (Math.PI * 2);
+        if (localFaultAngle < 0) localFaultAngle += Math.PI * 2;
+
+        // Find the boundary vertex closest to our structural fault line direction
+        int startIndex = 0;
+        double minDiff = Double.MAX_VALUE;
+        for (int i = 0; i < vertices.length; i++) {
+            double vAngle = Math.atan2(vertices[i].y, vertices[i].x);
+            if (vAngle < 0) vAngle += Math.PI * 2;
+
+            double diff = Math.abs(vAngle - localFaultAngle);
+            diff = Math.min(diff, Math.PI * 2 - diff); // Keep difference inside circular bounds
+            if (diff < minDiff) {
+                minDiff = diff;
+                startIndex = i;
+            }
+        }
+        return startIndex;
     }
 
     private static void drawPlayer(AbstractEntityModel e, GraphicsContext gc) {

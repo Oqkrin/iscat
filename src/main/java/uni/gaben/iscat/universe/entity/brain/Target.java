@@ -21,6 +21,8 @@ import java.util.function.Predicate;
 @FunctionalInterface
 public interface Target {
 
+    Vector2 position = new Vector2();
+
     /** Returns all entities associated with this target (empty if targeting a point in space). */
     List<AbstractEntityModel> getEntities(UniverseModel universe);
 
@@ -61,9 +63,9 @@ public interface Target {
         }
 
         if (count == 0) return null;
-        if (count == 1) return new Vector2(sumX, sumY);
+        if (count == 1) return position.set(sumX, sumY);
 
-        return new Vector2(sumX / count, sumY / count);
+        return position.set(sumX / count, sumY / count);
     }
 
     // ── Factories ────────────────────────────────────────────────────────
@@ -175,5 +177,10 @@ public interface Target {
             }
             return filtered;
         };
+    }
+
+    default public Vector2 predictedPosition(UniverseModel universe, Vector2 targeterPos , double velocity) {
+        double T = targeterPos.distance(getPosition(universe))/velocity;
+       return position.set(targeterPos.x + getEntities(universe).getFirst().getLinearVelocity().x*T, targeterPos.y+ getEntities(universe).getFirst().getLinearVelocity().y*T);
     }
 }

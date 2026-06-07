@@ -23,6 +23,9 @@ public class AsteroidModel extends AbstractEntityModel {
     private final double splitAngle;
 
     // Helper Constructor
+    public AsteroidModel(double x, double y) {
+        this(x, y, 0);
+    }
     public AsteroidModel(double x, double y, double radius) {
         this(x, y, radius, AsteroidSettings.MIN_VERTICES, AsteroidSettings.VERTICE_VARIATION,
                 AsteroidSettings.RADIUS_VARIATION_MIN, AsteroidSettings.RADIUS_VARIATION_RANGE);
@@ -35,7 +38,7 @@ public class AsteroidModel extends AbstractEntityModel {
         Random rand = new Random();
         this.splitAngle = rand.nextDouble() * Math.PI * 2; // Pre-determine the fracture plane
         // Normalize size definition: if radiusPixel is provided, diameter is radiusPixel * 2
-        this.size = radiusPixel != 0 ? radiusPixel * 2 : (2 + rand.nextInt(AsteroidSettings.MAXPXSIZE));
+        this.size = radiusPixel != 0 ? radiusPixel * 2 : (16 + rand.nextInt(AsteroidSettings.MAXPXSIZE));
         double radiusMeters = UU.pxToM(size / 2.0);
 
         // Use pre-computed shapes from AsteroidShapeFactory

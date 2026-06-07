@@ -47,7 +47,7 @@ public class RandomizedShootAction extends AbstractShootAction {
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
-        double angle = getAimAngle(brain, world);
+        double angle = getAimAngle(brain, world, bulletType.terminalVelocity);
         PatternShooter selected = attackPool.get(rand.nextInt(attackPool.size()));
 
         if (selected instanceof RepeaterPatternShooter repeater) {
@@ -80,7 +80,7 @@ public class RandomizedShootAction extends AbstractShootAction {
                 return false;
             }
 
-            double angle = getAimAngle(brain, world);
+            double angle = getAimAngle(brain, world, bulletType.terminalVelocity);
             burstPattern.execute(brain.getShooter(), bulletType, angle, customizer);
             burstLeft--;
         }

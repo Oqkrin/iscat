@@ -1,5 +1,6 @@
 package uni.gaben.iscat.universe.entity.brain.actions;
 
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
@@ -11,12 +12,14 @@ import java.util.Collections;
 
 public class HealAction extends Action {
     private final Cooldown healCooldown;
+    private final Cooldown visualHealCooldown;
     private final double range;
     private final double amount;
     
     public HealAction(double cooldownSec, double range, double amount) {
         super("HealAllies", ActionCategory.ATTACK, Collections.emptySet());
         this.healCooldown = new Cooldown(cooldownSec);
+        this.visualHealCooldown = new Cooldown(cooldownSec != 0 ? cooldownSec : 3);
         this.range = range;
         this.amount = amount;
     }
@@ -24,6 +27,7 @@ public class HealAction extends Action {
     @Override
     public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
         healCooldown.update(dt);
+        visualHealCooldown.update(dt);
         if (healCooldown.isCoolingDown()) return false;
         
         for (LivingEntityModel l : world.getEntitiesOfType(LivingEntityModel.class)) {
@@ -47,9 +51,11 @@ public class HealAction extends Action {
             }
         }
         healCooldown.start();
-        
-        if (entity instanceof GenericEntityModel ge) {
-            ge.shockwave().trigger(uni.gaben.iscat.universe.UU.UNIVERSE_TICK * 45, uni.gaben.iscat.universe.UU.mToPx(range), uni.gaben.iscat.universe.UU.mToPx(range) / 10);
+        if(visualHealCooldown.isReady()) {
+            visualHealCooldown.start();
+            if (entity instanceof GenericEntityModel ge) {
+                ge.shockwave().trigger(visualHealCooldown.getDefaultDuration(), UU.mToPx(range / 2), UU.mToPx(range) / 10);
+            }
         }
     }
 
