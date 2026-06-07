@@ -1,6 +1,10 @@
 package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.DisplacementMap;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Glow;
 import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.universe.Star;
 import uni.gaben.iscat.universe.Starfield;
@@ -19,9 +23,12 @@ public class StarfieldRenderer implements Renderable<Starfield> {
     private double cameraY;
     private double w = UniverseSettings.DEFAULT_WIDTH;
     private double h = UniverseSettings.DEFAULT_HEIGHT;
+    //private Effect starEffect =  new GaussianBlur();
 
     @Override
     public void render(Starfield model, GraphicsContext gc) {
+        gc.save();
+        //gc.setEffect(starEffect);
         if (model == null || model.getStars().isEmpty()) return;
 
         ThemeManager theme = ThemeManager.getInstance();
@@ -49,6 +56,7 @@ public class StarfieldRenderer implements Renderable<Starfield> {
         }
 
         gc.setGlobalAlpha(1.0);
+        gc.restore();
     }
 
     // -------------------------------------------------------------------------

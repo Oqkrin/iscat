@@ -1,8 +1,9 @@
 package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.*;
 import javafx.scene.paint.Color;
+import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.universe.Thrust;
 import uni.gaben.iscat.universe.UU;
@@ -22,6 +23,9 @@ import java.util.Random;
 public final class VFXRenderer {
 
     private static final Random RANDOM = new Random();
+    private static final Effect thrustEffect = new Glow();
+    private static final Effect shockwaveEffect = new GaussianBlur();
+
 
     private VFXRenderer() {}
 
@@ -38,7 +42,7 @@ public final class VFXRenderer {
         double w = thrust.getShipWidth();
         double h = thrust.getShipHeight();
 
-        org.dyn4j.geometry.Vector2 drift = thrust.getLocalDrift();
+        Vector2 drift = thrust.getLocalDrift();
 
         int particleCount = (int) (PlayerSettings.THRUST_MIN_PARTICLES
                 + intensity * PlayerSettings.THRUST_EXTRA_PARTICLES);
@@ -48,6 +52,7 @@ public final class VFXRenderer {
 
         gc.save();
         gc.setGlobalBlendMode(BlendMode.ADD);
+        gc.setEffect(thrustEffect);
 
         for (int i = 0; i < particleCount; i++) {
             double distRatio = RANDOM.nextDouble();
@@ -146,265 +151,194 @@ public final class VFXRenderer {
         gc.fillRect(barX, barY, w * percent, PlayerSettings.HP_BAR_HEIGHT);
     }
 
-    public static void drawShockwave(GraphicsContext gc,
-                                     Shockwave shockwave) {
+    // =========================================================================
+    // 1. PRE-ALLOCATED COLOR CONSTANTS (Opaque bases to avoid runtime object creation)
+    // =========================================================================
+    private static final Color COLOR_WHITE          = Color.WHITE;
+    private static final Color COLOR_AURA_DARK      = Color.rgb(20, 15, 30);
+    private static final Color COLOR_SHOCK_PURPLE   = Color.rgb(170, 110, 255);
+    private static final Color COLOR_OUTER_PURPLE   = Color.rgb(160, 100, 255);
+    private static final Color COLOR_INNER_PURPLE   = Color.rgb(180, 110, 255);
+    private static final Color COLOR_PARTICLE_GLOW  = Color.rgb(220, 180, 255);
+    private static final Color COLOR_CORE_DARK      = Color.rgb(45, 20, 70);
+
+    // =========================================================================
+    // 2. REUSABLE PERFORMANCE BUFFERS & TRIG LOOKUP TABLES (LUT)
+    // =========================================================================
+    private static final int MAX_SEGMENTS = 64;
+    private static final double[] X_BUFFER = new double[MAX_SEGMENTS];
+    private static final double[] Y_BUFFER = new double[MAX_SEGMENTS];
+
+    private static final double[] COS_TABLE = new double[MAX_SEGMENTS];
+    private static final double[] SIN_TABLE = new double[MAX_SEGMENTS];
+    static {
+        // Pre-calculate unit circle coordinates to bypass Math.cos/sin inside loops
+        for (int i = 0; i < MAX_SEGMENTS; i++) {
+            double angle = (Math.PI * 2 * i) / MAX_SEGMENTS;
+            COS_TABLE[i] = Math.cos(angle);
+            SIN_TABLE[i] = Math.sin(angle);
+        }
+    }
+
+    // =========================================================================
+    // OPTIMIZED SHOCKWAVE (Zero allocations)
+    // =========================================================================
+    public static void drawShockwave(GraphicsContext gc, Shockwave shockwave) {
+        gc.save();
+        gc.setEffect(shockwaveEffect);
         double radius = shockwave.getRadius();
         double alpha  = shockwave.getAlpha();
         double d = radius * 2;
+        double baseLineWidth = shockwave.getLineWidth();
 
-        gc.setFill(Color.rgb(255,255,255, alpha * 0.15));
+        // Capture parent layer alpha to compound cleanly
+        double parentAlpha = gc.getGlobalAlpha();
+
+        // Re-use pre-allocated white reference for both paint targets
+        gc.setFill(COLOR_WHITE);
+        gc.setStroke(COLOR_WHITE);
+
+        // Pass 1: Core Fill
+        gc.setGlobalAlpha(parentAlpha * alpha * 0.15);
         gc.fillOval(-radius, -radius, d, d);
 
-        gc.setStroke(Color.rgb(255,255,255, alpha * 0.3));
-        gc.setLineWidth(shockwave.getLineWidth() * 3.5);
+        // Pass 2: Soft Outer Ring
+        gc.setGlobalAlpha(parentAlpha * alpha * 0.3);
+        gc.setLineWidth(baseLineWidth * 3.5);
         gc.strokeOval(-radius, -radius, d, d);
 
-        gc.setStroke(Color.rgb(255,255,255, alpha * 0.6));
-        gc.setLineWidth(shockwave.getLineWidth() * 1.8);
+        // Pass 3: Mid Highlight Ring
+        gc.setGlobalAlpha(parentAlpha * alpha * 0.6);
+        gc.setLineWidth(baseLineWidth * 1.8);
         gc.strokeOval(-radius, -radius, d, d);
 
-        gc.setStroke(Color.rgb(255,255,255, alpha));
-        gc.setLineWidth(shockwave.getLineWidth());
+        // Pass 4: Sharp Vector Core Edge
+        gc.setGlobalAlpha(parentAlpha * alpha);
+        gc.setLineWidth(baseLineWidth);
         gc.strokeOval(-radius, -radius, d, d);
+
+        // Restore baseline global alpha state
+        gc.setGlobalAlpha(parentAlpha);
+        gc.restore();
     }
 
-    public static void drawBlackHole(GraphicsContext gc,
-                                     Shockwave shockwave) {
-
+    // =========================================================================
+    // OPTIMIZED BLACK HOLE (No array allocations, fully unrolled math)
+    // =========================================================================
+    public static void drawBlackHole(GraphicsContext gc, Shockwave shockwave) {
         double radius = shockwave.getRadius();
         double alpha = shockwave.getAlpha();
         double time = System.currentTimeMillis() * 0.002;
+        double lineWidth = shockwave.getLineWidth();
 
         gc.save();
         gc.setGlobalBlendMode(BlendMode.SCREEN);
+        double parentAlpha = gc.getGlobalAlpha();
 
-        // ==========================================
+        // ---------------------------------------------------------------------
         // DARK AURA
-        // ==========================================
-
-        gc.setFill(Color.rgb(20, 15, 30, alpha * 0.45));
-
-        gc.fillOval(
-                -radius * 1.15,
-                -radius * 1.15,
-                radius * 2.3,
-                radius * 2.3
-        );
+        // ---------------------------------------------------------------------
+        gc.setGlobalAlpha(parentAlpha * alpha * 0.45);
+        gc.setFill(COLOR_AURA_DARK);
+        gc.fillOval(-radius * 1.15, -radius * 1.15, radius * 2.3, radius * 2.3);
 
         double t = time * 4.2;
 
-        // ==========================================
+        // ---------------------------------------------------------------------
         // OUTER COLLAPSING WAVES (OUT → IN)
-        // ==========================================
-
+        // ---------------------------------------------------------------------
         int waveCount = 6;
+        gc.setStroke(COLOR_SHOCK_PURPLE);
+        gc.setLineWidth(lineWidth * 1.1);
 
         for (int w = 0; w < waveCount; w++) {
+            double waveProgress = (time * 0.8 + w * 0.18) % 1.0;
+            double waveRadius = radius * (1.0 - waveProgress);
+            double waveAlpha = alpha * (1.0 - waveProgress) * 0.55;
 
-            double waveProgress =
-                    (time * 0.8 + w * 0.18) % 1.0;
+            gc.setGlobalAlpha(parentAlpha * waveAlpha);
 
-            double waveRadius =
-                    radius * (1.0 - waveProgress);
+            for (int i = 0; i < MAX_SEGMENTS; i++) {
+                // Keep structural angular lookups but project points using the precalculated circle table
+                double angle = (Math.PI * 2 * i) / MAX_SEGMENTS;
+                double noise = Math.sin(angle * 10 + t * 3.5) * 6.0
+                        + Math.cos(angle * 6 - t * 2.8) * 4.0;
 
-            double waveAlpha =
-                    alpha * (1.0 - waveProgress) * 0.55;
-
-            int segments = 64;
-
-            double[] x = new double[segments];
-            double[] y = new double[segments];
-
-            for (int i = 0; i < segments; i++) {
-
-                double angle =
-                        (Math.PI * 2 * i) / segments;
-
-                double noise =
-                        Math.sin(angle * 10 + t * 3.5) * 6.0;
-
-                noise +=
-                        Math.cos(angle * 6 - t * 2.8) * 4.0;
-
-                double r =
-                        waveRadius + noise;
-
-                x[i] = Math.cos(angle) * r;
-                y[i] = Math.sin(angle) * r;
+                double r = waveRadius + noise;
+                X_BUFFER[i] = COS_TABLE[i] * r;
+                Y_BUFFER[i] = SIN_TABLE[i] * r;
             }
-
-            gc.setStroke(Color.rgb(
-                    170,
-                    110,
-                    255,
-                    waveAlpha
-            ));
-
-            gc.setLineWidth(
-                    shockwave.getLineWidth() * 1.1
-            );
-
-            gc.strokePolygon(x, y, segments);
+            gc.strokePolygon(X_BUFFER, Y_BUFFER, MAX_SEGMENTS);
         }
 
-        // ==========================================
+        // ---------------------------------------------------------------------
         // MAIN OUTER WAVY RING (THINNER)
-        // ==========================================
+        // ---------------------------------------------------------------------
+        gc.setStroke(COLOR_OUTER_PURPLE);
+        gc.setLineWidth(lineWidth * 1.6);
+        gc.setGlobalAlpha(parentAlpha * alpha * 0.95);
 
-        int segments = 64;
+        double rotationOffset = t * 0.35;
+        for (int i = 0; i < MAX_SEGMENTS; i++) {
+            double angle = (Math.PI * 2 * i) / MAX_SEGMENTS;
+            double wave = Math.sin(angle * 8 + t * 6.0) * radius * 0.04
+                    + Math.cos(angle * 5 - t * 4.5) * radius * 0.02;
 
-        double[] xOuter = new double[segments];
-        double[] yOuter = new double[segments];
+            double r = radius + wave;
+            double finalAngle = angle + rotationOffset;
 
-        for (int i = 0; i < segments; i++) {
-
-            double angle =
-                    (Math.PI * 2 * i) / segments;
-
-            double wave =
-                    Math.sin(angle * 8 + t * 6.0) * radius * 0.04;
-
-            wave +=
-                    Math.cos(angle * 5 - t * 4.5) * radius * 0.02;
-
-            double r =
-                    radius + wave;
-
-            xOuter[i] =
-                    Math.cos(angle + t * 0.35) * r;
-
-            yOuter[i] =
-                    Math.sin(angle + t * 0.35) * r;
+            X_BUFFER[i] = Math.cos(finalAngle) * r;
+            Y_BUFFER[i] = Math.sin(finalAngle) * r;
         }
+        gc.strokePolygon(X_BUFFER, Y_BUFFER, MAX_SEGMENTS);
 
-        gc.setStroke(Color.rgb(
-                160,
-                100,
-                255,
-                alpha * 0.95
-        ));
-
-        gc.setLineWidth(
-                shockwave.getLineWidth() * 1.6
-        );
-
-        gc.strokePolygon(xOuter, yOuter, segments);
-
-        // ==========================================
+        // ---------------------------------------------------------------------
         // INNER RING
-        // ==========================================
+        // ---------------------------------------------------------------------
+        double innerRadius = radius * (0.72 + Math.sin(time * 3) * 0.02);
+        gc.setStroke(COLOR_INNER_PURPLE);
+        gc.setLineWidth(lineWidth * 1.2);
+        gc.setGlobalAlpha(parentAlpha * alpha * 0.75);
+        gc.strokeOval(-innerRadius, -innerRadius, innerRadius * 2, innerRadius * 2);
 
-        double innerRadius =
-                radius * (0.72 + Math.sin(time * 3) * 0.02);
-
-        gc.setStroke(Color.rgb(
-                180,
-                110,
-                255,
-                alpha * 0.75
-        ));
-
-        gc.setLineWidth(
-                shockwave.getLineWidth() * 1.2
-        );
-
-        gc.strokeOval(
-                -innerRadius,
-                -innerRadius,
-                innerRadius * 2,
-                innerRadius * 2
-        );
-
-        // ==========================================
+        // ---------------------------------------------------------------------
         // WHITE PARTICLES
-        // ==========================================
-
+        // ---------------------------------------------------------------------
         int particleCount = 28;
+        double inverseParticleCount = (Math.PI * 2) / particleCount;
 
         for (int i = 0; i < particleCount; i++) {
-
-            double angle =
-                    ((Math.PI * 2) / particleCount) * i
-                            + time
-                            + Math.sin(time + i) * 0.5;
-
-            double movement =
-                    (Math.sin(time * 2 + i * 1.7) + 1) * 0.5;
-
-            double distance =
-                    radius * (0.95 - movement * 0.85);
+            double angle = (inverseParticleCount * i) + time + Math.sin(time + i) * 0.5;
+            double movement = (Math.sin(time * 2 + i * 1.7) + 1) * 0.5;
+            double distance = radius * (0.95 - movement * 0.85);
 
             double px = Math.cos(angle) * distance;
             double py = Math.sin(angle) * distance;
+            double size = 3.5 + Math.sin(time * 4 + i) * 1.5;
 
-            double size =
-                    3.5 + Math.sin(time * 4 + i) * 1.5;
+            // Base Core Point
+            gc.setGlobalAlpha(parentAlpha * alpha);
+            gc.setFill(COLOR_WHITE);
+            gc.fillOval(px - size * 0.5, py - size * 0.5, size, size);
 
-            gc.setFill(Color.rgb(
-                    255,
-                    255,
-                    255,
-                    alpha
-            ));
-
-            gc.fillOval(
-                    px - size / 2,
-                    py - size / 2,
-                    size,
-                    size
-            );
-
-            gc.setFill(Color.rgb(
-                    220,
-                    180,
-                    255,
-                    alpha * 0.22
-            ));
-
-            gc.fillOval(
-                    px - size,
-                    py - size,
-                    size * 2,
-                    size * 2
-            );
+            // Halo Core Pass
+            gc.setGlobalAlpha(parentAlpha * alpha * 0.22);
+            gc.setFill(COLOR_PARTICLE_GLOW);
+            gc.fillOval(px - size, py - size, size * 2, size * 2);
         }
 
-        // ==========================================
-        // CORE
-        // ==========================================
-
-        double coreRadius =
-                radius * (0.16 + Math.sin(time * 5) * 0.01);
-
-        gc.setFill(Color.rgb(
-                45,
-                20,
-                70,
-                alpha * 0.95
-        ));
-
-        gc.fillOval(
-                -coreRadius,
-                -coreRadius,
-                coreRadius * 2,
-                coreRadius * 2
-        );
+        // ---------------------------------------------------------------------
+        // SINGULARITY CORE
+        // ---------------------------------------------------------------------
+        double coreRadius = radius * (0.16 + Math.sin(time * 5) * 0.01);
+        gc.setGlobalAlpha(parentAlpha * alpha * 0.95);
+        gc.setFill(COLOR_CORE_DARK);
+        gc.fillOval(-coreRadius, -coreRadius, coreRadius * 2, coreRadius * 2);
 
         double centerGlow = coreRadius * 0.45;
-
-        gc.setFill(Color.rgb(
-                255,
-                255,
-                255,
-                alpha * 0.35
-        ));
-
-        gc.fillOval(
-                -centerGlow,
-                -centerGlow,
-                centerGlow * 2,
-                centerGlow * 2
-        );
+        gc.setGlobalAlpha(parentAlpha * alpha * 0.35);
+        gc.setFill(COLOR_WHITE);
+        gc.fillOval(-centerGlow, -centerGlow, centerGlow * 2, centerGlow * 2);
 
         gc.setGlobalBlendMode(BlendMode.SRC_OVER);
         gc.restore();

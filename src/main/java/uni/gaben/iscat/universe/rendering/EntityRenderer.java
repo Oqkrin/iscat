@@ -1,8 +1,7 @@
 package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.*;
 import javafx.scene.image.Image;
 import org.dyn4j.geometry.Vector2;
 
@@ -33,6 +32,7 @@ public final class EntityRenderer {
     // Cache: path|frameW|frameH -> shared SpriteSheetsAnimator
     private static final Map<String, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
     private static final Effect projectileEffect = new GaussianBlur();
+    private static final Effect spriteEffect = new Bloom();
 
     static {
         CUSTOM_RENDERERS.put(AsteroidModel.class, EntityRenderer::drawAsteroid);
@@ -82,6 +82,7 @@ public final class EntityRenderer {
 
         gc.save();
         gc.translate(cx, cy);
+        gc.setEffect(spriteEffect);
 
         SpriteSheetsParser sheet = getSheet(sprite);
         if (sheet != null) {
@@ -95,7 +96,7 @@ public final class EntityRenderer {
             if (frame != null) {
                 Image tinted = ThemeManager.getInstance().getTintedImage(
                         frame,
-                        ThemeManager.getInstance().globalTintProperty().get()
+                        entity instanceof PlayerModel ? ThemeManager.getInstance().getAccentPrimary() : ThemeManager.getInstance().getAccentSecondary()
                 );
 
                 double baseAngle = Math.toDegrees(
@@ -163,6 +164,8 @@ public final class EntityRenderer {
         gc.save();
         gc.setEffect(projectileEffect);
         gc.translate(cx, cy);
+        gc.setFill(ThemeManager.getInstance().getColorTransparent());
+        gc.fillOval(-w, -h, 2*w, 2*h);
         gc.setFill(p.getType().color);
         gc.fillOval(-w / 2, -h / 2, w, h);
         gc.restore();
