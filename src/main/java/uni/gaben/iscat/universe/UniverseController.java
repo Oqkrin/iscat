@@ -99,7 +99,6 @@ public class UniverseController {
 
     private void updateAI(double dt) {
         for (IEntityController ctrl : entityControllers) {
-            System.out.println(ctrl.getClass().getSimpleName());
             ctrl.update(universeModel, dt); }
     }
 
@@ -110,7 +109,7 @@ public class UniverseController {
                 double maxSpeed = entity.getTerminalVelocity();
                 Vector2 vel = body.getLinearVelocity();
                 if (vel.getMagnitude() > maxSpeed)
-                    body.setLinearVelocity(vel.getNormalized().setMagnitude(maxSpeed));
+                    body.getLinearVelocity().setMagnitude(maxSpeed);
             }
         }
     }

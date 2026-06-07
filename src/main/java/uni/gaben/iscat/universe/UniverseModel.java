@@ -29,8 +29,7 @@ public class UniverseModel extends World<Body> {
 
     private double width = UniverseSettings.DEFAULT_WIDTH;
     private double height = UniverseSettings.DEFAULT_HEIGHT;
-    private double lifetime;
-    private int debugTickCount = 0;
+    private double physicsLifetime;
 
     // -------------------------------------------------------------------------
     // Construction
@@ -71,7 +70,7 @@ public class UniverseModel extends World<Body> {
 
     public void stepPhysics(double dt) {
         super.updatev(dt);
-        lifetime += dt;
+        physicsLifetime += dt;
     }
 
     // -------------------------------------------------------------------------
@@ -80,9 +79,6 @@ public class UniverseModel extends World<Body> {
 
     public void setDimensions(double w, double h) {
         if (w > 0 && h > 0) {
-            if (this.width != w || this.height != h) {
-                System.out.println(STR.">>> Universe dimensions changed: \{this.width}x\{this.height} -> \{w}x\{h} (tick: \{debugTickCount})");
-            }
             this.width = w;
             this.height = h;
         }
@@ -141,7 +137,7 @@ public class UniverseModel extends World<Body> {
     }
 
     public Starfield getStarfieldModel() { return starfield; }
-    public double getLifetime() { return lifetime; }
+    public double getPhysicsLifetime() { return physicsLifetime; }
 
     // -------------------------------------------------------------------------
     // Optimised category queries – no more defensive copies
