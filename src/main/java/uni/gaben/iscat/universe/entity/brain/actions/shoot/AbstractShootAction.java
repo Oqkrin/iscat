@@ -49,4 +49,8 @@ public abstract class AbstractShootAction extends Action {
             return brain.getEntity().getTransform().getRotationAngle();
         }
     }
+
+    public void setCooldown(double v) {
+        cooldown.setDefaultDuration(v);
+    }
 }

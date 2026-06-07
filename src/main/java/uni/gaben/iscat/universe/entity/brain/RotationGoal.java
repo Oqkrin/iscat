@@ -46,25 +46,53 @@ public interface RotationGoal {
         };
     }
 
-    static RotationGoal intervalSpin(int spinSteps, double stepPauseSec, double stepSpeedRadiansPerTick) {
+    static RotationGoal intervalSpin(int spinSteps, double stepPauseSec, double speedRadPerSec) {
         return new RotationGoal() {
             private double currentAngle = Double.NaN;
-            private final Cooldown stepPause = new Cooldown(stepPauseSec);
             private double targetAngle = Double.NaN;
+            private final Cooldown pauseTimer = new Cooldown(stepPauseSec);
+            private final double stepDelta = Math.TAU / spinSteps;
+            private boolean isPaused = true;
+
             @Override
             public double compute(AbstractEntityModel self, UniverseModel world, double dt) {
-                if (stepPause.isCoolingDown()) stepPause.update(dt);
+                // 1. Lazy Initialization on the first valid simulation frame
                 if (Double.isNaN(currentAngle)) {
                     currentAngle = self.getTransform().getRotationAngle();
-                    targetAngle = currentAngle + (Math.TAU / spinSteps);
+                    targetAngle = currentAngle;
+                    pauseTimer.start(); // Start the sequence with an initial pause
+                    isPaused = true;
                 }
-                if (currentAngle >= targetAngle) {
-                    targetAngle += (Math.TAU / spinSteps);
-                    stepPause.start();
+
+                if (isPaused) {
+                    // --- PAUSED STATE ---
+                    pauseTimer.update(dt);
+                    if (pauseTimer.isReady()) {
+                        isPaused = false;
+                        // Support both positive and negative rotation directions naturally
+                        double direction = Math.signum(speedRadPerSec) >= 0 ? 1.0 : -1.0;
+                        targetAngle = currentAngle + (stepDelta * direction);
+                    }
+                } else {
+                    // --- ROTATING STATE ---
+                    double direction = Math.signum(speedRadPerSec) >= 0 ? 1.0 : -1.0;
+
+                    // Move cleanly over time using delta time (dt)
+                    currentAngle += speedRadPerSec * dt;
+
+                    // Check if we have arrived at or overshot the precise step target
+                    boolean overshot = (direction > 0 && currentAngle >= targetAngle) ||
+                            (direction < 0 && currentAngle <= targetAngle);
+
+                    if (overshot) {
+                        currentAngle = targetAngle; // Hard clamp to target to eliminate floating-point drift
+                        pauseTimer.start();         // Transition into cooling down phase
+                        isPaused = true;
+                    }
                 }
-                if (stepPause.isReady()) {
-                    currentAngle += spinSteps * stepSpeedRadiansPerTick * dt;
-                }
+
+                // Sync the mutated state with the world transform and return the angle
+                self.getTransform().setRotation(currentAngle);
                 return currentAngle;
             }
         };
