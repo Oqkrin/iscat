@@ -2,8 +2,6 @@ package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.GaussianBlur;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UniverseModel;
@@ -16,19 +14,6 @@ import uni.gaben.iscat.view.components.StarryText;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Master renderer for the entire universe scene.
- *
- * <p>Order of operations each frame:
- * <ol>
- *   <li>Clear canvas and fill background colour.</li>
- *   <li>Draw parallax starfield (StarfieldRenderer is updated with live canvas dims).</li>
- *   <li>Apply camera transform and draw all game entities.</li>
- *   <li>Draw HUD (timer canvas).</li>
- *   <li>Optionally draw the FPS counter.</li>
- * </ol>
- * </p>
- */
 public class UniverseRenderer {
 
     private final Canvas          mainCanvas;
@@ -39,6 +24,9 @@ public class UniverseRenderer {
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
 
+    // Persistent buffered array list layout to stop generating snapshot garbage 60+ times per second
+    private final List<AbstractEntityModel> entitySnapshotBuffer = new ArrayList<>();
+
     public UniverseRenderer(Canvas mainCanvas, GameController gameController, StarfieldRenderer starfieldRenderer) {
         this.mainCanvas       = mainCanvas;
         this.gameController   = gameController;
@@ -46,7 +34,6 @@ public class UniverseRenderer {
         this.starfieldRenderer = starfieldRenderer;
     }
 
-    /** Called every frame tick from the game loop via {@link GameController}. */
     public void renderFrame(Canvas timerCanvas, StarryText starryTimer, boolean debugPanelVisible) {
         GraphicsContext gc = mainCanvas.getGraphicsContext2D();
         gc.setImageSmoothing(false);
@@ -64,7 +51,7 @@ public class UniverseRenderer {
 
         CameraModel camera = gameController.getCameraModel();
 
-        // 2. Starfield — push live canvas size so parallax wrap is always correct
+        // 2. Starfield
         starfieldRenderer.setW(w);
         starfieldRenderer.setH(h);
         starfieldRenderer.setCameraX(camera.getX());
@@ -77,8 +64,6 @@ public class UniverseRenderer {
         gc.translate(w / 2 - camera.getX() * zoom, h / 2 - camera.getY() * zoom);
         gc.scale(zoom, zoom);
 
-        // Compute viewport bounds in world-pixels by inverting the canvas translation matrix.
-        // Entities outside this frustum are culled (skipped) to save draw calls.
         double halfViewW = (w / 2.0) / zoom;
         double halfViewH = (h / 2.0) / zoom;
         double minX = camera.getX() - halfViewW;
@@ -87,8 +72,13 @@ public class UniverseRenderer {
         double maxY = camera.getY() + halfViewH;
 
         boolean debug = debugPanelVisible && gameController.isDebugModeOn();
-        List<AbstractEntityModel> snapshot = new ArrayList<>(universe.getEntities());
-        for (AbstractEntityModel entity : snapshot) {
+
+        // REPLACED: new ArrayList<>(...) with clear() & addAll() on a private final buffer list.
+        // This preserves safety against concurrent alterations while completely reusing the underlying array space.
+        entitySnapshotBuffer.clear();
+        entitySnapshotBuffer.addAll(universe.getEntities());
+
+        for (AbstractEntityModel entity : entitySnapshotBuffer) {
             if (!entity.isInsideViewport(minX, maxX, minY, maxY)) continue;
             EntityRenderer.draw(entity, gc);
             if (debug) VFXRenderer.drawDebugCollision(entity, gc);
@@ -96,15 +86,33 @@ public class UniverseRenderer {
 
         gc.restore();
 
-        // 4. HUD timer
+        drawHurt(camera, gc);
+
+        drawTimer(timerCanvas, starryTimer);
+
+        // 5. FPS overlay
+        if (gameController.isFpsOn()) drawFps(gc, w);
+    }
+
+    private static void drawTimer(Canvas timerCanvas, StarryText starryTimer) {
         if (timerCanvas != null && starryTimer != null) {
             GraphicsContext tgc = timerCanvas.getGraphicsContext2D();
             tgc.clearRect(0, 0, timerCanvas.getWidth(), timerCanvas.getHeight());
             starryTimer.updateAndDraw(tgc);
         }
+    }
 
-        // 5. FPS overlay
-        if (gameController.isFpsOn()) drawFps(gc, w);
+    private void drawHurt(CameraModel camera, GraphicsContext gc) {
+        if (camera.getHurtFlashIntensity() > 0.01) {
+            gc.save();
+            // Peak opacity is scaled to a maximum of 40% so the player isn't blinded during heavy combat
+            gc.setGlobalAlpha(camera.getHurtFlashIntensity() * 0.40);
+            gc.setFill(javafx.scene.paint.Color.RED);
+
+            // Draw full screen rectangle across live canvas geometry bounds
+            gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+            gc.restore();
+        }
     }
 
     private void drawFps(GraphicsContext gc, double canvasWidth) {
@@ -124,4 +132,5 @@ public class UniverseRenderer {
         gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
         gc.fillText(String.format("FPS: %.0f", avg), canvasWidth - 80, 50);
     }
+
 }

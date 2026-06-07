@@ -24,8 +24,6 @@ public final class VFXRenderer {
 
     private static final Random RANDOM = new Random();
     private static final Effect thrustEffect = new Glow();
-    private static final Effect shockwaveEffect = new GaussianBlur();
-
 
     private VFXRenderer() {}
 
@@ -185,7 +183,7 @@ public final class VFXRenderer {
     // =========================================================================
     public static void drawShockwave(GraphicsContext gc, Shockwave shockwave) {
         gc.save();
-        gc.setEffect(shockwaveEffect);
+
         double radius = shockwave.getRadius();
         double alpha  = shockwave.getAlpha();
         double d = radius * 2;

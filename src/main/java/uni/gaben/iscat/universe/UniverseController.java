@@ -5,6 +5,7 @@ import org.dyn4j.geometry.Vector2;
 
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.camera.CameraController;
+import uni.gaben.iscat.universe.camera.CameraSettings;
 import uni.gaben.iscat.universe.entity.GenericEntityBrain;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
@@ -187,82 +188,77 @@ public class UniverseController {
         }
     }
 
-    /**
-     * Updates the camera spring targets using the player's position and velocity,
-     * adding a small look-ahead in the movement direction.
-     */
+    // 1. Add this field at the top of UniverseController.java to track damage changes
+    private double lastPlayerHealth = -1.0;
+
+    // 2. Refactor the camera processing loop
     private void updateCamera(PlayerModel player, CameraModel camera, GameInputsHandler inputs, double dt) {
         if (player != null) {
-            double px  = UU.mToPx(player.getTransform().getTranslationX());
-            double py  = UU.mToPx(player.getTransform().getTranslationY());
+            // =====================================================================
+            // AUTOMATED DAMAGE DETECTION HOOK
+            // =====================================================================
+            // Safely assumes player has standard health querying capabilities (e.g., getHealth() or getHp())
+            double currentHealth = player.getLife();
+
+            if (lastPlayerHealth < 0) {
+                lastPlayerHealth = currentHealth; // Initialize frame cache
+            } else if (currentHealth < lastPlayerHealth) {
+                // Player's health dropped since last frame -> trigger the hurt indicator effects!
+                camera.triggerHurtEffects(1.0);
+                lastPlayerHealth = currentHealth;
+            } else {
+                lastPlayerHealth = currentHealth;
+            }
+
+            // Tick internal camera shake and visual overlay decay loops
+            camera.updateEffects(dt);
 
             // =====================================================================
-            // 1. VELOCITY-BASED DYNAMIC ZOOM
+            // SNAPPY VELOCITY-BASED DYNAMIC ZOOM
             // =====================================================================
-            // Get current movement speed in physics engine units (meters per second)
-            double newZoom = getSpeedFOV(player, camera, dt);
-
-            // Apply the newly calculated zoom back into the model
-            camera.setZoom(newZoom);
+            double newZoom = getDynamicZoom(player, camera, dt);
+            camera.setActualZoom(newZoom);
 
             // =====================================================================
-            // 2. MOUSE TARGET LOOK-AHEAD
+            // COORDINATE CALCULATION & DELEGATION
             // =====================================================================
+            double px = UU.mToPx(player.getTransform().getTranslationX());
+            double py = UU.mToPx(player.getTransform().getTranslationY());
+
             double screenCenterX = camera.getScreenWidth() / 2.0;
             double screenCenterY = camera.getScreenHeight() / 2.0;
-
-            // CRITICAL: We read the freshly updated zoom value so mouse targeting scales accurately
             double updatedZoom = camera.getZoom();
-            double cx = camera.getX();
-            double cy = camera.getY();
 
-            double mouseWorldX = cx + (inputs.mouseX - screenCenterX) / updatedZoom;
-            double mouseWorldY = cy + (inputs.mouseY - screenCenterY) / updatedZoom;
+            double mouseWorldX = camera.getX() + (inputs.mouseX - screenCenterX) / updatedZoom;
+            double mouseWorldY = camera.getY() + (inputs.mouseY - screenCenterY) / updatedZoom;
 
-            // 3. Delegate tracking and spring updates to the actual CameraController
             cameraController.update(
-                    camera,
-                    px,
-                    py,
-                    camera.getScreenWidth(),
-                    camera.getScreenHeight(),
-                    mouseWorldX,
-                    mouseWorldY,
-                    dt
+                    camera, px, py,
+                    camera.getScreenWidth(), camera.getScreenHeight(),
+                    mouseWorldX, mouseWorldY, dt
             );
         } else {
-            // If player is missing/dead, still tick springs so the camera doesn't freeze jarringly
             camera.getSpringX().update(dt);
             camera.getSpringY().update(dt);
+            camera.updateEffects(dt);
         }
     }
 
-    private static double getSpeedFOV(PlayerModel player, CameraModel camera, double dt) {
+    private static double getDynamicZoom(PlayerModel player, CameraModel camera, double dt) {
         double speed = player.getLinearVelocity().getMagnitude();
+        double maxVel = UniverseVelocitySettings.PLAYER_MAX_VELOCITY*2;
 
-        // Use your global max velocity constant to find how fast the player is going relatively
-        double maxVel = UniverseVelocitySettings.PLAYER_MAX_VELOCITY;
-        if (maxVel <= 0) maxVel = 15.0; // Fail-safe default fallback
-
-        // Calculate a normalized ratio (0.0 = completely still, 1.0 = top speed)
+        // Use a quadratic ratio for "high-speed contrast"
+        // Squaring the ratio means the camera stays close longer, then zips out at max speed
         double speedRatio = Math.clamp(speed / maxVel, 0.0, 1.0);
+        double dynamicModifier = speedRatio * CameraSettings.MAX_ZOOM_OUT_MODIFIER;
 
-        // Tuning parameters for the zoom behavior:
-        double baseZoom   = 1.15; // Zoom scale when stationary (closer for precision dodging)
-        double targetZoom = baseZoom;
+        // The target is the User's preferred zoom MINUS the speed-based pullback
+        double targetZoom = camera.getBaseZoom() - dynamicModifier;
 
-        // If the player is moving, calculate how far out the camera should pull
-        if (speedRatio > 0.05) { // 5% deadzone to prevent jitter when microscopically drifting
-            double maxZoomOutModifier = 0.35; // How much zoom is lost at top speed (1.15 - 0.35 = 0.80)
-            targetZoom = baseZoom - (speedRatio * maxZoomOutModifier);
-        }
-
-        // Smoothly interpolate the current zoom toward the target zoom.
-        // We use an exponential decay lerp here to keep it framerate independent.
+        // Smooth interpolation
         double currentZoom = camera.getZoom();
-        double zoomSmoothingSpeed = 3.5; // Higher = snappier zoom changes; Lower = lazy/smoother zoom
-        double newZoom = currentZoom + (targetZoom - currentZoom) * (1.0 - Math.exp(-zoomSmoothingSpeed * dt));
-        return newZoom;
+        return currentZoom + (targetZoom - currentZoom) * (1.0 - Math.exp(-CameraSettings.ZOOM_SMOOTHING_SPEED * dt));
     }
 
     // -------------------------------------------------------------------------

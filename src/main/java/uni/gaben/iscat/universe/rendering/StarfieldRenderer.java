@@ -23,12 +23,10 @@ public class StarfieldRenderer implements Renderable<Starfield> {
     private double cameraY;
     private double w = UniverseSettings.DEFAULT_WIDTH;
     private double h = UniverseSettings.DEFAULT_HEIGHT;
-    //private Effect starEffect =  new GaussianBlur();
 
     @Override
     public void render(Starfield model, GraphicsContext gc) {
         gc.save();
-        //gc.setEffect(starEffect);
         if (model == null || model.getStars().isEmpty()) return;
 
         ThemeManager theme = ThemeManager.getInstance();

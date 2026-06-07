@@ -22,16 +22,20 @@ public class CameraModel {
     // Viewport dimensions (the visible area in screen pixels)
     private final DoubleProperty screenWidth  = new SimpleDoubleProperty(1280);
     private final DoubleProperty screenHeight = new SimpleDoubleProperty(720);
-    private final DoubleProperty zoom = new SimpleDoubleProperty(1.0);
+    private final DoubleProperty baseZoom = new SimpleDoubleProperty(1.25);
+    // This represents the actual interpolated zoom used by the renderer
+    private final DoubleProperty actualZoom = new SimpleDoubleProperty(1.25);
 
-    public double getZoom() { return zoom.get(); }
-    public DoubleProperty zoomProperty() { return zoom; }
-    public void setZoom(double zoom) {
-        this.zoom.set(Math.clamp(zoom, 0.5, 2.0));
+    public double getZoom() { return actualZoom.get(); }
+    public void setActualZoom(double v) { this.actualZoom.set(v); }
+
+    public double getBaseZoom() { return baseZoom.get(); }
+    public void setBaseZoom(double v) {
+        this.baseZoom.set(Math.clamp(v, CameraSettings.MIN_MANUAL_ZOOM, CameraSettings.MAX_MANUAL_ZOOM));
     }
 
     public void addZoom(double delta) {
-        setZoom(getZoom() + delta);
+        setBaseZoom(getBaseZoom() + delta);
     }
     /**
      * Constructs a new camera model with default spring configurations.
@@ -76,22 +80,53 @@ public class CameraModel {
     // Smoothed camera centre (world coordinates)
     // ------------------------------------------------------------------------
 
-    /**
-     * Returns the current smoothed world X coordinate of the camera centre.
-     *
-     * @return camera centre X (world pixels)
-     */
-    public double getX() {
-        return springX.getPosition();
+    // Add these fields to the top of CameraModel.java
+    private double shakeIntensity = 0.0;
+    private double shakeTimeLeft = 0.0;
+    private double shakeX = 0.0;
+    private double shakeY = 0.0;
+    private double hurtFlashIntensity = 0.0; // 0.0 (normal) to 1.0 (full red flash)
+
+    // Call this whenever the player takes damage to instantly activate camera effects
+    public void triggerHurtEffects(double damageSeverity) {
+        this.shakeIntensity = damageSeverity * 25.0; // Translation power in world pixels
+        this.shakeTimeLeft = 0.35;                   // Shake duration in seconds (350ms)
+        this.hurtFlashIntensity = 1.0;               // Instant full opacity overlay flash
     }
 
-    /**
-     * Returns the current smoothed world Y coordinate of the camera centre.
-     *
-     * @return camera centre Y (world pixels)
-     */
+    // Tick method to decay screenshake and red flashes every frame
+    public void updateEffects(double dt) {
+        // 1. Smoothly fade out the visual red overlay
+        if (hurtFlashIntensity > 0) {
+            hurtFlashIntensity = Math.max(0, hurtFlashIntensity - dt * 4.5); // Fades completely over ~220ms
+        }
+
+        // 2. Compute high-frequency screen displacement
+        if (shakeTimeLeft > 0) {
+            shakeTimeLeft -= dt;
+            // High frequency random noise scaled by remaining life percentage
+            double activePower = shakeIntensity * (shakeTimeLeft / 0.35);
+            this.shakeX = (Math.random() * 2.0 - 1.0) * activePower;
+            this.shakeY = (Math.random() * 2.0 - 1.0) * activePower;
+        } else {
+            this.shakeX = 0.0;
+            this.shakeY = 0.0;
+        }
+    }
+
+    public double getHurtFlashIntensity() {
+        return this.hurtFlashIntensity;
+    }
+
+    // ========================================================================
+// INTEGRATE WITH YOUR GOLDEN EQUATIONS: Incorporate screen shake offsets!
+// ========================================================================
+    public double getX() {
+        return springX.getPosition() + shakeX;
+    }
+
     public double getY() {
-        return springY.getPosition();
+        return springY.getPosition() + shakeY;
     }
 
     // ------------------------------------------------------------------------

@@ -36,4 +36,11 @@ public final class CameraSettings {
      * centred more aggressively.</p>
      */
     public static final double Y_STIFFNESS_MULTIPLIER = 3.0;
+    // Increased modifier for higher contrast between slow and fast
+    public static final double MAX_ZOOM_OUT_MODIFIER = 0.5; // Was 0.45, now pulls back further
+    public static final double ZOOM_SMOOTHING_SPEED  = 3;  // Slightly slower for a more "cinematic" pull
+
+    // Limits for the user's manual base zoom
+    public static final double MIN_MANUAL_ZOOM = 0.8;
+    public static final double MAX_MANUAL_ZOOM = 2.0;
 }
