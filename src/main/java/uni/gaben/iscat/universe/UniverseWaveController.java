@@ -39,6 +39,7 @@ public class UniverseWaveController {
     public static void incrementKills() { totalKills++; }
 
     private final List<ActiveEnemy> activeEnemies = new ArrayList<>();
+    private Runnable onBossDeadCallback;
 
     // Flag di stato per l'attivazione dei tier dei nemici basati sulle soglie di uccisioni
     private boolean unlockedEater = false;
@@ -290,6 +291,7 @@ public class UniverseWaveController {
         if (bossSpawned && !bossDead) {
             bossDead = true;
             AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
+            if (onBossDeadCallback != null) onBossDeadCallback.run();
         }
     }
 
@@ -313,5 +315,9 @@ public class UniverseWaveController {
         unlockedWorm = false;
         unlockedMother = false;
         unlockedMaster = false;
+    }
+
+    public void setOnBossDeadCallback(Runnable callback) {
+        this.onBossDeadCallback = callback;
     }
 }

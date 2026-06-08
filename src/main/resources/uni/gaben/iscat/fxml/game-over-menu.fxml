@@ -7,28 +7,43 @@
 <?import javafx.scene.layout.VBox?>
 
 <StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/game.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.game.GameOverMenuController">
-
     <VBox alignment="CENTER" spacing="24.0" styleClass="game-pause-overlay">
         <padding>
             <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
         </padding>
 
-        <Label styleClass="pause-title" text="YOU DIED">
-         <padding>
-            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-         </padding></Label>
+        <Label fx:id="titleLabel" styleClass="pause-title" text="YOU DIED">
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding>
+        </Label>
+
+        <Label fx:id="sessionScoreLabel" styleClass="pause-title" text="">
+            <padding>
+                <Insets bottom="8.0" left="16.0" right="16.0" top="0.0" />
+            </padding>
+        </Label>
+
+        <Button fx:id="continueBtn" alignment="CENTER" onAction="#handleContinue" styleClass="pulsante-menu, primario" text="CONTINUA" visible="false" managed="false">
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding>
+        </Button>
 
         <Button fx:id="retryBtn" alignment="CENTER" onAction="#handleRetry" styleClass="pulsante-menu, primario" text="TRY AGAIN">
-         <padding>
-            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-         </padding></Button>
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding>
+        </Button>
         <Button fx:id="menuBtn" alignment="CENTER" onAction="#handleQuitToMenu" styleClass="pulsante-menu" text="MAIN MENU">
-         <padding>
-            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-         </padding></Button>
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding>
+        </Button>
         <Button fx:id="quitBtn" alignment="CENTER" onAction="#handleQuitGame" styleClass="pulsante-menu, pericolo" text="QUIT">
-         <padding>
-            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-         </padding></Button>
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding>
+        </Button>
     </VBox>
 </StackPane>
