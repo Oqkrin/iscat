@@ -1,9 +1,7 @@
 package uni.gaben.iscat.universe.entity;
 
-import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
-import uni.gaben.iscat.universe.entity.brain.Target;
-import uni.gaben.iscat.universe.entity.brain.RotationGoal;
+import org.dyn4j.collision.Filter;
+import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.actions.HealAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.AbstractShootAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.RandomizedShootAction;
@@ -24,6 +22,14 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
         setRotationGoal(RotationGoal.idle());
 
         GenericEntitySettings settings = entity.getSettings();
+
+        Target neighbour = Target.neighboursCached(entity, settings.detectionRange, true, true, Filter.DEFAULT_FILTER, universe -> {
+            return true;
+        }, body -> {
+            return true;
+        } );
+
+        addModifier(SteeringModifier.collisionAvoidance(neighbour, 10, settings.combatRange/4, 2));
 
         loadBehaviorsFromSettings(settings);
     }

@@ -136,7 +136,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         if (desiredVelocity == null || desiredVelocity.isZero()) {
             steerForce.set(0, 0);
         } else {
-            steerForce.set(desiredVelocity);//.subtract(entity.getLinearVelocity());
+            steerForce.set(desiredVelocity);
         }
 
         if (!modifiersOrder.isEmpty()) {
