@@ -17,9 +17,6 @@ public interface SteeringGoal {
         return (_, _, _) -> idleVelocity;
     }
 
-    /**
-     * Classic Craig Reynolds Pursuit using generalized matrix heuristics.
-     */
     static SteeringGoal pursuit(Target target, double maxPredictionTime) {
         Vector2 pursuitVelocity = UU.vector2zero();
         Vector2 pursuitPos = UU.vector2zero();
@@ -41,21 +38,23 @@ public interface SteeringGoal {
             );
             lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
-            // Generalization usage: Zero allocations extrapolate
             Predictor.extrapolate(target, universe, lookAheadTime, pursuitPos);
 
             pursuitVelocity.set(pursuitPos).subtract(selfPos);
+
             if (!pursuitVelocity.isZero()) {
-                pursuitVelocity.setMagnitude(self.getMaxVelocity());
+                pursuitVelocity.setMagnitude(self.getMaxVelocity()); // Desired Velocity
+                pursuitVelocity.subtract(self.getLinearVelocity());  // Convert to Force
+
+                if (!pursuitVelocity.isZero()) {
+                    pursuitVelocity.setMagnitude(self.getMaxForce());
+                }
             }
 
             return pursuitVelocity;
         };
     }
 
-    /**
-     * Classic OpenSteer Evade using capability closing limits.
-     */
     static SteeringGoal evade(Target target, double maxPredictionTime) {
         Vector2 evadeVelocity = UU.vector2zero();
         Vector2 predictedPos = UU.vector2zero();
@@ -75,24 +74,23 @@ public interface SteeringGoal {
             );
             lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
-            // Generalization usage: Zero allocations extrapolate
             Predictor.extrapolate(target, universe, lookAheadTime, predictedPos);
 
             evadeVelocity.set(selfPos).subtract(predictedPos);
+
             if (!evadeVelocity.isZero()) {
                 evadeVelocity.setMagnitude(self.getMaxVelocity());
+                evadeVelocity.subtract(self.getLinearVelocity());
+
+                if (!evadeVelocity.isZero()) {
+                    evadeVelocity.setMagnitude(self.getMaxForce());
+                }
             }
 
             return evadeVelocity;
         };
     }
 
-    /**
-     * Craig Reynolds Pursuit with an integrated comfort zone interval [minDistance, maxDistance].
-     * - Outside maxDistance: Pursues the predicted position at max velocity.
-     * - Inside minDistance: Backs away (Evades) from the predicted position at max velocity.
-     * - Within the interval: Smoothly matches the target's velocity to maintain distance.
-     */
     static SteeringGoal pursuitWithRange(Target target, double maxPredictionTime, double minDistance, double maxDistance) {
         Vector2 desiredVelocity = UU.vector2zero();
         Vector2 predictedPos = UU.vector2zero();
@@ -114,42 +112,34 @@ public interface SteeringGoal {
             );
             lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
-            // Zero allocations extrapolate
             Predictor.extrapolate(target, universe, lookAheadTime, predictedPos);
 
-            // Calculate vector pointing from self to the predicted location
             desiredVelocity.set(predictedPos).subtract(selfPos);
             double distance = desiredVelocity.getMagnitude();
 
             if (distance > maxDistance) {
-                // State A: Too far away -> Close the gap at maximum velocity
-                if (distance > 0) {
-                    desiredVelocity.setMagnitude(self.getMaxVelocity());
-                }
+                if (distance > 0) desiredVelocity.setMagnitude(self.getMaxVelocity());
             } else if (distance < minDistance) {
-                // State B: Too close -> Invert direction and back off (Evade)
                 if (distance > 0) {
                     desiredVelocity.multiply(-1.0);
                     desiredVelocity.setMagnitude(self.getMaxVelocity());
                 } else {
-                    // Fallback to prevent NaN if perfectly overlapping
                     desiredVelocity.set(1, 0).setMagnitude(self.getMaxVelocity());
                 }
             } else {
-                // State C: Comfort Zone -> Shadow the target smoothly by matching its velocity
-                // Alternatively, use desiredVelocity.set(0, 0) if you want it to halt completely
                 desiredVelocity.set(entity.getLinearVelocity());
+            }
+
+            desiredVelocity.subtract(self.getLinearVelocity());
+
+            if (!desiredVelocity.isZero()) {
+                desiredVelocity.setMagnitude(self.getMaxForce());
             }
 
             return desiredVelocity;
         };
     }
 
-    /**
-     * OpenSteer Evade with a safety range parameter.
-     * - Inside safetyDistance: Actively evades the predicted threat position.
-     * - Outside safetyDistance: Threat is neutralized/ignored; sets desired velocity to zero.
-     */
     static SteeringGoal evadeWithRange(Target target, double maxPredictionTime, double safetyDistance) {
         Vector2 desiredVelocity = UU.vector2zero();
         Vector2 predictedPos = UU.vector2zero();
@@ -169,27 +159,28 @@ public interface SteeringGoal {
             );
             lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
-            // Zero allocations extrapolate
             Predictor.extrapolate(target, universe, lookAheadTime, predictedPos);
 
-            // Calculate vector pointing from predicted threat to self
             desiredVelocity.set(selfPos).subtract(predictedPos);
             double distance = desiredVelocity.getMagnitude();
 
             if (distance < safetyDistance) {
-                // Threat is inside the safety bubble -> Flee at max capability
                 if (distance > 0) {
                     desiredVelocity.setMagnitude(self.getMaxVelocity());
                 } else {
                     desiredVelocity.set(1, 0).setMagnitude(self.getMaxVelocity());
                 }
             } else {
-                // Threat is safely out of range -> Stand down
-                desiredVelocity.set(0, 0);
+                desiredVelocity.set(entity.getLinearVelocity()); // Neutralize force
+            }
+
+            desiredVelocity.subtract(self.getLinearVelocity());
+
+            if (!desiredVelocity.isZero()) {
+                desiredVelocity.setMagnitude(self.getMaxForce());
             }
 
             return desiredVelocity;
         };
     }
-
 }

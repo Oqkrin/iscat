@@ -1,11 +1,14 @@
 package uni.gaben.iscat.universe.entity;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.collision.Filter;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.actions.HealAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.AbstractShootAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.RandomizedShootAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.ShootAction;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
 
@@ -23,13 +26,13 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
         GenericEntitySettings settings = entity.getSettings();
 
-        Target neighbour = Target.neighboursCached(entity, settings.detectionRange, true, true, Filter.DEFAULT_FILTER, universe -> {
-            return true;
-        }, body -> {
-            return true;
-        } );
+        Target neighbour = Target.neighboursCached(entity, settings.detectionRange/2, body -> !(body instanceof PlayerModel || (body instanceof Projectile p && p.getType() == ProjectileType.ENEMY_BULLET)));
 
-        addModifier(SteeringModifier.collisionAvoidance(neighbour, 10, settings.combatRange/4, 2));
+        addModifier(SteeringModifier.collisionAvoidance(neighbour, 10, settings.detectionRange/5, new SimpleDoubleProperty(10)));
+
+        addModifier(SteeringModifier.alignment(neighbour.filtered(entityModel -> !(entityModel instanceof Projectile)), new SimpleDoubleProperty(1)));
+        addModifier(SteeringModifier.cohesion(neighbour.filtered(entityModel -> !(entityModel instanceof Projectile)), new SimpleDoubleProperty(1)));
+        addModifier(SteeringModifier.separation(neighbour.filtered(entityModel -> !(entityModel instanceof Projectile)), settings.detectionRange/4, new SimpleDoubleProperty(3)));
 
         loadBehaviorsFromSettings(settings);
     }
@@ -50,7 +53,8 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),
-                        true
+                        true,
+                        2.6
                 ));
                 break;
 
@@ -63,7 +67,8 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         ProjectileType.STUN_BULLET,
                         new RepeaterPatternShooter(12,settings.actionCooldownMS/10000, new SingleShotPatternShooter()),
                         Target.ofPlayer(),
-                        true
+                        true,
+                        0
                 ));
                 break;
 
@@ -75,7 +80,8 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         ProjectileType.ENEMY_BULLET,
                         new MultiDirectionPatternShooter(4, 0, new ParallelLinePatternShooter(3, 32)),
                         Target.ofPlayer(),
-                        false
+                        false,
+                        0
                 ));
                 entity.lifeProperty().addListener((_, _, newValue) -> {
                     AbstractShootAction s = (AbstractShootAction) getAction("shoot");
@@ -90,6 +96,8 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         true,
+                        3
+                        ,
                         new SummonPatternShooter(3,"iscat_mob",100),
                         new SummonPatternShooter(1,"fake_iscat",100),
                         new SummonPatternShooter(2,"iscat_healer",100),
@@ -104,6 +112,8 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         true,
+                        1
+                        ,
                         new SpreadPatternShooter(3, 30),
                         new MultiDirectionPatternShooter(8, 0, new SingleShotPatternShooter()),
                         new RepeaterPatternShooter(3,0.25, new SingleShotPatternShooter())
@@ -118,7 +128,8 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         ProjectileType.ENEMY_BULLET,
                         new RepeaterPatternShooter(2, 0.5, new RingPatternShooter(16)),
                         Target.ofPlayer(),
-                        false
+                        false,
+                        0
                 ));
                 break;
 
@@ -134,6 +145,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         true,
+                        3,
                         new RingPatternShooter(16),
                         new RingPatternShooter(8),
                         new RingPatternShooter(24)
@@ -146,11 +158,13 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
                         true,
-                        new RingPatternShooter(24),
-                        new SummonPatternShooter(3,"eater",100),
-                        new SummonPatternShooter(2,"iscat_dasher",100),
-                        new RepeaterPatternShooter(3,0.25, new RingPatternShooter(24)),
-                        new RepeaterPatternShooter(2,0.25, new SpreadPatternShooter(24, 60))
+                        0
+                        ,
+                        new RingPatternShooter(32),
+                        new SummonPatternShooter(2,"eater",100),
+                        new SummonPatternShooter(1,"iscat_dasher",100),
+                        new RepeaterPatternShooter(3,0.3, new RingPatternShooter(16)),
+                        new RepeaterPatternShooter(4,0.3, new SpreadPatternShooter(8, 45))
                 ));
                 break;
 

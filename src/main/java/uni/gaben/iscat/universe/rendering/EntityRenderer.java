@@ -3,18 +3,16 @@ package uni.gaben.iscat.universe.rendering;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.*;
 import javafx.scene.image.Image;
+import javafx.scene.shape.StrokeLineCap;
 import org.dyn4j.geometry.Vector2;
 
+import uni.gaben.iscat.universe.entity.*;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.HasSprite;
-import uni.gaben.iscat.universe.entity.HasShockwave;
-import uni.gaben.iscat.universe.entity.HasThrust;
-import uni.gaben.iscat.universe.entity.LifeDeath;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
@@ -87,9 +85,20 @@ public final class EntityRenderer {
         gc.save();
         gc.translate(cx, cy);
 
-        // NOTE ON PERFORMANCE: Calling gc.setEffect() inside hot loops forces JavaFX to break hardware-accelerated
-        // batch rendering, incurring expensive render-target changes. For optimal performance, apply Bloom to
-        // the entire parent Canvas layer once, or bake the glow effects straight into your sprite sheets.
+        if (sprite instanceof GenericEntityModel gem && false) {
+            gc.fillText(entity.getLinearVelocity() + "/" + entity.getMaxAngularVelocity() + "\n"
+                    , -w / 2, (-h / 2) - 50);
+
+            gc.setGlobalAlpha(.3);
+            Double maxRange = UU.mToPx(gem.getSettings().detectionRange/2);
+            Double minRange = UU.mToPx(gem.getSettings().detectionRange/4);
+            gc.setFill(ThemeManager.getInstance().getColorError());
+            gc.fillOval(-maxRange, -maxRange, maxRange*2, maxRange*2);
+            gc.setFill(ThemeManager.getInstance().getColorSuccess());
+            gc.fillOval(-minRange, -minRange, minRange*2, minRange*2);
+            gc.setGlobalAlpha(1.0);
+        }
+
         gc.setEffect(spriteEffect);
 
         SpriteKey key = new SpriteKey(sprite.getSpritePath(), sprite.getSpriteFrameWidth(), sprite.getSpriteFrameHeight());
@@ -172,9 +181,27 @@ public final class EntityRenderer {
         gc.setEffect(projectileEffect);
         gc.translate(cx, cy);
 
-        // DELETED: Instantly removed the completely transparent outer fillOval call.
-        // Filling an oval with a fully transparent color under default SRC_OVER blending has no
-        // physical output but wastes substantial GPU pixel fill rate when many bullets are on-screen.
+        // --- 1. THE TRAIL (Velocity Stretch) ---
+        Vector2 vel = p.getLinearVelocity();
+        double speed = vel.getMagnitude();
+
+        // Only draw a trail if it's actually moving
+        if (speed > 0.1) {
+
+            // Normalize the vector to get pure direction, then multiply by negative length
+            double backX = -vel.x * 1.618;
+            double backY = -vel.y * 1.618;
+
+            gc.save();
+            gc.setStroke(p.getType().color);
+            gc.setGlobalAlpha(0.5); // Make it ghostly/semi-transparent
+            gc.setLineWidth(h * 0.75); // Slightly thinner than the actual bullet height
+            gc.setLineCap(StrokeLineCap.ROUND); // Nice rounded tail
+
+            // Draw line from center (0,0) backward along the velocity vector
+            gc.strokeLine(0, 0, backX, backY);
+            gc.restore();
+        }
         gc.setFill(p.getType().color);
         gc.fillOval(-w / 2, -h / 2, w, h);
         gc.restore();

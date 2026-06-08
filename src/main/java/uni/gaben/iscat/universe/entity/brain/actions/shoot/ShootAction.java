@@ -12,16 +12,9 @@ public class ShootAction extends AbstractShootAction {
 
     public ShootAction(double combatRange, double cooldownSec,
                        ProjectileType bulletType, PatternShooter pattern,
-                       Target target, boolean aimAtTarget) {
-        super("shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget);
+                       Target target, boolean aimAtTarget, double nerfPrediction) {
+        super("shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
         this.pattern = pattern;
-    }
-
-    public static ShootAction targetingPlayer(double combatRange, double cooldownSec,
-                                              ProjectileType bulletType, PatternShooter pattern,
-                                              boolean aimAtTarget) {
-        return new ShootAction(combatRange, cooldownSec, bulletType, pattern,
-                universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget);
     }
 
     @Override

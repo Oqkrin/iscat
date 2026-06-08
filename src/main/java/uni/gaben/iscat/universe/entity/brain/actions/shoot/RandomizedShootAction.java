@@ -30,19 +30,21 @@ public class RandomizedShootAction extends AbstractShootAction {
     private double burstInterval = 0.15;
     private double burstTimer = 0.0;
 
+
     public RandomizedShootAction(double combatRange, double cooldownSec,
                                  ProjectileType bulletType,
-                                 Target target, boolean aimAtTarget,
+                                 Target target, boolean aimAtTarget, double nerfPrediction,
                                  PatternShooter... attacks) {
-        super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget);
+        super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
         this.attackPool = List.of(attacks);
     }
 
     public static RandomizedShootAction targetingPlayer(double combatRange, double cooldownSec,
                                                         ProjectileType bulletType, boolean aimAtTarget,
+                                                        double nerfPrediction,
                                                         PatternShooter... attacks) {
         return new RandomizedShootAction(combatRange, cooldownSec, bulletType,
-                universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget, attacks);
+                universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget, nerfPrediction, attacks);
     }
 
     @Override

@@ -20,14 +20,17 @@ public abstract class AbstractShootAction extends Action {
     protected Vector2 targetPos = UU.vector2zero();
     protected final boolean aimAtTarget;
 
+    private double nerfPrediction;
+
     protected AbstractShootAction(String name, double combatRange, double cooldownSec,
-                               ProjectileType bulletType, Target target, boolean aimAtTarget) {
+                                  ProjectileType bulletType, Target target, boolean aimAtTarget, double nerfPrediction) {
         super(name, ActionCategory.ATTACK, Set.of());
         this.combatRange = combatRange;
         this.cooldown = new Cooldown(cooldownSec);
         this.bulletType = bulletType;
         this.target = target;
         this.aimAtTarget = aimAtTarget;
+        this.nerfPrediction = nerfPrediction;
     }
 
     @Override
@@ -47,7 +50,7 @@ public abstract class AbstractShootAction extends Action {
     protected double getAimAngle(Brain<?> brain, UniverseModel universe, double velocity) {
         targetPos.set(0, 0);
         if (aimAtTarget) {
-            target.predictedPosition(universe, brain.getEntity().getTransform().getTranslation(), velocity, targetPos);
+            target.predictedPosition(universe, brain.getEntity().getTransform().getTranslation(), velocity*(1+nerfPrediction), targetPos);
             return targetPos != null ? brain.angleToTarget(targetPos) : brain.getEntity().getTransform().getRotationAngle();
         } else {
             return brain.getEntity().getTransform().getRotationAngle();

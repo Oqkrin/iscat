@@ -9,9 +9,9 @@ import uni.gaben.iscat.utils.theme.ThemeManager;
 
 public enum ProjectileType {
 
-    PLAYER_BULLET(UniverseVelocitySettings.PLAYER_BULLET_VELOCITY, 7.0, PlayerSettings.DANNO_PROIETTILE, UniverseCollisionLayers.PROJECTILE_FILTER, ThemeManager.getInstance().getAccentPrimary()),
-    ENEMY_BULLET (UniverseVelocitySettings.ENEMY_BULLET_VELOCITY,  7.0, 4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getColorError()),
-    STUN_BULLET (UniverseVelocitySettings.ENEMY_BULLET_VELOCITY, 9.0, 1.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getAccentTernary()),;
+    PLAYER_BULLET(UniverseVelocitySettings.PLAYER_BULLET_VELOCITY, 4.0, PlayerSettings.DANNO_PROIETTILE, UniverseCollisionLayers.PROJECTILE_FILTER, ThemeManager.getInstance().getAccentPrimary()),
+    ENEMY_BULLET (UniverseVelocitySettings.ENEMY_BULLET_VELOCITY,  4.0, 4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getColorError()),
+    STUN_BULLET (UniverseVelocitySettings.ENEMY_BULLET_VELOCITY, 7.0, 1.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getAccentTernary()),;
     public final double         terminalVelocity;
     public final double         radiusPx;
     public final double energy;

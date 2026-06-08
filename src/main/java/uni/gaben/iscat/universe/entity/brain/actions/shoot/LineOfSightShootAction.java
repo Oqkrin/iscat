@@ -22,7 +22,7 @@ public class LineOfSightShootAction extends ShootAction {
                                   ProjectileType bulletType, PatternShooter pattern,
                                   Target target, boolean aimAtTarget, double maxAngle,
                                   AbstractEntityModel self) {
-        super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget);
+        super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget, 0);
         this.maxAngle = maxAngle;
         this.losFilter = new DetectFilter<>(true, true, null) {
             @Override

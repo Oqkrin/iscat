@@ -1,5 +1,7 @@
 package uni.gaben.iscat.universe.entity.brain;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
@@ -33,6 +35,9 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     protected final RotationGoal defaultRotationGoal;
     protected SteeringGoal currentSteeringGoal;
     protected RotationGoal currentRotationGoal;
+
+    // Weight property for the primary SteeringGoal
+    public final DoubleProperty goalWeight = new SimpleDoubleProperty(1.0);
 
     // Action Registries & State Management
     private final Map<String, Action> actionsMap = new HashMap<>();
@@ -127,32 +132,39 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     }
 
     /**
-     * Integrated Steering Engine: Computes independent forces, sums them,
-     * bounds them, and processes mass mechanics smoothly without GC churn.
+     * Weighted Linear Summation Steering:
+     * Calculates all forces, scales them strictly by (maxForce * weight), and sums them directly.
      */
     private void computeAndApplySteering(UniverseModel universe, double dt) {
-        Vector2 desiredVelocity = currentSteeringGoal.computeDesiredVelocity(entity, universe, dt);
+        // 1. Get primary goal force (It returns a Force normalized to maxForce)
+        Vector2 primaryForce = currentSteeringGoal.computeDesiredVelocity(entity, universe, dt);
 
-        if (desiredVelocity == null || desiredVelocity.isZero()) {
+        if (primaryForce == null || primaryForce.isZero()) {
             steerForce.set(0, 0);
         } else {
-            steerForce.set(desiredVelocity);
+            // Scale primary force by its configurable weight
+            steerForce.set(primaryForce).multiply(goalWeight.get());
         }
 
+        double maxForce = entity.getMaxForce();
+
+        // 2. Sum Modifiers directly (No averaging, no strict budget clamping)
         if (!modifiersOrder.isEmpty()) {
-            double maxForce = entity.getMaxForce();
             for (int i = 0; i < modifiersOrder.size(); i++) {
-                modifierSteer.set(0, 0); // Isolate the modifier math completely
+                modifierSteer.set(0, 0);
+                // Modifiers scale themselves by (maxForce * their own weight) internally
                 modifiersOrder.get(i).computeSteer(entity, universe, maxForce, dt, modifierSteer);
-                steerForce.add(modifierSteer); // Sum into total force
+                steerForce.add(modifierSteer);
             }
         }
 
+        // 3. Apply physical mass
         double currentMass = entity.getMass().getMass();
         if (currentMass > 0.0 && currentMass != 1.0) {
             steerForce.divide(currentMass);
         }
 
+        // 4. Apply physical force (Velocity constraints handled by UniverseController)
         entity.applyForce(steerForce);
     }
 
