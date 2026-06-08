@@ -6,6 +6,8 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.utils.Cooldown;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 @FunctionalInterface
 public interface RotationGoal {
     /**
@@ -21,10 +23,10 @@ public interface RotationGoal {
     }
 
     static RotationGoal target(Target target) {
-        Vector2 pos = UU.vector2zero();
+        AtomicReference<Vector2> pos = new AtomicReference<>(UU.vector2zero());
         return (self, world, dt) -> {
-            target.predictedPosition(world, self.getTransform().getTranslation(), self.getMaxAngularVelocity(), pos);
-            return pos.subtract(self.getTransform().getTranslation()).getDirection();
+            pos.set(target.getPosition(world));
+            return pos.get().subtract(self.getTransform().getTranslation()).getDirection();
         };
     }
 
