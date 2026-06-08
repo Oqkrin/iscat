@@ -38,11 +38,16 @@ public class GameController {
         this.gameLoop = new GameLoopTimer(gameModel, this::tick);
         this.lifecycleManager = new GameLifecycleManager(gameModel, inputs, gameLoop);
 
+        setupUniverse();
+    }
+
+    private void setupUniverse() {
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath);
         this.universeController = bundle.universeController();
         this.waveController = bundle.waveController();
         this.universeController.setEntityDeathListener(this::onEntityDied);
         this.universeController.getPlayerController().setGameModel(gameModel);
+        this.waveController.setOnBossDeadCallback(this::notifyBossDead); // sempre sul nuovo waveController
     }
 
     private void tick(double dt) {
@@ -72,11 +77,7 @@ public class GameController {
         AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
         gameModel.setGameState(GameState.PLAYING);
 
-        var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath);
-        this.universeController = bundle.universeController();
-        this.waveController = bundle.waveController();
-        this.universeController.setEntityDeathListener(this::onEntityDied);
-        this.universeController.getPlayerController().setGameModel(gameModel);
+        setupUniverse();
 
         if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
@@ -84,7 +85,7 @@ public class GameController {
     public void quitToMainMenu() {
         gameLoop.stop();
         statsManager.saveStats((int) gameModel.getTotalElapsedSeconds());
-        resetGame(); // clean state for next play
+        resetGame();
         AudioManager.getInstance().stopBGM();
         showDebugMode.set(false);
         IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
@@ -117,10 +118,18 @@ public class GameController {
                     SessionScoreTracker tracker = SessionScoreTracker.getInstance();
                     tracker.addKill();
                     tracker.addScore((int) living.getXpReward() + 100);
-                    tracker.addEnemyKill(cleanKey); // accumulato in mappa, scritto in batch a fine partita
+                    tracker.addEnemyKill(cleanKey);
                 }
             }
         }
+    }
+
+    public void notifyBossDead() {
+        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds());
+        Platform.runLater(() -> {
+            AudioManager.getInstance().stopBGM();
+            gameModel.setGameState(GameState.WIN);
+        });
     }
 
     public void debugSpawn(String id) {

@@ -153,7 +153,9 @@ public class GameView extends AbstractIscatStackPane {
 
         // Menu visibility driven by gameState
         gameOverMenu.visibleProperty().bind(
-                gameModel.gameStateProperty().isEqualTo(GameState.GAME_OVER));
+                gameModel.gameStateProperty().isEqualTo(GameState.GAME_OVER)
+                        .or(gameModel.gameStateProperty().isEqualTo(GameState.WIN))
+        );
         gameOverMenu.managedProperty().bind(gameOverMenu.visibleProperty());
 
         pauseMenu.visibleProperty().bind(
