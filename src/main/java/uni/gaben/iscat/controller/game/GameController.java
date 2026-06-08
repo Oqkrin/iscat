@@ -84,7 +84,7 @@ public class GameController {
 
     public void quitToMainMenu() {
         gameLoop.stop();
-        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds());
+        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false);
         resetGame();
         AudioManager.getInstance().stopBGM();
         showDebugMode.set(false);
@@ -98,7 +98,7 @@ public class GameController {
             AudioManager.getInstance().stopBGM();
             AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/gameover.wav", true);
             gameModel.setGameState(GameState.GAME_OVER);
-            statsManager.saveStats((int) gameModel.getTotalElapsedSeconds());
+            statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false);
         });
     }
 
@@ -125,7 +125,7 @@ public class GameController {
     }
 
     public void notifyBossDead() {
-        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds());
+        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(),true);
         Platform.runLater(() -> {
             AudioManager.getInstance().stopBGM();
             gameModel.setGameState(GameState.WIN);

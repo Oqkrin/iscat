@@ -17,7 +17,7 @@ public class GameStatsManager {
     private final EnemyDAO enemyDAO = IscatDB.getInstance().getEnemyDAO();
     private final SessionScoreTracker tracker = SessionScoreTracker.getInstance();
 
-    public void saveStats(int elapsedSeconds) {
+    public void saveStats(int elapsedSeconds, boolean gameWon) {
         SessionUser user = SessionManager.getInstance().getCurrentUser();
         if (user == null) return;
 
@@ -41,10 +41,12 @@ public class GameStatsManager {
         IscatDB.getInstance().executeAsync(() -> {
             ScoreModel current = scoreDAO.load(userId).orElse(new ScoreModel(userId));
 
-            if (sessionScore > current.score())
-                scoreDAO.update(userId, "Score", sessionScore);
-            if (elapsedSeconds < current.bestTime() || current.bestTime() == 0)
-                scoreDAO.update(userId, "BestTime", elapsedSeconds);
+            if (gameWon) {
+                if (sessionScore > current.score())
+                    scoreDAO.update(userId, "Score", sessionScore);
+                if (elapsedSeconds < current.bestTime() || current.bestTime() == 0)
+                    scoreDAO.update(userId, "BestTime", elapsedSeconds);
+            }
             if (elapsedSeconds > current.longestTime())
                 scoreDAO.update(userId, "LongestTime", elapsedSeconds);
 
