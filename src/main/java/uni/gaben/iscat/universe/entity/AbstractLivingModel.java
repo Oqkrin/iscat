@@ -2,12 +2,12 @@ package uni.gaben.iscat.universe.entity;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartModelAbstract;
+import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
@@ -111,8 +111,8 @@ public abstract class AbstractLivingModel extends AbstractEntityModel implements
             }
 
             boolean isProjectile = this instanceof Projectile;
-            boolean isPlayer = this instanceof PlayerModelAbstract;
-            boolean isHeart = this instanceof HeartModelAbstract;
+            boolean isPlayer = this instanceof PlayerModel;
+            boolean isHeart = this instanceof HeartModel;
 
             // Riproduzione SFX differenziata per tipologia di entità
             if (!silent && !isProjectile && !isHeart) {

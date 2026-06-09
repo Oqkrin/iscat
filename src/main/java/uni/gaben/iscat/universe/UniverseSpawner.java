@@ -55,7 +55,7 @@ public class UniverseSpawner {
 
     public Object waveSpawn(UniverseSpawnable type, double x, double y, int playerLevel) {
         Object toSpawn = spawn(type, x, y);
-        if (toSpawn instanceof LivingEntityModel l) {
+        if (toSpawn instanceof AbstractLivingModel l) {
             l.setMaxLife(l.getMaxLife() * playerLevel);
             l.setLife(l.getMaxLife());
         }
@@ -107,7 +107,7 @@ public class UniverseSpawner {
     }
 
     private Object spawnCustomRuntimeEntity(String id, double x, double y) {
-        GenericEntityModel jsonEntity = GenericEntityFactory
+        EntityModel jsonEntity = EntityFactory
                 .spawn(id, x, y, model, controller);
 
         if (jsonEntity != null) {

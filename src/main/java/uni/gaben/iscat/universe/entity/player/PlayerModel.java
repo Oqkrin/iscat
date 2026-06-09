@@ -20,7 +20,7 @@ import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-public class PlayerModelAbstract extends AbstractLivingModel implements HasSprite, HasThrust {
+public class PlayerModel extends AbstractLivingModel implements HasSprite, HasThrust {
 
     // LEVEL SYSTEM VARIABLES
     private final IntegerProperty level = new SimpleIntegerProperty(1);
@@ -38,7 +38,7 @@ public class PlayerModelAbstract extends AbstractLivingModel implements HasSprit
         this.onDeathCallback = callback;
     }
 
-    public PlayerModelAbstract(double x, double y) {
+    public PlayerModel(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
 
         double radiusInMeters = UU.pxToM(PlayerSettings.RAGGIO_COLLISIONE);

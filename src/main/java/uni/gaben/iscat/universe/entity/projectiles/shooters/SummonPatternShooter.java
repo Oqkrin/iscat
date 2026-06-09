@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
-import uni.gaben.iscat.universe.entity.GenericEntityModel;
+import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.UU;
 
 import java.util.function.Consumer;
@@ -33,7 +33,7 @@ public class SummonPatternShooter implements PatternShooter {
     public void execute(Shooter<?> shooter, ProjectileType pType, double angle, Consumer<Projectile> customizer) {
         var model = shooter.getModel();
 
-        if (model instanceof GenericEntityModel genericEntity) {
+        if (model instanceof EntityModel genericEntity) {
             genericEntity.setCurrentState(attackStateIndex);
         }
 

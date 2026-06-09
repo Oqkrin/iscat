@@ -9,7 +9,7 @@ import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UniverseModel extends World<Body> {
 
-    private PlayerModelAbstract player;
+    private PlayerModel player;
 
     private final List<AbstractEntityModel> entities = new ArrayList<>();
     private final List<AbstractProjectileModelAbstract> projectiles = new ArrayList<>();
@@ -92,12 +92,12 @@ public class UniverseModel extends World<Body> {
     // Player
     // -------------------------------------------------------------------------
 
-    public void setPlayer(PlayerModelAbstract player) {
+    public void setPlayer(PlayerModel player) {
         this.player = player;
         addEntity(player);
     }
 
-    public PlayerModelAbstract getPlayer() {
+    public PlayerModel getPlayer() {
         return (player != null && player.shouldRemove()) ? null : player;
     }
 

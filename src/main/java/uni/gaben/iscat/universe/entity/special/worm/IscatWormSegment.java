@@ -8,7 +8,7 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.EntitySettings;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
 
 public class IscatWormSegment extends EntityModel {
@@ -41,7 +41,7 @@ public class IscatWormSegment extends EntityModel {
         setAngularDamping(0.0); // Curve fulminee
         // In IscatWormSegment constructor
         setOnCollision(other -> {
-            if (other instanceof PlayerModelAbstract player) {
+            if (other instanceof PlayerModel player) {
                 if (type == Type.HEAD && canAttack()) {
                     double damage = IscatWormSettings.HEAD_ATTACK_POWER;
                     if (getLinearVelocity().getMagnitude() >

@@ -13,7 +13,7 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 
 public class GameController {
 
@@ -112,7 +112,7 @@ public class GameController {
                 boolean isSpecial = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
 
                 if (killedByProjectile || isSpecial) {
-                    PlayerModelAbstract player = gameModel.getUniverseModel().getPlayer();
+                    PlayerModel player = gameModel.getUniverseModel().getPlayer();
                     if (player != null) player.addXp(living.getXpReward());
 
                     SessionScoreTracker tracker = SessionScoreTracker.getInstance();

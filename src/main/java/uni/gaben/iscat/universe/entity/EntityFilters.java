@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity;
 
 import org.dyn4j.dynamics.Body;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 
 import java.util.function.Predicate;
 
@@ -10,8 +10,8 @@ public class EntityFilters {
     private EntityFilters() {}
 
     public static final Predicate<Body> IS_PLAYER = body -> {
-        if (body instanceof PlayerModelAbstract) return true;
-        return body.getUserData() instanceof PlayerModelAbstract;
+        if (body instanceof PlayerModel) return true;
+        return body.getUserData() instanceof PlayerModel;
     };
 
     public static final Predicate<Body> IS_ENEMY = body -> {

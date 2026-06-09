@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.abilities.HealAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.*;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
@@ -19,7 +19,7 @@ public class EntityBrain extends Brain<EntityModel> {
 
         EntitySettings settings = entity.getSettings();
 
-        Target neighbour = Target.neighboursCached(entity, settings.detectionRange/2, body -> !(body instanceof PlayerModelAbstract || (body instanceof Projectile p && p.getType() == ProjectileType.ENEMY_BULLET)));
+        Target neighbour = Target.neighboursCached(entity, settings.detectionRange/2, body -> !(body instanceof PlayerModel || (body instanceof Projectile p && p.getType() == ProjectileType.ENEMY_BULLET)));
 
         addModifier(SteeringModifier.collisionAvoidance(neighbour, 10, settings.detectionRange/5, new SimpleDoubleProperty(10)));
 

@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Collections;
@@ -32,7 +32,7 @@ public class HealAbility extends Ability {
         if (healCooldown.isCoolingDown()) return false;
         
         for (AbstractLivingModel l : world.getEntitiesOfType(AbstractLivingModel.class)) {
-            if (l == self || l instanceof PlayerModelAbstract) continue;
+            if (l == self || l instanceof PlayerModel) continue;
             if (l.getLife() < l.getMaxLife() &&
                 self.getTransform().getTranslation().distance(l.getTransform().getTranslation()) <= range) {
                 return true;
@@ -45,7 +45,7 @@ public class HealAbility extends Ability {
     public void onActivate(Brain<?> brain, UniverseModel world) {
         AbstractEntityModel entity = brain.getEntity();
         for (AbstractLivingModel l : world.getEntitiesOfType(AbstractLivingModel.class)) {
-            if (l == entity || l instanceof PlayerModelAbstract) continue;
+            if (l == entity || l instanceof PlayerModel) continue;
             if (entity.getTransform().getTranslation()
                     .distance(l.getTransform().getTranslation()) <= range) {
                 l.setLife(Math.min(l.getLife() + amount, l.getMaxLife()));

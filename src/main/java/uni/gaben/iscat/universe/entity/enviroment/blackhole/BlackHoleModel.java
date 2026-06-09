@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.utils.Updatable;
 
@@ -66,7 +66,7 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
         }
 
         // Player collision: violent repulsion instead of instant death
-        if (other instanceof PlayerModelAbstract p) {
+        if (other instanceof PlayerModel p) {
             Vector2 pushDir = p.getTransform().getTranslation().subtract(this.getTransform().getTranslation());
             double dist = pushDir.getMagnitude();
             if (dist > 0.01) {

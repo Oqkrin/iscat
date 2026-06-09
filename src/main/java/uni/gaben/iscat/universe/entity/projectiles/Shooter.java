@@ -5,7 +5,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
@@ -85,7 +85,7 @@ public class Shooter<T extends CollisionBody> {
                     lem.setKilledByProjectile(true);
                 }
                 target.deltaToLife(-p.getLife());
-                if (!(target instanceof PlayerModelAbstract)) {
+                if (!(target instanceof PlayerModel)) {
                     SessionScoreTracker.getInstance().addDamageDealt((int) p.getLife());
                 }
             }

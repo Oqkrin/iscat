@@ -11,20 +11,20 @@ import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 
-public class GenericEntityModel extends LivingEntityModel implements HasSprite, HasShockwave {
+public class EntityModel extends AbstractLivingModel implements HasSprite, HasShockwave {
 
     public static final int STATE_ENTRANCE = 0;
     public static final int STATE_IDLE     = 1;
     public static final int STATE_DEATH    = 6;
 
-    private final GenericEntitySettings settings;
+    private final EntitySettings settings;
     private final Shockwave shockwave = new Shockwave();
 
     private int currentState = STATE_IDLE;
     private boolean completeKillCalled = false;
     private UniverseWaveController waveController; // Iniettato dinamicamente se l'entità è un boss
 
-    public GenericEntityModel(double x, double y, GenericEntitySettings settings) {
+    public EntityModel(double x, double y, EntitySettings settings) {
         super(x, y, settings.initLife, settings.initLife);
         this.settings = settings;
 
@@ -167,7 +167,7 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
     @Override public double getMaxVelocity() { return settings.maxVelocity; }
     @Override public double getMaxForce() { return settings.maxForce; }
     @Override public double getMaxAngularVelocity() { return settings.maxAngularVelocity; }
-    public GenericEntitySettings getSettings() { return settings; }
+    public EntitySettings getSettings() { return settings; }
     @Override public String getSpritePath() { return settings.spritePath; }
     @Override public int getSpriteFrameWidth() { return settings.frameW; }
     @Override public int getSpriteFrameHeight() { return settings.frameW; }

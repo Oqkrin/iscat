@@ -8,7 +8,7 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
 import java.util.*;
@@ -295,7 +295,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     }
 
     public double angleToPlayer(UniverseModel world) {
-        PlayerModelAbstract player = world.getPlayer();
+        PlayerModel player = world.getPlayer();
         if (player == null) return 0;
         return angleToTarget(player.getTransform().getTranslation());
     }
