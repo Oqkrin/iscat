@@ -12,6 +12,7 @@ import uni.gaben.iscat.universe.entity.player.PlayerSettings;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
+import uni.gaben.iscat.utils.sprite.SpriteUtils;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
@@ -73,7 +74,7 @@ public final class EntityRenderer {
         SpriteKey key = new SpriteKey(sprite.getSpritePath(), sprite.getSpriteFrameWidth(), sprite.getSpriteFrameHeight());
         SpriteSheetsParser sheet = getSheet(key, sprite);
         if (sheet != null) {
-            SpriteSheetsAnimator animator = getAnimator(key, sprite, sheet);
+            SpriteSheetsAnimator animator = getAnimator(key, sprite, sheet);   // <-- FETCH THE ANIMATOR
             animator.setState(entity.getState());
             animator.setTime(entity.getStateTime());
 
@@ -82,7 +83,13 @@ public final class EntityRenderer {
                 Color tint = (entity instanceof PlayerModel)
                         ? ThemeManager.getInstance().getAccentPrimary()
                         : ThemeManager.getInstance().getAccentSecondary();
-                batcher.addSprite(frame, cx, cy, w, h, finalAngle, tint);
+
+                // Apply tint, then bloom (both cached)
+                Image tinted = SpriteUtils.tinted(frame, tint);
+                Image glowing = SpriteUtils.bloomed(tinted, 0.3);   // intensity = 0.3
+
+                // Pass tint = null because it's already baked into the image
+                batcher.addSprite(glowing, cx, cy, w, h, finalAngle, null);
             }
         }
 

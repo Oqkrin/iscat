@@ -98,7 +98,7 @@ public class ThemeManager {
         }
 
         activeSceneRef = null;
-        tintCache.clear();
+        SpriteUtils.clearCaches();
         loadPalette(currentCssPath);
         globalTint.set(getAccentPrimary());
     }
@@ -132,7 +132,7 @@ public class ThemeManager {
         this.currentCssPath = newCssPath;
         loadPalette(newCssPath);
 
-        tintCache.clear();
+        SpriteUtils.clearCaches();
         animateTint(targetSpriteTint, durationSec);
     }
 
@@ -189,7 +189,7 @@ public class ThemeManager {
 
         currentPalette.clear();
         currentPalette.putAll(CssColorParser.parseExternalColors(this.activeDynamicCssFile));
-        tintCache.clear();
+        SpriteUtils.clearCaches();
         animateTint(getAccentPrimary(), durationSec);
     }
 

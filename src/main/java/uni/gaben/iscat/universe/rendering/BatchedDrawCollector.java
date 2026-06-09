@@ -13,6 +13,7 @@ import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class BatchedDrawCollector {
@@ -77,12 +78,10 @@ public class BatchedDrawCollector {
         gc.scale(zoom, zoom);
 
         // Sprites
-        sprites.sort((a, b) -> a.image().hashCode() - b.image().hashCode());
-        gc.setEffect(spriteBloom);
+        sprites.sort(Comparator.comparingInt(a -> a.image().hashCode()));
         for (SpriteBatch s : sprites) {
             drawTransformedImage(s.image, s.x, s.y, s.w, s.h, s.angle, s.tint);
         }
-        gc.setEffect(null);
 
         // Polygons
         for (PolygonBatch p : polygons) {
