@@ -11,7 +11,6 @@ import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
-import uni.gaben.iscat.utils.EnemyAudioManager;
 
 import java.util.Random;
 import java.util.function.BiFunction;
