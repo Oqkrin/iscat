@@ -7,7 +7,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.AbstractLivingModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.Shockwave;
@@ -60,7 +60,7 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
         if (other == null || other.shouldRemove()) return;
         // Don't absorb other black holes or projectiles (projectiles just die)
         if (other instanceof BlackHoleModel) return;
-        if (other instanceof AbstractProjectileModelAbstract) {
+        if (other instanceof AbstractProjectileModel) {
             other.setShouldRemove(true);
             return;
         }

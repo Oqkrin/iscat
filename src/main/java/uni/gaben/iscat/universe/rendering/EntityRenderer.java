@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.player.PlayerSettings;
-import uni.gaben.iscat.universe.entity.projectiles.Projectile;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
@@ -34,7 +34,7 @@ public final class EntityRenderer {
 
     static {
         BATCHED_RENDERERS.put(AsteroidModel.class, EntityRenderer::drawAsteroidBatched);
-        BATCHED_RENDERERS.put(Projectile.class,   EntityRenderer::drawProjectileBatched);
+        BATCHED_RENDERERS.put(ProjectileProjectileModel.class,   EntityRenderer::drawProjectileBatched);
         BATCHED_RENDERERS.put(PlayerModel.class,  EntityRenderer::drawPlayerBatched);
         BATCHED_RENDERERS.put(BlackHoleModel.class, EntityRenderer::drawBlackHoleBatched);
     }
@@ -114,7 +114,7 @@ public final class EntityRenderer {
     // Custom batched handlers
     // ------------------------------------------------------------------
     private static void drawProjectileBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
-        Projectile p = (Projectile) e;
+        ProjectileProjectileModel p = (ProjectileProjectileModel) e;
         double cx = UU.mToPx(e.getTransform().getTranslationX());   // if mToPx = identity, this is fine
         double cy = UU.mToPx(e.getTransform().getTranslationY());
         double w  = e.getWidthPx();   // make sure this is in world units (meters)

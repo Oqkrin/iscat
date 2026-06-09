@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,7 +39,7 @@ public class EntityFactory {
         }
 
         EntityModel model = new EntityModel(x, y, settings);
-        EntityBrain brain = new EntityBrain(model);
+        EntityBrain brain = EntityBrain.fromSettings(model);
 
         universe.addEntity(model);
         controller.addEntityController(brain);
@@ -160,8 +162,94 @@ public class EntityFactory {
         return s;
     }
 
-    private static java.util.List<String> jsonArrayToList(JSONArray array) {
-        java.util.List<String> list = new java.util.ArrayList<>();
+    private static void parseAI(JSONObject json, EntitySettings s) {
+        JSONObject aiJson = json.optJSONObject("ai");
+        if (aiJson == null) return;
+
+        parseSteering(aiJson.optJSONObject("steering"), s.brain.steering);
+        parseRotation(aiJson.optJSONObject("rotation"), s.brain.rotation);
+        parseAbilities(aiJson.optJSONArray("abilities"), s.brain.abilities);
+        parseModifiers(aiJson.optJSONArray("modifiers"), s.brain.modifiers);
+    }
+
+    private static void parseSteering(JSONObject obj, EntitySettings.SteeringSettings cfg) {
+        if (obj == null) return;
+        cfg.type = obj.optString("type", cfg.type);
+        cfg.maxPredictionTime = obj.optDouble("maxPredictionTime", cfg.maxPredictionTime);
+        cfg.minDistance = obj.optDouble("minDistance", cfg.minDistance);
+        cfg.maxDistance = obj.optDouble("maxDistance", cfg.maxDistance);
+        cfg.safetyDistance = obj.optDouble("safetyDistance", cfg.safetyDistance);
+    }
+
+    private static void parseRotation(JSONObject obj, EntitySettings.RotationSettings cfg) {
+        if (obj == null) return;
+        cfg.type = obj.optString("type", cfg.type);
+        cfg.spinSpeedRadPerSec = obj.optDouble("spinSpeedRadPerSec", cfg.spinSpeedRadPerSec);
+        cfg.spinSteps = obj.optInt("spinSteps", cfg.spinSteps);
+        cfg.stepPauseSec = obj.optDouble("stepPauseSec", cfg.stepPauseSec);
+        cfg.target = obj.optString("target", cfg.target);
+    }
+
+    private static void parseAbilities(JSONArray arr, List<EntitySettings.AbilitySettings> list) {
+        if (arr == null) return;
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.getJSONObject(i);
+            EntitySettings.AbilitySettings ac = new EntitySettings.AbilitySettings();
+            ac.type = obj.optString("type");
+            ac.combatRange = obj.optDouble("combatRange", ac.combatRange);
+            ac.cooldownSec = obj.optDouble("cooldownSec", ac.cooldownSec);
+            ac.bulletType = obj.optString("bulletType", ac.bulletType);
+            ac.aimAtTarget = obj.optBoolean("aimAtTarget", ac.aimAtTarget);
+            ac.nerfPrediction = obj.optDouble("nerfPrediction", ac.nerfPrediction);
+            ac.healAmount = obj.optDouble("healAmount", ac.healAmount);
+            ac.summonEntityKey = obj.optString("summonEntityKey", ac.summonEntityKey);
+            ac.summonCount = obj.optInt("summonCount", ac.summonCount);
+            ac.summonRadiusPx = obj.optDouble("summonRadiusPx", ac.summonRadiusPx);
+            ac.meleeDamage = obj.optDouble("meleeDamage", ac.meleeDamage);
+            ac.attackStateIndex = obj.optInt("attackStateIndex", ac.attackStateIndex);
+
+            if (obj.has("pattern")) {
+                ac.pattern = parsePattern(obj.getJSONObject("pattern"));
+            }
+            if (obj.has("patterns")) {
+                JSONArray patternsArr = obj.getJSONArray("patterns");
+                for (int j = 0; j < patternsArr.length(); j++) {
+                    ac.patterns.add(parsePattern(patternsArr.getJSONObject(j)));
+                }
+            }
+            list.add(ac);
+        }
+    }
+
+    private static EntitySettings.PatternSettings parsePattern(JSONObject obj) {
+        EntitySettings.PatternSettings pc = new EntitySettings.PatternSettings();
+        pc.type = obj.optString("type");
+        pc.count = obj.optInt("count", pc.count);
+        pc.angleStepDeg = obj.optDouble("angleStepDeg", pc.angleStepDeg);
+        pc.intervalSec = obj.optDouble("intervalSec", pc.intervalSec);
+        pc.repeats = obj.optInt("repeats", pc.repeats);
+        pc.summonedEntityKey = obj.optString("summonedEntityKey", pc.summonedEntityKey);
+        pc.summonRadiusPx = obj.optDouble("summonRadiusPx", pc.summonRadiusPx);
+        pc.figureType = obj.optString("figureType", pc.figureType);
+        return pc;
+    }
+
+    private static void parseModifiers(JSONArray arr, List<EntitySettings.ModifierSettings> list) {
+        if (arr == null) return;
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.getJSONObject(i);
+            EntitySettings.ModifierSettings mc = new EntitySettings.ModifierSettings();
+            mc.type = obj.optString("type");
+            mc.radius = obj.optDouble("radius", mc.radius);
+            mc.weight = obj.optDouble("weight", mc.weight);
+            mc.maxPredictionTime = obj.optDouble("maxPredictionTime", mc.maxPredictionTime);
+            mc.avoidRadius = obj.optDouble("avoidRadius", mc.avoidRadius);
+            list.add(mc);
+        }
+    }
+
+    private static List<String> jsonArrayToList(JSONArray array) {
+        List<String> list = new ArrayList<>();
         if (array != null) {
             for (int i = 0; i < array.length(); i++) {
                 list.add(array.getString(i));

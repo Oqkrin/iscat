@@ -10,7 +10,7 @@ import org.dyn4j.world.listener.ContactListenerAdapter;
 
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +20,7 @@ public class UniverseModel extends World<Body> {
     private PlayerModel player;
 
     private final List<AbstractEntityModel> entities = new ArrayList<>();
-    private final List<AbstractProjectileModelAbstract> projectiles = new ArrayList<>();
+    private final List<AbstractProjectileModel> projectiles = new ArrayList<>();
     private final Starfield starfield = new Starfield(0, 0);
     private final Map<Class<?>, List<AbstractEntityModel>> entitiesByCategory = new HashMap<>();
     private final Map<Class<?>, List<Class<?>>> classHierarchyCache = new ConcurrentHashMap<>();
@@ -108,7 +108,7 @@ public class UniverseModel extends World<Body> {
     public void addEntity(AbstractEntityModel entity) {
         entities.add(entity);
         addBody(entity);
-        if (entity instanceof AbstractProjectileModelAbstract p) projectiles.add(p);
+        if (entity instanceof AbstractProjectileModel p) projectiles.add(p);
         registerEntityCategories(entity);
     }
 
@@ -116,7 +116,7 @@ public class UniverseModel extends World<Body> {
         if (entity == null) return;
 
         entities.remove(entity);
-        if (entity instanceof AbstractProjectileModelAbstract p) projectiles.remove(p);
+        if (entity instanceof AbstractProjectileModel p) projectiles.remove(p);
         unregisterEntityCategories(entity);
 
         entity.setEnabled(false);
@@ -133,7 +133,7 @@ public class UniverseModel extends World<Body> {
     }
 
     /** Returns an unmodifiable list of projectiles. */
-    public List<AbstractProjectileModelAbstract> getProjectiles() {
+    public List<AbstractProjectileModel> getProjectiles() {
         return Collections.unmodifiableList(projectiles);
     }
 

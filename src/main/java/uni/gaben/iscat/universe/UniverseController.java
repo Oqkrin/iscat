@@ -6,12 +6,13 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.camera.CameraController;
 import uni.gaben.iscat.universe.camera.CameraSettings;
+import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
 import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 import uni.gaben.iscat.universe.entity.interfaces.HasTerminalVelocity;
 import uni.gaben.iscat.universe.entity.player.PlayerController;
@@ -162,7 +163,7 @@ public class UniverseController {
             if (entity == null) continue;
 
             boolean remove = entity.shouldRemove();
-            if (!remove && entity instanceof LivingEntityModel living) {
+            if (!remove && entity instanceof AbstractLivingModel living) {
                 if (living.getLife() <= 0) {
                     if (!living.shouldRemove()) living.kill();
                     remove = living.shouldRemove();
@@ -171,7 +172,7 @@ public class UniverseController {
 
             if (remove) {
                 toRemove.add(entity);
-                if (entity instanceof LivingEntityModel living && living != player && entityDeathListener != null) {
+                if (entity instanceof AbstractLivingModel living && living != player && entityDeathListener != null) {
                     entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
                 }
             }
@@ -181,7 +182,7 @@ public class UniverseController {
             universeModel.removeEntity(entity);
             entityControllers.removeIf(
                     ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
-            if (entity instanceof uni.gaben.iscat.universe.entity.projectiles.Projectile p) {
+            if (entity instanceof ProjectileProjectileModel p) {
                 uni.gaben.iscat.universe.entity.projectiles.ProjectilePool.release(p);
             }
         }

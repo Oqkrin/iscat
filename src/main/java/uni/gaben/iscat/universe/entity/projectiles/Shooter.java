@@ -46,8 +46,8 @@ public class Shooter<T extends CollisionBody> {
     }
 
     /** Spara nell'angolo specificato, applicando un customizer al proiettile. */
-    public void shoot(ProjectileType type, double angle, Consumer<Projectile> customizer) {
-        Projectile bullet = ProjectilePool.acquire(type);
+    public void shoot(ProjectileType type, double angle, Consumer<ProjectileProjectileModel> customizer) {
+        ProjectileProjectileModel bullet = ProjectilePool.acquire(type);
         bullet.getTransform().setTranslation(model.getTransform().getTranslation().copy());
         bullet.getTransform().setRotation(angle);
         bullet.translate(Vector2.create(distance, angle));
@@ -62,8 +62,8 @@ public class Shooter<T extends CollisionBody> {
     }
 
     /** Spara da una posizione arbitraria nell'angolo specificato, con customizer. */
-    public void shoot(ProjectileType type, Vector2 position, double angle, Consumer<Projectile> customizer) {
-        Projectile bullet = ProjectilePool.acquire(type);
+    public void shoot(ProjectileType type, Vector2 position, double angle, Consumer<ProjectileProjectileModel> customizer) {
+        ProjectileProjectileModel bullet = ProjectilePool.acquire(type);
         bullet.getTransform().setTranslation(position.copy());
         bullet.getTransform().setRotation(angle);
         bullet.setLinearVelocity(Vector2.create(bullet.getTerminalVelocity(), angle));
@@ -75,10 +75,10 @@ public class Shooter<T extends CollisionBody> {
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    private void setupAndSpawn(AbstractProjectileModelAbstract p) {
+    private void setupAndSpawn(AbstractProjectileModel p) {
         p.setOnCollision(otherEntity -> {
             if (p.shouldRemove()) return;
-            if (otherEntity instanceof AbstractProjectileModelAbstract) return; // proiettili non si colpiscono tra loro
+            if (otherEntity instanceof AbstractProjectileModel) return; // proiettili non si colpiscono tra loro
 
             if (otherEntity instanceof LifeDeath target) {
                 if (target instanceof AbstractLivingModel lem) {

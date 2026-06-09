@@ -26,6 +26,32 @@
         "hurt": [],
         "death": [],
         "spawn": []
+      },
+      "ai": {
+        "steering": {
+          "type": "pursuitWithRange",
+          "maxPredictionTime": 2.5,
+          "minDistance": 10,
+          "maxDistance": 10
+        },
+        "rotation": { "type": "target", "target": "player" },
+        "abilities": [
+          {
+            "type": "shoot",
+            "combatRange": 15,
+            "cooldownSec": 0.8,
+            "bulletType": "ENEMY_BULLET",
+            "aimAtTarget": true,
+            "nerfPrediction": 2.6,
+            "pattern": { "type": "singleShot" }
+          }
+        ],
+        "modifiers": [
+          { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+          { "type": "alignment", "radius": 7.5, "weight": 1 },
+          { "type": "cohesion", "radius": 7.5, "weight": 1 },
+          { "type": "separation", "radius": 3.75, "weight": 3 }
+        ]
       }
     },
 
@@ -55,9 +81,39 @@
         "hurt": [],
         "death": [],
         "spawn": []
+      },
+      "ai": {
+        "steering": {
+          "type": "pursuitWithRange",
+          "maxPredictionTime": 5,
+          "minDistance": 20,
+          "maxDistance": 20
+        },
+        "rotation": { "type": "target", "target": "player" },
+        "abilities": [
+          {
+            "type": "shoot",
+            "combatRange": 20,
+            "cooldownSec": 0.8,
+            "bulletType": "STUN_BULLET",
+            "aimAtTarget": true,
+            "nerfPrediction": 0,
+            "pattern": {
+              "type": "repeater",
+              "repeats": 12,
+              "intervalSec": 0.08,
+              "pattern": { "type": "singleShot" }
+            }
+          }
+        ],
+        "modifiers": [
+          { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+          { "type": "alignment", "radius": 7.5, "weight": 1 },
+          { "type": "cohesion", "radius": 7.5, "weight": 1 },
+          { "type": "separation", "radius": 3.75, "weight": 3 }
+        ]
       }
     },
-
     {
       "EntityKey": "iscat_core",
       "Name": "Iscat Core",
@@ -84,7 +140,40 @@
         "hurt": [],
         "death": [],
         "spawn": []
-      }
+      },
+      "ai": {
+        "steering": { "type": "idle" },
+        "rotation": {
+          "type": "intervalSpin",
+          "spinSteps": 8,
+          "stepPauseSec": 0.08,
+          "spinSpeedRadPerSec": 5
+        },
+        "abilities": [
+          {
+            "type": "shoot",
+            "combatRange": 30,
+            "cooldownSec": 0.8,
+            "bulletType": "ENEMY_BULLET",
+            "aimAtTarget": false,
+            "pattern": {
+              "type": "multiDirection",
+              "count": 4,
+              "angleStepDeg": 0,
+              "pattern": {
+                "type": "parallelLine",
+                "count": 3,
+                "angleStepDeg": 32
+              }
+            }
+          }
+        ],
+        "modifiers": [
+          { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+          { "type": "alignment", "radius": 7.5, "weight": 1 },
+          { "type": "cohesion", "radius": 7.5, "weight": 1 },
+          { "type": "separation", "radius": 3.75, "weight": 3 }
+        ]}
     },
 
     {
@@ -113,7 +202,35 @@
         "hurt": [],
         "death": [],
         "spawn": []
-      }
+      },"ai": {
+      "steering": {
+        "type": "pursuitWithRange",
+        "maxPredictionTime": 3,
+        "minDistance": 20,
+        "maxDistance": 20
+      },
+      "abilities": [
+        {
+          "type": "randomizedShoot",
+          "combatRange": 30,
+          "cooldownSec": 1.0,
+          "bulletType": "ENEMY_BULLET",
+          "aimAtTarget": true,
+          "nerfPrediction": 3,
+          "patterns": [
+            { "type": "summon", "count": 3, "summonedEntityKey": "iscat_mob", "summonRadiusPx": 100 },
+            { "type": "summon", "count": 1, "summonedEntityKey": "fake_iscat", "summonRadiusPx": 100 },
+            { "type": "summon", "count": 2, "summonedEntityKey": "iscat_healer", "summonRadiusPx": 100 },
+            { "type": "repeater", "repeats": 4, "intervalSec": 1, "pattern": { "type": "spread", "count": 5, "angleStepDeg": 30 } }
+          ]
+        }
+      ],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]    }
     },
 
     {
@@ -142,7 +259,35 @@
         "hurt": [],
         "death": [],
         "spawn": []
-      }
+      },"ai": {
+      "steering": {
+        "type": "pursuitWithRange",
+        "maxPredictionTime": 2,
+        "minDistance": 40,
+        "maxDistance": 40
+      },
+      "abilities": [
+        {
+          "type": "randomizedShoot",
+          "combatRange": 40,
+          "cooldownSec": 0.8,
+          "bulletType": "ENEMY_BULLET",
+          "aimAtTarget": true,
+          "nerfPrediction": 1,
+          "patterns": [
+            { "type": "spread", "count": 3, "angleStepDeg": 30 },
+            { "type": "multiDirection", "count": 8, "angleStepDeg": 0, "pattern": { "type": "singleShot" } },
+            { "type": "repeater", "repeats": 3, "intervalSec": 0.25, "pattern": { "type": "singleShot" } }
+          ]
+        }
+      ],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]
+    }
     },
 
     {
@@ -171,7 +316,31 @@
         "hurt": [],
         "death": [],
         "spawn": []
-      }
+      },"ai": {
+      "steering": { "type": "idle" },
+      "rotation": { "type": "continuesSpin", "spinSpeedRadPerSec": 0.1 },
+      "abilities": [
+        {
+          "type": "shoot",
+          "combatRange": 30,
+          "cooldownSec": 0.8,
+          "bulletType": "ENEMY_BULLET",
+          "aimAtTarget": false,
+          "pattern": {
+            "type": "repeater",
+            "repeats": 2,
+            "intervalSec": 0.5,
+            "pattern": { "type": "ring", "count": 16 }
+          }
+        }
+      ],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]
+    }
     },
 
     {
@@ -200,6 +369,19 @@
         "hurt": [],
         "death": [],
         "spawn": []
+      },
+      "ai": {
+        "steering": {
+          "type": "pursuit",
+          "maxPredictionTime": 1
+        },
+        "abilities": [],
+        "modifiers": [
+          { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+          { "type": "alignment", "radius": 7.5, "weight": 1 },
+          { "type": "cohesion", "radius": 7.5, "weight": 1 },
+          { "type": "separation", "radius": 3.75, "weight": 3 }
+        ]
       }
     },
 
@@ -229,7 +411,16 @@
         "hurt": [],
         "death": [],
         "spawn": []
-      }
+      },"ai": {
+      "steering": { "type": "idle" },
+      "abilities": [],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]
+    }
     },
 
     {
@@ -287,7 +478,29 @@
         "hurt": [],
         "death": [],
         "spawn": []
-      }
+      },"ai": {
+      "abilities": [
+        {
+          "type": "randomizedShoot",
+          "combatRange": 30,
+          "cooldownSec": 0.5,
+          "bulletType": "ENEMY_BULLET",
+          "aimAtTarget": true,
+          "nerfPrediction": 3,
+          "patterns": [
+            { "type": "ring", "count": 16 },
+            { "type": "ring", "count": 8 },
+            { "type": "ring", "count": 24 }
+          ]
+        }
+      ],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]
+    }
     },
 
     {
@@ -319,7 +532,30 @@
         "hurt": [],
         "death": [],
         "spawn": ["laugh"]
-      }
+      },"ai": {
+      "abilities": [
+        {
+          "type": "randomizedShoot",
+          "combatRange": 10000,
+          "cooldownSec": 1.0,
+          "bulletType": "ENEMY_BULLET",
+          "aimAtTarget": true,
+          "nerfPrediction": 0,
+          "patterns": [
+            { "type": "ring", "count": 32 },
+            { "type": "summon", "count": 2, "summonedEntityKey": "eater", "summonRadiusPx": 100 },
+            { "type": "summon", "count": 1, "summonedEntityKey": "iscat_dasher", "summonRadiusPx": 100 },
+            { "type": "repeater", "repeats": 3, "intervalSec": 0.3, "pattern": { "type": "ring", "count": 16 } },
+            { "type": "repeater", "repeats": 4, "intervalSec": 0.3, "pattern": { "type": "spread", "count": 8, "angleStepDeg": 45 } }
+          ]
+        }
+      ],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]    }
     },
 
     {
@@ -348,7 +584,18 @@
         "hurt": [],
         "death": [],
         "spawn": []
-      }
+      },"ai": {
+      "steering": {
+        "type": "pursuit",
+        "maxPredictionTime": 1
+      },
+      "abilities": [],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]    }
     },
 
     {
@@ -377,7 +624,26 @@
         "hurt": [],
         "death": [],
         "spawn": []
-      }
+      },"ai": {
+      "steering": {
+        "type": "evadeWithRange",
+        "maxPredictionTime": 3,
+        "safetyDistance": 25
+      },
+      "abilities": [
+        {
+          "type": "heal",
+          "combatRange": 12.5,
+          "cooldownSec": 0,
+          "healAmount": 1
+        }
+      ],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]    }
     }
   ]
 }

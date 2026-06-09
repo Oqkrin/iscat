@@ -4,6 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.EntitySettings;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,6 +15,16 @@ public interface RotationGoal {
      * @return desired angle in radians, or Double.NaN if no rotation should occur.
      */
     double compute(AbstractEntityModel self, UniverseModel world, double dt);
+
+    static RotationGoal createRotationGoal(EntitySettings.RotationSettings cfg) {
+        return switch (cfg.type) {
+            case "movement" -> RotationGoal.movement();
+            case "target" -> RotationGoal.target(Target.ofPlayer());
+            case "continuesSpin" -> RotationGoal.continuesSpin(cfg.spinSpeedRadPerSec);
+            case "intervalSpin" -> RotationGoal.intervalSpin(cfg.spinSteps, cfg.stepPauseSec, cfg.spinSpeedRadPerSec);
+            default -> RotationGoal.idle();
+        };
+    }
 
     static RotationGoal movement() {
         return (self, world, dt) -> {

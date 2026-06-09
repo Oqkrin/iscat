@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.entity.player.PlayerModel;
  * The thread deals no damage but temporarily immobilizes the player,
  * giving the bomber an opportunity to reposition or land other attacks.
  */
-public class StunThreadProjectile extends Projectile {
+public class StunThreadProjectileProjectileModel extends ProjectileProjectileModel {
 
     /** Default stun duration in seconds when not specified. */
     private static final double DEFAULT_STUN_DURATION = 2.0;
@@ -23,7 +23,7 @@ public class StunThreadProjectile extends Projectile {
      * @param direction normalized direction vector
      * @param speed     projectile speed (meters/second)
      */
-    public StunThreadProjectile(Vector2 position, Vector2 direction, double speed) {
+    public StunThreadProjectileProjectileModel(Vector2 position, Vector2 direction, double speed) {
         this(position, direction, speed, DEFAULT_STUN_DURATION);
     }
 
@@ -35,7 +35,7 @@ public class StunThreadProjectile extends Projectile {
      * @param speed        projectile speed (meters/second)
      * @param stunDuration how long the player will be stunned (seconds)
      */
-    public StunThreadProjectile(Vector2 position, Vector2 direction, double speed, double stunDuration) {
+    public StunThreadProjectileProjectileModel(Vector2 position, Vector2 direction, double speed, double stunDuration) {
         // Reuse ENEMY_BULLET type – correct collision filter, zero damage set below
         super(ProjectileType.ENEMY_BULLET);
         this.stunDuration = stunDuration;
@@ -53,7 +53,7 @@ public class StunThreadProjectile extends Projectile {
             if (other instanceof PlayerModel player) {
                 player.applyStun(stunDuration);
                 kill(true);
-            } else if (!(other instanceof StunThreadProjectile)) {
+            } else if (!(other instanceof StunThreadProjectileProjectileModel)) {
                 // Remove on contact with any other solid object (walls, other enemies, etc.)
                 kill(true);
             }

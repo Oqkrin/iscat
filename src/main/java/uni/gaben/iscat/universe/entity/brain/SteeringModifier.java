@@ -1,10 +1,14 @@
 package uni.gaben.iscat.universe.entity.brain;
 
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.EntityFilters;
+import uni.gaben.iscat.universe.entity.EntityModel;
+import uni.gaben.iscat.universe.entity.EntitySettings;
 
 import java.util.List;
 
@@ -12,6 +16,19 @@ import java.util.List;
 public interface SteeringModifier {
 
     void computeSteer(AbstractEntityModel self, UniverseModel world, double maxForce, double dt, Vector2 outForce);
+
+    static SteeringModifier createModifier(EntitySettings.ModifierSettings mc, EntityModel entity) {
+        DoubleProperty weight = new SimpleDoubleProperty(mc.weight);
+        Target neighbors = Target.neighboursCached(entity, mc.radius, EntityFilters.isNot(entity));
+        return switch (mc.type) {
+            case "separation" -> SteeringModifier.separation(neighbors, mc.radius, weight);
+            case "alignment" -> SteeringModifier.alignment(neighbors, weight);
+            case "cohesion" -> SteeringModifier.cohesion(neighbors, weight);
+            case "collisionAvoidance" ->
+                    SteeringModifier.collisionAvoidance(neighbors, mc.maxPredictionTime, mc.avoidRadius, weight);
+            default -> null;
+        };
+    }
 
     static SteeringModifier separation(Target neighborhood, double separationRadius, DoubleProperty weight) {
         Vector2 toNeighbor = UU.vector2zero();
