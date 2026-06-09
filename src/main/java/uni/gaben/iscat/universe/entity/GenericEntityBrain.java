@@ -1,7 +1,6 @@
 package uni.gaben.iscat.universe.entity;
 
 import javafx.beans.property.SimpleDoubleProperty;
-import org.dyn4j.collision.Filter;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.actions.HealAction;
 import uni.gaben.iscat.universe.entity.brain.actions.shoot.AbstractShootAction;
@@ -12,11 +11,7 @@ import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
 
-/**
- * Controller logico unificato per l'Intelligenza Artificiale delle entità genericamente configurate.
- * Guida le routine decisionali della CPU e i comportamenti cinematici sulla base dei parametri
- * dinamici estratti dal database SQLite tramite {@link GenericEntitySettings}.
- */
+
 public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
     public GenericEntityBrain(GenericEntityModel entity) {
@@ -37,11 +32,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
         loadBehaviorsFromSettings(settings);
     }
 
-    /**
-     * STUB: Temporary hardcoded mapping of EntityKeys to AI Actions.
-     * In the future, this will be replaced by an ActionBuilder/BehaviorProvider
-     * that parses the JSON/String definitions from GenericEntitySettings.
-     */
+
     private void loadBehaviorsFromSettings(GenericEntitySettings settings) {
         switch (settings.entityKey) {
             case "iscat_mob":

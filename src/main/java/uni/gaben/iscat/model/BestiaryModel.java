@@ -1,97 +1,72 @@
 package uni.gaben.iscat.model;
 
-import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.database.dao.EnemyDAO;
+import uni.gaben.iscat.universe.entity.GenericEntityFactory;
 import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Gestisce il caricamento e l'estrazione dei dati del Bestiario dal database SQLite.
- * Utilizza direttamente {@link GenericEntitySettings} come fonte unica di verità per i dati delle entità,
- * eliminando la ridondanza dei record personalizzati e mantenendo la coerenza con il resto del sistema.
+ * Gestisce l'estrazione dei dati del Bestiario sfruttando esclusivamente il file JSON.
+ * Utilizza la cache di {@link GenericEntityFactory} come unica fonte di verità per i dati delle entità,
+ * sbloccando immediatamente l'intero catalogo biologico dei nemici.
  */
 public class BestiaryModel {
 
     /**
-     * Registro di sblocco: mappa il numero di uccisioni registrate indicizzandole
-     * per la chiave normalizzata del nemico.
-     */
-    private final Map<String, Integer> killCounts = new LinkedHashMap<>();
-
-    /**
-     * Carica l'elenco completo dei nemici dal database insieme ai progressi dell'utente.
-     * Utilizza il DAO standardizzato per garantire coerenza con il resto del sistema.
+     * Carica l'elenco completo dei nemici direttamente dalla cache del sistema JSON.
+     * Non effettua chiamate al database, garantendo performance istantanee.
      *
-     * @param userId Identificativo numerico dell'utente per il recupero delle metriche personali.
+     * @param userId Inutilizzato (mantenuto solo per non rompere le firme dei controller esistenti).
      * @return Una mappa ordinata che associa la chiave normalizzata del nemico al suo {@link GenericEntitySettings}.
      */
     public Map<String, GenericEntitySettings> loadEnemies(int userId) {
+        // Creiamo una nuova mappa pulita per la View del Bestiario
         Map<String, GenericEntitySettings> enemies = new LinkedHashMap<>();
-        killCounts.clear();
 
-        try {
-            EnemyDAO enemyDAO = IscatDB.getInstance().getEnemyDAO();
-            
-            // Load all enemies from database (standardized DAO)
-            List<GenericEntitySettings> allEnemies = enemyDAO.findAll();
-            
-            // Load bestiary entries with kill counts for this user
-            List<EnemyDAO.BestiarioEntry> bestiaryEntries = enemyDAO.getBestiarioForUser(userId);
-            
-            // Build kill count map from bestiary entries
-            Map<String, Integer> killCountMap = new LinkedHashMap<>();
-            for (EnemyDAO.BestiarioEntry entry : bestiaryEntries) {
-                // Match by name since BestiarioEntry doesn't have entityKey
-                killCountMap.put(entry.name(), entry.killCount());
-            }
-            
-            // Populate enemies map with settings and kill counts
-            for (GenericEntitySettings settings : allEnemies) {
-                String cleanKey = settings.entityKey.toLowerCase().trim();
-                enemies.put(cleanKey, settings);
-                
-                // Match kill count by name
-                Integer kills = killCountMap.getOrDefault(settings.name, 0);
-                killCounts.put(cleanKey, kills);
-            }
-            
-        } catch (Exception e) {
-            System.err.println("[ERRORE CRITICO DB] Impossibile caricare l'elenco dei record per il Bestiario.");
-            e.printStackTrace();
+        // Recuperiamo tutte le definizioni statiche precaricate dal file JSON
+        Map<String, GenericEntitySettings> jsonCache = GenericEntityFactory.getCache();
+
+        if (jsonCache != null) {
+            // Copiamo i riferimenti nella mappa ordinata di output
+            enemies.putAll(jsonCache);
+        } else {
+            System.err.println("[BESTIARIO] Attenzione: la cache dei nemici JSON è vuota o non inizializzata!");
         }
 
         return enemies;
     }
 
     /**
-     * Ritorna la mappa contenente il numero cumulativo di uccisioni
-     * registrate per ciascuna chiave nemico.
-     */
-    public Map<String, Integer> getKillCounts() {
-        return killCounts;
-    }
-
-    /**
-     * Verifica lo stato di sblocco di un determinato nemico all'interno del Bestiario dell'utente.
-     * Un'entità è considerata sbloccata se il contatore delle uccisioni associato è strettamente maggiore di zero.
+     * Verifica lo stato di sblocco di un determinato nemico all'interno del Bestiario.
+     * Senza un database a tenere traccia delle uccisioni, ogni nemico valido presente nel JSON
+     * viene considerato sbloccato di default (true).
      *
      * @param entityKey La stringa identificativa del nemico da ispezionare.
-     * @return true se il giocatore ha sconfitto l'entità almeno una volta, false altrimenti.
+     * @return true se il nemico esiste nella cache JSON, false altrimenti.
      */
     public boolean isUnlocked(String entityKey) {
         if (entityKey == null) return false;
-        Integer kills = killCounts.get(entityKey.toLowerCase().trim());
-        return kills != null && kills > 0;
+        String cleanKey = entityKey.toLowerCase().trim();
+        return GenericEntityFactory.getCache().containsKey(cleanKey);
     }
-    
+
     /**
      * Ottiene il numero di uccisioni per un nemico specifico.
+     * Senza database, restituisce costantemente 0.
      */
     public int getKillCount(String entityKey) {
-        if (entityKey == null) return 0;
-        return killCounts.getOrDefault(entityKey.toLowerCase().trim(), 0);
+        return 0;
+    }
+
+    /**
+     * Ritorna una mappa vuota o fittizia per non spaccare eventuali chiamate esterne della View.
+     */
+    public Map<String, Integer> getKillCounts() {
+        Map<String, Integer> dummyMap = new LinkedHashMap<>();
+        for (String key : GenericEntityFactory.getCache().keySet()) {
+            dummyMap.put(key, 0);
+        }
+        return dummyMap;
     }
 }

@@ -3,7 +3,6 @@ package uni.gaben.iscat.universe;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.entity.GenericEntityModel;
 import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;

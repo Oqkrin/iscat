@@ -2,12 +2,13 @@ package uni.gaben.iscat.universe.entity.brain.actions;
 
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.entity.GenericEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
-import uni.gaben.iscat.universe.entity.GenericEntityModel;
+
 import java.util.Collections;
 
 public class HealAction extends Action {

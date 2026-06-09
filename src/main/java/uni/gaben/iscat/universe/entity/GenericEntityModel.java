@@ -3,9 +3,9 @@ package uni.gaben.iscat.universe.entity;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
+import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 
 /**

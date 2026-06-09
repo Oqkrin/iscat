@@ -1,6 +1,5 @@
 package uni.gaben.iscat.view.game;
 
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -9,12 +8,13 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.UniverseSpawnable;
+import uni.gaben.iscat.universe.entity.GenericEntityFactory;
 import uni.gaben.iscat.universe.entity.GenericEntitySettings;
 import uni.gaben.iscat.utils.design.CssHelper;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -57,29 +57,28 @@ public class GameSpawnerToolbar extends StackPane {
             spawnContainer.getChildren().add(b);
         }
 
-        // --- Database-loaded entities (async) ---
         FlowPane genericContainer = new FlowPane(10, 10);
         genericContainer.setAlignment(Pos.BOTTOM_CENTER);
         genericContainer.setPadding(new Insets(4, 20, 4, 20));
 
-        IscatDB.getInstance().queryAsync(() -> IscatDB.getInstance().getEnemyDAO().findAll())
-                .thenAccept(enemies -> Platform.runLater(() -> {
-                    for (GenericEntitySettings s : enemies) {
-                        if (s == null || s.entityKey == null) continue;
-                        Button b = createSpawnButton(s.entityKey);
-                        b.setTooltip(new javafx.scene.control.Tooltip(s.name));
-                        b.setOnAction(e -> controller.debugSpawn(s.entityKey));
-                        genericContainer.getChildren().add(b);
-                    }
-                }))
-                .exceptionally(ex -> {
-                    System.err.println("[GameSpawnerToolbar] Failed to load enemies from DB: " + ex.getMessage());
-                    return null;
-                });
+        Map<String, GenericEntitySettings> jsonEnemies = GenericEntityFactory.getCache();
+
+        if (jsonEnemies != null && !jsonEnemies.isEmpty()) {
+            for (GenericEntitySettings s : jsonEnemies.values()) {
+                if (s == null || s.entityKey == null) continue;
+
+                Button b = createSpawnButton(s.entityKey);
+                b.setTooltip(new javafx.scene.control.Tooltip(s.name));
+                b.setOnAction(e -> controller.debugSpawn(s.entityKey));
+                genericContainer.getChildren().add(b);
+            }
+        } else {
+            System.err.println("[GameSpawnerToolbar] Nessuna entità trovata nella cache JSON!");
+        }
 
         root.getChildren().addAll(
                 sectionLabel("Hardcoded entities"), spawnContainer,
-                sectionLabel("Database loaded"),    genericContainer
+                sectionLabel("JSON Loaded (Runtime)"), genericContainer
         );
 
         scroll.setContent(root);

@@ -12,6 +12,7 @@ module uni.gaben.iscat {
     requires org.kordamp.ikonli.javafx;
     requires org.xerial.sqlitejdbc;
     requires org.slf4j;
+    requires org.json;
 
     opens uni.gaben.iscat to javafx.fxml;
     opens uni.gaben.iscat.controller to javafx.fxml;
@@ -21,6 +22,7 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.model to javafx.fxml;
     opens uni.gaben.iscat.controller.game to javafx.fxml;
     opens uni.gaben.iscat.controller.components.options to javafx.fxml;
+    opens uni.gaben.iscat.universe.entity to org.json;
 
     opens uni.gaben.iscat.utils to javafx.fxml;
     opens uni.gaben.iscat.utils.sprite to javafx.fxml;

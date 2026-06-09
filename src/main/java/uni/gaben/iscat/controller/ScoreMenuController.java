@@ -114,7 +114,6 @@ public class ScoreMenuController implements IscatMenuController {
             );
         });
     }
-
     private void setupCornerMobs() {
         try {
             SessionUser user = SessionManager.getInstance().getCurrentUser();
