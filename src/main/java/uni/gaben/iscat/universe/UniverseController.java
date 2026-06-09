@@ -6,12 +6,12 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.camera.CameraController;
 import uni.gaben.iscat.universe.camera.CameraSettings;
+import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
 import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 import uni.gaben.iscat.universe.entity.interfaces.HasTerminalVelocity;
 import uni.gaben.iscat.universe.entity.player.PlayerController;
@@ -143,7 +143,7 @@ public class UniverseController {
         double top    = camera.getViewportTopY()   - 200.0;
         double bottom = top  + (camera.getScreenHeight() / zoom) + 400.0;
 
-        for (AbstractProjectileModel p : universeModel.getProjectiles()) {
+        for (AbstractProjectileModelAbstract p : universeModel.getProjectiles()) {
             if (p.shouldRemove()) continue;
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
@@ -162,7 +162,7 @@ public class UniverseController {
             if (entity == null) continue;
 
             boolean remove = entity.shouldRemove();
-            if (!remove && entity instanceof LivingEntityModel living) {
+            if (!remove && entity instanceof AbstractLivingModel living) {
                 if (living.getLife() <= 0) {
                     if (!living.shouldRemove()) living.kill();
                     remove = living.shouldRemove();
@@ -171,7 +171,7 @@ public class UniverseController {
 
             if (remove) {
                 toRemove.add(entity);
-                if (entity instanceof LivingEntityModel living && living != player && entityDeathListener != null) {
+                if (entity instanceof AbstractLivingModel living && living != player && entityDeathListener != null) {
                     entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
                 }
             }

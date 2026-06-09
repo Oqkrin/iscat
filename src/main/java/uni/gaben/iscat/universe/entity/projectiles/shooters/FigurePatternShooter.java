@@ -30,6 +30,7 @@ public class FigurePatternShooter implements PatternShooter {
     @Override
     public void execute(Shooter<?> shooter, ProjectileType bulletType, double angle, Consumer<Projectile> customizer) {
         if (count <= 0) return;
+        playAttackAudio(shooter);
 
         double angleStep = (2.0 * Math.PI) / count;
 

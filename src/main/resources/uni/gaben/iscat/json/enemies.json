@@ -21,7 +21,7 @@
       "PreferredRange": 10,
       "actionCooldownS": 800,
       "audio": {
-        "attack": [],
+        "attack": ["fart"],
         "idle": [],
         "hurt": [],
         "death": [],

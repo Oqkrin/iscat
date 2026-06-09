@@ -27,6 +27,7 @@ public class MultiDirectionPatternShooter implements PatternShooter {
     @Override
     public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (directions <= 0 || inner == null) return;
+        playAttackAudio(shooter);
 
         double angleStep = (2.0 * Math.PI) / directions;
 

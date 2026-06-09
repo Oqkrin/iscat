@@ -22,6 +22,7 @@ public class RingPatternShooter implements PatternShooter {
     @Override
     public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (count <= 0) return;
+        playAttackAudio(shooter);
 
         double angleStep = (2.0 * Math.PI) / count;
 
