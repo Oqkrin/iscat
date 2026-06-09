@@ -1,7 +1,6 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.entity.*;
-import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
@@ -49,7 +48,6 @@ public class UniverseSpawner {
             case ASTEROID          -> spawnEntity(new AsteroidModel(x, y)); // simplified, adjust as needed
             case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
-            case ISCAT_MASTER      -> spawnIscatMaster(x, y);
             case WORM              -> spawnWorm(x, y);
             case PROJECTILE        -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");
         };
@@ -68,13 +66,6 @@ public class UniverseSpawner {
         PlayerModel player = new PlayerModel(x, y);
         model.setPlayer(player);
         return player;
-    }
-
-    public IscatMasterModel spawnIscatMaster(double x, double y) {
-        IscatMasterModel master = new IscatMasterModel(x, y, waveController);
-        model.addEntity(master);
-        controller.addEntityController(new GenericEntityBrain(master));
-        return master;
     }
 
     public IscatWormModel spawnWorm(double x, double y) {
@@ -120,10 +111,11 @@ public class UniverseSpawner {
                 .spawn(id, x, y, model, controller);
 
         if (jsonEntity != null) {
-            return jsonEntity;
+            if (jsonEntity.getSettings().isBoss) {
+                jsonEntity.setWaveController(this.waveController);
+            }
         }
-
-        return null;
+        return jsonEntity;
     }
 
 }

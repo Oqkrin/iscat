@@ -32,6 +32,11 @@ public class GenericEntitySettings extends PhysicalEntitySettings {
     // 4. STRUTTURA AUDIO (Specifica di questa sottoclasse)
     public AudioProfile audio = new AudioProfile();
 
+    // Boss logic
+    public boolean isBoss;
+    public boolean hasEntranceAnimation;
+    public int[] animationFrames;
+
     /**
      * Sottoclasse interna per mappare l'oggetto 'audio' e le sue liste di file Wave/MP3.
      */

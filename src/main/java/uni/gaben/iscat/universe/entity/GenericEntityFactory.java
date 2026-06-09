@@ -112,12 +112,10 @@ public class GenericEntityFactory {
         // Mappatura SpriteName -> spritePath (aggiungendo l'estensione se necessario)
         String spriteName = json.optString("SpriteName", "").trim();
 
-        // 2. Se l'utente ha scritto ".png" nel JSON, lo puliamo via per evitare doppie estensioni
         if (spriteName.toLowerCase().endsWith(".png")) {
             spriteName = spriteName.substring(0, spriteName.length() - 4);
         }
 
-        // 3. Forziamo il percorso radice tassativo per nemico
         s.spritePath = "/uni/gaben/iscat/sprites/enemies/" + spriteName + ".png";
 
         s.frameW = json.optInt("FrameW", 32);
@@ -137,6 +135,17 @@ public class GenericEntityFactory {
         s.combatRange = json.optDouble("CombatRange", 10.0);
         s.preferredRange = json.optDouble("PreferredRange", 10.0);
         s.actionCooldownMS = json.optDouble("actionCooldownS", 800.0);
+
+        s.isBoss = json.optBoolean("IsBoss", false);
+        s.hasEntranceAnimation = json.optBoolean("HasEntranceAnimation", false);
+
+        if (json.has("AnimationFrames")) {
+            JSONArray framesArray = json.getJSONArray("AnimationFrames");
+            s.animationFrames = new int[framesArray.length()];
+            for (int i = 0; i < framesArray.length(); i++) {
+                s.animationFrames[i] = framesArray.optInt(i, 1); // Fallback a 1 frame se c'è un errore
+            }
+        }
 
         // Parsing dell'oggetto audio
         if (json.has("audio")) {
