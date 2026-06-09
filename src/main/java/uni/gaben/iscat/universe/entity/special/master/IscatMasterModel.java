@@ -137,19 +137,6 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
         if (completeKillCalled) return;
         completeKillCalled = true;
 
-        // DISABILITATO: Rimosso il tracciamento persistente delle kill del boss sul DB
-        /*
-        try {
-            var user = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser();
-            if (user != null) {
-                IscatDB.getInstance().getEnemyDAO().incrementKill(user.id(), "iscat_master", 1);
-            }
-        } catch (Exception e) {
-            System.err.println("[ERRORE REGISTRAZIONE BOSS] Impossibile aggiornare i record di morte su DB");
-            e.printStackTrace();
-        }
-        */
-
         if (waveController != null) {
             waveController.notifyBossDead();
         }
