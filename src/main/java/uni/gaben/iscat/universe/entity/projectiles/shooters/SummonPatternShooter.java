@@ -2,11 +2,10 @@ package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.universe.entity.special.master.IscatMasterEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
+import uni.gaben.iscat.universe.entity.GenericEntityModel;
 import uni.gaben.iscat.universe.UU;
 
 import java.util.function.Consumer;
@@ -17,20 +16,25 @@ public class SummonPatternShooter implements PatternShooter {
     private final int count;
     private final String enemyId;
     private final double spawnRadiusPx;
+    private final int attackStateIndex;
 
-    public SummonPatternShooter(int count, String enemyId, double spawnRadiusPx) {
+    public SummonPatternShooter(int count, String enemyId, double spawnRadiusPx, int attackStateIndex) {
         this.count = count;
         this.enemyId = enemyId;
         this.spawnRadiusPx = spawnRadiusPx;
+        this.attackStateIndex = attackStateIndex;
+    }
+
+    public SummonPatternShooter(int count, String enemyId, double spawnRadiusPx) {
+        this(count, enemyId, spawnRadiusPx, 4); // 4 = ATTACK3
     }
 
     @Override
     public void execute(Shooter<?> shooter, ProjectileType pType, double angle, Consumer<Projectile> customizer) {
         var model = shooter.getModel();
 
-        if (model instanceof IscatMasterEntityModel master) {
-            master.setAnimationState(IscatMasterEntityModel.AnimationState.ATTACK3);
-        } else if (model instanceof PlayerModelAbstract player) {
+        if (model instanceof GenericEntityModel genericEntity) {
+            genericEntity.setCurrentState(attackStateIndex);
         }
 
         Vector2 originPos = model.getTransform().getTranslation();
