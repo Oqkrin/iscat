@@ -4,7 +4,7 @@ import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
-import uni.gaben.iscat.universe.entity.LifeDeath;
+import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.AudioManager;

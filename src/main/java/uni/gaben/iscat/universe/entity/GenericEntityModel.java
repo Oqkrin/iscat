@@ -7,6 +7,8 @@ import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
+import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 
 /**
  * Modello polimorfico universale per la gestione logica e fisica dei nemici.

@@ -9,8 +9,8 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
-import uni.gaben.iscat.universe.entity.HasSprite;
-import uni.gaben.iscat.universe.entity.HasThrust;
+import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
+import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.universe.Thrust;
 import uni.gaben.iscat.utils.AudioManager;

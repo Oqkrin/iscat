@@ -4,6 +4,7 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.AABB;
 import org.dyn4j.geometry.Transform;
 import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.universe.entity.interfaces.HasTerminalVelocity;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.function.Consumer;

@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity;
+package uni.gaben.iscat.universe.entity.interfaces;
 
 import uni.gaben.iscat.universe.Shockwave;
 

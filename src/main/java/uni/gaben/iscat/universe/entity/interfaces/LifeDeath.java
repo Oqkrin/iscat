@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity;
+package uni.gaben.iscat.universe.entity.interfaces;
 
 /**
  * Interfaccia per entità dotate di punti vita.

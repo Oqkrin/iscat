@@ -8,7 +8,7 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
-import uni.gaben.iscat.universe.entity.HasShockwave;
+import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.utils.Updatable;

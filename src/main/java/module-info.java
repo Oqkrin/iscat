@@ -68,4 +68,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entity;
     opens uni.gaben.iscat.universe to javafx.fxml;
     opens uni.gaben.iscat.universe.entity.enviroment.asteroid to javafx.fxml;
+    exports uni.gaben.iscat.universe.entity.interfaces;
+    opens uni.gaben.iscat.universe.entity.interfaces to javafx.fxml, org.json;
 }
