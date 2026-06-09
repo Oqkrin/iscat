@@ -56,8 +56,11 @@ public class GameStatsManager {
             scoreDAO.increment(userId, "TimesPlayed",         1);
 
             // Salva kill per tipo nemico in batch
-            // enemyKills.forEach((key, count) ->
-            //         enemyDAO.incrementKill(userId, key, count));
+            enemyKills.forEach((key, count) -> {
+                if (count > 0) {
+                    IscatDB.getInstance().getBestiaryDAO().incrementKill(userId, key, count);
+                }
+            });
 
             scoreDAO.load(userId).ifPresent(data ->
                     Platform.runLater(() -> SessionManager.getInstance().setCurrentSaveData(data)));

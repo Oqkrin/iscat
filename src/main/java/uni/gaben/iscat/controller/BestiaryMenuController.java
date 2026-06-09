@@ -255,7 +255,7 @@ public class BestiaryMenuController implements IscatMenuController {
                     🎯 Raggio Preferito: %.1f unità
                     ⏱ Cooldown Azione: %.1f secondi
                     🆔 ID : %s
-                    📊 Counter Morti/Utilizzi: %d
+                    📊 Totale Uccisi: %d
                     """,
                         enemy.detectionRange, enemy.combatRange, enemy.preferredRange,
                         cooldownSeconds, enemy.entityKey, currentKills
