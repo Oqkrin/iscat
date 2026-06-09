@@ -92,7 +92,6 @@ public class Shooter<T extends CollisionBody> {
             p.kill(true);
         });
 
-        AudioManager.getInstance().playSFX("shoot");
         UniverseSpawner.getInstance().spawnEntity(p);
     }
 }
