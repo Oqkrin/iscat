@@ -27,7 +27,6 @@ public record RepeaterPatternShooter(int times, double intervalSeconds,
     @Override
     public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (inner == null || times <= 0) return;
-        playAttackAudio(shooter);
         inner.execute(shooter, type, angle, customizer);
     }
 }

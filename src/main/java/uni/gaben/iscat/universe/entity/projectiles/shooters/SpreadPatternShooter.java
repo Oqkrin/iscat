@@ -22,7 +22,6 @@ public class SpreadPatternShooter implements PatternShooter {
     @Override
     public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (count <= 0) return;
-        playAttackAudio(shooter);
         if (count == 1) {
             shooter.shoot(type, angle, customizer);
             return;

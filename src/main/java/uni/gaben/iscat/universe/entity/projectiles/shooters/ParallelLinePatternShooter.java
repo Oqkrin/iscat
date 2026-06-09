@@ -27,7 +27,6 @@ public class ParallelLinePatternShooter implements PatternShooter {
     @Override
     public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
         if (count <= 0) return;
-        playAttackAudio(shooter);
 
         Vector2 origin = shooter.getModel().getTransform().getTranslation();
         double perpAngle = angle + (Math.PI / 2.0); // Angolo perpendicolare per lo shifting laterale

@@ -4,10 +4,12 @@ import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.AbstractLivingModel;
+import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.EnemyAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 import java.util.function.Consumer;
@@ -31,6 +33,12 @@ public class Shooter<T extends CollisionBody> {
 
     public T getModel() { return model; }
 
+    private void triggerAttackAudio() {
+        if (model instanceof EntityModel entity) {
+            EnemyAudioManager.playEventAudio(entity, "attack");
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Public shoot API
     // -------------------------------------------------------------------------
@@ -47,6 +55,7 @@ public class Shooter<T extends CollisionBody> {
 
     /** Spara nell'angolo specificato, applicando un customizer al proiettile. */
     public void shoot(ProjectileType type, double angle, Consumer<Projectile> customizer) {
+        triggerAttackAudio();
         Projectile bullet = ProjectilePool.acquire(type);
         bullet.getTransform().setTranslation(model.getTransform().getTranslation().copy());
         bullet.getTransform().setRotation(angle);

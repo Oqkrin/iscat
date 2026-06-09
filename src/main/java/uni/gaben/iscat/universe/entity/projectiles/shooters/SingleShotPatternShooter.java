@@ -11,7 +11,6 @@ public class SingleShotPatternShooter implements PatternShooter {
 
     @Override
     public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<Projectile> customizer) {
-        playAttackAudio(shooter);
         shooter.shoot(type, angle, customizer);
     }
 }

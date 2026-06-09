@@ -32,7 +32,6 @@ public class SummonPatternShooter implements PatternShooter {
     @Override
     public void execute(Shooter<?> shooter, ProjectileType pType, double angle, Consumer<Projectile> customizer) {
         var model = shooter.getModel();
-        playAttackAudio(shooter);
 
         if (model instanceof EntityModel genericEntity) {
             genericEntity.setCurrentState(attackStateIndex);
