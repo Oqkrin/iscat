@@ -47,7 +47,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entity.brain.abilities;
     exports uni.gaben.iscat.universe.camera;
     exports uni.gaben.iscat.universe.entity.consumables.heart;
-    exports uni.gaben.iscat.universe.entity.special.worm;
+    exports uni.gaben.iscat.universe.entity.worm;
     exports uni.gaben.iscat.universe.entity.enviroment.asteroid;
     exports uni.gaben.iscat.universe.entity.projectiles.shooters;
     exports uni.gaben.iscat.universe.entity.player;

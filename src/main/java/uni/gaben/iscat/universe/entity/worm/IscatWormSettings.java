@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.special.worm;
+package uni.gaben.iscat.universe.entity.worm;
 
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseVelocitySettings;

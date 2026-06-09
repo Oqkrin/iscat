@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
-import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
 
 public enum UniverseSpawnable {
     PLAYER(PlayerModel.class),

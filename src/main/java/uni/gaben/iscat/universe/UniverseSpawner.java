@@ -1,16 +1,17 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.entity.*;
-import uni.gaben.iscat.universe.entity.special.worm.IscatWormModel;
-import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.worm.IscatWormModel;
+import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegmentBrain;
+import uni.gaben.iscat.universe.entity.worm.IscatWormSegmentBrain;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleBrain;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
+import uni.gaben.iscat.utils.EnemyAudioManager;
 
 import java.util.Random;
 import java.util.function.BiFunction;
@@ -114,7 +115,7 @@ public class UniverseSpawner {
             if (jsonEntity.getSettings().isBoss) {
                 jsonEntity.setWaveController(this.waveController);
             }
-        }
+                    }
         return jsonEntity;
     }
 

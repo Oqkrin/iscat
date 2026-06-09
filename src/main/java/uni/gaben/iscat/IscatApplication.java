@@ -51,6 +51,7 @@ public class IscatApplication extends Application {
 
         Platform.runLater(EntityFactory::preloadAllAsync);
         IscatNavigator.getInstance().initialize(iscatModel);
+        AudioManager.getInstance().loadAllSFX("/uni/gaben/iscat/audio/SFX/entitiesSFX");
         AudioManager.getInstance().loadDefaultAudio();
     }
 

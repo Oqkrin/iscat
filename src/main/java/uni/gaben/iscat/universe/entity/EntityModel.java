@@ -10,6 +10,7 @@ import uni.gaben.iscat.universe.UniverseWaveController;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
+import uni.gaben.iscat.utils.EnemyAudioManager;
 
 public class EntityModel extends AbstractLivingModel implements HasSprite, HasShockwave {
 
@@ -22,7 +23,7 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
 
     private int currentState = STATE_IDLE;
     private boolean completeKillCalled = false;
-    private UniverseWaveController waveController; // Iniettato dinamicamente se l'entità è un boss
+    private UniverseWaveController waveController;
 
     public EntityModel(double x, double y, EntitySettings settings) {
         super(x, y, settings.initLife, settings.initLife);
@@ -66,9 +67,12 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
                 }
             });
         }
+
+        if (!settings.hasEntranceAnimation) {
+            EnemyAudioManager.playEventAudio(this, "spawn");
+        }
     }
 
-    /** Permette di agganciare il wave controller dopo lo spawn (es. da UniverseSpawner) */
     public void setWaveController(UniverseWaveController waveController) {
         this.waveController = waveController;
     }
@@ -89,7 +93,7 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
         if (settings.animationFrames != null && state >= 0 && state < settings.animationFrames.length) {
             return settings.animationFrames[state];
         }
-        return 1; // Fallback se non specificato nel JSON
+        return 1;
     }
 
     public void update(double dt) {
@@ -103,23 +107,15 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
                 setEnabled(true);
                 setCurrentState(STATE_IDLE);
 
-                // Effetti di spawn del Boss presi dinamicamente dal JSON
+                // Il boss finisce l'animazione di ingresso: genera l'onda d'urto
                 if (settings.isBoss) {
                     shockwave.trigger(2.0, 1500, 15);
-                    try {
-                        if (settings.audio != null && settings.audio.spawn != null) {
-                            for (String sfx : settings.audio.spawn) {
-                                uni.gaben.iscat.utils.AudioManager.getInstance().playSFX(sfx);
-                            }
-                        }
-                    } catch (Exception e) {
-                        // Ignora se l'audio non è disponibile
-                    }
                 }
+
+                EnemyAudioManager.playEventAudio(this, "spawn");
             }
         }
         else if (currentState != STATE_IDLE && currentState != STATE_DEATH) {
-            // Qualsiasi stato di attacco intermedio torna a IDLE a fine animazione
             if (getStateTime() >= duration) {
                 setCurrentState(STATE_IDLE);
             }
@@ -133,12 +129,10 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
 
     @Override
     public void kill(boolean silent) {
-        // Se l'entità ha un'animazione di morte definita nel JSON, passa allo stato DEATH
         if (settings.animationFrames != null && settings.animationFrames.length > STATE_DEATH) {
             if (currentState == STATE_DEATH) return;
             setCurrentState(STATE_DEATH);
         } else {
-            // Morte istantanea standard per i mob normali senza animazioni complesse
             super.kill(silent);
             completeKill();
         }
@@ -146,7 +140,6 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
 
     @Override
     public boolean shouldRemove() {
-        // Impedisce la rimozione immediata se l'animazione di morte è ancora in esecuzione
         if (currentState == STATE_DEATH && !completeKillCalled) return false;
         return super.shouldRemove();
     }

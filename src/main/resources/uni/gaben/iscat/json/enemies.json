@@ -318,7 +318,7 @@
         "idle": [],
         "hurt": [],
         "death": [],
-        "spawn": []
+        "spawn": ["laugh"]
       }
     },
 

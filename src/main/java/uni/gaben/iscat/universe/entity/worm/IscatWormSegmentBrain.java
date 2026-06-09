@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.special.worm;
+package uni.gaben.iscat.universe.entity.worm;
 
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.Target;

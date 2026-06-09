@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.special.worm;
+package uni.gaben.iscat.universe.entity.worm;
 
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
