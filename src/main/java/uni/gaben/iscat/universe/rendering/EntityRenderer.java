@@ -1,18 +1,15 @@
 package uni.gaben.iscat.universe.rendering;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.*;
 import javafx.scene.image.Image;
-import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.paint.Color;
 import org.dyn4j.geometry.Vector2;
-
+import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.entity.*;
+import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerSettings;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
-import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.UU;
-import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
@@ -24,136 +21,220 @@ import java.util.function.BiConsumer;
 
 public final class EntityRenderer {
 
-    // Using a Java Record as a map key entirely eliminates performance-heavy String concatenations every frame
     public record SpriteKey(String path, int width, int height) {}
 
-    private static final Map<Class<?>, BiConsumer<AbstractEntityModel, GraphicsContext>> CUSTOM_RENDERERS = new HashMap<>();
+    private static final Map<Class<?>, BiConsumer<AbstractEntityModel, BatchedDrawCollector>> BATCHED_RENDERERS = new HashMap<>();
     private static final Map<SpriteKey, SpriteSheetsParser> SHEET_CACHE = new HashMap<>();
     private static final Map<SpriteKey, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
 
-    private static final Effect projectileEffect = new GaussianBlur();
-    private static final Effect spriteEffect = new Bloom();
-
-    // Statically allocated primitive buffers to completely eliminate per-frame asteroid double[] garbage generation
-    private static double[] xBuffer = new double[64];
-    private static double[] yBuffer = new double[64];
-
     static {
-        CUSTOM_RENDERERS.put(AsteroidModel.class, EntityRenderer::drawAsteroid);
-        CUSTOM_RENDERERS.put(Projectile.class,   EntityRenderer::drawProjectile);
-        CUSTOM_RENDERERS.put(PlayerModel.class,  EntityRenderer::drawPlayer);
-        CUSTOM_RENDERERS.put(BlackHoleModel.class,  EntityRenderer::drawBlackHole);
+        BATCHED_RENDERERS.put(AsteroidModel.class, EntityRenderer::drawAsteroidBatched);
+        BATCHED_RENDERERS.put(Projectile.class,   EntityRenderer::drawProjectileBatched);
+        BATCHED_RENDERERS.put(PlayerModel.class,  EntityRenderer::drawPlayerBatched);
+        BATCHED_RENDERERS.put(BlackHoleModel.class, EntityRenderer::drawBlackHoleBatched);
     }
 
     private EntityRenderer() {}
 
-    // ── Main entry point ──────────────────────────────────────────────
-
-    public static void draw(AbstractEntityModel entity, GraphicsContext gc) {
+    // Main entry point for batched rendering
+    public static void drawBatched(AbstractEntityModel entity, BatchedDrawCollector batcher, boolean debug) {
         if (entity == null || entity.shouldRemove()) return;
 
-        BiConsumer<AbstractEntityModel, GraphicsContext> custom = CUSTOM_RENDERERS.get(entity.getClass());
+        BiConsumer<AbstractEntityModel, BatchedDrawCollector> custom = BATCHED_RENDERERS.get(entity.getClass());
         if (custom != null) {
-            custom.accept(entity, gc);
-            return;
+            custom.accept(entity, batcher);
+        } else if (entity instanceof HasSprite sprite) {
+            drawSpriteEntityBatched(entity, sprite, batcher);
         }
 
-        if (entity instanceof HasSprite sprite) {
-            drawSpriteEntity(entity, sprite, gc);
+        // Debug collision outlines – also batched as simple shapes
+        if (debug) {
+            drawDebugCollisionBatched(entity, batcher);
         }
     }
 
-    private static void drawBlackHole(AbstractEntityModel abstractEntityModel, GraphicsContext gc) {
-        BlackHoleModel bh = (BlackHoleModel) abstractEntityModel;
-        double cx = UU.mToPx(bh.getTransform().getTranslationX());
-        double cy = UU.mToPx(bh.getTransform().getTranslationY());
-
-        gc.save();
-        gc.translate(cx, cy);
-        if (bh.shockwave().isActive()) VFXRenderer.drawBlackHole(gc, bh.shockwave());
-        gc.restore();
-    }
-
-    // ── Standard sprite pipeline ──────────────────────────────────────
-
-    private static void drawSpriteEntity(AbstractEntityModel entity, HasSprite sprite, GraphicsContext gc) {
+    // ------------------------------------------------------------------
+    // Batched Sprite pipeline – collects transform + image + color tint
+    // ------------------------------------------------------------------
+    private static void drawSpriteEntityBatched(AbstractEntityModel entity, HasSprite sprite, BatchedDrawCollector batcher) {
         double cx = UU.mToPx(entity.getTransform().getTranslationX());
         double cy = UU.mToPx(entity.getTransform().getTranslationY());
         double w  = entity.getWidthPx();
         double h  = entity.getHeightPx();
 
-        gc.save();
-        gc.translate(cx, cy);
+        double baseAngle = Math.toDegrees(
+                sprite.canRotate()
+                        ? entity.getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET
+                        : RenderingSettings.BASE_ROTRAD_OFFSET
+        );
+        double finalAngle = baseAngle + sprite.getVisualAngularOffsetDeg();
 
-        if (sprite instanceof GenericEntityModel gem && false) {
-            gc.fillText(entity.getLinearVelocity() + "/" + entity.getMaxAngularVelocity() + "\n"
-                    , -w / 2, (-h / 2) - 50);
-
-            gc.setGlobalAlpha(.3);
-            Double maxRange = UU.mToPx(gem.getSettings().detectionRange/2);
-            Double minRange = UU.mToPx(gem.getSettings().detectionRange/4);
-            gc.setFill(ThemeManager.getInstance().getColorError());
-            gc.fillOval(-maxRange, -maxRange, maxRange*2, maxRange*2);
-            gc.setFill(ThemeManager.getInstance().getColorSuccess());
-            gc.fillOval(-minRange, -minRange, minRange*2, minRange*2);
-            gc.setGlobalAlpha(1.0);
-        }
-
-        gc.setEffect(spriteEffect);
-
+        // Retrieve or create the sprite sheet & animator
         SpriteKey key = new SpriteKey(sprite.getSpritePath(), sprite.getSpriteFrameWidth(), sprite.getSpriteFrameHeight());
         SpriteSheetsParser sheet = getSheet(key, sprite);
         if (sheet != null) {
-
-            // Reused the local variable instead of recalculating getAnimator(sprite) 3 times sequentially
             SpriteSheetsAnimator animator = getAnimator(key, sprite, sheet);
             animator.setState(entity.getState());
             animator.setTime(entity.getStateTime());
 
             Image frame = sheet.getFrame(animator.getCurrentState(), animator.getCurrentFrame());
             if (frame != null) {
-                Image tinted = ThemeManager.getInstance().getTintedImage(
-                        frame,
-                        entity instanceof PlayerModel ? ThemeManager.getInstance().getAccentPrimary() : ThemeManager.getInstance().getAccentSecondary()
-                );
-
-                double baseAngle = Math.toDegrees(
-                        sprite.canRotate()
-                                ? entity.getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET
-                                : RenderingSettings.BASE_ROTRAD_OFFSET
-                );
-                double finalAngle = baseAngle + sprite.getVisualAngularOffsetDeg();
-
-                gc.save();
-                gc.rotate(finalAngle);
-                gc.drawImage(tinted, -w / 2, -h / 2, w, h);
-                gc.restore();
+                Color tint = (entity instanceof PlayerModel)
+                        ? ThemeManager.getInstance().getAccentPrimary()
+                        : ThemeManager.getInstance().getAccentSecondary();
+                batcher.addSprite(frame, cx, cy, w, h, finalAngle, tint);
             }
         }
 
-        // Shockwave
+        // Shockwave (if present) – also batched as a special effect
         if (entity instanceof HasShockwave sw && sw.shockwave().isActive()) {
             if ("iscat-master".equals(entity.getEntityKey())) {
-                VFXRenderer.drawBlackHole(gc, sw.shockwave());
+                batcher.addBlackHoleShockwave(cx, cy, sw.shockwave());
             } else {
-                VFXRenderer.drawShockwave(gc, sw.shockwave());
+                batcher.addShockwave(cx, cy, sw.shockwave());
             }
         }
 
-        // HP bar
+        // HP bar – queued as a rectangle pair (background + fill)
         if (entity instanceof LifeDeath ld) {
-            VFXRenderer.drawHpBar(ld, gc, w, h);
+            double barX = cx - w/2;
+            double barY = cy - h/2 - PlayerSettings.HP_BAR_OFFSET_Y;
+            double percent = ld.getLife() / ld.getMaxLife();
+            batcher.addHpBar(barX, barY, w, PlayerSettings.HP_BAR_HEIGHT, percent);
         }
-
-        gc.restore();
     }
 
+    // ------------------------------------------------------------------
+    // Custom batched handlers
+    // ------------------------------------------------------------------
+    private static void drawProjectileBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+        Projectile p = (Projectile) e;
+        double cx = UU.mToPx(e.getTransform().getTranslationX());   // if mToPx = identity, this is fine
+        double cy = UU.mToPx(e.getTransform().getTranslationY());
+        double w  = e.getWidthPx();   // make sure this is in world units (meters)
+        double h  = e.getHeightPx();
+
+        Vector2 vel = p.getLinearVelocity();
+        double speed = vel.getMagnitude();
+        double trailX2 = cx, trailY2 = cy;
+        double trailWidth = h * 0.75;
+        if (speed > 0.1) {
+            // old code used “backward” direction: from center to -vel*1.618
+            trailX2 = cx - vel.x * 1.618;
+            trailY2 = cy - vel.y * 1.618;
+        }
+
+        batcher.addProjectile(cx, cy, w, h, p.getType().color,
+                cx, cy, trailX2, trailY2, trailWidth);
+    }
+
+    private static void drawAsteroidBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+        AsteroidModel asteroid = (AsteroidModel) e;
+        Vector2[] vertices = asteroid.getDisplayVertices();
+        if (vertices == null || vertices.length == 0) return;
+
+        int len = vertices.length;
+        double[] xPoints = new double[len];
+        double[] yPoints = new double[len];
+        for (int i = 0; i < len; i++) {
+            Vector2 worldPoint = asteroid.getTransform().getTransformed(vertices[i]);
+            xPoints[i] = UU.mToPx(worldPoint.x);
+            yPoints[i] = UU.mToPx(worldPoint.y);
+        }
+
+        // Asteroid body (filled polygon + stroke)
+        batcher.addFilledPolygon(xPoints, yPoints, ThemeManager.getInstance().getAccentTernary());
+        batcher.addStrokedPolygon(xPoints, yPoints, ThemeManager.getInstance().getAccentPrimary(), 2.0);
+
+        // Cracks (only when health low) – simple lines batched
+        double healthRatio = asteroid.getDurabilityHealthRatio();
+        if (healthRatio < 0.85) {
+            double crackWidth = Math.max(2, (1.0 - healthRatio) * 4.0);
+            int startIndex = getStartIndex(asteroid, vertices);
+            int endIndex = (startIndex + len / 2) % len;
+            double startX = xPoints[startIndex];
+            double startY = yPoints[startIndex];
+            double endX = xPoints[endIndex];
+            double endY = yPoints[endIndex];
+            double jitterMag = (1.0 - healthRatio) * (asteroid.getSize() / 7.0);
+            double staticSeed = asteroid.hashCode();
+            double midX = (startX + endX) / 2.0 + Math.sin(staticSeed) * jitterMag;
+            double midY = (startY + endY) / 2.0 + Math.cos(staticSeed) * jitterMag;
+
+            batcher.addLine(startX, startY, midX, midY, crackWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+            batcher.addLine(midX, midY, endX, endY, crackWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+
+            if (healthRatio < 0.5) {
+                double subWidth = crackWidth * 0.65;
+                int branchIndex1 = (startIndex + len / 4) % len;
+                double bMidX1 = (midX + xPoints[branchIndex1]) / 2.0 + Math.sin(staticSeed + 1) * (jitterMag * 0.4);
+                double bMidY1 = (midY + yPoints[branchIndex1]) / 2.0 + Math.cos(staticSeed + 1) * (jitterMag * 0.4);
+                batcher.addLine(midX, midY, bMidX1, bMidY1, subWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+                batcher.addLine(bMidX1, bMidY1, xPoints[branchIndex1], yPoints[branchIndex1], subWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+
+                int branchIndex2 = (startIndex + (3 * len) / 4) % len;
+                double bMidX2 = (midX + xPoints[branchIndex2]) / 2.0 + Math.sin(staticSeed + 2) * (jitterMag * 0.4);
+                double bMidY2 = (midY + yPoints[branchIndex2]) / 2.0 + Math.cos(staticSeed + 2) * (jitterMag * 0.4);
+                batcher.addLine(midX, midY, bMidX2, bMidY2, subWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+                batcher.addLine(bMidX2, bMidY2, xPoints[branchIndex2], yPoints[branchIndex2], subWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+            }
+        }
+    }
+
+    private static void drawPlayerBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+        PlayerModel player = (PlayerModel) e;
+        // Draw the player sprite (if any)
+        if (player instanceof HasSprite sprite) {
+            drawSpriteEntityBatched(player, sprite, batcher);
+        }
+        // Thrust effect – batched as a group of particles (handled inside batcher)
+        if (player instanceof HasThrust thrustProvider && thrustProvider.thrust().isActive()) {
+            double cx = UU.mToPx(player.getTransform().getTranslationX());
+            double cy = UU.mToPx(player.getTransform().getTranslationY());
+            double angle = Math.toDegrees(player.getTransform().getRotationAngle())
+                    + RenderingSettings.BASE_ROTDEG_OFFSET
+                    + player.getVisualAngularOffsetDeg();
+            batcher.addThrust(cx, cy, angle, thrustProvider.thrust());
+        }
+    }
+
+    private static void drawBlackHoleBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+        BlackHoleModel bh = (BlackHoleModel) e;
+        double cx = UU.mToPx(bh.getTransform().getTranslationX());
+        double cy = UU.mToPx(bh.getTransform().getTranslationY());
+        if (bh.shockwave().isActive()) {
+            batcher.addBlackHoleShockwave(cx, cy, bh.shockwave());
+        }
+    }
+
+    private static void drawDebugCollisionBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+        double cx = UU.mToPx(e.getTransform().getTranslationX());
+        double cy = UU.mToPx(e.getTransform().getTranslationY());
+        double w = e.getWidthPx();
+        double h = e.getHeightPx();
+        double angle = Math.toDegrees(e.getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET);
+
+        if (e.getFixtureCount() > 0 && e.getFixture(0).getShape() instanceof org.dyn4j.geometry.Circle) {
+            double r = w / 2;
+            batcher.addStrokedOval(cx - r, cy - r, w, h, Color.LIME, 1.5, angle);
+        } else {
+            batcher.addStrokedRect(cx - w/2, cy - h/2, w, h, Color.LIME, 1.5, angle);
+        }
+        // Direction line (red)
+        batcher.addLine(cx, cy, cx + w/2, cy, 1.5, Color.RED, 1.0);
+    }
+
+    // ------------------------------------------------------------------
+    // Helper methods for sprite sheet caching (unchanged from original)
+    // ------------------------------------------------------------------
     private static SpriteSheetsAnimator getAnimator(SpriteKey key, HasSprite sprite, SpriteSheetsParser sheet) {
         return ANIMATOR_CACHE.computeIfAbsent(key, k -> {
             double defDur = sprite.getFrameDuration();
             if (sheet != null) {
+                // Use the per-row frame counts array directly
                 return new SpriteSheetsAnimator(defDur, sheet.getFramesPerRow());
             } else {
+                // Fallback: 1 state, 1 frame
                 return new SpriteSheetsAnimator(defDur, 1, 1);
             }
         });
@@ -161,131 +242,18 @@ public final class EntityRenderer {
 
     private static SpriteSheetsParser getSheet(SpriteKey key, HasSprite sprite) {
         return SHEET_CACHE.computeIfAbsent(key, k ->
-                SpritesLibrary.getInstance().getSprite(
-                        k.path(),
-                        k.width(),
-                        k.height()
-                )
+                SpritesLibrary.getInstance().getSprite(k.path(), k.width(), k.height())
         );
-    }
-
-    // ── Custom handlers ───────────────────────────────────────────────
-
-    private static void drawProjectile(AbstractEntityModel e, GraphicsContext gc) {
-        Projectile p = (Projectile) e;
-        double w = e.getWidthPx(), h = e.getHeightPx();
-        double cx = UU.mToPx(e.getTransform().getTranslationX());
-        double cy = UU.mToPx(e.getTransform().getTranslationY());
-
-        gc.save();
-        gc.setEffect(projectileEffect);
-        gc.translate(cx, cy);
-
-        // --- 1. THE TRAIL (Velocity Stretch) ---
-        Vector2 vel = p.getLinearVelocity();
-        double speed = vel.getMagnitude();
-
-        // Only draw a trail if it's actually moving
-        if (speed > 0.1) {
-
-            // Normalize the vector to get pure direction, then multiply by negative length
-            double backX = -vel.x * 1.618;
-            double backY = -vel.y * 1.618;
-
-            gc.save();
-            gc.setStroke(p.getType().color);
-            gc.setGlobalAlpha(0.5); // Make it ghostly/semi-transparent
-            gc.setLineWidth(h * 0.75); // Slightly thinner than the actual bullet height
-            gc.setLineCap(StrokeLineCap.ROUND); // Nice rounded tail
-
-            // Draw line from center (0,0) backward along the velocity vector
-            gc.strokeLine(0, 0, backX, backY);
-            gc.restore();
-        }
-        gc.setFill(p.getType().color);
-        gc.fillOval(-w / 2, -h / 2, w, h);
-        gc.restore();
-    }
-
-    private static void drawAsteroid(AbstractEntityModel e, GraphicsContext gc) {
-        AsteroidModel asteroid = (AsteroidModel) e;
-        Vector2[] vertices = asteroid.getDisplayVertices();
-        if (vertices == null || vertices.length == 0) return;
-
-        int len = vertices.length;
-        // Dynamically grow primitive cache bounds if an asteroid exceeds historical limits
-        if (xBuffer.length < len) {
-            xBuffer = new double[len * 2];
-            yBuffer = new double[len * 2];
-        }
-
-        for (int i = 0; i < len; i++) {
-            Vector2 worldPoint = asteroid.getTransform().getTransformed(vertices[i]);
-            xBuffer[i] = UU.mToPx(worldPoint.x);
-            yBuffer[i] = UU.mToPx(worldPoint.y);
-        }
-
-        // Draw Core Asteroid Body
-        gc.setFill(ThemeManager.getInstance().getAccentTernary());
-        gc.fillPolygon(xBuffer, yBuffer, len);
-        gc.setStroke(ThemeManager.getInstance().getAccentPrimary());
-        gc.setLineWidth(2);
-        gc.strokePolygon(xBuffer, yBuffer, len);
-
-        double healthRatio = asteroid.getDurabilityHealthRatio();
-        if (healthRatio < 0.85) {
-            gc.save();
-            double crackWidth = (1.0 - healthRatio) * 4.0;
-            gc.setLineWidth(Math.max(2, crackWidth));
-
-            int startIndex = getStartIndex(asteroid, vertices);
-            int endIndex = (startIndex + len / 2) % len;
-
-            double startX = xBuffer[startIndex];
-            double startY = yBuffer[startIndex];
-            double endX = xBuffer[endIndex];
-            double endY = yBuffer[endIndex];
-
-            double jitterMag = (1.0 - healthRatio) * (asteroid.getSize() / 7.0);
-            double staticSeed = asteroid.hashCode();
-            double midX = (startX + endX) / 2.0 + Math.sin(staticSeed) * jitterMag;
-            double midY = (startY + endY) / 2.0 + Math.cos(staticSeed) * jitterMag;
-
-            // 1. Draw Primary Division Crack
-            gc.strokeLine(startX, startY, midX, midY);
-            gc.strokeLine(midX, midY, endX, endY);
-
-            // 2. Draw Secondary Transverse Branches
-            if (healthRatio < 0.5) {
-                gc.setLineWidth(Math.max(1.0, crackWidth * 0.65));
-
-                int branchIndex1 = (startIndex + len / 4) % len;
-                double bMidX1 = (midX + xBuffer[branchIndex1]) / 2.0 + Math.sin(staticSeed + 1) * (jitterMag * 0.4);
-                double bMidY1 = (midY + yBuffer[branchIndex1]) / 2.0 + Math.cos(staticSeed + 1) * (jitterMag * 0.4);
-                gc.strokeLine(midX, midY, bMidX1, bMidY1);
-                gc.strokeLine(bMidX1, bMidY1, xBuffer[branchIndex1], yBuffer[branchIndex1]);
-
-                int branchIndex2 = (startIndex + (3 * len) / 4) % len;
-                double bMidX2 = (midX + xBuffer[branchIndex2]) / 2.0 + Math.sin(staticSeed + 2) * (jitterMag * 0.4);
-                double bMidY2 = (midY + yBuffer[branchIndex2]) / 2.0 + Math.cos(staticSeed + 2) * (jitterMag * 0.4);
-                gc.strokeLine(midX, midY, bMidX2, bMidY2);
-                gc.strokeLine(bMidX2, bMidY2, xBuffer[branchIndex2], yBuffer[branchIndex2]);
-            }
-
-            gc.restore();
-        }
     }
 
     private static int getStartIndex(AsteroidModel asteroid, Vector2[] vertices) {
         double localFaultAngle = (asteroid.getSplitAngle() + Math.PI / 2) % (Math.PI * 2);
         if (localFaultAngle < 0) localFaultAngle += Math.PI * 2;
-
         int startIndex = 0;
         double minDiff = Double.MAX_VALUE;
         for (int i = 0; i < vertices.length; i++) {
             double vAngle = Math.atan2(vertices[i].y, vertices[i].x);
             if (vAngle < 0) vAngle += Math.PI * 2;
-
             double diff = Math.abs(vAngle - localFaultAngle);
             diff = Math.min(diff, Math.PI * 2 - diff);
             if (diff < minDiff) {
@@ -294,23 +262,5 @@ public final class EntityRenderer {
             }
         }
         return startIndex;
-    }
-
-    private static void drawPlayer(AbstractEntityModel e, GraphicsContext gc) {
-        PlayerModel player = (PlayerModel) e;
-
-        if (player instanceof HasSprite sprite) {
-            drawSpriteEntity(player, sprite, gc);
-        }
-
-        if (player instanceof HasThrust thrustProvider && thrustProvider.thrust().isActive()) {
-            double cx = UU.mToPx(player.getTransform().getTranslationX());
-            double cy = UU.mToPx(player.getTransform().getTranslationY());
-            gc.save();
-            gc.translate(cx, cy);
-            gc.rotate(Math.toDegrees(player.getTransform().getRotationAngle()) + RenderingSettings.BASE_ROTDEG_OFFSET + player.getVisualAngularOffsetDeg());
-            VFXRenderer.drawThrust(gc, thrustProvider.thrust());
-            gc.restore();
-        }
     }
 }

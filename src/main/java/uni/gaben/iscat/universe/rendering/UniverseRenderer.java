@@ -24,8 +24,11 @@ public class UniverseRenderer {
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
 
-    // Persistent buffered array list layout to stop generating snapshot garbage 60+ times per second
+    // Buffer to avoid per‑frame ArrayList allocation
     private final List<AbstractEntityModel> entitySnapshotBuffer = new ArrayList<>();
+
+    // Batched drawing helper
+    private final BatchedDrawCollector batcher = new BatchedDrawCollector();
 
     public UniverseRenderer(Canvas mainCanvas, GameController gameController, StarfieldRenderer starfieldRenderer) {
         this.mainCanvas       = mainCanvas;
@@ -41,7 +44,7 @@ public class UniverseRenderer {
         double w = mainCanvas.getWidth();
         double h = mainCanvas.getHeight();
 
-        // 1. Clear + background fill
+        // 1. Clear + background
         gc.clearRect(0, 0, w, h);
         gc.setFill(ThemeManager.getInstance().getBgPrimary());
         gc.fillRect(0, 0, w, h);
@@ -51,19 +54,21 @@ public class UniverseRenderer {
 
         CameraModel camera = gameController.getCameraModel();
 
-        // 2. Starfield
+        // 2. Starfield (drawn directly – it’s already a single loop)
         starfieldRenderer.setW(w);
         starfieldRenderer.setH(h);
         starfieldRenderer.setCameraX(camera.getX());
         starfieldRenderer.setCameraY(camera.getY());
         starfieldRenderer.render(universe.getStarfieldModel(), gc);
 
-        // 3. Camera transform + entities
-        gc.save();
-        double zoom = camera.getZoom();
-        gc.translate(w / 2 - camera.getX() * zoom, h / 2 - camera.getY() * zoom);
-        gc.scale(zoom, zoom);
+        // 3. Prepare the batch collector for this frame
+        batcher.begin(gc, camera, w, h);
 
+        // 4. Collect all visible entities into the batch (no drawing yet)
+        entitySnapshotBuffer.clear();
+        entitySnapshotBuffer.addAll(universe.getEntities());
+
+        double zoom = camera.getZoom();
         double halfViewW = (w / 2.0) / zoom;
         double halfViewH = (h / 2.0) / zoom;
         double minX = camera.getX() - halfViewW;
@@ -73,24 +78,19 @@ public class UniverseRenderer {
 
         boolean debug = debugPanelVisible && gameController.isDebugModeOn();
 
-        // REPLACED: new ArrayList<>(...) with clear() & addAll() on a private final buffer list.
-        // This preserves safety against concurrent alterations while completely reusing the underlying array space.
-        entitySnapshotBuffer.clear();
-        entitySnapshotBuffer.addAll(universe.getEntities());
-
         for (AbstractEntityModel entity : entitySnapshotBuffer) {
             if (!entity.isInsideViewport(minX, maxX, minY, maxY)) continue;
-            EntityRenderer.draw(entity, gc);
-            if (debug) VFXRenderer.drawDebugCollision(entity, gc);
+            EntityRenderer.drawBatched(entity, batcher, debug);
         }
 
-        gc.restore();
+        // 5. Flush all batched commands in optimal order
+        batcher.flush();
 
+        // 6. Post‑processing effects that cannot be batched easily
         drawHurt(camera, gc);
-
         drawTimer(timerCanvas, starryTimer);
 
-        // 5. FPS overlay
+        // 7. FPS overlay (single draw call)
         if (gameController.isFpsOn()) drawFps(gc, w);
     }
 
@@ -105,11 +105,8 @@ public class UniverseRenderer {
     private void drawHurt(CameraModel camera, GraphicsContext gc) {
         if (camera.getHurtFlashIntensity() > 0.01) {
             gc.save();
-            // Peak opacity is scaled to a maximum of 40% so the player isn't blinded during heavy combat
             gc.setGlobalAlpha(camera.getHurtFlashIntensity() * 0.40);
             gc.setFill(javafx.scene.paint.Color.RED);
-
-            // Draw full screen rectangle across live canvas geometry bounds
             gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
             gc.restore();
         }
@@ -132,5 +129,4 @@ public class UniverseRenderer {
         gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
         gc.fillText(String.format("FPS: %.0f", avg), canvasWidth - 80, 50);
     }
-
 }
