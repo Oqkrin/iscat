@@ -1,7 +1,6 @@
 package uni.gaben.iscat.utils;
 
 import uni.gaben.iscat.universe.entity.EntityModel;
-
 import java.util.List;
 import java.util.Random;
 

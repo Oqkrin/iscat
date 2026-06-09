@@ -10,7 +10,6 @@ import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
 import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
