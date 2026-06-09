@@ -1,6 +1,6 @@
 package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
@@ -25,7 +25,7 @@ public class MultiDirectionPatternShooter implements PatternShooter {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileProjectileModel> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileModel> customizer) {
         if (directions <= 0 || inner == null) return;
 
         double angleStep = (2.0 * Math.PI) / directions;

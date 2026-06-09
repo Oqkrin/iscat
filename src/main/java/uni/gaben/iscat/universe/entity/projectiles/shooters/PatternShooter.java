@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import uni.gaben.iscat.universe.entity.EntitySettings;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
@@ -11,7 +11,7 @@ public interface PatternShooter {
     /**
      * Esegue l'attacco custom.
      */
-    void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileProjectileModel> customizer);
+    void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileModel> customizer);
 
     static PatternShooter createPatternShooter(EntitySettings.PatternSettings pc) {
         if (pc == null) return new SingleShotPatternShooter();

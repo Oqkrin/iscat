@@ -8,7 +8,6 @@ import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.EnemyAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
@@ -54,8 +53,8 @@ public class Shooter<T extends CollisionBody> {
     }
 
     /** Spara nell'angolo specificato, applicando un customizer al proiettile. */
-    public void shoot(ProjectileType type, double angle, Consumer<ProjectileProjectileModel> customizer) {
-        ProjectileProjectileModel bullet = ProjectilePool.acquire(type);
+    public void shoot(ProjectileType type, double angle, Consumer<ProjectileModel> customizer) {
+        ProjectileModel bullet = ProjectilePool.acquire(type);
         bullet.getTransform().setTranslation(model.getTransform().getTranslation().copy());
         bullet.getTransform().setRotation(angle);
         bullet.translate(Vector2.create(distance, angle));
@@ -70,8 +69,8 @@ public class Shooter<T extends CollisionBody> {
     }
 
     /** Spara da una posizione arbitraria nell'angolo specificato, con customizer. */
-    public void shoot(ProjectileType type, Vector2 position, double angle, Consumer<ProjectileProjectileModel> customizer) {
-        ProjectileProjectileModel bullet = ProjectilePool.acquire(type);
+    public void shoot(ProjectileType type, Vector2 position, double angle, Consumer<ProjectileModel> customizer) {
+        ProjectileModel bullet = ProjectilePool.acquire(type);
         bullet.getTransform().setTranslation(position.copy());
         bullet.getTransform().setRotation(angle);
         bullet.setLinearVelocity(Vector2.create(bullet.getTerminalVelocity(), angle));

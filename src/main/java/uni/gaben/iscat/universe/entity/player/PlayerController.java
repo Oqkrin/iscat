@@ -5,7 +5,7 @@ import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
@@ -147,7 +147,7 @@ public class PlayerController {
         if (input.shooting && player.isSparoDisponibile()) {
             double angle = player.getTransform().getRotationAngle();
 
-            Consumer<ProjectileProjectileModel> customizer = bullet -> {
+            Consumer<ProjectileModel> customizer = bullet -> {
                 double boostedLife = bullet.getLife() + player.getLevel();
                 bullet.setMaxLifeDirect(boostedLife);
             };

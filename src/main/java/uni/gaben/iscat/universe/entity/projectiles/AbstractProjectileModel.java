@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 
 /**
  * Base class for all projectile entities.
- * Concrete subclasses (e.g. {@link ProjectileProjectileModel}) are responsible for adding their own
+ * Concrete subclasses (e.g. {@link ProjectileModel}) are responsible for adding their own
  * fixture via {@code setType()} — no default fixture is added here to avoid double-allocation.
  */
 public abstract class AbstractProjectileModel extends AbstractLivingModel {

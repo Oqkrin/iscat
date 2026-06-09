@@ -1,6 +1,6 @@
 package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
@@ -20,7 +20,7 @@ public class SpreadPatternShooter implements PatternShooter {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileProjectileModel> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileModel> customizer) {
         if (count <= 0) return;
         if (count == 1) {
             shooter.shoot(type, angle, customizer);

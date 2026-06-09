@@ -8,7 +8,7 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 /**
@@ -110,7 +110,7 @@ public abstract class AbstractLivingModel extends AbstractEntityModel implements
                 onDeath.run();
             }
 
-            boolean isProjectile = this instanceof ProjectileProjectileModel;
+            boolean isProjectile = this instanceof ProjectileModel;
             boolean isPlayer = this instanceof PlayerModel;
             boolean isHeart = this instanceof HeartModel;
 

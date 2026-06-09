@@ -4,13 +4,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProjectilePool {
-    private static final ConcurrentLinkedQueue<ProjectileProjectileModel> pool = new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<ProjectileModel> pool = new ConcurrentLinkedQueue<>();
     private static final AtomicInteger poolSize = new AtomicInteger(0);
 
-    public static ProjectileProjectileModel acquire(ProjectileType type) {
-        ProjectileProjectileModel p = pool.poll();
+    public static ProjectileModel acquire(ProjectileType type) {
+        ProjectileModel p = pool.poll();
         if (p == null) {
-            p = new ProjectileProjectileModel(type);
+            p = new ProjectileModel(type);
         } else {
             poolSize.decrementAndGet();
             p.setInPool(false);
@@ -30,7 +30,7 @@ public class ProjectilePool {
         return p;
     }
 
-    public static void release(ProjectileProjectileModel p) {
+    public static void release(ProjectileModel p) {
         if (!p.isInPool() && poolSize.get() < 5000) {
             p.setInPool(true);
             pool.offer(p);

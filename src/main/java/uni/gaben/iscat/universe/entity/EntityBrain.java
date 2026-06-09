@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.HealAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.*;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
 
@@ -20,13 +20,13 @@ public class EntityBrain extends Brain<EntityModel> {
 
         EntitySettings settings = entity.getSettings();
 
-        Target neighbour = Target.neighboursCached(entity, settings.detectionRange/2, body -> !(body instanceof PlayerModel || (body instanceof ProjectileProjectileModel p && p.getType() == ProjectileType.ENEMY_BULLET)));
+        Target neighbour = Target.neighboursCached(entity, settings.detectionRange/2, body -> !(body instanceof PlayerModel || (body instanceof ProjectileModel p && p.getType() == ProjectileType.ENEMY_BULLET)));
 
         addModifier(SteeringModifier.collisionAvoidance(neighbour, 10, settings.detectionRange/5, new SimpleDoubleProperty(10)));
 
-        addModifier(SteeringModifier.alignment(neighbour.filtered(entityModel -> !(entityModel instanceof ProjectileProjectileModel)), new SimpleDoubleProperty(1)));
-        addModifier(SteeringModifier.cohesion(neighbour.filtered(entityModel -> !(entityModel instanceof ProjectileProjectileModel)), new SimpleDoubleProperty(1)));
-        addModifier(SteeringModifier.separation(neighbour.filtered(entityModel -> !(entityModel instanceof ProjectileProjectileModel)), settings.detectionRange/4, new SimpleDoubleProperty(3)));
+        addModifier(SteeringModifier.alignment(neighbour.filtered(entityModel -> !(entityModel instanceof ProjectileModel)), new SimpleDoubleProperty(1)));
+        addModifier(SteeringModifier.cohesion(neighbour.filtered(entityModel -> !(entityModel instanceof ProjectileModel)), new SimpleDoubleProperty(1)));
+        addModifier(SteeringModifier.separation(neighbour.filtered(entityModel -> !(entityModel instanceof ProjectileModel)), settings.detectionRange/4, new SimpleDoubleProperty(3)));
 
         loadBehaviorsFromSettings(settings);
     }

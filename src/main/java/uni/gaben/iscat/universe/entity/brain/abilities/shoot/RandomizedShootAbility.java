@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.RepeaterPatternShooter;
 import uni.gaben.iscat.universe.entity.brain.*;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 
 import java.util.*;
@@ -22,7 +22,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
 
     private final List<PatternShooter> attackPool;
     private final Random rand = new Random();
-    private Consumer<ProjectileProjectileModel> customizer;
+    private Consumer<ProjectileModel> customizer;
 
     // Burst state — only active when a RepeaterPatternShooter was selected
     private int burstLeft = 0;
@@ -90,7 +90,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
         return burstLeft > 0; // keep alive while bursts remain
     }
 
-    public void setCustomizer(Consumer<ProjectileProjectileModel> customizer) {
+    public void setCustomizer(Consumer<ProjectileModel> customizer) {
         this.customizer = customizer;
     }
 }

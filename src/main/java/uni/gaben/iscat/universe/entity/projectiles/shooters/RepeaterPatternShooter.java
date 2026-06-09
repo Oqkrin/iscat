@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.RandomizedShootAbility;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
@@ -25,7 +25,7 @@ public record RepeaterPatternShooter(int times, double intervalSeconds,
      * driven externally (e.g. by {@link RandomizedShootAbility}).
      */
     @Override
-    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileProjectileModel> customizer) {
+    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileModel> customizer) {
         if (inner == null || times <= 0) return;
         inner.execute(shooter, type, angle, customizer);
     }
