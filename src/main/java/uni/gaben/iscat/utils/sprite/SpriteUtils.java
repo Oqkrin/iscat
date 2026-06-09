@@ -1,8 +1,5 @@
 package uni.gaben.iscat.utils.sprite;
 
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.Bloom;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
@@ -14,20 +11,12 @@ import java.util.Map;
 
 public final class SpriteUtils {
     private static final Map<Image, Map<Color, WritableImage>> tintCache = new HashMap<>();
-    private static final Map<Image, Map<Double, WritableImage>> bloomCache = new HashMap<>();
 
     public static Image tinted(Image source, Color tint) {
         if (tint.equals(Color.WHITE)) return source;
         return tintCache
                 .computeIfAbsent(source, k -> new HashMap<>())
                 .computeIfAbsent(tint, c -> buildTinted(source, c));
-    }
-
-    public static Image bloomed(Image source, double intensity) {
-        if (intensity <= 0.01) return source;
-        return bloomCache
-                .computeIfAbsent(source, k -> new HashMap<>())
-                .computeIfAbsent(intensity, i -> applyBloom(source, i));
     }
 
     private static WritableImage buildTinted(Image source, Color tint) {
@@ -47,19 +36,7 @@ public final class SpriteUtils {
         return out;
     }
 
-    private static WritableImage applyBloom(Image source, double intensity) {
-        int w = (int) source.getWidth();
-        int h = (int) source.getHeight();
-        Canvas canvas = new Canvas(w, h);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setEffect(new Bloom(intensity));
-        gc.drawImage(source, 0, 0, w, h);
-        gc.setEffect(null);
-        return canvas.snapshot(null, new WritableImage(w, h));
-    }
-
     public static void clearCaches() {
         tintCache.clear();
-        bloomCache.clear();
     }
 }

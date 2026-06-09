@@ -84,12 +84,7 @@ public final class EntityRenderer {
                         ? ThemeManager.getInstance().getAccentPrimary()
                         : ThemeManager.getInstance().getAccentSecondary();
 
-                // Apply tint, then bloom (both cached)
-                Image tinted = SpriteUtils.tinted(frame, tint);
-                Image glowing = SpriteUtils.bloomed(tinted, 0.3);   // intensity = 0.3
-
-                // Pass tint = null because it's already baked into the image
-                batcher.addSprite(glowing, cx, cy, w, h, finalAngle, null);
+                batcher.addSprite(SpriteUtils.tinted(frame, tint), cx, cy, w, h, finalAngle, null);
             }
         }
 

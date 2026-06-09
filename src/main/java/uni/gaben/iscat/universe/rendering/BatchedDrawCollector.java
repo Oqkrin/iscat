@@ -80,7 +80,9 @@ public class BatchedDrawCollector {
         // Sprites
         sprites.sort(Comparator.comparingInt(a -> a.image().hashCode()));
         for (SpriteBatch s : sprites) {
+            gc.setEffect(spriteBloom);
             drawTransformedImage(s.image, s.x, s.y, s.w, s.h, s.angle, s.tint);
+            gc.setEffect(null);
         }
 
         // Polygons
