@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/leaderboard-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.LeaderBoardMenuController">
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/leaderboard-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.LeaderBoardMenuController">
     <VBox fx:id="rootPane" alignment="CENTER">
         <children>
             <Region minHeight="56.0" prefHeight="56.0" />
@@ -26,16 +26,16 @@
 
                 <Region VBox.vgrow="ALWAYS" />
 
-                <GridPane hgap="20">
+                <GridPane hgap="16.0">
                     <columnConstraints>
-                        <ColumnConstraints minWidth="60.0" />
-                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints />
+                        <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
                         <ColumnConstraints halignment="RIGHT" />
                     </columnConstraints>
                     <children>
-                        <Label styleClass="score-stat" text="POS" GridPane.columnIndex="0" />
-                        <Label styleClass="score-stat" text="GIOCATORE" GridPane.columnIndex="1" />
-                        <Label styleClass="score-stat" text="PUNTEGGIO" GridPane.columnIndex="2" />
+                        <Label graphicTextGap="0.0" styleClass="score-stat" text="POS" GridPane.columnIndex="0" />
+                        <Label graphicTextGap="0.0" styleClass="score-stat" text="GIOCATORE" GridPane.columnIndex="1" />
+                        <Label graphicTextGap="0.0" styleClass="score-stat" text="PUNTEGGIO" GridPane.columnIndex="2" />
                     </children>
                     <rowConstraints>
                         <RowConstraints />

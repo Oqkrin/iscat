@@ -1,5 +1,4 @@
 .leaderboard-row {
-    -fx-padding: 6 0 6 0;
     -fx-border-color: transparent transparent -accent-primary transparent;
     -fx-border-width: 0 0 0.5 0;
     -fx-opacity: 0.9;

@@ -3,10 +3,12 @@ package uni.gaben.iscat.controller;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.model.IscatViews;
@@ -35,7 +37,6 @@ public class LeaderBoardMenuController implements IscatMenuController {
 
         ComponentsUtils.applyIconButton(exitBtn, "fas-sign-out-alt");
 
-        /*
         // Ricarica la classifica quando il menu diventa visibile
         rootPane.visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
             if (isNowVisible) {
@@ -49,7 +50,7 @@ public class LeaderBoardMenuController implements IscatMenuController {
                 loadLeaderboard();
             }
         });
-        */
+
         loadLeaderboard();
     }
 
@@ -107,15 +108,17 @@ public class LeaderBoardMenuController implements IscatMenuController {
     private GridPane buildRow(int rank, ScoreDAO.UserScoreEntry entry) {
         GridPane row = new GridPane();
         row.getStyleClass().add("leaderboard-row");
+        row.setHgap(IscatSettings.BORDER_RADIUS);
 
         // Configurazione colonne
-        ColumnConstraints rankCol = new javafx.scene.layout.ColumnConstraints();
+        ColumnConstraints rankCol = new ColumnConstraints();
 
-        javafx.scene.layout.ColumnConstraints nameCol = new javafx.scene.layout.ColumnConstraints();
+        ColumnConstraints nameCol = new ColumnConstraints();
 
-        javafx.scene.layout.ColumnConstraints scoreCol = new javafx.scene.layout.ColumnConstraints();
-        scoreCol.setHalignment(javafx.geometry.HPos.RIGHT);
+        ColumnConstraints scoreCol = new ColumnConstraints();
+        scoreCol.setHalignment(HPos.RIGHT);
 
+        nameCol.setHgrow(Priority.ALWAYS);
         row.getColumnConstraints().addAll(rankCol, nameCol, scoreCol);
 
         // Etichette della riga
@@ -124,6 +127,7 @@ public class LeaderBoardMenuController implements IscatMenuController {
 
         Label nameLabel = new Label(entry.username());
         nameLabel.getStyleClass().add("score-stat");
+
 
         Label scoreLabel = new Label(String.format("%,d", entry.score()));
         scoreLabel.getStyleClass().add("score-stat");
