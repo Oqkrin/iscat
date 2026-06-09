@@ -1,18 +1,18 @@
-package uni.gaben.iscat.universe.entity.brain.actions.shoot;
+package uni.gaben.iscat.universe.entity.brain.abilities.shoot;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.*;
-import uni.gaben.iscat.universe.entity.brain.actions.Action;
-import uni.gaben.iscat.universe.entity.brain.actions.ActionCategory;
+import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
+import uni.gaben.iscat.universe.entity.brain.abilities.ActionCategory;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Set;
 
-public abstract class AbstractShootAction extends Action {
+public abstract class AbstractShootAbility extends Ability {
     protected final Cooldown cooldown;
     protected final double combatRange;
     protected final ProjectileType bulletType;
@@ -22,8 +22,8 @@ public abstract class AbstractShootAction extends Action {
 
     private double nerfPrediction;
 
-    protected AbstractShootAction(String name, double combatRange, double cooldownSec,
-                                  ProjectileType bulletType, Target target, boolean aimAtTarget, double nerfPrediction) {
+    protected AbstractShootAbility(String name, double combatRange, double cooldownSec,
+                                   ProjectileType bulletType, Target target, boolean aimAtTarget, double nerfPrediction) {
         super(name, ActionCategory.ATTACK, Set.of());
         this.combatRange = combatRange;
         this.cooldown = new Cooldown(cooldownSec);

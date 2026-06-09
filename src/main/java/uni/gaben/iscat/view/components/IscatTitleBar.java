@@ -12,7 +12,7 @@ import uni.gaben.iscat.utils.SessionManager;
 
 public class IscatTitleBar extends StackPane {
 
-    // Action elements
+    // Ability elements
     public final Button closeBtn      = titleBarButton("✕",  "title-bar-btn-close",      "Close");
     public final Button maximizeBtn   = titleBarButton("⬜",  "title-bar-btn-maximize",   "Maximize");
     public final Button fullscreenBtn = titleBarButton("⛶",  "title-bar-btn-fullscreen", "Fullscreen");

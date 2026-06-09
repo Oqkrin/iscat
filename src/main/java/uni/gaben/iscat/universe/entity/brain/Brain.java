@@ -6,8 +6,8 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.brain.actions.Action;
-import uni.gaben.iscat.universe.entity.brain.actions.ActionCategory;
+import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
+import uni.gaben.iscat.universe.entity.brain.abilities.ActionCategory;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
@@ -39,10 +39,10 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // Weight property for the primary SteeringGoal
     public final DoubleProperty goalWeight = new SimpleDoubleProperty(1.0);
 
-    // Action Registries & State Management
-    private final Map<String, Action> actionsMap = new HashMap<>();
-    private final Map<ActionCategory, List<Action>> actionsByCategory = new EnumMap<>(ActionCategory.class);
-    private final Map<ActionCategory, Action> activeActions = new EnumMap<>(ActionCategory.class);
+    // Ability Registries & State Management
+    private final Map<String, Ability> actionsMap = new HashMap<>();
+    private final Map<ActionCategory, List<Ability>> actionsByCategory = new EnumMap<>(ActionCategory.class);
+    private final Map<ActionCategory, Ability> activeActions = new EnumMap<>(ActionCategory.class);
     private final Set<ActionCategory> blockedCategories = new HashSet<>();
     private final List<ActionCategory> finishedCategoriesList = new ArrayList<>(CATEGORIES.length);
 
@@ -87,19 +87,19 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
         // 1. Refresh blocked categories based on what's active (No Iterator allocation)
         for (int i = 0; i < CATEGORIES.length; i++) {
-            Action action = activeActions.get(CATEGORIES[i]);
-            if (action != null) {
-                blockedCategories.add(action.getCategory());
-                blockedCategories.addAll(action.getBlockedCategories());
+            Ability ability = activeActions.get(CATEGORIES[i]);
+            if (ability != null) {
+                blockedCategories.add(ability.getCategory());
+                blockedCategories.addAll(ability.getBlockedCategories());
             }
         }
 
         // 2. Tick current active actions, gather completed categories
         for (int i = 0; i < CATEGORIES.length; i++) {
             ActionCategory cat = CATEGORIES[i];
-            Action action = activeActions.get(cat);
-            if (action != null) {
-                if (!action.update(this, universe, dt)) {
+            Ability ability = activeActions.get(cat);
+            if (ability != null) {
+                if (!ability.update(this, universe, dt)) {
                     finishedCategoriesList.add(cat);
                 }
             }
@@ -116,15 +116,15 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
             if (blockedCategories.contains(cat) || activeActions.containsKey(cat)) {
                 continue;
             }
-            List<Action> catActions = actionsByCategory.get(cat);
-            if (catActions == null || catActions.isEmpty()) {
+            List<Ability> catAbilities = actionsByCategory.get(cat);
+            if (catAbilities == null || catAbilities.isEmpty()) {
                 continue;
             }
-            for (int j = 0; j < catActions.size(); j++) {
-                Action action = catActions.get(j);
-                if (action.canActivate(entity, universe, dt)) {
-                    activeActions.put(cat, action);
-                    action.onActivate(this, universe);
+            for (int j = 0; j < catAbilities.size(); j++) {
+                Ability ability = catAbilities.get(j);
+                if (ability.canActivate(entity, universe, dt)) {
+                    activeActions.put(cat, ability);
+                    ability.onActivate(this, universe);
                     break;
                 }
             }
@@ -198,52 +198,52 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // ACTION API
     // ========================================================================
 
-    public void addAction(String id, Action action) {
+    public void addAction(String id, Ability ability) {
         if (actionsMap.containsKey(id)) {
-            throw new IllegalArgumentException("Action with id '" + id + "' already exists");
+            throw new IllegalArgumentException("Ability with id '" + id + "' already exists");
         }
-        actionsMap.put(id, action);
-        actionsByCategory.computeIfAbsent(action.getCategory(), k -> new ArrayList<>()).add(action);
+        actionsMap.put(id, ability);
+        actionsByCategory.computeIfAbsent(ability.getCategory(), k -> new ArrayList<>()).add(ability);
     }
 
-    public String addAction(Action action) {
+    public String addAction(Ability ability) {
         String id = UUID.randomUUID().toString();
-        addAction(id, action);
+        addAction(id, ability);
         return id;
     }
 
     public boolean removeAction(String id) {
-        Action action = actionsMap.remove(id);
-        if (action == null) return false;
+        Ability ability = actionsMap.remove(id);
+        if (ability == null) return false;
 
-        List<Action> catList = actionsByCategory.get(action.getCategory());
+        List<Ability> catList = actionsByCategory.get(ability.getCategory());
         if (catList != null) {
-            catList.remove(action);
-            if (catList.isEmpty()) actionsByCategory.remove(action.getCategory());
+            catList.remove(ability);
+            if (catList.isEmpty()) actionsByCategory.remove(ability.getCategory());
         }
-        if (activeActions.get(action.getCategory()) == action) {
-            activeActions.remove(action.getCategory());
+        if (activeActions.get(ability.getCategory()) == ability) {
+            activeActions.remove(ability.getCategory());
         }
         return true;
     }
 
-    public boolean replaceAction(String id, Action newAction) {
-        Action oldAction = actionsMap.get(id);
-        if (oldAction == null) return false;
+    public boolean replaceAction(String id, Ability newAbility) {
+        Ability oldAbility = actionsMap.get(id);
+        if (oldAbility == null) return false;
 
-        List<Action> catList = actionsByCategory.get(oldAction.getCategory());
+        List<Ability> catList = actionsByCategory.get(oldAbility.getCategory());
         if (catList != null) {
-            int idx = catList.indexOf(oldAction);
-            if (idx != -1) catList.set(idx, newAction);
+            int idx = catList.indexOf(oldAbility);
+            if (idx != -1) catList.set(idx, newAbility);
         }
-        if (activeActions.get(oldAction.getCategory()) == oldAction) {
-            activeActions.put(oldAction.getCategory(), newAction);
+        if (activeActions.get(oldAbility.getCategory()) == oldAbility) {
+            activeActions.put(oldAbility.getCategory(), newAbility);
         }
-        actionsMap.put(id, newAction);
+        actionsMap.put(id, newAbility);
         return true;
     }
 
-    public Action getAction(String id) { return actionsMap.get(id); }
+    public Ability getAction(String id) { return actionsMap.get(id); }
 
     // ========================================================================
     // MODIFIER API

@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain.actions;
+package uni.gaben.iscat.universe.entity.brain.abilities;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
@@ -10,10 +10,10 @@ import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import java.util.Collections;
 
 
-public class GravityPullAction extends Action {
+public class GravityPullAbility extends Ability {
     private final Target inRange;
     
-    public GravityPullAction(Target target) {
+    public GravityPullAbility(Target target) {
         super("GravityPull", ActionCategory.SPECIAL, Collections.emptySet());
         this.inRange = target;
     }

@@ -1,17 +1,17 @@
-package uni.gaben.iscat.universe.entity.brain.actions;
+package uni.gaben.iscat.universe.entity.brain.abilities;
 
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import java.util.Set;
 
-public abstract class Action {
+public abstract class Ability {
     protected final String name;
     protected final ActionCategory category;
     /** Which categories this action blocks while it's running (besides its own). */
     protected final Set<ActionCategory> blockedCategories;
 
-    public Action(String name, ActionCategory category, Set<ActionCategory> blockedCategories) {
+    public Ability(String name, ActionCategory category, Set<ActionCategory> blockedCategories) {
         this.name = name;
         this.category = category;
         this.blockedCategories = blockedCategories;

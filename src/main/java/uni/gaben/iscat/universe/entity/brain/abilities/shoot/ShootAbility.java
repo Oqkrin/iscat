@@ -1,18 +1,16 @@
-package uni.gaben.iscat.universe.entity.brain.actions.shoot;
+package uni.gaben.iscat.universe.entity.brain.abilities.shoot;
 
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 
-import java.util.Collections;
-
-public class ShootAction extends AbstractShootAction {
+public class ShootAbility extends AbstractShootAbility {
     private final PatternShooter pattern;
 
-    public ShootAction(double combatRange, double cooldownSec,
-                       ProjectileType bulletType, PatternShooter pattern,
-                       Target target, boolean aimAtTarget, double nerfPrediction) {
+    public ShootAbility(double combatRange, double cooldownSec,
+                        ProjectileType bulletType, PatternShooter pattern,
+                        Target target, boolean aimAtTarget, double nerfPrediction) {
         super("shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
         this.pattern = pattern;
     }

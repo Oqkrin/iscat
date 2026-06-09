@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain.actions;
+package uni.gaben.iscat.universe.entity.brain.abilities;
 
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
@@ -11,13 +11,13 @@ import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Collections;
 
-public class HealAction extends Action {
+public class HealAbility extends Ability {
     private final Cooldown healCooldown;
     private final Cooldown visualHealCooldown;
     private final double range;
     private final double amount;
     
-    public HealAction(double cooldownSec, double range, double amount) {
+    public HealAbility(double cooldownSec, double range, double amount) {
         super("HealAllies", ActionCategory.ATTACK, Collections.emptySet());
         this.healCooldown = new Cooldown(cooldownSec);
         this.visualHealCooldown = new Cooldown(cooldownSec != 0 ? cooldownSec : 3);

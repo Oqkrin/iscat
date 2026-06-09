@@ -105,7 +105,6 @@ public class GenericEntityFactory {
     private static GenericEntitySettings parseEnemySettings(JSONObject json) {
         GenericEntitySettings s = new GenericEntitySettings();
 
-        System.out.println(json.toString());
         s.entityKey = json.optString("EntityKey", "");
         s.name = json.optString("Name", "");
         s.description = json.optString("Description", "");

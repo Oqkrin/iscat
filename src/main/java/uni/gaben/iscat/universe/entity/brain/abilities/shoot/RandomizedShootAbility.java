@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain.actions.shoot;
+package uni.gaben.iscat.universe.entity.brain.abilities.shoot;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  * and subsequent bursts are driven by this action's own update loop at the repeater's interval,
  * keeping all physics interactions on the game thread.
  */
-public class RandomizedShootAction extends AbstractShootAction {
+public class RandomizedShootAbility extends AbstractShootAbility {
 
     private final List<PatternShooter> attackPool;
     private final Random rand = new Random();
@@ -31,19 +31,19 @@ public class RandomizedShootAction extends AbstractShootAction {
     private double burstTimer = 0.0;
 
 
-    public RandomizedShootAction(double combatRange, double cooldownSec,
-                                 ProjectileType bulletType,
-                                 Target target, boolean aimAtTarget, double nerfPrediction,
-                                 PatternShooter... attacks) {
+    public RandomizedShootAbility(double combatRange, double cooldownSec,
+                                  ProjectileType bulletType,
+                                  Target target, boolean aimAtTarget, double nerfPrediction,
+                                  PatternShooter... attacks) {
         super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
         this.attackPool = List.of(attacks);
     }
 
-    public static RandomizedShootAction targetingPlayer(double combatRange, double cooldownSec,
-                                                        ProjectileType bulletType, boolean aimAtTarget,
-                                                        double nerfPrediction,
-                                                        PatternShooter... attacks) {
-        return new RandomizedShootAction(combatRange, cooldownSec, bulletType,
+    public static RandomizedShootAbility targetingPlayer(double combatRange, double cooldownSec,
+                                                         ProjectileType bulletType, boolean aimAtTarget,
+                                                         double nerfPrediction,
+                                                         PatternShooter... attacks) {
+        return new RandomizedShootAbility(combatRange, cooldownSec, bulletType,
                 universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget, nerfPrediction, attacks);
     }
 

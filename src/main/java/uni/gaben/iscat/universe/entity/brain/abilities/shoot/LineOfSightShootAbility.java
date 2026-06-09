@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain.actions.shoot;
+package uni.gaben.iscat.universe.entity.brain.abilities.shoot;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
@@ -12,16 +12,16 @@ import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 
-public class LineOfSightShootAction extends ShootAction {
+public class LineOfSightShootAbility extends ShootAbility {
     private final double maxAngle;
     private final Ray ray = new Ray(new Vector2(), Vector2.create(1, Math.PI));
     private final Vector2 forward = new Vector2();
     private final DetectFilter<Body, BodyFixture> losFilter;
 
-    public LineOfSightShootAction(double combatRange, double cooldownSec,
-                                  ProjectileType bulletType, PatternShooter pattern,
-                                  Target target, boolean aimAtTarget, double maxAngle,
-                                  AbstractEntityModel self) {
+    public LineOfSightShootAbility(double combatRange, double cooldownSec,
+                                   ProjectileType bulletType, PatternShooter pattern,
+                                   Target target, boolean aimAtTarget, double maxAngle,
+                                   AbstractEntityModel self) {
         super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget, 0);
         this.maxAngle = maxAngle;
         this.losFilter = new DetectFilter<>(true, true, null) {

@@ -2,10 +2,8 @@ package uni.gaben.iscat.universe.entity;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.universe.entity.brain.*;
-import uni.gaben.iscat.universe.entity.brain.actions.HealAction;
-import uni.gaben.iscat.universe.entity.brain.actions.shoot.AbstractShootAction;
-import uni.gaben.iscat.universe.entity.brain.actions.shoot.RandomizedShootAction;
-import uni.gaben.iscat.universe.entity.brain.actions.shoot.ShootAction;
+import uni.gaben.iscat.universe.entity.brain.abilities.HealAbility;
+import uni.gaben.iscat.universe.entity.brain.abilities.shoot.*;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
@@ -38,7 +36,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "iscat_mob":
                 setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 2.5, settings.combatRange, settings.combatRange));
                 setRotationGoal(RotationGoal.target(Target.ofPlayer()));
-                addAction(new ShootAction(
+                addAction(new ShootAbility(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
@@ -52,7 +50,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
             case "iscat_bomber":
                 setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 5, settings.combatRange, settings.combatRange));
                 setRotationGoal(RotationGoal.target(Target.ofPlayer()));
-                addAction(new ShootAction(
+                addAction(new ShootAbility(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.STUN_BULLET,
@@ -65,7 +63,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
             case "iscat_core":
                 setRotationGoal(RotationGoal.intervalSpin(8, settings.actionCooldownMS/100, settings.maxAngularVelocity ));
-                addAction( "shoot" ,new ShootAction(
+                addAction( "shoot" ,new ShootAbility(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
@@ -75,14 +73,14 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                         0
                 ));
                 entity.lifeProperty().addListener((_, _, newValue) -> {
-                    AbstractShootAction s = (AbstractShootAction) getAction("shoot");
+                    AbstractShootAbility s = (AbstractShootAbility) getAction("shoot");
                     s.setCooldown((settings.actionCooldownMS/1000) * (newValue.doubleValue()/entity.getMaxLife()));
                 });
                 break;
 
             case "iscat_mother":
                 setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 3, settings.combatRange, settings.combatRange));
-                addAction(RandomizedShootAction.targetingPlayer(
+                addAction(RandomizedShootAbility.targetingPlayer(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
@@ -98,7 +96,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
             case "fake_iscat":
                 setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 2, settings.combatRange, settings.combatRange));
-                addAction(RandomizedShootAction.targetingPlayer(
+                addAction(RandomizedShootAbility.targetingPlayer(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
@@ -113,7 +111,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
             case "fallen_star_golem":
                 setRotationGoal(RotationGoal.continuesSpin(.1));
-                addAction(new ShootAction(
+                addAction(new ShootAbility(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
@@ -131,7 +129,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_worm_tail":
-                addAction(RandomizedShootAction.targetingPlayer(
+                addAction(RandomizedShootAbility.targetingPlayer(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
@@ -144,7 +142,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
                 break;
 
             case "iscat_master":
-                addAction(RandomizedShootAction.targetingPlayer(
+                addAction(RandomizedShootAbility.targetingPlayer(
                         settings.detectionRange,
                         settings.actionCooldownMS/1000,
                         ProjectileType.ENEMY_BULLET,
@@ -164,7 +162,7 @@ public class GenericEntityBrain extends Brain<GenericEntityModel> {
 
             case "iscat_healer":
                 setSteeringGoal(SteeringGoal.evadeWithRange(Target.ofPlayer(), 3, settings.combatRange));
-                addAction(new HealAction(settings.actionCooldownMS, settings.combatRange/2, settings.initLife/200));
+                addAction(new HealAbility(settings.actionCooldownMS, settings.combatRange/2, settings.initLife/200));
                 break;
 
             default:
