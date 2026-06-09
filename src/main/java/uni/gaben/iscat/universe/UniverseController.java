@@ -102,9 +102,11 @@ public class UniverseController {
     }
 
     private void updateAI(double dt) {
-        for (IEntityController ctrl : entityControllers) {
-            if(ctrl instanceof Brain  b && b.getEntity().shouldRemove() ) continue;
-            ctrl.update(universeModel, dt); }
+        List<IEntityController> copy = new ArrayList<>(entityControllers);
+        for (IEntityController ctrl : copy) {
+            if (ctrl instanceof Brain<?> b && b.getEntity().shouldRemove()) continue;
+            ctrl.update(universeModel, dt);
+        }
     }
 
     /** Clamps every body's speed to its declared terminal velocity. */

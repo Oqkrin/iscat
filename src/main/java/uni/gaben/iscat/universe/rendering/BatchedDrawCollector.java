@@ -68,6 +68,7 @@ public class BatchedDrawCollector {
         hpBars.clear();
         thrusts.clear();
         shockwaves.clear();
+        projectiles.clear();
     }
 
     public void flush() {
