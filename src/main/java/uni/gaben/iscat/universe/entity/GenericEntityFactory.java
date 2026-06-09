@@ -1,30 +1,31 @@
 package uni.gaben.iscat.universe.entity;
 
-import uni.gaben.iscat.database.IscatDB;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import uni.gaben.iscat.universe.UniverseController;
+import uni.gaben.iscat.universe.UniverseModel;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-/**
- * Fabbrica polimorfica per la generazione dinamica di entità guidate da database.
- * Implementa il pattern Factory accoppiato a una cache Flyweight ({@link ConcurrentHashMap})
- * per minimizzare la latenza di I/O del database SQLite durante il gameplay.
- */
 public class GenericEntityFactory {
 
     private GenericEntityFactory() {}
 
     private static final Map<String, GenericEntitySettings> cache = new ConcurrentHashMap<>();
+    private static final String JSON_PATH = "/uni/gaben/iscat/json/enemies.json";
 
-    /**
-     * Instanzia, assembla e registra nel ciclo di gioco un'entità nemica basandosi sui dati del DB.
-     */
     public static GenericEntityModel spawn(
             String entityKey,
             double x, double y,
-            uni.gaben.iscat.universe.UniverseModel universe,
-            uni.gaben.iscat.universe.UniverseController controller) {
+            UniverseModel universe,
+            UniverseController controller) {
 
         if (entityKey == null) return null;
         String normalizedKey = entityKey.toLowerCase().trim();
@@ -44,50 +45,123 @@ public class GenericEntityFactory {
         return model;
     }
 
-    /**
-     * Esegue il caricamento preventivo (Pre-load) in BACKGROUND di tutte le definizioni dal DB alla cache.
-     * Restituisce un CompletableFuture per permettere alla schermata di caricamento di sapere quando ha finito.
-     */
     public static CompletableFuture<Void> preloadAllAsync() {
-        // Scarichiamo l'intera operazione pesante sul thread dedicato al database
-        return IscatDB.getInstance().queryAsync(() -> IscatDB.getInstance().getEnemyDAO().findAll())
-                .thenAccept(enemies -> {
-                    for (GenericEntitySettings s : enemies) {
-                        if (s != null && s.entityKey != null) {
-                            cache.put(s.entityKey.toLowerCase().trim(), s);
-                        }
+        return CompletableFuture.runAsync(() -> {
+            try (InputStream is = GenericEntityFactory.class.getResourceAsStream(JSON_PATH)) {
+                if (is == null) {
+                    throw new RuntimeException("File JSON non trovato in: " + JSON_PATH);
+                }
+
+                // Legge tutto il file JSON in una stringa
+                String jsonText = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
+                        .lines().collect(Collectors.joining("\n"));
+
+                JSONObject root = new JSONObject(jsonText);
+                JSONArray enemies = root.getJSONArray("enemies");
+
+                // Svuotiamo la vecchia cache prima del ricaricamento
+                cache.clear();
+
+                for (int i = 0; i < enemies.length(); i++) {
+                    JSONObject jsonEnemy = enemies.getJSONObject(i);
+                    GenericEntitySettings settings = parseEnemySettings(jsonEnemy);
+
+                    if (settings.entityKey != null) {
+                        cache.put(settings.entityKey.toLowerCase().trim(), settings);
                     }
-                    System.out.println("[GenericEntityFactory] Cache pronta. Pre-caricate " + cache.size() + " definizioni.");
-                }).exceptionally(ex -> {
-                    System.err.println("[GenericEntityFactory] Errore durante il pre-caricamento: " + ex.getMessage());
-                    return null;
-                });
+                }
+                System.out.println("[GenericEntityFactory] Cache JSON pronta. Pre-caricate " + cache.size() + " definizioni.");
+
+            } catch (Exception ex) {
+                System.err.println("[GenericEntityFactory] Errore critico nel parsing del JSON: " + ex.getMessage());
+                ex.printStackTrace();
+                throw new RuntimeException(ex);
+            }
+        });
     }
 
-    /**
-     * Ispeziona la cache. In caso di assenza (Cache-Miss), effettua un caricamento di ripiego (fallback)
-     * sincrono dal DB, segnalando l'anomalia prestazionale.
-     */
+
     private static GenericEntitySettings loadSettings(String entityKey) {
         GenericEntitySettings cached = cache.get(entityKey);
         if (cached != null) {
             return cached;
         }
 
-        // Se arriviamo qui, significa che preloadAllAsync() non è stato invocato all'inizio del livello,
-        // oppure la chiave richiesta non esiste nel database.
-        System.err.println("[PERFORMANCE WARNING] Cache-miss per '" + entityKey + "' durante il gameplay! " +
-                "La query sincrona su SQLite potrebbe causare microscatti.");
+        System.err.println("[PERFORMANCE WARNING] Cache-miss per '" + entityKey + "'! Ricarico il file JSON in modo sincrono.");
 
-        // Eseguiamo la query sincrona diretta: inutile usare queryAsync().join() che aggiunge solo overhead
-        Optional<GenericEntitySettings> dbResult = IscatDB.getInstance().getEnemyDAO().findByKey(entityKey);
+        // Esegue il precaricamento sincrono di blocco per recuperare il dato mancante
+        try {
+            preloadAllAsync().get(); // Attende il completamento della transazione
+            return cache.get(entityKey);
+        } catch (Exception e) {
+            System.err.println("[GenericEntityFactory] Impossibile recuperare l'entità dopo il cache-miss.");
+            return null;
+        }
+    }
 
-        if (dbResult.isPresent()) {
-            GenericEntitySettings settings = dbResult.get();
-            cache.put(entityKey, settings);
-            return settings;
+    /**
+     * Mappa i campi PascalCase del JSON nei campi camelCase dell'oggetto Java
+     */
+    private static GenericEntitySettings parseEnemySettings(JSONObject json) {
+        GenericEntitySettings s = new GenericEntitySettings();
+
+        s.entityKey = json.optString("EntityKey", "");
+        s.name = json.optString("Name", "");
+        s.description = json.optString("Description", "");
+
+        // Mappatura SpriteName -> spritePath (aggiungendo l'estensione se necessario)
+        String spriteName = json.optString("SpriteName", "").trim();
+
+        // 2. Se l'utente ha scritto ".png" nel JSON, lo puliamo via per evitare doppie estensioni
+        if (spriteName.toLowerCase().endsWith(".png")) {
+            spriteName = spriteName.substring(0, spriteName.length() - 4);
         }
 
-        return null;
+        // 3. Forziamo il percorso radice tassativo per nemico
+        s.spritePath = "/uni/gaben/iscat/sprites/enemies/" + spriteName + ".png";
+
+        s.frameW = json.optInt("FrameW", 32);
+        s.frameH = json.optInt("FrameH", 32);
+        s.shapeType = PhysicalEntitySettings.ShapeType.valueOf(json.optString("ShapeType", "CIRCLE"));
+        s.scale = json.optDouble("Scale", 1.0);
+
+        s.initLife = json.optInt("InitLife", 100);
+        s.linearDamping = json.optDouble("LinearDamping", 2.0);
+        s.mass = json.optDouble("mass", 1.0);
+        s.maxVelocity = json.optDouble("MaxVelocity", 10.0);
+        s.maxForce = json.optDouble("MaxForce", 30.0);
+        s.maxAngularVelocity = json.optDouble("MaxAngularVelocity", 5.0);
+        s.xpReward = json.optInt("XPReward", 10);
+
+        s.detectionRange = json.optDouble("DetectionRange", 15.0);
+        s.combatRange = json.optDouble("CombatRange", 10.0);
+        s.preferredRange = json.optDouble("PreferredRange", 10.0);
+        s.actionCooldownS = json.optDouble("actionCooldownS", 800.0);
+
+        // Parsing dell'oggetto audio
+        if (json.has("audio")) {
+            JSONObject audioJson = json.getJSONObject("audio");
+            s.audio.attack = jsonArrayToList(audioJson.optJSONArray("attack"));
+            s.audio.idle = jsonArrayToList(audioJson.optJSONArray("idle"));
+            s.audio.hurt = jsonArrayToList(audioJson.optJSONArray("hurt"));
+            s.audio.death = jsonArrayToList(audioJson.optJSONArray("death"));
+            s.audio.spawn = jsonArrayToList(audioJson.optJSONArray("spawn"));
+        }
+
+        return s;
+    }
+
+    private static java.util.List<String> jsonArrayToList(JSONArray array) {
+        java.util.List<String> list = new java.util.ArrayList<>();
+        if (array != null) {
+            for (int i = 0; i < array.length(); i++) {
+                list.add(array.getString(i));
+            }
+        }
+        return list;
+    }
+
+    public static Map<String, GenericEntitySettings> getCache() {
+        return cache;
     }
 }

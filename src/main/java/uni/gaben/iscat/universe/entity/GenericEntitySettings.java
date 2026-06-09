@@ -1,34 +1,45 @@
 package uni.gaben.iscat.universe.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Estende {@link PhysicalEntitySettings} per mappare i campi aggiuntivi della tabella 'Entity'.
- * Funge da Data Transfer Object (DTO) per la configurazione dinamica dei nemici caricati dal database,
- * isolando i dati di identità, i metadati grafici della skin, i parametri fisici di collisione
- * e il profilo di comportamento dell'Intelligenza Artificiale.
- * 
- * Mappa 1:1 con la tabella Entity del database SQLite.
+ * DTO specifico per il caricamento da JSON.
+ * Estende PhysicalEntitySettings, ereditando automaticamente tutti i parametri fisici,
+ * di movimento, di range IA e le ricompense (XP), evitando duplicazioni di memoria.
  */
 public class GenericEntitySettings extends PhysicalEntitySettings {
 
-    // Identity fields
-    /** Chiave identificativa univoca del tipo di nemico (es. "iscat_mob"). */
+    // 1. CAMPI IDENTITÀ (Specifici di questa sottoclasse)
     public String entityKey = "";
-
-    /** Nome visualizzato nell'interfaccia di gioco e nel bestiario. */
     public String name = "";
-
-    /** Testo di lore ed analisi biologica mostrato nel bestiario. */
     public String description = "";
 
-    // Visual properties
-    /** Percorso della risorsa grafica interna (file PNG dello spritesheet). */
-    public String spritePath = "";
-
-    /** Larghezza in pixel del singolo frame dell'animazione. */
+    // 2. PROPRIETÀ VISIVE / ANIMAZIONE (Specifici di questa sottoclasse)
+    public String spritePath = ""; // Mappato dinamicamente da 'SpriteName' nel factory
     public int frameW = 32;
-
-    /** Altezza in pixel del singolo frame dell'animazione. */
     public int frameH = 32;
 
+    // 3. ADATTAMENTO PARAMETRI JSON VS CLASSE MADRE
+    // Nota: 'shapeType', 'scale', 'initLife', 'mass', 'maxVelocity', 'detectionRange', ecc.
+    // NON SONO SCRITTI QUI perché sono già ereditati da PhysicalEntitySettings.
 
+    /** * Il JSON fornisce il cooldown in secondi (es. 800), mentre la classe madre
+     * espone 'actionCooldownMS'. Teniamo questo campo per catturare il dato del JSON.
+     */
+    public double actionCooldownS = 0.0;
+
+    // 4. STRUTTURA AUDIO (Specifica di questa sottoclasse)
+    public AudioProfile audio = new AudioProfile();
+
+    /**
+     * Sottoclasse interna per mappare l'oggetto 'audio' e le sue liste di file Wave/MP3.
+     */
+    public static class AudioProfile {
+        public List<String> attack = new ArrayList<>();
+        public List<String> idle = new ArrayList<>();
+        public List<String> hurt = new ArrayList<>();
+        public List<String> death = new ArrayList<>();
+        public List<String> spawn = new ArrayList<>();
+    }
 }

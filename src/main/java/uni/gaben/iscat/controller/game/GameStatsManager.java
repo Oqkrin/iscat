@@ -2,7 +2,6 @@ package uni.gaben.iscat.controller.game;
 
 import javafx.application.Platform;
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.database.dao.EnemyDAO;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.model.ScoreModel;
 import uni.gaben.iscat.model.user.SessionUser;
@@ -14,7 +13,6 @@ import java.util.Map;
 public class GameStatsManager {
 
     private final ScoreDAO scoreDAO = IscatDB.getInstance().getScoreDAO();
-    private final EnemyDAO enemyDAO = IscatDB.getInstance().getEnemyDAO();
     private final SessionScoreTracker tracker = SessionScoreTracker.getInstance();
 
     public void saveStats(int elapsedSeconds, boolean gameWon) {
@@ -33,7 +31,7 @@ public class GameStatsManager {
         final int timeBonus    = Math.max(0, 10000 - elapsedSeconds * 10);
         final int sessionScore = tracker.getScore() + timeBonus;
 
-        // Snapshot della mappa enemy kills prima del reset
+        // DISABILITATO
         final Map<String, Integer> enemyKills = Map.copyOf(tracker.getEnemyKills());
 
         tracker.reset();
@@ -58,8 +56,8 @@ public class GameStatsManager {
             scoreDAO.increment(userId, "TimesPlayed",         1);
 
             // Salva kill per tipo nemico in batch
-            enemyKills.forEach((key, count) ->
-                    enemyDAO.incrementKill(userId, key, count));
+            // enemyKills.forEach((key, count) ->
+            //         enemyDAO.incrementKill(userId, key, count));
 
             scoreDAO.load(userId).ifPresent(data ->
                     Platform.runLater(() -> SessionManager.getInstance().setCurrentSaveData(data)));

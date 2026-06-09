@@ -1,11 +1,11 @@
 package uni.gaben.iscat.universe.entity.special.master;
 
 import org.dyn4j.geometry.MassType;
-import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.universe.entity.GenericEntityModel;
 import uni.gaben.iscat.universe.entity.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.GenericEntityFactory;
 import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.UniverseWaveController;
-import uni.gaben.iscat.universe.entity.GenericEntityModel;
 
 public class IscatMasterModel extends GenericEntityModel implements Updatable {
 
@@ -34,19 +34,31 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
         setEnabled(false);
     }
 
+    /**
+     * Carica i parametri del boss direttamente dal file JSON.
+     * Rimosso ogni riferimento a IscatDB ed EnemyDAO.
+     */
     private static GenericEntitySettings loadSettings() {
-        return IscatDB.getInstance().getEnemyDAO().findByKey(ENTITY_KEY).orElseGet(() -> {
-            GenericEntitySettings s = new GenericEntitySettings();
-            s.initLife       = 5000;
-            s.scale          = 1;
-            s.linearDamping = 1;
-            s.maxVelocity    = 1;
-            s.xpReward       = 1;
-            return s;
-        });
+        // Cerchiamo la chiave del boss direttamente nella cache del factory JSON
+        GenericEntitySettings cached = GenericEntityFactory.getCache().get(ENTITY_KEY);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        // Fallback di sicurezza se la cache JSON non contiene il boss
+        System.err.println("[BOSS WARNING] Chiave '" + ENTITY_KEY + "' non trovata nel JSON. Uso i valori di fallback.");
+        GenericEntitySettings s = new GenericEntitySettings();
+        s.entityKey      = ENTITY_KEY;
+        s.name           = "Iscat Master";
+        s.initLife       = 5000;
+        s.scale          = 1;
+        s.linearDamping  = 1;
+        s.maxVelocity    = 1;
+        s.xpReward       = 1;
+        s.spritePath     = "/uni/gaben/iscat/textures/enemies/iscat_master.png";
+        return s;
     }
-
-
 
     public AnimationState getAnimationState() { return animationState; }
 
@@ -86,7 +98,7 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
                 setAnimationState(AnimationState.IDLE);
             }
         } else if (animationState == AnimationState.DEATH) {
-            double duration = getFramesForState(AnimationState.DEATH) * getFrameDuration();
+            double duration = getFramesForState(animationState) * getFrameDuration(); // Fix: usa l'argomento corrente
             if (getStateTime() >= duration && !completeKillCalled) {
                 completeKill();
             }
@@ -125,23 +137,24 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
         if (completeKillCalled) return;
         completeKillCalled = true;
 
+        // DISABILITATO: Rimosso il tracciamento persistente delle kill del boss sul DB
+        /*
         try {
             var user = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser();
             if (user != null) {
-                IscatDB.getInstance().getEnemyDAO().incrementKill(user.id(), "iscat_master",1);
+                IscatDB.getInstance().getEnemyDAO().incrementKill(user.id(), "iscat_master", 1);
             }
         } catch (Exception e) {
             System.err.println("[ERRORE REGISTRAZIONE BOSS] Impossibile aggiornare i record di morte su DB");
             e.printStackTrace();
         }
+        */
 
         if (waveController != null) {
             waveController.notifyBossDead();
         }
 
         // Flag for removal so processEntityCleanup picks it up.
-        // We use setShouldRemove directly instead of super.kill(true) to avoid
-        // the heart-drop / explosion-SFX logic in LivingEntityModel.kill().
         setShouldRemove(true);
     }
 }

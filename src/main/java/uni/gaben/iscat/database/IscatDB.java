@@ -37,8 +37,6 @@ public class IscatDB {
     private UserDAO userDAO;
     private ScoreDAO scoreDAO;
     private SettingsDAO settingsDAO;
-    private EnemyDAO enemyDAO;
-
     private IscatDB() {
         init();
     }
@@ -54,7 +52,6 @@ public class IscatDB {
         this.userDAO = new SQLiteUserDAO();
         this.scoreDAO = new SQLiteScoreDAO();
         this.settingsDAO = new SQLiteSettingsDAO();
-        this.enemyDAO = new SQLiteEnemyDAO();
 
         // Avvia il ticker per monitorare il cooldown della connessione condivisa
         ticker.scheduleAtFixedRate(() -> {
@@ -146,5 +143,4 @@ public class IscatDB {
     public UserDAO getUserDAO() { return userDAO; }
     public ScoreDAO getScoreDAO() { return scoreDAO; }
     public SettingsDAO getSettingsDAO() { return settingsDAO; }
-    public EnemyDAO getEnemyDAO() { return enemyDAO; }
 }

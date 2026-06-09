@@ -6,11 +6,9 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.camera.CameraController;
 import uni.gaben.iscat.universe.camera.CameraSettings;
-import uni.gaben.iscat.universe.entity.GenericEntityBrain;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
-import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.LivingEntityModel;
@@ -22,7 +20,6 @@ import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Master controller for the game universe.

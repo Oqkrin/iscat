@@ -33,7 +33,6 @@ public class BestiaryMenuController implements IscatMenuController {
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
     private Map<String, GenericEntitySettings> rawEnemiesMap = new LinkedHashMap<>();
-
     private final Map<String, GenericEntitySettings> filteredEnemies = new LinkedHashMap<>();
 
     private static final double DISPLAY_SIZE = 196.0;
@@ -41,7 +40,6 @@ public class BestiaryMenuController implements IscatMenuController {
 
     private String currentEnemyId = null;
     private InfoMode currentInfoMode = InfoMode.DESCRIPTION;
-
     private CategoryMode currentCategory = CategoryMode.ENEMIES;
 
     @FXML private StackPane previewContainer;
@@ -112,13 +110,13 @@ public class BestiaryMenuController implements IscatMenuController {
 
         for (Map.Entry<String, GenericEntitySettings> entry : rawEnemiesMap.entrySet()) {
             String key = entry.getKey().toLowerCase().trim();
-
             boolean isPlayerEntity = key.contains("player") || entry.getValue().name.toLowerCase().contains("player");
 
             if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity) {
                 filteredEnemies.put(entry.getKey(), entry.getValue());
-            } else if (currentCategory == CategoryMode.ENEMIES && !isPlayerEntity)
+            } else if (currentCategory == CategoryMode.ENEMIES && !isPlayerEntity) {
                 filteredEnemies.put(entry.getKey(), entry.getValue());
+            }
         }
 
         if (currentCategory == CategoryMode.ENEMIES) {
@@ -132,15 +130,9 @@ public class BestiaryMenuController implements IscatMenuController {
         createEnemyButtons();
     }
 
-
     @FXML
     private void toggleCategory() {
-        if (currentCategory == CategoryMode.ENEMIES) {
-            currentCategory = CategoryMode.PLAYERS;
-        } else {
-            currentCategory = CategoryMode.ENEMIES;
-        }
-
+        currentCategory = (currentCategory == CategoryMode.ENEMIES) ? CategoryMode.PLAYERS : CategoryMode.ENEMIES;
         applyFilterAndRebuildUI();
 
         if (!filteredEnemies.isEmpty()) {
@@ -193,9 +185,7 @@ public class BestiaryMenuController implements IscatMenuController {
         String cleanId = id.toLowerCase().trim();
         GenericEntitySettings enemy = filteredEnemies.get(cleanId);
 
-        if (enemy == null) {
-            return;
-        }
+        if (enemy == null) return;
 
         currentEnemyId = cleanId;
 
@@ -254,6 +244,9 @@ public class BestiaryMenuController implements IscatMenuController {
             }
             case EXTRA -> {
                 rightCardHeader.setText("EXTRA INFO");
+
+                double cooldownSeconds = (enemy.actionCooldownS > 0) ? enemy.actionCooldownS : (enemy.actionCooldownMS / 1000.0);
+
                 description.setText(String.format("""
                     INFORMAZIONI EXTRA
                     
@@ -265,7 +258,7 @@ public class BestiaryMenuController implements IscatMenuController {
                     📊 Counter Morti/Utilizzi: %d
                     """,
                         enemy.detectionRange, enemy.combatRange, enemy.preferredRange,
-                        enemy.actionCooldownMS/1000, enemy.entityKey, currentKills
+                        cooldownSeconds, enemy.entityKey, currentKills
                 ));
             }
         }

@@ -1,10 +1,9 @@
 package uni.gaben.iscat.universe;
 
-import uni.gaben.iscat.universe.entity.GenericEntityFactory;
+import uni.gaben.iscat.universe.entity.*;
 import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
-import uni.gaben.iscat.universe.entity.GenericEntityBrain;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegmentBrain;
@@ -12,8 +11,6 @@ import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleBrain;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 
 import java.util.Random;
@@ -119,10 +116,14 @@ public class UniverseSpawner {
     }
 
     private Object spawnCustomRuntimeEntity(String id, double x, double y) {
-        return GenericEntityFactory
+        GenericEntityModel jsonEntity = GenericEntityFactory
                 .spawn(id, x, y, model, controller);
+
+        if (jsonEntity != null) {
+            return jsonEntity;
+        }
+
+        return null;
     }
-
-
 
 }

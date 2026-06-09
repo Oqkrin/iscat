@@ -28,12 +28,12 @@ public final class PlayerSettings {
     public static final double COOLDOWN_SCATTO_SEC = 0.8;
 
     // === Combat & Vitals ===
-    public static final int HP_MASSIMO = 100;
-    public static final int HP_INIZIALE = 100;
+    public static final int HP_MASSIMO = 10000;
+    public static final int HP_INIZIALE = 10000;
     public static double COOLDOWN_FUOCO_SEC = .3;
     public static final double VELOCITA_PROIETTILE = UniverseVelocitySettings.PLAYER_BULLET_VELOCITY;
     public static final double FORZA_SPINTA = UniverseVelocitySettings.PLAYER_MAX_VELOCITY*3;
-    public static final double DANNO_PROIETTILE = 10.0;
+    public static final double DANNO_PROIETTILE = 10000.0;
 
     // === Visuals & Dimensions ===
     public static final double DIMENSIONE_DA_DISEGNARE = 64.0;
