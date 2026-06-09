@@ -10,7 +10,7 @@ import org.dyn4j.world.result.DetectResult;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.targets.CachedNeighboursTarget;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,7 +92,7 @@ public interface Target {
 
     static Target ofPlayer() {
         return universe -> {
-            PlayerModel p = universe.getPlayer();
+            PlayerModelAbstract p = universe.getPlayer();
             return (p != null && !p.shouldRemove()) ? Collections.singletonList(p) : Collections.emptyList();
         };
     }

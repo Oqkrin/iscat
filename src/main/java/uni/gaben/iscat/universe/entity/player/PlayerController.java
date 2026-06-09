@@ -17,8 +17,8 @@ import java.util.function.Consumer;
 
 public class PlayerController {
 
-    private PlayerModel player;
-    private Shooter<PlayerModel> shooter;
+    private PlayerModelAbstract player;
+    private Shooter<PlayerModelAbstract> shooter;
     private GameModel gameModel;          // for time‑scale control
 
     private final Cooldown dashBuffer = new Cooldown();
@@ -28,7 +28,7 @@ public class PlayerController {
     // Cache last level to avoid re‑assigning attack pattern every frame
     private int lastLevel = -1;
 
-    public PlayerController(PlayerModel player) {
+    public PlayerController(PlayerModelAbstract player) {
         setPlayer(player);
     }
 
@@ -117,7 +117,7 @@ public class PlayerController {
         // Currently we use hold‑to‑slow – no extra action needed.
     }
 
-    public void setPlayer(PlayerModel player) {
+    public void setPlayer(PlayerModelAbstract player) {
         this.player = player;
         if (player != null) {
             this.shooter = new Shooter<>(player);
@@ -179,7 +179,7 @@ public class PlayerController {
         }
     }
 
-    public PlayerModel getPlayer() {
+    public PlayerModelAbstract getPlayer() {
         return player;
     }
 }

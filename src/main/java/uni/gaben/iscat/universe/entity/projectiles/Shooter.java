@@ -3,9 +3,9 @@ package uni.gaben.iscat.universe.entity.projectiles;
 import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
@@ -75,17 +75,17 @@ public class Shooter<T extends CollisionBody> {
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    private void setupAndSpawn(AbstractProjectileModel p) {
+    private void setupAndSpawn(AbstractProjectileModelAbstract p) {
         p.setOnCollision(otherEntity -> {
             if (p.shouldRemove()) return;
-            if (otherEntity instanceof AbstractProjectileModel) return; // proiettili non si colpiscono tra loro
+            if (otherEntity instanceof AbstractProjectileModelAbstract) return; // proiettili non si colpiscono tra loro
 
             if (otherEntity instanceof LifeDeath target) {
-                if (target instanceof LivingEntityModel lem) {
+                if (target instanceof AbstractLivingModel lem) {
                     lem.setKilledByProjectile(true);
                 }
                 target.deltaToLife(-p.getLife());
-                if (!(target instanceof PlayerModel)) {
+                if (!(target instanceof PlayerModelAbstract)) {
                     SessionScoreTracker.getInstance().addDamageDealt((int) p.getLife());
                 }
             }

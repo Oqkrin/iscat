@@ -8,7 +8,7 @@ import java.util.List;
  * Estende PhysicalEntitySettings, ereditando automaticamente tutti i parametri fisici,
  * di movimento, di range IA e le ricompense (XP), evitando duplicazioni di memoria.
  */
-public class GenericEntitySettings extends PhysicalEntitySettings {
+public class EntitySettings extends PhysicalEntitySettings {
 
     // 1. CAMPI IDENTITÀ (Specifici di questa sottoclasse)
     public String entityKey = "";

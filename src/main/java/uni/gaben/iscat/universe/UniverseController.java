@@ -6,16 +6,16 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.camera.CameraController;
 import uni.gaben.iscat.universe.camera.CameraSettings;
+import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 import uni.gaben.iscat.universe.entity.interfaces.HasTerminalVelocity;
 import uni.gaben.iscat.universe.entity.player.PlayerController;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class UniverseController {
      * @param camera camera model (for viewport-relative calculations)
      */
     public void updatev(double dt, GameInputsHandler inputs, CameraModel camera) {
-        PlayerModel player = universeModel.getPlayer();
+        PlayerModelAbstract player = universeModel.getPlayer();
         if(player == null || player.shouldRemove()) return;
 
         syncPlayerController(player);
@@ -80,13 +80,13 @@ public class UniverseController {
     // Private update steps
     // -------------------------------------------------------------------------
 
-    private void syncPlayerController(PlayerModel player) {
+    private void syncPlayerController(PlayerModelAbstract player) {
         if (playerController.getPlayer() != player) {
             playerController.setPlayer(player);
         }
     }
 
-    private void processPlayerInputs(PlayerModel player, GameInputsHandler inputs,
+    private void processPlayerInputs(PlayerModelAbstract player, GameInputsHandler inputs,
                                      CameraModel camera, double dt) {
         if (player == null) return;
         playerController.processInput(inputs, camera, dt);
@@ -143,7 +143,7 @@ public class UniverseController {
         double top    = camera.getViewportTopY()   - 200.0;
         double bottom = top  + (camera.getScreenHeight() / zoom) + 400.0;
 
-        for (AbstractProjectileModel p : universeModel.getProjectiles()) {
+        for (AbstractProjectileModelAbstract p : universeModel.getProjectiles()) {
             if (p.shouldRemove()) continue;
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
@@ -155,14 +155,14 @@ public class UniverseController {
      * Identifies dead or marked entities, awards XP/score to the player,
      * increments kill stats in the DB, then removes them from the world.
      */
-    private void processEntityCleanup(PlayerModel player) {
+    private void processEntityCleanup(PlayerModelAbstract player) {
         List<AbstractEntityModel> toRemove = new ArrayList<>();
 
         for (AbstractEntityModel entity : universeModel.getEntities()) {
             if (entity == null) continue;
 
             boolean remove = entity.shouldRemove();
-            if (!remove && entity instanceof LivingEntityModel living) {
+            if (!remove && entity instanceof AbstractLivingModel living) {
                 if (living.getLife() <= 0) {
                     if (!living.shouldRemove()) living.kill();
                     remove = living.shouldRemove();
@@ -171,7 +171,7 @@ public class UniverseController {
 
             if (remove) {
                 toRemove.add(entity);
-                if (entity instanceof LivingEntityModel living && living != player && entityDeathListener != null) {
+                if (entity instanceof AbstractLivingModel living && living != player && entityDeathListener != null) {
                     entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
                 }
             }
@@ -191,7 +191,7 @@ public class UniverseController {
     private double lastPlayerHealth = -1.0;
 
     // 2. Refactor the camera processing loop
-    private void updateCamera(PlayerModel player, CameraModel camera, GameInputsHandler inputs, double dt) {
+    private void updateCamera(PlayerModelAbstract player, CameraModel camera, GameInputsHandler inputs, double dt) {
         if (player != null) {
             // =====================================================================
             // AUTOMATED DAMAGE DETECTION HOOK
@@ -243,7 +243,7 @@ public class UniverseController {
         }
     }
 
-    private static double getDynamicZoom(PlayerModel player, CameraModel camera, double dt) {
+    private static double getDynamicZoom(PlayerModelAbstract player, CameraModel camera, double dt) {
         double speed = player.getLinearVelocity().getMagnitude();
         double maxVel = UniverseVelocitySettings.PLAYER_MAX_VELOCITY*2;
 

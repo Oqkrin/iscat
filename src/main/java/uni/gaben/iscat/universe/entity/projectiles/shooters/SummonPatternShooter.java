@@ -2,8 +2,8 @@ package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.special.master.IscatMasterEntityModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
@@ -28,9 +28,9 @@ public class SummonPatternShooter implements PatternShooter {
     public void execute(Shooter<?> shooter, ProjectileType pType, double angle, Consumer<Projectile> customizer) {
         var model = shooter.getModel();
 
-        if (model instanceof IscatMasterModel master) {
-            master.setAnimationState(IscatMasterModel.AnimationState.ATTACK3);
-        } else if (model instanceof PlayerModel player) {
+        if (model instanceof IscatMasterEntityModel master) {
+            master.setAnimationState(IscatMasterEntityModel.AnimationState.ATTACK3);
+        } else if (model instanceof PlayerModelAbstract player) {
         }
 
         Vector2 originPos = model.getTransform().getTranslation();

@@ -1,15 +1,15 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.entity.*;
-import uni.gaben.iscat.universe.entity.special.master.IscatMasterModel;
+import uni.gaben.iscat.universe.entity.consumables.heart.HeartModelAbstract;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.special.master.IscatMasterEntityModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
 import uni.gaben.iscat.universe.entity.special.worm.IscatWormSegmentBrain;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleBrain;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 
@@ -48,7 +48,7 @@ public class UniverseSpawner {
             case PLAYER            -> spawnPlayer(x, y);
             case ASTEROID          -> spawnEntity(new AsteroidModel(x, y)); // simplified, adjust as needed
             case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
-            case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
+            case HEART             -> spawnWithController(HeartModelAbstract::new, HeartController::new, x, y);
             case ISCAT_MASTER      -> spawnIscatMaster(x, y);
             case WORM              -> spawnWorm(x, y);
             case PROJECTILE        -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");
@@ -57,23 +57,23 @@ public class UniverseSpawner {
 
     public Object waveSpawn(UniverseSpawnable type, double x, double y, int playerLevel) {
         Object toSpawn = spawn(type, x, y);
-        if (toSpawn instanceof LivingEntityModel l) {
+        if (toSpawn instanceof AbstractLivingModel l) {
             l.setMaxLife(l.getMaxLife() * playerLevel);
             l.setLife(l.getMaxLife());
         }
         return toSpawn;
     }
 
-    public PlayerModel spawnPlayer(double x, double y) {
-        PlayerModel player = new PlayerModel(x, y);
+    public PlayerModelAbstract spawnPlayer(double x, double y) {
+        PlayerModelAbstract player = new PlayerModelAbstract(x, y);
         model.setPlayer(player);
         return player;
     }
 
-    public IscatMasterModel spawnIscatMaster(double x, double y) {
-        IscatMasterModel master = new IscatMasterModel(x, y, waveController);
+    public IscatMasterEntityModel spawnIscatMaster(double x, double y) {
+        IscatMasterEntityModel master = new IscatMasterEntityModel(x, y, waveController);
         model.addEntity(master);
-        controller.addEntityController(new GenericEntityBrain(master));
+        controller.addEntityController(new EntityBrain(master));
         return master;
     }
 
@@ -81,7 +81,7 @@ public class UniverseSpawner {
         IscatWormModel worm = new IscatWormModel(x, y);
         for (IscatWormSegment seg : worm.getSegments()) {
             model.addEntity(seg);
-            // Use custom brain instead of GenericEntityBrain
+            // Use custom brain instead of EntityBrain
             IscatWormSegmentBrain brain = new IscatWormSegmentBrain(seg, worm.getHead());
             controller.addEntityController(brain);
         }
@@ -116,7 +116,7 @@ public class UniverseSpawner {
     }
 
     private Object spawnCustomRuntimeEntity(String id, double x, double y) {
-        GenericEntityModel jsonEntity = GenericEntityFactory
+        EntityModel jsonEntity = EntityFactory
                 .spawn(id, x, y, model, controller);
 
         if (jsonEntity != null) {

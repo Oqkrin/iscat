@@ -14,13 +14,13 @@ import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.universe.Thrust;
 import uni.gaben.iscat.utils.AudioManager;
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-public class PlayerModel extends LivingEntityModel implements HasSprite, HasThrust {
+public class PlayerModelAbstract extends AbstractLivingModel implements HasSprite, HasThrust {
 
     // LEVEL SYSTEM VARIABLES
     private final IntegerProperty level = new SimpleIntegerProperty(1);
@@ -38,7 +38,7 @@ public class PlayerModel extends LivingEntityModel implements HasSprite, HasThru
         this.onDeathCallback = callback;
     }
 
-    public PlayerModel(double x, double y) {
+    public PlayerModelAbstract(double x, double y) {
         super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
 
         double radiusInMeters = UU.pxToM(PlayerSettings.RAGGIO_COLLISIONE);

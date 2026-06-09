@@ -7,8 +7,8 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
-import uni.gaben.iscat.universe.entity.brain.abilities.ActionCategory;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import java.util.*;
 public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
     // Cache the Enum array globally to prevent allocation on every single values() call
-    protected static final ActionCategory[] CATEGORIES = ActionCategory.values();
+    protected static final AbilityCategory[] CATEGORIES = AbilityCategory.values();
 
     // ========================================================================
     // FIELDS
@@ -41,10 +41,10 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
     // Ability Registries & State Management
     private final Map<String, Ability> actionsMap = new HashMap<>();
-    private final Map<ActionCategory, List<Ability>> actionsByCategory = new EnumMap<>(ActionCategory.class);
-    private final Map<ActionCategory, Ability> activeActions = new EnumMap<>(ActionCategory.class);
-    private final Set<ActionCategory> blockedCategories = new HashSet<>();
-    private final List<ActionCategory> finishedCategoriesList = new ArrayList<>(CATEGORIES.length);
+    private final Map<AbilityCategory, List<Ability>> actionsByCategory = new EnumMap<>(AbilityCategory.class);
+    private final Map<AbilityCategory, Ability> activeActions = new EnumMap<>(AbilityCategory.class);
+    private final Set<AbilityCategory> blockedCategories = new HashSet<>();
+    private final List<AbilityCategory> finishedCategoriesList = new ArrayList<>(CATEGORIES.length);
 
     // Modifier Registries & State Management
     private final Map<String, SteeringModifier> modifiersMap = new HashMap<>();
@@ -96,7 +96,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
         // 2. Tick current active actions, gather completed categories
         for (int i = 0; i < CATEGORIES.length; i++) {
-            ActionCategory cat = CATEGORIES[i];
+            AbilityCategory cat = CATEGORIES[i];
             Ability ability = activeActions.get(cat);
             if (ability != null) {
                 if (!ability.update(this, universe, dt)) {
@@ -112,7 +112,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
 
         // 3. Attempt to evaluate and wake up higher priority idle actions
         for (int i = 0; i < CATEGORIES.length; i++) {
-            ActionCategory cat = CATEGORIES[i];
+            AbilityCategory cat = CATEGORIES[i];
             if (blockedCategories.contains(cat) || activeActions.containsKey(cat)) {
                 continue;
             }
@@ -295,7 +295,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     }
 
     public double angleToPlayer(UniverseModel world) {
-        PlayerModel player = world.getPlayer();
+        PlayerModelAbstract player = world.getPlayer();
         if (player == null) return 0;
         return angleToTarget(player.getTransform().getTranslation());
     }

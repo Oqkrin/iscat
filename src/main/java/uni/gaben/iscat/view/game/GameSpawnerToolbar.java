@@ -10,8 +10,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.UniverseSpawnable;
-import uni.gaben.iscat.universe.entity.GenericEntityFactory;
-import uni.gaben.iscat.universe.entity.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.EntityFactory;
+import uni.gaben.iscat.universe.entity.EntitySettings;
 import uni.gaben.iscat.utils.design.CssHelper;
 
 import java.util.Map;
@@ -61,10 +61,10 @@ public class GameSpawnerToolbar extends StackPane {
         genericContainer.setAlignment(Pos.BOTTOM_CENTER);
         genericContainer.setPadding(new Insets(4, 20, 4, 20));
 
-        Map<String, GenericEntitySettings> jsonEnemies = GenericEntityFactory.getCache();
+        Map<String, EntitySettings> jsonEnemies = EntityFactory.getCache();
 
         if (jsonEnemies != null && !jsonEnemies.isEmpty()) {
-            for (GenericEntitySettings s : jsonEnemies.values()) {
+            for (EntitySettings s : jsonEnemies.values()) {
                 if (s == null || s.entityKey == null) continue;
 
                 Button b = createSpawnButton(s.entityKey);

@@ -4,13 +4,13 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 
-public class HeartModel extends LivingEntityModel implements HasSprite {
-    public HeartModel(double x, double y) {
+public class HeartModelAbstract extends AbstractLivingModel implements HasSprite {
+    public HeartModelAbstract(double x, double y) {
         super(x, y, 1, 1);
 
         // Creazione della forma di collisione circolare scalata in metri

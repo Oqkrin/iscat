@@ -14,14 +14,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class GenericEntityFactory {
+public class EntityFactory {
 
-    private GenericEntityFactory() {}
+    private EntityFactory() {}
 
-    private static final Map<String, GenericEntitySettings> cache = new ConcurrentHashMap<>();
+    private static final Map<String, EntitySettings> cache = new ConcurrentHashMap<>();
     private static final String JSON_PATH = "/uni/gaben/iscat/json/enemies.json";
 
-    public static GenericEntityModel spawn(
+    public static EntityModel spawn(
             String entityKey,
             double x, double y,
             UniverseModel universe,
@@ -30,14 +30,14 @@ public class GenericEntityFactory {
         if (entityKey == null) return null;
         String normalizedKey = entityKey.toLowerCase().trim();
 
-        GenericEntitySettings settings = loadSettings(normalizedKey);
+        EntitySettings settings = loadSettings(normalizedKey);
         if (settings == null) {
-            System.err.println("[GenericEntityFactory] Impossibile spawnare: EntityKey sconosciuta '" + normalizedKey + "'");
+            System.err.println("[EntityFactory] Impossibile spawnare: EntityKey sconosciuta '" + normalizedKey + "'");
             return null;
         }
 
-        GenericEntityModel model = new GenericEntityModel(x, y, settings);
-        GenericEntityBrain brain = new GenericEntityBrain(model);
+        EntityModel model = new EntityModel(x, y, settings);
+        EntityBrain brain = new EntityBrain(model);
 
         universe.addEntity(model);
         controller.addEntityController(brain);
@@ -47,7 +47,7 @@ public class GenericEntityFactory {
 
     public static CompletableFuture<Void> preloadAllAsync() {
         return CompletableFuture.runAsync(() -> {
-            try (InputStream is = GenericEntityFactory.class.getResourceAsStream(JSON_PATH)) {
+            try (InputStream is = EntityFactory.class.getResourceAsStream(JSON_PATH)) {
                 if (is == null) {
                     throw new RuntimeException("File JSON non trovato in: " + JSON_PATH);
                 }
@@ -64,16 +64,16 @@ public class GenericEntityFactory {
 
                 for (int i = 0; i < enemies.length(); i++) {
                     JSONObject jsonEnemy = enemies.getJSONObject(i);
-                    GenericEntitySettings settings = parseEnemySettings(jsonEnemy);
+                    EntitySettings settings = parseEnemySettings(jsonEnemy);
 
                     if (settings.entityKey != null) {
                         cache.put(settings.entityKey.toLowerCase().trim(), settings);
                     }
                 }
-                System.out.println("[GenericEntityFactory] Cache JSON pronta. Pre-caricate " + cache.size() + " definizioni.");
+                System.out.println("[EntityFactory] Cache JSON pronta. Pre-caricate " + cache.size() + " definizioni.");
 
             } catch (Exception ex) {
-                System.err.println("[GenericEntityFactory] Errore critico nel parsing del JSON: " + ex.getMessage());
+                System.err.println("[EntityFactory] Errore critico nel parsing del JSON: " + ex.getMessage());
                 ex.printStackTrace();
                 throw new RuntimeException(ex);
             }
@@ -81,8 +81,8 @@ public class GenericEntityFactory {
     }
 
 
-    private static GenericEntitySettings loadSettings(String entityKey) {
-        GenericEntitySettings cached = cache.get(entityKey);
+    private static EntitySettings loadSettings(String entityKey) {
+        EntitySettings cached = cache.get(entityKey);
         if (cached != null) {
             return cached;
         }
@@ -94,7 +94,7 @@ public class GenericEntityFactory {
             preloadAllAsync().get(); // Attende il completamento della transazione
             return cache.get(entityKey);
         } catch (Exception e) {
-            System.err.println("[GenericEntityFactory] Impossibile recuperare l'entità dopo il cache-miss.");
+            System.err.println("[EntityFactory] Impossibile recuperare l'entità dopo il cache-miss.");
             return null;
         }
     }
@@ -102,8 +102,8 @@ public class GenericEntityFactory {
     /**
      * Mappa i campi PascalCase del JSON nei campi camelCase dell'oggetto Java
      */
-    private static GenericEntitySettings parseEnemySettings(JSONObject json) {
-        GenericEntitySettings s = new GenericEntitySettings();
+    private static EntitySettings parseEnemySettings(JSONObject json) {
+        EntitySettings s = new EntitySettings();
 
         s.entityKey = json.optString("EntityKey", "");
         s.name = json.optString("Name", "");
@@ -161,7 +161,7 @@ public class GenericEntityFactory {
         return list;
     }
 
-    public static Map<String, GenericEntitySettings> getCache() {
+    public static Map<String, EntitySettings> getCache() {
         return cache;
     }
 }

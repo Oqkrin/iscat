@@ -7,18 +7,17 @@ import java.util.Set;
 
 public abstract class Ability {
     protected final String name;
-    protected final ActionCategory category;
-    /** Which categories this action blocks while it's running (besides its own). */
-    protected final Set<ActionCategory> blockedCategories;
+    protected final AbilityCategory category;
+    protected final Set<AbilityCategory> blockedCategories;
 
-    public Ability(String name, ActionCategory category, Set<ActionCategory> blockedCategories) {
+    protected Ability(String name, AbilityCategory category, Set<AbilityCategory> blockedCategories) {
         this.name = name;
         this.category = category;
         this.blockedCategories = blockedCategories;
     }
 
-    public ActionCategory getCategory() { return category; }
-    public Set<ActionCategory> getBlockedCategories() { return blockedCategories; }
+    public AbilityCategory getCategory() { return category; }
+    public Set<AbilityCategory> getBlockedCategories() { return blockedCategories; }
 
     public abstract boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt);
     public abstract void onActivate(Brain<?> brain, UniverseModel world);

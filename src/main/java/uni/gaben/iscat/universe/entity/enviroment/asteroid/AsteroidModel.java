@@ -5,7 +5,7 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Polygon;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.UniverseSpawner;
@@ -67,7 +67,7 @@ public class AsteroidModel extends AbstractEntityModel {
         this.setOnCollision(other -> {
             if (this.shouldRemove()) return;
 
-            if (other instanceof AbstractProjectileModel projectile) {
+            if (other instanceof AbstractProjectileModelAbstract projectile) {
                 double damage = AsteroidSettings.PROJECTILE_DAMAGE_FACTOR;
                 takeDamage(damage);
                 projectile.setShouldRemove(true);

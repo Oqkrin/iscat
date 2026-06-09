@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.model.BestiaryModel;
-import uni.gaben.iscat.universe.entity.GenericEntitySettings;
+import uni.gaben.iscat.universe.entity.EntitySettings;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;
@@ -32,8 +32,8 @@ public class BestiaryMenuController implements IscatMenuController {
     }
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
-    private Map<String, GenericEntitySettings> rawEnemiesMap = new LinkedHashMap<>();
-    private final Map<String, GenericEntitySettings> filteredEnemies = new LinkedHashMap<>();
+    private Map<String, EntitySettings> rawEnemiesMap = new LinkedHashMap<>();
+    private final Map<String, EntitySettings> filteredEnemies = new LinkedHashMap<>();
 
     private static final double DISPLAY_SIZE = 196.0;
     private static final double ICON_SIZE = 32.0;
@@ -108,7 +108,7 @@ public class BestiaryMenuController implements IscatMenuController {
     private void applyFilterAndRebuildUI() {
         filteredEnemies.clear();
 
-        for (Map.Entry<String, GenericEntitySettings> entry : rawEnemiesMap.entrySet()) {
+        for (Map.Entry<String, EntitySettings> entry : rawEnemiesMap.entrySet()) {
             String key = entry.getKey().toLowerCase().trim();
             boolean isPlayerEntity = key.contains("player") || entry.getValue().name.toLowerCase().contains("player");
 
@@ -147,7 +147,7 @@ public class BestiaryMenuController implements IscatMenuController {
         enemyButtonsBox.getChildren().clear();
         buttonCanvases.clear();
 
-        for (GenericEntitySettings enemy : filteredEnemies.values()) {
+        for (EntitySettings enemy : filteredEnemies.values()) {
             String safeId = enemy.entityKey.toLowerCase().trim();
             boolean unlocked = bestiaryModel.isUnlocked(safeId);
 
@@ -183,7 +183,7 @@ public class BestiaryMenuController implements IscatMenuController {
         if (id == null) return;
 
         String cleanId = id.toLowerCase().trim();
-        GenericEntitySettings enemy = filteredEnemies.get(cleanId);
+        EntitySettings enemy = filteredEnemies.get(cleanId);
 
         if (enemy == null) return;
 
@@ -208,7 +208,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
     private void refreshInfoZone() {
         if (currentEnemyId == null) return;
-        GenericEntitySettings enemy = filteredEnemies.get(currentEnemyId);
+        EntitySettings enemy = filteredEnemies.get(currentEnemyId);
         if (enemy == null) return;
 
         boolean unlocked = bestiaryModel.isUnlocked(currentEnemyId);

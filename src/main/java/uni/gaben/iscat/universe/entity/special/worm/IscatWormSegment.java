@@ -6,12 +6,12 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.entity.GenericEntityModel;
-import uni.gaben.iscat.universe.entity.GenericEntitySettings;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.EntityModel;
+import uni.gaben.iscat.universe.entity.EntitySettings;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.utils.Cooldown;
 
-public class IscatWormSegment extends GenericEntityModel {
+public class IscatWormSegment extends EntityModel {
 
     public enum Type { HEAD, BODY, TAIL }
 
@@ -41,7 +41,7 @@ public class IscatWormSegment extends GenericEntityModel {
         setAngularDamping(0.0); // Curve fulminee
         // In IscatWormSegment constructor
         setOnCollision(other -> {
-            if (other instanceof PlayerModel player) {
+            if (other instanceof PlayerModelAbstract player) {
                 if (type == Type.HEAD && canAttack()) {
                     double damage = IscatWormSettings.HEAD_ATTACK_POWER;
                     if (getLinearVelocity().getMagnitude() >
@@ -100,8 +100,8 @@ public class IscatWormSegment extends GenericEntityModel {
     private static double getRadius(Type t) { return switch(t){ case HEAD->IscatWormSettings.HEAD_SCALE; case BODY->IscatWormSettings.BODY_SCALE; case TAIL->IscatWormSettings.TAIL_SCALE; } * IscatWormSettings.DIM_SPRITE / 2 * 0.85; }
     private static double getDamping(Type t){ return switch(t){ case HEAD->2.8; case BODY->4.2; case TAIL->5.5; }; }
 
-    private static GenericEntitySettings createSettings(Type type) {
-        GenericEntitySettings s = new GenericEntitySettings();
+    private static EntitySettings createSettings(Type type) {
+        EntitySettings s = new EntitySettings();
         s.entityKey = "iscat_worm_" + type.name().toLowerCase();
         s.frameW = (int) IscatWormSettings.DIM_SPRITE;
         s.frameH = (int) IscatWormSettings.DIM_SPRITE;

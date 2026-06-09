@@ -7,7 +7,7 @@ import uni.gaben.iscat.universe.UniverseModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IscatWormModel {  // NON estende LivingEntityModel
+public class IscatWormModel {  // NON estende AbstractLivingModel
 
     private final List<IscatWormSegment> segments = new ArrayList<>();
 

@@ -9,18 +9,18 @@ import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UniverseModel extends World<Body> {
 
-    private PlayerModel player;
+    private PlayerModelAbstract player;
 
     private final List<AbstractEntityModel> entities = new ArrayList<>();
-    private final List<AbstractProjectileModel> projectiles = new ArrayList<>();
+    private final List<AbstractProjectileModelAbstract> projectiles = new ArrayList<>();
     private final Starfield starfield = new Starfield(0, 0);
     private final Map<Class<?>, List<AbstractEntityModel>> entitiesByCategory = new HashMap<>();
     private final Map<Class<?>, List<Class<?>>> classHierarchyCache = new ConcurrentHashMap<>();
@@ -92,12 +92,12 @@ public class UniverseModel extends World<Body> {
     // Player
     // -------------------------------------------------------------------------
 
-    public void setPlayer(PlayerModel player) {
+    public void setPlayer(PlayerModelAbstract player) {
         this.player = player;
         addEntity(player);
     }
 
-    public PlayerModel getPlayer() {
+    public PlayerModelAbstract getPlayer() {
         return (player != null && player.shouldRemove()) ? null : player;
     }
 
@@ -108,7 +108,7 @@ public class UniverseModel extends World<Body> {
     public void addEntity(AbstractEntityModel entity) {
         entities.add(entity);
         addBody(entity);
-        if (entity instanceof AbstractProjectileModel p) projectiles.add(p);
+        if (entity instanceof AbstractProjectileModelAbstract p) projectiles.add(p);
         registerEntityCategories(entity);
     }
 
@@ -116,7 +116,7 @@ public class UniverseModel extends World<Body> {
         if (entity == null) return;
 
         entities.remove(entity);
-        if (entity instanceof AbstractProjectileModel p) projectiles.remove(p);
+        if (entity instanceof AbstractProjectileModelAbstract p) projectiles.remove(p);
         unregisterEntityCategories(entity);
 
         entity.setEnabled(false);
@@ -133,7 +133,7 @@ public class UniverseModel extends World<Body> {
     }
 
     /** Returns an unmodifiable list of projectiles. */
-    public List<AbstractProjectileModel> getProjectiles() {
+    public List<AbstractProjectileModelAbstract> getProjectiles() {
         return Collections.unmodifiableList(projectiles);
     }
 

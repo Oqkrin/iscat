@@ -6,10 +6,10 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.LivingEntityModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingModel;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModelAbstract;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.utils.Updatable;
 
@@ -60,13 +60,13 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
         if (other == null || other.shouldRemove()) return;
         // Don't absorb other black holes or projectiles (projectiles just die)
         if (other instanceof BlackHoleModel) return;
-        if (other instanceof AbstractProjectileModel) {
+        if (other instanceof AbstractProjectileModelAbstract) {
             other.setShouldRemove(true);
             return;
         }
 
         // Player collision: violent repulsion instead of instant death
-        if (other instanceof PlayerModel p) {
+        if (other instanceof PlayerModelAbstract p) {
             Vector2 pushDir = p.getTransform().getTranslation().subtract(this.getTransform().getTranslation());
             double dist = pushDir.getMagnitude();
             if (dist > 0.01) {
@@ -97,7 +97,7 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
         this.setMass(MassType.NORMAL);
 
         // Kill the absorbed entity
-        if (other instanceof LivingEntityModel l) l.kill();
+        if (other instanceof AbstractLivingModel l) l.kill();
         else other.setShouldRemove(true);
 
         // Reset radiation timer

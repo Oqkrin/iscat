@@ -6,19 +6,19 @@ import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-public class HeartController extends Brain<HeartModel> {
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
+public class HeartController extends Brain<HeartModelAbstract> {
 
-    private final HeartModel heart;
+    private final HeartModelAbstract heart;
     private boolean collected = false;
 
-    public HeartController(HeartModel heart) {
+    public HeartController(HeartModelAbstract heart) {
         super(heart);
         this.heart = heart;
 
         // Collision callback
         this.heart.setOnCollision(otherEntity -> {
-            if (otherEntity instanceof PlayerModel player && !collected) {
+            if (otherEntity instanceof PlayerModelAbstract player && !collected) {
                 collected = true;
                 double halfMaxLife = player.getMaxLife() / 2.0;
                 player.deltaToLife(halfMaxLife);

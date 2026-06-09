@@ -7,7 +7,7 @@ import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.entity.*;
 import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.universe.entity.player.PlayerSettings;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
@@ -35,7 +35,7 @@ public final class EntityRenderer {
     static {
         BATCHED_RENDERERS.put(AsteroidModel.class, EntityRenderer::drawAsteroidBatched);
         BATCHED_RENDERERS.put(Projectile.class,   EntityRenderer::drawProjectileBatched);
-        BATCHED_RENDERERS.put(PlayerModel.class,  EntityRenderer::drawPlayerBatched);
+        BATCHED_RENDERERS.put(PlayerModelAbstract.class,  EntityRenderer::drawPlayerBatched);
         BATCHED_RENDERERS.put(BlackHoleModel.class, EntityRenderer::drawBlackHoleBatched);
     }
 
@@ -84,7 +84,7 @@ public final class EntityRenderer {
 
             Image frame = sheet.getFrame(animator.getCurrentState(), animator.getCurrentFrame());
             if (frame != null) {
-                Color tint = (entity instanceof PlayerModel)
+                Color tint = (entity instanceof PlayerModelAbstract)
                         ? ThemeManager.getInstance().getAccentPrimary()
                         : ThemeManager.getInstance().getAccentSecondary();
 
@@ -188,7 +188,7 @@ public final class EntityRenderer {
     }
 
     private static void drawPlayerBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
-        PlayerModel player = (PlayerModel) e;
+        PlayerModelAbstract player = (PlayerModelAbstract) e;
         // Draw the player sprite (if any)
         if (player instanceof HasSprite sprite) {
             drawSpriteEntityBatched(player, sprite, batcher);

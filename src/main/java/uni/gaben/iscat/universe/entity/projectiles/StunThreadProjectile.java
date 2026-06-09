@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity.projectiles;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 
 /**
  * A projectile fired by the IscatBomber that stuns the player on impact.
@@ -50,7 +50,7 @@ public class StunThreadProjectile extends Projectile {
 
         // Custom collision handler: apply stun to player, then vanish
         setOnCollision(other -> {
-            if (other instanceof PlayerModel player) {
+            if (other instanceof PlayerModelAbstract player) {
                 player.applyStun(stunDuration);
                 kill(true);
             } else if (!(other instanceof StunThreadProjectile)) {

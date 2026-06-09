@@ -13,10 +13,10 @@ public class LifeBasedSummonAbility extends Ability {
     Set<SummonPatternShooter> summons ;
 
     public LifeBasedSummonAbility(SummonPatternShooter... summons) {
-        super("LifeBasedSummon", ActionCategory.SPECIAL, Collections.emptySet());
+        super("LifeBasedSummon", AbilityCategory.SPECIAL, Collections.emptySet());
     }
     public LifeBasedSummonAbility(String uuid, SummonPatternShooter... summons) {
-        super(uuid, ActionCategory.SPECIAL, Collections.emptySet());
+        super(uuid, AbilityCategory.SPECIAL, Collections.emptySet());
     }
 
     @Override

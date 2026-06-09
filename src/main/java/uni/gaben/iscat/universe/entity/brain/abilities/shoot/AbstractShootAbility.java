@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
-import uni.gaben.iscat.universe.entity.brain.abilities.ActionCategory;
+import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
@@ -24,7 +24,7 @@ public abstract class AbstractShootAbility extends Ability {
 
     protected AbstractShootAbility(String name, double combatRange, double cooldownSec,
                                    ProjectileType bulletType, Target target, boolean aimAtTarget, double nerfPrediction) {
-        super(name, ActionCategory.ATTACK, Set.of());
+        super(name, AbilityCategory.ATTACK, Set.of());
         this.combatRange = combatRange;
         this.cooldown = new Cooldown(cooldownSec);
         this.bulletType = bulletType;

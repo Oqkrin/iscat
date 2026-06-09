@@ -1,13 +1,13 @@
 package uni.gaben.iscat.universe.entity.special.master;
 
 import org.dyn4j.geometry.MassType;
-import uni.gaben.iscat.universe.entity.GenericEntityModel;
-import uni.gaben.iscat.universe.entity.GenericEntitySettings;
-import uni.gaben.iscat.universe.entity.GenericEntityFactory;
+import uni.gaben.iscat.universe.entity.EntityModel;
+import uni.gaben.iscat.universe.entity.EntitySettings;
+import uni.gaben.iscat.universe.entity.EntityFactory;
 import uni.gaben.iscat.utils.Updatable;
 import uni.gaben.iscat.universe.UniverseWaveController;
 
-public class IscatMasterModel extends GenericEntityModel implements Updatable {
+public class IscatMasterEntityModel extends EntityModel implements Updatable {
 
     public static final String ENTITY_KEY = "iscat_master";
 
@@ -19,12 +19,12 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
 
     private final UniverseWaveController waveController;
 
-    public IscatMasterModel(double x, double y, UniverseWaveController waveController) {
+    public IscatMasterEntityModel(double x, double y, UniverseWaveController waveController) {
         this(x, y, waveController, loadSettings());
     }
 
-    private IscatMasterModel(double x, double y, UniverseWaveController waveController,
-                             GenericEntitySettings s) {
+    private IscatMasterEntityModel(double x, double y, UniverseWaveController waveController,
+                                   EntitySettings s) {
         super(x, y, s);
         this.waveController = waveController;
 
@@ -38,9 +38,9 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
      * Carica i parametri del boss direttamente dal file JSON.
      * Rimosso ogni riferimento a IscatDB ed EnemyDAO.
      */
-    private static GenericEntitySettings loadSettings() {
+    private static EntitySettings loadSettings() {
         // Cerchiamo la chiave del boss direttamente nella cache del factory JSON
-        GenericEntitySettings cached = GenericEntityFactory.getCache().get(ENTITY_KEY);
+        EntitySettings cached = EntityFactory.getCache().get(ENTITY_KEY);
 
         if (cached != null) {
             return cached;
@@ -48,7 +48,7 @@ public class IscatMasterModel extends GenericEntityModel implements Updatable {
 
         // Fallback di sicurezza se la cache JSON non contiene il boss
         System.err.println("[BOSS WARNING] Chiave '" + ENTITY_KEY + "' non trovata nel JSON. Uso i valori di fallback.");
-        GenericEntitySettings s = new GenericEntitySettings();
+        EntitySettings s = new EntitySettings();
         s.entityKey      = ENTITY_KEY;
         s.name           = "Iscat Master";
         s.initLife       = 5000;

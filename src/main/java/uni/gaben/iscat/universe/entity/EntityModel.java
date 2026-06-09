@@ -6,7 +6,7 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 
@@ -14,12 +14,12 @@ import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
  * Modello polimorfico universale per la gestione logica e fisica dei nemici.
  * Sostituisce i vecchi modelli specifici (es. IscatMobModel, IscatCoreModel) delegando l'intera
  * configurazione geometrica, i coefficienti d'attrito, i parametri di movimento e le routine di danno
- * a un'istanza di {@link GenericEntitySettings} interamente popolata da database.
+ * a un'istanza di {@link EntitySettings} interamente popolata da database.
  */
-public class GenericEntityModel extends LivingEntityModel implements HasSprite, HasShockwave {
+public class EntityModel extends AbstractLivingModel implements HasSprite, HasShockwave {
 
     /** Archivio dei parametri strutturali e biologici caricati dal database per questa entità. */
-    private final GenericEntitySettings settings;
+    private final EntitySettings settings;
     private final Shockwave shockwave = new Shockwave();
 
     /**
@@ -31,7 +31,7 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
      * @param y        Coordinata Y di spawn in metri.
      * @param settings DTO contenente i parametri estratti dalla tabella delle entità.
      */
-    public GenericEntityModel(double x, double y, GenericEntitySettings settings) {
+    public EntityModel(double x, double y, EntitySettings settings) {
         super(x, y, settings.initLife, settings.initLife);
         this.settings = settings;
 
@@ -63,7 +63,7 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
             final double lightDamage = settings.mass * 2.0;
 
             setOnCollision(other -> {
-                if (other instanceof PlayerModel player) {
+                if (other instanceof PlayerModelAbstract player) {
                     double speed = this.getLinearVelocity().getMagnitude();
 
                     // Applica un danno maggiore (heavy) se l'impatto avviene ad alta velocità (carica)
@@ -118,7 +118,7 @@ public class GenericEntityModel extends LivingEntityModel implements HasSprite, 
     /**
      * Ritorna l'istanza delle impostazioni associate a questo specifico modello.
      */
-    public GenericEntitySettings getSettings() {
+    public EntitySettings getSettings() {
         return settings;
     }
 

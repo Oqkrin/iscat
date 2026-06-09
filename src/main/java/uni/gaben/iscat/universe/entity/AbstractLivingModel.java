@@ -2,12 +2,12 @@ package uni.gaben.iscat.universe.entity;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import uni.gaben.iscat.universe.entity.consumables.heart.HeartModelAbstract;
 import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.player.PlayerModelAbstract;
 import uni.gaben.iscat.universe.entity.projectiles.Projectile;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
@@ -16,7 +16,7 @@ import uni.gaben.iscat.utils.SessionScoreTracker;
  * Implementa l'interfaccia LifeDeath e funge da superclasse per il Giocatore e i Nemici,
  * centralizzando la gestione dei drop, dei trigger audio e dell'assegnazione dei punti esperienza.
  */
-public class LivingEntityModel extends AbstractEntityModel implements LifeDeath {
+public abstract class AbstractLivingModel extends AbstractEntityModel implements LifeDeath {
     protected DoubleProperty life = new SimpleDoubleProperty();
     protected double maxLife;
     protected double xpReward = 0.0;
@@ -30,14 +30,14 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
     /** Stato di abbattimento: true se il colpo di grazia finale è stato inferto da un proiettile del giocatore. */
     private boolean killedByProjectile = false;
 
-    public LivingEntityModel(double x, double y, double life, double maxLife) {
+    public AbstractLivingModel(double x, double y, double life, double maxLife) {
         super(x, y);
         this.life.set(life);
         this.maxLife = maxLife;
     }
 
     /**
-     * Returns the entity key from the database for GenericEntityModel,
+     * Returns the entity key from the database for EntityModel,
      * or the simple class name for other entity types.
      */
     @Override
@@ -111,8 +111,8 @@ public class LivingEntityModel extends AbstractEntityModel implements LifeDeath 
             }
 
             boolean isProjectile = this instanceof Projectile;
-            boolean isPlayer = this instanceof PlayerModel;
-            boolean isHeart = this instanceof HeartModel;
+            boolean isPlayer = this instanceof PlayerModelAbstract;
+            boolean isHeart = this instanceof HeartModelAbstract;
 
             // Riproduzione SFX differenziata per tipologia di entità
             if (!silent && !isProjectile && !isHeart) {

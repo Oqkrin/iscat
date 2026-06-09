@@ -14,7 +14,7 @@ public class GravityPullAbility extends Ability {
     private final Target inRange;
     
     public GravityPullAbility(Target target) {
-        super("GravityPull", ActionCategory.SPECIAL, Collections.emptySet());
+        super("GravityPull", AbilityCategory.SPECIAL, Collections.emptySet());
         this.inRange = target;
     }
 

@@ -33,7 +33,7 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
 
     /**
      * Returns a unique identifier for this entity type.
-     * For GenericEntityModel, this is the database entityKey.
+     * For EntityModel, this is the database entityKey.
      * For other entities, this is the simple class name.
      */
     public String getEntityKey() {
@@ -52,9 +52,13 @@ public abstract class AbstractEntityModel extends Body implements HasTerminalVel
      * Innesca la logica di notifica associata a questa entità.
      */
     public void triggerCollision(AbstractEntityModel other) {
-        if (collisionCallback != null) {
+        if (hasCollision()) {
             collisionCallback.accept(other);
         }
+    }
+
+    public boolean hasCollision() {
+        return collisionCallback != null;
     }
 
     /**
