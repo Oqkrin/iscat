@@ -245,7 +245,7 @@ public class BestiaryMenuController implements IscatMenuController {
             case EXTRA -> {
                 rightCardHeader.setText("EXTRA INFO");
 
-                double cooldownSeconds = (enemy.actionCooldownS > 0) ? enemy.actionCooldownS : (enemy.actionCooldownMS / 1000.0);
+                double cooldownSeconds = (enemy.actionCooldownMS > 0) ? enemy.actionCooldownMS : (enemy.actionCooldownMS / 1000.0);
 
                 description.setText(String.format("""
                     INFORMAZIONI EXTRA

@@ -105,6 +105,7 @@ public class GenericEntityFactory {
     private static GenericEntitySettings parseEnemySettings(JSONObject json) {
         GenericEntitySettings s = new GenericEntitySettings();
 
+        System.out.println(json.toString());
         s.entityKey = json.optString("EntityKey", "");
         s.name = json.optString("Name", "");
         s.description = json.optString("Description", "");
@@ -136,7 +137,7 @@ public class GenericEntityFactory {
         s.detectionRange = json.optDouble("DetectionRange", 15.0);
         s.combatRange = json.optDouble("CombatRange", 10.0);
         s.preferredRange = json.optDouble("PreferredRange", 10.0);
-        s.actionCooldownS = json.optDouble("actionCooldownS", 800.0);
+        s.actionCooldownMS = json.optDouble("actionCooldownS", 800.0);
 
         // Parsing dell'oggetto audio
         if (json.has("audio")) {

@@ -3,6 +3,7 @@ package uni.gaben.iscat.view.components;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.Bloom;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import uni.gaben.iscat.utils.theme.ThemeManager;
@@ -107,6 +108,7 @@ public class AnimatedCanvas extends Canvas {
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.setImageSmoothing(false);
+        gc.setEffect(new Bloom());
 
         int sheetRow = Math.clamp(animator.getCurrentState(), 0, spriteSheet.getTotalStates() - 1);
         int sheetColumn = Math.clamp(animator.getCurrentFrame(), 0, spriteSheet.getTotalFrames() - 1);

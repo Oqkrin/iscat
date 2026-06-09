@@ -27,7 +27,7 @@ public class GenericEntitySettings extends PhysicalEntitySettings {
     /** * Il JSON fornisce il cooldown in secondi (es. 800), mentre la classe madre
      * espone 'actionCooldownMS'. Teniamo questo campo per catturare il dato del JSON.
      */
-    public double actionCooldownS = 0.0;
+    public double actionCooldownMS = 0.0;
 
     // 4. STRUTTURA AUDIO (Specifica di questa sottoclasse)
     public AudioProfile audio = new AudioProfile();

@@ -21,8 +21,7 @@ public class PhysicalEntitySettings {
     public double detectionRange = 15.0;
     public double combatRange = 10.0;
     public double preferredRange = 7.0;
-    public double actionCooldownMS = 2.0;
-    
+
     // Rewards
     public int xpReward = 10;
 
