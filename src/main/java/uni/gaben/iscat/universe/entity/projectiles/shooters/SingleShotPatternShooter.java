@@ -2,7 +2,6 @@ package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 
 import java.util.function.Consumer;
 

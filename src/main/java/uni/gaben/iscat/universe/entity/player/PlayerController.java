@@ -7,7 +7,7 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.projectiles.Shooter;
+import uni.gaben.iscat.universe.entity.projectiles.shooters.Shooter;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.Cooldown;
@@ -52,7 +52,7 @@ public class PlayerController {
             // Movement force
             if (dx != 0 || dy != 0) {
                 Vector2 dir = new Vector2(dx, dy).getNormalized();
-                if (player.notStunned()) {
+                if (!player.isStunned()) {
                     player.applyForce(dir.multiply(PlayerSettings.FORZA_SPINTA * player.getMass().getMass()));
                 }
             }
@@ -77,7 +77,7 @@ public class PlayerController {
 
             nextAngle = Interpolator.lerp(currentAngle, currentAngle + diff, Math.min(15.0 * dt, 1.0));
             player.getTransform().setRotation(nextAngle);
-            if (player.notStunned()) {
+            if (!player.isStunned()) {
                 player.setAngularVelocity(Interpolator.lerp(player.getAngularVelocity(), 0, Math.min(20.0 * dt, 1.0)));
             }
 
@@ -88,7 +88,7 @@ public class PlayerController {
         }
 
         // Dash & slow‑motion
-        if (player.notStunned()) {
+        if (!player.isStunned()) {
             handleDashAndSlowMotion(input, dx, dy, nextAngle);
         }
     }
@@ -124,7 +124,7 @@ public class PlayerController {
             updateAttackPatternByLevel();          // initial assignment
             this.lastLevel = player.getLevel();    // cache
 
-            this.player.lifeProperty().addListener((obs, old, newVal) -> {
+            this.player.enduranceProperty().addListener((obs, old, newVal) -> {
                 if (old.doubleValue() > newVal.doubleValue()) {
                     AudioManager.getInstance().playSFX("hurt");
                 }
@@ -148,7 +148,7 @@ public class PlayerController {
             double angle = player.getTransform().getRotationAngle();
 
             Consumer<ProjectileModel> customizer = bullet -> {
-                double boostedLife = bullet.getLife() + player.getLevel();
+                double boostedLife = bullet.getEndurance() + player.getLevel();
                 bullet.setMaxLifeDirect(boostedLife);
             };
 

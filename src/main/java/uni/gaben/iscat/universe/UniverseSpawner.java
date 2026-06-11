@@ -55,9 +55,9 @@ public class UniverseSpawner {
 
     public Object waveSpawn(UniverseSpawnable type, double x, double y, int playerLevel) {
         Object toSpawn = spawn(type, x, y);
-        if (toSpawn instanceof AbstractLivingModel l) {
-            l.setMaxLife(l.getMaxLife() * playerLevel);
-            l.setLife(l.getMaxLife());
+        if (toSpawn instanceof AbstractLivingEntityModel l) {
+            l.setMaxEndurance(l.getMaxEndurance() * playerLevel);
+            l.setEndurance(l.getMaxEndurance());
         }
         return toSpawn;
     }
@@ -111,7 +111,7 @@ public class UniverseSpawner {
                 .spawn(id, x, y, model, controller);
 
         if (jsonEntity != null) {
-            if (jsonEntity.getSettings().isBoss) {
+            if (jsonEntity.getEntity().isBoss()) {
                 jsonEntity.setWaveController(this.waveController);
             }
                     }

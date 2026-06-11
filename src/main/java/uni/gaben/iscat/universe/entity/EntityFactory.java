@@ -20,8 +20,85 @@ public class EntityFactory {
 
     private EntityFactory() {}
 
-    private static final Map<String, EntitySettings> cache = new ConcurrentHashMap<>();
+    private static final Map<String, EntityRecord> cache = new ConcurrentHashMap<>();
     private static final String JSON_PATH = "/uni/gaben/iscat/json/enemies.json";
+
+    // ========================= BUILDER =========================
+
+    public static class EntityRecordBuilder {
+        // Identity
+        private String entityKey = "";
+        private String name = "";
+        private String description = "";
+        // Visual
+        private String spritePath = "";
+        private int frameW = 32;
+        private int frameH = 32;
+        private double scale = 1.0;
+        private int[] animationFrames = null;
+        private boolean isBoss = false;
+        private boolean hasEntranceAnimation = false;
+        // Physical
+        private double initLife = 100;
+        private double linearDamping = 2.0;
+        private double mass = 1.0;
+        private double maxVelocity = 10.0;
+        private double maxForce = 10.0;
+        private double maxAngularVelocity = 5.0;
+        private int xpReward = 10;
+        private EntityRecord.ShapeType shapeType = EntityRecord.ShapeType.CIRCLE;
+        // Behavioural
+        private double detectionRange = 15.0;
+        private double combatRange = 10.0;
+        private double preferredRange = 7.0;
+        private double actionCooldownSec = 0.8;
+        // Audio
+        private EntityRecord.AudioProfile audio = new EntityRecord.AudioProfile(List.of(), List.of(), List.of(), List.of(), List.of());
+        // AI
+        private EntityRecord.BrainRecord brain = null;
+        // Player
+        private EntityRecord.PlayerRecord player = null;
+
+        // Fluent setters
+        public EntityRecordBuilder entityKey(String v) { entityKey = v; return this; }
+        public EntityRecordBuilder name(String v) { name = v; return this; }
+        public EntityRecordBuilder description(String v) { description = v; return this; }
+        public EntityRecordBuilder spritePath(String v) { spritePath = v; return this; }
+        public EntityRecordBuilder frameW(int v) { frameW = v; return this; }
+        public EntityRecordBuilder frameH(int v) { frameH = v; return this; }
+        public EntityRecordBuilder scale(double v) { scale = v; return this; }
+        public EntityRecordBuilder animationFrames(int[] v) { animationFrames = v; return this; }
+        public EntityRecordBuilder isBoss(boolean v) { isBoss = v; return this; }
+        public EntityRecordBuilder hasEntranceAnimation(boolean v) { hasEntranceAnimation = v; return this; }
+        public EntityRecordBuilder initLife(double v) { initLife = v; return this; }
+        public EntityRecordBuilder linearDamping(double v) { linearDamping = v; return this; }
+        public EntityRecordBuilder mass(double v) { mass = v; return this; }
+        public EntityRecordBuilder maxVelocity(double v) { maxVelocity = v; return this; }
+        public EntityRecordBuilder maxForce(double v) { maxForce = v; return this; }
+        public EntityRecordBuilder maxAngularVelocity(double v) { maxAngularVelocity = v; return this; }
+        public EntityRecordBuilder xpReward(int v) { xpReward = v; return this; }
+        public EntityRecordBuilder shapeType(EntityRecord.ShapeType v) { shapeType = v; return this; }
+        public EntityRecordBuilder detectionRange(double v) { detectionRange = v; return this; }
+        public EntityRecordBuilder combatRange(double v) { combatRange = v; return this; }
+        public EntityRecordBuilder preferredRange(double v) { preferredRange = v; return this; }
+        public EntityRecordBuilder actionCooldownSec(double v) { actionCooldownSec = v; return this; }
+        public EntityRecordBuilder audio(EntityRecord.AudioProfile v) { audio = v; return this; }
+        public EntityRecordBuilder brain(EntityRecord.BrainRecord v) { brain = v; return this; }
+        public EntityRecordBuilder player(EntityRecord.PlayerRecord v) { player = v; return this; }
+
+        public EntityRecord build() {
+            return new EntityRecord(
+                    entityKey, name, description,
+                    spritePath, frameW, frameH, scale,
+                    animationFrames, isBoss, hasEntranceAnimation,
+                    initLife, linearDamping, mass, maxVelocity, maxForce, maxAngularVelocity, xpReward, shapeType,
+                    detectionRange, combatRange, preferredRange, actionCooldownSec,
+                    audio, brain, player
+            );
+        }
+    }
+
+    // ========================= FACTORY METHODS =========================
 
     public static EntityModel spawn(
             String entityKey,
@@ -32,14 +109,14 @@ public class EntityFactory {
         if (entityKey == null) return null;
         String normalizedKey = entityKey.toLowerCase().trim();
 
-        EntitySettings settings = loadSettings(normalizedKey);
-        if (settings == null) {
+        EntityRecord record = loadRecord(normalizedKey);
+        if (record == null) {
             System.err.println("[EntityFactory] Impossibile spawnare: EntityKey sconosciuta '" + normalizedKey + "'");
             return null;
         }
 
-        EntityModel model = new EntityModel(x, y, settings);
-        EntityBrain brain = EntityBrain.fromSettings(model);
+        EntityModel model = new EntityModel(x, y, record);
+        EntityBrain brain = EntityBrain.fromRecord(model);
 
         universe.addEntity(model);
         controller.addEntityController(brain);
@@ -54,22 +131,19 @@ public class EntityFactory {
                     throw new RuntimeException("File JSON non trovato in: " + JSON_PATH);
                 }
 
-                // Legge tutto il file JSON in una stringa
                 String jsonText = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
                         .lines().collect(Collectors.joining("\n"));
 
                 JSONObject root = new JSONObject(jsonText);
                 JSONArray enemies = root.getJSONArray("enemies");
 
-                // Svuotiamo la vecchia cache prima del ricaricamento
                 cache.clear();
 
                 for (int i = 0; i < enemies.length(); i++) {
                     JSONObject jsonEnemy = enemies.getJSONObject(i);
-                    EntitySettings settings = parseEnemySettings(jsonEnemy);
-
-                    if (settings.entityKey != null) {
-                        cache.put(settings.entityKey.toLowerCase().trim(), settings);
+                    EntityRecord record = parseEnemySettings(jsonEnemy);
+                    if (record.entityKey() != null) {
+                        cache.put(record.entityKey().toLowerCase().trim(), record);
                     }
                 }
                 System.out.println("[EntityFactory] Cache JSON pronta. Pre-caricate " + cache.size() + " definizioni.");
@@ -82,18 +156,15 @@ public class EntityFactory {
         });
     }
 
-
-    private static EntitySettings loadSettings(String entityKey) {
-        EntitySettings cached = cache.get(entityKey);
+    private static EntityRecord loadRecord(String entityKey) {
+        EntityRecord cached = cache.get(entityKey);
         if (cached != null) {
             return cached;
         }
 
         System.err.println("[PERFORMANCE WARNING] Cache-miss per '" + entityKey + "'! Ricarico il file JSON in modo sincrono.");
-
-        // Esegue il precaricamento sincrono di blocco per recuperare il dato mancante
         try {
-            preloadAllAsync().get(); // Attende il completamento della transazione
+            preloadAllAsync().get();
             return cache.get(entityKey);
         } catch (Exception e) {
             System.err.println("[EntityFactory] Impossibile recuperare l'entità dopo il cache-miss.");
@@ -101,151 +172,171 @@ public class EntityFactory {
         }
     }
 
-    /**
-     * Mappa i campi PascalCase del JSON nei campi camelCase dell'oggetto Java
-     */
-    private static EntitySettings parseEnemySettings(JSONObject json) {
-        EntitySettings s = new EntitySettings();
+    private static EntityRecord parseEnemySettings(JSONObject json) {
+        EntityRecordBuilder builder = new EntityRecordBuilder();
 
-        s.entityKey = json.optString("EntityKey", "");
-        s.name = json.optString("Name", "");
-        s.description = json.optString("Description", "");
+        // Identity
+        builder.entityKey(json.optString("EntityKey", ""))
+                .name(json.optString("Name", ""))
+                .description(json.optString("Description", ""));
 
-        // Mappatura SpriteName -> spritePath (aggiungendo l'estensione se necessario)
+        // Sprite path
         String spriteName = json.optString("SpriteName", "").trim();
-
         if (spriteName.toLowerCase().endsWith(".png")) {
             spriteName = spriteName.substring(0, spriteName.length() - 4);
         }
+        builder.spritePath("/uni/gaben/iscat/sprites/enemies/" + spriteName + ".png");
 
-        s.spritePath = "/uni/gaben/iscat/sprites/enemies/" + spriteName + ".png";
+        // Visual
+        builder.frameW(json.optInt("FrameW", 32))
+                .frameH(json.optInt("FrameH", 32))
+                .shapeType(EntityRecord.ShapeType.valueOf(json.optString("ShapeType", "CIRCLE")))
+                .scale(json.optDouble("Scale", 1.0));
 
-        s.frameW = json.optInt("FrameW", 32);
-        s.frameH = json.optInt("FrameH", 32);
-        s.shapeType = PhysicalEntitySettings.ShapeType.valueOf(json.optString("ShapeType", "CIRCLE"));
-        s.scale = json.optDouble("Scale", 1.0);
+        // Physical
+        builder.initLife(json.optInt("InitLife", 100))
+                .linearDamping(json.optDouble("LinearDamping", 2.0))
+                .mass(json.optDouble("mass", 1.0))
+                .maxVelocity(json.optDouble("MaxVelocity", 10.0))
+                .maxForce(json.optDouble("MaxForce", 30.0))
+                .maxAngularVelocity(json.optDouble("MaxAngularVelocity", 5.0))
+                .xpReward(json.optInt("XPReward", 10));
 
-        s.initLife = json.optInt("InitLife", 100);
-        s.linearDamping = json.optDouble("LinearDamping", 2.0);
-        s.mass = json.optDouble("mass", 1.0);
-        s.maxVelocity = json.optDouble("MaxVelocity", 10.0);
-        s.maxForce = json.optDouble("MaxForce", 30.0);
-        s.maxAngularVelocity = json.optDouble("MaxAngularVelocity", 5.0);
-        s.xpReward = json.optInt("XPReward", 10);
+        // Behavioural
+        builder.detectionRange(json.optDouble("DetectionRange", 15.0))
+                .combatRange(json.optDouble("CombatRange", 10.0))
+                .preferredRange(json.optDouble("PreferredRange", 10.0))
+                .actionCooldownSec(json.optDouble("actionCooldownS", 800.0) / 1000.0); // ms → sec
 
-        s.detectionRange = json.optDouble("DetectionRange", 15.0);
-        s.combatRange = json.optDouble("CombatRange", 10.0);
-        s.preferredRange = json.optDouble("PreferredRange", 10.0);
-        s.actionCooldownMS = json.optDouble("actionCooldownS", 800.0);
+        // Boss flags
+        builder.isBoss(json.optBoolean("IsBoss", false))
+                .hasEntranceAnimation(json.optBoolean("HasEntranceAnimation", false));
 
-        s.isBoss = json.optBoolean("IsBoss", false);
-        s.hasEntranceAnimation = json.optBoolean("HasEntranceAnimation", false);
-
+        // Animation frames
         if (json.has("AnimationFrames")) {
             JSONArray framesArray = json.getJSONArray("AnimationFrames");
-            s.animationFrames = new int[framesArray.length()];
+            int[] frames = new int[framesArray.length()];
             for (int i = 0; i < framesArray.length(); i++) {
-                s.animationFrames[i] = framesArray.optInt(i, 1); // Fallback a 1 frame se c'è un errore
+                frames[i] = framesArray.optInt(i, 1);
             }
+            builder.animationFrames(frames);
         }
 
-        // Parsing dell'oggetto audio
+        // Audio
         if (json.has("audio")) {
             JSONObject audioJson = json.getJSONObject("audio");
-            s.audio.attack = jsonArrayToList(audioJson.optJSONArray("attack"));
-            s.audio.idle = jsonArrayToList(audioJson.optJSONArray("idle"));
-            s.audio.hurt = jsonArrayToList(audioJson.optJSONArray("hurt"));
-            s.audio.death = jsonArrayToList(audioJson.optJSONArray("death"));
-            s.audio.spawn = jsonArrayToList(audioJson.optJSONArray("spawn"));
+            builder.audio(new EntityRecord.AudioProfile(
+                    jsonArrayToList(audioJson.optJSONArray("attack")),
+                    jsonArrayToList(audioJson.optJSONArray("idle")),
+                    jsonArrayToList(audioJson.optJSONArray("hurt")),
+                    jsonArrayToList(audioJson.optJSONArray("death")),
+                    jsonArrayToList(audioJson.optJSONArray("spawn"))
+            ));
         }
 
-        return s;
+        // AI (optional)
+        if (json.has("ai")) {
+            builder.brain(parseBrain(json.getJSONObject("ai")));
+        }
+
+        // Player (not present in enemies.json, but builder may set later)
+        return builder.build();
     }
 
-    private static void parseAI(JSONObject json, EntitySettings s) {
-        JSONObject aiJson = json.optJSONObject("ai");
-        if (aiJson == null) return;
-
-        parseSteering(aiJson.optJSONObject("steering"), s.brain.steering);
-        parseRotation(aiJson.optJSONObject("rotation"), s.brain.rotation);
-        parseAbilities(aiJson.optJSONArray("abilities"), s.brain.abilities);
-        parseModifiers(aiJson.optJSONArray("modifiers"), s.brain.modifiers);
+    private static EntityRecord.BrainRecord parseBrain(JSONObject aiJson) {
+        // Build each component with inner builders
+        EntityRecord.SteeringRecord steering = parseSteering(aiJson.optJSONObject("steering"));
+        EntityRecord.RotationRecord rotation = parseRotation(aiJson.optJSONObject("rotation"));
+        List<EntityRecord.AbilityRecord> abilities = parseAbilities(aiJson.optJSONArray("abilities"));
+        List<EntityRecord.ModifierRecord> modifiers = parseModifiers(aiJson.optJSONArray("modifiers"));
+        return new EntityRecord.BrainRecord(steering, rotation, abilities, modifiers);
     }
 
-    private static void parseSteering(JSONObject obj, EntitySettings.SteeringSettings cfg) {
-        if (obj == null) return;
-        cfg.type = obj.optString("type", cfg.type);
-        cfg.maxPredictionTime = obj.optDouble("maxPredictionTime", cfg.maxPredictionTime);
-        cfg.minDistance = obj.optDouble("minDistance", cfg.minDistance);
-        cfg.maxDistance = obj.optDouble("maxDistance", cfg.maxDistance);
-        cfg.safetyDistance = obj.optDouble("safetyDistance", cfg.safetyDistance);
+    private static EntityRecord.SteeringRecord parseSteering(JSONObject obj) {
+        if (obj == null) return new EntityRecord.SteeringRecord("idle", 2.5, 2.5, 10.0, 5.0);
+        return new EntityRecord.SteeringRecord(
+                obj.optString("type", "idle"),
+                obj.optDouble("maxPredictionTime", 2.5),
+                obj.optDouble("minDistance", 2.5),
+                obj.optDouble("maxDistance", 10.0),
+                obj.optDouble("safetyDistance", 5.0)
+        );
     }
 
-    private static void parseRotation(JSONObject obj, EntitySettings.RotationSettings cfg) {
-        if (obj == null) return;
-        cfg.type = obj.optString("type", cfg.type);
-        cfg.spinSpeedRadPerSec = obj.optDouble("spinSpeedRadPerSec", cfg.spinSpeedRadPerSec);
-        cfg.spinSteps = obj.optInt("spinSteps", cfg.spinSteps);
-        cfg.stepPauseSec = obj.optDouble("stepPauseSec", cfg.stepPauseSec);
-        cfg.target = obj.optString("target", cfg.target);
+    private static EntityRecord.RotationRecord parseRotation(JSONObject obj) {
+        if (obj == null) return new EntityRecord.RotationRecord("idle", 0.0, 8, 0.1, "player");
+        return new EntityRecord.RotationRecord(
+                obj.optString("type", "idle"),
+                obj.optDouble("spinSpeedRadPerSec", 0.0),
+                obj.optInt("spinSteps", 8),
+                obj.optDouble("stepPauseSec", 0.1),
+                obj.optString("target", "player")
+        );
     }
 
-    private static void parseAbilities(JSONArray arr, List<EntitySettings.AbilitySettings> list) {
-        if (arr == null) return;
+    private static List<EntityRecord.AbilityRecord> parseAbilities(JSONArray arr) {
+        List<EntityRecord.AbilityRecord> list = new ArrayList<>();
+        if (arr == null) return list;
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
-            EntitySettings.AbilitySettings ac = new EntitySettings.AbilitySettings();
-            ac.type = obj.optString("type");
-            ac.combatRange = obj.optDouble("combatRange", ac.combatRange);
-            ac.cooldownSec = obj.optDouble("cooldownSec", ac.cooldownSec);
-            ac.bulletType = obj.optString("bulletType", ac.bulletType);
-            ac.aimAtTarget = obj.optBoolean("aimAtTarget", ac.aimAtTarget);
-            ac.nerfPrediction = obj.optDouble("nerfPrediction", ac.nerfPrediction);
-            ac.healAmount = obj.optDouble("healAmount", ac.healAmount);
-            ac.summonEntityKey = obj.optString("summonEntityKey", ac.summonEntityKey);
-            ac.summonCount = obj.optInt("summonCount", ac.summonCount);
-            ac.summonRadiusPx = obj.optDouble("summonRadiusPx", ac.summonRadiusPx);
-            ac.meleeDamage = obj.optDouble("meleeDamage", ac.meleeDamage);
-            ac.attackStateIndex = obj.optInt("attackStateIndex", ac.attackStateIndex);
-
-            if (obj.has("pattern")) {
-                ac.pattern = parsePattern(obj.getJSONObject("pattern"));
-            }
-            if (obj.has("patterns")) {
-                JSONArray patternsArr = obj.getJSONArray("patterns");
-                for (int j = 0; j < patternsArr.length(); j++) {
-                    ac.patterns.add(parsePattern(patternsArr.getJSONObject(j)));
-                }
-            }
+            EntityRecord.AbilityRecord ac = new EntityRecord.AbilityRecord(
+                    obj.optString("type"),
+                    obj.optDouble("combatRange", 10.0),
+                    obj.optDouble("cooldownSec", 0.8),
+                    obj.optString("bulletType", "ENEMY_BULLET"),
+                    obj.optBoolean("aimAtTarget", true),
+                    obj.optDouble("nerfPrediction", 0.0),
+                    parsePatternList(obj.optJSONArray("patterns")),
+                    parsePattern(obj.optJSONObject("pattern")),
+                    obj.optDouble("healAmount", 0.0),
+                    obj.optString("summonEntityKey"),
+                    obj.optInt("summonCount", 1),
+                    obj.optDouble("summonRadiusPx", 100.0),
+                    obj.optDouble("meleeDamage", 0.0),
+                    obj.optInt("attackStateIndex", 4)
+            );
             list.add(ac);
         }
+        return list;
     }
 
-    private static EntitySettings.PatternSettings parsePattern(JSONObject obj) {
-        EntitySettings.PatternSettings pc = new EntitySettings.PatternSettings();
-        pc.type = obj.optString("type");
-        pc.count = obj.optInt("count", pc.count);
-        pc.angleStepDeg = obj.optDouble("angleStepDeg", pc.angleStepDeg);
-        pc.intervalSec = obj.optDouble("intervalSec", pc.intervalSec);
-        pc.repeats = obj.optInt("repeats", pc.repeats);
-        pc.summonedEntityKey = obj.optString("summonedEntityKey", pc.summonedEntityKey);
-        pc.summonRadiusPx = obj.optDouble("summonRadiusPx", pc.summonRadiusPx);
-        pc.figureType = obj.optString("figureType", pc.figureType);
-        return pc;
+    private static List<EntityRecord.PatternRecord> parsePatternList(JSONArray arr) {
+        List<EntityRecord.PatternRecord> list = new ArrayList<>();
+        if (arr == null) return list;
+        for (int i = 0; i < arr.length(); i++) {
+            list.add(parsePattern(arr.getJSONObject(i)));
+        }
+        return list;
     }
 
-    private static void parseModifiers(JSONArray arr, List<EntitySettings.ModifierSettings> list) {
-        if (arr == null) return;
+    private static EntityRecord.PatternRecord parsePattern(JSONObject obj) {
+        if (obj == null) return null;
+        return new EntityRecord.PatternRecord(
+                obj.optString("type"),
+                obj.optInt("count", 1),
+                obj.optDouble("angleStepDeg", 30.0),
+                obj.optDouble("intervalSec", 0.15),
+                obj.optInt("repeats", 1),
+                obj.optString("summonedEntityKey"),
+                obj.optDouble("summonRadiusPx", 100.0),
+                obj.optString("figureType", "CIRCLE")
+        );
+    }
+
+    private static List<EntityRecord.ModifierRecord> parseModifiers(JSONArray arr) {
+        List<EntityRecord.ModifierRecord> list = new ArrayList<>();
+        if (arr == null) return list;
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
-            EntitySettings.ModifierSettings mc = new EntitySettings.ModifierSettings();
-            mc.type = obj.optString("type");
-            mc.radius = obj.optDouble("radius", mc.radius);
-            mc.weight = obj.optDouble("weight", mc.weight);
-            mc.maxPredictionTime = obj.optDouble("maxPredictionTime", mc.maxPredictionTime);
-            mc.avoidRadius = obj.optDouble("avoidRadius", mc.avoidRadius);
-            list.add(mc);
+            list.add(new EntityRecord.ModifierRecord(
+                    obj.optString("type"),
+                    obj.optDouble("radius", 2.0),
+                    obj.optDouble("weight", 1.0),
+                    obj.optDouble("maxPredictionTime", 1.0),
+                    obj.optDouble("avoidRadius", 2.0)
+            ));
         }
+        return list;
     }
 
     private static List<String> jsonArrayToList(JSONArray array) {
@@ -258,7 +349,7 @@ public class EntityFactory {
         return list;
     }
 
-    public static Map<String, EntitySettings> getCache() {
+    public static Map<String, EntityRecord> getCache() {
         return cache;
     }
 }

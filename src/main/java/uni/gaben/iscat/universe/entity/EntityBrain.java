@@ -1,12 +1,9 @@
 package uni.gaben.iscat.universe.entity;
 
-import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.HealAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.*;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
 
@@ -16,9 +13,10 @@ public class EntityBrain extends Brain<EntityModel> {
     public EntityBrain(EntityModel entity) {
         super(entity);
 
+        /*
         setRotationGoal(RotationGoal.idle());
 
-        EntitySettings settings = entity.getSettings();
+        EntityRecord settings = entity.getSettings();
 
         Target neighbour = Target.neighboursCached(entity, settings.detectionRange/2, body -> !(body instanceof PlayerModel || (body instanceof ProjectileModel p && p.getType() == ProjectileType.ENEMY_BULLET)));
 
@@ -29,17 +27,18 @@ public class EntityBrain extends Brain<EntityModel> {
         addModifier(SteeringModifier.separation(neighbour.filtered(entityModel -> !(entityModel instanceof ProjectileModel)), settings.detectionRange/4, new SimpleDoubleProperty(3)));
 
         loadBehaviorsFromSettings(settings);
+         */
     }
 
 
-    private void loadBehaviorsFromSettings(EntitySettings settings) {
-        switch (settings.entityKey) {
+    private void loadBehaviorsFromRecord(EntityRecord record) {
+        switch (record.entityKey()) {
             case "iscat_mob":
-                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 2.5, settings.combatRange, settings.combatRange));
+                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 2.5, record.combatRange(), record.combatRange()));
                 setRotationGoal(RotationGoal.target(Target.ofPlayer()));
                 addAction(new ShootAbility(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        record.detectionRange(),
+                        record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
                         new SingleShotPatternShooter(),
                         Target.ofPlayer(),
@@ -49,13 +48,13 @@ public class EntityBrain extends Brain<EntityModel> {
                 break;
 
             case "iscat_bomber":
-                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 5, settings.combatRange, settings.combatRange));
+                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 5, record.combatRange(), record.combatRange()));
                 setRotationGoal(RotationGoal.target(Target.ofPlayer()));
                 addAction(new ShootAbility(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        record.detectionRange(),
+                        record.actionCooldownSec(),
                         ProjectileType.STUN_BULLET,
-                        new RepeaterPatternShooter(12,settings.actionCooldownMS/10000, new SingleShotPatternShooter()),
+                        new RepeaterPatternShooter(12,record.actionCooldownSec(), new SingleShotPatternShooter()),
                         Target.ofPlayer(),
                         true,
                         0
@@ -63,27 +62,27 @@ public class EntityBrain extends Brain<EntityModel> {
                 break;
 
             case "iscat_core":
-                setRotationGoal(RotationGoal.intervalSpin(8, settings.actionCooldownMS/100, settings.maxAngularVelocity ));
+                setRotationGoal(RotationGoal.intervalSpin(8, record.actionCooldownSec(), record.maxAngularVelocity()));
                 addAction( "shoot" ,new ShootAbility(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        record.detectionRange(),
+                        record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
                         new MultiDirectionPatternShooter(4, 0, new ParallelLinePatternShooter(3, 32)),
                         Target.ofPlayer(),
                         false,
                         0
                 ));
-                entity.lifeProperty().addListener((_, _, newValue) -> {
+                entity.enduranceProperty().addListener((_, _, newValue) -> {
                     AbstractShootAbility s = (AbstractShootAbility) getAction("shoot");
-                    s.setCooldown((settings.actionCooldownMS/1000) * (newValue.doubleValue()/entity.getMaxLife()));
+                    s.setCooldown((record.actionCooldownSec()) * (newValue.doubleValue()/entity.getMaxEndurance()));
                 });
                 break;
 
             case "iscat_mother":
-                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 3, settings.combatRange, settings.combatRange));
+                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 3, record.combatRange(), record.combatRange()));
                 addAction(RandomizedShootAbility.targetingPlayer(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        record.detectionRange(),
+                        record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
                         true,
                         3
@@ -96,10 +95,10 @@ public class EntityBrain extends Brain<EntityModel> {
                 break;
 
             case "fake_iscat":
-                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 2, settings.combatRange, settings.combatRange));
+                setSteeringGoal(SteeringGoal.pursuitWithRange(Target.ofPlayer(), 2, record.combatRange(), record.combatRange()));
                 addAction(RandomizedShootAbility.targetingPlayer(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        record.detectionRange(),
+                        record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
                         true,
                         1
@@ -113,8 +112,8 @@ public class EntityBrain extends Brain<EntityModel> {
             case "fallen_star_golem":
                 setRotationGoal(RotationGoal.continuesSpin(.1));
                 addAction(new ShootAbility(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        record.detectionRange(),
+                        record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
                         new RepeaterPatternShooter(2, 0.5, new RingPatternShooter(16)),
                         Target.ofPlayer(),
@@ -131,8 +130,8 @@ public class EntityBrain extends Brain<EntityModel> {
 
             case "iscat_worm_tail":
                 addAction(RandomizedShootAbility.targetingPlayer(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        record.detectionRange(),
+                        record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
                         true,
                         3,
@@ -144,8 +143,8 @@ public class EntityBrain extends Brain<EntityModel> {
 
             case "iscat_master":
                 addAction(RandomizedShootAbility.targetingPlayer(
-                        settings.detectionRange,
-                        settings.actionCooldownMS/1000,
+                        record.detectionRange(),
+                        record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
                         true,
                         0
@@ -162,8 +161,8 @@ public class EntityBrain extends Brain<EntityModel> {
                 break;
 
             case "iscat_healer":
-                setSteeringGoal(SteeringGoal.evadeWithRange(Target.ofPlayer(), 3, settings.combatRange));
-                addAction(new HealAbility(settings.actionCooldownMS, settings.combatRange/2, settings.initLife/200));
+                setSteeringGoal(SteeringGoal.evadeWithRange(Target.ofPlayer(), 3, record.combatRange()));
+                addAction(new HealAbility(record.actionCooldownSec(), record.combatRange() /2, record.initLife() /200));
                 break;
 
             default:
@@ -172,25 +171,25 @@ public class EntityBrain extends Brain<EntityModel> {
     }
 
 
-    public static EntityBrain fromSettings(EntityModel entity) {
+    public static EntityBrain fromRecord(EntityModel entity) {
         EntityBrain brain = new EntityBrain(entity);
-        EntitySettings s = entity.getSettings();
-        if (s.brain == null) return brain;
+        EntityRecord s = entity.getEntity();
+        if (s.brain() == null) return brain;
 
         // Steering
-        brain.setSteeringGoal(SteeringGoal.createSteeringGoal(s.brain.steering));
+        brain.setSteeringGoal(SteeringGoal.createSteeringGoal(s.brain().steering()));
 
         // Rotation
-        brain.setRotationGoal(RotationGoal.createRotationGoal(s.brain.rotation));
+        brain.setRotationGoal(RotationGoal.createRotationGoal(s.brain().rotation()));
 
         // Abilities
-        for (EntitySettings.AbilitySettings ac : s.brain.abilities) {
+        for (EntityRecord.AbilityRecord ac : s.brain().abilities()) {
             Ability ability = Ability.createAbility(ac, entity);
             if (ability != null) brain.addAction(ability);
         }
 
         // Modifiers
-        for (EntitySettings.ModifierSettings mc : s.brain.modifiers) {
+        for (EntityRecord.ModifierRecord mc : s.brain().modifiers()) {
             SteeringModifier mod = SteeringModifier.createModifier(mc, entity);
             if (mod != null) brain.addModifier(mod);
         }

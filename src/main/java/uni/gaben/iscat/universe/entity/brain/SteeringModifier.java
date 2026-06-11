@@ -8,7 +8,7 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.EntityFilters;
 import uni.gaben.iscat.universe.entity.EntityModel;
-import uni.gaben.iscat.universe.entity.EntitySettings;
+import uni.gaben.iscat.universe.entity.EntityRecord;
 
 import java.util.List;
 
@@ -17,15 +17,15 @@ public interface SteeringModifier {
 
     void computeSteer(AbstractEntityModel self, UniverseModel world, double maxForce, double dt, Vector2 outForce);
 
-    static SteeringModifier createModifier(EntitySettings.ModifierSettings mc, EntityModel entity) {
-        DoubleProperty weight = new SimpleDoubleProperty(mc.weight);
-        Target neighbors = Target.neighboursCached(entity, mc.radius, EntityFilters.isNot(entity));
-        return switch (mc.type) {
-            case "separation" -> SteeringModifier.separation(neighbors, mc.radius, weight);
+    static SteeringModifier createModifier(EntityRecord.ModifierRecord mc, EntityModel entity) {
+        DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
+        Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
+        return switch (mc.type()) {
+            case "separation" -> SteeringModifier.separation(neighbors, mc.radius(), weight);
             case "alignment" -> SteeringModifier.alignment(neighbors, weight);
             case "cohesion" -> SteeringModifier.cohesion(neighbors, weight);
             case "collisionAvoidance" ->
-                    SteeringModifier.collisionAvoidance(neighbors, mc.maxPredictionTime, mc.avoidRadius, weight);
+                    SteeringModifier.collisionAvoidance(neighbors, mc.maxPredictionTime(), mc.avoidRadius(), weight);
             default -> null;
         };
     }

@@ -45,17 +45,17 @@ public class StunThreadProjectileModel extends ProjectileModel {
         setLinearVelocity(direction.multiply(speed));
 
         // Override damage: stun threads should not hurt, only disable
-        setLife(1.0);
-        setMaxLife(1.0);
+        setEndurance(1.0);
+        setMaxEndurance(1.0);
 
         // Custom collision handler: apply stun to player, then vanish
         setOnCollision(other -> {
             if (other instanceof PlayerModel player) {
-                player.applyStun(stunDuration);
-                kill(true);
+                player.stun(stunDuration);
+                extinguish(true);
             } else if (!(other instanceof StunThreadProjectileModel)) {
                 // Remove on contact with any other solid object (walls, other enemies, etc.)
-                kill(true);
+                extinguish(true);
             }
         });
     }

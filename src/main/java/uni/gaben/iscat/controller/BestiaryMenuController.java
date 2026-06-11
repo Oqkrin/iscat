@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.model.BestiaryModel;
-import uni.gaben.iscat.universe.entity.EntitySettings;
+import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;
@@ -32,8 +32,8 @@ public class BestiaryMenuController implements IscatMenuController {
     }
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
-    private Map<String, EntitySettings> rawEnemiesMap = new LinkedHashMap<>();
-    private final Map<String, EntitySettings> filteredEnemies = new LinkedHashMap<>();
+    private Map<String, EntityRecord> rawEnemiesMap = new LinkedHashMap<>();
+    private final Map<String, EntityRecord> filteredEnemies = new LinkedHashMap<>();
 
     private static final double DISPLAY_SIZE = 196.0;
     private static final double ICON_SIZE = 32.0;
@@ -108,9 +108,9 @@ public class BestiaryMenuController implements IscatMenuController {
     private void applyFilterAndRebuildUI() {
         filteredEnemies.clear();
 
-        for (Map.Entry<String, EntitySettings> entry : rawEnemiesMap.entrySet()) {
+        for (Map.Entry<String, EntityRecord> entry : rawEnemiesMap.entrySet()) {
             String key = entry.getKey().toLowerCase().trim();
-            boolean isPlayerEntity = key.contains("player") || entry.getValue().name.toLowerCase().contains("player");
+            boolean isPlayerEntity = key.contains("player") || entry.getValue().name().toLowerCase().contains("player");
 
             if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity) {
                 filteredEnemies.put(entry.getKey(), entry.getValue());
@@ -147,11 +147,11 @@ public class BestiaryMenuController implements IscatMenuController {
         enemyButtonsBox.getChildren().clear();
         buttonCanvases.clear();
 
-        for (EntitySettings enemy : filteredEnemies.values()) {
-            String safeId = enemy.entityKey.toLowerCase().trim();
+        for (EntityRecord enemy : filteredEnemies.values()) {
+            String safeId = enemy.entityKey().toLowerCase().trim();
             boolean unlocked = bestiaryModel.isUnlocked(safeId);
 
-            String buttonText = unlocked ? enemy.name : "???";
+            String buttonText = unlocked ? enemy.name() : "???";
 
             Button button = new Button(buttonText);
             button.setPrefWidth(250.0);
@@ -162,7 +162,7 @@ public class BestiaryMenuController implements IscatMenuController {
             iconCanvas.setFrameDuration(0.20);
 
             if (unlocked) {
-                iconCanvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
+                iconCanvas.loadSkin(enemy.spritePath(), enemy.frameW(), enemy.frameH());
             } else {
                 iconCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
                 button.setStyle("-fx-opacity: 0.75;");
@@ -183,21 +183,21 @@ public class BestiaryMenuController implements IscatMenuController {
         if (id == null) return;
 
         String cleanId = id.toLowerCase().trim();
-        EntitySettings enemy = filteredEnemies.get(cleanId);
+        EntityRecord enemy = filteredEnemies.get(cleanId);
 
         if (enemy == null) return;
 
         currentEnemyId = cleanId;
 
         boolean unlocked = bestiaryModel.isUnlocked(cleanId);
-        String nameToShow = unlocked ? enemy.name.toUpperCase() : "??? UNKNOWN ENTITY ???";
+        String nameToShow = unlocked ? enemy.name().toUpperCase() : "??? UNKNOWN ENTITY ???";
         skinNameLabel.setText(nameToShow);
 
         refreshInfoZone();
 
         previewCanvas.setFrameDuration(0.1);
         if (unlocked) {
-            previewCanvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
+            previewCanvas.loadSkin(enemy.spritePath(), enemy.frameW(), enemy.frameH());
         } else {
             previewCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
         }
@@ -208,7 +208,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
     private void refreshInfoZone() {
         if (currentEnemyId == null) return;
-        EntitySettings enemy = filteredEnemies.get(currentEnemyId);
+        EntityRecord enemy = filteredEnemies.get(currentEnemyId);
         if (enemy == null) return;
 
         boolean unlocked = bestiaryModel.isUnlocked(currentEnemyId);
@@ -223,7 +223,7 @@ public class BestiaryMenuController implements IscatMenuController {
         switch (currentInfoMode) {
             case DESCRIPTION -> {
                 rightCardHeader.setText("DESCRIPTION");
-                description.setText(enemy.description);
+                description.setText(enemy.description());
             }
             case STATS -> {
                 rightCardHeader.setText("STATS");
@@ -238,14 +238,14 @@ public class BestiaryMenuController implements IscatMenuController {
                     ⚙ Massa: %.1f kg
                     💪 Forza Massima: %.1f N
                     """,
-                        enemy.initLife, enemy.maxVelocity, enemy.xpReward,
-                        enemy.scale, enemy.linearDamping, enemy.mass, enemy.maxForce
+                        enemy.initLife(), enemy.maxVelocity(), enemy.xpReward(),
+                        enemy.scale(), enemy.linearDamping(), enemy.mass(), enemy.maxForce()
                 ));
             }
             case EXTRA -> {
                 rightCardHeader.setText("EXTRA INFO");
 
-                double cooldownSeconds = (enemy.actionCooldownMS > 0) ? enemy.actionCooldownMS : (enemy.actionCooldownMS / 1000.0);
+                double cooldownSeconds = (enemy.actionCooldownSec() > 0) ? enemy.actionCooldownSec() : (enemy.actionCooldownSec() / 1000.0);
 
                 description.setText(String.format("""
                     INFORMAZIONI EXTRA
@@ -257,8 +257,8 @@ public class BestiaryMenuController implements IscatMenuController {
                     🆔 ID : %s
                     📊 Totale Uccisi: %d
                     """,
-                        enemy.detectionRange, enemy.combatRange, enemy.preferredRange,
-                        cooldownSeconds, enemy.entityKey, currentKills
+                        enemy.detectionRange(), enemy.combatRange(), enemy.preferredRange(),
+                        cooldownSeconds, enemy.entityKey(), currentKills
                 ));
             }
         }
@@ -271,7 +271,7 @@ public class BestiaryMenuController implements IscatMenuController {
     @FXML
     private void selectRandom() {
         var validIds = filteredEnemies.keySet().stream()
-                .filter(id -> !filteredEnemies.get(id).name.toUpperCase().equals(skinNameLabel.getText()))
+                .filter(id -> !filteredEnemies.get(id).name().toUpperCase().equals(skinNameLabel.getText()))
                 .toList();
 
         if (validIds.isEmpty()) return;

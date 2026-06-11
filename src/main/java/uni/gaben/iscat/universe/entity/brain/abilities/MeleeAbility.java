@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entity.brain.abilities;
 import org.dyn4j.dynamics.Body;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.AbstractLivingModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.utils.Cooldown;
 
@@ -34,8 +34,8 @@ public class MeleeAbility<T extends AbstractEntityModel> extends Ability {
     public void onActivate(Brain<?> brain, UniverseModel world) {
         entity.setOnCollision(
                 other -> {
-                    if(meleeCooldown.isReady() && targets.test(other) && other instanceof AbstractLivingModel l) {
-                        l.deltaToLife(-damage);
+                    if(meleeCooldown.isReady() && targets.test(other) && other instanceof AbstractLivingEntityModel l) {
+                        l.damage(damage);
                     }
                 }
         );

@@ -3,72 +3,71 @@ package uni.gaben.iscat.universe.entity;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
+import org.dyn4j.geometry.Polygon;
 import uni.gaben.iscat.universe.Shockwave;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.UniverseWaveController;
+import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidShapeFactory;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 import uni.gaben.iscat.utils.EnemyAudioManager;
 
-public class EntityModel extends AbstractLivingModel implements HasSprite, HasShockwave {
+public class EntityModel extends AbstractLivingEntityModel implements HasSprite, HasShockwave {
 
     public static final int STATE_ENTRANCE = 0;
     public static final int STATE_IDLE     = 1;
     public static final int STATE_DEATH    = 6;
 
-    private final EntitySettings settings;
+    private final EntityRecord entity;
     private final Shockwave shockwave = new Shockwave();
 
     private int currentState = STATE_IDLE;
     private boolean completeKillCalled = false;
     private UniverseWaveController waveController;
 
-    public EntityModel(double x, double y, EntitySettings settings) {
-        super(x, y, settings.initLife, settings.initLife);
-        this.settings = settings;
+    public EntityModel(double x, double y, EntityRecord entity) {
+        super(x, y, entity);
+        this.entity = entity;
 
-        if (settings != null && settings.entityKey != null) {
-            setEntityKey(settings.entityKey);
-        }
-
-        setXpReward(settings.xpReward);
+        setXpReward(entity.xpReward());
 
         // Gestione stato iniziale ed Entrance Animation
-        if (settings.hasEntranceAnimation) {
+        if (entity.hasEntranceAnimation()) {
             this.currentState = STATE_ENTRANCE;
-            setEnabled(false); // Disabilitato fino alla fine dell'animazione di spawn
+            setEnabled(false);
         }
 
-        double collisionSize = UU.pxToM(settings.frameW * settings.scale * 0.9);
-        BodyFixture fixture = switch (settings.shapeType) {
+        double collisionSize = UU.pxToM(entity.frameW() * entity.scale() * 0.9);
+        BodyFixture fixture = switch (entity.shapeType()) {
             case CIRCLE -> addFixture(Geometry.createCircle(collisionSize / 2.0));
             case SQUARE -> addFixture(Geometry.createSquare(collisionSize));
+            case POLYGON -> addFixture(new Polygon(AsteroidShapeFactory.getScaledShape(collisionSize)));
         };
 
         fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
-        setMass(settings.maxAngularVelocity > 0 ? MassType.NORMAL : MassType.FIXED_LINEAR_VELOCITY);
-        setLinearDamping(settings.linearDamping);
+        setMass(entity.maxAngularVelocity() > 0 ? MassType.NORMAL : MassType.FIXED_LINEAR_VELOCITY);
+        setLinearDamping(entity.linearDamping());
 
         // Logica danno da sfondamento (RAM)
-        if (settings.mass > 2.0) {
-            final double heavyDamage = settings.mass * 5.0;
-            final double lightDamage = settings.mass * 2.0;
+        if (entity.mass() > 2.0) {
+            final double heavyDamage = entity.mass() * 5.0;
+            final double lightDamage = entity.mass() * 2.0;
 
             setOnCollision(other -> {
                 if (other instanceof PlayerModel player) {
                     double speed = this.getLinearVelocity().getMagnitude();
-                    if (speed > settings.maxVelocity * 0.85) {
-                        player.deltaToLife(-heavyDamage);
+                    if (speed > entity.maxVelocity() * 0.85) {
+                        player.alter(-heavyDamage);
                     } else {
-                        player.deltaToLife(-lightDamage);
+                        player.alter(-lightDamage);
                     }
                 }
             });
         }
 
-        if (!settings.hasEntranceAnimation) {
+        if (!entity.hasEntranceAnimation()) {
             EnemyAudioManager.playEventAudio(this, "spawn");
         }
     }
@@ -90,8 +89,8 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
     }
 
     public int getFramesForState(int state) {
-        if (settings.animationFrames != null && state >= 0 && state < settings.animationFrames.length) {
-            return settings.animationFrames[state];
+        if (entity.animationFrames() != null && state >= 0 && state < entity.animationFrames().length) {
+            return entity.animationFrames()[state];
         }
         return 1;
     }
@@ -107,8 +106,7 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
                 setEnabled(true);
                 setCurrentState(STATE_IDLE);
 
-                // Il boss finisce l'animazione di ingresso: genera l'onda d'urto
-                if (settings.isBoss) {
+                if (entity.isBoss()) {
                     shockwave.trigger(2.0, 1500, 15);
                 }
 
@@ -128,12 +126,12 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
     }
 
     @Override
-    public void kill(boolean silent) {
-        if (settings.animationFrames != null && settings.animationFrames.length > STATE_DEATH) {
+    public void extinguish(boolean silent) {
+        if (entity.animationFrames() != null && entity.animationFrames().length > STATE_DEATH) {
             if (currentState == STATE_DEATH) return;
             setCurrentState(STATE_DEATH);
         } else {
-            super.kill(silent);
+            super.extinguish(silent);
             completeKill();
         }
     }
@@ -148,7 +146,7 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
         if (completeKillCalled) return;
         completeKillCalled = true;
 
-        if (settings.isBoss && waveController != null) {
+        if (entity.isBoss() && waveController != null) {
             waveController.notifyBossDead();
         }
 
@@ -156,15 +154,15 @@ public class EntityModel extends AbstractLivingModel implements HasSprite, HasSh
     }
 
     @Override public Shockwave shockwave() { return shockwave; }
-    @Override public double getTerminalVelocity() { return settings.maxVelocity; }
-    @Override public double getMaxVelocity() { return settings.maxVelocity; }
-    @Override public double getMaxForce() { return settings.maxForce; }
-    @Override public double getMaxAngularVelocity() { return settings.maxAngularVelocity; }
-    public EntitySettings getSettings() { return settings; }
-    @Override public String getSpritePath() { return settings.spritePath; }
-    @Override public int getSpriteFrameWidth() { return settings.frameW; }
-    @Override public int getSpriteFrameHeight() { return settings.frameW; }
-    @Override public double getVisualScale() { return settings.scale; }
+    @Override public double getTerminalVelocity() { return entity.maxVelocity(); }
+    @Override public double getMaxVelocity() { return entity.maxVelocity(); }
+    @Override public double getMaxForce() { return entity.maxForce(); }
+    @Override public double getMaxAngularVelocity() { return entity.maxAngularVelocity(); }
+    public EntityRecord getEntity() { return entity; }
+    @Override public String getSpritePath() { return entity.spritePath(); }
+    @Override public int getSpriteFrameWidth() { return entity.frameW(); }
+    @Override public int getSpriteFrameHeight() { return entity.frameH(); }  // FIXED
+    @Override public double getVisualScale() { return entity.scale(); }
     @Override public double getVisualAngularOffsetDeg() { return 0; }
     @Override public double getFrameDuration() { return UU.UNIVERSE_TICK * 3; }
     @Override public double getFrameDuration(int state, int frame) { return getFrameDuration(); }

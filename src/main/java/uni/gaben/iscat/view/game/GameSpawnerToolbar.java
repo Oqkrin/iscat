@@ -11,7 +11,7 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.UniverseSpawnable;
 import uni.gaben.iscat.universe.entity.EntityFactory;
-import uni.gaben.iscat.universe.entity.EntitySettings;
+import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.utils.design.CssHelper;
 
 import java.util.Map;
@@ -61,15 +61,15 @@ public class GameSpawnerToolbar extends StackPane {
         genericContainer.setAlignment(Pos.BOTTOM_CENTER);
         genericContainer.setPadding(new Insets(4, 20, 4, 20));
 
-        Map<String, EntitySettings> jsonEnemies = EntityFactory.getCache();
+        Map<String, EntityRecord> jsonEnemies = EntityFactory.getCache();
 
         if (jsonEnemies != null && !jsonEnemies.isEmpty()) {
-            for (EntitySettings s : jsonEnemies.values()) {
-                if (s == null || s.entityKey == null) continue;
+            for (EntityRecord s : jsonEnemies.values()) {
+                if (s == null || s.entityKey() == null) continue;
 
-                Button b = createSpawnButton(s.entityKey);
-                b.setTooltip(new javafx.scene.control.Tooltip(s.name));
-                b.setOnAction(e -> controller.debugSpawn(s.entityKey));
+                Button b = createSpawnButton(s.entityKey());
+                b.setTooltip(new javafx.scene.control.Tooltip(s.name()));
+                b.setOnAction(e -> controller.debugSpawn(s.entityKey()));
                 genericContainer.getChildren().add(b);
             }
         } else {

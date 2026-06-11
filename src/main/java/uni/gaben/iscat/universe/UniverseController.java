@@ -6,7 +6,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.camera.CameraController;
 import uni.gaben.iscat.universe.camera.CameraSettings;
-import uni.gaben.iscat.universe.entity.AbstractLivingModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
@@ -14,7 +14,7 @@ import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
-import uni.gaben.iscat.universe.entity.interfaces.HasTerminalVelocity;
+import uni.gaben.iscat.universe.entity.interfaces.Dynamic;
 import uni.gaben.iscat.universe.entity.player.PlayerController;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Updatable;
@@ -110,7 +110,7 @@ public class UniverseController {
     /** Clamps every body's speed to its declared terminal velocity. */
     private void applyTerminalVelocityLimits() {
         for (Body body : universeModel.getBodies()) {
-            if (body instanceof HasTerminalVelocity entity) {
+            if (body instanceof Dynamic entity) {
                 double maxSpeed = entity.getTerminalVelocity();
                 Vector2 vel = body.getLinearVelocity();
                 if (vel.getMagnitude() > maxSpeed)
@@ -148,7 +148,7 @@ public class UniverseController {
             if (p.shouldRemove()) continue;
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
-            if (px < left || px > right || py < top || py > bottom) p.kill(true);
+            if (px < left || px > right || py < top || py > bottom) p.extinguish(true);
         }
     }
 
@@ -163,16 +163,16 @@ public class UniverseController {
             if (entity == null) continue;
 
             boolean remove = entity.shouldRemove();
-            if (!remove && entity instanceof AbstractLivingModel living) {
-                if (living.getLife() <= 0) {
-                    if (!living.shouldRemove()) living.kill();
+            if (!remove && entity instanceof AbstractLivingEntityModel living) {
+                if (living.getEndurance() <= 0) {
+                    if (!living.shouldRemove()) living.extinguish();
                     remove = living.shouldRemove();
                 }
             }
 
             if (remove) {
                 toRemove.add(entity);
-                if (entity instanceof AbstractLivingModel living && living != player && entityDeathListener != null) {
+                if (entity instanceof AbstractLivingEntityModel living && living != player && entityDeathListener != null) {
                     entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
                 }
             }
@@ -198,7 +198,7 @@ public class UniverseController {
             // AUTOMATED DAMAGE DETECTION HOOK
             // =====================================================================
             // Safely assumes player has standard health querying capabilities (e.g., getHealth() or getHp())
-            double currentHealth = player.getLife();
+            double currentHealth = player.getEndurance();
 
             if (lastPlayerHealth < 0) {
                 lastPlayerHealth = currentHealth; // Initialize frame cache

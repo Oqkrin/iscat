@@ -4,136 +4,96 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.AABB;
 import org.dyn4j.geometry.Transform;
 import uni.gaben.iscat.universe.UU;
-import uni.gaben.iscat.universe.entity.interfaces.HasTerminalVelocity;
+import uni.gaben.iscat.universe.entity.interfaces.Collidable;
+import uni.gaben.iscat.universe.entity.interfaces.Dynamic;
+import uni.gaben.iscat.universe.entity.interfaces.Removable;
+import uni.gaben.iscat.universe.entity.interfaces.Stateful;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.function.Consumer;
 
-/**
- * Rappresentazione astratta di un'entità nel mondo fisico.
- * Calcola in modo dinamico le dimensioni basandosi sulle Fixture fisiche attive.
- */
-public abstract class AbstractEntityModel extends Body implements HasTerminalVelocity, Updatable {
+public abstract class AbstractEntityModel extends Body implements Dynamic, Updatable, Removable, Collidable, Stateful {
+    private final EntityRecord entity;
     private String entityId;
     private int state = 0;
-    private double terminalVelocity = Double.MAX_VALUE;
-    private double baseAccelerationPerTick = Double.MAX_VALUE;
     private boolean shouldRemove = false;
+    private double stateTime = 0.0;
 
-    // Callback di notifica per le collisioni intercettate
-    private Consumer<AbstractEntityModel> collisionCallback;
+    // Callback for collisions
+    private Consumer<AbstractEntityModel> onCollision;
 
-    protected AbstractEntityModel(double x, double y) {
+    protected AbstractEntityModel(double x, double y, EntityRecord entity) {
         super();
+        this.entity = entity;
         this.setUserData(this);
         translate(UU.pxToM(x), UU.pxToM(y));
     }
 
-    private double statetime = 0.0;
+    public EntityRecord getEntityRecord() { return entity; }
 
-    /**
-     * Returns a unique identifier for this entity type.
-     * For EntityModel, this is the database entityKey.
-     * For other entities, this is the simple class name.
-     */
-    public String getEntityKey() {
-        // Override in subclasses if they have a specific key
-        return this.getClass().getSimpleName();
-    }
+    // ---- Runtime state accessors ----
+    public String getEntityId() { return entityId; }
+    public void setEntityId(String id) { this.entityId = id; }
 
-    /**
-     * Permette a un agente esterno (es. Controller) di definire cosa succede all'impatto.
-     */
-    public void setOnCollision(Consumer<AbstractEntityModel> callback) {
-        this.collisionCallback = callback;
-    }
+    @Override
+    public int getState() { return state; }
+    @Override
+    public void setState(int state) { this.state = state; }
+    @Override
+    public boolean shouldRemove() { return shouldRemove; }
+    @Override
+    public boolean setShouldRemove(boolean shouldRemove) { return this.shouldRemove = shouldRemove; }
+    @Override
+    public double getStateTime() { return stateTime; }
+    @Override
+    public void setStateTime(double stateTime) { this.stateTime = stateTime; }
+    @Override
+    public void updateStateTime(double dt) { this.stateTime += dt; }
 
-    /**
-     * Innesca la logica di notifica associata a questa entità.
-     */
+    // ---- Collision callbacks ----
+    @Override
+    public void setOnCollision(Consumer<AbstractEntityModel> onCollision) { this.onCollision = onCollision; }
+    @Override
+    public boolean hasCollision() { return onCollision != null; }
+    @Override
     public void triggerCollision(AbstractEntityModel other) {
-        if (hasCollision()) {
-            collisionCallback.accept(other);
-        }
+        if (hasCollision()) onCollision.accept(other);
     }
 
-    public boolean hasCollision() {
-        return collisionCallback != null;
-    }
+    // ---- Physical capability getters (delegated to definition) ----
+    @Override public double getTerminalVelocity() { return entity.maxVelocity(); }
+    @Override public double getAcceleration() { return entity.maxForce(); }
+    public double getMaxVelocity() { return entity.maxVelocity(); }
+    public double getMaxForce() { return entity.maxForce(); }
+    @Override
+    public double getMaxAngularVelocity() { return entity.maxAngularVelocity(); }
 
-    /**
-     * Verifica se l'entità interseca l'area visibile dello schermo (in World Pixels).
-     * Sfrutta un raggio di tolleranza basato sulla dimensione massima per evitare pop-in taglienti.
-     */
-    public boolean isInsideViewport(double minX, double maxX, double minY, double maxY) {
-        // Trasformiamo la posizione fisica (metri) dell'entità in world pixels
-        double cx = uni.gaben.iscat.universe.UU.mToPx(this.getTransform().getTranslationX());
-        double cy = uni.gaben.iscat.universe.UU.mToPx(this.getTransform().getTranslationY());
-
-        // Margine di tolleranza per evitare il pop-in visivo sui bordi
-        double padding = Math.max(getWidthPx(), getHeightPx());
-
-        // Verifica intersezione dei rettangoli (AABB)
-        return (cx + padding >= minX) && (cx - padding <= maxX) &&
-                (cy + padding >= minY) && (cy - padding <= maxY);
-    }
-
-    /** Calcola la larghezza totale racchiusa dalla shape di collisione (in Metri) */
+    // ---- Geometry helpers (based on fixtures) ----
     public double getWidthMeters() {
         if (getFixtureCount() == 0) return 0.0;
         AABB aabb = createAABB(new Transform());
         return aabb.getWidth();
     }
-
-    /** Calcola l'altezza totale racchiusa dalla shape di collisione (in Metri) */
     public double getHeightMeters() {
         if (getFixtureCount() == 0) return 0.0;
         AABB aabb = createAABB(new Transform());
         return aabb.getHeight();
     }
-
-    /** Helper pratico per estrarre la larghezza calcolata in Pixel */
     public double getWidthPx() { return UU.mToPx(getWidthMeters()); }
-
-    /** Helper pratico per estrarre l'altezza calcolata in Pixel */
     public double getHeightPx() { return UU.mToPx(getHeightMeters()); }
 
-    public String getEntityId() { return entityId; }
-    public void setEntityId(String id) { this.entityId = id; }
-    
-    @Override public double getTerminalVelocity() { return terminalVelocity; }
-    @Override public double getBaseAccelerationPerTick() { return baseAccelerationPerTick; }
-    
-    // Physical capability getters
-    public double getMaxVelocity() { return getTerminalVelocity(); }
-    public double getMaxForce() { return getBaseAccelerationPerTick(); }
-    public double getMaxAngularVelocity() { return 0.0; } // Default 0 for entities that don't rotate dynamically
-    
-    public boolean shouldRemove() { return shouldRemove; }
-    public void setShouldRemove(boolean shouldRemove) { this.shouldRemove = shouldRemove; }
+    // ---- Viewport culling ----
+    public boolean isInsideViewport(double minX, double maxX, double minY, double maxY) {
+        double cx = UU.mToPx(this.getTransform().getTranslationX());
+        double cy = UU.mToPx(this.getTransform().getTranslationY());
+        double padding = Math.max(getWidthPx(), getHeightPx());
+        return (cx + padding >= minX) && (cx - padding <= maxX) &&
+                (cy + padding >= minY) && (cy - padding <= maxY);
+    }
 
+    // ---- Updatable ----
     @Override
     public void update(double dt) {
         updateStateTime(dt);
-    }
-
-    public void updateStateTime(double dt) {
-        this.statetime += dt;
-    }
-
-    public double getStateTime() {
-        return statetime;
-    }
-
-    public void setStateTime(double statetime) {
-        this.statetime = statetime;
-    }
-
-    public int getState() {
-        return state;
-    }
-
-    public void setState(int state) {
-        this.state = state;
     }
 }

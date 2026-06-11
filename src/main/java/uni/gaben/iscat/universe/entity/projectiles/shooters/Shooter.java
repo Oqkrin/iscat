@@ -1,13 +1,17 @@
-package uni.gaben.iscat.universe.entity.projectiles;
+package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.AbstractLivingModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entity.EntityModel;
-import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
+import uni.gaben.iscat.universe.entity.interfaces.Alterable;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.universe.UniverseSpawner;
+import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectilePool;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.EnemyAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
@@ -87,16 +91,16 @@ public class Shooter<T extends CollisionBody> {
             if (p.shouldRemove()) return;
             if (otherEntity instanceof AbstractProjectileModel) return; // proiettili non si colpiscono tra loro
 
-            if (otherEntity instanceof LifeDeath target) {
-                if (target instanceof AbstractLivingModel lem) {
+            if (otherEntity instanceof Alterable target) {
+                if (target instanceof AbstractLivingEntityModel lem) {
                     lem.setKilledByProjectile(true);
                 }
-                target.deltaToLife(-p.getLife());
+                target.alter(-p.getEndurance());
                 if (!(target instanceof PlayerModel)) {
-                    SessionScoreTracker.getInstance().addDamageDealt((int) p.getLife());
+                    SessionScoreTracker.getInstance().addDamageDealt((int) p.getEndurance());
                 }
             }
-            p.kill(true);
+            p.extinguish(true);
         });
 
         UniverseSpawner.getInstance().spawnEntity(p);

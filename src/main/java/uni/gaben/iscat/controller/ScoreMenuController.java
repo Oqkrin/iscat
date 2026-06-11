@@ -15,7 +15,7 @@ import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.model.BestiaryModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.ScoreModel;
-import uni.gaben.iscat.universe.entity.EntitySettings;
+import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;
@@ -119,19 +119,19 @@ public class ScoreMenuController implements IscatMenuController {
             SessionUser user = SessionManager.getInstance().getCurrentUser();
             if (user == null) return;
 
-            Map<String, EntitySettings> enemiesMap = bestiaryModel.loadEnemies(user.id());
+            Map<String, EntityRecord> enemiesMap = bestiaryModel.loadEnemies(user.id());
             if (enemiesMap == null || enemiesMap.isEmpty()) return;
 
-            List<EntitySettings> enemyList = new ArrayList<>(enemiesMap.values());
+            List<EntityRecord> enemyList = new ArrayList<>(enemiesMap.values());
             StackPane[] containers = { previewNW, previewNE, previewSW, previewSE };
 
             for (int i = 0; i < containers.length; i++) {
                 if (containers[i] == null) continue;
-                EntitySettings enemy = enemyList.get(i % enemyList.size());
+                EntityRecord enemy = enemyList.get(i % enemyList.size());
 
                 AnimatedCanvas canvas = new AnimatedCanvas(128.0);
                 canvas.setFrameDuration(.5);
-                canvas.loadSkin(enemy.spritePath, enemy.frameW, enemy.frameH);
+                canvas.loadSkin(enemy.spritePath(), enemy.frameW(), enemy.frameH());
                 canvas.resize(128.0, 128.0);
 
                 containers[i].getChildren().add(canvas);

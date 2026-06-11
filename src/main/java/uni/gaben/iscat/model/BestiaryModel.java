@@ -2,7 +2,7 @@ package uni.gaben.iscat.model;
 
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.universe.entity.EntityFactory;
-import uni.gaben.iscat.universe.entity.EntitySettings;
+import uni.gaben.iscat.universe.entity.EntityRecord;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,14 +23,14 @@ public class BestiaryModel {
      * Carica l'elenco completo dei nemici dalla cache JSON insieme ai progressi dell'utente dal DB.
      *
      * @param userId Identificativo numerico dell'utente per il recupero delle metriche personali.
-     * @return Una mappa ordinata che associa la chiave normalizzata del nemico al suo {@link EntitySettings}.
+     * @return Una mappa ordinata che associa la chiave normalizzata del nemico al suo {@link EntityRecord}.
      */
-    public Map<String, EntitySettings> loadEnemies(int userId) {
-        Map<String, EntitySettings> enemies = new LinkedHashMap<>();
+    public Map<String, EntityRecord> loadEnemies(int userId) {
+        Map<String, EntityRecord> enemies = new LinkedHashMap<>();
         killCounts.clear();
 
         // Recuperiamo le definizioni statiche precaricate dal file JSON
-        Map<String, EntitySettings> jsonCache = EntityFactory.getCache();
+        Map<String, EntityRecord> jsonCache = EntityFactory.getCache();
 
         if (jsonCache == null || jsonCache.isEmpty()) {
             System.err.println("[BESTIARIO] Attenzione: la cache dei nemici JSON è vuota o non inizializzata!");
@@ -41,7 +41,7 @@ public class BestiaryModel {
         Map<String, Integer> dbKills = IscatDB.getInstance().getBestiaryDAO().getKillsForUser(userId);
 
         // Uniamo i dati: mappiamo ogni nemico del JSON associando il rispettivo counter delle uccisioni
-        for (Map.Entry<String, EntitySettings> entry : jsonCache.entrySet()) {
+        for (Map.Entry<String, EntityRecord> entry : jsonCache.entrySet()) {
             String cleanKey = entry.getKey();
 
             // Popoliamo la mappa per la View del Bestiario

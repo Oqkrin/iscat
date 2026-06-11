@@ -1,11 +1,8 @@
 package uni.gaben.iscat.universe.entity.brain.abilities;
 
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.EntityFilters;
-import uni.gaben.iscat.universe.entity.EntityModel;
-import uni.gaben.iscat.universe.entity.EntitySettings;
+import uni.gaben.iscat.universe.entity.*;
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.RandomizedShootAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.ShootAbility;
@@ -36,31 +33,31 @@ public abstract class Ability {
     /** @return true if still running, false when finished */
     public abstract boolean update(Brain<?> brain, UniverseModel world, double dt);
 
-    public static Ability createAbility(EntitySettings.AbilitySettings ac, EntityModel entity) {
+    public static Ability createAbility(EntityRecord.AbilityRecord ac, EntityModel entity) {
         Target target = Target.ofPlayer();
-        switch (ac.type) {
+        switch (ac.type()) {
             case "shoot":
-                PatternShooter shooter = PatternShooter.createPatternShooter(ac.pattern);
-                return new ShootAbility(ac.combatRange, ac.cooldownSec,
-                        ProjectileType.valueOf(ac.bulletType), shooter,
-                        target, ac.aimAtTarget, ac.nerfPrediction);
+                PatternShooter shooter = PatternShooter.createPatternShooter(ac.pattern());
+                return new ShootAbility(ac.combatRange(), ac.cooldownSec(),
+                        ProjectileType.valueOf(ac.bulletType()), shooter,
+                        target, ac.aimAtTarget(), ac.nerfPrediction());
             case "randomizedShoot":
                 List<PatternShooter> patterns = new ArrayList<>();
-                for (EntitySettings.PatternSettings pc : ac.patterns) patterns.add(PatternShooter.createPatternShooter(pc));
-                return RandomizedShootAbility.targetingPlayer(ac.combatRange, ac.cooldownSec,
-                        ProjectileType.valueOf(ac.bulletType), ac.aimAtTarget,
-                        ac.nerfPrediction, patterns.toArray(new PatternShooter[0]));
+                for (EntityRecord.PatternRecord pc : ac.patterns()) patterns.add(PatternShooter.createPatternShooter(pc));
+                return RandomizedShootAbility.targetingPlayer(ac.combatRange(), ac.cooldownSec(),
+                        ProjectileType.valueOf(ac.bulletType()), ac.aimAtTarget(),
+                        ac.nerfPrediction(), patterns.toArray(new PatternShooter[0]));
             case "heal":
-                return new HealAbility(ac.cooldownSec, ac.combatRange, ac.healAmount);
+                return new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
             case "summon":
                 // Use SummonPatternShooter inside a ShootAbility? Or dedicated ability?
                 // For now, wrap in a ShootAbility with SummonPatternShooter.
-                PatternShooter summonShooter = new SummonPatternShooter(ac.summonCount, ac.summonEntityKey, ac.summonRadiusPx, ac.attackStateIndex);
-                return new ShootAbility(ac.combatRange, ac.cooldownSec,
-                        ProjectileType.valueOf(ac.bulletType), summonShooter,
-                        target, ac.aimAtTarget, ac.nerfPrediction);
+                PatternShooter summonShooter = new SummonPatternShooter(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex());
+                return new ShootAbility(ac.combatRange(), ac.cooldownSec(),
+                        ProjectileType.valueOf(ac.bulletType()), summonShooter,
+                        target, ac.aimAtTarget(), ac.nerfPrediction());
             case "melee":
-                return new MeleeAbility<>(ac.type, entity, ac.cooldownSec, ac.meleeDamage, EntityFilters.IS_PLAYER);
+                return new MeleeAbility<>(ac.type(), entity, ac.combatRange(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
             default:
                 return null;
         }

@@ -20,10 +20,10 @@ public class HeartController extends Brain<HeartModel> {
         this.heart.setOnCollision(otherEntity -> {
             if (otherEntity instanceof PlayerModel player && !collected) {
                 collected = true;
-                double halfMaxLife = player.getMaxLife() / 2.0;
-                player.deltaToLife(halfMaxLife);
-                heart.setLife(0);
-                heart.kill();
+                double halfMaxLife = player.getMaxEndurance() / 2.0;
+                player.restore(halfMaxLife);
+                heart.setEndurance(0);
+                heart.extinguish();
                 heart.setShouldRemove(true);
             }
         });

@@ -108,14 +108,12 @@ public class AnimatedCanvas extends Canvas {
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.setImageSmoothing(false);
-        gc.setEffect(new Bloom());
 
         int sheetRow = Math.clamp(animator.getCurrentState(), 0, spriteSheet.getTotalStates() - 1);
         int sheetColumn = Math.clamp(animator.getCurrentFrame(), 0, spriteSheet.getTotalFrames() - 1);
 
         Color currentTint = ThemeManager.getInstance().getAccentSecondary();
 
-        // GESTIONE CACHE: Ricalcola la tinta solo se il colore cambia O se l'animatore è passato al frame successivo
         if (cachedTintedFrame == null
                 || !currentTint.equals(lastAppliedTint)
                 || sheetRow != lastRow

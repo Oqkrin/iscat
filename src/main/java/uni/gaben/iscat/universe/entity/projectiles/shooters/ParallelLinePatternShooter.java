@@ -4,7 +4,6 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.projectiles.Shooter;
 import uni.gaben.iscat.universe.UU;
 
 import java.util.function.Consumer;

@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.AbstractLivingModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.model.game.GameModel;
@@ -164,10 +164,10 @@ public class UniverseWaveController {
 
             if (spawnedObject instanceof AbstractEntityModel enemyModel) {
                 // Algoritmo di scaling lineare della salute del mob basato su livello del giocatore e tempo di sopravvivenza
-                if (enemyModel instanceof AbstractLivingModel livingModel) {
+                if (enemyModel instanceof AbstractLivingEntityModel livingModel) {
                     int difficultyLevel = (int) (playerLevel + masterTimeSec / 60);
-                    livingModel.setMaxLife(livingModel.getMaxLife() * difficultyLevel);
-                    livingModel.setLife(livingModel.getMaxLife());
+                    livingModel.setMaxEndurance(livingModel.getMaxEndurance() * difficultyLevel);
+                    livingModel.setEndurance(livingModel.getMaxEndurance());
                 }
 
                 activeEnemies.add(new ActiveEnemy(enemyModel, enemyIdToSpawn));

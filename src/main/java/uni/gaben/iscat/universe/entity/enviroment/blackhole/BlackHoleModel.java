@@ -6,7 +6,8 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.AbstractLivingModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
+import uni.gaben.iscat.universe.entity.EntityFactory;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
@@ -34,7 +35,7 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
     private double timeSinceLastAbsorption = 0.0;
 
     public BlackHoleModel(double x, double y, double initialRadiusM) {
-        super(x, y);
+        super(x, y, new EntityFactory.EntityRecordBuilder().build());
         this.initialRadiusM = initialRadiusM;
         this.radius = new UU(initialRadiusM, UU.units.METERS);
         this.maxRadiusM = initialRadiusM * 7.5;
@@ -97,7 +98,7 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
         this.setMass(MassType.NORMAL);
 
         // Kill the absorbed entity
-        if (other instanceof AbstractLivingModel l) l.kill();
+        if (other instanceof AbstractLivingEntityModel l) l.extinguish();
         else other.setShouldRemove(true);
 
         // Reset radiation timer

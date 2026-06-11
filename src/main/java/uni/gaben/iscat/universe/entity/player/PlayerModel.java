@@ -9,18 +9,21 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
+import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
+import uni.gaben.iscat.universe.entity.EntityFactory;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
+import uni.gaben.iscat.universe.entity.interfaces.Progression;
+import uni.gaben.iscat.universe.entity.interfaces.Stunnable;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.universe.Thrust;
 import uni.gaben.iscat.utils.AudioManager;
-import uni.gaben.iscat.universe.entity.AbstractLivingModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-public class PlayerModel extends AbstractLivingModel implements HasSprite, HasThrust {
+public class PlayerModel extends AbstractLivingEntityModel implements HasSprite, HasThrust, Stunnable, Progression {
 
     // LEVEL SYSTEM VARIABLES
     private final IntegerProperty level = new SimpleIntegerProperty(1);
@@ -39,7 +42,7 @@ public class PlayerModel extends AbstractLivingModel implements HasSprite, HasTh
     }
 
     public PlayerModel(double x, double y) {
-        super(x, y, PlayerSettings.HP_INIZIALE, PlayerSettings.HP_MASSIMO);
+        super(x, y, new EntityFactory.EntityRecordBuilder().build());
 
         double radiusInMeters = UU.pxToM(PlayerSettings.RAGGIO_COLLISIONE);
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters));
@@ -90,12 +93,25 @@ public class PlayerModel extends AbstractLivingModel implements HasSprite, HasTh
 
     // LEVEL SYSTEM GETTERS
     public IntegerProperty levelProperty() { return level; }
+    @Override
     public int getLevel() { return level.get(); }
 
     public DoubleProperty xpProperty() { return xp; }
-    public double getXp() { return xp.get(); }
-    public double getXpNeeded() { return xpNeeded; }
 
+    @Override
+    public double getExperience() {
+        return xp.get();
+    }
+
+    @Override
+    public void setExperience(double experience) {
+        xp.set(experience);
+    }
+
+    @Override
+    public double getNeededXpFor(int level) {
+        return xpNeeded;
+    }
     public boolean isScattoDisponibile() { return dashCooldown.isReady(); }
     public boolean isInScatto() { return dashDuration.isCoolingDown(); }
     public boolean isSparoDisponibile() { return weaponCooldown.isReady(); }
@@ -122,38 +138,48 @@ public class PlayerModel extends AbstractLivingModel implements HasSprite, HasTh
         if (onDeathCallback != null) onDeathCallback.run();
     }
 
-    public void addXp(double amount) {
+    @Override
+    public void incrementExperience(double amount) {
         if (amount <= 0) return;
-        this.xp.set(this.xp.get() + amount);
+        setExperience(this.xp.get() + amount);
         if (this.xpNeeded <= 0) this.xpNeeded = 100.0;
         while (this.xp.get() >= xpNeeded) {
             levelUp();
         }
     }
 
-    private void levelUp() {
+     public void levelUp() {
         this.xp.set(this.xp.get() - xpNeeded);
         this.level.set(this.level.get() + 1);
         this.xpNeeded = this.xpNeeded * 1.2;
 
         AudioManager.getInstance().playSFX("levelup");
-        setMaxLife(getMaxLife() + 100);
-        setLife(getMaxLife());
+        setMaxEndurance(getMaxEndurance() + 100);
+        setEndurance(getMaxEndurance());
         System.out.println("[LEVEL UP] New Level: " + getLevel() + " | Next: " + this.xpNeeded + " XP");
         applyImpulse(new Vector2(0, 0));
     }
 
-    public void applyStun(double duration) {
-        stunCooldown.start(duration);
-    }
-
-    public boolean notStunned() {
-        return stunCooldown.isReady();
+    @Override
+    public void setLevel(int level) {
+        for (int i = getLevel(); i<=level; i++) {
+            levelUp();
+        }
     }
 
     @Override
-    public void deltaToLife(double delta) {
-        super.deltaToLife(delta);
+    public void stun(double duration) {
+        stunCooldown.start(duration);
+    }
+
+    @Override
+    public boolean isStunned() {
+        return stunCooldown.isCoolingDown();
+    }
+
+    @Override
+    public void alter(double delta) {
+        super.alter(delta);
         if (delta < 0) {
             SessionScoreTracker.getInstance().addDamageReceived((int) Math.abs(delta));
         }

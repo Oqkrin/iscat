@@ -13,7 +13,7 @@ import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
-import uni.gaben.iscat.universe.entity.interfaces.LifeDeath;
+import uni.gaben.iscat.universe.entity.interfaces.Alterable;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpriteUtils;
@@ -94,7 +94,7 @@ public final class EntityRenderer {
 
         // Shockwave (if present) – also batched as a special effect
         if (entity instanceof HasShockwave sw && sw.shockwave().isActive()) {
-            if ("iscat-master".equals(entity.getEntityKey())) {
+            if ("iscat-master".equals(entity.getEntityRecord().entityKey())) {
                 batcher.addBlackHoleShockwave(cx, cy, sw.shockwave());
             } else {
                 batcher.addShockwave(cx, cy, sw.shockwave());
@@ -102,10 +102,10 @@ public final class EntityRenderer {
         }
 
         // HP bar – queued as a rectangle pair (background + fill)
-        if (entity instanceof LifeDeath ld) {
+        if (entity instanceof Alterable ld) {
             double barX = cx - w/2;
             double barY = cy - h/2 - PlayerSettings.HP_BAR_OFFSET_Y;
-            double percent = ld.getLife() / ld.getMaxLife();
+            double percent = ld.getEndurance() / ld.getMaxEndurance();
             batcher.addHpBar(barX, barY, w, PlayerSettings.HP_BAR_HEIGHT, percent);
         }
     }

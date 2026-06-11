@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe.entity.brain.abilities;
 
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.AbstractLivingModel;
+import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
@@ -31,9 +31,9 @@ public class HealAbility extends Ability {
         visualHealCooldown.update(dt);
         if (healCooldown.isCoolingDown()) return false;
         
-        for (AbstractLivingModel l : world.getEntitiesOfType(AbstractLivingModel.class)) {
+        for (AbstractLivingEntityModel l : world.getEntitiesOfType(AbstractLivingEntityModel.class)) {
             if (l == self || l instanceof PlayerModel) continue;
-            if (l.getLife() < l.getMaxLife() &&
+            if (l.getEndurance() < l.getMaxEndurance() &&
                 self.getTransform().getTranslation().distance(l.getTransform().getTranslation()) <= range) {
                 return true;
             }
@@ -44,11 +44,11 @@ public class HealAbility extends Ability {
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
         AbstractEntityModel entity = brain.getEntity();
-        for (AbstractLivingModel l : world.getEntitiesOfType(AbstractLivingModel.class)) {
+        for (AbstractLivingEntityModel l : world.getEntitiesOfType(AbstractLivingEntityModel.class)) {
             if (l == entity || l instanceof PlayerModel) continue;
             if (entity.getTransform().getTranslation()
                     .distance(l.getTransform().getTranslation()) <= range) {
-                l.setLife(Math.min(l.getLife() + amount, l.getMaxLife()));
+                l.setEndurance(Math.min(l.getEndurance() + amount, l.getMaxEndurance()));
             }
         }
         healCooldown.start();

@@ -33,8 +33,8 @@ public class ProjectileModel extends AbstractProjectileModel {
         // Set life directly on the property BEFORE setMaxLife to prevent the kill-trigger
         // in setLife(). When recycled, life == 0, so setMaxLife calls setLife(0) which
         // re-triggers kill() — bypassing this by writing the field directly first.
-        this.life.set(type.energy);
-        setMaxLife(type.energy);
+        this.endurance.set(type.energy);
+        setMaxEndurance(type.energy);
     }
 
     public ProjectileType getType() { return type; }
