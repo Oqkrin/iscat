@@ -239,6 +239,7 @@ public class EntityFactory {
                 obj.optDouble("angleStepDeg", 30.0),
                 obj.optDouble("intervalSec", 0.15),
                 obj.optInt("repeats", 1),
+                parsePattern(obj.optJSONObject("pattern")),
                 obj.optString("summonedEntityKey"),
                 obj.optDouble("summonRadiusPx", 100.0),
                 obj.optString("figureType", "CIRCLE")

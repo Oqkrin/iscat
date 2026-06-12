@@ -18,10 +18,10 @@ public interface PatternShooter {
             case "singleShot" -> new SingleShotPatternShooter();
             case "spread" -> new SpreadPatternShooter(pc.count(), pc.angleStepDeg());
             case "multiDirection" ->
-                    new MultiDirectionPatternShooter(pc.count(), Math.toRadians(pc.angleStepDeg()), new SingleShotPatternShooter());
+                    new MultiDirectionPatternShooter(pc.count(), Math.toRadians(pc.angleStepDeg()), createPatternShooter(pc.innerPattern()));
             case "ring" -> new RingPatternShooter(pc.count());
             case "repeater" ->
-                    new RepeaterPatternShooter(pc.repeats(), pc.intervalSec(), new SingleShotPatternShooter());
+                    new RepeaterPatternShooter(pc.repeats(), pc.intervalSec(), createPatternShooter(pc.innerPattern()));
             case "parallelLine" ->
                     new ParallelLinePatternShooter(pc.count(), pc.angleStepDeg()); // angleStepDeg used as spacing?
             case "summon" -> new SummonPatternShooter(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());

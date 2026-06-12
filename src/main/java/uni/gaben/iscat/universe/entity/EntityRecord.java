@@ -102,6 +102,7 @@ public record EntityRecord(
             double angleStepDeg,
             double intervalSec,
             int repeats,
+            PatternRecord innerPattern,
             String summonedEntityKey,
             double summonRadiusPx,
             String figureType

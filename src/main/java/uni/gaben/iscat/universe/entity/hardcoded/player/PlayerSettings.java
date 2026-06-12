@@ -6,9 +6,7 @@ import uni.gaben.iscat.universe.UniverseVelocitySettings;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 
 public final class PlayerSettings {
-    public static final boolean DEBUG_COLLISION_VISIBLE = true;
     private static final StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/players/player1.png");
-
     public static StringProperty playerSkinProperty() { return playerSkin; }
     public static String getPlayerSkin() { return playerSkin.getValue(); }
     public static void setPlayerSkin(String skin) { playerSkin.setValue(skin); }
@@ -27,13 +25,10 @@ public final class PlayerSettings {
     public static final double DURATA_SCATTO_SEC = 1.0 / 1.5; // Slightly shorter, snappier dash
     public static final double COOLDOWN_SCATTO_SEC = 0.8;
 
-    // === Combat & Vitals ===
-    public static final int HP_MASSIMO = 10000;
-    public static final int HP_INIZIALE = 10000;
+    // === Combat & Vitals ===;
     public static double COOLDOWN_FUOCO_SEC = .3;
-    public static final double VELOCITA_PROIETTILE = UniverseVelocitySettings.PLAYER_BULLET_VELOCITY;
     public static final double FORZA_SPINTA = UniverseVelocitySettings.PLAYER_MAX_VELOCITY*3;
-    public static final double DANNO_PROIETTILE = 1;
+    public static final double DANNO_PROIETTILE = 30;
 
     // === Visuals & Dimensions ===
     public static final double DIMENSIONE_DA_DISEGNARE = 64.0;
@@ -45,7 +40,6 @@ public final class PlayerSettings {
     // === Engine Particle Thrust Effects ===
     public static final int THRUST_MIN_PARTICLES = 12;
     public static final int THRUST_EXTRA_PARTICLES = 48;
-    public static final double THRUST_HEIGHT_FACTOR = ScalareAureo.IPHI;
     public static final double THRUST_SPREAD_X_FACTOR = 1;
     public static final double THRUST_MIN_PARTICLE_SIZE = 1.0;
     public static final double THRUST_PARTICLE_SIZE_VARIATION = 7.0;
