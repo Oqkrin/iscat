@@ -290,7 +290,7 @@ public class UniverseWaveController {
     public void notifyBossDead() {
         if (bossSpawned && !bossDead) {
             bossDead = true;
-            AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
+            AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/SuperHero_original.wav", true);
             if (onBossDeadCallback != null) onBossDeadCallback.run();
         }
     }

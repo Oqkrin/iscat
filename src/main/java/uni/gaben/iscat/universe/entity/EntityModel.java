@@ -26,7 +26,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     private int currentState = STATE_IDLE;
     private boolean completeKillCalled = false;
     private UniverseWaveController waveController;
-
     private double idleAudioTimer = 5.0 + Math.random() * 10.0;
 
     public EntityModel(double x, double y, EntityRecord entity) {
@@ -38,7 +37,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         // Gestione stato iniziale ed Entrance Animation
         if (entity.hasEntranceAnimation()) {
             this.currentState = STATE_ENTRANCE;
-            setEnabled(false);
+            setEnabled(false); // Disabilitato per la fisica/collisioni durante lo spawn
         }
 
         double collisionSize = UU.pxToM(entity.frameW() * entity.scale() * 0.9);
@@ -84,6 +83,10 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     public void setCurrentState(int state) {
+        if (this.currentState == STATE_ENTRANCE && state != STATE_IDLE && state != STATE_DEATH) {
+            return;
+        }
+
         if (this.currentState != state) {
             this.currentState = state;
             this.setStateTime(0.0);
@@ -101,8 +104,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         updateStateTime(dt);
         shockwave.update(dt);
 
-        double duration = getFramesForState(currentState) * getFrameDuration();
-
         if (currentState == STATE_IDLE) {
             idleAudioTimer -= dt;
             if (idleAudioTimer <= 0) {
@@ -111,11 +112,12 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             }
         }
 
-        if (currentState == STATE_ENTRANCE) {
-            if (getStateTime() >= duration) {
-                setEnabled(true);
-                setCurrentState(STATE_IDLE);
+        double duration = getFramesForState(currentState) * getFrameDuration();
 
+        if (currentState == STATE_ENTRANCE) {
+            if (getFramesForState(STATE_ENTRANCE) <= 0 || getStateTime() >= duration) {
+                setEnabled(true); // Riattiva la fisica e le collisioni
+                setCurrentState(STATE_IDLE);
                 if (entity.isBoss()) {
                     shockwave.trigger(2.0, 1500, 15);
                 }
@@ -171,7 +173,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     public EntityRecord getEntity() { return entity; }
     @Override public String getSpritePath() { return entity.spritePath(); }
     @Override public int getSpriteFrameWidth() { return entity.frameW(); }
-    @Override public int getSpriteFrameHeight() { return entity.frameH(); }  // FIXED
+    @Override public int getSpriteFrameHeight() { return entity.frameH(); }
     @Override public double getVisualScale() { return entity.scale(); }
     @Override public double getVisualAngularOffsetDeg() { return 0; }
     @Override public double getFrameDuration() { return UU.UNIVERSE_TICK * 3; }

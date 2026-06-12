@@ -18,9 +18,9 @@ Circosta Gabriele e Benito Gallello
 
 #CREDITI BACKGROUND MUSIC (BGM)
 
-#ORBITALCOLOSSUS
-Matthew Pablo (CC-BY 3.0)
-https://opengameart.org/content/space-boss-battle-theme
+##SuperHero_original (CC0)
+Music by Cleyton Kauffman - https://soundcloud.com/cleytonkauffman
+https://opengameart.org/content/adventure-theme
 
 #TREMLOADINGLOOPL
 Brandon Morris (CC0)

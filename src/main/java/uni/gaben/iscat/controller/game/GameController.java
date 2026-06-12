@@ -74,7 +74,7 @@ public class GameController {
     }
 
     private void resetGame() {
-        AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/OrbitalColossus.wav", true);
+        AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/SuperHero_original.wav", true);
         gameModel.setGameState(GameState.PLAYING);
 
         setupUniverse();
