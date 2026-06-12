@@ -8,8 +8,8 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.Shooter;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.shooters.Shooter;
 
 import java.util.*;
 

@@ -17,13 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class EntityFactory {
-
     private EntityFactory() {}
-
     private static final Map<String, EntityRecord> cache = new ConcurrentHashMap<>();
     private static final String JSON_PATH = "/uni/gaben/iscat/json/enemies.json";
 
-    // ========================= BUILDER =========================
 
     public static EntityModel spawn(
             String entityKey,
@@ -34,13 +31,14 @@ public class EntityFactory {
         if (entityKey == null) return null;
         String normalizedKey = entityKey.toLowerCase().trim();
 
-        EntityRecord record = loadRecord(normalizedKey);
-        if (record == null) {
+        EntityRecord entity = loadRecord(normalizedKey);
+
+        if (entity == null) {
             System.err.println("[EntityFactory] Impossibile spawnare: EntityKey sconosciuta '" + normalizedKey + "'");
             return null;
         }
 
-        EntityModel model = new EntityModel(x, y, record);
+        EntityModel model = new EntityModel(x, y, entity);
         EntityBrain brain = EntityBrain.fromRecord(model);
 
         universe.addEntity(model);
@@ -164,7 +162,6 @@ public class EntityFactory {
             builder.brain(parseBrain(json.getJSONObject("ai")));
         }
 
-        // Player (not present in enemies.json, but builder may set later)
         return builder.build();
     }
 

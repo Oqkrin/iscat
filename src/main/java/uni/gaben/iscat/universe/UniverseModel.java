@@ -9,8 +9,8 @@ import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

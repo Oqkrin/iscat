@@ -1,9 +1,9 @@
 package uni.gaben.iscat.universe.entity.brain.abilities.shoot;
 
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
+import uni.gaben.iscat.universe.entity.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.brain.*;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 
 public class ShootAbility extends AbstractShootAbility {
     private final PatternShooter pattern;

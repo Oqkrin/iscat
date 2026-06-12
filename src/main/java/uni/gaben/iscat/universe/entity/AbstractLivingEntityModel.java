@@ -3,14 +3,13 @@ package uni.gaben.iscat.universe.entity;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.universe.entity.interfaces.Alterable;
-import uni.gaben.iscat.universe.entity.interfaces.Removable;
 import uni.gaben.iscat.universe.entity.interfaces.hasXpReward;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
+import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 public abstract class AbstractLivingEntityModel extends AbstractEntityModel implements Alterable, hasXpReward {

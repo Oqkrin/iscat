@@ -10,7 +10,7 @@ import org.dyn4j.world.result.DetectResult;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.targets.CachedNeighboursTarget;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 
 import java.util.ArrayList;
 import java.util.Collections;

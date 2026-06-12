@@ -9,7 +9,7 @@ import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.universe.entity.player.PlayerSettings;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 import java.util.List;

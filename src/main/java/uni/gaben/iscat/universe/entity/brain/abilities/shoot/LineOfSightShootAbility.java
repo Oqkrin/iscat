@@ -7,10 +7,10 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.DetectFilter;
 import org.dyn4j.world.result.RaycastResult;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
+import uni.gaben.iscat.universe.entity.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 
 public class LineOfSightShootAbility extends ShootAbility {
     private final double maxAngle;

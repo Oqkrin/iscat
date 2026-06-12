@@ -1,15 +1,15 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.entity.*;
-import uni.gaben.iscat.universe.entity.worm.IscatWormModel;
-import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.entity.worm.IscatWormSegmentBrain;
-import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleBrain;
-import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
+import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormModel;
+import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartController;
+import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartModel;
+import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegmentBrain;
+import uni.gaben.iscat.universe.entity.hardcoded.blackhole.BlackHoleBrain;
+import uni.gaben.iscat.universe.entity.hardcoded.blackhole.BlackHoleModel;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 
 import java.util.Random;
@@ -21,8 +21,6 @@ public class UniverseSpawner {
     private UniverseModel model;
     private UniverseController controller;
     private UniverseWaveController waveController;
-    private Random random = new Random();
-
     private UniverseSpawner() {}
 
     public static synchronized UniverseSpawner getInstance() {
@@ -51,15 +49,6 @@ public class UniverseSpawner {
             case WORM              -> spawnWorm(x, y);
             case PROJECTILE        -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");
         };
-    }
-
-    public Object waveSpawn(UniverseSpawnable type, double x, double y, int playerLevel) {
-        Object toSpawn = spawn(type, x, y);
-        if (toSpawn instanceof AbstractLivingEntityModel l) {
-            l.setMaxEndurance(l.getMaxEndurance() * playerLevel);
-            l.setEndurance(l.getMaxEndurance());
-        }
-        return toSpawn;
     }
 
     public PlayerModel spawnPlayer(double x, double y) {

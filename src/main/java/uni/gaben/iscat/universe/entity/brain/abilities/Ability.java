@@ -6,9 +6,9 @@ import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.RandomizedShootAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.ShootAbility;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.SummonPatternShooter;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.shooters.PatternShooter;
+import uni.gaben.iscat.universe.entity.shooters.SummonPatternShooter;
 
 import java.util.ArrayList;
 import java.util.List;

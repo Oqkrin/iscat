@@ -4,8 +4,8 @@ import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.HealAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.*;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.shooters.*;
 
 
 public class EntityBrain extends Brain<EntityModel> {

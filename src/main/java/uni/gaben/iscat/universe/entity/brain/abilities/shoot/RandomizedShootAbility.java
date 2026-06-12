@@ -2,11 +2,11 @@ package uni.gaben.iscat.universe.entity.brain.abilities.shoot;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.RepeaterPatternShooter;
+import uni.gaben.iscat.universe.entity.shooters.PatternShooter;
+import uni.gaben.iscat.universe.entity.shooters.RepeaterPatternShooter;
 import uni.gaben.iscat.universe.entity.brain.*;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 
 import java.util.*;
 import java.util.function.Consumer;

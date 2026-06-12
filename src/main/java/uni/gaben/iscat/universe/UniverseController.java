@@ -9,14 +9,14 @@ import uni.gaben.iscat.universe.camera.CameraSettings;
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 import uni.gaben.iscat.universe.entity.interfaces.Dynamic;
-import uni.gaben.iscat.universe.entity.player.PlayerController;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerController;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
@@ -183,7 +183,7 @@ public class UniverseController {
             entityControllers.removeIf(
                     ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
             if (entity instanceof ProjectileModel p) {
-                uni.gaben.iscat.universe.entity.projectiles.ProjectilePool.release(p);
+                uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectilePool.release(p);
             }
         }
     }
