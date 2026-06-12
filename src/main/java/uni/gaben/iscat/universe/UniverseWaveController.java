@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe;
 
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.model.game.GameModel;
@@ -23,10 +23,10 @@ public class UniverseWaveController {
      * di un'istanza fisica di gioco e della sua chiave identificativa sul database.
      */
     private static class ActiveEnemy {
-        final AbstractEntityModel model;
+        final GameEntity model;
         final String enemyId;
 
-        ActiveEnemy(AbstractEntityModel model, String enemyId) {
+        ActiveEnemy(GameEntity model, String enemyId) {
             this.model = model;
             this.enemyId = enemyId;
         }
@@ -162,9 +162,9 @@ public class UniverseWaveController {
             // Iniezione nel motore tramite il Factory Spawner centralizzato
             Object spawnedObject = UniverseSpawner.getInstance().spawn(enemyIdToSpawn, spawnX, spawnY);
 
-            if (spawnedObject instanceof AbstractEntityModel enemyModel) {
+            if (spawnedObject instanceof GameEntity enemyModel) {
                 // Algoritmo di scaling lineare della salute del mob basato su livello del giocatore e tempo di sopravvivenza
-                if (enemyModel instanceof AbstractLivingEntityModel livingModel) {
+                if (enemyModel instanceof GameEntity livingModel) {
                     int difficultyLevel = (int) (playerLevel + masterTimeSec / 60);
                     livingModel.setMaxEndurance(livingModel.getMaxEndurance() * difficultyLevel);
                     livingModel.setEndurance(livingModel.getMaxEndurance());

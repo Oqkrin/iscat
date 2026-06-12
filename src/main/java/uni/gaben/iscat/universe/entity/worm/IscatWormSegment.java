@@ -7,12 +7,12 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.entity.EntityFactory;
-import uni.gaben.iscat.universe.entity.EntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.EntityRecord;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+
 import uni.gaben.iscat.utils.Cooldown;
 
-public class IscatWormSegment extends EntityModel {
+public class IscatWormSegment extends GameEntity {
 
     public enum Type { HEAD, BODY, TAIL }
 
@@ -42,7 +42,8 @@ public class IscatWormSegment extends EntityModel {
         setAngularDamping(0.0); // Curve fulminee
         // In IscatWormSegment constructor
         setOnCollision(other -> {
-            if (other instanceof PlayerModel player) {
+            if (other.getRecord() != null && other.getRecord().identity() != null && other.getRecord().identity().entityKey().contains("player")) {
+                GameEntity player = other;
                 if (type == Type.HEAD && canAttack()) {
                     double damage = IscatWormSettings.HEAD_ATTACK_POWER;
                     if (getLinearVelocity().getMagnitude() >
@@ -67,13 +68,14 @@ public class IscatWormSegment extends EntityModel {
     @Override
     public void onDeath() {
         super.onDeath();
+        previousSegment.promoteToHead();
         consume();
     }
 
     public void promoteToHead() {
         this.type = Type.HEAD;
         if (!getFixtures().isEmpty()) {
-            getFixtures().get(0).setFilter(UniverseCollisionLayers.ENEMY_FILTER);
+            getFixtures().getFirst().setFilter(UniverseCollisionLayers.ENEMY_FILTER);
         }
         setLinearDamping(getDamping(Type.HEAD));
     }

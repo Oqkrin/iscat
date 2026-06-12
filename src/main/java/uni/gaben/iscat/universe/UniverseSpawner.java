@@ -1,15 +1,7 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.entity.*;
-import uni.gaben.iscat.universe.entity.worm.IscatWormModel;
-import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartController;
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.entity.worm.IscatWormSegmentBrain;
-import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleBrain;
-import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
+import uni.gaben.iscat.universe.entity.modules.EnduranceModule;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 
 import java.util.Random;
@@ -38,50 +30,40 @@ public class UniverseSpawner {
 
     public Object spawn(String id, double x, double y) {
         UniverseSpawnable type = UniverseSpawnable.fromString(id);
-        if (type != null) return spawn(type, x, y);
+        if (type != null) {
+            return spawn(type, x, y);
+        }
         return spawnCustomRuntimeEntity(id, x, y);
     }
 
     public Object spawn(UniverseSpawnable type, double x, double y) {
         return switch (type) {
             case PLAYER            -> spawnPlayer(x, y);
-            case ASTEROID          -> spawnEntity(new AsteroidModel(x, y)); // simplified, adjust as needed
-            case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
-            case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
-            case WORM              -> spawnWorm(x, y);
+            case ASTEROID          -> spawnCustomRuntimeEntity("asteroid", x, y);
+            case BLACKHOLE         -> spawnCustomRuntimeEntity("blackhole", x, y);
+            case HEART             -> spawnCustomRuntimeEntity("heart", x, y);
+            case WORM              -> spawnCustomRuntimeEntity("iscat_worm_head", x, y); // Simplified worm for now
             case PROJECTILE        -> throw new IllegalArgumentException("Usa spawnProjectile per istanziare proiettili");
         };
     }
 
     public Object waveSpawn(UniverseSpawnable type, double x, double y, int playerLevel) {
         Object toSpawn = spawn(type, x, y);
-        if (toSpawn instanceof AbstractLivingEntityModel l) {
-            l.setMaxEndurance(l.getMaxEndurance() * playerLevel);
-            l.setEndurance(l.getMaxEndurance());
+        if (toSpawn instanceof GameEntity l && l.hasModule(EnduranceModule.class)) {
+            EnduranceModule em = l.getModule(EnduranceModule.class);
+            // TODO: Scale max endurance
+            em.setEndurance(em.getMaxEndurance());
         }
         return toSpawn;
     }
 
-    public PlayerModel spawnPlayer(double x, double y) {
-        PlayerModel player = new PlayerModel(x, y);
+    public GameEntity spawnPlayer(double x, double y) {
+        GameEntity player = EntityFactory.spawn("player1", x, y, model, controller);
         model.setPlayer(player);
         return player;
     }
 
-    public IscatWormModel spawnWorm(double x, double y) {
-        IscatWormModel worm = new IscatWormModel(x, y);
-        for (IscatWormSegment seg : worm.getSegments()) {
-            model.addEntity(seg);
-            // Use custom brain instead of GenericEntityBrain
-            IscatWormSegmentBrain brain = new IscatWormSegmentBrain(seg, worm.getHead());
-            controller.addEntityController(brain);
-        }
-        worm.connectSegments(model);   // add joints
-        return worm;
-    }
-
-    // Generic spawn for any IEntityController factory (covers Brain and old controllers)
-    public  <M extends AbstractEntityModel> M spawnWithController(
+    public <M extends GameEntity> M spawnWithController(
             BiFunction<Double, Double, M> modelFactory,
             Function<M, IEntityController> controllerFactory,
             double x, double y) {
@@ -91,31 +73,29 @@ public class UniverseSpawner {
             return null;
         }
 
-        M entityModel = modelFactory.apply(x, y);
-        model.addEntity(entityModel);
+        M entity = modelFactory.apply(x, y);
+        model.addEntity(entity);
 
         if (controllerFactory != null) {
-            IEntityController ctrl = controllerFactory.apply(entityModel);
+            IEntityController ctrl = controllerFactory.apply(entity);
             controller.addEntityController(ctrl);
         }
-        return entityModel;
+        return entity;
     }
 
-    public <T extends AbstractEntityModel> T spawnEntity(T entity) {
+    public <T extends GameEntity> T spawnEntity(T entity) {
         model.addEntity(entity);
         return entity;
     }
 
-    private Object spawnCustomRuntimeEntity(String id, double x, double y) {
-        EntityModel jsonEntity = EntityFactory
-                .spawn(id, x, y, model, controller);
+    private GameEntity spawnCustomRuntimeEntity(String id, double x, double y) {
+        GameEntity entity = EntityFactory.spawn(id, x, y, model, controller);
 
-        if (jsonEntity != null) {
-            if (jsonEntity.getEntity().isBoss()) {
-                jsonEntity.setWaveController(this.waveController);
+        if (entity != null && entity.hasModule(EnduranceModule.class)) {
+            if (entity.getRecord().identity().isBoss()) {
+                entity.getModule(EnduranceModule.class).setWaveController(this.waveController);
             }
-                    }
-        return jsonEntity;
+        }
+        return entity;
     }
-
 }

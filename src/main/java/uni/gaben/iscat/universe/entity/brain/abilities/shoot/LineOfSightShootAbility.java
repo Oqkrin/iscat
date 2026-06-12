@@ -9,8 +9,8 @@ import org.dyn4j.world.result.RaycastResult;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.brain.Target;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
 
 public class LineOfSightShootAbility extends ShootAbility {
     private final double maxAngle;
@@ -19,9 +19,9 @@ public class LineOfSightShootAbility extends ShootAbility {
     private final DetectFilter<Body, BodyFixture> losFilter;
 
     public LineOfSightShootAbility(double combatRange, double cooldownSec,
-                                   ProjectileType bulletType, PatternShooter pattern,
+                                   String bulletType, PatternShooter pattern,
                                    Target target, boolean aimAtTarget, double maxAngle,
-                                   AbstractEntityModel self) {
+                                   GameEntity self) {
         super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget, 0);
         this.maxAngle = maxAngle;
         this.losFilter = new DetectFilter<>(true, true, null) {
@@ -33,7 +33,7 @@ public class LineOfSightShootAbility extends ShootAbility {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(GameEntity self, UniverseModel world, double dt) {
         if (!super.canActivate(self, world, dt)) return false;
 
         Vector2 myPos = self.getTransform().getTranslation();
@@ -62,7 +62,7 @@ public class LineOfSightShootAbility extends ShootAbility {
         if (closest == null) return true;
 
         Body hit = closest.getBody();
-        if (hit instanceof AbstractEntityModel &&
+        if (hit instanceof GameEntity &&
                 hit.getTransform().getTranslation().distanceSquared(targetPos) < 0.01) {
             return true;
         }

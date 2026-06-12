@@ -1,49 +1,31 @@
 package uni.gaben.iscat.universe;
 
-import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
-import uni.gaben.iscat.universe.entity.enviroment.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
+import uni.gaben.iscat.universe.entity.GameEntity;
 
 public enum UniverseSpawnable {
-    PLAYER(PlayerModel.class),
-    ASTEROID(AsteroidModel.class),
-    BLACKHOLE(BlackHoleModel.class),
-    HEART(HeartModel.class),
-    WORM(IscatWormSegment.class),
-    PROJECTILE(ProjectileModel.class);
+    PLAYER("player1"),
+    ASTEROID("asteroid"),
+    BLACKHOLE("blackhole"),
+    HEART("heart"),
+    WORM("iscat_worm_head"),
+    PROJECTILE("projectile");
 
-    private final Class<? extends AbstractEntityModel> modelClass;
+    private final String defaultKey;
 
-    UniverseSpawnable(Class<? extends AbstractEntityModel> modelClass) {
-        this.modelClass = modelClass;
+    UniverseSpawnable(String defaultKey) {
+        this.defaultKey = defaultKey;
     }
 
-    public Class<? extends AbstractEntityModel> getModelClass() {
-        return modelClass;
+    public String getDefaultKey() {
+        return defaultKey;
     }
 
-    /**
-     * Tenta di mappare una stringa a un'entità fissa dell'enum.
-     * @return L'enum corrispondente, o null se si tratta di un'entità custom/dinamica.
-     */
     public static UniverseSpawnable fromString(String value) {
         if (value == null) return null;
         try {
             return UniverseSpawnable.valueOf(value.toUpperCase().trim());
         } catch (IllegalArgumentException e) {
-            // Non fa parte dell'enum rigido: è un'entità custom a runtime!
             return null;
         }
-    }
-
-    public static UniverseSpawnable fromModelClass(Class<?> modelClass) {
-        for (UniverseSpawnable type : values()) {
-            if (type.modelClass == modelClass) return type;
-        }
-        return null;
     }
 }

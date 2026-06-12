@@ -1,6 +1,6 @@
 package uni.gaben.iscat.utils;
 
-import uni.gaben.iscat.universe.entity.EntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import java.util.List;
 import java.util.Random;
 
@@ -16,7 +16,7 @@ public class EnemyAudioManager {
      * Riproduce un effetto sonoro per l'entità in base all'evento richiesto.
      * Cerca i nomi nel JSON; se non trova nulla, applica un fallback di default.
      */
-    public static void playEventAudio(EntityModel model, String eventType) {
+    public static void playEventAudio(GameEntity model, String eventType) {
         if (model == null || model.getEntity() == null || model.getEntity().audio() == null) return;
 
         // Recupera la lista di chiavi (nomi dei file) dal tipo di evento

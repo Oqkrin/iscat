@@ -110,7 +110,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
         for (Map.Entry<String, EntityRecord> entry : rawEnemiesMap.entrySet()) {
             String key = entry.getKey().toLowerCase().trim();
-            boolean isPlayerEntity = key.contains("player") || entry.getValue().name().toLowerCase().contains("player");
+            boolean isPlayerEntity = key.contains("player") || (entry.getValue().identity() != null && entry.getValue().identity().name().toLowerCase().contains("player"));
 
             if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity) {
                 filteredEnemies.put(entry.getKey(), entry.getValue());
@@ -148,10 +148,10 @@ public class BestiaryMenuController implements IscatMenuController {
         buttonCanvases.clear();
 
         for (EntityRecord enemy : filteredEnemies.values()) {
-            String safeId = enemy.entityKey().toLowerCase().trim();
+            String safeId = enemy.identity().entityKey().toLowerCase().trim();
             boolean unlocked = bestiaryModel.isUnlocked(safeId);
 
-            String buttonText = unlocked ? enemy.name() : "???";
+            String buttonText = unlocked ? enemy.identity().name() : "???";
 
             Button button = new Button(buttonText);
             button.setPrefWidth(250.0);
@@ -161,8 +161,8 @@ public class BestiaryMenuController implements IscatMenuController {
             AnimatedCanvas iconCanvas = new AnimatedCanvas(ICON_SIZE);
             iconCanvas.setFrameDuration(0.20);
 
-            if (unlocked) {
-                iconCanvas.loadSkin(enemy.spritePath(), enemy.frameW(), enemy.frameH());
+            if (unlocked && enemy.sprite() != null) {
+                iconCanvas.loadSkin(enemy.identity().name(), enemy.sprite().frameW(), enemy.sprite().frameH());
             } else {
                 iconCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
                 button.setStyle("-fx-opacity: 0.75;");
@@ -190,14 +190,14 @@ public class BestiaryMenuController implements IscatMenuController {
         currentEnemyId = cleanId;
 
         boolean unlocked = bestiaryModel.isUnlocked(cleanId);
-        String nameToShow = unlocked ? enemy.name().toUpperCase() : "??? UNKNOWN ENTITY ???";
+        String nameToShow = unlocked ? enemy.identity().name().toUpperCase() : "??? UNKNOWN ENTITY ???";
         skinNameLabel.setText(nameToShow);
 
         refreshInfoZone();
 
         previewCanvas.setFrameDuration(0.1);
-        if (unlocked) {
-            previewCanvas.loadSkin(enemy.spritePath(), enemy.frameW(), enemy.frameH());
+        if (unlocked && enemy.sprite() != null) {
+            previewCanvas.loadSkin(enemy.identity().name(), enemy.sprite().frameW(), enemy.sprite().frameH());
         } else {
             previewCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
         }
@@ -223,7 +223,7 @@ public class BestiaryMenuController implements IscatMenuController {
         switch (currentInfoMode) {
             case DESCRIPTION -> {
                 rightCardHeader.setText("DESCRIPTION");
-                description.setText(enemy.description());
+                description.setText(enemy.identity().description());
             }
             case STATS -> {
                 rightCardHeader.setText("STATS");
@@ -232,20 +232,25 @@ public class BestiaryMenuController implements IscatMenuController {
                     
                     ❤ Punti Vita: %.0f HP
                     ⚡ Velocità Massima: %.1f m/s
-                    ✨ Ricompensa Esperienza: %d XP
+                    ✨ Ricompensa Esperienza: %.0f XP
                     📐 Scala Moltiplicatore: %.1fx
                     ⚓ Attrito Lineare: %.1f
                     ⚙ Massa: %.1f kg
                     💪 Forza Massima: %.1f N
                     """,
-                        enemy.initLife(), enemy.maxVelocity(), enemy.xpReward(),
-                        enemy.scale(), enemy.linearDamping(), enemy.mass(), enemy.maxForce()
+                        enemy.endurance() != null ? enemy.endurance().initLife() : 0, 
+                        enemy.movement() != null ? enemy.movement().maxVelocity() : 0, 
+                        enemy.xp() != null ? enemy.xp().xpReward() : 0.0,
+                        enemy.sprite() != null ? enemy.sprite().scale() : 1, 
+                        enemy.physics() != null ? enemy.physics().linearDamping() : 0, 
+                        enemy.physics() != null ? enemy.physics().mass() : 0, 
+                        enemy.movement() != null ? enemy.movement().maxForce() : 0
                 ));
             }
             case EXTRA -> {
                 rightCardHeader.setText("EXTRA INFO");
 
-                double cooldownSeconds = (enemy.actionCooldownSec() > 0) ? enemy.actionCooldownSec() : (enemy.actionCooldownSec() / 1000.0);
+                double cooldownSeconds = (enemy.movement() != null && enemy.movement().actionCooldownSec() > 0) ? enemy.movement().actionCooldownSec() : 0;
 
                 description.setText(String.format("""
                     INFORMAZIONI EXTRA
@@ -257,8 +262,8 @@ public class BestiaryMenuController implements IscatMenuController {
                     🆔 ID : %s
                     📊 Totale Uccisi: %d
                     """,
-                        enemy.detectionRange(), enemy.combatRange(), enemy.preferredRange(),
-                        cooldownSeconds, enemy.entityKey(), currentKills
+                        0.0, 0.0, 0.0,
+                        cooldownSeconds, enemy.identity().entityKey(), currentKills
                 ));
             }
         }
@@ -271,7 +276,7 @@ public class BestiaryMenuController implements IscatMenuController {
     @FXML
     private void selectRandom() {
         var validIds = filteredEnemies.keySet().stream()
-                .filter(id -> !filteredEnemies.get(id).name().toUpperCase().equals(skinNameLabel.getText()))
+                .filter(id -> !filteredEnemies.get(id).identity().name().toUpperCase().equals(skinNameLabel.getText()))
                 .toList();
 
         if (validIds.isEmpty()) return;

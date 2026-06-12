@@ -1,6 +1,6 @@
 package uni.gaben.iscat.universe;
 
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 
 /**
  * Listener callback that allows the Game layer to react when an entity dies
@@ -8,5 +8,5 @@ import uni.gaben.iscat.universe.entity.AbstractEntityModel;
  */
 @FunctionalInterface
 public interface EntityDeathListener {
-    void onEntityDied(AbstractEntityModel entity, boolean killedByProjectile);
+    void onEntityDied(GameEntity entity, boolean killedByProjectile);
 }

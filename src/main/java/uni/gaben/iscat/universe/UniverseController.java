@@ -5,18 +5,15 @@ import org.dyn4j.geometry.Vector2;
 
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.camera.CameraController;
-import uni.gaben.iscat.universe.camera.CameraSettings;
-import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.worm.IscatWormSegment;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.camera.CameraSettings;
+import uni.gaben.iscat.universe.entity.GameEntity;
+import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 import uni.gaben.iscat.universe.entity.interfaces.Dynamic;
+import uni.gaben.iscat.universe.entity.modules.EnduranceModule;
 import uni.gaben.iscat.universe.entity.player.PlayerController;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.projectiles.ProjectilePool;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
@@ -60,7 +57,7 @@ public class UniverseController {
      * @param camera camera model (for viewport-relative calculations)
      */
     public void updatev(double dt, GameInputsHandler inputs, CameraModel camera) {
-        PlayerModel player = universeModel.getPlayer();
+        GameEntity player = universeModel.getPlayer();
         if(player == null || player.shouldRemove()) return;
 
         syncPlayerController(player);
@@ -69,7 +66,6 @@ public class UniverseController {
         updateEntities(dt);
         updateAI(dt);
         applyTerminalVelocityLimits();
-        syncWormSegmentRotations();
 
         universeModel.stepPhysics(dt);
 
@@ -81,13 +77,13 @@ public class UniverseController {
     // Private update steps
     // -------------------------------------------------------------------------
 
-    private void syncPlayerController(PlayerModel player) {
+    private void syncPlayerController(GameEntity player) {
         if (playerController.getPlayer() != player) {
             playerController.setPlayer(player);
         }
     }
 
-    private void processPlayerInputs(PlayerModel player, GameInputsHandler inputs,
+    private void processPlayerInputs(GameEntity player, GameInputsHandler inputs,
                                      CameraModel camera, double dt) {
         if (player == null) return;
         playerController.processInput(inputs, camera, dt);
@@ -120,20 +116,6 @@ public class UniverseController {
     }
 
     /**
-     * Aligns non-head worm segments to face their movement direction.
-     * The head is handled by its own AI brain.
-     */
-    private void syncWormSegmentRotations() {
-        for (Body body : universeModel.getBodies()) {
-            if (body instanceof IscatWormSegment seg && seg.getType() != IscatWormSegment.Type.HEAD) {
-                Vector2 vel = body.getLinearVelocity();
-                if (vel.getMagnitudeSquared() > 0.01)
-                    body.getTransform().setRotation(vel.getDirection());
-            }
-        }
-    }
-
-    /**
      * Advances projectile lifetimes and immediately destroys any that have
      * left the visible viewport (plus a margin).
      */
@@ -144,11 +126,13 @@ public class UniverseController {
         double top    = camera.getViewportTopY()   - 200.0;
         double bottom = top  + (camera.getScreenHeight() / zoom) + 400.0;
 
-        for (AbstractProjectileModel p : universeModel.getProjectiles()) {
+        for (GameEntity p : universeModel.getProjectiles()) {
             if (p.shouldRemove()) continue;
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
-            if (px < left || px > right || py < top || py > bottom) p.extinguish(true);
+            if (px < left || px > right || py < top || py > bottom) {
+                p.extinguish(true);
+            }
         }
     }
 
@@ -156,35 +140,45 @@ public class UniverseController {
      * Identifies dead or marked entities, awards XP/score to the player,
      * increments kill stats in the DB, then removes them from the world.
      */
-    private void processEntityCleanup(PlayerModel player) {
-        List<AbstractEntityModel> toRemove = new ArrayList<>();
+    private void processEntityCleanup(GameEntity player) {
+        List<GameEntity> toRemove = new ArrayList<>();
 
-        for (AbstractEntityModel entity : universeModel.getEntities()) {
+        for (GameEntity entity : universeModel.getEntities()) {
             if (entity == null) continue;
 
             boolean remove = entity.shouldRemove();
-            if (!remove && entity instanceof AbstractLivingEntityModel living) {
-                if (living.getEndurance() <= 0) {
-                    if (!living.shouldRemove()) living.extinguish();
-                    remove = living.shouldRemove();
+            if (!remove && entity.hasModule(EnduranceModule.class)) {
+                EnduranceModule em = entity.getModule(EnduranceModule.class);
+                if (em.getEndurance() <= 0) {
+                    if (!entity.shouldRemove()) em.completeDeath();
+                    remove = entity.shouldRemove();
                 }
             }
 
             if (remove) {
                 toRemove.add(entity);
-                if (entity instanceof AbstractLivingEntityModel living && living != player && entityDeathListener != null) {
-                    entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
+                if (entity != player && entityDeathListener != null) {
+                    entityDeathListener.onEntityDied(entity, true); //#TODO actual check
                 }
             }
         }
 
-        for (AbstractEntityModel entity : toRemove) {
+        // Also clean up projectiles
+        List<GameEntity> projToRemove = new ArrayList<>();
+        for (GameEntity p : universeModel.getProjectiles()) {
+            if (p.shouldRemove()) {
+                projToRemove.add(p);
+            }
+        }
+
+        for (GameEntity entity : toRemove) {
             universeModel.removeEntity(entity);
             entityControllers.removeIf(
                     ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
-            if (entity instanceof ProjectileModel p) {
-                uni.gaben.iscat.universe.entity.projectiles.ProjectilePool.release(p);
-            }
+        }
+        for (GameEntity p : projToRemove) {
+            universeModel.removeEntity(p);
+            ProjectilePool.release(p);
         }
     }
 
@@ -192,13 +186,12 @@ public class UniverseController {
     private double lastPlayerHealth = -1.0;
 
     // 2. Refactor the camera processing loop
-    private void updateCamera(PlayerModel player, CameraModel camera, GameInputsHandler inputs, double dt) {
+    private void updateCamera(GameEntity player, CameraModel camera, GameInputsHandler inputs, double dt) {
         if (player != null) {
             // =====================================================================
             // AUTOMATED DAMAGE DETECTION HOOK
             // =====================================================================
-            // Safely assumes player has standard health querying capabilities (e.g., getHealth() or getHp())
-            double currentHealth = player.getEndurance();
+            double currentHealth = player.hasModule(EnduranceModule.class) ? player.getModule(EnduranceModule.class).getEndurance() : 100.0;
 
             if (lastPlayerHealth < 0) {
                 lastPlayerHealth = currentHealth; // Initialize frame cache
@@ -244,19 +237,16 @@ public class UniverseController {
         }
     }
 
-    private static double getDynamicZoom(PlayerModel player, CameraModel camera, double dt) {
+    private static double getDynamicZoom(GameEntity player, CameraModel camera, double dt) {
         double speed = player.getLinearVelocity().getMagnitude();
         double maxVel = UniverseVelocitySettings.PLAYER_MAX_VELOCITY*2;
 
         // Use a quadratic ratio for "high-speed contrast"
-        // Squaring the ratio means the camera stays close longer, then zips out at max speed
         double speedRatio = Math.clamp(speed / maxVel, 0.0, 1.0);
         double dynamicModifier = speedRatio * CameraSettings.MAX_ZOOM_OUT_MODIFIER;
 
-        // The target is the User's preferred zoom MINUS the speed-based pullback
         double targetZoom = camera.getBaseZoom() - dynamicModifier;
 
-        // Smooth interpolation
         double currentZoom = camera.getZoom();
         return currentZoom + (targetZoom - currentZoom) * (1.0 - Math.exp(-CameraSettings.ZOOM_SMOOTHING_SPEED * dt));
     }

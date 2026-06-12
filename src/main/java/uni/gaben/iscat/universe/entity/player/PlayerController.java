@@ -5,8 +5,12 @@ import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.GameEntity;
+import uni.gaben.iscat.universe.entity.modules.EnduranceModule;
+import uni.gaben.iscat.universe.entity.modules.MovementModule;
+import uni.gaben.iscat.universe.entity.modules.StateModule;
+import uni.gaben.iscat.universe.entity.modules.XpModule;
+
 import uni.gaben.iscat.universe.entity.projectiles.shooters.Shooter;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
 import uni.gaben.iscat.utils.AudioManager;
@@ -17,18 +21,18 @@ import java.util.function.Consumer;
 
 public class PlayerController {
 
-    private PlayerModel player;
-    private Shooter<PlayerModel> shooter;
-    private GameModel gameModel;          // for time‑scale control
+    private GameEntity player;
+    private Shooter<GameEntity> shooter;
+    private GameModel gameModel;          
 
     private final Cooldown dashBuffer = new Cooldown();
-    private boolean bufferedDashIsWASD = false;
+    private final Cooldown fireCooldown = new Cooldown();
+    
     private PatternShooter currentAttack;
-
-    // Cache last level to avoid re‑assigning attack pattern every frame
     private int lastLevel = -1;
+    private double lastHealth = -1;
 
-    public PlayerController(PlayerModel player) {
+    public PlayerController(GameEntity player) {
         setPlayer(player);
     }
 
@@ -38,6 +42,24 @@ public class PlayerController {
 
     public void processInput(GameInputsHandler input, CameraModel camera, double dt) {
         dashBuffer.update(dt);
+        fireCooldown.update(dt);
+        
+        if (player == null || player.shouldRemove()) return;
+        
+        MovementModule mov = player.hasModule(MovementModule.class) ? player.getModule(MovementModule.class) : null;
+        StateModule state = player.hasModule(StateModule.class) ? player.getModule(StateModule.class) : null;
+
+        boolean isStunned = state != null && state.isStunned();
+        boolean isDashing = mov != null && mov.isDashing();
+
+        // Manual health listener check
+        if (player.hasModule(EnduranceModule.class)) {
+            double currentHealth = player.getModule(EnduranceModule.class).getEndurance();
+            if (lastHealth >= 0 && currentHealth < lastHealth) {
+                AudioManager.getInstance().playSFX("hurt");
+            }
+            lastHealth = currentHealth;
+        }
 
         double dx = 0, dy = 0;
         if (input.up) dy -= 1;
@@ -48,12 +70,13 @@ public class PlayerController {
         double currentAngle = player.getTransform().getRotationAngle();
         double nextAngle = currentAngle;
 
-        if (!player.isInScatto()) {
+        if (!isDashing) {
             // Movement force
             if (dx != 0 || dy != 0) {
                 Vector2 dir = new Vector2(dx, dy).getNormalized();
-                if (!player.isStunned()) {
-                    player.applyForce(dir.multiply(PlayerSettings.FORZA_SPINTA * player.getMass().getMass()));
+                if (!isStunned) {
+                    double maxForce = mov != null ? mov.getAcceleration() : 30.0;
+                    player.applyForce(dir.multiply(maxForce * player.getMass().getMass()));
                 }
             }
 
@@ -77,58 +100,43 @@ public class PlayerController {
 
             nextAngle = Interpolator.lerp(currentAngle, currentAngle + diff, Math.min(15.0 * dt, 1.0));
             player.getTransform().setRotation(nextAngle);
-            if (!player.isStunned()) {
+            if (!isStunned) {
                 player.setAngularVelocity(Interpolator.lerp(player.getAngularVelocity(), 0, Math.min(20.0 * dt, 1.0)));
             }
 
-            // Shooting (handles cooldown and level‑up attack pattern)
+            // Shooting 
             handleShooting(input);
         } else {
             player.setAngularVelocity(0);
         }
 
-        // Dash & slow‑motion
-        if (!player.isStunned()) {
-            handleDashAndSlowMotion(input, dx, dy, nextAngle);
+        // Dash & slow-motion
+        if (!isStunned) {
+            handleDashAndSlowMotion(input, dx, dy, nextAngle, mov);
         }
     }
 
-    private void handleDashAndSlowMotion(GameInputsHandler input, double dx, double dy, double aimAngle) {
-        // --- Slow‑motion from mouse dodge button (hold) ---
+    private void handleDashAndSlowMotion(GameInputsHandler input, double dx, double dy, double aimAngle, MovementModule mov) {
         if (gameModel != null) {
             gameModel.setTimeScale(input.slowMotionRequested ? 0.2 : 1.0);
         }
 
-        // --- Keyboard dash (instant) ---
-        if (input.dashKeyPressed && player.isScattoDisponibile()) {
-            // Determine dash direction: movement keys if any, else aim angle
-            double dashAngle;
-            if (dx != 0 || dy != 0) {
-                dashAngle = Math.atan2(dy, dx);
-            } else {
-                dashAngle = aimAngle;
-            }
+        if (input.dashKeyPressed && mov != null && mov.canDash()) {
+            double dashAngle = (dx != 0 || dy != 0) ? Math.atan2(dy, dx) : aimAngle;
             player.getTransform().setRotation(dashAngle);
-            player.executeScatto(dashAngle);
-            input.dashKeyPressed = false; // consume
+            mov.dashTowards(dashAngle);
+            input.dashKeyPressed = false; 
         }
-
-        // (Optional) Mouse dash could also trigger a short slow‑motion after press.
-        // Currently we use hold‑to‑slow – no extra action needed.
     }
 
-    public void setPlayer(PlayerModel player) {
+    public void setPlayer(GameEntity player) {
         this.player = player;
         if (player != null) {
             this.shooter = new Shooter<>(player);
-            updateAttackPatternByLevel();          // initial assignment
-            this.lastLevel = player.getLevel();    // cache
-
-            this.player.enduranceProperty().addListener((obs, old, newVal) -> {
-                if (old.doubleValue() > newVal.doubleValue()) {
-                    AudioManager.getInstance().playSFX("hurt");
-                }
-            });
+            if (player.hasModule(EnduranceModule.class)) {
+                this.lastHealth = player.getModule(EnduranceModule.class).getEndurance();
+            }
+            updateAttackPatternByLevel();          
         } else {
             this.shooter = null;
         }
@@ -137,49 +145,48 @@ public class PlayerController {
     private void handleShooting(GameInputsHandler input) {
         if (player == null || shooter == null || currentAttack == null) return;
 
-        // Only update attack pattern when level actually changes
-        int currentLevel = player.getLevel();
+        int currentLevel = player.hasModule(XpModule.class) ? player.getModule(XpModule.class).getLevel() : 1;
         if (currentLevel != lastLevel) {
             updateAttackPatternByLevel();
             lastLevel = currentLevel;
         }
 
-        if (input.shooting && player.isSparoDisponibile()) {
+        if (input.shooting && fireCooldown.isReady()) {
             double angle = player.getTransform().getRotationAngle();
 
-            Consumer<ProjectileModel> customizer = bullet -> {
-                double boostedLife = bullet.getEndurance() + player.getLevel();
-                bullet.setMaxLifeDirect(boostedLife);
+            Consumer<GameEntity> customizer = bullet -> {
+                double boostedLife = bullet.getEndurance() + currentLevel;
+                bullet.setEndurance(boostedLife);
             };
 
-            currentAttack.execute(shooter, ProjectileType.PLAYER_BULLET, angle, customizer);
-            player.startCooldownFuoco();
+            currentAttack.execute(shooter, "player_bullet", angle, customizer);
+            fireCooldown.start(player.getRecord().player() != null ? player.getRecord().player().baseCooldownSec() : 0.5);
         }
     }
 
     private void updateAttackPatternByLevel() {
-        int level = player.getLevel();
-        double baseCd = PlayerSettings.COOLDOWN_FUOCO_SEC;
+        int level = player.hasModule(XpModule.class) ? player.getModule(XpModule.class).getLevel() : 1;
+        double baseCd = player.getRecord().player() != null ? player.getRecord().player().baseCooldownSec() : 0.5;
 
         if (level >= 10) {
             this.currentAttack = new FigurePatternShooter(30, FigurePatternShooter.FigureType.STAR);
-            player.setCooldownFuocoSec(baseCd * 0.8);
+            fireCooldown.setDefaultDuration(baseCd * 0.8);
         } else if (level >= 7) {
             this.currentAttack = new SpreadPatternShooter(7, 45.0);
-            player.setCooldownFuocoSec(baseCd * 0.85);
+            fireCooldown.setDefaultDuration(baseCd * 0.85);
         } else if (level >= 4) {
             this.currentAttack = new SpreadPatternShooter(5, 30.0);
-            player.setCooldownFuocoSec(baseCd * 0.9);
+            fireCooldown.setDefaultDuration(baseCd * 0.9);
         } else if (level >= 2) {
             this.currentAttack = new SpreadPatternShooter(3, 15.0);
-            player.setCooldownFuocoSec(baseCd * 0.95);
+            fireCooldown.setDefaultDuration(baseCd * 0.95);
         } else {
             this.currentAttack = new SingleShotPatternShooter();
-            player.setCooldownFuocoSec(baseCd);
+            fireCooldown.setDefaultDuration(baseCd);
         }
     }
 
-    public PlayerModel getPlayer() {
+    public GameEntity getPlayer() {
         return player;
     }
 }

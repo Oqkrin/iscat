@@ -131,7 +131,7 @@ public class ScoreMenuController implements IscatMenuController {
 
                 AnimatedCanvas canvas = new AnimatedCanvas(128.0);
                 canvas.setFrameDuration(.5);
-                canvas.loadSkin(enemy.spritePath(), enemy.frameW(), enemy.frameH());
+                canvas.loadSkin(enemy.sprite().spritePath(), enemy.sprite().frameW(), enemy.sprite().frameH());
                 canvas.resize(128.0, 128.0);
 
                 containers[i].getChildren().add(canvas);

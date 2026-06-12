@@ -8,21 +8,20 @@ import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UniverseModel extends World<Body> {
 
-    private PlayerModel player;
+    private GameEntity player;
 
-    private final List<AbstractEntityModel> entities = new ArrayList<>();
-    private final List<AbstractProjectileModel> projectiles = new ArrayList<>();
+    private final List<GameEntity> entities = new ArrayList<>();
+    private final List<GameEntity> projectiles = new ArrayList<>();
     private final Starfield starfield = new Starfield(0, 0);
-    private final Map<Class<?>, List<AbstractEntityModel>> entitiesByCategory = new HashMap<>();
+    private final Map<Class<?>, List<GameEntity>> entitiesByCategory = new HashMap<>();
     private final Map<Class<?>, List<Class<?>>> classHierarchyCache = new ConcurrentHashMap<>();
 
     public static final double DEFAULT_SPAWN_WIDTHCENTER = UniverseSettings.DEFAULT_WIDTH / 2.0;
@@ -41,8 +40,8 @@ public class UniverseModel extends World<Body> {
         addContactListener(new ContactListenerAdapter<Body>() {
             @Override
             public void begin(ContactCollisionData<Body> collision, Contact contact) {
-                AbstractEntityModel a = extractEntity(collision.getBody1());
-                AbstractEntityModel b = extractEntity(collision.getBody2());
+                GameEntity a = extractEntity(collision.getBody1());
+                GameEntity b = extractEntity(collision.getBody2());
                 if (a != null && b != null) {
                     a.triggerCollision(b);
                     b.triggerCollision(a);
@@ -55,9 +54,9 @@ public class UniverseModel extends World<Body> {
     // Helpers
     // -------------------------------------------------------------------------
 
-    private AbstractEntityModel extractEntity(Body body) {
-        if (body instanceof AbstractEntityModel m) return m;
-        if (body.getUserData() instanceof AbstractEntityModel m) return m;
+    private GameEntity extractEntity(Body body) {
+        if (body instanceof GameEntity m) return m;
+        if (body.getUserData() instanceof GameEntity m) return m;
         return null;
     }
 
@@ -92,12 +91,12 @@ public class UniverseModel extends World<Body> {
     // Player
     // -------------------------------------------------------------------------
 
-    public void setPlayer(PlayerModel player) {
+    public void setPlayer(GameEntity player) {
         this.player = player;
         addEntity(player);
     }
 
-    public PlayerModel getPlayer() {
+    public GameEntity getPlayer() {
         return (player != null && player.shouldRemove()) ? null : player;
     }
 
@@ -105,18 +104,24 @@ public class UniverseModel extends World<Body> {
     // Entity registry
     // -------------------------------------------------------------------------
 
-    public void addEntity(AbstractEntityModel entity) {
-        entities.add(entity);
+    public void addEntity(GameEntity entity) {
         addBody(entity);
-        if (entity instanceof AbstractProjectileModel p) projectiles.add(p);
+        if (entity.getRecord() != null && entity.getRecord().physics() != null && entity.getRecord().physics().isProjectile()) {
+            projectiles.add(entity);
+        } else {
+            entities.add(entity);
+        }
         registerEntityCategories(entity);
     }
 
-    public void removeEntity(AbstractEntityModel entity) {
+    public void removeEntity(GameEntity entity) {
         if (entity == null) return;
 
-        entities.remove(entity);
-        if (entity instanceof AbstractProjectileModel p) projectiles.remove(p);
+        if (entity.getRecord() != null && entity.getRecord().physics() != null && entity.getRecord().physics().isProjectile()) {
+            projectiles.remove(entity);
+        } else {
+            entities.remove(entity);
+        }
         unregisterEntityCategories(entity);
 
         entity.setEnabled(false);
@@ -128,12 +133,11 @@ public class UniverseModel extends World<Body> {
     }
 
     /** Returns an unmodifiable view of the master entity list. */
-    public List<AbstractEntityModel> getEntities() {
+    public List<GameEntity> getEntities() {
         return Collections.unmodifiableList(entities);
     }
 
-    /** Returns an unmodifiable list of projectiles. */
-    public List<AbstractProjectileModel> getProjectiles() {
+    public List<GameEntity> getProjectiles() {
         return Collections.unmodifiableList(projectiles);
     }
 
@@ -152,8 +156,8 @@ public class UniverseModel extends World<Body> {
      * The returned list reflects live changes; do not modify it directly.
      */
     @SuppressWarnings("unchecked")
-    public <T extends AbstractEntityModel> List<T> getEntitiesOfType(Class<T> type) {
-        List<AbstractEntityModel> list = entitiesByCategory.get(type);
+    public <T extends GameEntity> List<T> getEntitiesOfType(Class<T> type) {
+        List<GameEntity> list = entitiesByCategory.get(type);
         if (list == null) return Collections.emptyList();
         // Return unmodifiable view – safe and allocation‑free
         return (List<T>) Collections.unmodifiableList(list);
@@ -178,15 +182,15 @@ public class UniverseModel extends World<Body> {
         });
     }
 
-    private void registerEntityCategories(AbstractEntityModel entity) {
+    private void registerEntityCategories(GameEntity entity) {
         for (Class<?> type : getClassHierarchy(entity.getClass())) {
             entitiesByCategory.computeIfAbsent(type, k -> new ArrayList<>()).add(entity);
         }
     }
 
-    private void unregisterEntityCategories(AbstractEntityModel entity) {
+    private void unregisterEntityCategories(GameEntity entity) {
         for (Class<?> type : getClassHierarchy(entity.getClass())) {
-            List<AbstractEntityModel> list = entitiesByCategory.get(type);
+            List<GameEntity> list = entitiesByCategory.get(type);
             if (list != null) list.remove(entity);
         }
     }

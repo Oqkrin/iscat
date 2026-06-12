@@ -3,8 +3,9 @@ package uni.gaben.iscat.universe.entity.brain;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.record.BrainData;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,9 +15,9 @@ public interface RotationGoal {
     /**
      * @return desired angle in radians, or Double.NaN if no rotation should occur.
      */
-    double compute(AbstractEntityModel self, UniverseModel world, double dt);
+    double compute(GameEntity self, UniverseModel world, double dt);
 
-    static RotationGoal createRotationGoal(EntityRecord.RotationRecord cfg) {
+    static RotationGoal createRotationGoal(BrainData.RotationRecord cfg) {
         return switch (cfg.type()) {
             case "movement" -> RotationGoal.movement();
             case "target" -> RotationGoal.target(Target.ofPlayer());
@@ -49,7 +50,7 @@ public interface RotationGoal {
         return new RotationGoal() {
             private double currentAngle = Double.NaN;
             @Override
-            public double compute(AbstractEntityModel self, UniverseModel world, double dt) {
+            public double compute(GameEntity self, UniverseModel world, double dt) {
                 if (Double.isNaN(currentAngle)) {
                     currentAngle = self.getTransform().getRotationAngle();
                 }
@@ -68,7 +69,7 @@ public interface RotationGoal {
             private boolean isPaused = true;
 
             @Override
-            public double compute(AbstractEntityModel self, UniverseModel world, double dt) {
+            public double compute(GameEntity self, UniverseModel world, double dt) {
                 // 1. Lazy Initialization on the first valid simulation frame
                 if (Double.isNaN(currentAngle)) {
                     currentAngle = self.getTransform().getRotationAngle();

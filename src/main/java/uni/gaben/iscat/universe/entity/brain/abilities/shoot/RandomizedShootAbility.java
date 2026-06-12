@@ -2,11 +2,11 @@ package uni.gaben.iscat.universe.entity.brain.abilities.shoot;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.RepeaterPatternShooter;
 import uni.gaben.iscat.universe.entity.brain.*;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -22,7 +22,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
 
     private final List<PatternShooter> attackPool;
     private final Random rand = new Random();
-    private Consumer<ProjectileModel> customizer;
+    private Consumer<GameEntity> customizer;
 
     // Burst state — only active when a RepeaterPatternShooter was selected
     private int burstLeft = 0;
@@ -32,7 +32,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
 
 
     public RandomizedShootAbility(double combatRange, double cooldownSec,
-                                  ProjectileType bulletType,
+                                  String bulletType,
                                   Target target, boolean aimAtTarget, double nerfPrediction,
                                   PatternShooter... attacks) {
         super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
@@ -40,7 +40,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     }
 
     public static RandomizedShootAbility targetingPlayer(double combatRange, double cooldownSec,
-                                                         ProjectileType bulletType, boolean aimAtTarget,
+                                                         String bulletType, boolean aimAtTarget,
                                                          double nerfPrediction,
                                                          PatternShooter... attacks) {
         return new RandomizedShootAbility(combatRange, cooldownSec, bulletType,
@@ -49,7 +49,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
-        double angle = getAimAngle(brain, world, bulletType.terminalVelocity);
+        double angle = getAimAngle(brain, world, 10);
         PatternShooter selected = attackPool.get(rand.nextInt(attackPool.size()));
 
         if (selected instanceof RepeaterPatternShooter repeater) {
@@ -82,7 +82,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
                 return false;
             }
 
-            double angle = getAimAngle(brain, world, bulletType.terminalVelocity);
+            double angle = getAimAngle(brain, world, 10);
             burstPattern.execute(brain.getShooter(), bulletType, angle, customizer);
             burstLeft--;
         }
@@ -90,7 +90,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
         return burstLeft > 0; // keep alive while bursts remain
     }
 
-    public void setCustomizer(Consumer<ProjectileModel> customizer) {
+    public void setCustomizer(Consumer<GameEntity> customizer) {
         this.customizer = customizer;
     }
 }

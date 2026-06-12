@@ -308,7 +308,7 @@ public class GameView extends AbstractIscatStackPane {
         var player = universe.getPlayer();
         if (player != null) {
             levelLabel.textProperty().bind(
-                    Bindings.concat("LEVEL ", player.levelProperty().asString()));
+                    Bindings.concat("LEVEL ", player.getXpModule().levelProperty().toString()));
         }
     }
 

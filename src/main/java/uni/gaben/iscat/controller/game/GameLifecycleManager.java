@@ -65,7 +65,7 @@ public class GameLifecycleManager {
         camera.getSpringY().snap();
 
         // 6. Re‑attach death callback
-        newUniverse.getPlayer().setOnDeathCallback(onPlayerDeath);
+        newUniverse.getPlayer().getEnduranceModule().setOnDeathCallback(onPlayerDeath);
 
         // 7. Reset input flags and loop timer
         inputs.resetInputs();

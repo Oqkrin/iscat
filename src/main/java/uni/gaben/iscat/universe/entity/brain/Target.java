@@ -9,8 +9,8 @@ import org.dyn4j.world.DetectFilter;
 import org.dyn4j.world.result.DetectResult;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.targets.CachedNeighboursTarget;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,13 +21,13 @@ import java.util.function.Predicate;
 @FunctionalInterface
 public interface Target {
 
-    List<AbstractEntityModel> getEntities(UniverseModel universe);
+    List<GameEntity> getEntities(UniverseModel universe);
 
     default List<Vector2> getPositions(UniverseModel universe) {
-        List<AbstractEntityModel> entities = getEntities(universe);
+        List<GameEntity> entities = getEntities(universe);
         List<Vector2> positions = new ArrayList<>(entities.size());
         for (int i = 0; i < entities.size(); i++) {
-            AbstractEntityModel e = entities.get(i);
+            GameEntity e = entities.get(i);
             if (!e.shouldRemove()) {
                 positions.add(e.getTransform().getTranslation());
             }
@@ -36,7 +36,7 @@ public interface Target {
     }
 
     default Vector2 getPosition(UniverseModel universe) {
-        List<AbstractEntityModel> entities = getEntities(universe);
+        List<GameEntity> entities = getEntities(universe);
         if (entities.isEmpty()) return null;
 
         double sumX = 0.0;
@@ -44,7 +44,7 @@ public interface Target {
         int count = 0;
 
         for (int i = 0; i < entities.size(); i++) {
-            AbstractEntityModel e = entities.get(i);
+            GameEntity e = entities.get(i);
             if (e != null && !e.shouldRemove()) {
                 Vector2 pos = e.getTransform().getTranslation();
                 sumX += pos.x;
@@ -64,7 +64,7 @@ public interface Target {
         final List<Vector2> cachedList = Collections.singletonList(copiedPoint);
         return new Target() {
             @Override
-            public List<AbstractEntityModel> getEntities(UniverseModel universe) { return Collections.emptyList(); }
+            public List<GameEntity> getEntities(UniverseModel universe) { return Collections.emptyList(); }
             @Override
             public List<Vector2> getPositions(UniverseModel universe) { return cachedList; }
             @Override
@@ -75,7 +75,7 @@ public interface Target {
     static Target ofDynamicPoint(Function<UniverseModel, Vector2> query) {
         return new Target() {
             @Override
-            public List<AbstractEntityModel> getEntities(UniverseModel universe) { return Collections.emptyList(); }
+            public List<GameEntity> getEntities(UniverseModel universe) { return Collections.emptyList(); }
             @Override
             public List<Vector2> getPositions(UniverseModel universe) {
                 Vector2 p = query.apply(universe);
@@ -86,18 +86,18 @@ public interface Target {
         };
     }
 
-    static Target ofEntity(AbstractEntityModel entity) {
+    static Target ofEntity(GameEntity entity) {
         return world -> entity.shouldRemove() ? Collections.emptyList() : Collections.singletonList(entity);
     }
 
     static Target ofPlayer() {
         return universe -> {
-            PlayerModel p = universe.getPlayer();
+            GameEntity p = universe.getPlayer();
             return (p != null && !p.shouldRemove()) ? Collections.singletonList(p) : Collections.emptyList();
         };
     }
 
-    static Target ofEntities(Function<UniverseModel, List<AbstractEntityModel>> query) {
+    static Target ofEntities(Function<UniverseModel, List<GameEntity>> query) {
         return query::apply;
     }
 
@@ -109,9 +109,9 @@ public interface Target {
                     aabb.getMaxX() + range, aabb.getMaxY() + range
             );
             List<DetectResult<Body, BodyFixture>> detected = universe.detect(detectionBox, filter);
-            List<AbstractEntityModel> result = new ArrayList<>(detected.size());
+            List<GameEntity> result = new ArrayList<>(detected.size());
             for (int i = 0; i < detected.size(); i++) {
-                result.add((AbstractEntityModel) detected.get(i).getBody());
+                result.add((GameEntity) detected.get(i).getBody());
             }
             return result;
         };
@@ -127,12 +127,12 @@ public interface Target {
         return neighboursCached(self, range, true, true, null, null, bodyPredicate);
     }
 
-    default Target filtered(Predicate<AbstractEntityModel> predicate) {
+    default Target filtered(Predicate<GameEntity> predicate) {
         return world -> {
-            List<AbstractEntityModel> all = getEntities(world);
-            List<AbstractEntityModel> filtered = new ArrayList<>(all.size());
+            List<GameEntity> all = getEntities(world);
+            List<GameEntity> filtered = new ArrayList<>(all.size());
             for (int i = 0; i < all.size(); i++) {
-                AbstractEntityModel e = all.get(i);
+                GameEntity e = all.get(i);
                 if (predicate.test(e)) filtered.add(e);
             }
             return filtered;

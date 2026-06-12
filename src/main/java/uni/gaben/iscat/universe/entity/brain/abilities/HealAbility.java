@@ -2,11 +2,11 @@ package uni.gaben.iscat.universe.entity.brain.abilities;
 
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entity.EntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Collections;
@@ -26,13 +26,13 @@ public class HealAbility extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(GameEntity self, UniverseModel world, double dt) {
         healCooldown.update(dt);
         visualHealCooldown.update(dt);
         if (healCooldown.isCoolingDown()) return false;
         
-        for (AbstractLivingEntityModel l : world.getEntitiesOfType(AbstractLivingEntityModel.class)) {
-            if (l == self || l instanceof PlayerModel) continue;
+        for (GameEntity l : world.getEntitiesOfType(GameEntity.class)) {
+            if (l == self || (l.getRecord() != null && l.getRecord().identity() != null && l.getRecord().identity().entityKey().contains("player"))) continue;
             if (l.getEndurance() < l.getMaxEndurance() &&
                 self.getTransform().getTranslation().distance(l.getTransform().getTranslation()) <= range) {
                 return true;
@@ -43,9 +43,9 @@ public class HealAbility extends Ability {
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
-        AbstractEntityModel entity = brain.getEntity();
-        for (AbstractLivingEntityModel l : world.getEntitiesOfType(AbstractLivingEntityModel.class)) {
-            if (l == entity || l instanceof PlayerModel) continue;
+        GameEntity entity = brain.getEntity();
+        for (GameEntity l : world.getEntitiesOfType(GameEntity.class)) {
+            if (l == entity || (l.getRecord() != null && l.getRecord().identity() != null && l.getRecord().identity().entityKey().contains("player"))) continue;
             if (entity.getTransform().getTranslation()
                     .distance(l.getTransform().getTranslation()) <= range) {
                 l.setEndurance(Math.min(l.getEndurance() + amount, l.getMaxEndurance()));
@@ -54,7 +54,7 @@ public class HealAbility extends Ability {
         healCooldown.start();
         if(visualHealCooldown.isReady()) {
             visualHealCooldown.start();
-            if (entity instanceof EntityModel ge) {
+            if (entity instanceof GameEntity ge) {
                 ge.shockwave().trigger(visualHealCooldown.getDefaultDuration(), UU.mToPx(range / 2), UU.mToPx(range) / 10);
             }
         }

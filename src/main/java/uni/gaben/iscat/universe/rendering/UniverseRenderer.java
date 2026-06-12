@@ -6,7 +6,7 @@ import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.view.components.StarryText;
@@ -25,7 +25,7 @@ public class UniverseRenderer {
     private int fpsIdx = 0;
 
     // Buffer to avoid per‑frame ArrayList allocation
-    private final List<AbstractEntityModel> entitySnapshotBuffer = new ArrayList<>();
+    private final List<GameEntity> entitySnapshotBuffer = new ArrayList<>();
 
     // Batched drawing helper
     private final BatchedDrawCollector batcher = new BatchedDrawCollector();
@@ -67,6 +67,7 @@ public class UniverseRenderer {
         // 4. Collect all visible entities into the batch (no drawing yet)
         entitySnapshotBuffer.clear();
         entitySnapshotBuffer.addAll(universe.getEntities());
+        entitySnapshotBuffer.addAll(universe.getProjectiles());
 
         double zoom = camera.getZoom();
         double halfViewW = (w / 2.0) / zoom;
@@ -78,7 +79,7 @@ public class UniverseRenderer {
 
         boolean debug = debugPanelVisible && gameController.isDebugModeOn();
 
-        for (AbstractEntityModel entity : entitySnapshotBuffer) {
+        for (GameEntity entity : entitySnapshotBuffer) {
             if (!entity.isInsideViewport(minX, maxX, minY, maxY)) continue;
             EntityRenderer.drawBatched(entity, batcher, debug);
         }

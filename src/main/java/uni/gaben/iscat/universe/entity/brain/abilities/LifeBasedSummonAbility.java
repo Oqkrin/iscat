@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity.brain.abilities;
 
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.SummonPatternShooter;
 
@@ -20,7 +20,7 @@ public class LifeBasedSummonAbility extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(GameEntity self, UniverseModel world, double dt) {
         return false;
     }
 

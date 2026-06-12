@@ -5,19 +5,19 @@ import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.EntityFilters;
-import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.record.BrainData;
+import uni.gaben.iscat.universe.entity.GameEntity;
 
 import java.util.List;
 
 @FunctionalInterface
 public interface SteeringModifier {
 
-    void computeSteer(AbstractEntityModel self, UniverseModel world, double maxForce, double dt, Vector2 outForce);
+    void computeSteer(GameEntity self, UniverseModel world, double maxForce, double dt, Vector2 outForce);
 
-    static SteeringModifier createModifier(EntityRecord.ModifierRecord mc, EntityModel entity) {
+    static SteeringModifier createModifier(BrainData.ModifierRecord mc, GameEntity entity) {
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
         return switch (mc.type()) {
@@ -35,14 +35,14 @@ public interface SteeringModifier {
 
         return (self, world, maxForce, dt, outForce) -> {
             outForce.set(0, 0);
-            List<AbstractEntityModel> neighbors = neighborhood.getEntities(world);
+            List<GameEntity> neighbors = neighborhood.getEntities(world);
             if (neighbors == null || neighbors.isEmpty()) return;
 
             Vector2 selfPos = self.getTransform().getTranslation();
             int count = 0;
 
             for (int i = 0; i < neighbors.size(); i++) {
-                AbstractEntityModel neighbor = neighbors.get(i);
+                GameEntity neighbor = neighbors.get(i);
                 if (neighbor == self || neighbor.shouldRemove()) continue;
 
                 toNeighbor.set(selfPos).subtract(neighbor.getTransform().getTranslation());
@@ -65,12 +65,12 @@ public interface SteeringModifier {
         return (self, world, maxForce, dt, outForce) -> {
             outForce.set(0, 0);
             avgVelocity.set(0, 0);
-            List<AbstractEntityModel> neighbors = neighborhood.getEntities(world);
+            List<GameEntity> neighbors = neighborhood.getEntities(world);
             if (neighbors == null || neighbors.isEmpty()) return;
 
             int count = 0;
             for (int i = 0; i < neighbors.size(); i++) {
-                AbstractEntityModel neighbor = neighbors.get(i);
+                GameEntity neighbor = neighbors.get(i);
                 if (neighbor == self || neighbor.shouldRemove()) continue;
 
                 avgVelocity.add(neighbor.getLinearVelocity());
@@ -90,14 +90,14 @@ public interface SteeringModifier {
         return (self, world, maxForce, dt, outForce) -> {
             outForce.set(0, 0);
             centerOfMass.set(0, 0);
-            List<AbstractEntityModel> neighbors = neighborhood.getEntities(world);
+            List<GameEntity> neighbors = neighborhood.getEntities(world);
             if (neighbors == null || neighbors.isEmpty()) return;
 
             Vector2 selfPos = self.getTransform().getTranslation();
             int count = 0;
 
             for (int i = 0; i < neighbors.size(); i++) {
-                AbstractEntityModel neighbor = neighbors.get(i);
+                GameEntity neighbor = neighbors.get(i);
                 if (neighbor == self || neighbor.shouldRemove()) continue;
 
                 centerOfMass.add(neighbor.getTransform().getTranslation());
@@ -119,17 +119,17 @@ public interface SteeringModifier {
 
         return (self, world, maxForce, dt, outForce) -> {
             outForce.set(0, 0);
-            List<AbstractEntityModel> entities = threats.getEntities(world);
+            List<GameEntity> entities = threats.getEntities(world);
             if (entities == null || entities.isEmpty()) return;
 
             double shortestTime = Double.MAX_VALUE;
-            AbstractEntityModel mostImminent = null;
+            GameEntity mostImminent = null;
 
             Vector2 selfPos = self.getTransform().getTranslation();
             Vector2 selfVel = self.getLinearVelocity();
 
             for (int i = 0; i < entities.size(); i++) {
-                AbstractEntityModel threat = entities.get(i);
+                GameEntity threat = entities.get(i);
                 if (threat == self || threat.shouldRemove()) continue;
 
                 dp.set(threat.getTransform().getTranslation()).subtract(selfPos);

@@ -5,15 +5,16 @@ import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.modules.MovementModule;
+import uni.gaben.iscat.universe.entity.modules.SpriteModule;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.Shooter;
 
 import java.util.*;
 
-public class Brain<T extends AbstractEntityModel> implements IEntityController {
+public class Brain<T extends GameEntity> implements IEntityController {
 
     // Cache the Enum array globally to prevent allocation on every single values() call
     protected static final AbilityCategory[] CATEGORIES = AbilityCategory.values();
@@ -61,7 +62,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
         this.defaultSteeringGoal = SteeringGoal.idle();
         this.currentSteeringGoal = defaultSteeringGoal;
 
-        this.defaultRotationGoal = entity.getMaxAngularVelocity() > 0 ? RotationGoal.movement() : RotationGoal.idle();
+        this.defaultRotationGoal = entity.hasModule(MovementModule.class) && entity.getModule(MovementModule.class).getMaxAngularVelocity() > 0 ? RotationGoal.movement() : RotationGoal.idle();
         this.currentRotationGoal = defaultRotationGoal;
     }
 
@@ -146,7 +147,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
             steerForce.set(primaryForce).multiply(goalWeight.get());
         }
 
-        double maxForce = entity.getMaxForce();
+        double maxForce = entity.hasModule(MovementModule.class) ? entity.getRecord().movement().maxForce() : 0;
 
         // 2. Sum Modifiers directly (No averaging, no strict budget clamping)
         if (!modifiersOrder.isEmpty()) {
@@ -169,7 +170,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     }
 
     private void processRotation(UniverseModel universe, double dt) {
-        double maxAngularVelocity = entity.getMaxAngularVelocity();
+        double maxAngularVelocity = entity.hasModule(MovementModule.class) ? entity.getRecord().movement().maxAngularVelocity() : 0;
         if (maxAngularVelocity <= 0) return;
 
         double desiredAngle = currentRotationGoal.compute(entity, universe, dt);
@@ -295,7 +296,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     }
 
     public double angleToPlayer(UniverseModel world) {
-        PlayerModel player = world.getPlayer();
+        GameEntity player = world.getPlayer();
         if (player == null) return 0;
         return angleToTarget(player.getTransform().getTranslation());
     }

@@ -1,9 +1,9 @@
 package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.GameEntity;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
 import uni.gaben.iscat.universe.UU;
 
 import java.util.function.Consumer;
@@ -24,7 +24,7 @@ public class ParallelLinePatternShooter implements PatternShooter {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileModel> customizer) {
+    public void execute(Shooter<?> shooter, String type, double angle, Consumer<GameEntity> customizer) {
         if (count <= 0) return;
 
         Vector2 origin = shooter.getModel().getTransform().getTranslation();
@@ -32,7 +32,7 @@ public class ParallelLinePatternShooter implements PatternShooter {
 
         // Determina la distanza frontale di sicurezza basandosi sulla dimensione del modello
         double forwardDistance = 0.1;
-        if (shooter.getModel() instanceof AbstractEntityModel aem) {
+        if (shooter.getModel() instanceof GameEntity aem) {
             forwardDistance = aem.getHeightMeters() / 2.0;
         }
 

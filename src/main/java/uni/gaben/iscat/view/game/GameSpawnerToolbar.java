@@ -65,11 +65,11 @@ public class GameSpawnerToolbar extends StackPane {
 
         if (jsonEnemies != null && !jsonEnemies.isEmpty()) {
             for (EntityRecord s : jsonEnemies.values()) {
-                if (s == null || s.entityKey() == null) continue;
+                if (s == null || s.identity().entityKey() == null) continue;
 
-                Button b = createSpawnButton(s.entityKey());
-                b.setTooltip(new javafx.scene.control.Tooltip(s.name()));
-                b.setOnAction(e -> controller.debugSpawn(s.entityKey()));
+                Button b = createSpawnButton(s.identity().entityKey());
+                b.setTooltip(new javafx.scene.control.Tooltip(s.identity().name()));
+                b.setOnAction(e -> controller.debugSpawn(s.identity().entityKey()));
                 genericContainer.getChildren().add(b);
             }
         } else {

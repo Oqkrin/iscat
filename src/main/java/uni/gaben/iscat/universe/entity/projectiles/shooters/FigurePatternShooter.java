@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
 
 import java.util.function.Consumer;
 
@@ -27,7 +27,7 @@ public class FigurePatternShooter implements PatternShooter {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, ProjectileType bulletType, double angle, Consumer<ProjectileModel> customizer) {
+    public void execute(Shooter<?> shooter, String bulletType, double angle, Consumer<GameEntity> customizer) {
         if (count <= 0) return;
 
         double angleStep = (2.0 * Math.PI) / count;
@@ -38,7 +38,7 @@ public class FigurePatternShooter implements PatternShooter {
 
             double geometricFactor = calculateGeometricFactor(currentAngle);
 
-            Consumer<ProjectileModel> figureCustomizer = bullet -> {
+            Consumer<GameEntity> figureCustomizer = bullet -> {
                 if (customizer != null) {
                     customizer.accept(bullet);
                 }

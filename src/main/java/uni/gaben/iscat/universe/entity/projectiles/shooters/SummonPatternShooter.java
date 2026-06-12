@@ -2,9 +2,9 @@ package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseSpawner;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.EntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
+import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.UU;
 
 import java.util.function.Consumer;
@@ -29,10 +29,10 @@ public class SummonPatternShooter implements PatternShooter {
     }
 
     @Override
-    public void execute(Shooter<?> shooter, ProjectileType pType, double angle, Consumer<ProjectileModel> customizer) {
+    public void execute(Shooter<?> shooter, String pType, double angle, Consumer<GameEntity> customizer) {
         var model = shooter.getModel();
 
-        if (model instanceof EntityModel genericEntity) {
+        if (model instanceof GameEntity genericEntity) {
             genericEntity.setCurrentState(attackStateIndex);
         }
 

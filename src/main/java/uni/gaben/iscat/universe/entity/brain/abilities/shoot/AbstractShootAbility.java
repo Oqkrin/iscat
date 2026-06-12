@@ -6,8 +6,8 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Set;
@@ -15,7 +15,7 @@ import java.util.Set;
 public abstract class AbstractShootAbility extends Ability {
     protected final Cooldown cooldown;
     protected final double combatRange;
-    protected final ProjectileType bulletType;
+    protected final String bulletType;
     protected final Target target;
     protected Vector2 targetPos = UU.vector2zero();
     protected final boolean aimAtTarget;
@@ -23,7 +23,7 @@ public abstract class AbstractShootAbility extends Ability {
     private double nerfPrediction;
 
     protected AbstractShootAbility(String name, double combatRange, double cooldownSec,
-                                   ProjectileType bulletType, Target target, boolean aimAtTarget, double nerfPrediction) {
+                                   String bulletType, Target target, boolean aimAtTarget, double nerfPrediction) {
         super(name, AbilityCategory.ATTACK, Set.of());
         this.combatRange = combatRange;
         this.cooldown = new Cooldown(cooldownSec);
@@ -34,7 +34,7 @@ public abstract class AbstractShootAbility extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(GameEntity self, UniverseModel world, double dt) {
         targetPos.set(0, 0);
         cooldown.update(dt);
         if (cooldown.isCoolingDown()) return false;

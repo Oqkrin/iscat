@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe.entity.brain;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
 import java.util.List;
 
 public final class Predictor {
@@ -17,13 +17,13 @@ public final class Predictor {
      * Works uniformly for both physical entities and static/dynamic points without allocations.
      */
     public static Vector2 extrapolate(Target target, UniverseModel universe, double lookAheadTime, Vector2 out) {
-        List<AbstractEntityModel> entities = target.getEntities(universe);
+        List<GameEntity> entities = target.getEntities(universe);
         if (entities == null || entities.isEmpty()) {
             Vector2 pos = target.getPosition(universe);
             return pos != null ? out.set(pos) : out.set(0, 0);
         }
 
-        AbstractEntityModel entity = entities.getFirst();
+        GameEntity entity = entities.getFirst();
         if (entity == null || entity.shouldRemove()) {
             Vector2 pos = target.getPosition(universe);
             return pos != null ? out.set(pos) : out.set(0, 0);

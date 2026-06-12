@@ -11,9 +11,9 @@ import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
-import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.GameEntity;
+import uni.gaben.iscat.universe.entity.GameEntity;
+
 
 public class GameController {
 
@@ -102,17 +102,17 @@ public class GameController {
         });
     }
 
-    private void onEntityDied(AbstractEntityModel entity, boolean killedByProjectile) {
-        if (entity instanceof AbstractLivingEntityModel living) {
+    private void onEntityDied(GameEntity entity, boolean killedByProjectile) {
+        if (entity instanceof GameEntity living) {
             UniverseWaveController.incrementKills();
 
             if (living.getXpReward() > 0) {
-                String key = living.getEntityRecord().entityKey();
+                String key = entity.getRecord().identity().entityKey();
                 String cleanKey = key != null ? key.toLowerCase().trim() : "";
                 boolean isSpecial = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
 
                 if (killedByProjectile || isSpecial) {
-                    PlayerModel player = gameModel.getUniverseModel().getPlayer();
+                    GameEntity player = gameModel.getUniverseModel().getPlayer();
                     if (player != null) player.incrementExperience(living.getXpReward());
 
                     SessionScoreTracker tracker = SessionScoreTracker.getInstance();
