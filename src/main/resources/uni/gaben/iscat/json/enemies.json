@@ -312,7 +312,7 @@
       "actionCooldownS": 800,
       "audio": {
         "attack": [],
-        "idle": [],
+        "idle": ["star_golem_idle1","star_golem_idle2","star_golem_idle3"],
         "hurt": [],
         "death": [],
         "spawn": []

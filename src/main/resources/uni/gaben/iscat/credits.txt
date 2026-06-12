@@ -80,6 +80,10 @@ https://opengameart.org/content/magic-spell-sfx
 qubodup (CC0)
 https://opengameart.org/content/insect-or-alien-scream
 
+#FALLEN STAR GOLEM SOUNDS
+wubitog (CC0)
+https://opengameart.org/content/alien-animal-sounds
+
 #SPECIAL THANKS
 Aseprite per averci permesso di disegnare
 SceneBuilder per la creazione dei menu tramite FXML
