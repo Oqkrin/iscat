@@ -13,14 +13,13 @@ import uni.gaben.iscat.utils.Updatable;
 import java.util.function.Consumer;
 
 public abstract class AbstractEntityModel extends Body implements Dynamic, Updatable, Removable, Collidable, Stateful {
-    private final EntityRecord entity;
-    private String entityId;
-    private int state = 0;
-    private boolean shouldRemove = false;
-    private double stateTime = 0.0;
+    protected final EntityRecord entity;
+    protected int state = 0;
+    protected boolean shouldRemove = false;
+    protected double stateTime = 0.0;
 
     // Callback for collisions
-    private Consumer<AbstractEntityModel> onCollision;
+    protected Consumer<AbstractEntityModel> onCollision;
 
     protected AbstractEntityModel(double x, double y, EntityRecord entity) {
         super();
@@ -30,10 +29,6 @@ public abstract class AbstractEntityModel extends Body implements Dynamic, Updat
     }
 
     public EntityRecord getEntityRecord() { return entity; }
-
-    // ---- Runtime state accessors ----
-    public String getEntityId() { return entityId; }
-    public void setEntityId(String id) { this.entityId = id; }
 
     @Override
     public int getState() { return state; }
@@ -63,8 +58,6 @@ public abstract class AbstractEntityModel extends Body implements Dynamic, Updat
     // ---- Physical capability getters (delegated to definition) ----
     @Override public double getTerminalVelocity() { return entity.maxVelocity(); }
     @Override public double getAcceleration() { return entity.maxForce(); }
-    public double getMaxVelocity() { return entity.maxVelocity(); }
-    public double getMaxForce() { return entity.maxForce(); }
     @Override
     public double getMaxAngularVelocity() { return entity.maxAngularVelocity(); }
 

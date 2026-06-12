@@ -19,8 +19,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     public static final int STATE_ENTRANCE = 0;
     public static final int STATE_IDLE     = 1;
     public static final int STATE_DEATH    = 6;
-
-    private final EntityRecord entity;
     private final Shockwave shockwave = new Shockwave();
 
     private int currentState = STATE_IDLE;
@@ -30,7 +28,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
     public EntityModel(double x, double y, EntityRecord entity) {
         super(x, y, entity);
-        this.entity = entity;
 
         setXpReward(entity.xpReward());
 
@@ -167,8 +164,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
     @Override public Shockwave shockwave() { return shockwave; }
     @Override public double getTerminalVelocity() { return entity.maxVelocity(); }
-    @Override public double getMaxVelocity() { return entity.maxVelocity(); }
-    @Override public double getMaxForce() { return entity.maxForce(); }
     @Override public double getMaxAngularVelocity() { return entity.maxAngularVelocity(); }
     public EntityRecord getEntity() { return entity; }
     @Override public String getSpritePath() { return entity.spritePath(); }

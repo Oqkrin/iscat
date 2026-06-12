@@ -146,7 +146,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
             steerForce.set(primaryForce).multiply(goalWeight.get());
         }
 
-        double maxForce = entity.getMaxForce();
+        double maxForce = entity.getAcceleration();
 
         // 2. Sum Modifiers directly (No averaging, no strict budget clamping)
         if (!modifiersOrder.isEmpty()) {

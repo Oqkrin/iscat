@@ -29,7 +29,6 @@ public final class EntityRenderer {
     public record SpriteKey(String path, int width, int height) {}
 
     private static final Map<Class<?>, BiConsumer<AbstractEntityModel, BatchedDrawCollector>> BATCHED_RENDERERS = new HashMap<>();
-    private static final Map<SpriteKey, SpriteSheetsParser> SHEET_CACHE = new HashMap<>();
     private static final Map<SpriteKey, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
 
     static {
@@ -76,9 +75,9 @@ public final class EntityRenderer {
 
         // Retrieve or create the sprite sheet & animator
         SpriteKey key = new SpriteKey(sprite.getSpritePath(), sprite.getSpriteFrameWidth(), sprite.getSpriteFrameHeight());
-        SpriteSheetsParser sheet = getSheet(key, sprite);
+        SpriteSheetsParser sheet = SpritesLibrary.getInstance().getSprite(sprite.getSpritePath(), sprite.getSpriteFrameWidth(), sprite.getSpriteFrameHeight());
         if (sheet != null) {
-            SpriteSheetsAnimator animator = getAnimator(key, sprite, sheet);   // <-- FETCH THE ANIMATOR
+            SpriteSheetsAnimator animator = getAnimator(key, sprite, sheet);
             animator.setState(entity.getState());
             animator.setTime(entity.getStateTime());
 
@@ -237,19 +236,12 @@ public final class EntityRenderer {
         return ANIMATOR_CACHE.computeIfAbsent(key, k -> {
             double defDur = sprite.getFrameDuration();
             if (sheet != null) {
-                // Use the per-row frame counts array directly
                 return new SpriteSheetsAnimator(defDur, sheet.getFramesPerRow());
             } else {
                 // Fallback: 1 state, 1 frame
                 return new SpriteSheetsAnimator(defDur, 1, 1);
             }
         });
-    }
-
-    private static SpriteSheetsParser getSheet(SpriteKey key, HasSprite sprite) {
-        return SHEET_CACHE.computeIfAbsent(key, k ->
-                SpritesLibrary.getInstance().getSprite(k.path(), k.width(), k.height())
-        );
     }
 
     private static int getStartIndex(AsteroidModel asteroid, Vector2[] vertices) {

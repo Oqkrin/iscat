@@ -47,7 +47,7 @@ public interface SteeringGoal {
             double lookAheadTime = Predictor.calculatePursuitTime(
                     selfPos, self.getTransform().getRotationAngle(),
                     targetPos, entity.getTransform().getRotationAngle(),
-                    self.getLinearVelocity().getMagnitude(), self.getMaxVelocity()
+                    self.getLinearVelocity().getMagnitude(), self.getTerminalVelocity()
             );
             lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
@@ -56,11 +56,11 @@ public interface SteeringGoal {
             pursuitVelocity.set(pursuitPos).subtract(selfPos);
 
             if (!pursuitVelocity.isZero()) {
-                pursuitVelocity.setMagnitude(self.getMaxVelocity()); // Desired Velocity
+                pursuitVelocity.setMagnitude(self.getTerminalVelocity()); // Desired Velocity
                 pursuitVelocity.subtract(self.getLinearVelocity());  // Convert to Force
 
                 if (!pursuitVelocity.isZero()) {
-                    pursuitVelocity.setMagnitude(self.getMaxForce());
+                    pursuitVelocity.setMagnitude(self.getAcceleration());
                 }
             }
 
@@ -83,7 +83,7 @@ public interface SteeringGoal {
             Vector2 targetPos = entity.getTransform().getTranslation();
 
             double lookAheadTime = Predictor.calculateEvadeTime(
-                    selfPos, targetPos, self.getMaxVelocity(), entity.getLinearVelocity().getMagnitude()
+                    selfPos, targetPos, self.getTerminalVelocity(), entity.getLinearVelocity().getMagnitude()
             );
             lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
@@ -92,11 +92,11 @@ public interface SteeringGoal {
             evadeVelocity.set(selfPos).subtract(predictedPos);
 
             if (!evadeVelocity.isZero()) {
-                evadeVelocity.setMagnitude(self.getMaxVelocity());
+                evadeVelocity.setMagnitude(self.getTerminalVelocity());
                 evadeVelocity.subtract(self.getLinearVelocity());
 
                 if (!evadeVelocity.isZero()) {
-                    evadeVelocity.setMagnitude(self.getMaxForce());
+                    evadeVelocity.setMagnitude(self.getAcceleration());
                 }
             }
 
@@ -121,7 +121,7 @@ public interface SteeringGoal {
             double lookAheadTime = Predictor.calculatePursuitTime(
                     selfPos, self.getTransform().getRotationAngle(),
                     targetPos, entity.getTransform().getRotationAngle(),
-                    self.getLinearVelocity().getMagnitude(), self.getMaxVelocity()
+                    self.getLinearVelocity().getMagnitude(), self.getTerminalVelocity()
             );
             lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
@@ -131,13 +131,13 @@ public interface SteeringGoal {
             double distance = desiredVelocity.getMagnitude();
 
             if (distance > maxDistance) {
-                if (distance > 0) desiredVelocity.setMagnitude(self.getMaxVelocity());
+                if (distance > 0) desiredVelocity.setMagnitude(self.getTerminalVelocity());
             } else if (distance < minDistance) {
                 if (distance > 0) {
                     desiredVelocity.multiply(-1.0);
-                    desiredVelocity.setMagnitude(self.getMaxVelocity());
+                    desiredVelocity.setMagnitude(self.getTerminalVelocity());
                 } else {
-                    desiredVelocity.set(1, 0).setMagnitude(self.getMaxVelocity());
+                    desiredVelocity.set(1, 0).setMagnitude(self.getTerminalVelocity());
                 }
             } else {
                 desiredVelocity.set(entity.getLinearVelocity());
@@ -146,7 +146,7 @@ public interface SteeringGoal {
             desiredVelocity.subtract(self.getLinearVelocity());
 
             if (!desiredVelocity.isZero()) {
-                desiredVelocity.setMagnitude(self.getMaxForce());
+                desiredVelocity.setMagnitude(self.getAcceleration());
             }
 
             return desiredVelocity;
@@ -168,7 +168,7 @@ public interface SteeringGoal {
             Vector2 targetPos = entity.getTransform().getTranslation();
 
             double lookAheadTime = Predictor.calculateEvadeTime(
-                    selfPos, targetPos, self.getMaxVelocity(), entity.getLinearVelocity().getMagnitude()
+                    selfPos, targetPos, self.getTerminalVelocity(), entity.getLinearVelocity().getMagnitude()
             );
             lookAheadTime = Math.min(lookAheadTime, maxPredictionTime);
 
@@ -179,9 +179,9 @@ public interface SteeringGoal {
 
             if (distance < safetyDistance) {
                 if (distance > 0) {
-                    desiredVelocity.setMagnitude(self.getMaxVelocity());
+                    desiredVelocity.setMagnitude(self.getTerminalVelocity());
                 } else {
-                    desiredVelocity.set(1, 0).setMagnitude(self.getMaxVelocity());
+                    desiredVelocity.set(1, 0).setMagnitude(self.getTerminalVelocity());
                 }
             } else {
                 desiredVelocity.set(entity.getLinearVelocity()); // Neutralize force
@@ -190,7 +190,7 @@ public interface SteeringGoal {
             desiredVelocity.subtract(self.getLinearVelocity());
 
             if (!desiredVelocity.isZero()) {
-                desiredVelocity.setMagnitude(self.getMaxForce());
+                desiredVelocity.setMagnitude(self.getAcceleration());
             }
 
             return desiredVelocity;
