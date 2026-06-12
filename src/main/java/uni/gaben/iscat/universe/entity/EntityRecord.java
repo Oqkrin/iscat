@@ -93,8 +93,16 @@ public record EntityRecord(
             int summonCount,
             double summonRadiusPx,
             double meleeDamage,
-            int attackStateIndex
-    ) {}
+            int attackStateIndex,
+            double dashCooldownMS,
+            double dashDurationMS,
+            double dashPrediction,
+            double dashAvoidRange,
+            double dashImpulse,
+            double plungeCooldownMS
+    ) {
+
+    }
 
     public record PatternRecord(
             String type,

@@ -6,6 +6,7 @@ import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.RandomizedShootAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.ShootAbility;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.shooters.SummonPatternShooter;
@@ -57,6 +58,17 @@ public abstract class Ability {
                 return new MeleeAbility<>(ac.type(), entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
             case "kamikaze":
                 return new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);
+            case "dash":
+                return new DodgeDashAbility(entity, ac.dashCooldownMS(), ac.dashDurationMS(), ac.dashPrediction(), ac.dashAvoidRange(), ac.dashImpulse(),Target.neighboursCached(entity, ac.dashAvoidRange(), body -> body instanceof ProjectileModel pm && pm.getType() == ProjectileType.PLAYER_BULLET));
+            case "plunge" :
+                return new PlungeAbility(
+                        entity,
+                        ac.plungeCooldownMS() / 1000.0,   // cooldown in seconds
+                        ac.dashDurationMS() / 1000.0,     // duration in seconds
+                        ac.dashPrediction(),              // max prediction time (seconds)
+                        ac.dashImpulse(),                 // impulse strength
+                        Target.ofPlayer()
+                );
                 default:
                 return null;
         }

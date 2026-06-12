@@ -591,15 +591,31 @@
         "spawn": []
       },"ai": {
       "steering": {
-        "type": "pursuit",
-        "maxPredictionTime": 1
+        "type": "Orbit"
       },
-      "abilities": [],
+      "abilities": [
+        {     "type": "dash",
+          "dashCooldownMS": 2000,
+          "dashDurationMS": 1000,
+          "dashPrediction": 1.2,
+          "dashAvoidRange": 20,
+          "dashImpulse": 800
+        },
+        {
+          "type": "plunge",
+          "plungeCooldownMS": 2000,
+          "dashDurationMS": 500,
+          "dashPrediction": 1.5,
+          "dashAvoidRange": 50,
+          "dashImpulse": 1200
+         },
+        { "type": "melee", "meleeDamage": 30}
+      ],
       "modifiers": [
-        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
-        { "type": "alignment", "radius": 7.5, "weight": 1 },
-        { "type": "cohesion", "radius": 7.5, "weight": 1 },
-        { "type": "separation", "radius": 3.75, "weight": 3 }
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 30, "maxPredictionTime": 10, "avoidRadius": 7.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 0.5 },
+        { "type": "cohesion", "radius": 7.5, "weight": 0.5 },
+        { "type": "separation", "radius": 3.75, "weight": 10 }
       ]    }
     },
 
@@ -633,12 +649,12 @@
       "steering": {
         "type": "evadeWithRange",
         "maxPredictionTime": 3,
-        "safetyDistance": 25
+        "safetyDistance": 15
       },
       "abilities": [
         {
           "type": "heal",
-          "combatRange": 12.5,
+          "combatRange": 6,
           "cooldownSec": 0,
           "healAmount": 1
         }

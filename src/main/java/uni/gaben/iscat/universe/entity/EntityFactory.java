@@ -199,23 +199,42 @@ public class EntityFactory {
     private static List<EntityRecord.AbilityRecord> parseAbilities(JSONArray arr) {
         List<EntityRecord.AbilityRecord> list = new ArrayList<>();
         if (arr == null) return list;
+
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
+
+            // Common fields
+            String type = obj.optString("type");
+            double combatRange = obj.optDouble("combatRange", 10.0);
+            double cooldownSec = obj.optDouble("cooldownSec", 0.8);
+            String bulletType = obj.optString("bulletType", "ENEMY_BULLET");
+            boolean aimAtTarget = obj.optBoolean("aimAtTarget", true);
+            double nerfPrediction = obj.optDouble("nerfPrediction", 0.0);
+
+            List<EntityRecord.PatternRecord> patterns = parsePatternList(obj.optJSONArray("patterns"));
+            EntityRecord.PatternRecord pattern = parsePattern(obj.optJSONObject("pattern"));
+
+            double healAmount = obj.optDouble("healAmount", 0.0);
+            String summonEntityKey = obj.optString("summonEntityKey", null);
+            int summonCount = obj.optInt("summonCount", 1);
+            double summonRadiusPx = obj.optDouble("summonRadiusPx", 100.0);
+            double meleeDamage = obj.optDouble("meleeDamage", 0.0);
+            int attackStateIndex = obj.optInt("attackStateIndex", 4);
+
+            // Dash/plunge specific fields (used by "dash", "plunge", "kamikaze", etc.)
+            double dashCooldownMS = obj.optDouble("dashCooldownMS", 0.0);
+            double dashDurationMS = obj.optDouble("dashDurationMS", 0.0);
+            double dashPrediction = obj.optDouble("dashPrediction", 0.0);
+            double dashAvoidRange = obj.optDouble("dashAvoidRange", 0.0);
+            double dashImpulse = obj.optDouble("dashImpulse", 0.0);
+            double plungeCooldownMS = obj.optDouble("plungeCooldownMS", 0.0);
+
             EntityRecord.AbilityRecord ac = new EntityRecord.AbilityRecord(
-                    obj.optString("type"),
-                    obj.optDouble("combatRange", 10.0),
-                    obj.optDouble("cooldownSec", 0.8),
-                    obj.optString("bulletType", "ENEMY_BULLET"),
-                    obj.optBoolean("aimAtTarget", true),
-                    obj.optDouble("nerfPrediction", 0.0),
-                    parsePatternList(obj.optJSONArray("patterns")),
-                    parsePattern(obj.optJSONObject("pattern")),
-                    obj.optDouble("healAmount", 0.0),
-                    obj.optString("summonEntityKey"),
-                    obj.optInt("summonCount", 1),
-                    obj.optDouble("summonRadiusPx", 100.0),
-                    obj.optDouble("meleeDamage", 0.0),
-                    obj.optInt("attackStateIndex", 4)
+                    type, combatRange, cooldownSec, bulletType, aimAtTarget, nerfPrediction,
+                    patterns, pattern, healAmount, summonEntityKey, summonCount, summonRadiusPx,
+                    meleeDamage, attackStateIndex,
+                    dashCooldownMS, dashDurationMS, dashPrediction, dashAvoidRange, dashImpulse,
+                    plungeCooldownMS
             );
             list.add(ac);
         }

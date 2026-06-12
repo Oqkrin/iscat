@@ -9,6 +9,10 @@ import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.EntityFilters;
 import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 
 import java.util.List;
 
@@ -20,12 +24,14 @@ public interface SteeringModifier {
     static SteeringModifier createModifier(EntityRecord.ModifierRecord mc, EntityModel entity) {
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
+        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof PlayerModel || (entityModel instanceof ProjectileModel pm&&pm.getType()==ProjectileType.ENEMY_BULLET)));
+        Target everythingButProjectiles = neighbors.filtered(entityModel -> !( entityModel instanceof  PlayerModel || (entityModel instanceof AbstractProjectileModel)));
         return switch (mc.type()) {
-            case "separation" -> SteeringModifier.separation(neighbors, mc.radius(), weight);
-            case "alignment" -> SteeringModifier.alignment(neighbors, weight);
-            case "cohesion" -> SteeringModifier.cohesion(neighbors, weight);
+            case "separation" -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
+            case "alignment" -> SteeringModifier.alignment(everythingButProjectiles, weight);
+            case "cohesion" -> SteeringModifier.cohesion(everythingButProjectiles, weight);
             case "collisionAvoidance" ->
-                    SteeringModifier.collisionAvoidance(neighbors, mc.maxPredictionTime(), mc.avoidRadius(), weight);
+                    SteeringModifier.collisionAvoidance(everythingButEnemyProjectiles, mc.maxPredictionTime(), mc.avoidRadius(), weight);
             default -> null;
         };
     }
