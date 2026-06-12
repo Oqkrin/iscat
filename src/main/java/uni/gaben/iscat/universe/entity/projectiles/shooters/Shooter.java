@@ -58,6 +58,7 @@ public class Shooter<T extends CollisionBody> {
 
     /** Spara nell'angolo specificato, applicando un customizer al proiettile. */
     public void shoot(ProjectileType type, double angle, Consumer<ProjectileModel> customizer) {
+        triggerAttackAudio();
         ProjectileModel bullet = ProjectilePool.acquire(type);
         bullet.getTransform().setTranslation(model.getTransform().getTranslation().copy());
         bullet.getTransform().setRotation(angle);
@@ -74,6 +75,7 @@ public class Shooter<T extends CollisionBody> {
 
     /** Spara da una posizione arbitraria nell'angolo specificato, con customizer. */
     public void shoot(ProjectileType type, Vector2 position, double angle, Consumer<ProjectileModel> customizer) {
+        triggerAttackAudio();
         ProjectileModel bullet = ProjectilePool.acquire(type);
         bullet.getTransform().setTranslation(position.copy());
         bullet.getTransform().setRotation(angle);
