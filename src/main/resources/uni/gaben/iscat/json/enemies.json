@@ -135,10 +135,10 @@
       "PreferredRange": 10,
       "actionCooldownS": 800,
       "audio": {
-        "attack": [],
-        "idle": [],
+        "attack": ["iscat_core_attack"],
+        "idle": ["iscat_core_idle"],
         "hurt": [],
-        "death": [],
+        "death": ["iscat_core_death"],
         "spawn": []
       },
       "ai": {
@@ -198,7 +198,7 @@
       "actionCooldownS": 1000,
       "audio": {
         "attack": [],
-        "idle": [],
+        "idle": ["iscat_mother_idle"],
         "hurt": [],
         "death": [],
         "spawn": []
@@ -254,7 +254,7 @@
       "PreferredRange": 40,
       "actionCooldownS": 800,
       "audio": {
-        "attack": [],
+        "attack": ["fake_iscat_attack"],
         "idle": [],
         "hurt": [],
         "death": ["fake_iscat_death"],
@@ -314,7 +314,7 @@
         "attack": [],
         "idle": ["star_golem_idle1","star_golem_idle2","star_golem_idle3"],
         "hurt": [],
-        "death": [],
+        "death": ["star_golem_death"],
         "spawn": []
       },"ai": {
       "steering": { "type": "idle" },
@@ -407,7 +407,7 @@
       "actionCooldownS": 1000,
       "audio": {
         "attack": [],
-        "idle": [],
+        "idle": ["worm_idle"],
         "hurt": [],
         "death": [],
         "spawn": []
@@ -530,8 +530,8 @@
         "attack": [],
         "idle": [],
         "hurt": [],
-        "death": [],
-        "spawn": ["laugh"]
+        "death": ["master_death"],
+        "spawn": ["master_spawn"]
       },"ai": {
       "abilities": [
         {

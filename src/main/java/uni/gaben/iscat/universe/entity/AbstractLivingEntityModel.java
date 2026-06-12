@@ -42,9 +42,17 @@ public abstract class AbstractLivingEntityModel extends AbstractEntityModel impl
     public void setMaxEndurance(double maxEndurance) { this.maxEndurance = maxEndurance; setEndurance(getEndurance()); }
 
     public void setEndurance(double endurance) {
+        double oldEndurance = this.endurance.get();
         double clamped = Math.clamp(endurance, 0, maxEndurance);
         this.endurance.set(clamped);
-        if (clamped <= 0 && !shouldRemove()) extinguish();
+        if (clamped <= 0 && !shouldRemove()) {
+            extinguish();
+        }
+        else if (clamped < oldEndurance) {
+            if (this instanceof EntityModel entityModel) {
+                EnemyAudioManager.playEventAudio(entityModel, "hurt");
+            }
+        }
     }
 
     @Override

@@ -76,13 +76,35 @@ https://opengameart.org/content/evil-cyber-laugh
 JaggedStone (CC0)
 https://opengameart.org/content/magic-spell-sfx
 
-#FAKE ISCAT DEATH SOUND
-qubodup (CC0)
+#FAKE ISCAT SOUNDS
+qubodup (CC0) - death sound
 https://opengameart.org/content/insect-or-alien-scream
+cyklon698 (CC0) - attack sound
+https://opengameart.org/content/alien-blaster
 
 #FALLEN STAR GOLEM SOUNDS
-wubitog (CC0)
+wubitog (CC0) - idle sounds
 https://opengameart.org/content/alien-animal-sounds
+Michel Baradari (CC-BY 3.0) - death sound
+https://opengameart.org/content/2-high-quality-explosions
+
+#ISCAT CORE SOUNDS
+sauer2 (CC0) - attack and idle sounds
+https://opengameart.org/content/alien-sounds
+OptimusDu (CC-BY 3.0) - death sound
+https://opengameart.org/content/machine-death-sound
+
+#ISCAT MOTHER SOUNDS
+spookymodem (CC-BY 3.0) - idle sound
+https://opengameart.org/content/spider-chattering
+
+#ISCAT WORM SOUNDS
+trazzz123 (CC0) - idle sound
+https://opengameart.org/content/cc0-deep-monster-roar
+
+#ISCAT MASTER SOUNDS
+SneidXK (CC-BY 3.0) - death sound
+https://opengameart.org/content/monster-scream
 
 #SPECIAL THANKS
 Aseprite per averci permesso di disegnare
