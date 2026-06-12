@@ -10,7 +10,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entity.EntityFactory;
+import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
 import uni.gaben.iscat.universe.entity.interfaces.Progression;
@@ -42,7 +42,7 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     public PlayerModel(double x, double y) {
-        super(x, y, new EntityFactory.EntityRecordBuilder().build());
+        super(x, y, new EntityRecordBuilder().build());
 
         double radiusInMeters = UU.pxToM(PlayerSettings.RAGGIO_COLLISIONE);
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters));

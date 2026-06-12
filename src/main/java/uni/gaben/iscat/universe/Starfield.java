@@ -1,8 +1,7 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.EntityFactory;
-import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,7 @@ public class Starfield extends AbstractEntityModel {
     private final List<Star> stars = new ArrayList<>();
 
     public Starfield(double x, double y) {
-        super(x, y, new EntityFactory.EntityRecordBuilder().build());
+        super(x, y, new EntityRecordBuilder().build());
     }
 
     public List<Star> getStars() {

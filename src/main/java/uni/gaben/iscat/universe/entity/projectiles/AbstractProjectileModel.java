@@ -2,8 +2,8 @@ package uni.gaben.iscat.universe.entity.projectiles;
 
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entity.EntityFactory;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
 
 /**
  * Base class for all projectile entities.
@@ -15,7 +15,7 @@ public abstract class AbstractProjectileModel extends AbstractLivingEntityModel 
     protected double baseAccelerationPerTick = 20.0;
 
     protected AbstractProjectileModel(double maxLife) {
-        this(0, 0, new EntityFactory.EntityRecordBuilder().initLife(maxLife).build());
+        this(0, 0, new EntityRecordBuilder().initLife(maxLife).build());
     }
 
     protected AbstractProjectileModel(double x, double y, EntityRecord projectileRecord) {

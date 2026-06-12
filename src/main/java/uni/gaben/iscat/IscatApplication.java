@@ -41,29 +41,20 @@ public class IscatApplication extends Application {
     private IscatWindowController iscatWindowController;
     private IscatViewController iscatViewController;
 
-    boolean sentOnce = false; //TODO DA ELIMINARE
-
-
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
         db.init();
-
-        Platform.runLater(EntityFactory::preloadAllAsync);
         IscatNavigator.getInstance().initialize(iscatModel);
         AudioManager.getInstance().loadAllSFX("/uni/gaben/iscat/audio/SFX/entitiesSFX");
         AudioManager.getInstance().loadDefaultAudio();
+        Platform.runLater(EntityFactory::preloadAllAsync);
     }
 
     @Override
     public void start(Stage stage) {
         iscatRootScene.setFill(ThemeManager.getInstance().getBgPrimary());
         iscatTitleBar.setMaxHeight(56.0);
-
-        iscatRootScene.widthProperty().addListener((observable, oldValue, newValue) -> {
-
-            printNodeInfo(iscatRootScene.getRoot(), 0);
-        });
 
         //this might fix scalings
         iscatContentRoot.prefWidthProperty().bind(iscatApplicationRoot.widthProperty());
@@ -105,27 +96,5 @@ public class IscatApplication extends Application {
     public void stop() throws Exception {
         IscatDB.getInstance().shutdown();
     }
-
-    void printNodeInfo(Node node, int depth) {
-        if (node == null) return;
-
-        // Indent for readability
-        String indent = "  ".repeat(depth);
-
-
-        if (!sentOnce)
-            System.out.println("[IscatApplication] ho disabilitato il mega output dei bounds, riga 104 di IscatApplication se ti serve ancora");
-        sentOnce = true;
-        //System.out.println(indent + node.getClass().getSimpleName() +
-                //" | Bounds: " + node.getBoundsInParent());
-
-        if (node instanceof Parent p) {
-            for (Node child : p.getChildrenUnmodifiable()) {
-                printNodeInfo(child, depth + 1);
-            }
-        }
-    }
-
-
 
 }

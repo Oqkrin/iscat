@@ -5,7 +5,7 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Polygon;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.EntityFactory;
+import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
 import uni.gaben.iscat.universe.entity.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
@@ -35,7 +35,7 @@ public class AsteroidModel extends AbstractEntityModel {
     public AsteroidModel(double x, double y, double radiusPixel,
                          int minVertices, int variation,
                          double radiusMin, double radiusRange) {
-        super(x, y, new EntityFactory.EntityRecordBuilder().build());
+        super(x, y, new EntityRecordBuilder().build());
         Random rand = new Random();
         this.splitAngle = rand.nextDouble() * Math.PI * 2; // Pre-determine the fracture plane
         // Normalize size definition: if radiusPixel is provided, diameter is radiusPixel * 2

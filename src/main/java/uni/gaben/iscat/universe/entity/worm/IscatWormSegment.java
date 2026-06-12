@@ -6,9 +6,9 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.entity.EntityFactory;
 import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
 import uni.gaben.iscat.universe.entity.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
 
@@ -102,7 +102,7 @@ public class IscatWormSegment extends EntityModel {
     private static double getDamping(Type t){ return switch(t){ case HEAD->2.8; case BODY->4.2; case TAIL->5.5; }; }
 
     private static EntityRecord createSettings(Type type) {
-        return new EntityFactory.EntityRecordBuilder()
+        return new EntityRecordBuilder()
                 .entityKey("iscat_worm_" + type.name().toLowerCase())
                 .frameW((int) IscatWormSettings.DIM_SPRITE)
                 .frameH((int) IscatWormSettings.DIM_SPRITE)
