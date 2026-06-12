@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.entity.brain.RotationGoal;
 import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
 import uni.gaben.iscat.universe.entity.brain.SteeringModifier;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
-import uni.gaben.iscat.universe.entity.record.BrainData;
+import uni.gaben.iscat.universe.entity.Data.BrainData;
 import uni.gaben.iscat.universe.entity.EntityBrain;
 
 public class BrainModule implements EntityModule {

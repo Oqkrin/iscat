@@ -9,7 +9,7 @@ import uni.gaben.iscat.utils.SessionManager;
 
 /**
  * Handles raw keyboard/mouse input for the game.
- * State is read directly every frame – no buffered consumption for movement or dash.
+ * State is read directly every frame – no buffered consumption for dynamics or dash.
  * Pause uses a one‑shot consumption pattern to avoid multiple toggles.
  */
 public class GameInputsHandler {

@@ -17,7 +17,7 @@ public final class PlayerSettings {
 
     // === Core Physics (BULLET HELL REWORK) ===
     public static final double MASSA = 1.0;
-    // Damping only matters during a dash now, normal movement is instant
+    // Damping only matters during a dash now, normal dynamics is instant
     public static final double LINEAR_DAMPING = 1.0;
     public static final double VELOCITA_MAX = UniverseVelocitySettings.PLAYER_MAX_VELOCITY;
 

@@ -1,9 +1,9 @@
-package uni.gaben.iscat.universe.entity.record;
+package uni.gaben.iscat.universe.entity.Data;
 
-import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.ShapeType;
 
 public record PhysicsData(
-        EntityRecord.ShapeType shapeType,
+        ShapeType shapeType,
         double mass,
         double density,
         double linearDamping,
@@ -15,7 +15,7 @@ public record PhysicsData(
 ) {
     /** Compact constructor for entities that don't need radius or terminalVelocity overrides. */
     public PhysicsData(
-            EntityRecord.ShapeType shapeType,
+            ShapeType shapeType,
             double mass,
             double density,
             double linearDamping,

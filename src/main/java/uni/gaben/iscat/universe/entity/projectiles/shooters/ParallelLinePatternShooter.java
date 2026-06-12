@@ -2,7 +2,6 @@ package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entity.GameEntity;
-import uni.gaben.iscat.universe.entity.GameEntity;
 
 import uni.gaben.iscat.universe.UU;
 
@@ -33,7 +32,7 @@ public class ParallelLinePatternShooter implements PatternShooter {
         // Determina la distanza frontale di sicurezza basandosi sulla dimensione del modello
         double forwardDistance = 0.1;
         if (shooter.getModel() instanceof GameEntity aem) {
-            forwardDistance = aem.getHeightMeters() / 2.0;
+            forwardDistance = aem.physicsModule.getHeightMeters() / 2.0;
         }
 
         // Calcola la larghezza totale del fronte per centrare la linea rispetto all'entità

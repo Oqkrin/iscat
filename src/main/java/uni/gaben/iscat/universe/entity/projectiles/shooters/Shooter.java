@@ -25,7 +25,7 @@ public class Shooter<T extends CollisionBody> {
     public Shooter(T model) {
         this.model = model;
         this.distance = (model instanceof GameEntity aem)
-                ? aem.getHeightMeters() / 2.0
+                ? aem.physicsModule.getHeightMeters() / 2.0
                 : 0.1;
     }
 
@@ -61,8 +61,8 @@ public class Shooter<T extends CollisionBody> {
         if (bullet.getRecord() != null) {
             if (bullet.getRecord().physics() != null && bullet.getRecord().physics().terminalVelocity() > 0)
                 terminalVel = bullet.getRecord().physics().terminalVelocity();
-            else if (bullet.getRecord().movement() != null && bullet.getRecord().movement().terminalVelocity() > 0)
-                terminalVel = bullet.getRecord().movement().terminalVelocity();
+            else if (bullet.getRecord().dynamics() != null && bullet.getRecord().dynamics().terminalVelocity() > 0)
+                terminalVel = bullet.getRecord().dynamics().terminalVelocity();
         }
         bullet.setLinearVelocity(Vector2.create(terminalVel, angle));
         if (customizer != null) customizer.accept(bullet);
@@ -83,8 +83,8 @@ public class Shooter<T extends CollisionBody> {
         if (bullet.getRecord() != null) {
             if (bullet.getRecord().physics() != null && bullet.getRecord().physics().terminalVelocity() > 0)
                 terminalVel = bullet.getRecord().physics().terminalVelocity();
-            else if (bullet.getRecord().movement() != null && bullet.getRecord().movement().terminalVelocity() > 0)
-                terminalVel = bullet.getRecord().movement().terminalVelocity();
+            else if (bullet.getRecord().dynamics() != null && bullet.getRecord().dynamics().terminalVelocity() > 0)
+                terminalVel = bullet.getRecord().dynamics().terminalVelocity();
         }
         bullet.setLinearVelocity(Vector2.create(terminalVel, angle));
         if (customizer != null) customizer.accept(bullet);

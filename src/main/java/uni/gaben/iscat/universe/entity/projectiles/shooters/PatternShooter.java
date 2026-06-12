@@ -1,7 +1,6 @@
 package uni.gaben.iscat.universe.entity.projectiles.shooters;
 
-import uni.gaben.iscat.universe.entity.EntityRecord;
-import uni.gaben.iscat.universe.entity.record.BrainData;
+import uni.gaben.iscat.universe.entity.Data.BrainData;
 import uni.gaben.iscat.universe.entity.GameEntity;
 
 

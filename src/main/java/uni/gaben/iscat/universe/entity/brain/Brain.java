@@ -9,7 +9,6 @@ import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
 import uni.gaben.iscat.universe.entity.modules.MovementModule;
-import uni.gaben.iscat.universe.entity.modules.SpriteModule;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.Shooter;
 
 import java.util.*;
@@ -147,7 +146,7 @@ public class Brain<T extends GameEntity> implements IEntityController {
             steerForce.set(primaryForce).multiply(goalWeight.get());
         }
 
-        double maxForce = entity.hasModule(MovementModule.class) ? entity.getRecord().movement().maxForce() : 0;
+        double maxForce = entity.hasModule(MovementModule.class) ? entity.getRecord().dynamics().maxForce() : 0;
 
         // 2. Sum Modifiers directly (No averaging, no strict budget clamping)
         if (!modifiersOrder.isEmpty()) {
@@ -170,7 +169,7 @@ public class Brain<T extends GameEntity> implements IEntityController {
     }
 
     private void processRotation(UniverseModel universe, double dt) {
-        double maxAngularVelocity = entity.hasModule(MovementModule.class) ? entity.getRecord().movement().maxAngularVelocity() : 0;
+        double maxAngularVelocity = entity.hasModule(MovementModule.class) ? entity.getRecord().dynamics().maxAngularVelocity() : 0;
         if (maxAngularVelocity <= 0) return;
 
         double desiredAngle = currentRotationGoal.compute(entity, universe, dt);

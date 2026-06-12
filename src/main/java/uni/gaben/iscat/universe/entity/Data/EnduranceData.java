@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.record;
+package uni.gaben.iscat.universe.entity.Data;
 
 public record EnduranceData(
         double initLife,

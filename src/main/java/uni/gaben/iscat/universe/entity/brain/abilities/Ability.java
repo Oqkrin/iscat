@@ -1,6 +1,6 @@
 package uni.gaben.iscat.universe.entity.brain.abilities;
 
-import uni.gaben.iscat.universe.entity.record.BrainData;
+import uni.gaben.iscat.universe.entity.Data.BrainData;
 
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.*;
@@ -8,10 +8,6 @@ import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.entity.brain.Target;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.RandomizedShootAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.ShootAbility;
-import uni.gaben.iscat.universe.entity.brain.abilities.BreakupAbility;
-import uni.gaben.iscat.universe.entity.brain.abilities.GravityAuraAbility;
-import uni.gaben.iscat.universe.entity.brain.abilities.AbsorbAbility;
-import uni.gaben.iscat.universe.entity.brain.abilities.HealOnCollisionAbility;
 
 import uni.gaben.iscat.universe.entity.projectiles.shooters.PatternShooter;
 import uni.gaben.iscat.universe.entity.projectiles.shooters.SummonPatternShooter;

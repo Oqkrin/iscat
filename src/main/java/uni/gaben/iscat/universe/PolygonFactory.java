@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.enviroment.asteroid;
+package uni.gaben.iscat.universe;
 
 import org.dyn4j.geometry.Polygon;
 import org.dyn4j.geometry.Vector2;
@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class AsteroidShapeFactory {
-    private AsteroidShapeFactory() {
+public class PolygonFactory {
+    private PolygonFactory() {
         /* This utility class should not be instantiated */
     }
 
@@ -45,7 +45,7 @@ public class AsteroidShapeFactory {
      * @param radiusMeters the scale factor
      * @return the scaled vertices ready for the physics engine
      */
-    public static Vector2[] getScaledShape(double radiusMeters) {
+    public static Vector2[] getVerticesByRadius(double radiusMeters) {
         Vector2[] baseShape = CACHED_SHAPES.get(dynamicRand.nextInt(CACHED_SHAPES.size()));
         Vector2[] scaled = new Vector2[baseShape.length];
         for (int i = 0; i < baseShape.length; i++) {

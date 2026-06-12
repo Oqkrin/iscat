@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.enviroment.asteroid;
+package uni.gaben.iscat.universe;
 
 public final class AsteroidSettings {
     public static final int MAXPXSIZE = 64;

@@ -5,7 +5,8 @@
         "EntityKey": "iscat_mob",
         "Name": "Iscat Mob",
         "Description": "Figlio di Iscat Mother...",
-        "IsBoss": false
+        "IsBoss": false,
+        "IsProjectile": false
       },
       "sprite": { "SpriteName": "iscat_mob", "FrameW": 32, "FrameH": 32, "Scale": 2 },
       "physics": { "ShapeType": "CIRCLE", "mass": 1, "density": 1, "LinearDamping": 2 },

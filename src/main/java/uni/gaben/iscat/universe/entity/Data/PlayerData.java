@@ -1,6 +1,4 @@
-package uni.gaben.iscat.universe.entity.record;
-
-import uni.gaben.iscat.universe.entity.record.BrainData;
+package uni.gaben.iscat.universe.entity.Data;
 
 import java.util.List;
 

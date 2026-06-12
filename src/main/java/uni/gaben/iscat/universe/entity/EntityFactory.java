@@ -1,13 +1,13 @@
 package uni.gaben.iscat.universe.entity;
 
-import uni.gaben.iscat.universe.entity.record.BrainData;
+import uni.gaben.iscat.universe.entity.Data.BrainData;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.modules.*;
-import uni.gaben.iscat.universe.entity.record.*;
+import uni.gaben.iscat.universe.entity.Data.*;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -54,7 +54,7 @@ public class EntityFactory {
             entity.addModule(new SpriteModule());
         }
         if (record.physics() != null) entity.addModule(new PhysicsModule());
-        if (record.movement() != null) entity.addModule(new MovementModule());
+        if (record.dynamics() != null) entity.addModule(new MovementModule());
         if (record.endurance() != null) entity.addModule(new EnduranceModule());
         if (record.state() != null) entity.addModule(new StateModule());
         if (record.xp() != null) entity.addModule(new XpModule());
@@ -140,7 +140,7 @@ public class EntityFactory {
         if (json.has("physics") || json.has("ShapeType")) {
             JSONObject physJson = json.has("physics") ? json.getJSONObject("physics") : json;
             physics = new PhysicsData(
-                    EntityRecord.ShapeType.valueOf(physJson.optString("ShapeType", "CIRCLE")),
+                    ShapeType.valueOf(physJson.optString("ShapeType", "CIRCLE")),
                     physJson.optDouble("mass", 1.0),
                     physJson.optDouble("density", 1.0),
                     physJson.optDouble("LinearDamping", 2.0),
@@ -152,10 +152,10 @@ public class EntityFactory {
             );
         }
 
-        MovementData movement = null;
-        if (json.has("movement") || json.has("MaxVelocity")) {
-            JSONObject movJson = json.has("movement") ? json.getJSONObject("movement") : json;
-            movement = new MovementData(
+        DynamicsData movement = null;
+        if (json.has("dynamics") || json.has("MaxVelocity")) {
+            JSONObject movJson = json.has("dynamics") ? json.getJSONObject("dynamics") : json;
+            movement = new DynamicsData(
                     movJson.optDouble("MaxVelocity", 10.0),
                     movJson.optDouble("MaxForce", 30.0),
                     movJson.optDouble("MaxAngularVelocity", 5.0),

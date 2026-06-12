@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entity.modules;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
-import uni.gaben.iscat.universe.entity.record.SpriteData;
+import uni.gaben.iscat.universe.entity.Data.SpriteData;
 
 public class SpriteModule implements EntityModule, HasSprite {
 

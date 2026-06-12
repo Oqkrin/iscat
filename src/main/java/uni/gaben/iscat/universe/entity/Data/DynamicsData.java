@@ -1,6 +1,6 @@
-package uni.gaben.iscat.universe.entity.record;
+package uni.gaben.iscat.universe.entity.Data;
 
-public record MovementData(
+public record DynamicsData(
         double maxVelocity,
         double maxForce,
         double maxAngularVelocity,

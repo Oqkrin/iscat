@@ -1,15 +1,15 @@
 package uni.gaben.iscat.universe.entity.modules;
 
+import org.dyn4j.collision.AbstractCollisionBody;
+import org.dyn4j.collision.CategoryFilter;
 import org.dyn4j.dynamics.BodyFixture;
-import org.dyn4j.geometry.Geometry;
-import org.dyn4j.geometry.MassType;
-import org.dyn4j.geometry.Polygon;
+import org.dyn4j.geometry.*;
 import uni.gaben.iscat.universe.UU;
-import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.entity.enviroment.asteroid.AsteroidShapeFactory;
-import uni.gaben.iscat.universe.entity.record.PhysicsData;
+import uni.gaben.iscat.universe.entity.ShapeType;
+import uni.gaben.iscat.universe.PolygonFactory;
+import uni.gaben.iscat.universe.entity.Data.PhysicsData;
 
 public class PhysicsModule implements EntityModule {
 
@@ -36,12 +36,12 @@ public class PhysicsModule implements EntityModule {
         double scale = entity.getRecord().sprite() != null ? entity.getRecord().sprite().scale() : 1.0;
         double collisionSize = UU.pxToM(w * scale * 0.9);
 
-        if (data.shapeType() == EntityRecord.ShapeType.CIRCLE) {
+        if (data.shapeType() == ShapeType.CIRCLE) {
             fixture = entity.addFixture(Geometry.createCircle(collisionSize / 2.0));
-        } else if (data.shapeType() == EntityRecord.ShapeType.SQUARE) {
+        } else if (data.shapeType() == ShapeType.SQUARE) {
             fixture = entity.addFixture(Geometry.createSquare(collisionSize));
-        } else if (data.shapeType() == EntityRecord.ShapeType.POLYGON) {
-            fixture = entity.addFixture(new Polygon(AsteroidShapeFactory.getScaledShape(collisionSize)));
+        } else if (data.shapeType() == ShapeType.POLYGON) {
+            fixture = entity.addFixture(new Polygon(PolygonFactory.getVerticesByRadius(collisionSize)));
         }
 
         if (entity.getRecord().physics() != null && entity.getRecord().physics().isProjectile()) {
@@ -63,7 +63,7 @@ public class PhysicsModule implements EntityModule {
                 fixture.setFilter(UniverseCollisionLayers.ASTEROID_FILTER);
             }
         } else {
-            fixture.setFilter(new org.dyn4j.collision.CategoryFilter(data.collisionFilter(), ~0L));
+            fixture.setFilter(new CategoryFilter(data.collisionFilter(), ~0L));
         }
 
         fixture.setDensity(data.density());
@@ -77,4 +77,21 @@ public class PhysicsModule implements EntityModule {
     public BodyFixture getFixture() {
         return fixture;
     }
+
+    // ---- Geometry helpers (based on fixtures) ----
+    public double getWidthMeters(AbstractCollisionBody fixture) {
+        if (fixture.getFixtureCount() == 0) return 0.0;
+        AABB aabb = fixture.createAABB(new Transform());
+        return aabb.getWidth();
+    }
+
+    public double getHeightMeters(AbstractCollisionBody fixture) {
+        if (fixture.getFixtureCount() == 0) return 0.0;
+        AABB aabb = fixture.createAABB(new Transform());
+        return aabb.getHeight();
+    }
+
+    public double getWidthPx(GameEntity gameEntity) { return UU.mToPx(getWidthMeters(gameEntity)); }
+
+    public double getHeightPx(GameEntity gameEntity) { return UU.mToPx(getHeightMeters(gameEntity)); }
 }

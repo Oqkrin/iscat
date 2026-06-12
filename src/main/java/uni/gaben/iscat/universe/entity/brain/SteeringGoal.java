@@ -4,8 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.GameEntity;
-import uni.gaben.iscat.universe.entity.EntityRecord;
-import uni.gaben.iscat.universe.entity.record.BrainData;
+import uni.gaben.iscat.universe.entity.Data.BrainData;
 
 import java.util.List;
 

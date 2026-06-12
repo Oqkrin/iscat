@@ -7,7 +7,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.interfaces.Progression;
 import uni.gaben.iscat.universe.entity.interfaces.hasXpReward;
-import uni.gaben.iscat.universe.entity.record.XpData;
+import uni.gaben.iscat.universe.entity.Data.XpData;
 import uni.gaben.iscat.utils.AudioManager;
 
 public class XpModule implements EntityModule, Progression, hasXpReward {

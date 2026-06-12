@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entity.modules;
 import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.interfaces.Stateful;
 import uni.gaben.iscat.universe.entity.interfaces.Stunnable;
-import uni.gaben.iscat.universe.entity.record.StateData;
+import uni.gaben.iscat.universe.entity.Data.StateData;
 import uni.gaben.iscat.utils.Cooldown;
 
 public class StateModule implements EntityModule, Stateful, Stunnable {

@@ -239,18 +239,18 @@ public class BestiaryMenuController implements IscatMenuController {
                     💪 Forza Massima: %.1f N
                     """,
                         enemy.endurance() != null ? enemy.endurance().initLife() : 0, 
-                        enemy.movement() != null ? enemy.movement().maxVelocity() : 0, 
+                        enemy.dynamics() != null ? enemy.dynamics().maxVelocity() : 0,
                         enemy.xp() != null ? enemy.xp().xpReward() : 0.0,
                         enemy.sprite() != null ? enemy.sprite().scale() : 1, 
                         enemy.physics() != null ? enemy.physics().linearDamping() : 0, 
                         enemy.physics() != null ? enemy.physics().mass() : 0, 
-                        enemy.movement() != null ? enemy.movement().maxForce() : 0
+                        enemy.dynamics() != null ? enemy.dynamics().maxForce() : 0
                 ));
             }
             case EXTRA -> {
                 rightCardHeader.setText("EXTRA INFO");
 
-                double cooldownSeconds = (enemy.movement() != null && enemy.movement().actionCooldownSec() > 0) ? enemy.movement().actionCooldownSec() : 0;
+                double cooldownSeconds = (enemy.dynamics() != null && enemy.dynamics().actionCooldownSec() > 0) ? enemy.dynamics().actionCooldownSec() : 0;
 
                 description.setText(String.format("""
                     INFORMAZIONI EXTRA

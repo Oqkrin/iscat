@@ -1,14 +1,9 @@
 package uni.gaben.iscat.universe.entity;
 
-import uni.gaben.iscat.universe.entity.record.BrainData;
+import uni.gaben.iscat.universe.entity.Data.BrainData;
 
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
-import uni.gaben.iscat.universe.entity.brain.abilities.HealAbility;
-import uni.gaben.iscat.universe.entity.brain.abilities.shoot.*;
-
-import uni.gaben.iscat.universe.entity.modules.BrainModule;
-import uni.gaben.iscat.universe.entity.projectiles.shooters.*;
 
 
 public class EntityBrain extends Brain<GameEntity> {

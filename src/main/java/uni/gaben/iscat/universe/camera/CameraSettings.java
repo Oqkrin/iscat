@@ -16,9 +16,9 @@ public final class CameraSettings {
 
     /**
      * Spring stiffness (k) for the camera's X‑axis.
-     * <p>Higher values make the camera respond more quickly to target movement.
+     * <p>Higher values make the camera respond more quickly to target dynamics.
      * The value is derived from the player's maximum velocity to maintain a
-     * natural visual relationship between movement and camera lag.</p>
+     * natural visual relationship between dynamics and camera lag.</p>
      */
     public static final double SPRING_STIFFNESS = UniverseVelocitySettings.PLAYER_MAX_VELOCITY/2;
 
@@ -31,7 +31,7 @@ public final class CameraSettings {
 
     /**
      * Stiffness multiplier for the Y‑axis spring.
-     * <p>Vertical following is made tighter (stiffer) than horizontal movement
+     * <p>Vertical following is made tighter (stiffer) than horizontal dynamics
      * to reduce unnecessary vertical bounce and keep the target vertically
      * centred more aggressively.</p>
      */

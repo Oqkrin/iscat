@@ -1,6 +1,6 @@
 package uni.gaben.iscat.universe.entity;
 
-import uni.gaben.iscat.universe.entity.record.*;
+import uni.gaben.iscat.universe.entity.Data.*;
 
 /**
  * Immutable definition of an entity type.
@@ -11,13 +11,11 @@ public record EntityRecord(
         IdentityData identity,
         SpriteData sprite,
         PhysicsData physics,
-        MovementData movement,
+        DynamicsData dynamics,
         EnduranceData endurance,
         StateData state,
         XpData xp,
         AudioData audio,
         BrainData brain,
         PlayerData player
-) {
-    public enum ShapeType { CIRCLE, SQUARE, POLYGON }
-}
+) {}

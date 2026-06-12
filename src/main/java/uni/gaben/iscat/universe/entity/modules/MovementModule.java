@@ -6,14 +6,14 @@ import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.interfaces.Dynamic;
 import uni.gaben.iscat.universe.entity.interfaces.HasDash;
 import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
-import uni.gaben.iscat.universe.entity.record.MovementData;
+import uni.gaben.iscat.universe.entity.Data.DynamicsData;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 
 public class MovementModule implements EntityModule, Dynamic, HasThrust, HasDash {
 
     private GameEntity entity;
-    private MovementData data;
+    private DynamicsData data;
 
     private final Cooldown dashCooldown = new Cooldown();
     private final Cooldown dashDuration = new Cooldown();
@@ -22,7 +22,7 @@ public class MovementModule implements EntityModule, Dynamic, HasThrust, HasDash
     @Override
     public void attach(GameEntity entity) {
         this.entity = entity;
-        this.data = entity.getRecord().movement();
+        this.data = entity.getRecord().dynamics();
     }
 
     @Override

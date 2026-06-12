@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe.entity.modules;
 
 import uni.gaben.iscat.universe.entity.GameEntity;
 import uni.gaben.iscat.universe.entity.interfaces.Alterable;
-import uni.gaben.iscat.universe.entity.record.EnduranceData;
+import uni.gaben.iscat.universe.entity.Data.EnduranceData;
 import uni.gaben.iscat.universe.UniverseWaveController;
 
 public class EnduranceModule implements EntityModule, Alterable {
