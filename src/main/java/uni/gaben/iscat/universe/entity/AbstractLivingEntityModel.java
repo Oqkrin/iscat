@@ -6,10 +6,10 @@ import uni.gaben.iscat.universe.entity.interfaces.Alterable;
 import uni.gaben.iscat.universe.entity.interfaces.hasXpReward;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
-import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartModel;
+import uni.gaben.iscat.utils.EnemyAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 public abstract class AbstractLivingEntityModel extends AbstractEntityModel implements Alterable, hasXpReward {
@@ -40,9 +40,17 @@ public abstract class AbstractLivingEntityModel extends AbstractEntityModel impl
     public void setMaxEndurance(double maxEndurance) { this.maxEndurance = maxEndurance; setEndurance(getEndurance()); }
 
     public void setEndurance(double endurance) {
+        double oldEndurance = this.endurance.get();
         double clamped = Math.clamp(endurance, 0, maxEndurance);
         this.endurance.set(clamped);
-        if (clamped <= 0 && !shouldRemove()) extinguish();
+        if (clamped <= 0 && !shouldRemove()) {
+            extinguish();
+        }
+        else if (clamped < oldEndurance) {
+            if (this instanceof EntityModel entityModel) {
+                EnemyAudioManager.playEventAudio(entityModel, "hurt");
+            }
+        }
     }
 
     @Override
@@ -76,10 +84,11 @@ public abstract class AbstractLivingEntityModel extends AbstractEntityModel impl
             boolean isPlayer = this instanceof PlayerModel;
             boolean isHeart = this instanceof HeartModel;
 
-            if (!silent && !isProjectile && !isHeart)
-                AudioManager.getInstance().playSFX("explosion");
-            if (isHeart)
-                AudioManager.getInstance().playSFX("heal");
+            if (!silent && !isProjectile && !isHeart) {
+                if (this instanceof EntityModel entityModel) {
+                    EnemyAudioManager.playEventAudio(entityModel, "death");
+                }
+            }
 
             if (!isHeart && !isProjectile && !isPlayer && killedByProjectile) {
                 SessionScoreTracker.getInstance().addDeaths(1);

@@ -27,6 +27,8 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     private boolean completeKillCalled = false;
     private UniverseWaveController waveController;
 
+    private double idleAudioTimer = 5.0 + Math.random() * 10.0;
+
     public EntityModel(double x, double y, EntityRecord entity) {
         super(x, y, entity);
         this.entity = entity;
@@ -100,6 +102,14 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         shockwave.update(dt);
 
         double duration = getFramesForState(currentState) * getFrameDuration();
+
+        if (currentState == STATE_IDLE) {
+            idleAudioTimer -= dt;
+            if (idleAudioTimer <= 0) {
+                EnemyAudioManager.playEventAudio(this, "idle");
+                idleAudioTimer = 8.0 + Math.random() * 14.0;
+            }
+        }
 
         if (currentState == STATE_ENTRANCE) {
             if (getStateTime() >= duration) {

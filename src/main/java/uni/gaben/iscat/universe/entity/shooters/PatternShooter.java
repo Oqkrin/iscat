@@ -21,7 +21,7 @@ public interface PatternShooter {
                     new MultiDirectionPatternShooter(pc.count(), Math.toRadians(pc.angleStepDeg()), new SingleShotPatternShooter());
             case "ring" -> new RingPatternShooter(pc.count());
             case "repeater" ->
-                    new RepeaterPatternShooter(pc.repeats(), pc.intervalSec(), createPatternShooter(pc)); // careful: recursion needs base pattern
+                    new RepeaterPatternShooter(pc.repeats(), pc.intervalSec(), new SingleShotPatternShooter());
             case "parallelLine" ->
                     new ParallelLinePatternShooter(pc.count(), pc.angleStepDeg()); // angleStepDeg used as spacing?
             case "summon" -> new SummonPatternShooter(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());

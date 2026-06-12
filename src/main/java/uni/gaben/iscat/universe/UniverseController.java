@@ -61,18 +61,16 @@ public class UniverseController {
      */
     public void updatev(double dt, GameInputsHandler inputs, CameraModel camera) {
         PlayerModel player = universeModel.getPlayer();
-        if(player == null || player.shouldRemove()) return;
+        if (player == null || player.shouldRemove()) return;
 
         syncPlayerController(player);
         processPlayerInputs(player, inputs, camera, dt);
-        updateProjectiles(camera, dt);
         updateEntities(dt);
         updateAI(dt);
         applyTerminalVelocityLimits();
         syncWormSegmentRotations();
-
         universeModel.stepPhysics(dt);
-
+        updateProjectiles(camera, dt);
         processEntityCleanup(player);
         updateCamera(player, camera, inputs, dt);
     }
@@ -144,7 +142,8 @@ public class UniverseController {
         double top    = camera.getViewportTopY()   - 200.0;
         double bottom = top  + (camera.getScreenHeight() / zoom) + 400.0;
 
-        for (AbstractProjectileModel p : universeModel.getProjectiles()) {
+        List<AbstractProjectileModel> snapshot = new ArrayList<>(universeModel.getProjectiles());
+        for (AbstractProjectileModel p : snapshot) {
             if (p.shouldRemove()) continue;
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());

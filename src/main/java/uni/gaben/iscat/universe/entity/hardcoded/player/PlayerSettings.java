@@ -33,7 +33,7 @@ public final class PlayerSettings {
     public static double COOLDOWN_FUOCO_SEC = .3;
     public static final double VELOCITA_PROIETTILE = UniverseVelocitySettings.PLAYER_BULLET_VELOCITY;
     public static final double FORZA_SPINTA = UniverseVelocitySettings.PLAYER_MAX_VELOCITY*3;
-    public static final double DANNO_PROIETTILE = 10000.0;
+    public static final double DANNO_PROIETTILE = 1;
 
     // === Visuals & Dimensions ===
     public static final double DIMENSIONE_DA_DISEGNARE = 64.0;

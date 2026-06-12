@@ -56,8 +56,9 @@ public class EnemyAudioManager {
      */
     private static String getDefaultSFXKey(String eventType) {
         return switch (eventType.toLowerCase().trim()) {
-            case "hurt"  -> "generic_hit";
+            case "hurt"  -> "generic_hurt";
             case "death" -> "generic_death";
+            case "attack" -> "shoot";
             default      -> null;                };
     }
 }
