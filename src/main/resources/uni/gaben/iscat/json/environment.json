@@ -1,0 +1,51 @@
+{
+  "environment": [
+    {
+      "EntityKey": "asteroid",
+      "Name": "Asteroid",
+      "sprite": { "SpriteName": "asteroid", "FrameW": 64, "FrameH": 64, "Scale": 1 },
+      "physics": { "ShapeType": "POLYGON", "mass": 10, "density": 2, "LinearDamping": 0.5 },
+      "movement": { "MaxVelocity": 5, "TerminalVelocity": 5 },
+      "endurance": { "InitLife": 50, "CollisionDamageScale": 1.0 },
+      "ai": {
+        "abilities": [
+          { "type": "breakup", "summonEntityKey": "small_asteroid", "summonCount": 3, "summonRadiusPx": 150 }
+        ]
+      }
+    },
+    {
+      "EntityKey": "small_asteroid",
+      "Name": "Small Asteroid",
+      "sprite": { "SpriteName": "asteroid", "FrameW": 32, "FrameH": 32, "Scale": 0.5 },
+      "physics": { "ShapeType": "POLYGON", "mass": 2.5, "density": 2, "LinearDamping": 0.5 },
+      "movement": { "MaxVelocity": 8, "TerminalVelocity": 8 },
+      "endurance": { "InitLife": 10, "CollisionDamageScale": 1.0 }
+    },
+    {
+      "EntityKey": "blackhole",
+      "Name": "Black Hole",
+      "sprite": { "SpriteName": "blackhole", "FrameW": 64, "FrameH": 64, "Scale": 1 },
+      "physics": { "ShapeType": "CIRCLE", "mass": 0, "density": 10, "LinearDamping": 0, "isSensor": true },
+      "movement": { "MaxVelocity": 0, "TerminalVelocity": 0 },
+      "state": { "HasEntranceAnimation": false, "AnimationFrames": [8] },
+      "ai": {
+        "abilities": [
+          { "type": "gravityAura", "summonRadiusPx": 600, "combatRange": 500 },
+          { "type": "absorb" }
+        ]
+      }
+    },
+    {
+      "EntityKey": "heart",
+      "Name": "Heart",
+      "sprite": { "SpriteName": "heart", "FrameW": 32, "FrameH": 32, "Scale": 1 },
+      "physics": { "ShapeType": "CIRCLE", "mass": 1, "density": 1, "LinearDamping": 0.1, "isSensor": true },
+      "movement": { "MaxVelocity": 2, "TerminalVelocity": 2 },
+      "ai": {
+        "abilities": [
+          { "type": "healOnCollision", "healAmount": 20 }
+        ]
+      }
+    }
+  ]
+}
