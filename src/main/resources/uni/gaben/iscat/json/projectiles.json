@@ -1,20 +1,17 @@
 {
   "player_projectile": {
     "identity": { "entityKey": "player_projectile", "name": "Player Projectile" },
-    "physics": { "radius": 4.0, "terminalVelocity": 800.0, "massType": "NORMAL", "isProjectile": true },
-    "endurance": { "initLife": 4.0, "maxLife": 4.0 },
-    "sprite": { "spritePath": "/uni/gaben/iscat/sprites/projectiles/player_bullet.png", "frameW": 8, "frameH": 8, "scale": 1.0 }
+    "physics": { "radius": 4.0, "terminalVelocity": 800.0, "isProjectile": true },
+    "endurance": { "initLife": 4.0, "maxLife": 4.0 }
   },
   "enemy_bullet": {
     "identity": { "entityKey": "enemy_bullet", "name": "Enemy Bullet" },
-    "physics": { "radius": 4.0, "terminalVelocity": 400.0, "massType": "NORMAL", "isProjectile": true },
-    "endurance": { "initLife": 4.0, "maxLife": 4.0 },
-    "sprite": { "spritePath": "/uni/gaben/iscat/sprites/projectiles/enemy_bullet.png", "frameW": 8, "frameH": 8, "scale": 1.0 }
+    "physics": { "radius": 4.0, "terminalVelocity": 400.0, "isProjectile": true },
+    "endurance": { "initLife": 4.0, "maxLife": 4.0 }
   },
   "stun_bullet": {
     "identity": { "entityKey": "stun_bullet", "name": "Stun Bullet" },
-    "physics": { "radius": 7.0, "terminalVelocity": 400.0, "massType": "NORMAL", "isProjectile": true },
-    "endurance": { "initLife": 1.0, "maxLife": 1.0 },
-    "sprite": { "spritePath": "/uni/gaben/iscat/sprites/projectiles/stun_bullet.png", "frameW": 14, "frameH": 14, "scale": 1.0 }
+    "physics": { "radius": 7.0, "terminalVelocity": 400.0, "isProjectile": true },
+    "endurance": { "initLife": 1.0, "maxLife": 1.0 }
   }
 }

@@ -174,7 +174,7 @@ public class UniverseWaveController {
                 spawnedInThisBatch++;
                 successfullySpawned = true;
 
-                if ("ISCAT_MASTER".equals(enemyIdToSpawn) && !bossSpawned) {
+                if ("iscat_master".equals(enemyIdToSpawn) && !bossSpawned) {
                     notifyBossSpawned();
                 }
             } else {
@@ -189,13 +189,13 @@ public class UniverseWaveController {
      * Verifica la conformità dell'entità con le soglie di sovraffollamento locali e globali per tipo.
      */
     private boolean canSpawnEnemyType(String enemyId) {
-        if ("ISCAT_MASTER".equals(enemyId)) {
+        if ("iscat_master".equals(enemyId)) {
             return !bossSpawned;
         }
 
         long count = activeEnemies.stream().filter(ae -> enemyId.equals(ae.enemyId)).count();
 
-        if ("WORM".equals(enemyId)) return count < 5;
+        if ("iscat_worm_head".equals(enemyId)) return count < 5;
         return count < 10;
     }
 
@@ -236,7 +236,7 @@ public class UniverseWaveController {
      */
     private String rollEnemyId() {
         if (!bossSpawned && (forceBossSpawn || totalKills >= 200)) {
-            return "ISCAT_MASTER";
+            return "iscat_master";
         }
 
         // Calcolo dinamico e progressivo delle curve di probabilità (Weights)
@@ -262,10 +262,10 @@ public class UniverseWaveController {
         if ((currentSum += fakeWeight) >= rollValue)   return "fake_iscat";
         if ((currentSum += bomberWeight) >= rollValue) return "iscat_bomber";
         if ((currentSum += dasherWeight) >= rollValue) return "iscat_dasher";
-        if ((currentSum += healerWeight) >= rollValue) return "ISCAT_HEALER";
+        if ((currentSum += healerWeight) >= rollValue) return "iscat_healer";
         if ((currentSum += golemWeight) >= rollValue)  return "fallen_star_golem";
         if ((currentSum += coreWeight) >= rollValue)   return "iscat_core";
-        if ((currentSum += wormWeight) >= rollValue)   return "WORM";
+        if ((currentSum += wormWeight) >= rollValue)   return "iscat_worm_head";
         if ((currentSum += motherWeight) >= rollValue) return "iscat_mother";
 
         return "iscat_mob";

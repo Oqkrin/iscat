@@ -15,7 +15,7 @@ public class BreakupAbility extends Ability {
     private final double splitVelocityPush;
 
     public BreakupAbility(String splitEntityKey, int numPieces, double splitVelocityPush) {
-        super(AbilityCategory.DEFENSE, 0); // Triggered on death, not cooldown based
+        super("Breakup", AbilityCategory.SPECIAL, java.util.Collections.emptySet()); // Triggered on death, not cooldown based
         this.splitEntityKey = splitEntityKey;
         this.numPieces = numPieces;
         this.splitVelocityPush = splitVelocityPush;
@@ -44,7 +44,7 @@ public class BreakupAbility extends Ability {
             double spawnX = UU.mToPx(xMeters + Math.cos(angle) * offsetMeters);
             double spawnY = UU.mToPx(yMeters + Math.sin(angle) * offsetMeters);
             
-            GameEntity piece = EntityFactory.spawn(splitEntityKey, spawnX, spawnY, world, world.getController());
+            GameEntity piece = EntityFactory.spawn(splitEntityKey, spawnX, spawnY, world, null);
             if (piece != null) {
                 Vector2 newVel = currentVel.copy().add(Math.cos(angle) * splitVelocityPush, Math.sin(angle) * splitVelocityPush);
                 piece.setLinearVelocity(newVel);

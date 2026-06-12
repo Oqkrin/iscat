@@ -17,7 +17,7 @@ public class ShootAbility extends AbstractShootAbility {
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
-        double angle = getAimAngle(brain, world, bulletType.terminalVelocity);
+        double angle = getAimAngle(brain, world, 400.0);
         pattern.execute(brain.getShooter(), bulletType, angle, null);
         cooldown.start();
     }

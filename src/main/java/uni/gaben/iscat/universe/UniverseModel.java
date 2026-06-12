@@ -105,6 +105,7 @@ public class UniverseModel extends World<Body> {
     // -------------------------------------------------------------------------
 
     public void addEntity(GameEntity entity) {
+        if (this.containsBody(entity)) return;
         addBody(entity);
         if (entity.getRecord() != null && entity.getRecord().physics() != null && entity.getRecord().physics().isProjectile()) {
             projectiles.add(entity);

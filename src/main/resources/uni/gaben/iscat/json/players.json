@@ -4,22 +4,36 @@
       "EntityKey": "player1",
       "Name": "Battle Ship",
       "Description": "Nave da battaglia classica, resistente e potente",
-      "SpriteName": "player1",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "sprite": {
+        "SpriteName": "player1",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],
@@ -28,27 +42,40 @@
         "spawn": []
       }
     },
-
     {
       "EntityKey": "player2",
       "Name": "Simple Battle Ship",
       "Description": "Nave essenziale, perfetta per i principianti",
-      "SpriteName": "player2",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "sprite": {
+        "SpriteName": "player2",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],
@@ -57,27 +84,40 @@
         "spawn": []
       }
     },
-
     {
       "EntityKey": "player3",
       "Name": "Friendly Ship",
       "Description": "Nave amichevole, ottima per il supporto",
-      "SpriteName": "player3",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "sprite": {
+        "SpriteName": "player3",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],
@@ -86,27 +126,40 @@
         "spawn": []
       }
     },
-
     {
       "EntityKey": "player4",
       "Name": "Iscat Traitor",
       "Description": "Nave traditrice, colpisce alle spalle",
-      "SpriteName": "player4",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "sprite": {
+        "SpriteName": "player4",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],
@@ -115,27 +168,40 @@
         "spawn": []
       }
     },
-
     {
       "EntityKey": "player5",
       "Name": "Cubism Lover",
       "Description": "Nave cubista, geometria letale",
-      "SpriteName": "player5",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "sprite": {
+        "SpriteName": "player5",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],
@@ -144,27 +210,40 @@
         "spawn": []
       }
     },
-
     {
       "EntityKey": "player6",
       "Name": "Space Goblin",
       "Description": "Nave goblin, agile e subdola",
-      "SpriteName": "player6",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "sprite": {
+        "SpriteName": "player6",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],
@@ -173,27 +252,40 @@
         "spawn": []
       }
     },
-
     {
       "EntityKey": "player7",
       "Name": "Phantom",
       "Description": "Nave fantasma, evasiva e misteriosa",
-      "SpriteName": "player7",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "sprite": {
+        "SpriteName": "player7",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],
@@ -202,27 +294,40 @@
         "spawn": []
       }
     },
-
     {
       "EntityKey": "player8",
       "Name": "Radar",
-      "Description": "Nave radar, vede tutto ciò che si muove",
-      "SpriteName": "player8",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "Description": "Nave radar, vede tutto ci\u00f2 che si muove",
+      "sprite": {
+        "SpriteName": "player8",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],
@@ -231,27 +336,40 @@
         "spawn": []
       }
     },
-
     {
       "EntityKey": "player9",
       "Name": "PARADOX",
       "Description": "Nave paradossale, rompe le regole del gioco",
-      "SpriteName": "player9",
-      "FrameW": 32,
-      "FrameH": 32,
-      "ShapeType": "CIRCLE",
-      "Scale": 2,
-      "InitLife": 100,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 30,
-      "MaxAngularVelocity": 5,
-      "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 7,
-      "actionCooldownS": 800,
+      "sprite": {
+        "SpriteName": "player9",
+        "FrameW": 32,
+        "FrameH": 32,
+        "Scale": 2
+      },
+      "physics": {
+        "ShapeType": "CIRCLE",
+        "LinearDamping": 2,
+        "mass": 1
+      },
+      "dynamics": {
+        "MaxVelocity": 10,
+        "MaxForce": 30,
+        "MaxAngularVelocity": 5,
+        "actionCooldownS": 800
+      },
+      "endurance": {
+        "InitLife": 100
+      },
+      "xp": {
+        "XPReward": 10
+      },
+      "player": {
+        "dashImpulse": 5.0,
+        "dashDurationSec": 0.2,
+        "dashCooldownSec": 1.0,
+        "stunDurationSec": 0.5,
+        "baseCooldownSec": 0.5
+      },
       "audio": {
         "attack": [],
         "idle": [],

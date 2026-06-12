@@ -5,11 +5,17 @@ public record IdentityData(
         String name,
         String description,
         boolean isBoss,
-        boolean isEnemy
+        EntityType type,
+        String ownerId
 ) {
-    /** Convenience constructor when isEnemy is not specified (defaults to true if not player). */
-    public IdentityData(String entityKey, String name, String description, boolean isBoss) {
-        this(entityKey, name, description, isBoss,
-                entityKey != null && !entityKey.contains("player") && !entityKey.contains("heart"));
+    /** Convenience methods */
+    public boolean isEnemy() {
+        return type == EntityType.ENEMY;
+    }
+    public boolean isPlayer() {
+        return type == EntityType.PLAYER;
+    }
+    public boolean isProjectile() {
+        return type == EntityType.PROJECTILE;
     }
 }

@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.entity.GameEntity;
 
 import java.util.Random;
 
@@ -70,12 +71,13 @@ import java.util.Random;
             spawnAsteroidAtCustomSize(x, y, radius);
         }
 
-        private void spawnAsteroidAtCustomSize(double x, double y, double radius) {
-            AsteroidModel ast = new AsteroidModel(x, y, radius);
+    private void spawnAsteroidAtCustomSize(double x, double y, double radius) {
+        GameEntity ast = (GameEntity) UniverseSpawner.getInstance().spawn("asteroid", x, y);
+        if (ast != null) {
             ast.setLinearVelocity(workspaceVelocity);
-            UniverseSpawner.getInstance().spawnEntity(ast);
         }
-        
+    }
+
     /**
      * PROCEDURAL HELPER: spawnClump
      * * Spawns a high-density, localized cluster of diverse asteroids packed inside a

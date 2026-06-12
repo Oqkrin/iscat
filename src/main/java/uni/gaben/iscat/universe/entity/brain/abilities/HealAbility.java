@@ -54,9 +54,6 @@ public class HealAbility extends Ability {
         healCooldown.start();
         if(visualHealCooldown.isReady()) {
             visualHealCooldown.start();
-            if (entity instanceof GameEntity ge) {
-                ge.shockwave().trigger(visualHealCooldown.getDefaultDuration(), UU.mToPx(range / 2), UU.mToPx(range) / 10);
-            }
         }
     }
 

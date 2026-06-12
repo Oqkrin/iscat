@@ -17,15 +17,15 @@ public class EnemyAudioManager {
      * Cerca i nomi nel JSON; se non trova nulla, applica un fallback di default.
      */
     public static void playEventAudio(GameEntity model, String eventType) {
-        if (model == null || model.getEntity() == null || model.getEntity().audio() == null) return;
+        if (model == null || model.getRecord() == null || model.getRecord().audio() == null) return;
 
         // Recupera la lista di chiavi (nomi dei file) dal tipo di evento
         List<String> soundNames = switch (eventType.toLowerCase().trim()) {
-            case "attack" -> model.getEntity().audio().attack();
-            case "idle"   -> model.getEntity().audio().idle();
-            case "hurt"   -> model.getEntity().audio().hurt();
-            case "death"  -> model.getEntity().audio().death();
-            case "spawn"  -> model.getEntity().audio().spawn();
+            case "attack" -> model.getRecord().audio().attack();
+            case "idle"   -> model.getRecord().audio().idle();
+            case "hurt"   -> model.getRecord().audio().hurt();
+            case "death"  -> model.getRecord().audio().death();
+            case "spawn"  -> model.getRecord().audio().spawn();
             default       -> List.of();
         };
 

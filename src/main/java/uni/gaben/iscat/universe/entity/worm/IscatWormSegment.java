@@ -65,9 +65,8 @@ public class IscatWormSegment extends GameEntity {
         updateCooldowns(dt);
     }
 
-    @Override
-    public void onDeath() {
-        super.onDeath();
+    public void extinguish() {
+        super.extinguish();
         previousSegment.promoteToHead();
         consume();
     }
@@ -104,22 +103,12 @@ public class IscatWormSegment extends GameEntity {
     private static double getDamping(Type t){ return switch(t){ case HEAD->2.8; case BODY->4.2; case TAIL->5.5; }; }
 
     private static EntityRecord createSettings(Type type) {
-        return new EntityFactory.EntityRecordBuilder()
-                .entityKey("iscat_worm_" + type.name().toLowerCase())
-                .frameW((int) IscatWormSettings.DIM_SPRITE)
-                .frameH((int) IscatWormSettings.DIM_SPRITE)
-                .spritePath(switch (type) {
-                    case HEAD -> "/uni/gaben/iscat/sprites/enemies/iscat_worm_head.png";
-                    case BODY -> "/uni/gaben/iscat/sprites/enemies/iscat_worm_body_part.png";
-                    case TAIL -> "/uni/gaben/iscat/sprites/enemies/iscat_worm_tail.png";
-                })
-                .scale(switch (type) {
-                    case HEAD -> IscatWormSettings.HEAD_SCALE;
-                    case BODY -> IscatWormSettings.BODY_SCALE;
-                    case TAIL -> IscatWormSettings.TAIL_SCALE;
-                })
-                .linearDamping(getDamping(type))
-                .maxVelocity(IscatWormSettings.HEAD_MAX_SPEED)
-                .maxForce(IscatWormSettings.HEAD_FORCE).build();
+        String key = "iscat_worm_" + type.name().toLowerCase();
+        EntityRecord record = EntityFactory.getCache().get(key);
+        if (record == null) {
+            // Fallback empty record if not loaded to prevent crash, though it should be loaded
+            return new EntityRecord(new uni.gaben.iscat.universe.entity.Data.IdentityData(key, key, "", false, uni.gaben.iscat.universe.entity.Data.EntityType.ENEMY, null), null, null, null, null, null, null, null, null, null);
+        }
+        return record;
     }
 }

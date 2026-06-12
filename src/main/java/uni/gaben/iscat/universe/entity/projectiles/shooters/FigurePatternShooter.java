@@ -42,7 +42,7 @@ public class FigurePatternShooter implements PatternShooter {
                 if (customizer != null) {
                     customizer.accept(bullet);
                 }
-                bullet.setTerminalVelocity(bullet.getTerminalVelocity() * geometricFactor);
+                bullet.getLinearVelocity().multiply(geometricFactor);
             };
 
             shooter.shoot(bulletType, currentAngle, figureCustomizer);

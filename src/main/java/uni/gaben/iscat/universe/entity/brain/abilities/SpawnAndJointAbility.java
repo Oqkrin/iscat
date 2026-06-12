@@ -16,7 +16,7 @@ public class SpawnAndJointAbility extends Ability {
     private boolean hasSpawned = false;
 
     public SpawnAndJointAbility(String summonEntityKey, double jointOffsetPx) {
-        super("SpawnAndJoint", AbilityCategory.SUPPORT, Collections.emptySet());
+        super("SpawnAndJoint", AbilityCategory.SPECIAL, java.util.Collections.emptySet());
         this.summonEntityKey = summonEntityKey;
         this.jointOffsetPx = jointOffsetPx;
     }
@@ -52,7 +52,7 @@ public class SpawnAndJointAbility extends Ability {
             RevoluteJoint joint = new RevoluteJoint(parent, child, anchor);
             
             // Aggiungiamo limiti al giunto in modo che non si pieghi troppo
-            joint.setLimitEnabled(true);
+            joint.setLimitsEnabled(true);
             joint.setLimits(-Math.PI / 4, Math.PI / 4); // Limite di 45 gradi
             
             world.addJoint(joint);

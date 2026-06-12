@@ -35,7 +35,7 @@ public class MeleeAbility<T extends GameEntity> extends Ability {
         entity.setOnCollision(
                 other -> {
                     if(meleeCooldown.isReady() && targets.test(other) && other instanceof GameEntity l) {
-                        l.damage(damage);
+                        l.alter(-damage);
                     }
                 }
         );

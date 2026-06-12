@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.entity;
 
 import org.dyn4j.dynamics.Body;
+import uni.gaben.iscat.universe.entity.interfaces.Dynamic;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entity.modules.*;
 import uni.gaben.iscat.utils.Updatable;
@@ -9,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameEntity extends Body implements Updatable {
+public class GameEntity extends Body implements Updatable, Dynamic {
 
     private final EntityRecord record;
     
@@ -148,13 +149,13 @@ public class GameEntity extends Body implements Updatable {
         if (enduranceModule != null) enduranceModule.alter(amount);
     }
     
-    //public void setKilledByProjectile(boolean killed) {
-    //    if (enduranceModule != null) enduranceModule.setKilledByProjectile(killed);
-    //}
+    public void setKilledByProjectile(boolean killed) {
+        if (enduranceModule != null) enduranceModule.setKilledByProjectile(killed);
+    }
     
-    //public boolean isKilledByProjectile() {
-    //    return enduranceModule != null && enduranceModule.isKilledByProjectile();
-    //}
+    public boolean isKilledByProjectile() {
+        return enduranceModule != null && enduranceModule.isKilledByProjectile();
+    }
     
     public double getXpReward() {
         return xpModule != null ? xpModule.getXpReward() : 0;
@@ -181,19 +182,26 @@ public class GameEntity extends Body implements Updatable {
         setShouldRemove(true); // Temporary simple fallback
     }
 
-    public double getMaxVelocity() {
+    @Override
+    public double getTerminalVelocity() {
         return movementModule != null ? movementModule.getTerminalVelocity() : 0;
     }
 
-    public double getMaxForce() {
+    @Override
+    public double getAcceleration() {
         return movementModule != null ? movementModule.getAcceleration() : 0;
+    }
+
+    @Override
+    public double getMaxAngularVelocity() {
+        return movementModule != null ? movementModule.getMaxAngularVelocity() : 0;
     }
 
     // ---- Viewport culling ----
     public boolean isInsideViewport(double minX, double maxX, double minY, double maxY) {
         double cx = UU.mToPx(this.getTransform().getTranslationX());
         double cy = UU.mToPx(this.getTransform().getTranslationY());
-        double padding = Math.max(physicsModule.getWidthPx(this), physicsModule.getHeightPx(this));
+        double padding = Math.max(physicsModule.getWidthPx(), physicsModule.getHeightPx());
         return (cx + padding >= minX) && (cx - padding <= maxX) &&
                 (cy + padding >= minY) && (cy - padding <= maxY);
     }

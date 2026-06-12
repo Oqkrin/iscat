@@ -22,7 +22,7 @@ public class AbsorbAbility extends Ability {
     private double maxRadiusM = 7.5;
 
     public AbsorbAbility() {
-        super(AbilityCategory.DEFENSE, 0);
+        super("Absorb", AbilityCategory.SPECIAL, java.util.Collections.emptySet());
     }
 
     @Override
@@ -50,7 +50,7 @@ public class AbsorbAbility extends Ability {
         // Don't absorb other black holes (we can check by checking if they have AbsorbAbility, or their identity)
         if (other.getRecord().identity().entityKey().contains("blackhole")) return;
         
-        if (other instanceof AbstractProjectileModel) {
+        if (other.getRecord() != null && other.getRecord().identity() != null && other.getRecord().identity().type() == uni.gaben.iscat.universe.entity.Data.EntityType.PROJECTILE) {
             other.setShouldRemove(true);
             return;
         }

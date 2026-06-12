@@ -13,7 +13,7 @@ public class HealOnCollisionAbility extends Ability {
     private boolean collected = false;
 
     public HealOnCollisionAbility(double healAmount) {
-        super(AbilityCategory.SUPPORT, 0);
+        super("HealOnCollision", AbilityCategory.SPECIAL, java.util.Collections.emptySet());
         this.healAmount = healAmount;
     }
 

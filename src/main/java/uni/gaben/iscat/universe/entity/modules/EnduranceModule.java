@@ -13,6 +13,7 @@ public class EnduranceModule implements EntityModule, Alterable {
     private double maxEndurance;
     private UniverseWaveController waveController;
     private Runnable onDeathCallback;
+    private boolean killedByProjectile = false;
 
     @Override
     public void attach(GameEntity entity) {
@@ -28,6 +29,14 @@ public class EnduranceModule implements EntityModule, Alterable {
 
     public void setOnDeathCallback(Runnable callback) {
         this.onDeathCallback = callback;
+    }
+
+    public void setKilledByProjectile(boolean killed) {
+        this.killedByProjectile = killed;
+    }
+
+    public boolean isKilledByProjectile() {
+        return killedByProjectile;
     }
 
     @Override

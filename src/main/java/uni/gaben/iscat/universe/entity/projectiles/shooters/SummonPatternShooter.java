@@ -33,7 +33,9 @@ public class SummonPatternShooter implements PatternShooter {
         var model = shooter.getModel();
 
         if (model instanceof GameEntity genericEntity) {
-            genericEntity.setCurrentState(attackStateIndex);
+            if (genericEntity.getStateModule() != null) {
+                // genericEntity.getStateModule().setCurrentState(attackStateIndex);
+            }
         }
 
         Vector2 originPos = model.getTransform().getTranslation();

@@ -14,7 +14,7 @@ public class GravityAuraAbility extends Ability {
     private final double basePullForce;
 
     public GravityAuraAbility(double radius, double basePullForce) {
-        super(AbilityCategory.SUPPORT, 0); // always active
+        super("GravityAura", AbilityCategory.SPECIAL, java.util.Collections.emptySet()); // always active
         this.radius = radius;
         this.basePullForce = basePullForce;
     }

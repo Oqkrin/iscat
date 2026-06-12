@@ -83,14 +83,56 @@ public class EntityFactory {
                             .lines().collect(Collectors.joining("\n"));
 
                     JSONObject root = new JSONObject(jsonText);
-                    String arrayKey = root.keys().next(); // enemies, players, or environment
-                    JSONArray entities = root.getJSONArray(arrayKey);
+                    EntityType fileType = EntityType.ENEMY;
+                    if (path.contains("players")) fileType = EntityType.PLAYER;
+                    else if (path.contains("environment")) fileType = EntityType.ENVIRONMENT;
+                    else if (path.contains("projectiles")) fileType = EntityType.PROJECTILE;
 
-                    for (int i = 0; i < entities.length(); i++) {
-                        JSONObject jsonObj = entities.getJSONObject(i);
-                        EntityRecord record = parseEntitySettings(jsonObj);
-                        if (record.identity() != null && record.identity().entityKey() != null) {
-                            cache.put(record.identity().entityKey().toLowerCase().trim(), record);
+                    Object rootVal;
+                    if (root.length() == 1 && (root.get(root.keys().next()) instanceof JSONArray || root.get(root.keys().next()) instanceof JSONObject)) {
+                        String rootKey = root.keys().next();
+                        Object val = root.get(rootKey);
+                        // If it's a single key but its value doesn't look like a collection, then it's a single entity at root.
+                        // Wait, if it's a single entity at root, its value is an object.
+                        // Let's check if the inner object has typical entity keys or not.
+                        if (val instanceof JSONObject && ((JSONObject)val).has("physics")) {
+                            rootVal = root;
+                        } else {
+                            rootVal = val;
+                        }
+                    } else {
+                        rootVal = root;
+                    }
+
+                    if (rootVal instanceof JSONArray) {
+                        JSONArray entities = (JSONArray) rootVal;
+                        for (int i = 0; i < entities.length(); i++) {
+                            JSONObject jsonObj = entities.getJSONObject(i);
+                            EntityRecord record = parseEntitySettings(jsonObj, fileType);
+                            if (record.identity() != null && record.identity().entityKey() != null) {
+                                cache.put(record.identity().entityKey().toLowerCase().trim(), record);
+                            }
+                        }
+                    } else if (rootVal instanceof JSONObject) {
+                        JSONObject dict = (JSONObject) rootVal;
+                        for (String key : dict.keySet()) {
+                            JSONObject jsonObj = dict.getJSONObject(key);
+                            // Inject key as fallback EntityKey at root level (legacy) and inside identity block
+                            if (!jsonObj.has("EntityKey")) jsonObj.put("EntityKey", key);
+                            if (jsonObj.has("identity")) {
+                                JSONObject idBlock = jsonObj.getJSONObject("identity");
+                                if (!idBlock.has("entityKey") && !idBlock.has("EntityKey")) {
+                                    idBlock.put("entityKey", key);
+                                }
+                            }
+                            EntityRecord record = parseEntitySettings(jsonObj, fileType);
+                            if (record.identity() != null && record.identity().entityKey() != null
+                                    && !record.identity().entityKey().isBlank()) {
+                                cache.put(record.identity().entityKey().toLowerCase().trim(), record);
+                            } else {
+                                // Last-resort: use the dict key itself
+                                cache.put(key.toLowerCase().trim(), record);
+                            }
                         }
                     }
                 } catch (Exception ex) {
@@ -115,35 +157,59 @@ public class EntityFactory {
         }
     }
 
-    private static EntityRecord parseEntitySettings(JSONObject json) {
+    private static EntityRecord parseEntitySettings(JSONObject json, EntityType type) {
+        // Identity: either nested under "identity" or flat at root
+        JSONObject idJson = json.has("identity") ? json.getJSONObject("identity") : json;
         IdentityData identity = new IdentityData(
-                json.optString("EntityKey", ""),
-                json.optString("Name", ""),
-                json.optString("Description", ""),
-                json.optBoolean("IsBoss", false)
+                idJson.optString("entityKey", idJson.optString("EntityKey", "")),
+                idJson.optString("name",      idJson.optString("Name", "")),
+                idJson.optString("description", idJson.optString("Description", "")),
+                idJson.optBoolean("isBoss",   idJson.optBoolean("IsBoss", false)),
+                type,
+                idJson.optString("ownerId", json.optString("ownerId", null))
         );
 
+        // Sprite (enemies only; projectiles and environment render via VFX)
         SpriteData sprite = null;
-        if (json.has("SpriteName") || json.has("sprite")) {
-            JSONObject sprJson = json.has("sprite") ? json.getJSONObject("sprite") : json;
-            String spriteName = sprJson.optString("SpriteName", "").trim();
-            if (spriteName.toLowerCase().endsWith(".png")) spriteName = spriteName.substring(0, spriteName.length() - 4);
+        if (json.has("sprite")) {
+            JSONObject sprJson = json.getJSONObject("sprite");
+            // Support both inline spritePath and legacy SpriteName
+            String path;
+            if (sprJson.has("spritePath")) {
+                path = sprJson.getString("spritePath");
+            } else {
+                String name = sprJson.optString("SpriteName", "").trim();
+                if (name.toLowerCase().endsWith(".png")) name = name.substring(0, name.length() - 4);
+                path = "/uni/gaben/iscat/sprites/entities/" + name + ".png";
+            }
             sprite = new SpriteData(
-                    "/uni/gaben/iscat/sprites/entities/" + spriteName + ".png",
-                    sprJson.optInt("FrameW", 32),
-                    sprJson.optInt("FrameH", 32),
-                    sprJson.optDouble("Scale", 1.0)
+                    path,
+                    sprJson.optInt("frameW", sprJson.optInt("FrameW", 32)),
+                    sprJson.optInt("frameH", sprJson.optInt("FrameH", 32)),
+                    sprJson.optDouble("scale", sprJson.optDouble("Scale", 1.0))
+            );
+        } else if (json.has("SpriteName")) {
+            // Flat legacy format
+            String name = json.optString("SpriteName", "").trim();
+            if (name.toLowerCase().endsWith(".png")) name = name.substring(0, name.length() - 4);
+            sprite = new SpriteData(
+                    "/uni/gaben/iscat/sprites/entities/" + name + ".png",
+                    json.optInt("FrameW", 32),
+                    json.optInt("FrameH", 32),
+                    json.optDouble("Scale", 1.0)
             );
         }
 
+        // Physics: nested "physics" or flat root
         PhysicsData physics = null;
-        if (json.has("physics") || json.has("ShapeType")) {
+        if (json.has("physics") || json.has("ShapeType") || json.has("shapeType")) {
             JSONObject physJson = json.has("physics") ? json.getJSONObject("physics") : json;
+            String shapeStr = physJson.optString("shapeType", physJson.optString("ShapeType", "CIRCLE")).toUpperCase();
             physics = new PhysicsData(
-                    ShapeType.valueOf(physJson.optString("ShapeType", "CIRCLE")),
-                    physJson.optDouble("mass", 1.0),
-                    physJson.optDouble("density", 1.0),
-                    physJson.optDouble("LinearDamping", 2.0),
+                    ShapeType.valueOf(shapeStr),
+                    physJson.optDouble("mass",   physJson.optDouble("Mass", 1.0)),
+                    physJson.optDouble("density", physJson.optDouble("Density", 1.0)),
+                    physJson.optDouble("linearDamping", physJson.optDouble("LinearDamping", 2.0)),
                     physJson.optBoolean("isSensor", false),
                     physJson.optLong("collisionFilter", 1L),
                     physJson.optBoolean("isProjectile", false),
@@ -152,51 +218,57 @@ public class EntityFactory {
             );
         }
 
+        // Dynamics: accept both "dynamics" (new) and "movement" (legacy enemies.json) keys
         DynamicsData movement = null;
-        if (json.has("dynamics") || json.has("MaxVelocity")) {
-            JSONObject movJson = json.has("dynamics") ? json.getJSONObject("dynamics") : json;
+        String dynKey = json.has("dynamics") ? "dynamics" : json.has("movement") ? "movement" : null;
+        if (dynKey != null || json.has("MaxVelocity")) {
+            JSONObject movJson = (dynKey != null) ? json.getJSONObject(dynKey) : json;
             movement = new DynamicsData(
-                    movJson.optDouble("MaxVelocity", 10.0),
-                    movJson.optDouble("MaxForce", 30.0),
-                    movJson.optDouble("MaxAngularVelocity", 5.0),
-                    movJson.optDouble("TerminalVelocity", 10.0),
+                    movJson.optDouble("maxVelocity",      movJson.optDouble("MaxVelocity", 10.0)),
+                    movJson.optDouble("maxForce",         movJson.optDouble("MaxForce", 30.0)),
+                    movJson.optDouble("maxAngularVelocity",movJson.optDouble("MaxAngularVelocity", 5.0)),
+                    movJson.optDouble("terminalVelocity", movJson.optDouble("TerminalVelocity", 10.0)),
                     movJson.optDouble("actionCooldownS", 800.0) / 1000.0
             );
         }
 
         EnduranceData endurance = null;
-        if (json.has("endurance") || json.has("InitLife")) {
+        if (json.has("endurance") || json.has("InitLife") || json.has("initLife")) {
             JSONObject endJson = json.has("endurance") ? json.getJSONObject("endurance") : json;
+            double initLife = endJson.optDouble("initLife", endJson.optDouble("InitLife", 100.0));
             endurance = new EnduranceData(
-                    endJson.optDouble("InitLife", 100.0),
-                    endJson.optDouble("MaxLife", endJson.optDouble("InitLife", 100.0)),
-                    endJson.optDouble("CollisionDamageScale", 1.0)
+                    initLife,
+                    endJson.optDouble("maxLife", endJson.optDouble("MaxLife", initLife)),
+                    endJson.optDouble("collisionDamageScale", endJson.optDouble("CollisionDamageScale", 1.0))
             );
         }
 
         StateData state = null;
-        if (json.has("state") || json.has("HasEntranceAnimation") || json.has("AnimationFrames")) {
+        if (json.has("state") || json.has("HasEntranceAnimation") || json.has("AnimationFrames")
+                || json.has("hasEntranceAnimation") || json.has("animationFrames")) {
             JSONObject stateJson = json.has("state") ? json.getJSONObject("state") : json;
             int[] frames = null;
-            if (stateJson.has("AnimationFrames")) {
-                JSONArray framesArray = stateJson.getJSONArray("AnimationFrames");
+            String framesKey = stateJson.has("animationFrames") ? "animationFrames" :
+                               stateJson.has("AnimationFrames") ? "AnimationFrames" : null;
+            if (framesKey != null) {
+                JSONArray framesArray = stateJson.getJSONArray(framesKey);
                 frames = new int[framesArray.length()];
                 for (int i = 0; i < framesArray.length(); i++) {
                     frames[i] = framesArray.optInt(i, 1);
                 }
             }
             state = new StateData(
-                    stateJson.optBoolean("HasEntranceAnimation", false),
+                    stateJson.optBoolean("hasEntranceAnimation", stateJson.optBoolean("HasEntranceAnimation", false)),
                     frames
             );
         }
 
         XpData xp = null;
-        if (json.has("xp") || json.has("XPReward")) {
+        if (json.has("xp") || json.has("XPReward") || json.has("xpReward")) {
             JSONObject xpJson = json.has("xp") ? json.getJSONObject("xp") : json;
             xp = new XpData(
-                    xpJson.optInt("XPReward", 10),
-                    xpJson.optDouble("XpMultiplier", 1.2)
+                    xpJson.optInt("xpReward",    xpJson.optInt("XPReward", 10)),
+                    xpJson.optDouble("xpMultiplier", xpJson.optDouble("XpMultiplier", 1.2))
             );
         }
 
