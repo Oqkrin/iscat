@@ -58,6 +58,7 @@ public class EnemyAudioManager {
         return switch (eventType.toLowerCase().trim()) {
             case "hurt"  -> "generic_hurt";
             case "death" -> "generic_death";
+            case "attack" -> "shoot";
             default      -> null;                };
     }
 }
