@@ -53,7 +53,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             final double heavyDamage = entity.mass() * 5.0;
             final double lightDamage = entity.mass() * 2.0;
 
-            setOnCollision(other -> {
+            addOnCollision("velocityDamage",other -> {
                 if (other instanceof PlayerModel player) {
                     double speed = this.getLinearVelocity().getMagnitude();
                     if (speed > entity.maxVelocity() * 0.85) {

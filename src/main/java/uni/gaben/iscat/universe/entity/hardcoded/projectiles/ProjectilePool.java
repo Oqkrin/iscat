@@ -14,7 +14,7 @@ public class ProjectilePool {
         } else {
             poolSize.decrementAndGet();
             p.setInPool(false);
-            p.setOnCollision(null);
+            p.clearOnCollisions();
             p.setKilledByProjectile(false);
             p.setShouldRemove(false);
             p.setEnabled(true);

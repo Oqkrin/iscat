@@ -50,15 +50,14 @@ public abstract class Ability {
             case "heal":
                 return new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
             case "summon":
-                // Use SummonPatternShooter inside a ShootAbility? Or dedicated ability?
-                // For now, wrap in a ShootAbility with SummonPatternShooter.
-                PatternShooter summonShooter = new SummonPatternShooter(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex());
                 return new ShootAbility(ac.combatRange(), ac.cooldownSec(),
-                        ProjectileType.valueOf(ac.bulletType()), summonShooter,
+                        ProjectileType.valueOf(ac.bulletType()), new SummonPatternShooter(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex()),
                         target, ac.aimAtTarget(), ac.nerfPrediction());
             case "melee":
-                return new MeleeAbility<>(ac.type(), entity, ac.combatRange(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
-            default:
+                return new MeleeAbility<>(ac.type(), entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
+            case "kamikaze":
+                return new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);
+                default:
                 return null;
         }
     }

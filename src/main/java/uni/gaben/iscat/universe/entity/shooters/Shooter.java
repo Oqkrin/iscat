@@ -89,7 +89,7 @@ public class Shooter<T extends CollisionBody> {
     // -------------------------------------------------------------------------
 
     private void setupAndSpawn(AbstractProjectileModel p) {
-        p.setOnCollision(otherEntity -> {
+        p.addOnCollision( "projectileDamage", otherEntity -> {
             if (p.shouldRemove()) return;
             if (otherEntity instanceof AbstractProjectileModel) return; // proiettili non si colpiscono tra loro
 

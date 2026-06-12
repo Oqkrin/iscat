@@ -12,7 +12,7 @@ import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 public class StunThreadProjectileModel extends ProjectileModel {
 
     /** Default stun duration in seconds when not specified. */
-    private static final double DEFAULT_STUN_DURATION = 2.0;
+    private static final double DEFAULT_STUN_DURATION = 10;
 
     private final double stunDuration;
 
@@ -49,7 +49,7 @@ public class StunThreadProjectileModel extends ProjectileModel {
         setMaxEndurance(1.0);
 
         // Custom collision handler: apply stun to player, then vanish
-        setOnCollision(other -> {
+        addOnCollision("stun", other -> {
             if (other instanceof PlayerModel player) {
                 player.stun(stunDuration);
                 extinguish(true);

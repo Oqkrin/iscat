@@ -65,7 +65,7 @@ public class AsteroidModel extends AbstractEntityModel {
         this.currentDurability = this.maxDurability;
 
         // COLLISION MECHANISM
-        this.setOnCollision(other -> {
+        this.addOnCollision("projectile",other -> {
             if (this.shouldRemove()) return;
 
             if (other instanceof AbstractProjectileModel projectile) {

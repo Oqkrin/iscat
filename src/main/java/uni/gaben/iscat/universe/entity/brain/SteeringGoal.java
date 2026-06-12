@@ -13,14 +13,14 @@ public interface SteeringGoal {
 
     Vector2 computeDesiredVelocity(AbstractEntityModel self, UniverseModel universe, double dt);
 
-    static SteeringGoal createSteeringGoal(EntityRecord.SteeringRecord cfg) {
+    static SteeringGoal createSteeringGoal(EntityRecord.SteeringRecord steeringData) {
         Target target = Target.ofPlayer(); // could be extended to support other targets
-        return switch (cfg.type()) {
-            case "pursuit" -> SteeringGoal.pursuit(target, cfg.maxPredictionTime());
-            case "evade" -> SteeringGoal.evade(target, cfg.maxPredictionTime());
+        return switch (steeringData.type()) {
+            case "pursuit" -> SteeringGoal.pursuit(target, steeringData.maxPredictionTime());
+            case "evade" -> SteeringGoal.evade(target, steeringData.maxPredictionTime());
             case "pursuitWithRange" ->
-                    SteeringGoal.pursuitWithRange(target, cfg.maxPredictionTime(), cfg.minDistance(), cfg.maxDistance());
-            case "evadeWithRange" -> SteeringGoal.evadeWithRange(target, cfg.maxPredictionTime(), cfg.safetyDistance());
+                    SteeringGoal.pursuitWithRange(target, steeringData.maxPredictionTime(), steeringData.minDistance(), steeringData.maxDistance());
+            case "evadeWithRange" -> SteeringGoal.evadeWithRange(target, steeringData.maxPredictionTime(), steeringData.safetyDistance());
             default -> SteeringGoal.idle();
         };
     }

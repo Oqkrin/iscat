@@ -32,10 +32,13 @@ public class MeleeAbility<T extends AbstractEntityModel> extends Ability {
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
-        entity.setOnCollision(
+        entity.addOnCollision(
+                "Melee"
+                ,
                 other -> {
                     if(meleeCooldown.isReady() && targets.test(other) && other instanceof AbstractLivingEntityModel l) {
-                        l.damage(damage);
+                        System.out.println("hit player");
+                        l.damage(damage*entity.getLinearVelocity().getMagnitude());
                     }
                 }
         );
@@ -45,8 +48,8 @@ public class MeleeAbility<T extends AbstractEntityModel> extends Ability {
     @Override
     public boolean update(Brain<?> brain, UniverseModel world, double dt) {
         meleeCooldown.update(dt);
-        if(meleeCooldown.isCoolingDown() && entity.hasCollision()) {
-            entity.setOnCollision(null);
+        if(meleeCooldown.isCoolingDown() && entity.hasAnyCollision()) {
+            entity.removeOnCollision("Melee");
         }
         return true;
     }

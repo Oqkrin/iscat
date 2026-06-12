@@ -44,8 +44,8 @@ public class UniverseModel extends World<Body> {
                 AbstractEntityModel a = extractEntity(collision.getBody1());
                 AbstractEntityModel b = extractEntity(collision.getBody2());
                 if (a != null && b != null) {
-                    a.triggerCollision(b);
-                    b.triggerCollision(a);
+                    a.triggerAllCollisions(b);
+                    b.triggerAllCollisions(a);
                 }
             }
         });

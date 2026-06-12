@@ -41,7 +41,7 @@ public class IscatWormSegment extends EntityModel {
         setLinearDamping(getDamping(type));
         setAngularDamping(0.0); // Curve fulminee
         // In IscatWormSegment constructor
-        setOnCollision(other -> {
+        addOnCollision( "wormAttack", other -> {
             if (other instanceof PlayerModel player) {
                 if (type == Type.HEAD && canAttack()) {
                     double damage = IscatWormSettings.HEAD_ATTACK_POWER;

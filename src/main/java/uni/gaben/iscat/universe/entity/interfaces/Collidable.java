@@ -6,9 +6,14 @@ import java.util.function.Consumer;
 
 public interface Collidable {
     // ---- Collision callbacks ----
-    void setOnCollision(Consumer<AbstractEntityModel> onCollision);
+    void addOnCollision(String id, Consumer<AbstractEntityModel> onCollision);
 
-    boolean hasCollision();
+    boolean hasAnyCollision();
 
-    void triggerCollision(AbstractEntityModel other);
+    void triggerAllCollisions(AbstractEntityModel other);
+    void triggerCollision(String id, AbstractEntityModel other);
+
+    void clearOnCollisions();
+
+    void removeOnCollision(String melee);
 }

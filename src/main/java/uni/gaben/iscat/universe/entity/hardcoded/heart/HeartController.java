@@ -17,7 +17,7 @@ public class HeartController extends Brain<HeartModel> {
         this.heart = heart;
 
         // Collision callback
-        this.heart.setOnCollision(otherEntity -> {
+        this.heart.addOnCollision("consumable",otherEntity -> {
             if (otherEntity instanceof PlayerModel player && !collected) {
                 collected = true;
                 double halfMaxLife = player.getMaxEndurance() / 2.0;

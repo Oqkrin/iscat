@@ -355,8 +355,8 @@
       "InitLife": 50,
       "LinearDamping": 2,
       "mass": 1,
-      "MaxVelocity": 11,
-      "MaxForce": 40,
+      "MaxVelocity": 10,
+      "MaxForce": 100,
       "MaxAngularVelocity": 5,
       "XPReward": 5,
       "DetectionRange": 15,
@@ -375,12 +375,17 @@
           "type": "pursuit",
           "maxPredictionTime": 1
         },
-        "abilities": [],
+        "abilities": [
+          {
+            "type": "kamikaze",
+            "meleeDamage": "15"
+          }
+        ],
         "modifiers": [
           { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
           { "type": "alignment", "radius": 7.5, "weight": 1 },
           { "type": "cohesion", "radius": 7.5, "weight": 1 },
-          { "type": "separation", "radius": 3.75, "weight": 3 }
+          { "type": "separation", "radius": 3.75, "weight": 7 }
         ]
       }
     },

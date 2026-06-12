@@ -42,7 +42,7 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
 
         createFixture();
         setMass(MassType.NORMAL);
-        setOnCollision(this::absorbEntity);
+        addOnCollision("blackhole" ,this::absorbEntity);
     }
 
     public BlackHoleModel(double x, double y) {
