@@ -257,7 +257,7 @@
         "attack": [],
         "idle": [],
         "hurt": [],
-        "death": [],
+        "death": ["fake_iscat_death"],
         "spawn": []
       },"ai": {
       "steering": {

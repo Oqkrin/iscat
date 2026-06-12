@@ -11,6 +11,7 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseSpawner;
 import uni.gaben.iscat.universe.entity.consumables.heart.HeartModel;
+import uni.gaben.iscat.utils.EnemyAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 public abstract class AbstractLivingEntityModel extends AbstractEntityModel implements Alterable, hasXpReward {
@@ -77,10 +78,11 @@ public abstract class AbstractLivingEntityModel extends AbstractEntityModel impl
             boolean isPlayer = this instanceof PlayerModel;
             boolean isHeart = this instanceof HeartModel;
 
-            if (!silent && !isProjectile && !isHeart)
-                AudioManager.getInstance().playSFX("explosion");
-            if (isHeart)
-                AudioManager.getInstance().playSFX("heal");
+            if (!silent && !isProjectile && !isHeart) {
+                if (this instanceof EntityModel entityModel) {
+                    EnemyAudioManager.playEventAudio(entityModel, "death");
+                }
+            }
 
             if (!isHeart && !isProjectile && !isPlayer && killedByProjectile) {
                 SessionScoreTracker.getInstance().addDeaths(1);

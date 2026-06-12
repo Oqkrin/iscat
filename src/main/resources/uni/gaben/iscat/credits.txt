@@ -76,6 +76,10 @@ https://opengameart.org/content/evil-cyber-laugh
 JaggedStone (CC0)
 https://opengameart.org/content/magic-spell-sfx
 
+#FAKE ISCAT DEATH SOUND
+qubodup (CC0)
+https://opengameart.org/content/insect-or-alien-scream
+
 #SPECIAL THANKS
 Aseprite per averci permesso di disegnare
 SceneBuilder per la creazione dei menu tramite FXML
