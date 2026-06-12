@@ -114,9 +114,9 @@ public final class EntityRenderer {
     // ------------------------------------------------------------------
     private static void drawProjectileBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
         ProjectileModel p = (ProjectileModel) e;
-        double cx = UU.mToPx(e.getTransform().getTranslationX());   // if mToPx = identity, this is fine
+        double cx = UU.mToPx(e.getTransform().getTranslationX());
         double cy = UU.mToPx(e.getTransform().getTranslationY());
-        double w  = e.getWidthPx();   // make sure this is in world units (meters)
+        double w  = e.getWidthPx();
         double h  = e.getHeightPx();
 
         Vector2 vel = p.getLinearVelocity();
@@ -124,12 +124,19 @@ public final class EntityRenderer {
         double trailX2 = cx, trailY2 = cy;
         double trailWidth = h * 0.75;
         if (speed > 0.1) {
-            // old code used “backward” direction: from center to -vel*1.618
             trailX2 = cx - vel.x * 1.618;
             trailY2 = cy - vel.y * 1.618;
         }
 
-        batcher.addProjectile(cx, cy, w, h, p.getType().color,
+        Color baseColor = p.getType().color;
+        Color strokeColor = baseColor.darker();
+
+        double borderSize = 10.0;
+
+        batcher.addProjectile(cx, cy, w + borderSize, h + borderSize, strokeColor,
+                cx, cy, trailX2, trailY2, trailWidth + borderSize);
+
+        batcher.addProjectile(cx, cy, w, h, baseColor,
                 cx, cy, trailX2, trailY2, trailWidth);
     }
 
