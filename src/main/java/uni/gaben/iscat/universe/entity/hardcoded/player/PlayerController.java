@@ -5,6 +5,7 @@ import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.shooters.Shooter;
@@ -159,24 +160,35 @@ public class PlayerController {
 
     private void updateAttackPatternByLevel() {
         int level = player.getLevel();
-        double baseCd = PlayerSettings.COOLDOWN_FUOCO_SEC;
+        EntityRecord data = player.getEntityRecord();
 
-        if (level >= 10) {
-            this.currentAttack = new FigurePatternShooter(30, FigurePatternShooter.FigureType.STAR);
-            player.setCooldownFuocoSec(baseCd * 0.8);
-        } else if (level >= 7) {
-            this.currentAttack = new SpreadPatternShooter(7, 45.0);
-            player.setCooldownFuocoSec(baseCd * 0.85);
-        } else if (level >= 4) {
-            this.currentAttack = new SpreadPatternShooter(5, 30.0);
-            player.setCooldownFuocoSec(baseCd * 0.9);
-        } else if (level >= 2) {
-            this.currentAttack = new SpreadPatternShooter(3, 15.0);
-            player.setCooldownFuocoSec(baseCd * 0.95);
-        } else {
+        if (data == null || data.player() == null) {
+            // Fallback di sicurezza se il JSON non è caricato
             this.currentAttack = new SingleShotPatternShooter();
-            player.setCooldownFuocoSec(baseCd);
+            return;
         }
+
+        for (EntityRecord.LevelAbility ability : data.player().levelAbilities()) {
+            if (level >= ability.minLevel()) {
+
+                this.currentAttack = convertPatternRecordToShooter(ability.pattern());
+                player.setCooldownFuocoSec(ability.cooldownSec());
+                break;
+            }
+        }
+    }
+
+    private PatternShooter convertPatternRecordToShooter(EntityRecord.PatternRecord patternRecord) {
+        if (patternRecord == null) return new SingleShotPatternShooter();
+
+        return switch (patternRecord.type().toLowerCase()) {
+            case "spread" -> new SpreadPatternShooter(patternRecord.count(), patternRecord.angleStepDeg());
+            case "figure" -> {
+                var type = FigurePatternShooter.FigureType.valueOf(patternRecord.figureType().toUpperCase());
+                yield new FigurePatternShooter(patternRecord.count(), type);
+            }
+            default -> new SingleShotPatternShooter();
+        };
     }
 
     public PlayerModel getPlayer() {

@@ -7,10 +7,9 @@ import javafx.beans.property.SimpleIntegerProperty;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
-import org.dyn4j.geometry.MassType;
 
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
+import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
 import uni.gaben.iscat.universe.entity.interfaces.Progression;
@@ -37,20 +36,33 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     private final Thrust thrust;
     private Runnable onDeathCallback;
 
+    private final EntityRecord data;
+
     public void setOnDeathCallback(Runnable callback) {
         this.onDeathCallback = callback;
     }
 
-    public PlayerModel(double x, double y) {
-        super(x, y, new EntityRecordBuilder().build());
+    public PlayerModel(double x, double y, EntityRecord data) {
+        // Passiamo il record caricato alla classe astratta madre
+        super(x, y, data);
+        this.data = data;
 
-        double radiusInMeters = UU.pxToM(PlayerSettings.RAGGIO_COLLISIONE);
+        // Usiamo i dati dinamici dal JSON al posto di PlayerSettings
+        double radiusInMeters = UU.pxToM(data.frameW() / 2.5); // o usa un valore specifico
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters));
         fixture.setFilter(UniverseCollisionLayers.PLAYER_FILTER);
-        setMass(MassType.NORMAL);
-        setLinearDamping(PlayerSettings.LINEAR_DAMPING);
+
+        setMass(org.dyn4j.geometry.MassType.NORMAL);
+        // Imposta la massa reale dal JSON se necessario: this.getMass().setMass(data.mass());
+
+        setLinearDamping(data.linearDamping());
 
         thrust = new Thrust();
+
+        // Inizializziamo i cooldown usando i dati del record del player
+        if (data.player() != null) {
+            // Se necessario imposta la vita massima basandoti su data.initLife()
+        }
     }
 
     public void update(double dt) {
@@ -59,7 +71,10 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         weaponCooldown.update(dt);
         updateThrust();
         updateStateTime(dt);
-        setLinearDamping(isInScatto() ? PlayerSettings.LINEAR_DAMPING_SCATTO : PlayerSettings.LINEAR_DAMPING);
+
+        if (data.player() != null) {
+            setLinearDamping(isInScatto() ? 0.1 : data.linearDamping());
+        }
     }
 
     public void updateThrust() {
@@ -82,13 +97,17 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     public void executeScatto(double angle) {
+        if (data.player() == null) return;
+
         Vector2 dashDir = new Vector2(Math.cos(angle), Math.sin(angle));
         if (getLinearVelocity().dot(dashDir) < 0) {
             setLinearVelocity(new Vector2(0, 0));
         }
-        applyImpulse(dashDir.multiply(PlayerSettings.IMPULSO_SCATTO * getMass().getMass()));
-        dashDuration.start(PlayerSettings.DURATA_SCATTO_SEC);
-        dashCooldown.start(PlayerSettings.COOLDOWN_SCATTO_SEC);
+
+        // Usa l'impulso dal JSON
+        applyImpulse(dashDir.multiply(data.player().dashImpulse() * getMass().getMass()));
+        dashDuration.start(data.player().dashDurationSec());
+        dashCooldown.start(data.player().dashCooldownSec());
     }
 
     // LEVEL SYSTEM GETTERS

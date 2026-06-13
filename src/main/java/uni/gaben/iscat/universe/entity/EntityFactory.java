@@ -133,6 +133,10 @@ public class EntityFactory {
     private static EntityRecord parseEnemySettings(JSONObject json) {
         EntityRecordBuilder builder = new EntityRecordBuilder();
 
+        if (json.has("player")) {
+            builder.player(parsePlayerRecord(json.getJSONObject("player")));
+        }
+
         // Identity
         builder.entityKey(json.optString("EntityKey", ""))
                 .name(json.optString("Name", ""))
@@ -202,6 +206,33 @@ public class EntityFactory {
         }
 
         return builder.build();
+    }
+
+    private static EntityRecord.PlayerRecord parsePlayerRecord(JSONObject json) {
+        return new EntityRecord.PlayerRecord(
+                json.optDouble("dashImpulse", 30.0),
+                json.optDouble("dashDurationSec", 0.6),
+                json.optDouble("dashCooldownSec", 0.8),
+                json.optDouble("stunDurationSec", 1.0),
+                json.optDouble("baseCooldownSec", 0.3),
+                parseLevelAbilities(json.optJSONArray("levelAbilities"))
+        );
+    }
+
+    private static List<EntityRecord.LevelAbility> parseLevelAbilities(JSONArray arr) {
+        List<EntityRecord.LevelAbility> list = new ArrayList<>();
+        if (arr == null) return list;
+
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.getJSONObject(i);
+            int minLevel = obj.optInt("minLevel", 1);
+            double cooldownSec = obj.optDouble("cooldownSec", 0.3);
+            EntityRecord.PatternRecord pattern = parsePattern(obj.optJSONObject("pattern"));
+
+            list.add(new EntityRecord.LevelAbility(minLevel, pattern, cooldownSec));
+        }
+        list.sort((a, b) -> Integer.compare(b.minLevel(), a.minLevel()));
+        return list;
     }
 
     private static EntityRecord.BrainRecord parseBrain(JSONObject aiJson) {

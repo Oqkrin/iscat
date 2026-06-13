@@ -52,7 +52,13 @@ public class UniverseSpawner {
     }
 
     public PlayerModel spawnPlayer(double x, double y) {
-        PlayerModel player = new PlayerModel(x, y);
+        EntityRecord playerRecord = EntityFactory.getCache().get("player");
+
+        if (playerRecord == null) {
+            System.err.println("[UniverseSpawner] ERRORE CRITICO: Il record 'player' non è presente nella cache della EntityFactory!");
+        }
+
+        PlayerModel player = new PlayerModel(x, y, playerRecord);
         model.setPlayer(player);
         return player;
     }
