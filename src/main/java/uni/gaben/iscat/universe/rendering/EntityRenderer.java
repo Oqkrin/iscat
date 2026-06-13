@@ -135,7 +135,6 @@ public final class EntityRenderer {
 
         batcher.addProjectile(cx, cy, w + borderSize, h + borderSize, strokeColor,
                 cx, cy, trailX2, trailY2, trailWidth + borderSize);
-
         batcher.addProjectile(cx, cy, w, h, baseColor,
                 cx, cy, trailX2, trailY2, trailWidth);
     }

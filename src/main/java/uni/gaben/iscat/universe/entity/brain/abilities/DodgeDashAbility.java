@@ -82,6 +82,8 @@ public class DodgeDashAbility extends Ability {
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
         AbstractEntityModel self = brain.getEntity();
+        self.setTemporaryTerminalVelocity(self.getTerminalVelocity()*3);
+        self.setDashLinearDamping(0);
 
         // Find the most imminent threat again (or re-use from canActivate, but we recompute for safety)
         List<AbstractEntityModel> threats = threatSupplier.getEntities(world);
@@ -147,6 +149,10 @@ public class DodgeDashAbility extends Ability {
     public boolean update(Brain<?> brain, UniverseModel world, double dt) {
         dashCooldown.update(dt);
         dashDuration.update(dt);
+        if (dashDuration.isReady()) {
+           brain.getEntity().setTemporaryTerminalVelocity(-1);
+           brain.getEntity().restoreLinearDamping();
+        }
         return dashDuration.isCoolingDown(); // true while dashing
     }
 }

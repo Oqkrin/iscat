@@ -59,7 +59,7 @@ public abstract class Ability {
             case "kamikaze":
                 return new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);
             case "dash":
-                return new DodgeDashAbility(entity, ac.dashCooldownMS(), ac.dashDurationMS(), ac.dashPrediction(), ac.dashAvoidRange(), ac.dashImpulse(),Target.neighboursCached(entity, ac.dashAvoidRange(), body -> body instanceof ProjectileModel pm && pm.getType() == ProjectileType.PLAYER_BULLET));
+                return new DodgeDashAbility(entity, ac.dashCooldownMS()/1000, ac.dashDurationMS()/1000, ac.dashPrediction(), ac.dashAvoidRange(), ac.dashImpulse(),Target.neighboursCached(entity, ac.dashAvoidRange(), body -> body instanceof ProjectileModel pm && pm.getType() == ProjectileType.PLAYER_BULLET));
             case "plunge" :
                 return new PlungeAbility(
                         entity,

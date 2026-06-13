@@ -146,8 +146,8 @@
         "rotation": {
           "type": "intervalSpin",
           "spinSteps": 8,
-          "stepPauseSec": 0.08,
-          "spinSpeedRadPerSec": 5
+          "stepPauseSec": 2,
+          "spinSpeedRadPerSec": 3
         },
         "abilities": [
           {
@@ -622,8 +622,8 @@
       "InitLife": 300,
       "LinearDamping": 2,
       "mass": 1,
-      "MaxVelocity": 12,
-      "MaxForce": 50,
+      "MaxVelocity": 13,
+      "MaxForce": 100,
       "MaxAngularVelocity": 5,
       "XPReward": 30,
       "DetectionRange": 30,
@@ -640,6 +640,9 @@
       "steering": {
         "type": "Orbit"
       },
+      "rotation": {
+        "type": "movement"
+      },
       "abilities": [
         {     "type": "dash",
           "dashCooldownMS": 2000,
@@ -651,7 +654,7 @@
         {
           "type": "plunge",
           "plungeCooldownMS": 2000,
-          "dashDurationMS": 500,
+          "dashDurationMS": 2000,
           "dashPrediction": 1.5,
           "dashAvoidRange": 50,
           "dashImpulse": 1200

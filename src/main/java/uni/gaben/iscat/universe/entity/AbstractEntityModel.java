@@ -56,7 +56,6 @@ public abstract class AbstractEntityModel extends Body implements Dynamic, Updat
         collisionEffects.get(id).accept(other);
     }
     // ---- Physical capability getters (delegated to definition) ----
-    @Override public double getTerminalVelocity() { return entity.maxVelocity(); }
     @Override public double getAcceleration() { return entity.maxForce(); }
     @Override
     public double getMaxAngularVelocity() { return entity.maxAngularVelocity(); }
@@ -99,4 +98,31 @@ public abstract class AbstractEntityModel extends Body implements Dynamic, Updat
     public void removeOnCollision(String id) {
         collisionEffects.remove(id);
     }
+
+        private double tempTerminalVelocity = -1;   // -1 = use default
+        private double originalLinearDamping;       // to restore after dash
+
+        // Override getTerminalVelocity to return temporary value if set
+        @Override
+        public double getTerminalVelocity() {
+            return tempTerminalVelocity >= 0 ? tempTerminalVelocity : entity.maxVelocity();
+        }
+
+        public void setTemporaryTerminalVelocity(double tempTerminalVelocity) {
+            this.tempTerminalVelocity = tempTerminalVelocity;
+        }
+
+        public void restoreTerminalVelocity() {
+            this.tempTerminalVelocity = -1;
+        }
+
+        // Store current linear damping before dash, then set new one
+        public void setDashLinearDamping(double damping) {
+            this.originalLinearDamping = this.getLinearDamping();
+            this.setLinearDamping(damping);
+        }
+
+        public void restoreLinearDamping() {
+            this.setLinearDamping(originalLinearDamping);
+        }
 }

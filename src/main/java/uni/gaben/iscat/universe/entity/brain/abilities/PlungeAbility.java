@@ -46,15 +46,14 @@ public class PlungeAbility extends Ability {
     @Override
     public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
         if (plungeCooldown.isCoolingDown()) return false;
-        if (plungeDuration.isCoolingDown()) return false;
-
-        List<? extends AbstractEntityModel> targets = plungeTarget.getEntities(world);
-        return targets != null && !targets.isEmpty();
+        return !plungeDuration.isCoolingDown();
     }
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
         AbstractEntityModel self = brain.getEntity();
+        self.setTemporaryTerminalVelocity(self.getTerminalVelocity()*3);
+        self.setDashLinearDamping(0);
 
         List<? extends AbstractEntityModel> targets = plungeTarget.getEntities(world);
         if (targets == null || targets.isEmpty()) return;
@@ -95,6 +94,10 @@ public class PlungeAbility extends Ability {
     public boolean update(Brain<?> brain, UniverseModel world, double dt) {
         plungeCooldown.update(dt);
         plungeDuration.update(dt);
+        if (plungeDuration.isReady()) {
+            brain.getEntity().restoreLinearDamping();
+            brain.getEntity().setTemporaryTerminalVelocity(-1);
+        }
         return plungeDuration.isCoolingDown(); // true while plunging (e.g., for i‑frames)
     }
 }
