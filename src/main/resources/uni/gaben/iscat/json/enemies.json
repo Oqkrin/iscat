@@ -16,9 +16,9 @@
       "MaxForce": 30,
       "MaxAngularVelocity": 5,
       "XPReward": 10,
-      "DetectionRange": 15,
-      "CombatRange": 10,
-      "PreferredRange": 10,
+      "DetectionRange": 10,
+      "CombatRange": 5,
+      "PreferredRange": 7,
       "actionCooldownS": 800,
       "audio": {
         "attack": [],
@@ -31,8 +31,8 @@
         "steering": {
           "type": "pursuitWithRange",
           "maxPredictionTime": 2.5,
-          "minDistance": 10,
-          "maxDistance": 10
+          "minDistance": 5,
+          "maxDistance": 9
         },
         "rotation": { "type": "target", "target": "player" },
         "abilities": [
@@ -72,8 +72,8 @@
       "MaxAngularVelocity": 5,
       "XPReward": 20,
       "DetectionRange": 20,
-      "CombatRange": 20,
-      "PreferredRange": 15,
+      "CombatRange": 10,
+      "PreferredRange": 12,
       "actionCooldownS": 800,
       "audio": {
         "attack": [],
@@ -86,8 +86,8 @@
         "steering": {
           "type": "pursuitWithRange",
           "maxPredictionTime": 5,
-          "minDistance": 20,
-          "maxDistance": 20
+          "minDistance": 7,
+          "maxDistance": 12
         },
         "rotation": { "type": "target", "target": "player" },
         "abilities": [
@@ -206,8 +206,8 @@
       "steering": {
         "type": "pursuitWithRange",
         "maxPredictionTime": 3,
-        "minDistance": 20,
-        "maxDistance": 20
+        "minDistance": 10,
+        "maxDistance": 15
       },
       "abilities": [
         {
@@ -263,8 +263,8 @@
       "steering": {
         "type": "pursuitWithRange",
         "maxPredictionTime": 2,
-        "minDistance": 40,
-        "maxDistance": 40
+        "minDistance": 7,
+        "maxDistance": 15
       },
       "abilities": [
         {
@@ -373,12 +373,12 @@
       "ai": {
         "steering": {
           "type": "pursuit",
-          "maxPredictionTime": 1
+          "maxPredictionTime": 0.5
         },
         "abilities": [
           {
             "type": "kamikaze",
-            "meleeDamage": "15"
+            "meleeDamage": 20
           }
         ],
         "modifiers": [
@@ -425,7 +425,7 @@
         "abilities": [
           {
             "type": "kamikaze",
-            "meleeDamage": "50"
+            "meleeDamage": 50
           }
         ],
         "modifiers": [
@@ -464,7 +464,7 @@
         "death": [],
         "spawn": []
       },"ai": {
-      "steering": { "type": "idle" },
+      "steering": { "type": "pursuit" },
       "abilities": [],
       "modifiers": [
         { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },

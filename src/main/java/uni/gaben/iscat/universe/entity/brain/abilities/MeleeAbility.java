@@ -27,7 +27,7 @@ public class MeleeAbility<T extends AbstractEntityModel> extends Ability {
                 "Melee",
                 other -> {
                     if(meleeCooldown.isReady() && targets.test(other) && other instanceof AbstractLivingEntityModel l) {
-                        l.damage(damage*entity.getLinearVelocity().getMagnitude());
+                        l.damage(damage*entity.getLinearVelocity().getMagnitude()/5);
                     }
                 }
         );
