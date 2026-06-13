@@ -1,8 +1,8 @@
 {
-  "EntityKey": "player",
+  "EntityKey": "player3",
   "Name": "Gaben",
   "Description": "Il protagonista dell'universo ISCAT.",
-  "SpriteName": "player1",
+  "SpriteName": "player3",
   "FrameW": 64,
   "FrameH": 64,
   "ShapeType": "CIRCLE",

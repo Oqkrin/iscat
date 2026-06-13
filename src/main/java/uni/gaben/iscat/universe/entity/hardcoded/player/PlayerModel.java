@@ -207,7 +207,7 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     // ---- HasSprite implementation ----
     @Override
     public String getSpritePath() {
-        return PlayerSettings.getPlayerSkin();
+        return this.getEntityRecord() != null ? this.getEntityRecord().spritePath() : PlayerSettings.getPlayerSkin();
     }
 
     @Override

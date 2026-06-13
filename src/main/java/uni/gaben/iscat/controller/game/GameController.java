@@ -9,6 +9,7 @@ import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
@@ -42,12 +43,14 @@ public class GameController {
     }
 
     private void setupUniverse() {
-        var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath);
+        String currentSkinKey = PlayerSettings.getPlayerSkinKey();
+
+        var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath, currentSkinKey);
         this.universeController = bundle.universeController();
         this.waveController = bundle.waveController();
         this.universeController.setEntityDeathListener(this::onEntityDied);
         this.universeController.getPlayerController().setGameModel(gameModel);
-        this.waveController.setOnBossDeadCallback(this::notifyBossDead); // sempre sul nuovo waveController
+        this.waveController.setOnBossDeadCallback(this::notifyBossDead);
     }
 
     private void tick(double dt) {

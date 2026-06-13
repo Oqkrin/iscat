@@ -9,10 +9,10 @@ import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegmentBrain;
 import uni.gaben.iscat.universe.entity.hardcoded.blackhole.BlackHoleBrain;
 import uni.gaben.iscat.universe.entity.hardcoded.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.universe.entity.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 
-import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -42,8 +42,8 @@ public class UniverseSpawner {
 
     public Object spawn(UniverseSpawnable type, double x, double y) {
         return switch (type) {
-            case PLAYER            -> spawnPlayer(x, y);
-            case ASTEROID          -> spawnEntity(new AsteroidModel(x, y)); // simplified, adjust as needed
+            case PLAYER            -> spawnPlayer(x, y, PlayerSettings.getPlayerSkinKey());
+            case ASTEROID          -> spawnEntity(new AsteroidModel(x, y));
             case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
             case WORM              -> spawnWorm(x, y);
@@ -51,11 +51,18 @@ public class UniverseSpawner {
         };
     }
 
-    public PlayerModel spawnPlayer(double x, double y) {
-        EntityRecord playerRecord = EntityFactory.getCache().get("player");
+    public PlayerModel spawnPlayer(double x, double y, String skinKey) {
+        String key = (skinKey == null || skinKey.isBlank()) ? "player1" : skinKey.toLowerCase().trim();
+
+        EntityRecord playerRecord = EntityFactory.getCache().get(key);
 
         if (playerRecord == null) {
-            System.err.println("[UniverseSpawner] ERRORE CRITICO: Il record 'player' non è presente nella cache della EntityFactory!");
+            System.err.println("[UniverseSpawner] Skin '" + key + "' non trovata nella cache della Factory! Uso 'player1' come fallback.");
+            playerRecord = EntityFactory.getCache().get("player1");
+        }
+
+        if (playerRecord == null) {
+            throw new RuntimeException("[UniverseSpawner] ERRORE CRITICO: Nemmeno la skin di fallback 'player1' è stata caricata!");
         }
 
         PlayerModel player = new PlayerModel(x, y, playerRecord);
@@ -109,8 +116,7 @@ public class UniverseSpawner {
             if (jsonEntity.getEntity().isBoss()) {
                 jsonEntity.setWaveController(this.waveController);
             }
-                    }
+        }
         return jsonEntity;
     }
-
 }

@@ -14,7 +14,6 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +31,9 @@ public class SkinMenuController implements IscatMenuController {
 
     private StackPane contentRoot;
     private String selectedSkinPath;
+
+    private String selectedSkinKey = "player1";
+
     private AnimatedCanvas previewCanvas;
     private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
 
@@ -51,13 +53,14 @@ public class SkinMenuController implements IscatMenuController {
         previewCanvas = new AnimatedCanvas(BASE_SIZE);
         previewContainer.getChildren().add(previewCanvas);
 
-        // Iniezione Icone stabili sui tasti di controllo
         ComponentsUtils.applyIconButton(confirmBtn, "fas-check");
         ComponentsUtils.applyIconButton(randomBtn,  "fas-dice");
         ComponentsUtils.applyIconButton(cancelBtn,  "fas-arrow-left");
 
         populateGrid();
 
+        // Stato iniziale basato su player1
+        this.selectedSkinKey = "player1";
         this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
         this.skinNameLabel.setText(SKIN_NAMES[0].toUpperCase());
         previewCanvas.loadSkin(selectedSkinPath);
@@ -101,7 +104,6 @@ public class SkinMenuController implements IscatMenuController {
         previewBox.setMinSize(previewDim + 100, previewDim + 150);
         previewBox.setPrefWidth(previewDim + 100);
 
-        // Rilascia il blocco alla fine dell'evento di rendering corrente
         Platform.runLater(() -> isScaling = false);
     }
 
@@ -118,6 +120,7 @@ public class SkinMenuController implements IscatMenuController {
 
         for (int i = 0; i < TOTAL_SKINS; i++) {
             int num = i + 1;
+            String key = "player" + num;
             String path = "/uni/gaben/iscat/sprites/players/player" + num + ".png";
             String name = SKIN_NAMES[i];
 
@@ -134,13 +137,15 @@ public class SkinMenuController implements IscatMenuController {
             btn.setPrefSize(initialDim, initialDim);
             btn.setMaxSize(initialDim, initialDim);
 
-            btn.setOnAction(e -> selectSkin(path, name));
+            // Passiamo anche la chiave del player all'azione di selezione
+            btn.setOnAction(e -> selectSkin(key, path, name));
 
             skinGrid.add(btn, i % 3, i / 3);
         }
     }
 
-    private void selectSkin(String path, String name) {
+    private void selectSkin(String key, String path, String name) {
+        this.selectedSkinKey = key;
         this.selectedSkinPath = path;
         this.skinNameLabel.setText(name.toUpperCase());
         previewCanvas.loadSkin(path);
@@ -151,13 +156,15 @@ public class SkinMenuController implements IscatMenuController {
     @FXML
     private void selectRandom() {
         int idx;
+        String key;
         String path;
         do {
             idx = java.util.concurrent.ThreadLocalRandom.current().nextInt(TOTAL_SKINS);
-            path = STR."/uni/gaben/iscat/sprites/players/player\{idx + 1}.png";
+            key = "player" + (idx + 1);
+            path = "/uni/gaben/iscat/sprites/players/player" + (idx + 1) + ".png";
         } while (path.equals(selectedSkinPath));
 
-        selectSkin(path, SKIN_NAMES[idx]);
+        selectSkin(key, path, SKIN_NAMES[idx]);
     }
 
     @Override
@@ -168,8 +175,18 @@ public class SkinMenuController implements IscatMenuController {
 
     @FXML
     private void handleConfirm(ActionEvent event) {
-        if (selectedSkinPath != null) {
+        if (selectedSkinPath != null && selectedSkinKey != null) {
+            // Salva i dati globali nei settings del Player
             PlayerSettings.setPlayerSkin(selectedSkinPath);
+            PlayerSettings.setPlayerSkinKey(selectedSkinKey);
+
+            // Sincronizzazione con il database
+            //TODO
+            try {
+                System.out.println("[SkinMenu] Salvata skin nel Database: " + selectedSkinKey);
+            } catch (Exception ex) {
+                System.err.println("[SkinMenu] Impossibile salvare la skin nel DB: " + ex.getMessage());
+            }
         }
         handleBack();
     }

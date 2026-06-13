@@ -26,6 +26,7 @@ public class EntityFactory {
     private static final Map<String, EntityRecord> cache = new ConcurrentHashMap<>();
 
     private static final String ENEMIES_DIR = "/uni/gaben/iscat/json/enemies/";
+    private static final String PLAYERS_DIR = "/uni/gaben/iscat/json/players/";
 
     public static EntityModel spawn(
             String entityKey,
@@ -55,63 +56,69 @@ public class EntityFactory {
     public static CompletableFuture<Void> preloadAllAsync() {
         return CompletableFuture.runAsync(() -> {
             cache.clear();
-            int loadedCount = 0;
 
-            try {
-                // Troviamo l'URL della cartella usando il ClassLoader
-                URL dirUrl = EntityFactory.class.getResource(ENEMIES_DIR);
-                if (dirUrl == null) {
-                    throw new RuntimeException("Cartella dei nemici non trovata: " + ENEMIES_DIR);
-                }
+            // Scansioniamo ed estraiamo i file da entrambe le cartelle
+            int enemiesLoaded = scanAndLoadDirectory(ENEMIES_DIR);
+            int playersLoaded = scanAndLoadDirectory(PLAYERS_DIR);
 
-                URI uri = dirUrl.toURI();
-                Path myPath;
-
-                // Gestiamo il caso in cui siamo dentro un JAR o in ambiente di sviluppo (IDE)
-                if (uri.getScheme().equals("jar")) {
-                    FileSystem fileSystem;
-                    try {
-                        fileSystem = FileSystems.getFileSystem(uri);
-                    } catch (FileSystemNotFoundException e) {
-                        // Se il file system del JAR non è ancora aperto, lo apriamo
-                        fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
-                    }
-                    myPath = fileSystem.getPath(ENEMIES_DIR);
-                } else {
-                    myPath = Paths.get(uri);
-                }
-
-                // Scansioniamo dinamicamente tutti i file .json nella cartella
-                try (Stream<Path> walk = Files.walk(myPath, 1)) {
-                    List<Path> jsonFiles = walk
-                            .filter(Files::isRegularFile)
-                            .filter(p -> p.toString().endsWith(".json"))
-                            .toList();
-
-                    for (Path filePath : jsonFiles) {
-                        // Leggiamo il contenuto del file corrente
-                        String jsonText = Files.readString(filePath);
-
-                        JSONObject jsonEnemy = new JSONObject(jsonText);
-                        EntityRecord record = parseEnemySettings(jsonEnemy);
-
-                        // Usiamo la EntityKey estratta direttamente dal file stesso!
-                        if (record.entityKey() != null && !record.entityKey().isEmpty()) {
-                            String finalKey = record.entityKey().toLowerCase().trim();
-                            cache.put(finalKey, record);
-                            loadedCount++;
-                        }
-                    }
-                }
-
-                System.out.println("[EntityFactory] Scansione automatica completata. Caricati " + loadedCount + " nemici.");
-
-            } catch (Exception ex) {
-                System.err.println("[EntityFactory] Errore critico durante il caricamento dinamico dei nemici: " + ex.getMessage());
-                ex.printStackTrace();
-                throw new RuntimeException(ex);
-            }
+            System.out.println("[EntityFactory] Cache JSON pronta.");
+            System.out.println(" -> Nemici caricati: " + enemiesLoaded);
+            System.out.println(" -> Skin Giocatore caricate: " + playersLoaded);
         });
+    }
+
+    /**
+     * Metodo helper generico che scansiona una cartella di risorse (sia IDE che JAR)
+     * e popola la cache usando le EntityKey interne ai file JSON.
+     */
+    private static int scanAndLoadDirectory(String dirPath) {
+        int loadedCount = 0;
+        try {
+            URL dirUrl = EntityFactory.class.getResource(dirPath);
+            if (dirUrl == null) {
+                System.err.println("[EntityFactory] Cartella di risorse non trovata: " + dirPath);
+                return 0;
+            }
+
+            URI uri = dirUrl.toURI();
+            Path myPath;
+
+            if (uri.getScheme().equals("jar")) {
+                FileSystem fileSystem;
+                try {
+                    fileSystem = FileSystems.getFileSystem(uri);
+                } catch (FileSystemNotFoundException e) {
+                    fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                }
+                myPath = fileSystem.getPath(dirPath);
+            } else {
+                myPath = Paths.get(uri);
+            }
+
+            try (Stream<Path> walk = Files.walk(myPath, 1)) {
+                List<Path> jsonFiles = walk
+                        .filter(Files::isRegularFile)
+                        .filter(p -> p.toString().endsWith(".json"))
+                        .collect(Collectors.toList());
+
+                for (Path filePath : jsonFiles) {
+                    String jsonText = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+                    JSONObject json = new JSONObject(jsonText);
+
+                    EntityRecord record = parseEnemySettings(json);
+
+                    if (record.entityKey() != null && !record.entityKey().isEmpty()) {
+                        String finalKey = record.entityKey().toLowerCase().trim();
+                        cache.put(finalKey, record);
+                        loadedCount++;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("[EntityFactory] Errore critico nella scansione di " + dirPath + ": " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return loadedCount;
     }
 
     private static EntityRecord loadRecord(String entityKey) {
@@ -133,25 +140,20 @@ public class EntityFactory {
     private static EntityRecord parseEnemySettings(JSONObject json) {
         EntityRecordBuilder builder = new EntityRecordBuilder();
 
-        if (json.has("player")) {
-            builder.player(parsePlayerRecord(json.getJSONObject("player")));
-        }
-
         // Identity
         builder.entityKey(json.optString("EntityKey", ""))
                 .name(json.optString("Name", ""))
                 .description(json.optString("Description", ""));
 
-        // Threat
-        //int threat = json.optInt("threatLevel", 1);
-        // builder.threatLevel(threat);
-
-        // Sprite path
+        // Sprite path (Dinamico: cambia cartella in base al tipo di entità)
         String spriteName = json.optString("SpriteName", "").trim();
         if (spriteName.toLowerCase().endsWith(".png")) {
             spriteName = spriteName.substring(0, spriteName.length() - 4);
         }
-        builder.spritePath("/uni/gaben/iscat/sprites/enemies/" + spriteName + ".png");
+
+        // Se contiene il blocco "player", la skin si trova in /sprites/players/, altrimenti in /sprites/enemies/
+        String spriteFolder = json.has("player") ? "players" : "enemies";
+        builder.spritePath("/uni/gaben/iscat/sprites/" + spriteFolder + "/" + spriteName + ".png");
 
         // Visual
         builder.frameW(json.optInt("FrameW", 32))
@@ -168,7 +170,7 @@ public class EntityFactory {
                 .maxAngularVelocity(json.optDouble("MaxAngularVelocity", 5.0))
                 .xpReward(json.optInt("XPReward", 10));
 
-        // Behavioural
+        // Behavioural (Range e Cooldown generali)
         builder.detectionRange(json.optDouble("DetectionRange", 15.0))
                 .combatRange(json.optDouble("CombatRange", 10.0))
                 .preferredRange(json.optDouble("PreferredRange", 10.0))
@@ -188,7 +190,7 @@ public class EntityFactory {
             builder.animationFrames(frames);
         }
 
-        // Audio
+        // Audio Profiles
         if (json.has("audio")) {
             JSONObject audioJson = json.getJSONObject("audio");
             builder.audio(new EntityRecord.AudioProfile(
@@ -200,9 +202,14 @@ public class EntityFactory {
             ));
         }
 
-        // AI (optional)
+        // AI configuration
         if (json.has("ai")) {
             builder.brain(parseBrain(json.getJSONObject("ai")));
+        }
+
+        // Configurazione specifica del Player
+        if (json.has("player")) {
+            builder.player(parsePlayerRecord(json.getJSONObject("player")));
         }
 
         return builder.build();
@@ -210,8 +217,8 @@ public class EntityFactory {
 
     private static EntityRecord.PlayerRecord parsePlayerRecord(JSONObject json) {
         return new EntityRecord.PlayerRecord(
-                json.optDouble("dashImpulse", 30.0),
-                json.optDouble("dashDurationSec", 0.6),
+                json.optDouble("dashImpulse", 35.0),
+                json.optDouble("dashDurationSec", 0.666),
                 json.optDouble("dashCooldownSec", 0.8),
                 json.optDouble("stunDurationSec", 1.0),
                 json.optDouble("baseCooldownSec", 0.3),
@@ -227,10 +234,12 @@ public class EntityFactory {
             JSONObject obj = arr.getJSONObject(i);
             int minLevel = obj.optInt("minLevel", 1);
             double cooldownSec = obj.optDouble("cooldownSec", 0.3);
+
             EntityRecord.PatternRecord pattern = parsePattern(obj.optJSONObject("pattern"));
 
             list.add(new EntityRecord.LevelAbility(minLevel, pattern, cooldownSec));
         }
+
         list.sort((a, b) -> Integer.compare(b.minLevel(), a.minLevel()));
         return list;
     }

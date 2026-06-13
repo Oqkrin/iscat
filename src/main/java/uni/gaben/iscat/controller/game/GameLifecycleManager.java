@@ -25,9 +25,10 @@ public class GameLifecycleManager {
      * Resets the entire universe physics state and recreates necessary controllers.
      *
      * @param onPlayerDeath Callback to execute when the player dies.
+     * @param skinKey       The key of the selected skin (e.g., "player1", "player2", etc.)
      * @return The freshly constructed UniverseController and UniverseWaveController.
      */
-    public GameControllers resetUniverse(Runnable onPlayerDeath) {
+    public GameControllers resetUniverse(Runnable onPlayerDeath, String skinKey) {
         CameraModel camera = gameModel.getCameraModel();
         double canvasW = camera.getScreenWidth();
         double canvasH = camera.getScreenHeight();
@@ -51,10 +52,12 @@ public class GameLifecycleManager {
         // 3. Re‑initialise the UniverseSpawner with the new universe and controllers
         UniverseSpawner.getInstance().init(newUniverse, newUniverseController, newWaveController);
 
-        // 4. Spawn player and asteroids
+        // 4. Spawn player with the specified skin and asteroids
         double midX = canvasW / 2.0;
         double midY = canvasH / 2.0;
-        UniverseSpawner.getInstance().spawnPlayer(midX, midY);
+
+        UniverseSpawner.getInstance().spawnPlayer(midX, midY, skinKey);
+
         AsteroidMazeGenerator asteroidMazeGenerator = new AsteroidMazeGenerator();
         asteroidMazeGenerator.generate(midX, midY);
 
