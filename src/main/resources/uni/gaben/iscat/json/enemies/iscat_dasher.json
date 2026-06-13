@@ -1,0 +1,58 @@
+{
+  "EntityKey": "iscat_dasher",
+  "Name": "Iscat Dasher",
+  "Description": "Nessuno riesce a capire\nse Iscat Dasher stia attaccando\noppure abbia semplicemente dimenticato\ncome frenare.",
+  "SpriteName": "iscat_dasher_S",
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 300,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 13,
+  "MaxForce": 100,
+  "MaxAngularVelocity": 5,
+  "XPReward": 30,
+  "DetectionRange": 30,
+  "CombatRange": 5,
+  "PreferredRange": 9,
+  "actionCooldownS": 1200,
+  "audio": {
+    "attack": [],
+    "idle": [],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  },"ai": {
+  "steering": {
+    "type": "Orbit"
+  },
+  "rotation": {
+    "type": "movement"
+  },
+  "abilities": [
+    {     "type": "dash",
+      "dashCooldownMS": 2000,
+      "dashDurationMS": 1000,
+      "dashPrediction": 1.2,
+      "dashAvoidRange": 20,
+      "dashImpulse": 800
+    },
+    {
+      "type": "plunge",
+      "plungeCooldownMS": 2000,
+      "dashDurationMS": 2000,
+      "dashPrediction": 1.5,
+      "dashAvoidRange": 50,
+      "dashImpulse": 1200
+    },
+    { "type": "melee", "meleeDamage": 30}
+  ],
+  "modifiers": [
+    { "type": "collisionAvoidance", "radius": 7.5, "weight": 30, "maxPredictionTime": 10, "avoidRadius": 7.0 },
+    { "type": "alignment", "radius": 7.5, "weight": 0.5 },
+    { "type": "cohesion", "radius": 7.5, "weight": 0.5 },
+    { "type": "separation", "radius": 3.75, "weight": 10 }
+  ]    }
+}

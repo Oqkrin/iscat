@@ -1,0 +1,46 @@
+{
+  "EntityKey": "eater",
+  "Name": "Eater",
+  "Description": "Descrizione Eater\nCreatura classificata come ENTITÀ DI LIVELLO: [REDACTED].\nDimensioni corporee instabili. Fame: apparentemente infinita.\nComportamento: estremamente aggressivo.\nEater consuma qualsiasi forma di materia trovata nelle vicinanze.\nCarne, metallo, energia, rocce, tecnologia, [REDACTED], perfino oggetti normalmente impossibili da ingerire.\nNon sembra possedere un reale limite biologico.\nOsservazioni dirette riportano: denti [REDACTED], rumori corporei [REDACTED],\nodore classificato come [REDACTED], fluidi non identificati di origine [REDACTED].\nÈ severamente sconsigliato avvicinarsi oltre il raggio di sicurezza.\nIncidenti registrati: [REDACTED]\nVittime confermate: [REDACTED]\nTentativi di contenimento riusciti: 0\nUltima frase trasmessa da uno Space Explorer:\nOH NO, STA [REDACTED] MANGIANDO IL MIO [REDACTED] AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.\n[NUOVE MISURE ANTI EATER SONO INSTALLATE NEGLI ULTIMI MODELLI DI ASTRONAVE]",
+  "SpriteName": "eater",
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 50,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 10,
+  "MaxForce": 100,
+  "MaxAngularVelocity": 5,
+  "XPReward": 5,
+  "DetectionRange": 15,
+  "CombatRange": 5,
+  "PreferredRange": 5,
+  "actionCooldownS": 500,
+  "audio": {
+    "attack": [],
+    "idle": [],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  },
+  "ai": {
+    "steering": {
+      "type": "pursuit",
+      "maxPredictionTime": 1
+    },
+    "abilities": [
+      {
+        "type": "kamikaze",
+        "meleeDamage": "15"
+      }
+    ],
+    "modifiers": [
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+      { "type": "alignment", "radius": 7.5, "weight": 1 },
+      { "type": "cohesion", "radius": 7.5, "weight": 1 },
+      { "type": "separation", "radius": 3.75, "weight": 7 }
+    ]
+  }
+}

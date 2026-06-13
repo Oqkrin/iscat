@@ -1,0 +1,28 @@
+{
+  "EntityKey": "iscat_worm_body_part",
+  "Name": "Iscat Worm Body Part",
+  "Description": "Vive una vita orribile.\nIscat Worm Body Part aspetta ogni giorno\nche la testa e i fratelli davanti a lui muoiano,\ncosì da poter finalmente prendere il comando.\nQuando non ha più una testa da seguire,\nviene promosso a Iscat Worm Head.\nAi suoi fratelli e sorelle\nquesta cosa non piace molto.",
+  "SpriteName": "iscat_worm_body_part",
+  "FrameW": 64,
+  "FrameH": 64,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 2000,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 11,
+  "MaxForce": 50,
+  "MaxAngularVelocity": 5,
+  "XPReward": 100,
+  "DetectionRange": 20,
+  "CombatRange": 5,
+  "PreferredRange": 5,
+  "actionCooldownS": 0,
+  "audio": {
+    "attack": [],
+    "idle": [],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "EntityKey": "iscat_worm_head",
+  "Name": "Iscat Worm Head",
+  "Description": "Il comandante del sistema ISCAT_WORM.EXE.\nIscat Worm Head dirige tutte le parti del corpo\ne decide la direzione da percorrere.\nViaggia per lo spazio senza meta,\nnattaccando chiunque definisca\nnuna possibile fonte di cibo.\nPurtroppo per lui,\nnè costretto a dividere il cibo\nncon tutti gli altri membri del sistema.",
+  "SpriteName": "iscat_worm_head",
+  "FrameW": 64,
+  "FrameH": 64,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 2000,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 11,
+  "MaxForce": 50,
+  "MaxAngularVelocity": 5,
+  "XPReward": 300,
+  "DetectionRange": 20,
+  "CombatRange": 5,
+  "PreferredRange": 5,
+  "actionCooldownS": 1000,
+  "audio": {
+    "attack": [],
+    "idle": ["worm_idle"],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  },"ai": {
+  "steering": { "type": "idle" },
+  "abilities": [],
+  "modifiers": [
+    { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+    { "type": "alignment", "radius": 7.5, "weight": 1 },
+    { "type": "cohesion", "radius": 7.5, "weight": 1 },
+    { "type": "separation", "radius": 3.75, "weight": 3 }
+  ]
+}
+}

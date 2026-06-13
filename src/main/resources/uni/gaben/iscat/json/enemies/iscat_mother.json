@@ -1,0 +1,56 @@
+{
+  "EntityKey": "iscat_mother",
+  "Name": "Iscat Mother",
+  "Description": "Una gigantesca creatura biologica\nresponsabile della nascita degli Iscat.\nMolti Space Explorer credono che\ngli Iscat Mother siano state create artificialmente.\nAltri sostengono che esistessero\nmolto prima dell'arrivo del Maestro.",
+  "SpriteName": "iscat_mother",
+  "FrameW": 128,
+  "FrameH": 128,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 750,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 9,
+  "MaxForce": 15,
+  "MaxAngularVelocity": 5,
+  "XPReward": 15,
+  "DetectionRange": 30,
+  "CombatRange": 20,
+  "PreferredRange": 15,
+  "actionCooldownS": 1000,
+  "audio": {
+    "attack": [],
+    "idle": ["iscat_mother_idle"],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  },"ai": {
+  "steering": {
+    "type": "pursuitWithRange",
+    "maxPredictionTime": 3,
+    "minDistance": 20,
+    "maxDistance": 20
+  },
+  "abilities": [
+    {
+      "type": "randomizedShoot",
+      "combatRange": 30,
+      "cooldownSec": 1.0,
+      "bulletType": "ENEMY_BULLET",
+      "aimAtTarget": true,
+      "nerfPrediction": 3,
+      "patterns": [
+        { "type": "summon", "count": 3, "summonedEntityKey": "iscat_mob", "summonRadiusPx": 100 },
+        { "type": "summon", "count": 1, "summonedEntityKey": "fake_iscat", "summonRadiusPx": 100 },
+        { "type": "summon", "count": 2, "summonedEntityKey": "iscat_healer", "summonRadiusPx": 100 },
+        { "type": "repeater", "repeats": 4, "intervalSec": 1, "pattern": { "type": "spread", "count": 5, "angleStepDeg": 30 } }
+      ]
+    }
+  ],
+  "modifiers": [
+    { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+    { "type": "alignment", "radius": 7.5, "weight": 1 },
+    { "type": "cohesion", "radius": 7.5, "weight": 1 },
+    { "type": "separation", "radius": 3.75, "weight": 3 }
+  ]    }
+}

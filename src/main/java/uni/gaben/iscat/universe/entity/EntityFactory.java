@@ -8,19 +8,24 @@ import uni.gaben.iscat.universe.UniverseModel;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EntityFactory {
     private EntityFactory() {}
     private static final Map<String, EntityRecord> cache = new ConcurrentHashMap<>();
-    private static final String JSON_PATH = "/uni/gaben/iscat/json/enemies.json";
 
+    private static final String ENEMIES_DIR = "/uni/gaben/iscat/json/enemies/";
 
     public static EntityModel spawn(
             String entityKey,
@@ -49,30 +54,60 @@ public class EntityFactory {
 
     public static CompletableFuture<Void> preloadAllAsync() {
         return CompletableFuture.runAsync(() -> {
-            try (InputStream is = EntityFactory.class.getResourceAsStream(JSON_PATH)) {
-                if (is == null) {
-                    throw new RuntimeException("File JSON non trovato in: " + JSON_PATH);
+            cache.clear();
+            int loadedCount = 0;
+
+            try {
+                // Troviamo l'URL della cartella usando il ClassLoader
+                URL dirUrl = EntityFactory.class.getResource(ENEMIES_DIR);
+                if (dirUrl == null) {
+                    throw new RuntimeException("Cartella dei nemici non trovata: " + ENEMIES_DIR);
                 }
 
-                String jsonText = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
-                        .lines().collect(Collectors.joining("\n"));
+                URI uri = dirUrl.toURI();
+                Path myPath;
 
-                JSONObject root = new JSONObject(jsonText);
-                JSONArray enemies = root.getJSONArray("enemies");
+                // Gestiamo il caso in cui siamo dentro un JAR o in ambiente di sviluppo (IDE)
+                if (uri.getScheme().equals("jar")) {
+                    FileSystem fileSystem;
+                    try {
+                        fileSystem = FileSystems.getFileSystem(uri);
+                    } catch (FileSystemNotFoundException e) {
+                        // Se il file system del JAR non è ancora aperto, lo apriamo
+                        fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                    }
+                    myPath = fileSystem.getPath(ENEMIES_DIR);
+                } else {
+                    myPath = Paths.get(uri);
+                }
 
-                cache.clear();
+                // Scansioniamo dinamicamente tutti i file .json nella cartella
+                try (Stream<Path> walk = Files.walk(myPath, 1)) {
+                    List<Path> jsonFiles = walk
+                            .filter(Files::isRegularFile)
+                            .filter(p -> p.toString().endsWith(".json"))
+                            .toList();
 
-                for (int i = 0; i < enemies.length(); i++) {
-                    JSONObject jsonEnemy = enemies.getJSONObject(i);
-                    EntityRecord record = parseEnemySettings(jsonEnemy);
-                    if (record.entityKey() != null) {
-                        cache.put(record.entityKey().toLowerCase().trim(), record);
+                    for (Path filePath : jsonFiles) {
+                        // Leggiamo il contenuto del file corrente
+                        String jsonText = Files.readString(filePath);
+
+                        JSONObject jsonEnemy = new JSONObject(jsonText);
+                        EntityRecord record = parseEnemySettings(jsonEnemy);
+
+                        // Usiamo la EntityKey estratta direttamente dal file stesso!
+                        if (record.entityKey() != null && !record.entityKey().isEmpty()) {
+                            String finalKey = record.entityKey().toLowerCase().trim();
+                            cache.put(finalKey, record);
+                            loadedCount++;
+                        }
                     }
                 }
-                System.out.println("[EntityFactory] Cache JSON pronta. Pre-caricate " + cache.size() + " definizioni.");
+
+                System.out.println("[EntityFactory] Scansione automatica completata. Caricati " + loadedCount + " nemici.");
 
             } catch (Exception ex) {
-                System.err.println("[EntityFactory] Errore critico nel parsing del JSON: " + ex.getMessage());
+                System.err.println("[EntityFactory] Errore critico durante il caricamento dinamico dei nemici: " + ex.getMessage());
                 ex.printStackTrace();
                 throw new RuntimeException(ex);
             }
@@ -85,7 +120,7 @@ public class EntityFactory {
             return cached;
         }
 
-        System.err.println("[PERFORMANCE WARNING] Cache-miss per '" + entityKey + "'! Ricarico il file JSON in modo sincrono.");
+        System.err.println("[PERFORMANCE WARNING] Cache-miss per '" + entityKey + "'! Ricarico i file JSON.");
         try {
             preloadAllAsync().get();
             return cache.get(entityKey);
@@ -102,6 +137,10 @@ public class EntityFactory {
         builder.entityKey(json.optString("EntityKey", ""))
                 .name(json.optString("Name", ""))
                 .description(json.optString("Description", ""));
+
+        // Threat
+        //int threat = json.optInt("threatLevel", 1);
+        // builder.threatLevel(threat);
 
         // Sprite path
         String spriteName = json.optString("SpriteName", "").trim();
@@ -166,7 +205,6 @@ public class EntityFactory {
     }
 
     private static EntityRecord.BrainRecord parseBrain(JSONObject aiJson) {
-        // Build each component with inner builders
         EntityRecord.SteeringRecord steering = parseSteering(aiJson.optJSONObject("steering"));
         EntityRecord.RotationRecord rotation = parseRotation(aiJson.optJSONObject("rotation"));
         List<EntityRecord.AbilityRecord> abilities = parseAbilities(aiJson.optJSONArray("abilities"));
@@ -203,7 +241,6 @@ public class EntityFactory {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
 
-            // Common fields
             String type = obj.optString("type");
             double combatRange = obj.optDouble("combatRange", 10.0);
             double cooldownSec = obj.optDouble("cooldownSec", 0.8);
@@ -221,7 +258,6 @@ public class EntityFactory {
             double meleeDamage = obj.optDouble("meleeDamage", 0.0);
             int attackStateIndex = obj.optInt("attackStateIndex", 4);
 
-            // Dash/plunge specific fields (used by "dash", "plunge", "kamikaze", etc.)
             double dashCooldownMS = obj.optDouble("dashCooldownMS", 0.0);
             double dashDurationMS = obj.optDouble("dashDurationMS", 0.0);
             double dashPrediction = obj.optDouble("dashPrediction", 0.0);

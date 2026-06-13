@@ -1,0 +1,52 @@
+{
+  "EntityKey": "fallen_star_golem",
+  "Name": "Fallen Star Golem",
+  "Description": "Spiraleggianti creature...\no rocce?\nSembrano arrivare come stelle cadenti\ndallo spazio profondo\nquando gli Iscat sono in pericolo.\nperché?",
+  "SpriteName": "fallen_star_golem",
+  "FrameW": 64,
+  "FrameH": 64,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 400,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 9,
+  "MaxForce": 10,
+  "MaxAngularVelocity": 5,
+  "XPReward": 30,
+  "DetectionRange": 30,
+  "CombatRange": 30,
+  "PreferredRange": 20,
+  "actionCooldownS": 800,
+  "audio": {
+    "attack": [],
+    "idle": ["star_golem_idle1","star_golem_idle2","star_golem_idle3"],
+    "hurt": [],
+    "death": ["star_golem_death"],
+    "spawn": []
+  },"ai": {
+  "steering": { "type": "idle" },
+  "rotation": { "type": "continuesSpin", "spinSpeedRadPerSec": 0.1 },
+  "abilities": [
+    {
+      "type": "shoot",
+      "combatRange": 30,
+      "cooldownSec": 0.8,
+      "bulletType": "ENEMY_BULLET",
+      "aimAtTarget": false,
+      "pattern": {
+        "type": "repeater",
+        "repeats": 2,
+        "intervalSec": 0.5,
+        "pattern": { "type": "ring", "count": 16 }
+      }
+    }
+  ],
+  "modifiers": [
+    { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+    { "type": "alignment", "radius": 7.5, "weight": 1 },
+    { "type": "cohesion", "radius": 7.5, "weight": 1 },
+    { "type": "separation", "radius": 3.75, "weight": 3 }
+  ]
+}
+}

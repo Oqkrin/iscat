@@ -1,0 +1,54 @@
+{
+      "EntityKey": "iscat_master",
+      "Name": "Iscat Master",
+      "Description": "Il creatore di Iscat Mother.\nQuesta creatura misteriosa\nha studiato per anni\ncome diventare DIO.\nDurante le sue ricerche\nha creato una nuova forma di vita:\ngli Iscat.\nCon il loro potere\nIscat Master ha iniziato\na portare distruzione e caos\nin tutto il mondo.",
+      "SpriteName": "iscat_master",
+      "FrameW": 128,
+      "FrameH": 128,
+      "ShapeType": "SQUARE",
+      "Scale": 3,
+      "InitLife": 10000,
+      "LinearDamping": 2,
+      "mass": 1,
+      "MaxVelocity": 10,
+      "MaxForce": 25,
+      "MaxAngularVelocity": 1,
+      "XPReward": 10000,
+      "DetectionRange": 10000,
+      "CombatRange": 10000,
+      "PreferredRange": 10000,
+      "actionCooldownS": 1000,
+      "IsBoss": true,
+      "HasEntranceAnimation": true,
+      "AnimationFrames": [21, 4, 3, 7, 8, 5, 6],
+      "audio": {
+        "attack": [],
+        "idle": [],
+        "hurt": [],
+        "death": ["master_death"],
+        "spawn": ["master_spawn"]
+      },"ai": {
+      "abilities": [
+        {
+          "type": "randomizedShoot",
+          "combatRange": 10000,
+          "cooldownSec": 1.0,
+          "bulletType": "ENEMY_BULLET",
+          "aimAtTarget": true,
+          "nerfPrediction": 0,
+          "patterns": [
+            { "type": "ring", "count": 32 },
+            { "type": "summon", "count": 2, "summonedEntityKey": "eater", "summonRadiusPx": 100 },
+            { "type": "summon", "count": 1, "summonedEntityKey": "iscat_dasher", "summonRadiusPx": 100 },
+            { "type": "repeater", "repeats": 3, "intervalSec": 0.3, "pattern": { "type": "ring", "count": 16 } },
+            { "type": "repeater", "repeats": 4, "intervalSec": 0.3, "pattern": { "type": "spread", "count": 8, "angleStepDeg": 45 } }
+          ]
+        }
+      ],
+      "modifiers": [
+        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+        { "type": "alignment", "radius": 7.5, "weight": 1 },
+        { "type": "cohesion", "radius": 7.5, "weight": 1 },
+        { "type": "separation", "radius": 3.75, "weight": 3 }
+      ]    }
+    }
