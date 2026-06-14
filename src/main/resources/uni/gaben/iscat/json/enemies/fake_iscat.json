@@ -3,6 +3,8 @@
   "Name": "Fake Iscat",
   "Description": "Era una tranquilla giornata d'autunno\nquando Fake passeggiava tra i campi ricoperti di brina del suo paese.\nImprovvisamente,\nuna luce intensa lo avvolse completamente,\ntrascinandolo in un luogo sconosciuto.\nAl suo risveglio si ritrovò\nall'interno di una struttura simile a un uovo.\nUna volta uscito,\nil suo corpo era cambiato:\nuna fusione anomala tra un Iscat\ne una forma di vita aliena.\nFake Iscat è considerato\nun'entità potenzialmente pericolosa\ne deve essere mantenuto sotto stretta osservazione.\nDeve essere contenuto\nin una cella rinforzata d'acciaio,\nmonitorata 24 ore su 24,\n7 giorni su 7.\nNel suo arsenale possiede\ntre differenti tipi di attacco,\nrendendolo un avversario imprevedibile.\nMolti Space Explorer lo classificano\ncome un mini-boss,\nanche se ufficialmente tale denominazione\nnon è riconosciuta.",
   "SpriteName": "fake_iscat",
+  "BestiaryOrder": 5,
+  "ThreatLevel": "NORMAL",
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

@@ -3,6 +3,7 @@
   "Name": "PARADOX",
   "Description": "Errore, impossibile recuperare la descrizione. [PARADOX ERROR 404] [ACCESS TO THIS DESCRIPTION IS ALLOWED ONLY TO TRASCENDENTS]",
   "SpriteName": "player9",
+  "BestiaryOrder": 8,
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

@@ -3,6 +3,8 @@
   "Name": "Veteran Eater",
   "Description": "Descrizione Veteran Eater\nUn Eater che ha imparato le arti oscure osservando il Master, Veteran Eater è la versione evoluta degli Eater normali" ,
   "SpriteName": "veteran_eater",
+  "BestiaryOrder": 8,
+  "ThreatLevel": "HIGH",
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

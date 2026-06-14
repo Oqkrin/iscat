@@ -3,6 +3,8 @@
   "Name": "Iscat Worm Head",
   "Description": "Il comandante del sistema ISCAT_WORM.EXE.\nIscat Worm Head dirige tutte le parti del corpo\ne decide la direzione da percorrere.\nViaggia per lo spazio senza meta,\nnattaccando chiunque definisca\nnuna possibile fonte di cibo.\nPurtroppo per lui,\nnè costretto a dividere il cibo\nncon tutti gli altri membri del sistema.",
   "SpriteName": "iscat_worm_head",
+  "BestiaryOrder": 10,
+  "ThreatLevel": "EXTREME",
   "FrameW": 64,
   "FrameH": 64,
   "ShapeType": "CIRCLE",

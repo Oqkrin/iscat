@@ -3,6 +3,8 @@
   "Name": "Iscat Worm Body Part",
   "Description": "Vive una vita orribile.\nIscat Worm Body Part aspetta ogni giorno\nche la testa e i fratelli davanti a lui muoiano,\ncosì da poter finalmente prendere il comando.\nQuando non ha più una testa da seguire,\nviene promosso a Iscat Worm Head.\nAi suoi fratelli e sorelle\nquesta cosa non piace molto.",
   "SpriteName": "iscat_worm_body_part",
+  "BestiaryOrder": 11,
+  "ThreatLevel": "EXTREME",
   "FrameW": 64,
   "FrameH": 64,
   "ShapeType": "CIRCLE",

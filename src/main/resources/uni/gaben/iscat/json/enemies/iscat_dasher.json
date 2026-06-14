@@ -3,6 +3,8 @@
   "Name": "Iscat Dasher",
   "Description": "Nessuno riesce a capire\nse Iscat Dasher stia attaccando\noppure abbia semplicemente dimenticato\ncome frenare.",
   "SpriteName": "iscat_dasher_S",
+  "BestiaryOrder": 4,
+  "ThreatLevel": "NORMAL",
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

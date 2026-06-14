@@ -3,6 +3,8 @@
   "Name": "Fallen Star Golem",
   "Description": "Spiraleggianti creature...\no rocce?\nSembrano arrivare come stelle cadenti\ndallo spazio profondo\nquando gli Iscat sono in pericolo.\nperché?",
   "SpriteName": "fallen_star_golem",
+  "BestiaryOrder": 6,
+  "ThreatLevel": "NORMAL",
   "FrameW": 64,
   "FrameH": 64,
   "ShapeType": "CIRCLE",

@@ -3,6 +3,7 @@
   "Name": "Battle Ship",
   "Description": "Il protagonista dell'universo ISCAT. Una nave da battaglia classica, resistente e potente, nata per essere il protagonista di una storia!",
   "SpriteName": "player1",
+  "BestiaryOrder": 0,
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

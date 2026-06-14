@@ -3,6 +3,7 @@
   "Name": "Space Goblin",
   "Description": "Una nave comandata da un mini goblin. Solo chi legge queste descrizioni può sapere che questa nave è la protagonista di ISCAT 2: THE GOBLIN INVASION",
   "SpriteName": "player6",
+  "BestiaryOrder": 5,
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

@@ -3,6 +3,8 @@
   "Name": "Iscat Mother",
   "Description": "Una gigantesca creatura biologica\nresponsabile della nascita degli Iscat.\nMolti Space Explorer credono che\ngli Iscat Mother siano state create artificialmente.\nAltri sostengono che esistessero\nmolto prima dell'arrivo del Maestro.",
   "SpriteName": "iscat_mother",
+  "BestiaryOrder": 9,
+  "ThreatLevel": "EXTREME",
   "FrameW": 128,
   "FrameH": 128,
   "ShapeType": "CIRCLE",

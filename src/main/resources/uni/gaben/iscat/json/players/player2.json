@@ -3,6 +3,7 @@
   "Name": "Simple Battle Ship",
   "Description": "Una nave essenziale, perfetta per i principianti. Simple Battle Ship è la nave piu veloce del Far West! Ah no aspetta... Del Cosmo!",
   "SpriteName": "player2",
+  "BestiaryOrder": 1,
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

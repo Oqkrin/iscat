@@ -3,6 +3,7 @@
   "Name": "Friendly Ship",
   "Description": "Una nave amichevole, ottima per il supporto, ma solo se non sei un Iscat! Traitor Iscat è l'unica eccezione.",
   "SpriteName": "player3",
+  "BestiaryOrder": 2,
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

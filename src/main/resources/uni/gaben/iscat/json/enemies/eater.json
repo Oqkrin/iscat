@@ -3,6 +3,8 @@
   "Name": "Eater",
   "Description": "Descrizione Eater\nCreatura classificata come ENTITÀ DI LIVELLO: [REDACTED].\nDimensioni corporee instabili. Fame: apparentemente infinita.\nComportamento: estremamente aggressivo.\nEater consuma qualsiasi forma di materia trovata nelle vicinanze.\nCarne, metallo, energia, rocce, tecnologia, [REDACTED], perfino oggetti normalmente impossibili da ingerire.\nNon sembra possedere un reale limite biologico.\nOsservazioni dirette riportano: denti [REDACTED], rumori corporei [REDACTED],\nodore classificato come [REDACTED], fluidi non identificati di origine [REDACTED].\nÈ severamente sconsigliato avvicinarsi oltre il raggio di sicurezza.\nIncidenti registrati: [REDACTED]\nVittime confermate: [REDACTED]\nTentativi di contenimento riusciti: 0\nUltima frase trasmessa da uno Space Explorer:\nOH NO, STA [REDACTED] MANGIANDO IL MIO [REDACTED] AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.\n[NUOVE MISURE ANTI EATER SONO INSTALLATE NEGLI ULTIMI MODELLI DI ASTRONAVE]",
   "SpriteName": "eater",
+  "BestiaryOrder": 1,
+  "ThreatLevel": "LOW",
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",
