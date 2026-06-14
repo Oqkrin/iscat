@@ -5,10 +5,12 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.dyn4j.dynamics.BodyFixture;
+import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
+import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
@@ -22,7 +24,9 @@ import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-public class PlayerModel extends AbstractLivingEntityModel implements HasSprite, HasThrust, Stunnable, Progression {
+import static org.dyn4j.geometry.MassType.NORMAL;
+
+public class PlayerModel extends EntityModel implements HasSprite, HasThrust, Stunnable, Progression {
 
     // LEVEL SYSTEM VARIABLES
     private final IntegerProperty level = new SimpleIntegerProperty(1);
@@ -43,7 +47,6 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     public PlayerModel(double x, double y, EntityRecord data) {
-        // Passiamo il record caricato alla classe astratta madre
         super(x, y, data);
         this.data = data;
 
@@ -52,19 +55,14 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters));
         fixture.setFilter(UniverseCollisionLayers.PLAYER_FILTER);
 
-        setMass(org.dyn4j.geometry.MassType.NORMAL);
-        // Imposta la massa reale dal JSON se necessario: this.getMass().setMass(data.mass());
+        setMass(MassType.NORMAL);
 
         setLinearDamping(data.linearDamping());
 
         thrust = new Thrust();
-
-        // Inizializziamo i cooldown usando i dati del record del player
-        if (data.player() != null) {
-            // Se necessario imposta la vita massima basandoti su data.initLife()
-        }
     }
 
+    @Override
     public void update(double dt) {
         dashCooldown.update(dt);
         dashDuration.update(dt);
@@ -167,6 +165,7 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         }
     }
 
+    @Override
      public void levelUp() {
         this.xp.set(this.xp.get() - xpNeeded);
         this.level.set(this.level.get() + 1);
@@ -204,20 +203,19 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         }
     }
 
-    // ---- HasSprite implementation ----
+    @Override
+    public Thrust thrust() {
+        return thrust;
+    }
+
     @Override
     public String getSpritePath() {
-        return this.getEntityRecord() != null ? this.getEntityRecord().spritePath() : PlayerSettings.getPlayerSkin();
+        return data.spritePath();
     }
 
     @Override
     public int getSpriteFrameWidth() {
-        return (int) PlayerSettings.DIMENSIONE_DA_DISEGNARE;
-    }
-
-    @Override
-    public int getSpriteFrameHeight() {
-        return (int) PlayerSettings.DIMENSIONE_DA_DISEGNARE;
+        return data.frameW();
     }
 
     @Override
@@ -227,21 +225,21 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
 
     @Override
     public double getFrameDuration(int state, int frame) {
-        return getFrameDuration();
+        return UU.UNIVERSE_TICK * 6;
+    }
+
+    @Override
+    public int getSpriteFrameHeight() {
+        return data.frameH();
     }
 
     @Override
     public double getVisualScale() {
-        return PlayerSettings.MASSA;
+        return data.scale();
     }
 
     @Override
     public double getVisualAngularOffsetDeg() {
         return 180;
-    }
-
-    @Override
-    public Thrust thrust() {
-        return thrust;
     }
 }

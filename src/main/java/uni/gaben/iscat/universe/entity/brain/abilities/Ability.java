@@ -35,42 +35,38 @@ public abstract class Ability {
     public abstract boolean update(Brain<?> brain, UniverseModel world, double dt);
 
     public static Ability createAbility(EntityRecord.AbilityRecord ac, EntityModel entity) {
+        if (ac.type() == null) return null;
         Target target = Target.ofPlayer();
-        switch (ac.type()) {
-            case "shoot":
+        return switch (ac.type()) {
+            case SHOOT -> {
                 PatternShooter shooter = PatternShooter.createPatternShooter(ac.pattern());
-                return new ShootAbility(ac.combatRange(), ac.cooldownSec(),
+                yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), shooter,
                         target, ac.aimAtTarget(), ac.nerfPrediction());
-            case "randomizedShoot":
+            }
+            case RANDOMIZED_SHOOT -> {
                 List<PatternShooter> patterns = new ArrayList<>();
                 for (EntityRecord.PatternRecord pc : ac.patterns()) patterns.add(PatternShooter.createPatternShooter(pc));
-                return RandomizedShootAbility.targetingPlayer(ac.combatRange(), ac.cooldownSec(),
+                yield RandomizedShootAbility.targetingPlayer(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), ac.aimAtTarget(),
                         ac.nerfPrediction(), patterns.toArray(new PatternShooter[0]));
-            case "heal":
-                return new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
-            case "summon":
-                return new ShootAbility(ac.combatRange(), ac.cooldownSec(),
-                        ProjectileType.valueOf(ac.bulletType()), new SummonPatternShooter(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex()),
-                        target, ac.aimAtTarget(), ac.nerfPrediction());
-            case "melee":
-                return new MeleeAbility<>(ac.type(), entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
-            case "kamikaze":
-                return new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);
-            case "dash":
-                return new DodgeDashAbility(entity, ac.dashCooldownMS()/1000, ac.dashDurationMS()/1000, ac.dashPrediction(), ac.dashAvoidRange(), ac.dashImpulse(),Target.neighboursCached(entity, ac.dashAvoidRange(), body -> body instanceof ProjectileModel pm && pm.getType() == ProjectileType.PLAYER_BULLET));
-            case "plunge" :
-                return new PlungeAbility(
-                        entity,
-                        ac.plungeCooldownMS() / 1000.0,   // cooldown in seconds
-                        ac.dashDurationMS() / 1000.0,     // duration in seconds
-                        ac.dashPrediction(),              // max prediction time (seconds)
-                        ac.dashImpulse(),                 // impulse strength
-                        Target.ofPlayer()
-                );
-                default:
-                return null;
-        }
+            }
+            case HEAL -> new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
+            case SUMMON -> new ShootAbility(ac.combatRange(), ac.cooldownSec(),
+                    ProjectileType.valueOf(ac.bulletType()), new SummonPatternShooter(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex()),
+                    target, ac.aimAtTarget(), ac.nerfPrediction());
+            case MELEE -> new MeleeAbility<>(ac.type().jsonKey, entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
+            case KAMIKAZE -> new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);
+            case DASH -> new DodgeDashAbility(entity, ac.dashCooldownMS()/1000, ac.dashDurationMS()/1000, ac.dashPrediction(), ac.dashAvoidRange(), ac.dashImpulse(),
+                    Target.neighboursCached(entity, ac.dashAvoidRange(), body -> body instanceof ProjectileModel pm && pm.getType() == ProjectileType.PLAYER_BULLET));
+            case PLUNGE -> new PlungeAbility(
+                    entity,
+                    ac.plungeCooldownMS() / 1000.0,
+                    ac.dashDurationMS() / 1000.0,
+                    ac.dashPrediction(),
+                    ac.dashImpulse(),
+                    Target.ofPlayer()
+            );
+        };
     }
 }

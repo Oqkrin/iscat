@@ -16,12 +16,12 @@ public interface SteeringGoal {
     static SteeringGoal createSteeringGoal(EntityRecord.SteeringRecord steeringData) {
         Target target = Target.ofPlayer(); // could be extended to support other targets
         return switch (steeringData.type()) {
-            case "pursuit" -> SteeringGoal.pursuit(target, steeringData.maxPredictionTime());
-            case "evade" -> SteeringGoal.evade(target, steeringData.maxPredictionTime());
-            case "pursuitWithRange" ->
+            case PURSUIT -> SteeringGoal.pursuit(target, steeringData.maxPredictionTime());
+            case EVADE -> SteeringGoal.evade(target, steeringData.maxPredictionTime());
+            case PURSUIT_WITH_RANGE ->
                     SteeringGoal.pursuitWithRange(target, steeringData.maxPredictionTime(), steeringData.minDistance(), steeringData.maxDistance());
-            case "evadeWithRange" -> SteeringGoal.evadeWithRange(target, steeringData.maxPredictionTime(), steeringData.safetyDistance());
-            default -> SteeringGoal.idle();
+            case EVADE_WITH_RANGE -> SteeringGoal.evadeWithRange(target, steeringData.maxPredictionTime(), steeringData.safetyDistance());
+            default -> SteeringGoal.idle(); // IDLE and ORBIT both fall through to idle
         };
     }
 

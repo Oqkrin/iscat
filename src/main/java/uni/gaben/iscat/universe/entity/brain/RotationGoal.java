@@ -16,12 +16,13 @@ public interface RotationGoal {
      */
     double compute(AbstractEntityModel self, UniverseModel world, double dt);
 
-    static RotationGoal createRotationGoal(EntityRecord.RotationRecord cfg) {
-        return switch (cfg.type()) {
-            case "movement" -> RotationGoal.movement();
-            case "target" -> RotationGoal.target(Target.ofPlayer());
-            case "continuesSpin" -> RotationGoal.continuesSpin(cfg.spinSpeedRadPerSec());
-            case "intervalSpin" -> RotationGoal.intervalSpin(cfg.spinSteps(), cfg.stepPauseSec(), cfg.spinSpeedRadPerSec());
+    static RotationGoal createRotationGoal(EntityRecord.RotationRecord rotation) {
+        if (rotation == null) return RotationGoal.idle();
+        return switch (rotation.type()) {
+            case MOVEMENT -> RotationGoal.movement();
+            case TARGET -> RotationGoal.target(Target.ofPlayer());
+            case CONTINUES_SPIN -> RotationGoal.continuesSpin(rotation.spinSpeedRadPerSec());
+            case INTERVAL_SPIN -> RotationGoal.intervalSpin(rotation.spinSteps(), rotation.stepPauseSec(), rotation.spinSpeedRadPerSec());
             default -> RotationGoal.idle();
         };
     }

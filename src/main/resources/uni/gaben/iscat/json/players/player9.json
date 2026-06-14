@@ -11,12 +11,13 @@
   "InitLife": 1,
   "LinearDamping": 1.0,
   "mass": 1.0,
-  "MaxVelocity": 8.0,
+  "MaxVelocity": 9,
+  "MaxForce": 27,
   "player": {
     "dashImpulse": 35.0,
-    "dashDurationSec": 0.666,
-    "dashCooldownSec": 0.8,
-    "stunDurationSec": 1.0,
+    "dashDurationSec": 0.1,
+    "dashCooldownSec": 1.0,
+    "stunDurationSec": 2.0,
     "baseCooldownSec": 0.3,
     "levelAbilities": [
       {

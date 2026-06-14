@@ -180,10 +180,9 @@ public class PlayerController {
 
     private PatternShooter convertPatternRecordToShooter(EntityRecord.PatternRecord patternRecord) {
         if (patternRecord == null) return new SingleShotPatternShooter();
-
-        return switch (patternRecord.type().toLowerCase()) {
-            case "spread" -> new SpreadPatternShooter(patternRecord.count(), patternRecord.angleStepDeg());
-            case "figure" -> {
+        return switch (patternRecord.type()) {
+            case SPREAD -> new SpreadPatternShooter(patternRecord.count(), patternRecord.angleStepDeg());
+            case FIGURE -> {
                 var type = FigurePatternShooter.FigureType.valueOf(patternRecord.figureType().toUpperCase());
                 yield new FigurePatternShooter(patternRecord.count(), type);
             }

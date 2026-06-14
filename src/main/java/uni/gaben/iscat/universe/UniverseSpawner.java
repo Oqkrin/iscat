@@ -54,6 +54,8 @@ public class UniverseSpawner {
     public PlayerModel spawnPlayer(double x, double y, String skinKey) {
         String key = (skinKey == null || skinKey.isBlank()) ? "player1" : skinKey.toLowerCase().trim();
 
+        System.out.println("key: " + key);
+
         EntityRecord playerRecord = EntityFactory.getCache().get(key);
 
         if (playerRecord == null) {

@@ -1,5 +1,11 @@
 package uni.gaben.iscat.universe.entity;
 
+import uni.gaben.iscat.universe.entity.brain.ModifierType;
+import uni.gaben.iscat.universe.entity.brain.RotationGoalType;
+import uni.gaben.iscat.universe.entity.brain.SteeringGoalType;
+import uni.gaben.iscat.universe.entity.brain.abilities.AbilityType;
+import uni.gaben.iscat.universe.entity.shooters.PatternType;
+
 import java.util.List;
 
 /**
@@ -66,7 +72,7 @@ public record EntityRecord(
     ) {}
 
     public record SteeringRecord(
-            String type,
+            SteeringGoalType type,
             double maxPredictionTime,
             double minDistance,
             double maxDistance,
@@ -74,7 +80,7 @@ public record EntityRecord(
     ) {}
 
     public record RotationRecord(
-            String type,
+            RotationGoalType type,
             double spinSpeedRadPerSec,
             int spinSteps,
             double stepPauseSec,
@@ -82,7 +88,7 @@ public record EntityRecord(
     ) {}
 
     public record AbilityRecord(
-            String type,
+            AbilityType type,
             double combatRange,
             double cooldownSec,
             String bulletType,
@@ -105,7 +111,7 @@ public record EntityRecord(
     ) {}
 
     public record PatternRecord(
-            String type,
+            PatternType type,
             int count,
             double angleStepDeg,
             double intervalSec,
@@ -117,7 +123,7 @@ public record EntityRecord(
     ) {}
 
     public record ModifierRecord(
-            String type,
+            ModifierType type,
             double radius,
             double weight,
             double maxPredictionTime,

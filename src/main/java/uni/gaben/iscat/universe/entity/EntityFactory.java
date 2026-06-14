@@ -4,6 +4,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.entity.brain.ModifierType;
+import uni.gaben.iscat.universe.entity.brain.RotationGoalType;
+import uni.gaben.iscat.universe.entity.brain.SteeringGoalType;
+import uni.gaben.iscat.universe.entity.brain.abilities.AbilityType;
+import uni.gaben.iscat.universe.entity.shooters.PatternType;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -265,9 +270,9 @@ public class EntityFactory {
     }
 
     private static EntityRecord.SteeringRecord parseSteering(JSONObject obj) {
-        if (obj == null) return new EntityRecord.SteeringRecord("idle", 2.5, 2.5, 10.0, 5.0);
+        if (obj == null) return new EntityRecord.SteeringRecord(SteeringGoalType.IDLE, 2.5, 2.5, 10.0, 5.0);
         return new EntityRecord.SteeringRecord(
-                obj.optString("type", "idle"),
+                SteeringGoalType.fromJson(obj.optString("type", SteeringGoalType.IDLE.jsonKey)),
                 obj.optDouble("maxPredictionTime", 2.5),
                 obj.optDouble("minDistance", 2.5),
                 obj.optDouble("maxDistance", 10.0),
@@ -276,9 +281,9 @@ public class EntityFactory {
     }
 
     private static EntityRecord.RotationRecord parseRotation(JSONObject obj) {
-        if (obj == null) return new EntityRecord.RotationRecord("idle", 0.0, 8, 0.1, "player");
+        if (obj == null) return new EntityRecord.RotationRecord(RotationGoalType.IDLE, 0.0, 8, 0.1, "player");
         return new EntityRecord.RotationRecord(
-                obj.optString("type", "idle"),
+                RotationGoalType.fromJson(obj.optString("type", RotationGoalType.IDLE.jsonKey)),
                 obj.optDouble("spinSpeedRadPerSec", 0.0),
                 obj.optInt("spinSteps", 8),
                 obj.optDouble("stepPauseSec", 0.1),
@@ -293,7 +298,7 @@ public class EntityFactory {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
 
-            String type = obj.optString("type");
+            AbilityType type = AbilityType.fromJson(obj.optString("type"));
             double combatRange = obj.optDouble("combatRange", 10.0);
             double cooldownSec = obj.optDouble("cooldownSec", 0.8);
             String bulletType = obj.optString("bulletType", "ENEMY_BULLET");
@@ -341,7 +346,7 @@ public class EntityFactory {
     private static EntityRecord.PatternRecord parsePattern(JSONObject obj) {
         if (obj == null) return null;
         return new EntityRecord.PatternRecord(
-                obj.optString("type"),
+                PatternType.fromJson(obj.optString("type")),
                 obj.optInt("count", 1),
                 obj.optDouble("angleStepDeg", 30.0),
                 obj.optDouble("intervalSec", 0.15),
@@ -359,7 +364,7 @@ public class EntityFactory {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
             list.add(new EntityRecord.ModifierRecord(
-                    obj.optString("type"),
+                    ModifierType.fromJson(obj.optString("type")),
                     obj.optDouble("radius", 2.0),
                     obj.optDouble("weight", 1.0),
                     obj.optDouble("maxPredictionTime", 1.0),

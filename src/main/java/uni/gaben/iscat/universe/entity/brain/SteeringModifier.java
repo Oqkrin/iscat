@@ -22,17 +22,17 @@ public interface SteeringModifier {
     void computeSteer(AbstractEntityModel self, UniverseModel world, double maxForce, double dt, Vector2 outForce);
 
     static SteeringModifier createModifier(EntityRecord.ModifierRecord mc, EntityModel entity) {
+        if (mc.type() == null) return null;
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
         Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof PlayerModel || (entityModel instanceof ProjectileModel pm&&pm.getType()==ProjectileType.ENEMY_BULLET)));
         Target everythingButProjectiles = neighbors.filtered(entityModel -> !( entityModel instanceof  PlayerModel || (entityModel instanceof AbstractProjectileModel)));
         return switch (mc.type()) {
-            case "separation" -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
-            case "alignment" -> SteeringModifier.alignment(everythingButProjectiles, weight);
-            case "cohesion" -> SteeringModifier.cohesion(everythingButProjectiles, weight);
-            case "collisionAvoidance" ->
+            case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
+            case ALIGNMENT -> SteeringModifier.alignment(everythingButProjectiles, weight);
+            case COHESION -> SteeringModifier.cohesion(everythingButProjectiles, weight);
+            case COLLISION_AVOIDANCE ->
                     SteeringModifier.collisionAvoidance(everythingButEnemyProjectiles, mc.maxPredictionTime(), mc.avoidRadius(), weight);
-            default -> null;
         };
     }
 

@@ -11,18 +11,17 @@ public interface PatternShooter {
     static PatternShooter createPatternShooter(EntityRecord.PatternRecord pc) {
         if (pc == null) return new SingleShotPatternShooter();
         return switch (pc.type()) {
-            case "singleShot" -> new SingleShotPatternShooter();
-            case "spread" -> new SpreadPatternShooter(pc.count(), pc.angleStepDeg());
-            case "multiDirection" ->
+            case SINGLE_SHOT -> new SingleShotPatternShooter();
+            case SPREAD -> new SpreadPatternShooter(pc.count(), pc.angleStepDeg());
+            case MULTI_DIRECTION ->
                     new MultiDirectionPatternShooter(pc.count(), Math.toRadians(pc.angleStepDeg()), createPatternShooter(pc.innerPattern()));
-            case "ring" -> new RingPatternShooter(pc.count());
-            case "repeater" ->
+            case RING -> new RingPatternShooter(pc.count());
+            case REPEATER ->
                     new RepeaterPatternShooter(pc.repeats(), pc.intervalSec(), createPatternShooter(pc.innerPattern()));
-            case "parallelLine" ->
-                    new ParallelLinePatternShooter(pc.count(), pc.angleStepDeg()); // angleStepDeg used as spacing?
-            case "summon" -> new SummonPatternShooter(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());
-            case "figure" -> new FigurePatternShooter(pc.count(), FigurePatternShooter.FigureType.valueOf(pc.figureType()));
-            default -> throw new IllegalStateException("Unexpected value: " + pc.type());
+            case PARALLEL_LINE ->
+                    new ParallelLinePatternShooter(pc.count(), pc.angleStepDeg()); // angleStepDeg used as spacing
+            case SUMMON -> new SummonPatternShooter(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());
+            case FIGURE -> new FigurePatternShooter(pc.count(), FigurePatternShooter.FigureType.valueOf(pc.figureType()));
         };
     }
-}
+}
