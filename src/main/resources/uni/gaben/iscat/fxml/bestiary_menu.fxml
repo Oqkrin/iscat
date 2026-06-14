@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -22,7 +21,6 @@
 
                 <VBox alignment="TOP_CENTER" spacing="14.0" prefWidth="280.0" maxWidth="300.0">
                     <Label fx:id="listHeaderLabel" styleClass="card-header" text="ENEMIES" />
-
                     <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
                         <content>
                             <VBox fx:id="enemyButtonsBox" alignment="TOP_CENTER" spacing="8.0" />
@@ -35,45 +33,27 @@
                     <Label fx:id="skinNameLabel" styleClass="card-header" text="ENEMY NAME" wrapText="true" />
 
                     <Button fx:id="btnToggleCategory" alignment="CENTER" onAction="#toggleCategory" style="-fx-text-fill: #ffaa00;" styleClass="menu-button" text="SHOW: ENEMIES">
-                        <padding>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                        </padding>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Button>
-
                     <Button fx:id="btnRandom" alignment="CENTER" onAction="#selectRandom" styleClass="menu-button" text="RANDOM">
-                        <padding>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                        </padding>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Button>
                     <Button fx:id="btnDescription" alignment="CENTER" onAction="#showDescription" styleClass="menu-button" text="DESCRIPTION">
-                        <padding>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                        </padding>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Button>
                     <Button fx:id="btnStats" alignment="CENTER" onAction="#showStats" styleClass="menu-button" text="STATS">
-                        <padding>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                        </padding>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Button>
                     <Button fx:id="btnExtra" alignment="CENTER" onAction="#showExtra" styleClass="menu-button" text="EXTRA">
-                        <padding>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                        </padding>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Button>
                     <Button fx:id="btnBack" alignment="CENTER" onAction="#handleBack" styleClass="back-button" text="MAIN MENU">
-                        <padding>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                        </padding>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Button>
                 </VBox>
 
-                <VBox alignment="TOP_CENTER" rotate="2.0" spacing="10.0" styleClass="glowing-border, secondary-card" prefWidth="300.0" maxWidth="320.0">
-                    <padding>
-                        <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
-                    </padding>
-                    <Label fx:id="rightCardHeader" styleClass="card-header" text="DESCRIPTION!" />
-                    <TextArea fx:id="description" VBox.vgrow="ALWAYS" />
-                </VBox>
+                <fx:include fx:id="infoCard" source="InfoCard.fxml" />
+
             </HBox>
             <Region minHeight="56.0" prefHeight="56.0" />
         </children>

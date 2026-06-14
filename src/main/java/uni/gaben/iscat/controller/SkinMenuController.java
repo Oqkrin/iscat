@@ -11,13 +11,22 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.universe.entity.EntityFactory;
+import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SkinMenuController implements IscatMenuController {
+
+    private enum InfoMode {
+        DESCRIPTION, STATS, EXTRA
+    }
+
+    private InfoMode currentInfoMode = InfoMode.DESCRIPTION;
 
     @FXML private GridPane skinGrid;
     @FXML private StackPane previewContainer;
@@ -29,9 +38,14 @@ public class SkinMenuController implements IscatMenuController {
     @FXML private Button randomBtn;
     @FXML private Button cancelBtn;
 
+    @FXML private Button btnDescription;
+    @FXML private Button btnStats;
+    @FXML private Button btnExtra;
+
+    @FXML private InfoCardController infoCardController;
+
     private StackPane contentRoot;
     private String selectedSkinPath;
-
     private String selectedSkinKey = "player1";
 
     private AnimatedCanvas previewCanvas;
@@ -57,6 +71,11 @@ public class SkinMenuController implements IscatMenuController {
         ComponentsUtils.applyIconButton(randomBtn,  "fas-dice");
         ComponentsUtils.applyIconButton(cancelBtn,  "fas-arrow-left");
 
+        // Iconizzazione opzionale dei bottoni info con FontAwesome
+        ComponentsUtils.applyIconButton(btnDescription, "fas-book");
+        ComponentsUtils.applyIconButton(btnStats,       "fas-chart-bar");
+        ComponentsUtils.applyIconButton(btnExtra,       "fas-info-circle");
+
         populateGrid();
 
         // Stato iniziale basato su player1
@@ -64,6 +83,9 @@ public class SkinMenuController implements IscatMenuController {
         this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
         this.skinNameLabel.setText(SKIN_NAMES[0].toUpperCase());
         previewCanvas.loadSkin(selectedSkinPath);
+
+        // Forza la sincronizzazione iniziale sulla info card
+        refreshInfoZone();
 
         ChangeListener<Number> sizeListener = (obs, oldVal, newVal) -> updateDynamicScaling();
         skinStackPane.widthProperty().addListener(sizeListener);
@@ -137,7 +159,6 @@ public class SkinMenuController implements IscatMenuController {
             btn.setPrefSize(initialDim, initialDim);
             btn.setMaxSize(initialDim, initialDim);
 
-            // Passiamo anche la chiave del player all'azione di selezione
             btn.setOnAction(e -> selectSkin(key, path, name));
 
             skinGrid.add(btn, i % 3, i / 3);
@@ -149,9 +170,80 @@ public class SkinMenuController implements IscatMenuController {
         this.selectedSkinPath = path;
         this.skinNameLabel.setText(name.toUpperCase());
         previewCanvas.loadSkin(path);
+
+        // Sincronizza i dati testuali sulla InfoCard a destra
+        refreshInfoZone();
+
         ComponentsUtils.playSpawnTween(previewBox);
         updateDynamicScaling();
     }
+
+    /**
+     * Recupera le statistiche dell'entità corrente dalla cache
+     * e aggiorna i testi della InfoCard aggregata.
+     */
+    private void refreshInfoZone() {
+        if (selectedSkinKey == null || infoCardController == null) return;
+
+        EntityRecord record = EntityFactory.getCache().get(selectedSkinKey);
+        if (record == null) {
+            // Se la factory non ha ancora in cache il JSON del player, mostra un fallback amichevole
+            infoCardController.updateInfo("N/A", "Nessun dato JSON caricato per " + selectedSkinKey);
+            return;
+        }
+
+        switch (currentInfoMode) {
+            case DESCRIPTION -> {
+                infoCardController.updateInfo("DESCRIPTION", record.description());
+            }
+            case STATS -> {
+                String statsText = String.format("""
+                    STATISTICHE DELLA NAVE
+                    
+                    ❤ Integrità Scafo: %.0f HP
+                    ⚡ Velocità di Manovra: %.1f m/s
+                    📐 Scala Grafica: %.1fx
+                    ⚓ Coefficiente Attrito: %.1f
+                    ⚙ Massa Strutturale: %.1f kg
+                    💪 Spinta Propulsori: %.1f N
+                    """,
+                        record.initLife(), record.maxVelocity(), record.scale(),
+                        record.linearDamping(), record.mass(), record.maxForce()
+                );
+                infoCardController.updateInfo("STATS", statsText);
+            }
+            case EXTRA -> {
+                double cooldownSparo = record.actionCooldownSec();
+                double dashImpulse = 0;
+                double dashCooldown = 0;
+
+                // Estrazione sicura del sotto-record specifico del player
+                if (record.player() != null) {
+                    dashImpulse = record.player().dashImpulse();
+                    dashCooldown = record.player().dashCooldownSec();
+                    if (record.player().baseCooldownSec() > 0) {
+                        cooldownSparo = record.player().baseCooldownSec();
+                    }
+                }
+
+                String extraText = String.format("""
+                    SPECIFICHE DI SISTEMA
+                    
+                    ⏱ Cooldown Fuoco Base: %.2f sec
+                    💨 Impulso Propulsione (Dash): %.1f N/s
+                    ⏱ Ricarica Scatto (Dash): %.2f sec
+                    🆔 ID Interno Risorsa: %s
+                    """,
+                        cooldownSparo, dashImpulse, dashCooldown, record.entityKey()
+                );
+                infoCardController.updateInfo("EXTRA INFO", extraText);
+            }
+        }
+    }
+
+    @FXML private void showDescription() { currentInfoMode = InfoMode.DESCRIPTION; refreshInfoZone(); }
+    @FXML private void showStats()       { currentInfoMode = InfoMode.STATS; refreshInfoZone(); }
+    @FXML private void showExtra()       { currentInfoMode = InfoMode.EXTRA; refreshInfoZone(); }
 
     @FXML
     private void selectRandom() {
@@ -176,12 +268,9 @@ public class SkinMenuController implements IscatMenuController {
     @FXML
     private void handleConfirm(ActionEvent event) {
         if (selectedSkinPath != null && selectedSkinKey != null) {
-            // Salva i dati globali nei settings del Player
             PlayerSettings.setPlayerSkin(selectedSkinPath);
             PlayerSettings.setPlayerSkinKey(selectedSkinKey);
 
-            // Sincronizzazione con il database
-            //TODO
             try {
                 System.out.println("[SkinMenu] Salvata skin nel Database: " + selectedSkinKey);
             } catch (Exception ex) {

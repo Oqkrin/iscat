@@ -4,7 +4,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -44,8 +43,6 @@ public class BestiaryMenuController implements IscatMenuController {
 
     @FXML private StackPane previewContainer;
     @FXML private Label skinNameLabel;
-    @FXML private Label rightCardHeader;
-    @FXML private TextArea description;
     @FXML private VBox enemyButtonsBox;
     @FXML private Label listHeaderLabel;
 
@@ -56,6 +53,8 @@ public class BestiaryMenuController implements IscatMenuController {
     @FXML private Button btnExtra;
     @FXML private Button btnBack;
 
+    @FXML private InfoCardController infoCardController;
+
     private StackPane contentRoot;
     private AnimatedCanvas previewCanvas;
     private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
@@ -64,9 +63,6 @@ public class BestiaryMenuController implements IscatMenuController {
     public void initialize() {
         previewCanvas = new AnimatedCanvas(DISPLAY_SIZE);
         previewContainer.getChildren().add(previewCanvas);
-
-        description.setEditable(false);
-        description.setWrapText(true);
 
         ComponentsUtils.applyIconButton(btnToggleCategory, "fas-exchange-alt");
         ComponentsUtils.applyIconButton(btnRandom,         "fas-dice");
@@ -105,12 +101,22 @@ public class BestiaryMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Verifica in modo centralizzato se l'entità corrisponde a una navicella del giocatore.
+     */
+    private boolean isPlayer(String key, EntityRecord record) {
+        if (key == null) return false;
+        String lowerKey = key.toLowerCase().trim();
+        return lowerKey.contains("player")
+                || (record != null && record.name() != null && record.name().toLowerCase().contains("player"))
+                || (record != null && record.player() != null);
+    }
+
     private void applyFilterAndRebuildUI() {
         filteredEnemies.clear();
 
         for (Map.Entry<String, EntityRecord> entry : rawEnemiesMap.entrySet()) {
-            String key = entry.getKey().toLowerCase().trim();
-            boolean isPlayerEntity = key.contains("player") || entry.getValue().name().toLowerCase().contains("player");
+            boolean isPlayerEntity = isPlayer(entry.getKey(), entry.getValue());
 
             if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity) {
                 filteredEnemies.put(entry.getKey(), entry.getValue());
@@ -139,7 +145,9 @@ public class BestiaryMenuController implements IscatMenuController {
             showEnemyById(filteredEnemies.keySet().iterator().next());
         } else {
             skinNameLabel.setText("NO ENTITIES FOUND");
-            description.setText("");
+            if (infoCardController != null) {
+                infoCardController.updateInfo("", "");
+            }
         }
     }
 
@@ -149,7 +157,9 @@ public class BestiaryMenuController implements IscatMenuController {
 
         for (EntityRecord enemy : filteredEnemies.values()) {
             String safeId = enemy.entityKey().toLowerCase().trim();
-            boolean unlocked = bestiaryModel.isUnlocked(safeId);
+
+            // Se è un player, ignoriamo il database dei salvataggi: è sempre sbloccato.
+            boolean unlocked = isPlayer(safeId, enemy) || bestiaryModel.isUnlocked(safeId);
 
             String buttonText = unlocked ? enemy.name() : "???";
 
@@ -189,7 +199,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
         currentEnemyId = cleanId;
 
-        boolean unlocked = bestiaryModel.isUnlocked(cleanId);
+        boolean unlocked = isPlayer(cleanId, enemy) || bestiaryModel.isUnlocked(cleanId);
         String nameToShow = unlocked ? enemy.name().toUpperCase() : "??? UNKNOWN ENTITY ???";
         skinNameLabel.setText(nameToShow);
 
@@ -207,27 +217,24 @@ public class BestiaryMenuController implements IscatMenuController {
     }
 
     private void refreshInfoZone() {
-        if (currentEnemyId == null) return;
+        if (currentEnemyId == null || infoCardController == null) return;
         EntityRecord enemy = filteredEnemies.get(currentEnemyId);
         if (enemy == null) return;
 
-        boolean unlocked = bestiaryModel.isUnlocked(currentEnemyId);
+        boolean unlocked = isPlayer(currentEnemyId, enemy) || bestiaryModel.isUnlocked(currentEnemyId);
         int currentKills = bestiaryModel.getKillCount(currentEnemyId);
 
         if (!unlocked) {
-            rightCardHeader.setText("LOCKED");
-            description.setText("[ INFO NASCOSTE ]\n\nSconfiggi o sblocca questa entità per visualizzarla.");
+            infoCardController.updateInfo("LOCKED", "[ INFO NASCOSTE ]\n\nSconfiggi o sblocca questa entità per visualizzarla.");
             return;
         }
 
         switch (currentInfoMode) {
             case DESCRIPTION -> {
-                rightCardHeader.setText("DESCRIPTION");
-                description.setText(enemy.description());
+                infoCardController.updateInfo("DESCRIPTION", enemy.description());
             }
             case STATS -> {
-                rightCardHeader.setText("STATS");
-                description.setText(String.format("""
+                String statsText = String.format("""
                     STATISTICHE DI BASE
                     
                     ❤ Punti Vita: %.0f HP
@@ -240,14 +247,21 @@ public class BestiaryMenuController implements IscatMenuController {
                     """,
                         enemy.initLife(), enemy.maxVelocity(), enemy.xpReward(),
                         enemy.scale(), enemy.linearDamping(), enemy.mass(), enemy.maxForce()
-                ));
+                );
+                infoCardController.updateInfo("STATS", statsText);
             }
             case EXTRA -> {
-                rightCardHeader.setText("EXTRA INFO");
-
                 double cooldownSeconds = (enemy.actionCooldownSec() > 0) ? enemy.actionCooldownSec() : (enemy.actionCooldownSec() / 1000.0);
 
-                description.setText(String.format("""
+                String extraText = isPlayer(currentEnemyId, enemy) ?
+                        String.format("""
+                    INFORMAZIONI ABILITÀ
+                    
+                    ⏱ Cooldown Attacco Base: %.2f secondi
+                    🆔 ID Skin : %s
+                    """, enemy.actionCooldownSec(), enemy.entityKey())
+                        :
+                        String.format("""
                     INFORMAZIONI EXTRA
                     
                     👁 Raggio di Avvistamento: %.1f unità
@@ -257,9 +271,10 @@ public class BestiaryMenuController implements IscatMenuController {
                     🆔 ID : %s
                     📊 Totale Uccisi: %d
                     """,
-                        enemy.detectionRange(), enemy.combatRange(), enemy.preferredRange(),
-                        cooldownSeconds, enemy.entityKey(), currentKills
-                ));
+                                enemy.detectionRange(), enemy.combatRange(), enemy.preferredRange(),
+                                cooldownSeconds, enemy.entityKey(), currentKills);
+
+                infoCardController.updateInfo("EXTRA INFO", extraText);
             }
         }
     }
