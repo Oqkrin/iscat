@@ -28,8 +28,8 @@
   "steering": {
     "type": "pursuitWithRange",
     "maxPredictionTime": 3,
-    "minDistance": 20,
-    "maxDistance": 20
+    "minDistance": 10,
+    "maxDistance": 15
   },
   "abilities": [
     {

@@ -33,7 +33,7 @@
     "abilities": [
       {
         "type": "kamikaze",
-        "meleeDamage": "50"
+        "meleeDamage": 50
       }
     ],
     "modifiers": [

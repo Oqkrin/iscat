@@ -14,9 +14,9 @@
   "MaxForce": 30,
   "MaxAngularVelocity": 5,
   "XPReward": 10,
-  "DetectionRange": 15,
-  "CombatRange": 10,
-  "PreferredRange": 10,
+  "DetectionRange": 10,
+  "CombatRange": 5,
+  "PreferredRange": 7,
   "actionCooldownS": 800,
   "audio": {
     "attack": [],
@@ -29,8 +29,8 @@
     "steering": {
       "type": "pursuitWithRange",
       "maxPredictionTime": 2.5,
-      "minDistance": 10,
-      "maxDistance": 10
+      "minDistance": 5,
+      "maxDistance": 9
     },
     "rotation": { "type": "target", "target": "player" },
     "abilities": [

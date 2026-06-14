@@ -28,12 +28,12 @@
   "ai": {
     "steering": {
       "type": "pursuit",
-      "maxPredictionTime": 1
+      "maxPredictionTime": 0.5
     },
     "abilities": [
       {
         "type": "kamikaze",
-        "meleeDamage": "15"
+        "meleeDamage": 20
       }
     ],
     "modifiers": [

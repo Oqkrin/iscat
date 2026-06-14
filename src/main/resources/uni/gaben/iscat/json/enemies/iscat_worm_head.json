@@ -25,7 +25,7 @@
     "death": [],
     "spawn": []
   },"ai": {
-  "steering": { "type": "idle" },
+  "steering": { "type": "pursuit" },
   "abilities": [],
   "modifiers": [
     { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
