@@ -19,6 +19,7 @@ import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SkinMenuController implements IscatMenuController {
 
@@ -51,16 +52,10 @@ public class SkinMenuController implements IscatMenuController {
     private AnimatedCanvas previewCanvas;
     private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
 
-    private static final int TOTAL_SKINS = 9;
+    private final List<EntityRecord> playerSkins = new ArrayList<>();
+
     private static final double BASE_SIZE = 32.0;
-
     private boolean isScaling = false;
-
-    private static final String[] SKIN_NAMES = {
-            "Battle Ship", "Simple Battle Ship", "Friendly Ship",
-            "Iscat Traitor", "Cubism Lover", "Space Goblin",
-            "Phantom", "Radar", "PARADOX"
-    };
 
     @FXML
     public void initialize() {
@@ -71,21 +66,28 @@ public class SkinMenuController implements IscatMenuController {
         ComponentsUtils.applyIconButton(randomBtn,  "fas-dice");
         ComponentsUtils.applyIconButton(cancelBtn,  "fas-arrow-left");
 
-        // Iconizzazione opzionale dei bottoni info con FontAwesome
         ComponentsUtils.applyIconButton(btnDescription, "fas-book");
         ComponentsUtils.applyIconButton(btnStats,       "fas-chart-bar");
         ComponentsUtils.applyIconButton(btnExtra,       "fas-info-circle");
 
+        // Carica e filtra i dati dal JSON tramite EntityFactory
+        loadSkinsFromJson();
+
+        // Popola la griglia dinamicamente basandosi sulla lista estratta
         populateGrid();
 
-        // Stato iniziale basato su player1
-        this.selectedSkinKey = "player1";
-        this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
-        this.skinNameLabel.setText(SKIN_NAMES[0].toUpperCase());
-        previewCanvas.loadSkin(selectedSkinPath);
-
-        // Forza la sincronizzazione iniziale sulla info card
-        refreshInfoZone();
+        // Stato iniziale basato sulla prima skin disponibile nel JSON (se presente)
+        if (!playerSkins.isEmpty()) {
+            EntityRecord firstSkin = playerSkins.get(0);
+            selectSkin(firstSkin.entityKey(), firstSkin.spritePath(), firstSkin.name());
+        } else {
+            // Fallback se la cache è vuota al momento dell'init
+            this.selectedSkinKey = "player1";
+            this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
+            this.skinNameLabel.setText("BATTLE SHIP");
+            previewCanvas.loadSkin(selectedSkinPath);
+            refreshInfoZone();
+        }
 
         ChangeListener<Number> sizeListener = (obs, oldVal, newVal) -> updateDynamicScaling();
         skinStackPane.widthProperty().addListener(sizeListener);
@@ -94,6 +96,24 @@ public class SkinMenuController implements IscatMenuController {
         Platform.runLater(this::updateDynamicScaling);
 
         registerEscHandler();
+    }
+
+    /**
+     * Legge la cache globale dei JSON ed estrae esclusivamente i record configurati per il Player
+     */
+    private void loadSkinsFromJson() {
+        playerSkins.clear();
+        Map<String, EntityRecord> globalCache = EntityFactory.getCache();
+
+        for (Map.Entry<String, EntityRecord> entry : globalCache.entrySet()) {
+            EntityRecord record = entry.getValue();
+            String key = entry.getKey().toLowerCase().trim();
+
+            if (record.player() != null || key.contains("player")) {
+                playerSkins.add(record);
+            }
+        }
+
     }
 
     private void updateDynamicScaling() {
@@ -118,7 +138,6 @@ public class SkinMenuController implements IscatMenuController {
         }
 
         double fattoreScala = 1.25;
-
         skinGrid.setScaleX(fattoreScala);
         skinGrid.setScaleY(fattoreScala);
 
@@ -135,19 +154,24 @@ public class SkinMenuController implements IscatMenuController {
         return BASE_SIZE * multiplier;
     }
 
+    /**
+     * Popola la griglia usando la lista generata dinamicamente dai file JSON
+     */
     private void populateGrid() {
         skinGrid.getChildren().clear();
         buttonCanvases.clear();
         double initialDim = 80.0;
 
-        for (int i = 0; i < TOTAL_SKINS; i++) {
-            int num = i + 1;
-            String key = "player" + num;
-            String path = "/uni/gaben/iscat/sprites/players/player" + num + ".png";
-            String name = SKIN_NAMES[i];
+        for (int i = 0; i < playerSkins.size(); i++) {
+            EntityRecord skin = playerSkins.get(i);
+
+            String key = skin.entityKey();
+            String path = skin.spritePath();
+            String name = skin.name();
 
             AnimatedCanvas canvas = new AnimatedCanvas(BASE_SIZE);
-            canvas.loadSkin(path);
+            // Legge le dimensioni del frame direttamente dal JSON dell'entità
+            canvas.loadSkin(path, skin.frameW(), skin.frameH());
             buttonCanvases.add(canvas);
 
             Button btn = new Button();
@@ -161,6 +185,7 @@ public class SkinMenuController implements IscatMenuController {
 
             btn.setOnAction(e -> selectSkin(key, path, name));
 
+            // Disposizione automatica in griglia a 3 colonne
             skinGrid.add(btn, i % 3, i / 3);
         }
     }
@@ -169,119 +194,66 @@ public class SkinMenuController implements IscatMenuController {
         this.selectedSkinKey = key;
         this.selectedSkinPath = path;
         this.skinNameLabel.setText(name.toUpperCase());
-        previewCanvas.loadSkin(path);
 
-        // Sincronizza i dati testuali sulla InfoCard a destra
+        // Applica le dimensioni corrette recuperandole dal record
+        EntityRecord record = EntityFactory.getCache().get(key);
+        if (record != null) {
+            previewCanvas.loadSkin(path, record.frameW(), record.frameH());
+        } else {
+            previewCanvas.loadSkin(path);
+        }
+
         refreshInfoZone();
-
         ComponentsUtils.playSpawnTween(previewBox);
         updateDynamicScaling();
     }
 
-    /**
-     * Recupera le statistiche dell'entità corrente dalla cache
-     * e aggiorna i testi della InfoCard aggregata.
-     */
+    @FXML
+    private void selectRandom() {
+        if (playerSkins.isEmpty()) return;
+
+        int idx;
+        EntityRecord randomSkin;
+        do {
+            idx = java.util.concurrent.ThreadLocalRandom.current().nextInt(playerSkins.size());
+            randomSkin = playerSkins.get(idx);
+        } while (randomSkin.spritePath().equals(selectedSkinPath) && playerSkins.size() > 1);
+
+        selectSkin(randomSkin.entityKey(), randomSkin.spritePath(), randomSkin.name());
+    }
+
     private void refreshInfoZone() {
         if (selectedSkinKey == null || infoCardController == null) return;
 
         EntityRecord record = EntityFactory.getCache().get(selectedSkinKey);
         if (record == null) {
-            // Se la factory non ha ancora in cache il JSON del player, mostra un fallback amichevole
-            infoCardController.updateInfo("N/A", "Nessun dato JSON caricato per " + selectedSkinKey);
+            infoCardController.updateInfo("N/A", "Nessun dato caricato per " + selectedSkinKey);
             return;
         }
 
-        switch (currentInfoMode) {
-            case DESCRIPTION -> {
-                infoCardController.updateInfo("DESCRIPTION", record.description());
-            }
-            case STATS -> {
-                String statsText = String.format("""
-                    STATISTICHE DELLA NAVE
-                    
-                    ❤ Integrità Scafo: %.0f HP
-                    ⚡ Velocità di Manovra: %.1f m/s
-                    📐 Scala Grafica: %.1fx
-                    ⚓ Coefficiente Attrito: %.1f
-                    ⚙ Massa Strutturale: %.1f kg
-                    💪 Spinta Propulsori: %.1f N
-                    """,
-                        record.initLife(), record.maxVelocity(), record.scale(),
-                        record.linearDamping(), record.mass(), record.maxForce()
-                );
-                infoCardController.updateInfo("STATS", statsText);
-            }
-            case EXTRA -> {
-                double cooldownSparo = record.actionCooldownSec();
-                double dashImpulse = 0;
-                double dashCooldown = 0;
+        // Convertiamo l'InfoMode locale del menu in quello accettato dall'infoCardController
+        InfoCardController.InfoMode targetMode = InfoCardController.InfoMode.valueOf(currentInfoMode.name());
 
-                // Estrazione sicura del sotto-record specifico del player
-                if (record.player() != null) {
-                    dashImpulse = record.player().dashImpulse();
-                    dashCooldown = record.player().dashCooldownSec();
-                    if (record.player().baseCooldownSec() > 0) {
-                        cooldownSparo = record.player().baseCooldownSec();
-                    }
-                }
-
-                String extraText = String.format("""
-                    SPECIFICHE DI SISTEMA
-                    
-                    ⏱ Cooldown Fuoco Base: %.2f sec
-                    💨 Impulso Propulsione (Dash): %.1f N/s
-                    ⏱ Ricarica Scatto (Dash): %.2f sec
-                    🆔 ID Interno Risorsa: %s
-                    """,
-                        cooldownSparo, dashImpulse, dashCooldown, record.entityKey()
-                );
-                infoCardController.updateInfo("EXTRA INFO", extraText);
-            }
-        }
+        // Passiamo tutto all'infoCard (0 uccisioni visto che è un player)
+        infoCardController.updateEntityInfo(targetMode, record, 0);
     }
 
     @FXML private void showDescription() { currentInfoMode = InfoMode.DESCRIPTION; refreshInfoZone(); }
     @FXML private void showStats()       { currentInfoMode = InfoMode.STATS; refreshInfoZone(); }
     @FXML private void showExtra()       { currentInfoMode = InfoMode.EXTRA; refreshInfoZone(); }
 
-    @FXML
-    private void selectRandom() {
-        int idx;
-        String key;
-        String path;
-        do {
-            idx = java.util.concurrent.ThreadLocalRandom.current().nextInt(TOTAL_SKINS);
-            key = "player" + (idx + 1);
-            path = "/uni/gaben/iscat/sprites/players/player" + (idx + 1) + ".png";
-        } while (path.equals(selectedSkinPath));
-
-        selectSkin(key, path, SKIN_NAMES[idx]);
-    }
-
-    @Override
-    public Pane getRootPane() { return skinStackPane; }
-
-    @FXML
-    private void handleBack(ActionEvent event) { handleBack(); }
+    @Override public Pane getRootPane() { return skinStackPane; }
+    @FXML private void handleBack(ActionEvent event) { handleBack(); }
 
     @FXML
     private void handleConfirm(ActionEvent event) {
         if (selectedSkinPath != null && selectedSkinKey != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
             PlayerSettings.setPlayerSkinKey(selectedSkinKey);
-
-            try {
-                System.out.println("[SkinMenu] Salvata skin nel Database: " + selectedSkinKey);
-            } catch (Exception ex) {
-                System.err.println("[SkinMenu] Impossibile salvare la skin nel DB: " + ex.getMessage());
-            }
+            System.out.println("[SkinMenu] Salvata skin: " + selectedSkinKey);
         }
         handleBack();
     }
 
-    @Override
-    public void setContentRoot(StackPane contentRoot) {
-        this.contentRoot = contentRoot;
-    }
+    @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
 }

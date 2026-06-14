@@ -229,54 +229,9 @@ public class BestiaryMenuController implements IscatMenuController {
             return;
         }
 
-        switch (currentInfoMode) {
-            case DESCRIPTION -> {
-                infoCardController.updateInfo("DESCRIPTION", enemy.description());
-            }
-            case STATS -> {
-                String statsText = String.format("""
-                    STATISTICHE DI BASE
-                    
-                    ❤ Punti Vita: %.0f HP
-                    ⚡ Velocità Massima: %.1f m/s
-                    ✨ Ricompensa Esperienza: %d XP
-                    📐 Scala Moltiplicatore: %.1fx
-                    ⚓ Attrito Lineare: %.1f
-                    ⚙ Massa: %.1f kg
-                    💪 Forza Massima: %.1f N
-                    """,
-                        enemy.initLife(), enemy.maxVelocity(), enemy.xpReward(),
-                        enemy.scale(), enemy.linearDamping(), enemy.mass(), enemy.maxForce()
-                );
-                infoCardController.updateInfo("STATS", statsText);
-            }
-            case EXTRA -> {
-                double cooldownSeconds = (enemy.actionCooldownSec() > 0) ? enemy.actionCooldownSec() : (enemy.actionCooldownSec() / 1000.0);
-
-                String extraText = isPlayer(currentEnemyId, enemy) ?
-                        String.format("""
-                    INFORMAZIONI ABILITÀ
-                    
-                    ⏱ Cooldown Attacco Base: %.2f secondi
-                    🆔 ID Skin : %s
-                    """, enemy.actionCooldownSec(), enemy.entityKey())
-                        :
-                        String.format("""
-                    INFORMAZIONI EXTRA
-                    
-                    👁 Raggio di Avvistamento: %.1f unità
-                    ⚔ Raggio di Combattimento: %.1f unità
-                    🎯 Raggio Preferito: %.1f unità
-                    ⏱ Cooldown Azione: %.1f secondi
-                    🆔 ID : %s
-                    📊 Totale Uccisi: %d
-                    """,
-                                enemy.detectionRange(), enemy.combatRange(), enemy.preferredRange(),
-                                cooldownSeconds, enemy.entityKey(), currentKills);
-
-                infoCardController.updateInfo("EXTRA INFO", extraText);
-            }
-        }
+        // Sincronizza l'enum ed invia i dati strutturati comprensivi del killCount
+        InfoCardController.InfoMode targetMode = InfoCardController.InfoMode.valueOf(currentInfoMode.name());
+        infoCardController.updateEntityInfo(targetMode, enemy, currentKills);
     }
 
     @FXML private void showDescription() { currentInfoMode = InfoMode.DESCRIPTION; refreshInfoZone(); }
