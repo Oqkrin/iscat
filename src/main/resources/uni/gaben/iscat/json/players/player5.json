@@ -7,7 +7,7 @@
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",
-  "Scale": 1.0,
+  "Scale": 2.0,
   "InitLife": 100,
   "LinearDamping": 1.0,
   "mass": 1.0,
