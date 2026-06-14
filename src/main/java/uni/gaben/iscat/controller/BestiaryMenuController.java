@@ -112,19 +112,37 @@ public class BestiaryMenuController implements IscatMenuController {
                 || (record != null && record.player() != null);
     }
 
+    /**
+     * Filtra le entità in base alla categoria attiva e le ORDINA secondo 'bestiaryOrder'.
+     */
     private void applyFilterAndRebuildUI() {
         filteredEnemies.clear();
 
+        // Estrarre i record che corrispondono ai filtri di categoria correnti
+        List<EntityRecord> tempList = new ArrayList<>();
         for (Map.Entry<String, EntityRecord> entry : rawEnemiesMap.entrySet()) {
             boolean isPlayerEntity = isPlayer(entry.getKey(), entry.getValue());
 
             if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity) {
-                filteredEnemies.put(entry.getKey(), entry.getValue());
+                tempList.add(entry.getValue());
             } else if (currentCategory == CategoryMode.ENEMIES && !isPlayerEntity) {
-                filteredEnemies.put(entry.getKey(), entry.getValue());
+                tempList.add(entry.getValue());
             }
         }
 
+        // Ordinamento effettivo tramite bestiaryOrder
+        tempList.sort((a, b) -> {
+            int orderA = (a.bestiaryOrder() != null) ? a.bestiaryOrder() : 0;
+            int orderB = (b.bestiaryOrder() != null) ? b.bestiaryOrder() : 0;
+            return Integer.compare(orderA, orderB);
+        });
+
+        // Ripopolare la LinkedHashMap (che preserva l'ordine di inserimento)
+        for (EntityRecord record : tempList) {
+            filteredEnemies.put(record.entityKey().toLowerCase().trim(), record);
+        }
+
+        // Aggiornamento etichette UI
         if (currentCategory == CategoryMode.ENEMIES) {
             listHeaderLabel.setText("ENEMIES");
             btnToggleCategory.setText("CHANGE TO PLAYERS");

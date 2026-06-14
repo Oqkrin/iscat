@@ -7,6 +7,10 @@ public class EntityRecordBuilder {
     private String entityKey = "";
     private String name = "";
     private String description = "";
+
+    private Integer bestiaryOrder = 0;
+    private ThreatLevel threatLevel = ThreatLevel.NORMAL;
+
     // Visual
     private String spritePath = "";
     private int frameW = 32;
@@ -49,6 +53,16 @@ public class EntityRecordBuilder {
 
     public EntityRecordBuilder description(String v) {
         description = v;
+        return this;
+    }
+
+    public EntityRecordBuilder bestiaryOrder(Integer v) {
+        bestiaryOrder = v;
+        return this;
+    }
+
+    public EntityRecordBuilder threatLevel(ThreatLevel v) {
+        threatLevel = v;
         return this;
     }
 
@@ -164,7 +178,7 @@ public class EntityRecordBuilder {
 
     public EntityRecord build() {
         return new EntityRecord(
-                entityKey, name, description,
+                entityKey, name, description, bestiaryOrder, threatLevel,
                 spritePath, frameW, frameH, scale,
                 animationFrames, isBoss, hasEntranceAnimation,
                 initLife, linearDamping, mass, maxVelocity, maxForce, maxAngularVelocity, xpReward, shapeType,

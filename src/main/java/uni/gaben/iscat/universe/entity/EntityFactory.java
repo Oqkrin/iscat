@@ -145,6 +145,18 @@ public class EntityFactory {
                 .name(json.optString("Name", ""))
                 .description(json.optString("Description", ""));
 
+        // Gestione BestiaryOrder con valore di default a 0
+        builder.bestiaryOrder(json.optInt("BestiaryOrder", 0));
+
+        // Legge il ThreatLevel dal JSON. Se manca o è vuoto, usa "NONE" come fallback di sicurezza per i Player
+        String threatStr = json.optString("ThreatLevel", "NONE").toUpperCase().trim();
+        try {
+            builder.threatLevel(ThreatLevel.valueOf(threatStr));
+        } catch (IllegalArgumentException e) {
+            System.err.println("[EntityFactory] ThreatLevel invalido '" + threatStr + "' per l'entità " + json.optString("EntityKey") + ". Imposto NONE.");
+            builder.threatLevel(ThreatLevel.NONE);
+        }
+
         // Sprite path (Dinamico: cambia cartella in base al tipo di entità)
         String spriteName = json.optString("SpriteName", "").trim();
         if (spriteName.toLowerCase().endsWith(".png")) {

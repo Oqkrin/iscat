@@ -11,6 +11,8 @@ public record EntityRecord(
         String entityKey,
         String name,
         String description,
+        Integer bestiaryOrder,
+        ThreatLevel threatLevel,
 
         // Visual / Animation
         String spritePath,
@@ -100,9 +102,7 @@ public record EntityRecord(
             double dashAvoidRange,
             double dashImpulse,
             double plungeCooldownMS
-    ) {
-
-    }
+    ) {}
 
     public record PatternRecord(
             String type,

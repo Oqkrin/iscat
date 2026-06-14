@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.ThreatLevel;
 
 public class InfoCardController {
 
@@ -44,9 +45,26 @@ public class InfoCardController {
         // Verifica centralizzata per capire se è un Player o un Enemy
         boolean isPlayer = record.player() != null || record.entityKey().toLowerCase().contains("player");
 
+        // Recuperiamo i dati di ordinamento e minaccia con gestione dei null di sicurezza
+        int order = (record.bestiaryOrder() != null) ? record.bestiaryOrder() : 0;
+        ThreatLevel threat = (record.threatLevel() != null) ? record.threatLevel() : ThreatLevel.NONE;
+
         switch (mode) {
             case DESCRIPTION -> {
-                updateInfo("DESCRIPTION", record.description());
+                String headerText = "";
+
+                String pericoloVisual = switch (threat) {
+                    case NONE        -> "[Nessun Pericolo]";
+                    case LOW         -> "[Rischio Basso]";
+                    case NORMAL      -> "[Rischio Normale]";
+                    case HIGH        -> "[Rischio Alto]";
+                    case EXTREME     -> "[Rischio Estremo]";
+                    case APOCALYPSE  -> "[Rischio APOCALYPSE]";
+                };
+
+                headerText += "⚠️ Grado Pericolo: " + pericoloVisual + "\n\n";
+                updateInfo("DESCRIPTION", headerText + record.description());
+
             }
             case STATS -> {
                 // Scegliamo l'intestazione appropriata
@@ -58,8 +76,9 @@ public class InfoCardController {
                 String forceLabel = isPlayer ? "Spinta Propulsori" : "Forza Massima";
 
                 String statsText = String.format("""
-                    %s
+                    %s (Index #%03d)
                     
+                    💀 Minaccia Target: %s
                     ❤ %s: %.0f HP
                     ⚡ %s: %.1f m/s
                     ✨ Ricompensa Esperienza: %d XP
@@ -68,7 +87,8 @@ public class InfoCardController {
                     ⚙ %s: %.1f kg
                     💪 %s: %.1f N
                     """,
-                        title,
+                        title, order,
+                        threat.getDisplayName(),
                         hpLabel, record.initLife(),
                         velLabel, record.maxVelocity(),
                         record.xpReward(),
@@ -96,12 +116,13 @@ public class InfoCardController {
                     String extraText = String.format("""
                         SPECIFICHE DI SISTEMA
                         
+                        🔢 Registro Indice: #%03d
                         ⏱ Cooldown Fuoco Base: %.2f sec
                         💨 Impulso Propulsione (Dash): %.1f N/s
                         ⏱ Ricarica Scatto (Dash): %.2f sec
                         🆔 ID Interno Risorsa: %s
                         """,
-                            cooldownSparo, dashImpulse, dashCooldown, record.entityKey()
+                            order, cooldownSparo, dashImpulse, dashCooldown, record.entityKey()
                     );
                     updateInfo("EXTRA INFO", extraText);
                 } else {
@@ -110,6 +131,8 @@ public class InfoCardController {
                     String extraText = String.format("""
                         INFORMAZIONI EXTRA
                         
+                        🔢 Registro Indice: #%03d
+                        ☠️ Classe di Rischio: %s
                         👁 Raggio di Avvistamento: %.1f unità
                         ⚔ Raggio di Combattimento: %.1f unità
                         🎯 Raggio Preferito: %.1f unità
@@ -117,6 +140,7 @@ public class InfoCardController {
                         🆔 ID : %s
                         📊 Totale Uccisi: %d
                         """,
+                            order, threat.getDisplayName(),
                             record.detectionRange(), record.combatRange(), record.preferredRange(),
                             cooldownSeconds, record.entityKey(), killCount
                     );
