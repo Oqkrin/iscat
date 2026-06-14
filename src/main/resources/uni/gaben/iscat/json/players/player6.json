@@ -1,7 +1,7 @@
 {
   "EntityKey": "player6",
-  "Name": "Gaben",
-  "Description": "Il protagonista dell'universo ISCAT.",
+  "Name": "Space Goblin",
+  "Description": "Una nave comandata da un mini goblin. Solo chi legge queste descrizioni può sapere che questa nave è la protagonista di ISCAT 2: THE GOBLIN INVASION",
   "SpriteName": "player6",
   "FrameW": 64,
   "FrameH": 64,

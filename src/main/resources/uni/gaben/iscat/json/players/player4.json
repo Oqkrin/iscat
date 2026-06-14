@@ -1,7 +1,7 @@
 {
   "EntityKey": "player4",
-  "Name": "Gaben",
-  "Description": "Il protagonista dell'universo ISCAT.",
+  "Name": "Iscat Traitor",
+  "Description": "Un Iscat Mob che ha deciso di ribellarsi contro il Master, riuscirà nel suo intento?",
   "SpriteName": "player4",
   "FrameW": 64,
   "FrameH": 64,

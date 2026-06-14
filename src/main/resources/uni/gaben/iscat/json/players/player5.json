@@ -1,7 +1,7 @@
 {
   "EntityKey": "player5",
-  "Name": "Gaben",
-  "Description": "Il protagonista dell'universo ISCAT.",
+  "Name": "Cubism Lover",
+  "Description": "Una nave che ama la geometria, una geometria letale! Usa il teorema di pitagora e di euclide per calcolare il momento migliore per sparare.",
   "SpriteName": "player5",
   "FrameW": 64,
   "FrameH": 64,

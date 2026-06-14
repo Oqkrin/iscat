@@ -1,7 +1,7 @@
 {
   "EntityKey": "player2",
-  "Name": "Gaben",
-  "Description": "Il protagonista dell'universo ISCAT.",
+  "Name": "Simple Battle Ship",
+  "Description": "Una nave essenziale, perfetta per i principianti. Simple Battle Ship è la nave piu veloce del Far West! Ah no aspetta... Del Cosmo!",
   "SpriteName": "player2",
   "FrameW": 64,
   "FrameH": 64,

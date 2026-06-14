@@ -1,7 +1,7 @@
 {
   "EntityKey": "player1",
-  "Name": "Gaben",
-  "Description": "Il protagonista dell'universo ISCAT.",
+  "Name": "Battle Ship",
+  "Description": "Il protagonista dell'universo ISCAT. Una nave da battaglia classica, resistente e potente, nata per essere il protagonista di una storia!",
   "SpriteName": "player1",
   "FrameW": 64,
   "FrameH": 64,

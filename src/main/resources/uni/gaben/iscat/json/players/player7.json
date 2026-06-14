@@ -1,7 +1,7 @@
 {
   "EntityKey": "player7",
-  "Name": "Gaben",
-  "Description": "Il protagonista dell'universo ISCAT.",
+  "Name": "Phantom",
+  "Description": "Una nave fantasma, evasiva e misteriosa. Si vocifera che possa usare le tecniche del Master, ma dopo varie analisi non si è potuto confermare niente.",
   "SpriteName": "player7",
   "FrameW": 64,
   "FrameH": 64,

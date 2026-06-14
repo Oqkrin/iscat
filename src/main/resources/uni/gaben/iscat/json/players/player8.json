@@ -1,7 +1,7 @@
 {
   "EntityKey": "player8",
-  "Name": "Gaben",
-  "Description": "Il protagonista dell'universo ISCAT.",
+  "Name": "Radar",
+  "Description": "Una nave dotata di un radar, vede tutto ciò che si muove quando non è comandata da nessuno. eh già...",
   "SpriteName": "player8",
   "FrameW": 64,
   "FrameH": 64,
