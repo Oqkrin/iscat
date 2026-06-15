@@ -27,7 +27,7 @@ public final class UniverseCollisionLayers {
     public static final CategoryFilter ENEMY_FILTER = new CategoryFilter(ENEMY,
             PLAYER | ASTEROID | ENEMY | PROJECTILE);
 
-    // Il corpo/coda del verme collide con player, asteroidi e proiettili
+    // collisione unica per il worm
     public static final CategoryFilter WORM_BODY_FILTER = new CategoryFilter(WORM_BODY,
             PLAYER | ASTEROID | PROJECTILE);
 
@@ -37,7 +37,6 @@ public final class UniverseCollisionLayers {
     public static final CategoryFilter ENEMY_PROJECTILE_FILTER = new CategoryFilter(ENEMY_PROJECTILE,
             PLAYER | ASTEROID );
 
-    // FIX CRITICO: Il proiettile deve avere il bit WORM_BODY nella maschera, altrimenti lo trapassa!
     public static final CategoryFilter PROJECTILE_FILTER = new CategoryFilter(PROJECTILE,
             ASTEROID | ENEMY | WORM_BODY);
 }
