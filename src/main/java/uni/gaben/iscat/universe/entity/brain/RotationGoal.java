@@ -19,6 +19,7 @@ public interface RotationGoal {
     static RotationGoal createRotationGoal(EntityRecord.RotationRecord rotation) {
         if (rotation == null) return RotationGoal.idle();
         return switch (rotation.type()) {
+            case STILL -> RotationGoal.still();
             case MOVEMENT -> RotationGoal.movement();
             case TARGET -> RotationGoal.target(Target.ofPlayer());
             case CONTINUES_SPIN -> RotationGoal.continuesSpin(rotation.spinSpeedRadPerSec());
@@ -26,6 +27,8 @@ public interface RotationGoal {
             default -> RotationGoal.idle();
         };
     }
+
+    static RotationGoal still()  {return (_, _, _) -> 0.0;}
 
     static RotationGoal movement() {
         return (self, world, dt) -> {

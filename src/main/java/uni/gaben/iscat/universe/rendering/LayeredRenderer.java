@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class BatchedDrawCollector {
+public class LayeredRenderer {
 
     private record SpriteBatch(Image image, double x, double y, double w, double h, double angle, Color tint) {}
     private record LineBatch(double x1, double y1, double x2, double y2, double lineWidth, Color color, double alpha) {}
@@ -72,84 +72,26 @@ public class BatchedDrawCollector {
         projectiles.clear();
     }
 
-    public void flush() {
+    public void draw() {
         gc.save();
         gc.translate(screenWidth / 2 - camX * zoom, screenHeight / 2 - camY * zoom);
         gc.scale(zoom, zoom);
 
-        // Sprites
-        sprites.sort(Comparator.comparingInt(a -> a.image().hashCode()));
-        for (SpriteBatch s : sprites) {
-            gc.setEffect(spriteBloom);
-            drawTransformedImage(s.image, s.x, s.y, s.w, s.h, s.angle, s.tint);
-            gc.setEffect(null);
-        }
+        drawSprites();
+        drawPolygons();
+        drawLines();
+        drawOvals();
+        drawRect();
+        drawHPbars();
+        drawShockwaves();
+        drawThrusts();
+        drawProjectiles();
 
-        // Polygons
-        for (PolygonBatch p : polygons) {
-            if (p.fill) {
-                gc.setFill(p.color);
-                gc.fillPolygon(p.xPoints, p.yPoints, p.xPoints.length);
-            }
-            if (p.lineWidth > 0) {
-                gc.setStroke(p.color);
-                gc.setLineWidth(p.lineWidth);
-                gc.strokePolygon(p.xPoints, p.yPoints, p.xPoints.length);
-            }
-        }
+        gc.restore();
+        gc.setGlobalAlpha(1.0);
+    }
 
-        // Lines
-        for (LineBatch l : lines) {
-            gc.setStroke(l.color);
-            gc.setLineWidth(l.lineWidth);
-            gc.setGlobalAlpha(l.alpha);
-            gc.strokeLine(l.x1, l.y1, l.x2, l.y2);
-        }
-
-        // Ovals
-        for (OvalBatch o : ovals) {
-            if (o.fill) {
-                gc.setFill(o.color);
-                gc.fillOval(o.x, o.y, o.w, o.h);
-            } else {
-                gc.setStroke(o.color);
-                gc.strokeOval(o.x, o.y, o.w, o.h);
-            }
-        }
-
-        // Rects (some may be rotated)
-        for (RectBatch r : rects) {
-            if (r.angle != 0) {
-                drawRotatedRect(r.x, r.y, r.w, r.h, r.angle, r.fill, r.color, r.alpha);
-            } else {
-                if (r.fill) {
-                    gc.setFill(r.color);
-                    gc.fillRect(r.x, r.y, r.w, r.h);
-                } else {
-                    gc.setStroke(r.color);
-                    gc.strokeRect(r.x, r.y, r.w, r.h);
-                }
-            }
-        }
-
-        // HP bars (simple rects, no rotation)
-        for (HpBarBatch h : hpBars) {
-            gc.setFill(ThemeManager.getInstance().getColorError());
-            gc.fillRect(h.x, h.y, h.w, h.h);
-            gc.setFill(ThemeManager.getInstance().getColorSuccess());
-            gc.fillRect(h.x, h.y, h.w * h.percent, h.h);
-        }
-
-        // Shockwaves
-        for (ShockwaveBatch sw : shockwaves) {
-            drawShockwave(sw.cx, sw.cy, sw.shockwave, sw.isBlackHole);
-        }
-
-        // Thrust effects
-        for (ThrustBatch t : thrusts) {
-            drawThrust(t.cx, t.cy, t.angle, t.thrust);
-        }
-
+    private void drawProjectiles() {
         gc.setEffect(PROJECTILE_EFFECT);
         gc.setLineCap(StrokeLineCap.ROUND);                     // soft trail ends
         for (ProjectileBatch p : projectiles) {
@@ -167,14 +109,93 @@ public class BatchedDrawCollector {
         gc.setEffect(null);
         gc.setLineCap(StrokeLineCap.SQUARE);   // restore default
         gc.setGlobalAlpha(1.0);
-
-        gc.restore();
-        gc.setGlobalAlpha(1.0);
     }
 
-    // ------------------------------------------------------------------
-    // Public add methods (unchanged from previous version)
-    // ------------------------------------------------------------------
+    private void drawThrusts() {
+        for (ThrustBatch t : thrusts) {
+            drawThrust(t.cx, t.cy, t.angle, t.thrust);
+        }
+    }
+
+    private void drawShockwaves() {
+        for (ShockwaveBatch sw : shockwaves) {
+            drawShockwave(sw.cx, sw.cy, sw.shockwave, sw.isBlackHole);
+        }
+    }
+
+    private void drawHPbars() {
+        for (HpBarBatch h : hpBars) {
+            gc.setFill(ThemeManager.getInstance().getColorError());
+            gc.fillRect(h.x, h.y, h.w, h.h);
+            gc.setFill(ThemeManager.getInstance().getColorSuccess());
+            gc.fillRect(h.x, h.y, h.w * h.percent, h.h);
+        }
+    }
+
+    private void drawRect() {
+        // Rects (some may be rotated)
+        for (RectBatch r : rects) {
+            if (r.angle != 0) {
+                drawRotatedRect(r.x, r.y, r.w, r.h, r.angle, r.fill, r.color, r.alpha);
+            } else {
+                if (r.fill) {
+                    gc.setFill(r.color);
+                    gc.fillRect(r.x, r.y, r.w, r.h);
+                } else {
+                    gc.setStroke(r.color);
+                    gc.strokeRect(r.x, r.y, r.w, r.h);
+                }
+            }
+        }
+    }
+
+    private void drawOvals() {
+        // Ovals
+        for (OvalBatch o : ovals) {
+            if (o.fill) {
+                gc.setFill(o.color);
+                gc.fillOval(o.x, o.y, o.w, o.h);
+            } else {
+                gc.setStroke(o.color);
+                gc.strokeOval(o.x, o.y, o.w, o.h);
+            }
+        }
+    }
+
+    private void drawLines() {
+        // Lines
+        for (LineBatch l : lines) {
+            gc.setStroke(l.color);
+            gc.setLineWidth(l.lineWidth);
+            gc.setGlobalAlpha(l.alpha);
+            gc.strokeLine(l.x1, l.y1, l.x2, l.y2);
+        }
+    }
+
+    private void drawPolygons() {
+        for (PolygonBatch p : polygons) {
+            if (p.fill) {
+                gc.setFill(p.color);
+                gc.fillPolygon(p.xPoints, p.yPoints, p.xPoints.length);
+            }
+            if (p.lineWidth > 0) {
+                gc.setStroke(p.color);
+                gc.setLineWidth(p.lineWidth);
+                gc.strokePolygon(p.xPoints, p.yPoints, p.xPoints.length);
+            }
+        }
+    }
+
+    private void drawSprites() {
+        sprites.sort(Comparator.comparingInt(a -> a.image().hashCode()));
+        for (SpriteBatch s : sprites) {
+            gc.setEffect(spriteBloom);
+            drawTransformedImage(s.image, s.x, s.y, s.w, s.h, s.angle, s.tint);
+            gc.setEffect(null);
+        }
+    }
+
+
     public void addSprite(Image image, double x, double y, double w, double h, double angle, Color tint) {
         sprites.add(new SpriteBatch(image, x, y, w, h, angle, tint));
     }
@@ -199,16 +220,11 @@ public class BatchedDrawCollector {
         ovals.add(new OvalBatch(x, y, w, h, color, alpha, true));
     }
 
-    public void addStrokedOval(double x, double y, double w, double h, Color color, double lineWidth, double angle) {
-        // For a stroked oval with rotation, we can either store as a rotated rect (approximate) or handle later.
-        // Here we treat it as a RectBatch because an oval rotated is still an oval; rotation doesn't change appearance.
-        // But for simplicity, we store as OvalBatch without rotation. If you need rotated ovals, you'd need a separate path.
-        // Since the original code used this only for debug collision circles (which are axis-aligned after camera transform),
-        // we ignore the angle parameter for ovals.
+    public void addStrokedOval(double x, double y, double w, double h, Color color) {
         ovals.add(new OvalBatch(x, y, w, h, color, 1.0, false));
     }
 
-    public void addStrokedRect(double x, double y, double w, double h, Color color, double lineWidth, double angle) {
+    public void addStrokedRect(double x, double y, double w, double h, Color color, double angle) {
         rects.add(new RectBatch(x, y, w, h, color, 1.0, false, angle));
     }
 
@@ -235,9 +251,7 @@ public class BatchedDrawCollector {
                 trailX1, trailY1, trailX2, trailY2, trailWidth));
     }
 
-    // ------------------------------------------------------------------
-    // Internal drawing helpers
-    // ------------------------------------------------------------------
+
     private void drawTransformedImage(Image img, double x, double y, double w, double h, double angle, Color tint) {
         gc.save();
         gc.translate(x, y);
@@ -254,7 +268,6 @@ public class BatchedDrawCollector {
         gc.restore();
     }
 
-    // FIXED: uses boolean fill instead of method reference
     private void drawRotatedRect(double x, double y, double w, double h, double angle, boolean fill, Color color, double alpha) {
         gc.save();
         gc.translate(x + w/2, y + h/2);

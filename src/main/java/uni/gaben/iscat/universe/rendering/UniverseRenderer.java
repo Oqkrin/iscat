@@ -28,7 +28,7 @@ public class UniverseRenderer {
     private final List<AbstractEntityModel> entitySnapshotBuffer = new ArrayList<>();
 
     // Batched drawing helper
-    private final BatchedDrawCollector batcher = new BatchedDrawCollector();
+    private final LayeredRenderer batcher = new LayeredRenderer();
 
     public UniverseRenderer(Canvas mainCanvas, GameController gameController, StarfieldRenderer starfieldRenderer) {
         this.mainCanvas       = mainCanvas;
@@ -84,7 +84,7 @@ public class UniverseRenderer {
         }
 
         // 5. Flush all batched commands in optimal order
-        batcher.flush();
+        batcher.draw();
 
         // 6. Post‑processing effects that cannot be batched easily
         drawHurt(camera, gc);

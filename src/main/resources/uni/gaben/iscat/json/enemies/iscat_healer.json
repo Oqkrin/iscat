@@ -32,6 +32,7 @@
     "maxPredictionTime": 3,
     "safetyDistance": 15
   },
+  "rotation": { "type": "still" },
   "abilities": [
     {
       "type": "heal",

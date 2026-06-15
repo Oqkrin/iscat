@@ -12,10 +12,7 @@ import org.dyn4j.geometry.Geometry;
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
-import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
-import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
-import uni.gaben.iscat.universe.entity.interfaces.Progression;
-import uni.gaben.iscat.universe.entity.interfaces.Stunnable;
+import uni.gaben.iscat.universe.entity.interfaces.*;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.universe.Thrust;
 import uni.gaben.iscat.utils.AudioManager;
@@ -24,9 +21,7 @@ import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-import static org.dyn4j.geometry.MassType.NORMAL;
-
-public class PlayerModel extends EntityModel implements HasSprite, HasThrust, Stunnable, Progression {
+public class PlayerModel extends AbstractLivingEntityModel implements HasSprite, HasThrust, HasDash,Stunnable, Progression {
 
     // LEVEL SYSTEM VARIABLES
     private final IntegerProperty level = new SimpleIntegerProperty(1);
@@ -41,6 +36,7 @@ public class PlayerModel extends EntityModel implements HasSprite, HasThrust, St
     private Runnable onDeathCallback;
 
     private final EntityRecord data;
+    private final Vector2 dashDir = UU.vector2zero();
 
     public void setOnDeathCallback(Runnable callback) {
         this.onDeathCallback = callback;
@@ -52,7 +48,7 @@ public class PlayerModel extends EntityModel implements HasSprite, HasThrust, St
 
         // Usiamo i dati dinamici dal JSON al posto di PlayerSettings
         double radiusInMeters = UU.pxToM(data.frameW() / 2.5); // o usa un valore specifico
-        BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters));
+        BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters*data.scale()));
         fixture.setFilter(UniverseCollisionLayers.PLAYER_FILTER);
 
         setMass(MassType.NORMAL);
@@ -71,7 +67,7 @@ public class PlayerModel extends EntityModel implements HasSprite, HasThrust, St
         updateStateTime(dt);
 
         if (data.player() != null) {
-            setLinearDamping(isInScatto() ? 0.1 : data.linearDamping());
+            setLinearDamping(isDashing() ? 0.1 : data.linearDamping());
         }
     }
 
@@ -94,16 +90,16 @@ public class PlayerModel extends EntityModel implements HasSprite, HasThrust, St
                 getWidthPx(), getHeightPx());
     }
 
-    public void executeScatto(double angle) {
+    @Override
+    public void dashTowards(double angle) {
         if (data.player() == null) return;
 
-        Vector2 dashDir = new Vector2(Math.cos(angle), Math.sin(angle));
+        dashDir.set(Math.cos(angle), Math.sin(angle));
         if (getLinearVelocity().dot(dashDir) < 0) {
-            setLinearVelocity(new Vector2(0, 0));
+            setLinearVelocity(0, 0);
         }
 
-        // Usa l'impulso dal JSON
-        applyImpulse(dashDir.multiply(data.player().dashImpulse() * getMass().getMass()));
+        applyImpulse(dashDir.setMagnitude(data.player().dashImpulse() * getMass().getMass()));
         dashDuration.start(data.player().dashDurationSec());
         dashCooldown.start(data.player().dashCooldownSec());
     }
@@ -129,27 +125,26 @@ public class PlayerModel extends EntityModel implements HasSprite, HasThrust, St
     public double getNeededXpFor(int level) {
         return xpNeeded;
     }
-    public boolean isScattoDisponibile() { return dashCooldown.isReady(); }
-    public boolean isInScatto() { return dashDuration.isCoolingDown(); }
+
+    @Override
+    public boolean canDash() { return dashCooldown.isReady(); }
+
+    @Override
+    public boolean isDashing() { return dashDuration.isCoolingDown(); }
     public boolean isSparoDisponibile() { return weaponCooldown.isReady(); }
 
     public void startCooldownFuoco() {
         weaponCooldown.start(PlayerSettings.COOLDOWN_FUOCO_SEC);
     }
 
-    public void setCooldownFuocoSec(double new_value) {
-        PlayerSettings.COOLDOWN_FUOCO_SEC = new_value;
-    }
-
-    public double getDashMeter() {
-        return dashCooldown.getProgress();
+    public void setCooldownFuocoSec(double cooldown) {
+        PlayerSettings.COOLDOWN_FUOCO_SEC = cooldown;
     }
 
     @Override
     public double getTerminalVelocity() {
-        return PlayerSettings.VELOCITA_MAX * (isInScatto() ? 10 : 1);
+        return PlayerSettings.VELOCITA_MAX * (isDashing() ? 10 : 1);
     }
-
     @Override
     public void onDeath() {
         if (onDeathCallback != null) onDeathCallback.run();

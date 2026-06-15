@@ -25,8 +25,8 @@ public interface SteeringModifier {
         if (mc.type() == null) return null;
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
-        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof PlayerModel || (entityModel instanceof ProjectileModel pm&&pm.getType()==ProjectileType.ENEMY_BULLET)));
-        Target everythingButProjectiles = neighbors.filtered(entityModel -> !( entityModel instanceof  PlayerModel || (entityModel instanceof AbstractProjectileModel)));
+        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm&&pm.getType()==ProjectileType.ENEMY_BULLET));
+        Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof AbstractProjectileModel));
         return switch (mc.type()) {
             case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
             case ALIGNMENT -> SteeringModifier.alignment(everythingButProjectiles, weight);
@@ -45,7 +45,7 @@ public interface SteeringModifier {
             if (neighbors == null || neighbors.isEmpty()) return;
 
             Vector2 selfPos = self.getTransform().getTranslation();
-            int count = 0;
+
 
             for (int i = 0; i < neighbors.size(); i++) {
                 AbstractEntityModel neighbor = neighbors.get(i);
@@ -59,7 +59,7 @@ public interface SteeringModifier {
                     double strength = 1.0 - (dist / separationRadius);
                     toNeighbor.divide(dist).multiply(strength*weight.get());
                     outForce.add(toNeighbor);
-                    count++;
+
                 }
             }
         };

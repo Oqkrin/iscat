@@ -49,7 +49,7 @@ public class PlayerController {
         double currentAngle = player.getTransform().getRotationAngle();
         double nextAngle = currentAngle;
 
-        if (!player.isInScatto()) {
+        if (!player.isDashing()) {
             // Movement force
             if (dx != 0 || dy != 0) {
                 Vector2 dir = new Vector2(dx, dy).getNormalized();
@@ -101,7 +101,7 @@ public class PlayerController {
         }
 
         // --- Keyboard dash (instant) ---
-        if (input.dashKeyPressed && player.isScattoDisponibile()) {
+        if (input.dashKeyPressed && player.canDash()) {
             // Determine dash direction: movement keys if any, else aim angle
             double dashAngle;
             if (dx != 0 || dy != 0) {
@@ -110,7 +110,7 @@ public class PlayerController {
                 dashAngle = aimAngle;
             }
             player.getTransform().setRotation(dashAngle);
-            player.executeScatto(dashAngle);
+            player.dashTowards(dashAngle);
             input.dashKeyPressed = false; // consume
         }
 
@@ -151,6 +151,7 @@ public class PlayerController {
             Consumer<ProjectileModel> customizer = bullet -> {
                 double boostedLife = bullet.getEndurance() + player.getLevel();
                 bullet.setMaxLifeDirect(boostedLife);
+                bullet.setType(ProjectileType.PLAYER_BULLET);
             };
 
             currentAttack.execute(shooter, ProjectileType.PLAYER_BULLET, angle, customizer);
@@ -171,23 +172,11 @@ public class PlayerController {
         for (EntityRecord.LevelAbility ability : data.player().levelAbilities()) {
             if (level >= ability.minLevel()) {
 
-                this.currentAttack = convertPatternRecordToShooter(ability.pattern());
+                this.currentAttack = PatternShooter.createPatternShooter(ability.pattern());
                 player.setCooldownFuocoSec(ability.cooldownSec());
                 break;
             }
         }
-    }
-
-    private PatternShooter convertPatternRecordToShooter(EntityRecord.PatternRecord patternRecord) {
-        if (patternRecord == null) return new SingleShotPatternShooter();
-        return switch (patternRecord.type()) {
-            case SPREAD -> new SpreadPatternShooter(patternRecord.count(), patternRecord.angleStepDeg());
-            case FIGURE -> {
-                var type = FigurePatternShooter.FigureType.valueOf(patternRecord.figureType().toUpperCase());
-                yield new FigurePatternShooter(patternRecord.count(), type);
-            }
-            default -> new SingleShotPatternShooter();
-        };
     }
 
     public PlayerModel getPlayer() {

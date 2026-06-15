@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.entity.brain;
 
 public enum RotationGoalType {
+    STILL("still"),
     IDLE("idle"),
     MOVEMENT("movement"),
     TARGET("target"),

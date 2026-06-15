@@ -38,6 +38,7 @@
       "minDistance": 7,
       "maxDistance": 15
     },
+    "rotation": { "type": "still" },
     "abilities": [
       {
         "type": "randomizedShoot",

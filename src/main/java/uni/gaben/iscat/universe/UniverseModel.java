@@ -11,6 +11,7 @@ import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +44,13 @@ public class UniverseModel extends World<Body> {
             public void begin(ContactCollisionData<Body> collision, Contact contact) {
                 AbstractEntityModel a = extractEntity(collision.getBody1());
                 AbstractEntityModel b = extractEntity(collision.getBody2());
+
+                if(a instanceof PlayerModel || b instanceof PlayerModel) {
+                    System.out.println(b.getEntityRecord().entityKey());
+                    if(a instanceof ProjectileModel p) {
+                        System.out.println(p.getType());
+                    }
+                }
                 if (a != null && b != null) {
                     a.triggerAllCollisions(b);
                     b.triggerAllCollisions(a);

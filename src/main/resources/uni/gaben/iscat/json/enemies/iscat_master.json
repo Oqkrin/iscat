@@ -30,7 +30,8 @@
         "death": ["master_death"],
         "spawn": ["master_spawn"]
       },"ai": {
-      "abilities": [
+        "rotation": { "type": "still" },
+        "abilities": [
         {
           "type": "randomizedShoot",
           "combatRange": 10000,

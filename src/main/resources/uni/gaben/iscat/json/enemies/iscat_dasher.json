@@ -35,24 +35,24 @@
   },
   "abilities": [
     {     "type": "dash",
-      "dashCooldownMS": 2000,
+      "dashCooldownMS": 1000,
       "dashDurationMS": 1000,
       "dashPrediction": 1.2,
-      "dashAvoidRange": 20,
+      "dashAvoidRange": 50,
       "dashImpulse": 800
     },
     {
       "type": "plunge",
-      "plungeCooldownMS": 2000,
-      "dashDurationMS": 2000,
-      "dashPrediction": 1.5,
+      "plungeCooldownMS": 3000,
+      "dashDurationMS": 1000,
+      "dashPrediction": 1,
       "dashAvoidRange": 50,
       "dashImpulse": 1200
     },
-    { "type": "melee", "meleeDamage": 30}
+    { "type": "melee", "meleeDamage": 15}
   ],
   "modifiers": [
-    { "type": "collisionAvoidance", "radius": 7.5, "weight": 30, "maxPredictionTime": 10, "avoidRadius": 7.0 },
+    { "type": "collisionAvoidance", "radius": 7.5, "weight": 30, "maxPredictionTime": 3, "avoidRadius": 7.0 },
     { "type": "alignment", "radius": 7.5, "weight": 0.5 },
     { "type": "cohesion", "radius": 7.5, "weight": 0.5 },
     { "type": "separation", "radius": 3.75, "weight": 10 }

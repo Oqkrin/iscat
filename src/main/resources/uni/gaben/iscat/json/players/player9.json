@@ -15,7 +15,7 @@
   "MaxForce": 27,
   "player": {
     "dashImpulse": 35.0,
-    "dashDurationSec": 0.1,
+    "dashDurationSec": 0.2,
     "dashCooldownSec": 1.0,
     "stunDurationSec": 2.0,
     "baseCooldownSec": 0.3,

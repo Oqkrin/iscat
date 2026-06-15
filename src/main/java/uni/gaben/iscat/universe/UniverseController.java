@@ -11,6 +11,7 @@ import uni.gaben.iscat.universe.entity.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectilePool;
 import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
@@ -182,7 +183,7 @@ public class UniverseController {
             entityControllers.removeIf(
                     ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
             if (entity instanceof ProjectileModel p) {
-                uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectilePool.release(p);
+                ProjectilePool.release(p);
             }
         }
     }

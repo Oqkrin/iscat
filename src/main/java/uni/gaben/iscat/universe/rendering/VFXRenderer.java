@@ -34,7 +34,7 @@ public final class VFXRenderer {
 
     private VFXRenderer() {}
 
-    // Raw method called from BatchedDrawCollector – no additional save/restore
+    // Raw method called from LayeredRenderer – no additional save/restore
     public static void drawShockwaveRaw(GraphicsContext gc, double cx, double cy, Shockwave shockwave) {
         double radius = shockwave.getRadius();
         double alpha = shockwave.getAlpha();

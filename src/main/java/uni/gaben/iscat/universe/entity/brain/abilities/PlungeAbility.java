@@ -35,7 +35,7 @@ public class PlungeAbility extends Ability {
                          double maxPredictionTime,
                          double impulse,
                          Target target) {
-        super("plunge", AbilityCategory.SPECIAL, Collections.emptySet());
+        super("plunge", AbilityCategory.MOVEMENT, Collections.emptySet());
         this.plungeCooldown = new Cooldown(cooldownSec);
         this.plungeDuration = new Cooldown(durationSec);
         this.maxPredictionTime = maxPredictionTime;

@@ -2,6 +2,7 @@ package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import org.dyn4j.geometry.Circle;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.entity.*;
@@ -28,7 +29,7 @@ public final class EntityRenderer {
 
     public record SpriteKey(String path, int width, int height) {}
 
-    private static final Map<Class<?>, BiConsumer<AbstractEntityModel, BatchedDrawCollector>> BATCHED_RENDERERS = new HashMap<>();
+    private static final Map<Class<?>, BiConsumer<AbstractEntityModel, LayeredRenderer>> BATCHED_RENDERERS = new HashMap<>();
     private static final Map<SpriteKey, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
 
     static {
@@ -41,10 +42,10 @@ public final class EntityRenderer {
     private EntityRenderer() {}
 
     // Main entry point for batched rendering
-    public static void drawBatched(AbstractEntityModel entity, BatchedDrawCollector batcher, boolean debug) {
+    public static void drawBatched(AbstractEntityModel entity, LayeredRenderer batcher, boolean debug) {
         if (entity == null || entity.shouldRemove()) return;
 
-        BiConsumer<AbstractEntityModel, BatchedDrawCollector> custom = BATCHED_RENDERERS.get(entity.getClass());
+        BiConsumer<AbstractEntityModel, LayeredRenderer> custom = BATCHED_RENDERERS.get(entity.getClass());
         if (custom != null) {
             custom.accept(entity, batcher);
         } else if (entity instanceof HasSprite sprite) {
@@ -60,7 +61,7 @@ public final class EntityRenderer {
     // ------------------------------------------------------------------
     // Batched Sprite pipeline – collects transform + image + color tint
     // ------------------------------------------------------------------
-    private static void drawSpriteEntityBatched(AbstractEntityModel entity, HasSprite sprite, BatchedDrawCollector batcher) {
+    private static void drawSpriteEntityBatched(AbstractEntityModel entity, HasSprite sprite, LayeredRenderer batcher) {
         double cx = UU.mToPx(entity.getTransform().getTranslationX());
         double cy = UU.mToPx(entity.getTransform().getTranslationY());
         double w  = entity.getWidthPx();
@@ -112,7 +113,7 @@ public final class EntityRenderer {
     // ------------------------------------------------------------------
     // Custom batched handlers
     // ------------------------------------------------------------------
-    private static void drawProjectileBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+    private static void drawProjectileBatched(AbstractEntityModel e, LayeredRenderer batcher) {
         ProjectileModel p = (ProjectileModel) e;
         double cx = UU.mToPx(e.getTransform().getTranslationX());
         double cy = UU.mToPx(e.getTransform().getTranslationY());
@@ -121,8 +122,10 @@ public final class EntityRenderer {
 
         Vector2 vel = p.getLinearVelocity();
         double speed = vel.getMagnitude();
-        double trailX2 = cx, trailY2 = cy;
+        double trailX2 = cx;
+        double trailY2 = cy;
         double trailWidth = h * 0.75;
+        
         if (speed > 0.1) {
             trailX2 = cx - vel.x * 1.618;
             trailY2 = cy - vel.y * 1.618;
@@ -139,7 +142,7 @@ public final class EntityRenderer {
                 cx, cy, trailX2, trailY2, trailWidth);
     }
 
-    private static void drawAsteroidBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+    private static void drawAsteroidBatched(AbstractEntityModel e, LayeredRenderer batcher) {
         AsteroidModel asteroid = (AsteroidModel) e;
         Vector2[] vertices = asteroid.getDisplayVertices();
         if (vertices == null || vertices.length == 0) return;
@@ -192,7 +195,7 @@ public final class EntityRenderer {
         }
     }
 
-    private static void drawPlayerBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+    private static void drawPlayerBatched(AbstractEntityModel e, LayeredRenderer batcher) {
         PlayerModel player = (PlayerModel) e;
         // Draw the player sprite (if any)
         if (player instanceof HasSprite sprite) {
@@ -209,7 +212,7 @@ public final class EntityRenderer {
         }
     }
 
-    private static void drawBlackHoleBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+    private static void drawBlackHoleBatched(AbstractEntityModel e, LayeredRenderer batcher) {
         BlackHoleModel bh = (BlackHoleModel) e;
         double cx = UU.mToPx(bh.getTransform().getTranslationX());
         double cy = UU.mToPx(bh.getTransform().getTranslationY());
@@ -218,26 +221,21 @@ public final class EntityRenderer {
         }
     }
 
-    private static void drawDebugCollisionBatched(AbstractEntityModel e, BatchedDrawCollector batcher) {
+    private static void drawDebugCollisionBatched(AbstractEntityModel e, LayeredRenderer renderer) {
         double cx = UU.mToPx(e.getTransform().getTranslationX());
         double cy = UU.mToPx(e.getTransform().getTranslationY());
         double w = e.getWidthPx();
         double h = e.getHeightPx();
         double angle = Math.toDegrees(e.getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET);
 
-        if (e.getFixtureCount() > 0 && e.getFixture(0).getShape() instanceof org.dyn4j.geometry.Circle) {
-            double r = w / 2;
-            batcher.addStrokedOval(cx - r, cy - r, w, h, Color.LIME, 1.5, angle);
+        if (e.getFixtureCount() > 0 && e.getFixture(0).getShape() instanceof Circle) {
+            renderer.addStrokedOval(cx - (w/2), cy - (w/2), w, h, Color.LIME);
         } else {
-            batcher.addStrokedRect(cx - w/2, cy - h/2, w, h, Color.LIME, 1.5, angle);
+            renderer.addStrokedRect(cx - w/2, cy - h/2, w, h, Color.LIME, angle);
         }
-        // Direction line (red)
-        batcher.addLine(cx, cy, cx + w/2, cy, 1.5, Color.RED, 1.0);
+        renderer.addLine(cx, cy, cx + w/2, cy, 1.5, Color.RED, 1.0);
     }
 
-    // ------------------------------------------------------------------
-    // Helper methods for sprite sheet caching (unchanged from original)
-    // ------------------------------------------------------------------
     private static SpriteSheetsAnimator getAnimator(SpriteKey key, HasSprite sprite, SpriteSheetsParser sheet) {
         return ANIMATOR_CACHE.computeIfAbsent(key, k -> {
             double defDur = sprite.getFrameDuration();

@@ -28,6 +28,8 @@
     "spawn": []
   },
   "ai": {
+    "rotation": { "type": "still" },
+
     "steering": {
       "type": "pursuit",
       "maxPredictionTime": 1

@@ -27,6 +27,7 @@
     "death": [],
     "spawn": []
   },"ai": {
+  "rotation": { "type": "still" },
   "abilities": [
     {
       "type": "randomizedShoot",

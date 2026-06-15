@@ -20,19 +20,12 @@ public class ProjectileModel extends AbstractProjectileModel {
     /** Imposta il tipo e ricostruisce fixture + parametri fisici di conseguenza. */
     public void setType(ProjectileType type) {
         this.type = type;
-
-        // Rimuove eventuali fixture precedenti e ne crea una nuova
         removeAllFixtures();
         double radiusMeters = UU.pxToM(type.radiusPx);
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusMeters));
         fixture.setFilter(type.filter);
         setMass(MassType.NORMAL);
-
-        // Propaga i parametri balistici all'abstract base
         setTerminalVelocity(type.terminalVelocity);
-        // Set life directly on the property BEFORE setMaxLife to prevent the kill-trigger
-        // in setLife(). When recycled, life == 0, so setMaxLife calls setLife(0) which
-        // re-triggers kill() — bypassing this by writing the field directly first.
         this.endurance.set(type.energy);
         setMaxEndurance(type.energy);
     }

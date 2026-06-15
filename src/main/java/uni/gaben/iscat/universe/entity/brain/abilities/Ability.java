@@ -61,8 +61,8 @@ public abstract class Ability {
                     Target.neighboursCached(entity, ac.dashAvoidRange(), body -> body instanceof ProjectileModel pm && pm.getType() == ProjectileType.PLAYER_BULLET));
             case PLUNGE -> new PlungeAbility(
                     entity,
-                    ac.plungeCooldownMS() / 1000.0,
-                    ac.dashDurationMS() / 1000.0,
+                    ac.plungeCooldownMS() / 1000,
+                    ac.dashDurationMS() / 1000,
                     ac.dashPrediction(),
                     ac.dashImpulse(),
                     Target.ofPlayer()

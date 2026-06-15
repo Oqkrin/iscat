@@ -73,7 +73,13 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     public void update(UniverseModel universe, double dt) {
         if(entity == null || entity.shouldRemove()) return;
         processActionLifecycles(universe, dt);
-        computeAndApplySteering(universe, dt);
+        if (activeActions.get(AbilityCategory.MOVEMENT) == null) {
+
+            computeAndApplySteering(universe, dt);
+        } else {
+                System.out.println(entity.getEntityRecord().entityKey() + " can't move");
+
+        }
         processRotation(universe, dt);
     }
 
