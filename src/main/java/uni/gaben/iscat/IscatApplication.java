@@ -3,8 +3,6 @@ package uni.gaben.iscat;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -17,6 +15,8 @@ import uni.gaben.iscat.controller.IscatWindowController;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entity.EntityFactory;
+import uni.gaben.iscat.universe.entity.EntityJsonLoader;
+import uni.gaben.iscat.universe.entity.brain.abilities.PlungeAbility;
 import uni.gaben.iscat.view.components.IscatTitleBar;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.IscatUtils;
@@ -45,10 +45,10 @@ public class IscatApplication extends Application {
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
         db.init();
+        Platform.runLater(EntityFactory::ensureCacheLoaded);
         IscatNavigator.getInstance().initialize(iscatModel);
         AudioManager.getInstance().loadAllSFX("/uni/gaben/iscat/audio/SFX/entitiesSFX");
         AudioManager.getInstance().loadDefaultAudio();
-        Platform.runLater(EntityFactory::preloadAllAsync);
     }
 
     @Override

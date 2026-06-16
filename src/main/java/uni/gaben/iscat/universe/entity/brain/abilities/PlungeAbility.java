@@ -36,7 +36,7 @@ public class PlungeAbility extends Ability {
                          double impulse,
                          Target target) {
         super("plunge", AbilityCategory.MOVEMENT, Collections.emptySet());
-        this.plungeCooldown = new Cooldown(cooldownSec);
+        this.plungeCooldown = new Cooldown(durationSec + cooldownSec);
         this.plungeDuration = new Cooldown(durationSec);
         this.maxPredictionTime = maxPredictionTime;
         this.plungeImpulse = impulse;
@@ -46,11 +46,13 @@ public class PlungeAbility extends Ability {
     @Override
     public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
         if (plungeCooldown.isCoolingDown()) return false;
-        return !plungeDuration.isCoolingDown();
+        if (plungeDuration.isCoolingDown()) return false;
+        return true;
     }
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
+
         AbstractEntityModel self = brain.getEntity();
         self.setTemporaryTerminalVelocity(self.getTerminalVelocity()*3);
         self.setDashLinearDamping(0);
@@ -98,6 +100,6 @@ public class PlungeAbility extends Ability {
             brain.getEntity().restoreLinearDamping();
             brain.getEntity().setTemporaryTerminalVelocity(-1);
         }
-        return plungeDuration.isCoolingDown(); // true while plunging (e.g., for i‑frames)
+        return plungeDuration.isCoolingDown();
     }
 }

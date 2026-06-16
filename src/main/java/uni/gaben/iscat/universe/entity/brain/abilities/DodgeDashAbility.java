@@ -29,7 +29,7 @@ public class DodgeDashAbility extends Ability {
     public DodgeDashAbility(AbstractEntityModel entity, double cooldownSec, double durationSec, double maxPredictionTime,
                             double avoidRadius, double dashImpulse, Target threatSupplier) {
         super("dodgeDash", AbilityCategory.MOVEMENT, Collections.emptySet());
-        this.dashCooldown = new Cooldown(cooldownSec);
+        this.dashCooldown = new Cooldown(durationSec+cooldownSec);
         this.dashDuration = new Cooldown(durationSec);
         this.maxPredictionTime = maxPredictionTime;
         this.avoidRadius = avoidRadius;

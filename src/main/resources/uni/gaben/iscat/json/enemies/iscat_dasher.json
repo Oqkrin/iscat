@@ -35,16 +35,16 @@
   },
   "abilities": [
     {     "type": "dash",
-      "dashCooldownMS": 1000,
-      "dashDurationMS": 1000,
+      "dashCooldownMS": 100,
+      "dashDurationMS": 100,
       "dashPrediction": 1.2,
       "dashAvoidRange": 50,
       "dashImpulse": 800
     },
     {
       "type": "plunge",
-      "plungeCooldownMS": 3000,
-      "dashDurationMS": 1000,
+      "plungeCooldownMS": 300,
+      "dashDurationMS": 100,
       "dashPrediction": 1,
       "dashAvoidRange": 50,
       "dashImpulse": 1200

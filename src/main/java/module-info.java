@@ -22,7 +22,6 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.model to javafx.fxml;
     opens uni.gaben.iscat.controller.game to javafx.fxml;
     opens uni.gaben.iscat.controller.components.options to javafx.fxml;
-    opens uni.gaben.iscat.universe.entity to org.json;
 
     opens uni.gaben.iscat.utils to javafx.fxml;
     opens uni.gaben.iscat.utils.sprite to javafx.fxml;
@@ -70,4 +69,5 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.universe.entity.hardcoded.asteroid to javafx.fxml;
     exports uni.gaben.iscat.universe.entity.interfaces;
     opens uni.gaben.iscat.universe.entity.interfaces to javafx.fxml, org.json;
+    opens uni.gaben.iscat.universe.entity to javafx.fxml, org.json;
 }
