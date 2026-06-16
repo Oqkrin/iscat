@@ -28,7 +28,7 @@
     "spawn": []
   },
   "ai": {
-    "steering": { "type": "pursue" },
+    "steering": { "type": "idle" },
     "rotation": {
       "type": "intervalSpin",
       "spinSteps": 8,

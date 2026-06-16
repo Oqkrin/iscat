@@ -181,37 +181,45 @@ public class UniverseWaveController {
 
         List<String> pool = new ArrayList<>();
 
-        // Recuperiamo l'ID utente corrente per interrogare correttamente lo sblocco del Bestiario
         int userId = 0;
         if (uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser() != null) {
             userId = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser().id();
         }
 
-        // Forziamo il caricamento/aggiornamento dei dati per l'utente corrente prima del controllo
         bestiaryModel.loadEnemies(userId);
 
+        // INIEZIONE MANUALE DI WORM
+        if (currentThreatLevel == ThreatLevel.EXTREME) {
+            pool.add("WORM");
+        }
+
         for (Map.Entry<String, EntityRecord> entry : EntityFactory.getCache().entrySet()) {
-            String key       = entry.getKey();
+            String key       = entry.getKey().toLowerCase().trim();
             EntityRecord rec = entry.getValue();
 
-            if (key.contains("player") || "ISCAT_MASTER".equalsIgnoreCase(key)) continue;
+            if (key.contains("player") || "iscat_master".equals(key)) continue;
 
-            // REGOLA SPECIALE GOBLIN INVADER (spawna solo se il player ha sconfitto almeno una volta il master)
-            if ("goblin_invader".equalsIgnoreCase(key.trim())) {
+            // FILTRO PREVENTIVO SEGMENTI WORM
+            if (key.contains("worm")) {
+                if (key.contains("tail") || key.contains("body") || key.contains("head") || key.contains("segment")) {
+                    continue;
+                }
+            }
+
+            // REGOLA SPECIALE GOBLIN INVADER (spawna solo se il player ha ucciso il master almeno una volta)
+            if ("goblin_invader".equals(key)) {
                 if (!bestiaryModel.isUnlocked("iscat_master")) {
                     continue;
                 }
             }
 
             if (rec.threatLevel() != null && rec.threatLevel() != ThreatLevel.NONE) {
-                // Controllo standard del livello di minaccia della Wave corrente
                 if (rec.threatLevel().ordinal() <= currentThreatLevel.ordinal()) {
-                    pool.add(key);
+                    pool.add(entry.getKey());
                 }
             }
         }
 
-        // Se il pool è vuoto restituisce il mob base, altrimenti pesca un nemico idoneo
         return pool.isEmpty() ? "iscat_mob" : pool.get(random.nextInt(pool.size()));
     }
 
