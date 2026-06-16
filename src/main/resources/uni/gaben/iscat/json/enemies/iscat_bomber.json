@@ -4,7 +4,7 @@
   "Description": "Iscat Bomber vive con un solo obiettivo:\nesplodere nel modo più spettacolare possibile.\nNessuno sa se sia nato così\noppure se abbia semplicemente fatto una scelta di vita discutibile.",
   "SpriteName": "iscat_bomber",
   "BestiaryOrder": 2,
-  "ThreatLevel": "LOW",
+  "ThreatLevel": "EXTREME",
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",

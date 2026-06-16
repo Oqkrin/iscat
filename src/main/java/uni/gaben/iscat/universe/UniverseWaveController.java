@@ -9,33 +9,21 @@ import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.model.game.GameModel;
+import uni.gaben.iscat.model.BestiaryModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * Controllore dei flussi e delle ondate di nemici basato sui Livelli di Minaccia (ThreatLevel).
- * Gestisce la progressione a ondate sequenziali, lo spawn cadenzato a tempo fuori schermo,
- * e il blocco del flusso fino al totale abbattimento dei nemici dell'ondata precedente.
- */
 public class UniverseWaveController {
 
     private record ActiveEnemy(AbstractEntityModel model, String enemyId) { }
 
     // ── Properties observable per HUD binding ─────────────────────────────────
-
-    /** Kills totali della sessione (solo nemici con ThreatLevel reale, no proiettili/asteroidi). */
     private static final IntegerProperty totalKillsProperty    = new SimpleIntegerProperty(0);
-
-    /** Nemici ancora vivi nell'ondata corrente. */
     private final IntegerProperty enemiesRemainingProperty = new SimpleIntegerProperty(0);
-
-    /** Totale nemici da spawnare nell'ondata corrente. */
     private final IntegerProperty waveTotalProperty         = new SimpleIntegerProperty(0);
-
-    /** Numero dell'ondata corrente. */
     private final IntegerProperty currentWaveProperty      = new SimpleIntegerProperty(1);
 
     public static IntegerProperty totalKillsProperty()     { return totalKillsProperty; }
@@ -47,22 +35,14 @@ public class UniverseWaveController {
     public int getEnemiesRemaining()   { return enemiesRemainingProperty.get(); }
     public int getWaveTotal()          { return waveTotalProperty.get(); }
 
-    /**
-     * Incrementa i kill solo se l'entità è un nemico "reale" (ThreatLevel != NONE).
-     * Proiettili, asteroidi e qualunque entità hardcoded senza EntityRecord vengono ignorati.
-     */
     public static void incrementKills(AbstractEntityModel entity) {
         if (entity == null) return;
-
-        // Le entità hardcoded (proiettili, asteroidi) hanno entity == null o threatLevel NONE
         EntityRecord record = entity.getEntityRecord();
         if (record == null || record.threatLevel() == null || record.threatLevel() == ThreatLevel.NONE) return;
-
         totalKillsProperty.set(totalKillsProperty.get() + 1);
     }
 
     // ── Stato interno ─────────────────────────────────────────────────────────
-
     private final List<ActiveEnemy> activeEnemies = new ArrayList<>();
     private Runnable onBossDeadCallback;
 
@@ -84,14 +64,14 @@ public class UniverseWaveController {
     private static final double SPAWN_DELAY           = 1.5;
     private static final double INTERMISSION_DURATION = 5.0;
 
+    private final BestiaryModel bestiaryModel = new BestiaryModel();
+
     // -------------------------------------------------------------------------
     // Update principale
     // -------------------------------------------------------------------------
-
     public void update(double dt, CameraModel camera, GameModel gameModel) {
         if (gameModel == null || gameModel.getUniverseModel().getPlayer() == null) return;
 
-        // Pulizia nemici morti e aggiornamento property rimanenti
         activeEnemies.removeIf(ae -> ae.model == null || ae.model.shouldRemove());
         enemiesRemainingProperty.set(activeEnemies.size());
 
@@ -114,10 +94,6 @@ public class UniverseWaveController {
             endCurrentWave();
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Wave management
-    // -------------------------------------------------------------------------
 
     private void startNewWave() {
         enemiesSpawnedThisWave = 0;
@@ -143,7 +119,6 @@ public class UniverseWaveController {
                     currentWave, currentThreatLevel.name(), totalEnemiesToSpawnThisWave);
         }
 
-        // Aggiorna subito le property HUD
         waveTotalProperty.set(totalEnemiesToSpawnThisWave);
         enemiesRemainingProperty.set(totalEnemiesToSpawnThisWave);
         currentWaveProperty.set(currentWave);
@@ -159,7 +134,6 @@ public class UniverseWaveController {
     // -------------------------------------------------------------------------
     // Spawn
     // -------------------------------------------------------------------------
-
     private void spawnSingleEnemyOffScreen(CameraModel camera, GameModel gameModel) {
         if (camera == null) return;
 
@@ -194,7 +168,6 @@ public class UniverseWaveController {
             activeEnemies.add(new ActiveEnemy(enemyModel, enemyIdToSpawn));
             enemiesSpawnedThisWave++;
 
-            // Aggiorna subito "rimanenti" per riflettere il nemico appena aggiunto
             enemiesRemainingProperty.set(activeEnemies.size());
 
             if ("ISCAT_MASTER".equalsIgnoreCase(enemyIdToSpawn) && !bossSpawned) {
@@ -207,26 +180,44 @@ public class UniverseWaveController {
         if (currentThreatLevel == ThreatLevel.APOCALYPSE) return "ISCAT_MASTER";
 
         List<String> pool = new ArrayList<>();
+
+        // Recuperiamo l'ID utente corrente per interrogare correttamente lo sblocco del Bestiario
+        int userId = 0;
+        if (uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser() != null) {
+            userId = uni.gaben.iscat.utils.SessionManager.getInstance().getCurrentUser().id();
+        }
+
+        // Forziamo il caricamento/aggiornamento dei dati per l'utente corrente prima del controllo
+        bestiaryModel.loadEnemies(userId);
+
         for (Map.Entry<String, EntityRecord> entry : EntityFactory.getCache().entrySet()) {
             String key       = entry.getKey();
             EntityRecord rec = entry.getValue();
 
             if (key.contains("player") || "ISCAT_MASTER".equalsIgnoreCase(key)) continue;
 
+            // REGOLA SPECIALE GOBLIN INVADER (spawna solo se il player ha sconfitto almeno una volta il master)
+            if ("goblin_invader".equalsIgnoreCase(key.trim())) {
+                if (!bestiaryModel.isUnlocked("iscat_master")) {
+                    continue;
+                }
+            }
+
             if (rec.threatLevel() != null && rec.threatLevel() != ThreatLevel.NONE) {
+                // Controllo standard del livello di minaccia della Wave corrente
                 if (rec.threatLevel().ordinal() <= currentThreatLevel.ordinal()) {
                     pool.add(key);
                 }
             }
         }
 
+        // Se il pool è vuoto restituisce il mob base, altrimenti pesca un nemico idoneo
         return pool.isEmpty() ? "iscat_mob" : pool.get(random.nextInt(pool.size()));
     }
 
     // -------------------------------------------------------------------------
     // Boss callbacks
     // -------------------------------------------------------------------------
-
     public void notifyBossSpawned() {
         if (!bossSpawned) {
             bossSpawned = true;
@@ -246,7 +237,6 @@ public class UniverseWaveController {
     // -------------------------------------------------------------------------
     // Reset
     // -------------------------------------------------------------------------
-
     public void reset() {
         spawnTimer                  = 0.0;
         bossSpawned                 = false;
