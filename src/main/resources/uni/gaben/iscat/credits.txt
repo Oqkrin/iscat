@@ -1,5 +1,6 @@
 #ISCAT
 Progetto Java User Interface
+(Premere SPAZIO per x2 velocita)
 
 #SVILLUPATO DA
 Circosta Gabriele e Benito Gallello
@@ -116,4 +117,6 @@ E tu che stai giocando!
 
 #GRAZIE PER AVER GIOCATO!
 
-#BYE
+[IMAGES_HBOX]
+
+#ISCAT WILL RETURN?
