@@ -27,7 +27,6 @@ import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.view.components.AbstractIscatStackPane;
-import uni.gaben.iscat.view.components.StarryText;
 
 import java.util.Objects;
 
@@ -35,28 +34,24 @@ import static javafx.application.Platform.runLater;
 
 public class GameView extends AbstractIscatStackPane {
 
-    // Timer canvas dimensions (must match StarryText size)
-    private static final int TIMER_W = 300;
-    private static final int TIMER_H = 100;
-
     private final GameModel      gameModel;
     private final GameController gameController;
 
     private Canvas           canvas;
-    private Canvas           timerCanvas;
-    private StarryText       starryTimer;
     private UniverseRenderer universeRenderer;
     private final StarfieldRenderer starfieldRenderer = new StarfieldRenderer();
 
+
+    private GameHudBar hudBar;
     private GameSpawnerToolbar      spawnerToolbar;
     private StackPane               pauseMenu;
     private GamePauseMenuController gamePauseMenuController;
     private StackPane               gameOverMenu;
+    private Label levelLabel;
 
     private HBox   debugButtonsContainer;
     private Button debugButton;
     private Button toggleWave;
-    private Label  levelLabel;
 
     private boolean debugPanelVisible = false;
 
@@ -73,12 +68,9 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initNodes() {
-        canvas      = new Canvas();
-        timerCanvas = new Canvas(TIMER_W, TIMER_H);
-        timerCanvas.setMouseTransparent(true);
-        timerCanvas.setFocusTraversable(false);
+        canvas = new Canvas();
 
-        starryTimer    = new StarryText(TIMER_W, TIMER_H);
+        hudBar         = new GameHudBar(gameController);
         spawnerToolbar = new GameSpawnerToolbar(gameController);
         pauseMenu      = loadPauseMenu();
         gameOverMenu   = loadGameOverMenu();
@@ -121,25 +113,32 @@ public class GameView extends AbstractIscatStackPane {
     @Override
     protected void initLayout() {
         getContentRoot().getChildren().addAll(
-                canvas, timerCanvas, levelLabel,
-                spawnerToolbar, debugButtonsContainer,
-                pauseMenu, gameOverMenu
+                canvas,
+                hudBar,
+                levelLabel,
+                spawnerToolbar,
+                debugButtonsContainer,
+                pauseMenu,
+                gameOverMenu
         );
 
+        StackPane.setAlignment(hudBar,                Pos.TOP_CENTER);
         StackPane.setAlignment(spawnerToolbar,        Pos.BOTTOM_CENTER);
         StackPane.setAlignment(debugButtonsContainer, Pos.TOP_LEFT);
-        StackPane.setAlignment(timerCanvas,           Pos.TOP_CENTER);
         StackPane.setAlignment(levelLabel,            Pos.BOTTOM_RIGHT);
 
-        StackPane.setMargin(debugButtonsContainer, new Insets(50, 0, 0, 50));
-        StackPane.setMargin(timerCanvas,           new Insets(50, 0, 0, 0));
-        StackPane.setMargin(levelLabel,            new Insets(0, 50, 50, 0));
+        StackPane.setMargin(hudBar,                   new Insets(20, 0, 0, 0));
+        StackPane.setMargin(debugButtonsContainer,    new Insets(50, 0, 0, 50));
+        StackPane.setMargin(levelLabel,               new Insets(0, 50, 50, 0));
     }
 
     @Override
     protected void initBindings() {
         canvas.widthProperty().bind(getContentRoot().widthProperty());
         canvas.heightProperty().bind(getContentRoot().heightProperty());
+
+        hudBar.maxWidthProperty().bind(
+                getContentRoot().widthProperty().multiply(ScalareAureo.IPHI_D));
 
         spawnerToolbar.maxHeightProperty().bind(getContentRoot().heightProperty().divide(5));
         spawnerToolbar.maxWidthProperty().bind(getContentRoot().widthProperty().multiply(ScalareAureo.IPHI_D));
@@ -188,15 +187,15 @@ public class GameView extends AbstractIscatStackPane {
         spawnerToolbar.setVisible(false);
         spawnerToolbar.setManaged(false);
 
-        gameModel.timerProperty().addListener((obs, oldV, newV) -> updateTimerText(newV.intValue()));
-        runLater(() -> updateTimerText(gameModel.getTimer()));
+        // Timer → HUD bar
+        gameModel.timerProperty().addListener((obs, oldV, newV) -> hudBar.updateTimer(newV.intValue()));
+        runLater(() -> hudBar.updateTimer(gameModel.getTimer()));
     }
 
     @Override
     protected void initEventHandlers() {
         gameController.getInputManager().attachToCanvas(canvas);
 
-        // Single handler covers both ESC (pause toggle) and +/- (camera zoom)
         this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             KeyCode code = e.getCode();
 
@@ -252,9 +251,8 @@ public class GameView extends AbstractIscatStackPane {
         }
 
         gameController.setDrawCall(
-                () -> universeRenderer.renderFrame(timerCanvas, starryTimer, debugPanelVisible));
+                () -> universeRenderer.renderFrame(null, null, debugPanelVisible));
 
-        // Correct place to attach scene inputs
         gameController.getInputManager().attachToScene(this.getScene());
 
         gameController.setOnUniverseResetCallback(this::bindToCurrentUniverse);
@@ -289,10 +287,6 @@ public class GameView extends AbstractIscatStackPane {
             gameModel.setGameState(next);
     }
 
-    /**
-     * Called when the canvas changes size. Pushes the current dimensions into
-     * the active universe so spawn-centres and starfield wrapping stay correct.
-     */
     private void onCanvasSizeChanged() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
@@ -305,10 +299,15 @@ public class GameView extends AbstractIscatStackPane {
         levelLabel.textProperty().unbind();
         UniverseModel universe = gameController.getUniverseModel();
         if (universe == null) return;
+
         var player = universe.getPlayer();
         if (player != null) {
             levelLabel.textProperty().bind(
                     Bindings.concat("LEVEL ", player.levelProperty().asString()));
+        }
+
+        if (hudBar != null && gameController.getUniverseWaveController() != null) {
+            hudBar.rebindToWaveController(gameController.getUniverseWaveController());
         }
     }
 
@@ -341,15 +340,5 @@ public class GameView extends AbstractIscatStackPane {
     private StackPane loadGameOverMenu() {
         return loadFxml("/uni/gaben/iscat/fxml/game-over-menu.fxml",
                 (GameOverMenuController c) -> c.initData(gameController, this));
-    }
-
-    private void updateTimerText(int val) {
-        int hours   = val / 10000;
-        int minutes = (val % 10000) / 100;
-        int seconds = val % 100;
-        String time = hours > 0
-                ? String.format("%02d:%02d:%02d", hours, minutes, seconds)
-                : String.format("%02d:%02d", minutes, seconds);
-        starryTimer.formText(time, Font.font("Miracode", FontWeight.BOLD, 32));
     }
 }

@@ -9,7 +9,9 @@ import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
@@ -106,11 +108,16 @@ public class GameController {
     }
 
     private void onEntityDied(AbstractEntityModel entity, boolean killedByProjectile) {
+        if (entity instanceof ProjectileModel || entity instanceof HeartModel) {
+            return;
+        }
+
         if (entity instanceof AbstractLivingEntityModel living) {
-            UniverseWaveController.incrementKills();
+            // Incrementa kills solo per nemici reali (filtra proiettili/asteroidi via ThreatLevel)
+            UniverseWaveController.incrementKills(entity);
 
             if (living.getXpReward() > 0) {
-                String key = living.getEntityRecord().entityKey();
+                String key = living.getEntityRecord() != null ? living.getEntityRecord().entityKey() : null;
                 String cleanKey = key != null ? key.toLowerCase().trim() : "";
                 boolean isSpecial = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
 
@@ -148,6 +155,7 @@ public class GameController {
     public GameInputsHandler getInputManager() { return inputs; }
     public UniverseModel getUniverseModel() { return gameModel.getUniverseModel(); }
     public UniverseController getUniverseController() { return universeController; }
+    public UniverseWaveController getUniverseWaveController() { return waveController; }
     public CameraModel getCameraModel() { return gameModel.getCameraModel(); }
 
     public boolean isFpsOn() { return showFps; }
