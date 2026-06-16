@@ -4,7 +4,7 @@
   "Description": "Iscat Healer raramente combatte da solo.\nPreferisce restare lontano dal caos,\nriparando e sostenendo gli altri Iscat\ncon misteriose energie biologiche.\nMolti Space Explorer raccontano\ndi aver quasi sconfitto un gruppo di Iscat,\nsolo per vedere le loro ferite sparire\nnel giro di pochi istanti.\nDa solo è fragile.\nProtetto da altri Iscat,\npuò trasformare uno scontro semplice\nin un vero incubo.",
   "SpriteName": "iscat_healer",
   "BestiaryOrder": 3,
-  "ThreatLevel": "EXTREME",
+  "ThreatLevel": "NORMAL",
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",
