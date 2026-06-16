@@ -19,6 +19,16 @@ public class InfoCardController {
     public void initialize() {
         description.setEditable(false);
         description.setWrapText(true);
+
+        // Disabilita il focus iniziale
+        description.setFocusTraversable(false);
+
+        // Blocca l'evidenziazione blu verificando la lunghezza del range
+        description.selectionProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null && newSelection.getLength() > 0) {
+                description.deselect();
+            }
+        });
     }
 
     /**
