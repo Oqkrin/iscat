@@ -1,6 +1,4 @@
-/* ============================================
-   SKIN BUTTONS (Griglia / Icon-Only)
-   ============================================ */
+@import url("../components/iscat-text-inputs.css");
 
 .skin-button {
     -fx-content-display: graphic-only;
