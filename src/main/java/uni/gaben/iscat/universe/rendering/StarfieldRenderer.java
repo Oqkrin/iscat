@@ -1,13 +1,9 @@
 package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.DisplacementMap;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.GaussianBlur;
-import javafx.scene.effect.Glow;
 import uni.gaben.iscat.universe.UniverseSettings;
-import uni.gaben.iscat.universe.Star;
-import uni.gaben.iscat.universe.Starfield;
+import uni.gaben.iscat.universe.effects.Star;
+import uni.gaben.iscat.universe.effects.Starfield;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 /**

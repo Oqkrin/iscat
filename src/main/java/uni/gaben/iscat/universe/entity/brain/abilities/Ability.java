@@ -3,13 +3,13 @@ package uni.gaben.iscat.universe.entity.brain.abilities;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.*;
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.brain.Target;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.RandomizedShootAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.ShootAbility;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entity.shooters.PatternShooter;
-import uni.gaben.iscat.universe.entity.shooters.SummonPatternShooter;
+import uni.gaben.iscat.universe.entity.shooters.Pattern;
+import uni.gaben.iscat.universe.entity.shooters.SummonPattern;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,21 +39,21 @@ public abstract class Ability {
         Target target = Target.ofPlayer();
         return switch (ac.type()) {
             case SHOOT -> {
-                PatternShooter shooter = PatternShooter.createPatternShooter(ac.pattern());
+                Pattern shooter = Pattern.createPattern(ac.pattern());
                 yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), shooter,
                         target, ac.aimAtTarget(), ac.nerfPrediction());
             }
             case RANDOMIZED_SHOOT -> {
-                List<PatternShooter> patterns = new ArrayList<>();
-                for (EntityRecord.PatternRecord pc : ac.patterns()) patterns.add(PatternShooter.createPatternShooter(pc));
+                List<Pattern> patterns = new ArrayList<>();
+                for (EntityRecord.PatternRecord pc : ac.patterns()) patterns.add(Pattern.createPattern(pc));
                 yield RandomizedShootAbility.targetingPlayer(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), ac.aimAtTarget(),
-                        ac.nerfPrediction(), patterns.toArray(new PatternShooter[0]));
+                        ac.nerfPrediction(), patterns.toArray(new Pattern[0]));
             }
             case HEAL -> new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
             case SUMMON -> new ShootAbility(ac.combatRange(), ac.cooldownSec(),
-                    ProjectileType.valueOf(ac.bulletType()), new SummonPatternShooter(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex()),
+                    ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex()),
                     target, ac.aimAtTarget(), ac.nerfPrediction());
             case MELEE -> new MeleeAbility<>(ac.type().jsonKey, entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
             case KAMIKAZE -> new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);

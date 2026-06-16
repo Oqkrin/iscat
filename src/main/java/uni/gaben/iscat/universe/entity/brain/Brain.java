@@ -8,6 +8,9 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
+import uni.gaben.iscat.universe.entity.brain.rotation.RotationGoal;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoal;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringModifier;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.shooters.Shooter;
 

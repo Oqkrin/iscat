@@ -1,10 +1,12 @@
-package uni.gaben.iscat.universe.entity.brain;
+package uni.gaben.iscat.universe.entity.brain.steering;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.brain.target.Predictor;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
 
 import java.util.List;
 

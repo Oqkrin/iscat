@@ -1,9 +1,9 @@
 package uni.gaben.iscat.universe.entity.hardcoded.worm;
 
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.brain.Target;
-import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
-import uni.gaben.iscat.universe.entity.brain.RotationGoal;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoal;
+import uni.gaben.iscat.universe.entity.brain.rotation.RotationGoal;
 
 public class IscatWormSegmentBrain extends Brain<IscatWormSegment> {
     private final IscatWormSegment head;

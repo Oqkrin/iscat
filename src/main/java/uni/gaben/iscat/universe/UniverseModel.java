@@ -3,15 +3,16 @@ package uni.gaben.iscat.universe;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.contact.Contact;
 import org.dyn4j.geometry.MassType;
+import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.ContactCollisionData;
 import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
-
+import uni.gaben.iscat.universe.effects.Starfield;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entity.interfaces.Alterable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +33,7 @@ public class UniverseModel extends World<Body> {
     private double width = UniverseSettings.DEFAULT_WIDTH;
     private double height = UniverseSettings.DEFAULT_HEIGHT;
     private double physicsLifetime;
+    private final Map<Vector2, Double> alteredEndurance = new ConcurrentHashMap<>();
 
     // -------------------------------------------------------------------------
     // Construction
@@ -44,16 +46,42 @@ public class UniverseModel extends World<Body> {
             public void begin(ContactCollisionData<Body> collision, Contact contact) {
                 AbstractEntityModel a = extractEntity(collision.getBody1());
                 AbstractEntityModel b = extractEntity(collision.getBody2());
-
-                if(a instanceof PlayerModel || b instanceof PlayerModel) {
-                    System.out.println(b.getEntityRecord().entityKey());
-                    if(a instanceof ProjectileModel p) {
-                        System.out.println(p.getType());
-                    }
-                }
                 if (a != null && b != null) {
+                    double Abefore = 0;
+                    double Bbefore = 0;
+
+                    if(a instanceof Alterable aa) {
+                        Abefore = aa.getEndurance();
+                    }
+
+                    if(b instanceof Alterable ab) {
+                        Bbefore = ab.getEndurance();
+                    }
+
+
                     a.triggerAllCollisions(b);
                     b.triggerAllCollisions(a);
+
+
+                    double Aafter = 0;
+                    double Bafter = 0;
+
+                    if(a instanceof Alterable aa) {
+                        Aafter = aa.getEndurance();
+                    }
+
+                    if(b instanceof Alterable ab) {
+                        Bafter = ab.getEndurance();
+                    }
+
+                    if(Aafter != Abefore && !(a instanceof AbstractProjectileModel)) {
+                        alteredEndurance.put(a.getTransform().getTranslation(), Aafter-Abefore);
+                    }
+
+                    if(Bafter != Bbefore &&  !(b instanceof AbstractProjectileModel)) {
+                        alteredEndurance.put(b.getTransform().getTranslation(), Bafter-Bbefore);
+                    }
+
                 }
             }
         });
@@ -198,4 +226,9 @@ public class UniverseModel extends World<Body> {
             if (list != null) list.remove(entity);
         }
     }
+
+    public Map<Vector2, Double> getAlteredEndurances() {
+        return alteredEndurance;
+    }
+
 }

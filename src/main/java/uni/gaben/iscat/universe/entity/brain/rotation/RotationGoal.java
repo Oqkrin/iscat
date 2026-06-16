@@ -1,10 +1,11 @@
-package uni.gaben.iscat.universe.entity.brain;
+package uni.gaben.iscat.universe.entity.brain.rotation;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.concurrent.atomic.AtomicReference;

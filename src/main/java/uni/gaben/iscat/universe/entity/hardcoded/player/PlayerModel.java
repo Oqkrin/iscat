@@ -10,11 +10,10 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Geometry;
 
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.interfaces.*;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
-import uni.gaben.iscat.universe.Thrust;
+import uni.gaben.iscat.universe.effects.Thrust;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;

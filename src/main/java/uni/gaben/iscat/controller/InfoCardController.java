@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import uni.gaben.iscat.universe.entity.EntityRecord;
-import uni.gaben.iscat.universe.entity.ThreatLevel;
+import uni.gaben.iscat.universe.ThreatLevel;
 
 public class InfoCardController {
 

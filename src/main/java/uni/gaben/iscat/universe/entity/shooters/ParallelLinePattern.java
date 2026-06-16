@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.UU;
 import java.util.function.Consumer;
 
 /** spara n proiettili paralleli  */
-public class ParallelLinePatternShooter implements PatternShooter {
+public class ParallelLinePattern implements Pattern {
 
     private final int count;
     private final double spacingMeters;
@@ -18,7 +18,7 @@ public class ParallelLinePatternShooter implements PatternShooter {
      * @param count     Numero di proiettili paralleli da sparare.
      * @param spacingPx Distanza in pixel tra un proiettile e l'altro.
      */
-    public ParallelLinePatternShooter(int count, double spacingPx) {
+    public ParallelLinePattern(int count, double spacingPx) {
         this.count = count;
         this.spacingMeters = UU.pxToM(spacingPx);
     }

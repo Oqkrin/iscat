@@ -4,7 +4,6 @@ import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entity.EntityFactory;
 import uni.gaben.iscat.universe.entity.EntityRecord;
-import uni.gaben.iscat.universe.entity.ThreatLevel;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.model.game.GameModel;
@@ -21,15 +20,7 @@ import java.util.Random;
  */
 public class UniverseWaveController {
 
-    private static class ActiveEnemy {
-        final AbstractEntityModel model;
-        final String enemyId;
-
-        ActiveEnemy(AbstractEntityModel model, String enemyId) {
-            this.model = model;
-            this.enemyId = enemyId;
-        }
-    }
+    private record ActiveEnemy(AbstractEntityModel model, String enemyId) { }
 
     /** Contatore statico delle uccisioni totali eseguite nella sessione corrente. */
     public static int totalKills = 0;

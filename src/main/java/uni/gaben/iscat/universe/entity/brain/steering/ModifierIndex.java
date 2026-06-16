@@ -1,6 +1,6 @@
-package uni.gaben.iscat.universe.entity.brain;
+package uni.gaben.iscat.universe.entity.brain.steering;
 
-public enum ModifierType {
+public enum ModifierIndex {
     SEPARATION("separation"),
     ALIGNMENT("alignment"),
     COHESION("cohesion"),
@@ -8,16 +8,16 @@ public enum ModifierType {
 
     public final String jsonKey;
 
-    ModifierType(String jsonKey) {
+    ModifierIndex(String jsonKey) {
         this.jsonKey = jsonKey;
     }
 
-    public static ModifierType fromJson(String s) {
+    public static ModifierIndex fromJson(String s) {
         if (s == null || s.isEmpty()) return null;
-        for (ModifierType v : values()) {
+        for (ModifierIndex v : values()) {
             if (v.jsonKey.equals(s)) return v;
         }
-        System.err.println("[ModifierType] Unknown type '" + s + "' — modifier will be skipped");
+        System.err.println("[ModifierIndex] Unknown type '" + s + "' — modifier will be skipped");
         return null;
     }
 }

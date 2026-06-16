@@ -4,7 +4,7 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Polygon;
-import uni.gaben.iscat.universe.Shockwave;
+import uni.gaben.iscat.universe.effects.Shockwave;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.UniverseWaveController;

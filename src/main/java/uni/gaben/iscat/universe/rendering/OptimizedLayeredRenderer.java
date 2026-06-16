@@ -7,26 +7,25 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
-import uni.gaben.iscat.universe.Shockwave;
-import uni.gaben.iscat.universe.Thrust;
+import uni.gaben.iscat.universe.effects.Shockwave;
+import uni.gaben.iscat.universe.effects.Thrust;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class LayeredRenderer {
+public class OptimizedLayeredRenderer {
 
     private record SpriteBatch(Image image, double x, double y, double w, double h, double angle, Color tint) {}
     private record LineBatch(double x1, double y1, double x2, double y2, double lineWidth, Color color, double alpha) {}
     private record OvalBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill) {}
     private record RectBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double angle) {}
     private record PolygonBatch(double[] xPoints, double[] yPoints, Color color, double alpha, boolean fill, double lineWidth) {}
-    private record HpBarBatch(double x, double y, double w, double h, double percent) {}
+    record HpBarBatch(double x, double y, double w, double h, double percent) {}
     private record ThrustBatch(double cx, double cy, double angle, Thrust thrust) {}
     private record ShockwaveBatch(double cx, double cy, Shockwave shockwave, boolean isBlackHole) {}
-    private record ProjectileBatch(
+    record ProjectileBatch(
             double cx, double cy, double w, double h, Color color,
             double trailX1, double trailY1, double trailX2, double trailY2,
             double trailWidth
@@ -72,67 +71,56 @@ public class LayeredRenderer {
         projectiles.clear();
     }
 
-    public void draw() {
+    public void render() {
         gc.save();
         gc.translate(screenWidth / 2 - camX * zoom, screenHeight / 2 - camY * zoom);
         gc.scale(zoom, zoom);
 
-        drawSprites();
-        drawPolygons();
-        drawLines();
-        drawOvals();
-        drawRect();
-        drawHPbars();
-        drawShockwaves();
-        drawThrusts();
-        drawProjectiles();
+        renderSprites();
+        renderPolygons();
+        renderLines();
+        renderOvals();
+        renderRect();
+        renderHPbars();
+        renderShockwaves();
+        renderThrusts();
+        renderProjectiles();
 
         gc.restore();
         gc.setGlobalAlpha(1.0);
     }
 
-    private void drawProjectiles() {
+    private void renderProjectiles() {
         gc.setEffect(PROJECTILE_EFFECT);
         gc.setLineCap(StrokeLineCap.ROUND);                     // soft trail ends
         for (ProjectileBatch p : projectiles) {
-            // trail
-            gc.setStroke(p.color);
-            gc.setLineWidth(p.trailWidth);
-            gc.setGlobalAlpha(0.5);
-            gc.strokeLine(p.trailX1, p.trailY1, p.trailX2, p.trailY2);
-
-            // body
-            gc.setGlobalAlpha(1.0);
-            gc.setFill(p.color);
-            gc.fillOval(p.cx - p.w/2, p.cy - p.h/2, p.w, p.h);
+            DrawVFX.drawProjectile(gc, p);
         }
         gc.setEffect(null);
         gc.setLineCap(StrokeLineCap.SQUARE);   // restore default
         gc.setGlobalAlpha(1.0);
     }
 
-    private void drawThrusts() {
+    private void renderThrusts() {
         for (ThrustBatch t : thrusts) {
-            drawThrust(t.cx, t.cy, t.angle, t.thrust);
+            DrawVFX.drawThrustRaw(gc, t.cx, t.cy, t.angle, t.thrust);
         }
     }
 
-    private void drawShockwaves() {
+    private void renderShockwaves() {
         for (ShockwaveBatch sw : shockwaves) {
-            drawShockwave(sw.cx, sw.cy, sw.shockwave, sw.isBlackHole);
+            if (sw.isBlackHole) DrawVFX.drawBlackHoleRaw(gc, sw.cx, sw.cy, sw.shockwave);
+            else DrawVFX.drawShockwaveRaw(gc, sw.cx, sw.cy, sw.shockwave);
         }
     }
 
-    private void drawHPbars() {
+    private void renderHPbars() {
         for (HpBarBatch h : hpBars) {
-            gc.setFill(ThemeManager.getInstance().getColorError());
-            gc.fillRect(h.x, h.y, h.w, h.h);
-            gc.setFill(ThemeManager.getInstance().getColorSuccess());
-            gc.fillRect(h.x, h.y, h.w * h.percent, h.h);
+            DrawVFX.drawHpBar(gc, h);
         }
     }
 
-    private void drawRect() {
+    private void renderRect() {
         // Rects (some may be rotated)
         for (RectBatch r : rects) {
             if (r.angle != 0) {
@@ -149,7 +137,22 @@ public class LayeredRenderer {
         }
     }
 
-    private void drawOvals() {
+    private void drawRotatedRect(double x, double y, double w, double h, double angle, boolean fill, Color color, double alpha) {
+        gc.save();
+        gc.translate(x + w/2, y + h/2);
+        gc.rotate(angle);
+        gc.setGlobalAlpha(alpha);
+        if (fill) {
+            gc.setFill(color);
+            gc.fillRect(-w/2, -h/2, w, h);
+        } else {
+            gc.setStroke(color);
+            gc.strokeRect(-w/2, -h/2, w, h);
+        }
+        gc.restore();
+    }
+
+    private void renderOvals() {
         // Ovals
         for (OvalBatch o : ovals) {
             if (o.fill) {
@@ -162,7 +165,7 @@ public class LayeredRenderer {
         }
     }
 
-    private void drawLines() {
+    private void renderLines() {
         // Lines
         for (LineBatch l : lines) {
             gc.setStroke(l.color);
@@ -172,7 +175,7 @@ public class LayeredRenderer {
         }
     }
 
-    private void drawPolygons() {
+    private void renderPolygons() {
         for (PolygonBatch p : polygons) {
             if (p.fill) {
                 gc.setFill(p.color);
@@ -186,13 +189,29 @@ public class LayeredRenderer {
         }
     }
 
-    private void drawSprites() {
+    private void renderSprites() {
         sprites.sort(Comparator.comparingInt(a -> a.image().hashCode()));
         for (SpriteBatch s : sprites) {
             gc.setEffect(spriteBloom);
             drawTransformedImage(s.image, s.x, s.y, s.w, s.h, s.angle, s.tint);
             gc.setEffect(null);
         }
+    }
+
+    private void drawTransformedImage(Image img, double x, double y, double w, double h, double angle, Color tint) {
+        gc.save();
+        gc.translate(x, y);
+        gc.rotate(angle);
+        if (tint != null) {
+            gc.drawImage(img, -w/2, -h/2, w, h);
+            gc.setGlobalBlendMode(javafx.scene.effect.BlendMode.MULTIPLY);
+            gc.setFill(tint);
+            gc.fillRect(-w/2, -h/2, w, h);
+            gc.setGlobalBlendMode(javafx.scene.effect.BlendMode.SRC_OVER);
+        } else {
+            gc.drawImage(img, -w/2, -h/2, w, h);
+        }
+        gc.restore();
     }
 
 
@@ -249,46 +268,5 @@ public class LayeredRenderer {
                               double trailWidth) {
         projectiles.add(new ProjectileBatch(cx, cy, w, h, color,
                 trailX1, trailY1, trailX2, trailY2, trailWidth));
-    }
-
-
-    private void drawTransformedImage(Image img, double x, double y, double w, double h, double angle, Color tint) {
-        gc.save();
-        gc.translate(x, y);
-        gc.rotate(angle);
-        if (tint != null) {
-            gc.drawImage(img, -w/2, -h/2, w, h);
-            gc.setGlobalBlendMode(javafx.scene.effect.BlendMode.MULTIPLY);
-            gc.setFill(tint);
-            gc.fillRect(-w/2, -h/2, w, h);
-            gc.setGlobalBlendMode(javafx.scene.effect.BlendMode.SRC_OVER);
-        } else {
-            gc.drawImage(img, -w/2, -h/2, w, h);
-        }
-        gc.restore();
-    }
-
-    private void drawRotatedRect(double x, double y, double w, double h, double angle, boolean fill, Color color, double alpha) {
-        gc.save();
-        gc.translate(x + w/2, y + h/2);
-        gc.rotate(angle);
-        gc.setGlobalAlpha(alpha);
-        if (fill) {
-            gc.setFill(color);
-            gc.fillRect(-w/2, -h/2, w, h);
-        } else {
-            gc.setStroke(color);
-            gc.strokeRect(-w/2, -h/2, w, h);
-        }
-        gc.restore();
-    }
-
-    private void drawShockwave(double cx, double cy, Shockwave shockwave, boolean isBlackHole) {
-        if (isBlackHole) VFXRenderer.drawBlackHoleRaw(gc, cx, cy, shockwave);
-        else VFXRenderer.drawShockwaveRaw(gc, cx, cy, shockwave);
-    }
-
-    private void drawThrust(double cx, double cy, double angle, Thrust thrust) {
-        VFXRenderer.drawThrustRaw(gc, cx, cy, angle, thrust);
     }
 }

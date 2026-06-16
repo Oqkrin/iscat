@@ -1,6 +1,6 @@
-package uni.gaben.iscat.universe.entity.brain;
+package uni.gaben.iscat.universe.entity.brain.steering;
 
-public enum SteeringGoalType {
+public enum SteeringGoalIndex {
     IDLE("idle"),
     PURSUIT("pursuit"),
     EVADE("evade"),
@@ -10,7 +10,7 @@ public enum SteeringGoalType {
 
     public final String jsonKey;
 
-    SteeringGoalType(String jsonKey) {
+    SteeringGoalIndex(String jsonKey) {
         this.jsonKey = jsonKey;
     }
 
@@ -18,12 +18,12 @@ public enum SteeringGoalType {
      * Case-sensitive lookup by JSON key. Falls back to {@link #IDLE} on unknown values
      * and logs a warning rather than throwing, so a bad JSON doesn't crash the game.
      */
-    public static SteeringGoalType fromJson(String s) {
+    public static SteeringGoalIndex fromJson(String s) {
         if (s == null || s.isEmpty()) return IDLE;
-        for (SteeringGoalType v : values()) {
+        for (SteeringGoalIndex v : values()) {
             if (v.jsonKey.equals(s)) return v;
         }
-        System.err.println("[SteeringGoalType] Unknown type '" + s + "' — falling back to IDLE");
+        System.err.println("[SteeringGoalIndex] Unknown type '" + s + "' — falling back to IDLE");
         return IDLE;
     }
 }

@@ -4,7 +4,7 @@ package uni.gaben.iscat.universe.entity.hardcoded.blackhole;
 import org.dyn4j.world.DetectFilter;
 
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.brain.Target;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
 import uni.gaben.iscat.universe.entity.brain.abilities.GravityPullAbility;
 
 public class BlackHoleBrain extends Brain<BlackHoleModel> {

@@ -15,6 +15,7 @@ import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.interfaces.HasSprite;
 import uni.gaben.iscat.universe.entity.interfaces.HasThrust;
 import uni.gaben.iscat.universe.entity.interfaces.Alterable;
+import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpriteUtils;
@@ -29,39 +30,38 @@ public final class EntityRenderer {
 
     public record SpriteKey(String path, int width, int height) {}
 
-    private static final Map<Class<?>, BiConsumer<AbstractEntityModel, LayeredRenderer>> BATCHED_RENDERERS = new HashMap<>();
+    private static final Map<Class<?>, BiConsumer<AbstractEntityModel, OptimizedLayeredRenderer>> LAYERED_RENDERERS = new HashMap<>();
     private static final Map<SpriteKey, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
 
     static {
-        BATCHED_RENDERERS.put(AsteroidModel.class, EntityRenderer::drawAsteroidBatched);
-        BATCHED_RENDERERS.put(ProjectileModel.class,   EntityRenderer::drawProjectileBatched);
-        BATCHED_RENDERERS.put(PlayerModel.class,  EntityRenderer::drawPlayerBatched);
-        BATCHED_RENDERERS.put(BlackHoleModel.class, EntityRenderer::drawBlackHoleBatched);
+        LAYERED_RENDERERS.put(AsteroidModel.class, EntityRenderer::renderAsteroidBatched);
+        LAYERED_RENDERERS.put(ProjectileModel.class,   EntityRenderer::renderProjectileBatched);
+        LAYERED_RENDERERS.put(PlayerModel.class,  EntityRenderer::renderPlayerBatched);
+        LAYERED_RENDERERS.put(BlackHoleModel.class, EntityRenderer::renderBlackHoleBatched);
     }
 
     private EntityRenderer() {}
 
     // Main entry point for batched rendering
-    public static void drawBatched(AbstractEntityModel entity, LayeredRenderer batcher, boolean debug) {
+    public static void renderLayered(AbstractEntityModel entity, OptimizedLayeredRenderer layers, boolean debug) {
         if (entity == null || entity.shouldRemove()) return;
 
-        BiConsumer<AbstractEntityModel, LayeredRenderer> custom = BATCHED_RENDERERS.get(entity.getClass());
+        BiConsumer<AbstractEntityModel, OptimizedLayeredRenderer> custom = LAYERED_RENDERERS.get(entity.getClass());
         if (custom != null) {
-            custom.accept(entity, batcher);
+            custom.accept(entity, layers);
         } else if (entity instanceof HasSprite sprite) {
-            drawSpriteEntityBatched(entity, sprite, batcher);
+            renderSpriteEntityBatched(entity, sprite, layers);
         }
 
-        // Debug collision outlines – also batched as simple shapes
         if (debug) {
-            drawDebugCollisionBatched(entity, batcher);
+            renderDebugCollisionBatched(entity, layers);
         }
     }
 
     // ------------------------------------------------------------------
     // Batched Sprite pipeline – collects transform + image + color tint
     // ------------------------------------------------------------------
-    private static void drawSpriteEntityBatched(AbstractEntityModel entity, HasSprite sprite, LayeredRenderer batcher) {
+    private static void renderSpriteEntityBatched(AbstractEntityModel entity, HasSprite sprite, OptimizedLayeredRenderer layers) {
         double cx = UU.mToPx(entity.getTransform().getTranslationX());
         double cy = UU.mToPx(entity.getTransform().getTranslationY());
         double w  = entity.getWidthPx();
@@ -88,16 +88,16 @@ public final class EntityRenderer {
                         ? ThemeManager.getInstance().getAccentPrimary()
                         : ThemeManager.getInstance().getAccentSecondary();
 
-                batcher.addSprite(SpriteUtils.tinted(frame, tint), cx, cy, w, h, finalAngle, null);
+                layers.addSprite(SpriteUtils.tinted(frame, tint), cx, cy, w, h, finalAngle, null);
             }
         }
 
         // Shockwave (if present) – also batched as a special effect
         if (entity instanceof HasShockwave sw && sw.shockwave().isActive()) {
             if ("iscat-master".equals(entity.getEntityRecord().entityKey())) {
-                batcher.addBlackHoleShockwave(cx, cy, sw.shockwave());
+                layers.addBlackHoleShockwave(cx, cy, sw.shockwave());
             } else {
-                batcher.addShockwave(cx, cy, sw.shockwave());
+                layers.addShockwave(cx, cy, sw.shockwave());
             }
         }
 
@@ -106,14 +106,14 @@ public final class EntityRenderer {
             double barX = cx - w/2;
             double barY = cy - h/2 - PlayerSettings.HP_BAR_OFFSET_Y;
             double percent = ld.getEndurance() / ld.getMaxEndurance();
-            batcher.addHpBar(barX, barY, w, PlayerSettings.HP_BAR_HEIGHT, percent);
+            layers.addHpBar(barX, barY, w, PlayerSettings.HP_BAR_HEIGHT, percent);
         }
     }
 
     // ------------------------------------------------------------------
     // Custom batched handlers
     // ------------------------------------------------------------------
-    private static void drawProjectileBatched(AbstractEntityModel e, LayeredRenderer batcher) {
+    private static void renderProjectileBatched(AbstractEntityModel e, OptimizedLayeredRenderer layers) {
         ProjectileModel p = (ProjectileModel) e;
         double cx = UU.mToPx(e.getTransform().getTranslationX());
         double cy = UU.mToPx(e.getTransform().getTranslationY());
@@ -124,25 +124,23 @@ public final class EntityRenderer {
         double speed = vel.getMagnitude();
         double trailX2 = cx;
         double trailY2 = cy;
-        double trailWidth = h * 0.75;
+        double trailWidth = ScalareAureo.phiMinore(h);
         
         if (speed > 0.1) {
-            trailX2 = cx - vel.x * 1.618;
-            trailY2 = cy - vel.y * 1.618;
+            trailX2 = cx - ScalareAureo.phiMaggiore(vel.x);
+            trailY2 = cy - ScalareAureo.phiMaggiore(vel.y);
         }
 
         Color baseColor = p.getType().color;
         Color strokeColor = baseColor.darker();
 
-        double borderSize = 10.0;
-
-        batcher.addProjectile(cx, cy, w + borderSize, h + borderSize, strokeColor,
-                cx, cy, trailX2, trailY2, trailWidth + borderSize);
-        batcher.addProjectile(cx, cy, w, h, baseColor,
+        layers.addProjectile(cx, cy, ScalareAureo.phiMaggiore(w), ScalareAureo.phiMaggiore(h), strokeColor,
+                cx, cy, trailX2, trailY2, ScalareAureo.phiMaggiore(trailWidth));
+        layers.addProjectile(cx, cy, w, h, baseColor,
                 cx, cy, trailX2, trailY2, trailWidth);
     }
 
-    private static void drawAsteroidBatched(AbstractEntityModel e, LayeredRenderer batcher) {
+    private static void renderAsteroidBatched(AbstractEntityModel e, OptimizedLayeredRenderer batcher) {
         AsteroidModel asteroid = (AsteroidModel) e;
         Vector2[] vertices = asteroid.getDisplayVertices();
         if (vertices == null || vertices.length == 0) return;
@@ -195,11 +193,11 @@ public final class EntityRenderer {
         }
     }
 
-    private static void drawPlayerBatched(AbstractEntityModel e, LayeredRenderer batcher) {
+    private static void renderPlayerBatched(AbstractEntityModel e, OptimizedLayeredRenderer batcher) {
         PlayerModel player = (PlayerModel) e;
         // Draw the player sprite (if any)
         if (player instanceof HasSprite sprite) {
-            drawSpriteEntityBatched(player, sprite, batcher);
+            renderSpriteEntityBatched(player, sprite, batcher);
         }
         // Thrust effect – batched as a group of particles (handled inside batcher)
         if (player instanceof HasThrust thrustProvider && thrustProvider.thrust().isActive()) {
@@ -212,7 +210,7 @@ public final class EntityRenderer {
         }
     }
 
-    private static void drawBlackHoleBatched(AbstractEntityModel e, LayeredRenderer batcher) {
+    private static void renderBlackHoleBatched(AbstractEntityModel e, OptimizedLayeredRenderer batcher) {
         BlackHoleModel bh = (BlackHoleModel) e;
         double cx = UU.mToPx(bh.getTransform().getTranslationX());
         double cy = UU.mToPx(bh.getTransform().getTranslationY());
@@ -221,7 +219,7 @@ public final class EntityRenderer {
         }
     }
 
-    private static void drawDebugCollisionBatched(AbstractEntityModel e, LayeredRenderer renderer) {
+    private static void renderDebugCollisionBatched(AbstractEntityModel e, OptimizedLayeredRenderer renderer) {
         double cx = UU.mToPx(e.getTransform().getTranslationX());
         double cy = UU.mToPx(e.getTransform().getTranslationY());
         double w = e.getWidthPx();

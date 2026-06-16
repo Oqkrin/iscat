@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity;
+package uni.gaben.iscat.universe;
 
 public enum ThreatLevel {
     NONE("Nessuna", "#000000"),

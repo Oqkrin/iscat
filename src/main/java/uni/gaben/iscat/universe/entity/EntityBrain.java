@@ -4,6 +4,10 @@ import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.HealAbility;
 import uni.gaben.iscat.universe.entity.brain.abilities.shoot.*;
+import uni.gaben.iscat.universe.entity.brain.rotation.RotationGoal;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoal;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringModifier;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.shooters.*;
 
@@ -40,7 +44,7 @@ public class EntityBrain extends Brain<EntityModel> {
                         record.detectionRange(),
                         record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
-                        new SingleShotPatternShooter(),
+                        new SingleShotPattern(),
                         Target.ofPlayer(),
                         true,
                         2.6
@@ -54,7 +58,7 @@ public class EntityBrain extends Brain<EntityModel> {
                         record.detectionRange(),
                         record.actionCooldownSec(),
                         ProjectileType.STUN_BULLET,
-                        new RepeaterPatternShooter(12,record.actionCooldownSec(), new SingleShotPatternShooter()),
+                        new RepeaterPattern(12,record.actionCooldownSec(), new SingleShotPattern()),
                         Target.ofPlayer(),
                         true,
                         0
@@ -67,7 +71,7 @@ public class EntityBrain extends Brain<EntityModel> {
                         record.detectionRange(),
                         record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
-                        new MultiDirectionPatternShooter(4, 0, new ParallelLinePatternShooter(3, 32)),
+                        new MultiDirectionPattern(4, 0, new ParallelLinePattern(3, 32)),
                         Target.ofPlayer(),
                         false,
                         0
@@ -87,10 +91,10 @@ public class EntityBrain extends Brain<EntityModel> {
                         true,
                         3
                         ,
-                        new SummonPatternShooter(3,"iscat_mob",100),
-                        new SummonPatternShooter(1,"fake_iscat",100),
-                        new SummonPatternShooter(2,"iscat_healer",100),
-                        new RepeaterPatternShooter(4,1, new SpreadPatternShooter(5, 30))
+                        new SummonPattern(3,"iscat_mob",100),
+                        new SummonPattern(1,"fake_iscat",100),
+                        new SummonPattern(2,"iscat_healer",100),
+                        new RepeaterPattern(4,1, new SpreadPattern(5, 30))
                 ));
                 break;
 
@@ -103,9 +107,9 @@ public class EntityBrain extends Brain<EntityModel> {
                         true,
                         1
                         ,
-                        new SpreadPatternShooter(3, 30),
-                        new MultiDirectionPatternShooter(8, 0, new SingleShotPatternShooter()),
-                        new RepeaterPatternShooter(3,0.25, new SingleShotPatternShooter())
+                        new SpreadPattern(3, 30),
+                        new MultiDirectionPattern(8, 0, new SingleShotPattern()),
+                        new RepeaterPattern(3,0.25, new SingleShotPattern())
                 ));
                 break;
 
@@ -115,7 +119,7 @@ public class EntityBrain extends Brain<EntityModel> {
                         record.detectionRange(),
                         record.actionCooldownSec(),
                         ProjectileType.ENEMY_BULLET,
-                        new RepeaterPatternShooter(2, 0.5, new RingPatternShooter(16)),
+                        new RepeaterPattern(2, 0.5, new RingPattern(16)),
                         Target.ofPlayer(),
                         false,
                         0
@@ -135,9 +139,9 @@ public class EntityBrain extends Brain<EntityModel> {
                         ProjectileType.ENEMY_BULLET,
                         true,
                         3,
-                        new RingPatternShooter(16),
-                        new RingPatternShooter(8),
-                        new RingPatternShooter(24)
+                        new RingPattern(16),
+                        new RingPattern(8),
+                        new RingPattern(24)
                 ));
                 break;
 
@@ -149,11 +153,11 @@ public class EntityBrain extends Brain<EntityModel> {
                         true,
                         0
                         ,
-                        new RingPatternShooter(32),
-                        new SummonPatternShooter(2,"eater",100),
-                        new SummonPatternShooter(1,"iscat_dasher",100),
-                        new RepeaterPatternShooter(3,0.3, new RingPatternShooter(16)),
-                        new RepeaterPatternShooter(4,0.3, new SpreadPatternShooter(8, 45))
+                        new RingPattern(32),
+                        new SummonPattern(2,"eater",100),
+                        new SummonPattern(1,"iscat_dasher",100),
+                        new RepeaterPattern(3,0.3, new RingPattern(16)),
+                        new RepeaterPattern(4,0.3, new SpreadPattern(8, 45))
                 ));
                 break;
 

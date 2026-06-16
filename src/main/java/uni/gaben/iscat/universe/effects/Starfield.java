@@ -1,5 +1,6 @@
-package uni.gaben.iscat.universe;
+package uni.gaben.iscat.universe.effects;
 
+import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
 

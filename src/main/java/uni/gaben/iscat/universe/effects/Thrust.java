@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe;
+package uni.gaben.iscat.universe.effects;
 
 import org.dyn4j.geometry.Vector2;
 

@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain;
+package uni.gaben.iscat.universe.entity.brain.target;
 
 import org.dyn4j.collision.Filter;
 import uni.gaben.iscat.universe.UniverseModel;

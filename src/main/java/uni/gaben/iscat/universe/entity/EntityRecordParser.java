@@ -2,10 +2,11 @@ package uni.gaben.iscat.universe.entity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import uni.gaben.iscat.universe.entity.brain.ModifierType;
-import uni.gaben.iscat.universe.entity.brain.RotationGoalType;
-import uni.gaben.iscat.universe.entity.brain.SteeringGoalType;
-import uni.gaben.iscat.universe.entity.brain.abilities.AbilityType;
+import uni.gaben.iscat.universe.ThreatLevel;
+import uni.gaben.iscat.universe.entity.brain.steering.ModifierIndex;
+import uni.gaben.iscat.universe.entity.brain.rotation.RotationGoalIndex;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoalIndex;
+import uni.gaben.iscat.universe.entity.brain.abilities.AbilityIndex;
 import uni.gaben.iscat.universe.entity.shooters.PatternType;
 import java.util.ArrayList;
 import java.util.List;
@@ -158,9 +159,9 @@ public final class EntityRecordParser {
     }
 
     private static EntityRecord.SteeringRecord parseSteering(JSONObject obj) {
-        if (obj == null) return new EntityRecord.SteeringRecord(SteeringGoalType.IDLE, 2.5, 2.5, 10.0, 5.0);
+        if (obj == null) return new EntityRecord.SteeringRecord(SteeringGoalIndex.IDLE, 2.5, 2.5, 10.0, 5.0);
         return new EntityRecord.SteeringRecord(
-                SteeringGoalType.fromJson(obj.optString("type", SteeringGoalType.IDLE.jsonKey)),
+                SteeringGoalIndex.fromJson(obj.optString("type", SteeringGoalIndex.IDLE.jsonKey)),
                 obj.optDouble("maxPredictionTime", 2.5),
                 obj.optDouble("minDistance", 2.5),
                 obj.optDouble("maxDistance", 10.0),
@@ -169,9 +170,9 @@ public final class EntityRecordParser {
     }
 
     private static EntityRecord.RotationRecord parseRotation(JSONObject obj) {
-        if (obj == null) return new EntityRecord.RotationRecord(RotationGoalType.IDLE, 0.0, 8, 0.1, "player");
+        if (obj == null) return new EntityRecord.RotationRecord(RotationGoalIndex.IDLE, 0.0, 8, 0.1, "player");
         return new EntityRecord.RotationRecord(
-                RotationGoalType.fromJson(obj.optString("type", RotationGoalType.IDLE.jsonKey)),
+                RotationGoalIndex.fromJson(obj.optString("type", RotationGoalIndex.IDLE.jsonKey)),
                 obj.optDouble("spinSpeedRadPerSec", 0.0),
                 obj.optInt("spinSteps", 8),
                 obj.optDouble("stepPauseSec", 0.1),
@@ -184,7 +185,7 @@ public final class EntityRecordParser {
         if (arr == null) return list;
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
-            AbilityType type = AbilityType.fromJson(obj.optString("type"));
+            AbilityIndex type = AbilityIndex.fromJson(obj.optString("type"));
             double combatRange = obj.optDouble("combatRange", 10.0);
             double cooldownSec = obj.optDouble("cooldownSec", 0.8);
             String bulletType = obj.optString("bulletType", "ENEMY_BULLET");
@@ -249,7 +250,7 @@ public final class EntityRecordParser {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
             list.add(new EntityRecord.ModifierRecord(
-                    ModifierType.fromJson(obj.optString("type")),
+                    ModifierIndex.fromJson(obj.optString("type")),
                     obj.optDouble("radius", 2.0),
                     obj.optDouble("weight", 1.0),
                     obj.optDouble("maxPredictionTime", 1.0),

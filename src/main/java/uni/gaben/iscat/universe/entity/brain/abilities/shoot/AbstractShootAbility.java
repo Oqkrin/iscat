@@ -7,6 +7,7 @@ import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entity.brain.abilities.AbilityCategory;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
 

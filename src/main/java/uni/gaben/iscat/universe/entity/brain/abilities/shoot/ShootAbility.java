@@ -1,15 +1,16 @@
 package uni.gaben.iscat.universe.entity.brain.abilities.shoot;
 
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.shooters.PatternShooter;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
+import uni.gaben.iscat.universe.entity.shooters.Pattern;
 import uni.gaben.iscat.universe.entity.brain.*;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 
 public class ShootAbility extends AbstractShootAbility {
-    private final PatternShooter pattern;
+    private final Pattern pattern;
 
     public ShootAbility(double combatRange, double cooldownSec,
-                        ProjectileType bulletType, PatternShooter pattern,
+                        ProjectileType bulletType, Pattern pattern,
                         Target target, boolean aimAtTarget, double nerfPrediction) {
         super("shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
         this.pattern = pattern;

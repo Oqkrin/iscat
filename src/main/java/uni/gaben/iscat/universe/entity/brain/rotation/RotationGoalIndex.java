@@ -1,6 +1,6 @@
-package uni.gaben.iscat.universe.entity.brain;
+package uni.gaben.iscat.universe.entity.brain.rotation;
 
-public enum RotationGoalType {
+public enum RotationGoalIndex {
     STILL("still"),
     IDLE("idle"),
     MOVEMENT("movement"),
@@ -10,19 +10,19 @@ public enum RotationGoalType {
 
     public final String jsonKey;
 
-    RotationGoalType(String jsonKey) {
+    RotationGoalIndex(String jsonKey) {
         this.jsonKey = jsonKey;
     }
 
     /**
      * Case-sensitive lookup by JSON key. Falls back to {@link #IDLE} on unknown values.
      */
-    public static RotationGoalType fromJson(String s) {
+    public static RotationGoalIndex fromJson(String s) {
         if (s == null || s.isEmpty()) return IDLE;
-        for (RotationGoalType v : values()) {
+        for (RotationGoalIndex v : values()) {
             if (v.jsonKey.equals(s)) return v;
         }
-        System.err.println("[RotationGoalType] Unknown type '" + s + "' — falling back to IDLE");
+        System.err.println("[RotationGoalIndex] Unknown type '" + s + "' — falling back to IDLE");
         return IDLE;
     }
 }

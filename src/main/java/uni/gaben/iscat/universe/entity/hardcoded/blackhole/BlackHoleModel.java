@@ -11,7 +11,7 @@ import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
-import uni.gaben.iscat.universe.Shockwave;
+import uni.gaben.iscat.universe.effects.Shockwave;
 import uni.gaben.iscat.utils.Updatable;
 
 public class BlackHoleModel extends AbstractEntityModel implements Updatable, HasShockwave {

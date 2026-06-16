@@ -10,21 +10,21 @@ import uni.gaben.iscat.universe.UU;
 import java.util.function.Consumer;
 
 /** Evoca n entità nel raggio indicato usando l'ID del Database */
-public class SummonPatternShooter implements PatternShooter {
+public class SummonPattern implements Pattern {
 
     private final int count;
     private final String enemyId;
     private final double spawnRadiusPx;
     private final int attackStateIndex;
 
-    public SummonPatternShooter(int count, String enemyId, double spawnRadiusPx, int attackStateIndex) {
+    public SummonPattern(int count, String enemyId, double spawnRadiusPx, int attackStateIndex) {
         this.count = count;
         this.enemyId = enemyId;
         this.spawnRadiusPx = spawnRadiusPx;
         this.attackStateIndex = attackStateIndex;
     }
 
-    public SummonPatternShooter(int count, String enemyId, double spawnRadiusPx) {
+    public SummonPattern(int count, String enemyId, double spawnRadiusPx) {
         this(count, enemyId, spawnRadiusPx, 4); // 4 = ATTACK3
     }
 

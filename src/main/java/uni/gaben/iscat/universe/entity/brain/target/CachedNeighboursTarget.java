@@ -1,14 +1,11 @@
-package uni.gaben.iscat.universe.entity.brain.targets;
+package uni.gaben.iscat.universe.entity.brain.target;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.AABB;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.brain.Target;
-import uni.gaben.iscat.universe.entity.brain.UniverseDetectFilter;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CachedNeighboursTarget implements Target {
     private final Body self;

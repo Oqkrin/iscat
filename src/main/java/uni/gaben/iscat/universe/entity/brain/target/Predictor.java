@@ -1,8 +1,9 @@
-package uni.gaben.iscat.universe.entity.brain;
+package uni.gaben.iscat.universe.entity.brain.target;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
+
 import java.util.List;
 
 public final class Predictor {

@@ -1,5 +1,7 @@
 package uni.gaben.iscat.universe.entity;
 
+import uni.gaben.iscat.universe.ThreatLevel;
+
 import java.util.List;
 
 public class EntityRecordBuilder {

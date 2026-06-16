@@ -3,8 +3,8 @@ package uni.gaben.iscat.universe.entity.hardcoded.heart;
 
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.brain.Target;
-import uni.gaben.iscat.universe.entity.brain.SteeringGoal;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoal;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 public class HeartController extends Brain<HeartModel> {
@@ -22,8 +22,6 @@ public class HeartController extends Brain<HeartModel> {
                 collected = true;
                 double halfMaxLife = player.getMaxEndurance() / 2.0;
                 player.restore(halfMaxLife);
-                heart.setEndurance(0);
-                heart.extinguish();
                 heart.setShouldRemove(true);
             }
         });

@@ -52,7 +52,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entity.hardcoded.player;
     exports uni.gaben.iscat.universe.entity.hardcoded.projectiles;
     exports uni.gaben.iscat.universe.rendering;
-    exports uni.gaben.iscat.universe.entity.brain.targets;
+    exports uni.gaben.iscat.universe.entity.brain.target;
 
     exports uni.gaben.iscat.utils;
     exports uni.gaben.iscat.utils.sprite;
@@ -65,9 +65,13 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.view.components;
     opens uni.gaben.iscat.view.components to javafx.fxml;
     exports uni.gaben.iscat.universe.entity;
-    opens uni.gaben.iscat.universe to javafx.fxml;
     opens uni.gaben.iscat.universe.entity.hardcoded.asteroid to javafx.fxml;
     exports uni.gaben.iscat.universe.entity.interfaces;
     opens uni.gaben.iscat.universe.entity.interfaces to javafx.fxml, org.json;
     opens uni.gaben.iscat.universe.entity to javafx.fxml, org.json;
+    exports uni.gaben.iscat.universe.entity.brain.rotation;
+    exports uni.gaben.iscat.universe.entity.brain.steering;
+    opens uni.gaben.iscat.universe to javafx.fxml, org.json;
+    exports uni.gaben.iscat.universe.effects;
+    opens uni.gaben.iscat.universe.effects to javafx.fxml, org.json;
 }

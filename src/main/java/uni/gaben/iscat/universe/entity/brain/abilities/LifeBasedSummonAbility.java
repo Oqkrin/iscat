@@ -3,19 +3,19 @@ package uni.gaben.iscat.universe.entity.brain.abilities;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.shooters.SummonPatternShooter;
+import uni.gaben.iscat.universe.entity.shooters.SummonPattern;
 
 import java.util.Collections;
 import java.util.Set;
 
 public class LifeBasedSummonAbility extends Ability {
 
-    Set<SummonPatternShooter> summons ;
+    Set<SummonPattern> summons ;
 
-    public LifeBasedSummonAbility(SummonPatternShooter... summons) {
+    public LifeBasedSummonAbility(SummonPattern... summons) {
         super("LifeBasedSummon", AbilityCategory.SPECIAL, Collections.emptySet());
     }
-    public LifeBasedSummonAbility(String uuid, SummonPatternShooter... summons) {
+    public LifeBasedSummonAbility(String uuid, SummonPattern... summons) {
         super(uuid, AbilityCategory.SPECIAL, Collections.emptySet());
     }
 

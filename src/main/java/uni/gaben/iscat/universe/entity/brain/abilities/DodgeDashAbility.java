@@ -5,14 +5,12 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.brain.Target;
-import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
 
 public class DodgeDashAbility extends Ability {
 

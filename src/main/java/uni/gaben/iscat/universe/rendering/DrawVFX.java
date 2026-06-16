@@ -6,15 +6,16 @@ import javafx.scene.effect.Effect;
 import javafx.scene.effect.Glow;
 import javafx.scene.paint.Color;
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.Shockwave;
-import uni.gaben.iscat.universe.Thrust;
+import uni.gaben.iscat.universe.effects.EnduranceIndicator;
+import uni.gaben.iscat.universe.effects.Shockwave;
+import uni.gaben.iscat.universe.effects.Thrust;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.Random;
 
-public final class VFXRenderer {
+public final class DrawVFX {
 
     private static final Random RANDOM = new Random();
     private static final Effect thrustEffect = new Glow();
@@ -32,9 +33,9 @@ public final class VFXRenderer {
         }
     }
 
-    private VFXRenderer() {}
+    private DrawVFX() {}
 
-    // Raw method called from LayeredRenderer – no additional save/restore
+    // Raw method called from OptimizedLayeredRenderer – no additional save/restore
     public static void drawShockwaveRaw(GraphicsContext gc, double cx, double cy, Shockwave shockwave) {
         double radius = shockwave.getRadius();
         double alpha = shockwave.getAlpha();
@@ -207,5 +208,33 @@ public final class VFXRenderer {
                     alpha * (1.0 - t)
             );
         }
+    }
+
+    public static void drawEnduranceIndicator(EnduranceIndicator enduranceIndicator, GraphicsContext gc) {
+        Color color = (enduranceIndicator.value < 0) ? ThemeManager.getInstance().getColorError()
+                : ThemeManager.getInstance().getColorSuccess();
+        gc.setFill(color);
+        gc.setGlobalAlpha(enduranceIndicator.alpha);
+        String text = String.format("%+.0f", enduranceIndicator.value);
+        double textWidth = gc.getFont().getSize() * text.length() * 0.6;
+        gc.fillText(text, enduranceIndicator.x - textWidth / 2.0, enduranceIndicator.y);
+        gc.setGlobalAlpha(1.0);
+    }
+
+    static void drawProjectile(GraphicsContext gc, OptimizedLayeredRenderer.ProjectileBatch p) {
+        gc.setStroke(p.color());
+        gc.setLineWidth(p.trailWidth());
+        gc.setGlobalAlpha(0.5);
+        gc.strokeLine(p.trailX1(), p.trailY1(), p.trailX2(), p.trailY2());
+        gc.setGlobalAlpha(1.0);
+        gc.setFill(p.color());
+        gc.fillOval(p.cx() - p.w() /2, p.cy() - p.h() /2, p.w(), p.h());
+    }
+
+    static void drawHpBar(GraphicsContext gc, OptimizedLayeredRenderer.HpBarBatch h) {
+        gc.setFill(ThemeManager.getInstance().getColorError());
+        gc.fillRect(h.x(), h.y(), h.w(), h.h());
+        gc.setFill(ThemeManager.getInstance().getColorSuccess());
+        gc.fillRect(h.x(), h.y(), h.w() * h.percent(), h.h());
     }
 }

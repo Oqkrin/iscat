@@ -2,20 +2,29 @@ package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Glow;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.effects.EnduranceIndicator;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.view.components.StarryText;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class UniverseRenderer {
 
+    public static final GaussianBlur ENDURANCE_INDICATOR_EFFECT = new GaussianBlur(2);
     private final Canvas          mainCanvas;
     private final GameController  gameController;
     private final GameModel       gameModel;
@@ -24,11 +33,17 @@ public class UniverseRenderer {
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
 
+    private final List<EnduranceIndicator> enduranceIndicator = new ArrayList<>();
+    private static final double NUMBER_DURATION = 2;  // seconds
+    private static final double NUMBER_RISE_SPEED = 60; // pixels per second
+    private static final Font NUMBER_FONT = Font.font("Miracode", FontWeight.MEDIUM, 18);
+
+
     // Buffer to avoid per‑frame ArrayList allocation
     private final List<AbstractEntityModel> entitySnapshotBuffer = new ArrayList<>();
 
     // Batched drawing helper
-    private final LayeredRenderer batcher = new LayeredRenderer();
+    private final OptimizedLayeredRenderer layers = new OptimizedLayeredRenderer();
 
     public UniverseRenderer(Canvas mainCanvas, GameController gameController, StarfieldRenderer starfieldRenderer) {
         this.mainCanvas       = mainCanvas;
@@ -62,7 +77,7 @@ public class UniverseRenderer {
         starfieldRenderer.render(universe.getStarfieldModel(), gc);
 
         // 3. Prepare the batch collector for this frame
-        batcher.begin(gc, camera, w, h);
+        layers.begin(gc, camera, w, h);
 
         // 4. Collect all visible entities into the batch (no drawing yet)
         entitySnapshotBuffer.clear();
@@ -80,21 +95,22 @@ public class UniverseRenderer {
 
         for (AbstractEntityModel entity : entitySnapshotBuffer) {
             if (!entity.isInsideViewport(minX, maxX, minY, maxY)) continue;
-            EntityRenderer.drawBatched(entity, batcher, debug);
+            EntityRenderer.renderLayered(entity, layers, debug);
         }
 
-        // 5. Flush all batched commands in optimal order
-        batcher.draw();
+        layers.render();
+
+        renderEnduranceAlterations(universe, camera, gameModel.getDt(), gc);
 
         // 6. Post‑processing effects that cannot be batched easily
-        drawHurt(camera, gc);
-        drawTimer(timerCanvas, starryTimer);
+        renderHurt(camera, gc);
+        renderTimer(timerCanvas, starryTimer);
 
         // 7. FPS overlay (single draw call)
         if (gameController.isFpsOn()) drawFps(gc, w);
     }
 
-    private static void drawTimer(Canvas timerCanvas, StarryText starryTimer) {
+    private static void renderTimer(Canvas timerCanvas, StarryText starryTimer) {
         if (timerCanvas != null && starryTimer != null) {
             GraphicsContext tgc = timerCanvas.getGraphicsContext2D();
             tgc.clearRect(0, 0, timerCanvas.getWidth(), timerCanvas.getHeight());
@@ -102,7 +118,7 @@ public class UniverseRenderer {
         }
     }
 
-    private void drawHurt(CameraModel camera, GraphicsContext gc) {
+    private void renderHurt(CameraModel camera, GraphicsContext gc) {
         if (camera.getHurtFlashIntensity() > 0.01) {
             gc.save();
             gc.setGlobalAlpha(camera.getHurtFlashIntensity() * 0.40);
@@ -129,4 +145,43 @@ public class UniverseRenderer {
         gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
         gc.fillText(String.format("FPS: %.0f", avg), canvasWidth - 80, 50);
     }
+
+    private final List<EnduranceIndicator> enduranceIndicators = new ArrayList<>();
+
+    private void renderEnduranceAlterations(UniverseModel universe, CameraModel camera, double dt, GraphicsContext gc) {
+        // 1. Create new indicators from the map
+        Map<Vector2, Double> altered = universe.getAlteredEndurances();
+        if (!altered.isEmpty()) {
+            for (Map.Entry<Vector2, Double> entry : altered.entrySet()) {
+                EnduranceIndicator ind = EnduranceIndicator.create(
+                        entry.getKey(),
+                        camera,
+                        entry.getValue(),
+                        mainCanvas.getWidth(),
+                        mainCanvas.getHeight()
+                );
+                enduranceIndicators.add(ind);
+            }
+            altered.clear();
+        }
+
+        Iterator<EnduranceIndicator> it = enduranceIndicators.iterator();
+        while (it.hasNext()) {
+            EnduranceIndicator ind = it.next();
+            ind.update(dt);
+            if (ind.shouldRemove()) {
+                it.remove();
+            }
+        }
+
+        gc.save();
+        gc.setFont(EnduranceIndicator.FONT);
+        gc.setEffect(ENDURANCE_INDICATOR_EFFECT);
+        for (EnduranceIndicator ind : enduranceIndicators) {
+            DrawVFX.drawEnduranceIndicator(ind, gc);
+        }
+        gc.setEffect(null);
+        gc.restore();
+    }
+
 }

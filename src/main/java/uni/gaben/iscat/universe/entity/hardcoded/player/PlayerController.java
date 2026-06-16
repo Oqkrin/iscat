@@ -24,7 +24,7 @@ public class PlayerController {
 
     private final Cooldown dashBuffer = new Cooldown();
     private boolean bufferedDashIsWASD = false;
-    private PatternShooter currentAttack;
+    private Pattern currentAttack;
 
     // Cache last level to avoid re‑assigning attack pattern every frame
     private int lastLevel = -1;
@@ -165,14 +165,14 @@ public class PlayerController {
 
         if (data == null || data.player() == null) {
             // Fallback di sicurezza se il JSON non è caricato
-            this.currentAttack = new SingleShotPatternShooter();
+            this.currentAttack = new SingleShotPattern();
             return;
         }
 
         for (EntityRecord.LevelAbility ability : data.player().levelAbilities()) {
             if (level >= ability.minLevel()) {
 
-                this.currentAttack = PatternShooter.createPatternShooter(ability.pattern());
+                this.currentAttack = Pattern.createPattern(ability.pattern());
                 player.setCooldownFuocoSec(ability.cooldownSec());
                 break;
             }

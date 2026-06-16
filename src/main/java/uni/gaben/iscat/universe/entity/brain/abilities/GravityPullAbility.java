@@ -4,7 +4,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.brain.Brain;
-import uni.gaben.iscat.universe.entity.brain.Target;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 
 import java.util.Collections;

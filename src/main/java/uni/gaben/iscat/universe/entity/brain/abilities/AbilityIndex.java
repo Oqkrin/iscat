@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entity.brain.abilities;
 
 
-public enum AbilityType {
+public enum AbilityIndex {
     SHOOT("shoot"),
     RANDOMIZED_SHOOT("randomizedShoot"),
     HEAL("heal"),
@@ -13,16 +13,16 @@ public enum AbilityType {
 
     public final String jsonKey;
 
-    AbilityType(String jsonKey) {
+    AbilityIndex(String jsonKey) {
         this.jsonKey = jsonKey;
     }
 
-    public static AbilityType fromJson(String s) {
+    public static AbilityIndex fromJson(String s) {
         if (s == null || s.isEmpty()) return null;
-        for (AbilityType v : values()) {
+        for (AbilityIndex v : values()) {
             if (v.jsonKey.equals(s)) return v;
         }
-        System.err.println("[AbilityType] Unknown type '" + s + "' — ability will be skipped");
+        System.err.println("[AbilityIndex] Unknown type '" + s + "' — ability will be skipped");
         return null;
     }
 }

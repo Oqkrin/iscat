@@ -16,8 +16,8 @@ import java.util.function.Consumer;
  * the burst state is managed by the action itself — {@link #times ()} and {@link #inner ()} are
  * exposed for that purpose.
  */
-public record RepeaterPatternShooter(int times, double intervalSeconds,
-                                     PatternShooter inner) implements PatternShooter {
+public record RepeaterPattern(int times, double intervalSeconds,
+                              Pattern inner) implements Pattern {
 
     /**
      * Executes the first burst immediately. Subsequent bursts are expected to be

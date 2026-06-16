@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain;
+package uni.gaben.iscat.universe.entity.brain.target;
 
 import org.dyn4j.collision.Filter;
 import org.dyn4j.dynamics.Body;
@@ -8,7 +8,6 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.DetectFilter;
 import org.dyn4j.world.result.DetectResult;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entity.brain.targets.CachedNeighboursTarget;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 
