@@ -12,10 +12,10 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<VBox fx:id="theme" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.options.OptionThemeController">
+<VBox fx:id="theme" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.options.OptionThemeController" styleClass="glowing-border, controls-card">
    <children>
    
-           <VBox alignment="CENTER" spacing="16.0" VBox.vgrow="ALWAYS">
+           <VBox alignment="CENTER" spacing="16.0" VBox.vgrow="ALWAYS" >
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
