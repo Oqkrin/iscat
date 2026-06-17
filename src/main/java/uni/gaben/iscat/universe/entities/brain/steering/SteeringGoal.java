@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entities.brain.steering;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.target.Predictor;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @FunctionalInterface
 public interface SteeringGoal {
 
-    Vector2 computeDesiredVelocity(AbstractEntityModel self, UniverseModel universe, double dt);
+    Vector2 computeDesiredVelocity(AbstractPhysicalEntityModel self, UniverseModel universe, double dt);
 
     static SteeringGoal idle() {
         Vector2 idleVelocity = UU.vector2zero();
@@ -24,10 +24,10 @@ public interface SteeringGoal {
         Vector2 pursuitPos = UU.vector2zero();
 
         return (self, universe, dt) -> {
-            List<AbstractEntityModel> targets = target.getEntities(universe);
+            List<AbstractPhysicalEntityModel> targets = target.getEntities(universe);
             if (targets == null || targets.isEmpty()) return pursuitVelocity.set(0, 0);
 
-            AbstractEntityModel entity = targets.getFirst();
+            AbstractPhysicalEntityModel entity = targets.getFirst();
             if (entity.shouldRemove()) return pursuitVelocity.set(0, 0);
 
             Vector2 selfPos = self.getTransform().getTranslation();
@@ -62,10 +62,10 @@ public interface SteeringGoal {
         Vector2 predictedPos = UU.vector2zero();
 
         return (self, universe, dt) -> {
-            List<AbstractEntityModel> targets = target.getEntities(universe);
+            List<AbstractPhysicalEntityModel> targets = target.getEntities(universe);
             if (targets == null || targets.isEmpty()) return evadeVelocity.set(0, 0);
 
-            AbstractEntityModel entity = targets.getFirst();
+            AbstractPhysicalEntityModel entity = targets.getFirst();
             if (entity.shouldRemove()) return evadeVelocity.set(0, 0);
 
             Vector2 selfPos = self.getTransform().getTranslation();
@@ -98,10 +98,10 @@ public interface SteeringGoal {
         Vector2 predictedPos = UU.vector2zero();
 
         return (self, universe, dt) -> {
-            List<AbstractEntityModel> targets = target.getEntities(universe);
+            List<AbstractPhysicalEntityModel> targets = target.getEntities(universe);
             if (targets == null || targets.isEmpty()) return desiredVelocity.set(0, 0);
 
-            AbstractEntityModel entity = targets.getFirst();
+            AbstractPhysicalEntityModel entity = targets.getFirst();
             if (entity.shouldRemove()) return desiredVelocity.set(0, 0);
 
             Vector2 selfPos = self.getTransform().getTranslation();
@@ -147,10 +147,10 @@ public interface SteeringGoal {
         Vector2 predictedPos = UU.vector2zero();
 
         return (self, universe, dt) -> {
-            List<AbstractEntityModel> targets = target.getEntities(universe);
+            List<AbstractPhysicalEntityModel> targets = target.getEntities(universe);
             if (targets == null || targets.isEmpty()) return desiredVelocity.set(0, 0);
 
-            AbstractEntityModel entity = targets.getFirst();
+            AbstractPhysicalEntityModel entity = targets.getFirst();
             if (entity.shouldRemove()) return desiredVelocity.set(0, 0);
 
             Vector2 selfPos = self.getTransform().getTranslation();

@@ -9,7 +9,7 @@ import org.dyn4j.world.result.RaycastResult;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.shooters.Pattern;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
 
 public class LineOfSightShootAbility extends ShootAbility {
@@ -21,7 +21,7 @@ public class LineOfSightShootAbility extends ShootAbility {
     public LineOfSightShootAbility(double combatRange, double cooldownSec,
                                    ProjectileType bulletType, Pattern pattern,
                                    Target target, boolean aimAtTarget, double maxAngle,
-                                   AbstractEntityModel self) {
+                                   AbstractPhysicalEntityModel self) {
         super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget, 0);
         this.maxAngle = maxAngle;
         this.losFilter = new DetectFilter<>(true, true, null) {
@@ -33,7 +33,7 @@ public class LineOfSightShootAbility extends ShootAbility {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
         if (!super.canActivate(self, world, dt)) return false;
 
         Vector2 myPos = self.getTransform().getTranslation();
@@ -62,7 +62,7 @@ public class LineOfSightShootAbility extends ShootAbility {
         if (closest == null) return true;
 
         Body hit = closest.getBody();
-        if (hit instanceof AbstractEntityModel &&
+        if (hit instanceof AbstractPhysicalEntityModel &&
                 hit.getTransform().getTranslation().distanceSquared(targetPos) < 0.01) {
             return true;
         }

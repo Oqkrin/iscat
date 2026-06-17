@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe.entities.brain.abilities;
 
 import org.dyn4j.dynamics.Body;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.utils.Cooldown;
@@ -10,7 +10,7 @@ import uni.gaben.iscat.utils.Cooldown;
 import java.util.Collections;
 import java.util.function.Predicate;
 
-public class MeleeAbility<T extends AbstractEntityModel> extends Ability {
+public class MeleeAbility<T extends AbstractPhysicalEntityModel> extends Ability {
 
     Cooldown meleeCooldown = new Cooldown();
     double damage;
@@ -34,7 +34,7 @@ public class MeleeAbility<T extends AbstractEntityModel> extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
         return meleeCooldown.isReady();
     }
 

@@ -10,10 +10,10 @@ import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityDeathListener;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectilePool;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.IEntityController;
 import uni.gaben.iscat.universe.entities.interfaces.Dynamic;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerController;
@@ -109,8 +109,8 @@ public class UniverseController {
         double top    = camera.getViewportTopY()   - 200.0;
         double bottom = top  + (camera.getScreenHeight() / zoom) + 400.0;
 
-        List<AbstractProjectileModel> snapshot = new ArrayList<>(universeModel.getProjectiles());
-        for (AbstractProjectileModel p : snapshot) {
+        List<AbstractPhysicalProjectileModel> snapshot = new ArrayList<>(universeModel.getProjectiles());
+        for (AbstractPhysicalProjectileModel p : snapshot) {
             if (p.shouldRemove()) continue;
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
@@ -124,9 +124,9 @@ public class UniverseController {
      * poi rimuove i corpi dal mondo fisico.
      */
     private void processEntityCleanup(PlayerModel player) {
-        List<AbstractEntityModel> toRemove = new ArrayList<>();
+        List<AbstractPhysicalEntityModel> toRemove = new ArrayList<>();
 
-        for (AbstractEntityModel entity : universeModel.getEntities()) {
+        for (AbstractPhysicalEntityModel entity : universeModel.getEntities()) {
             if (entity == null) continue;
 
             boolean remove = entity.shouldRemove();
@@ -147,7 +147,7 @@ public class UniverseController {
             }
         }
 
-        for (AbstractEntityModel entity : toRemove) {
+        for (AbstractPhysicalEntityModel entity : toRemove) {
             universeModel.removeEntity(entity);
             entityControllers.removeIf(ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
             if (entity instanceof ProjectileModel p) ProjectilePool.release(p);

@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
 
@@ -26,7 +26,7 @@ public class HealAbility extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
         healCooldown.update(dt);
         visualHealCooldown.update(dt);
         if (healCooldown.isCoolingDown()) return false;
@@ -43,7 +43,7 @@ public class HealAbility extends Ability {
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
-        AbstractEntityModel entity = brain.getEntity();
+        AbstractPhysicalEntityModel entity = brain.getEntity();
         for (AbstractLivingEntityModel l : world.getEntitiesOfType(AbstractLivingEntityModel.class)) {
             if (l == entity || l instanceof PlayerModel) continue;
             if (entity.getTransform().getTranslation()

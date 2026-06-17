@@ -1,17 +1,17 @@
 package uni.gaben.iscat.universe.entities.interfaces;
 
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 
 import java.util.function.Consumer;
 
 public interface Collidable {
     // ---- Collision callbacks ----
-    void addOnCollision(String id, Consumer<AbstractEntityModel> onCollision);
+    void addOnCollision(String id, Consumer<AbstractPhysicalEntityModel> onCollision);
 
     boolean hasAnyCollision();
 
-    void triggerAllCollisions(AbstractEntityModel other);
-    void triggerCollision(String id, AbstractEntityModel other);
+    void triggerAllCollisions(AbstractPhysicalEntityModel other);
+    void triggerCollision(String id, AbstractPhysicalEntityModel other);
 
     void clearOnCollisions();
 

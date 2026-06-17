@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.spawn;
 import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
@@ -16,13 +16,13 @@ public enum UniverseSpawnable {
     WORM(EntityModel.class),
     PROJECTILE(ProjectileModel.class);
 
-    private final Class<? extends AbstractEntityModel> modelClass;
+    private final Class<? extends AbstractPhysicalEntityModel> modelClass;
 
-    UniverseSpawnable(Class<? extends AbstractEntityModel> modelClass) {
+    UniverseSpawnable(Class<? extends AbstractPhysicalEntityModel> modelClass) {
         this.modelClass = modelClass;
     }
 
-    public Class<? extends AbstractEntityModel> getModelClass() {
+    public Class<? extends AbstractPhysicalEntityModel> getModelClass() {
         return modelClass;
     }
 

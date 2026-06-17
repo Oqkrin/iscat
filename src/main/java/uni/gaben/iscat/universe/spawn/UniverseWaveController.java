@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class UniverseWaveController {
 
-    private record ActiveEnemy(AbstractEntityModel model, String enemyId) { }
+    private record ActiveEnemy(AbstractPhysicalEntityModel model, String enemyId) { }
 
     // ── Properties observable per HUD binding ─────────────────────────────────
     private static final IntegerProperty totalKillsProperty    = new SimpleIntegerProperty(0);
@@ -32,7 +32,7 @@ public class UniverseWaveController {
     public int getEnemiesRemaining()   { return enemiesRemainingProperty.get(); }
     public int getWaveTotal()          { return waveTotalProperty.get(); }
 
-    public static void incrementKills(AbstractEntityModel entity) {
+    public static void incrementKills(AbstractPhysicalEntityModel entity) {
         if (entity == null) return;
         EntityRecord record = entity.getEntityRecord();
         if (record == null || record.threatLevel() == null || record.threatLevel() == ThreatLevel.NONE) return;
@@ -153,7 +153,7 @@ public class UniverseWaveController {
 
         Object spawnedObject = UniverseSpawner.getInstance().spawn(enemyIdToSpawn, spawnX, spawnY);
 
-        if (spawnedObject instanceof AbstractEntityModel enemyModel) {
+        if (spawnedObject instanceof AbstractPhysicalEntityModel enemyModel) {
             if (enemyModel instanceof AbstractLivingEntityModel livingModel) {
                 double masterTimeSec = gameModel.getTotalElapsedSeconds();
                 int playerLevel      = gameModel.getUniverseModel().getPlayer().getLevel();

@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entities.brain.abilities;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.brain.target.Predictor;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
@@ -29,7 +29,7 @@ public class PlungeAbility extends Ability {
      * @param impulse            impulse strength applied to the entity
      * @param target             target to plunge toward (usually the player)
      */
-    public PlungeAbility(AbstractEntityModel entity,
+    public PlungeAbility(AbstractPhysicalEntityModel entity,
                          double cooldownSec,
                          double durationSec,
                          double maxPredictionTime,
@@ -44,7 +44,7 @@ public class PlungeAbility extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
         if (plungeCooldown.isCoolingDown()) return false;
         if (plungeDuration.isCoolingDown()) return false;
         return true;
@@ -53,14 +53,14 @@ public class PlungeAbility extends Ability {
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
 
-        AbstractEntityModel self = brain.getEntity();
+        AbstractPhysicalEntityModel self = brain.getEntity();
         self.setTemporaryTerminalVelocity(self.getTerminalVelocity()*3);
         self.setDashLinearDamping(0);
 
-        List<? extends AbstractEntityModel> targets = plungeTarget.getEntities(world);
+        List<? extends AbstractPhysicalEntityModel> targets = plungeTarget.getEntities(world);
         if (targets == null || targets.isEmpty()) return;
 
-        AbstractEntityModel targetEntity = targets.getFirst();
+        AbstractPhysicalEntityModel targetEntity = targets.getFirst();
         Vector2 selfPos = self.getTransform().getTranslation();
         Vector2 targetPos = targetEntity.getTransform().getTranslation();
 

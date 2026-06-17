@@ -5,7 +5,7 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.UU;
 
-public class ProjectileModel extends AbstractProjectileModel {
+public class ProjectileModel extends AbstractPhysicalProjectileModel {
     private ProjectileType type;
     private boolean inPool = false;
 

@@ -11,7 +11,7 @@ import uni.gaben.iscat.universe.entities.brain.rotation.RotationGoal;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringGoal;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringModifier;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entities.shooters.*;
@@ -82,7 +82,7 @@ public final class EntityRecordParser {
                 .maxVelocity(json.optDouble("MaxVelocity", 10.0))
                 .maxForce(json.optDouble("MaxForce", 30.0))
                 .maxAngularVelocity(json.optDouble("MaxAngularVelocity", 5.0))
-                .angularOffsetRad(json.optDouble("AngularOffsetRad", 0.0))
+                .visualAngularOffset(json.optDouble("AngularOffsetRad", 0.0))
                 .xpReward(json.optInt("XPReward", 10));
     }
 
@@ -296,7 +296,7 @@ public final class EntityRecordParser {
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
         Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm&&pm.getType()== ProjectileType.ENEMY_BULLET));
-        Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof AbstractProjectileModel));
+        Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof AbstractPhysicalProjectileModel));
         return switch (mc.type()) {
             case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
             case ALIGNMENT -> SteeringModifier.alignment(everythingButProjectiles, weight);

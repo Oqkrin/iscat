@@ -1,7 +1,7 @@
 package uni.gaben.iscat.universe.entities.shooters;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.UU;
@@ -32,7 +32,7 @@ public class ParallelLinePattern implements Pattern {
 
         // Determina la distanza frontale di sicurezza basandosi sulla dimensione del modello
         double forwardDistance = 0.1;
-        if (shooter.getModel() instanceof AbstractEntityModel aem) {
+        if (shooter.getModel() instanceof AbstractPhysicalEntityModel aem) {
             forwardDistance = aem.getHeightMeters() / 2.0;
         }
 

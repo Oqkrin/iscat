@@ -4,9 +4,9 @@ import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Polygon;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
@@ -14,7 +14,7 @@ import uni.gaben.iscat.universe.UniverseVelocitySettings;
 
 import java.util.*;
 
-public class AsteroidModel extends AbstractEntityModel {
+public class AsteroidModel extends AbstractPhysicalEntityModel {
     private final double size; // Acts as diameter in pixels
     private final Vector2[] displayVertices;
 
@@ -68,7 +68,7 @@ public class AsteroidModel extends AbstractEntityModel {
         this.addOnCollision("projectile",other -> {
             if (this.shouldRemove()) return;
 
-            if (other instanceof AbstractProjectileModel projectile) {
+            if (other instanceof AbstractPhysicalProjectileModel projectile) {
                 double damage = AsteroidSettings.PROJECTILE_DAMAGE_FACTOR;
                 takeDamage(damage);
                 projectile.setShouldRemove(true);

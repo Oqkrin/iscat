@@ -6,5 +6,5 @@ package uni.gaben.iscat.universe.entities;
  */
 @FunctionalInterface
 public interface EntityDeathListener {
-    void onEntityDied(AbstractEntityModel entity, boolean killedByProjectile);
+    void onEntityDied(AbstractPhysicalEntityModel entity, boolean killedByProjectile);
 }

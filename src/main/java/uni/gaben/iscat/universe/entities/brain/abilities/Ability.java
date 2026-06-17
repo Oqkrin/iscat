@@ -20,7 +20,7 @@ public abstract class Ability {
     public AbilityCategory getCategory() { return category; }
     public Set<AbilityCategory> getBlockedCategories() { return blockedCategories; }
 
-    public abstract boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt);
+    public abstract boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt);
     public abstract void onActivate(Brain<?> brain, UniverseModel world);
     /** @return true if still running, false when finished */
     public abstract boolean update(Brain<?> brain, UniverseModel world, double dt);

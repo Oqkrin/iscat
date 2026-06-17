@@ -12,7 +12,7 @@ import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.utils.EnemyAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-public abstract class AbstractLivingEntityModel extends AbstractEntityModel implements Alterable, hasXpReward {
+public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityModel implements Alterable, hasXpReward {
     protected final DoubleProperty endurance = new SimpleDoubleProperty();
     protected double maxEndurance;
     protected double xpReward;

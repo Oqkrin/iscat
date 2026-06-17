@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.brain.*;
 import uni.gaben.iscat.universe.entities.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entities.brain.abilities.AbilityCategory;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
@@ -35,7 +35,7 @@ public abstract class AbstractShootAbility extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
         targetPos.set(0, 0);
         cooldown.update(dt);
         if (cooldown.isCoolingDown()) return false;

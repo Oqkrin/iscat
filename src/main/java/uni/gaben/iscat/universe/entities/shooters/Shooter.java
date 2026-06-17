@@ -2,13 +2,13 @@ package uni.gaben.iscat.universe.entities.shooters;
 
 import org.dyn4j.collision.CollisionBody;
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectilePool;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
@@ -29,7 +29,7 @@ public class Shooter<T extends CollisionBody> {
 
     public Shooter(T model) {
         this.model = model;
-        this.distance = (model instanceof AbstractEntityModel aem)
+        this.distance = (model instanceof AbstractPhysicalEntityModel aem)
                 ? aem.getHeightMeters() / 2.0
                 : 0.1;
     }
@@ -88,10 +88,10 @@ public class Shooter<T extends CollisionBody> {
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    private void setupAndSpawn(AbstractProjectileModel p) {
+    private void setupAndSpawn(AbstractPhysicalProjectileModel p) {
         p.addOnCollision( "projectileDamage", otherEntity -> {
             if (p.shouldRemove()) return;
-            if (otherEntity instanceof AbstractProjectileModel) return; // proiettili non si colpiscono tra loro
+            if (otherEntity instanceof AbstractPhysicalProjectileModel) return; // proiettili non si colpiscono tra loro
 
             if (otherEntity instanceof Alterable target) {
                 if (target instanceof AbstractLivingEntityModel lem) {

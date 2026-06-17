@@ -9,9 +9,9 @@ import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.universe.effects.Starfield;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
 
 import java.util.*;
@@ -21,10 +21,10 @@ public class UniverseModel extends World<Body> {
 
     private PlayerModel player;
 
-    private final List<AbstractEntityModel> entities = new ArrayList<>();
-    private final List<AbstractProjectileModel> projectiles = new ArrayList<>();
+    private final List<AbstractPhysicalEntityModel> entities = new ArrayList<>();
+    private final List<AbstractPhysicalProjectileModel> projectiles = new ArrayList<>();
     private final Starfield starfield = new Starfield(0, 0);
-    private final Map<Class<?>, List<AbstractEntityModel>> entitiesByCategory = new HashMap<>();
+    private final Map<Class<?>, List<AbstractPhysicalEntityModel>> entitiesByCategory = new HashMap<>();
     private final Map<Class<?>, List<Class<?>>> classHierarchyCache = new ConcurrentHashMap<>();
 
     public static final double DEFAULT_SPAWN_WIDTHCENTER = UniverseSettings.DEFAULT_WIDTH / 2.0;
@@ -44,8 +44,8 @@ public class UniverseModel extends World<Body> {
         addContactListener(new ContactListenerAdapter<Body>() {
             @Override
             public void begin(ContactCollisionData<Body> collision, Contact contact) {
-                AbstractEntityModel a = extractEntity(collision.getBody1());
-                AbstractEntityModel b = extractEntity(collision.getBody2());
+                AbstractPhysicalEntityModel a = extractEntity(collision.getBody1());
+                AbstractPhysicalEntityModel b = extractEntity(collision.getBody2());
                 if (a != null && b != null) {
                     double Abefore = 0;
                     double Bbefore = 0;
@@ -74,11 +74,11 @@ public class UniverseModel extends World<Body> {
                         Bafter = ab.getEndurance();
                     }
 
-                    if(Aafter != Abefore && !(a instanceof AbstractProjectileModel)) {
+                    if(Aafter != Abefore && !(a instanceof AbstractPhysicalProjectileModel)) {
                         alteredEndurance.put(a.getTransform().getTranslation(), Aafter-Abefore);
                     }
 
-                    if(Bafter != Bbefore &&  !(b instanceof AbstractProjectileModel)) {
+                    if(Bafter != Bbefore &&  !(b instanceof AbstractPhysicalProjectileModel)) {
                         alteredEndurance.put(b.getTransform().getTranslation(), Bafter-Bbefore);
                     }
 
@@ -91,9 +91,9 @@ public class UniverseModel extends World<Body> {
     // Helpers
     // -------------------------------------------------------------------------
 
-    private AbstractEntityModel extractEntity(Body body) {
-        if (body instanceof AbstractEntityModel m) return m;
-        if (body.getUserData() instanceof AbstractEntityModel m) return m;
+    private AbstractPhysicalEntityModel extractEntity(Body body) {
+        if (body instanceof AbstractPhysicalEntityModel m) return m;
+        if (body.getUserData() instanceof AbstractPhysicalEntityModel m) return m;
         return null;
     }
 
@@ -141,18 +141,18 @@ public class UniverseModel extends World<Body> {
     // Entity registry
     // -------------------------------------------------------------------------
 
-    public void addEntity(AbstractEntityModel entity) {
+    public void addEntity(AbstractPhysicalEntityModel entity) {
         entities.add(entity);
         addBody(entity);
-        if (entity instanceof AbstractProjectileModel p) projectiles.add(p);
+        if (entity instanceof AbstractPhysicalProjectileModel p) projectiles.add(p);
         registerEntityCategories(entity);
     }
 
-    public void removeEntity(AbstractEntityModel entity) {
+    public void removeEntity(AbstractPhysicalEntityModel entity) {
         if (entity == null) return;
 
         entities.remove(entity);
-        if (entity instanceof AbstractProjectileModel p) projectiles.remove(p);
+        if (entity instanceof AbstractPhysicalProjectileModel p) projectiles.remove(p);
         unregisterEntityCategories(entity);
 
         entity.setEnabled(false);
@@ -164,12 +164,12 @@ public class UniverseModel extends World<Body> {
     }
 
     /** Returns an unmodifiable view of the master entity list. */
-    public List<AbstractEntityModel> getEntities() {
+    public List<AbstractPhysicalEntityModel> getEntities() {
         return Collections.unmodifiableList(entities);
     }
 
     /** Returns an unmodifiable list of projectiles. */
-    public List<AbstractProjectileModel> getProjectiles() {
+    public List<AbstractPhysicalProjectileModel> getProjectiles() {
         return Collections.unmodifiableList(projectiles);
     }
 
@@ -188,8 +188,8 @@ public class UniverseModel extends World<Body> {
      * The returned list reflects live changes; do not modify it directly.
      */
     @SuppressWarnings("unchecked")
-    public <T extends AbstractEntityModel> List<T> getEntitiesOfType(Class<T> type) {
-        List<AbstractEntityModel> list = entitiesByCategory.get(type);
+    public <T extends AbstractPhysicalEntityModel> List<T> getEntitiesOfType(Class<T> type) {
+        List<AbstractPhysicalEntityModel> list = entitiesByCategory.get(type);
         if (list == null) return Collections.emptyList();
         // Return unmodifiable view – safe and allocation‑free
         return (List<T>) Collections.unmodifiableList(list);
@@ -214,15 +214,15 @@ public class UniverseModel extends World<Body> {
         });
     }
 
-    private void registerEntityCategories(AbstractEntityModel entity) {
+    private void registerEntityCategories(AbstractPhysicalEntityModel entity) {
         for (Class<?> type : getClassHierarchy(entity.getClass())) {
             entitiesByCategory.computeIfAbsent(type, k -> new ArrayList<>()).add(entity);
         }
     }
 
-    private void unregisterEntityCategories(AbstractEntityModel entity) {
+    private void unregisterEntityCategories(AbstractPhysicalEntityModel entity) {
         for (Class<?> type : getClassHierarchy(entity.getClass())) {
-            List<AbstractEntityModel> list = entitiesByCategory.get(type);
+            List<AbstractPhysicalEntityModel> list = entitiesByCategory.get(type);
             if (list != null) list.remove(entity);
         }
     }

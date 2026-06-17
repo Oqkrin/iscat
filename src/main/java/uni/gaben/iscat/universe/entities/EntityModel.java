@@ -15,13 +15,9 @@ import uni.gaben.iscat.universe.entities.interfaces.HasSprite;
 import uni.gaben.iscat.utils.EnemyAudioManager;
 
 public class EntityModel extends AbstractLivingEntityModel implements HasSprite, HasShockwave {
-
-    public static final int STATE_ENTRANCE = 0;
-    public static final int STATE_IDLE     = 1;
-    public static final int STATE_DEATH    = 6;
     private final Shockwave shockwave = new Shockwave();
 
-    private int currentState = STATE_IDLE;
+    private EntityState currentEntityState = EntityState.IDLE;
     private boolean completeKillCalled = false;
     private UniverseWaveController waveController;
     private double idleAudioTimer = 5.0 + Math.random() * 10.0;
@@ -33,7 +29,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
         // Gestione stato iniziale ed Entrance Animation
         if (entity.hasEntranceAnimation()) {
-            this.currentState = STATE_ENTRANCE;
+            this.currentEntityState = EntityState.ENTRANCE;
             setEnabled(false); // Disabilitato per la fisica/collisioni durante lo spawn
         }
 
@@ -76,17 +72,14 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
     @Override
     public int getState() {
-        return currentState;
+        return currentEntityState.ordinal();
     }
 
-    public void setCurrentState(int state) {
-        if (this.currentState == STATE_ENTRANCE && state != STATE_IDLE && state != STATE_DEATH) {
-            return;
-        }
-
-        if (this.currentState != state) {
-            this.currentState = state;
-            this.setStateTime(0.0);
+    public void setEntityState(EntityState state) {
+        if (this.currentEntityState != state) {
+            this.currentEntityState = state;
+            setState(currentEntityState.ordinal());
+            setStateTime(0);
         }
     }
 
@@ -101,7 +94,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         updateStateTime(dt);
         shockwave.update(dt);
 
-        if (currentState == STATE_IDLE) {
+        if (currentEntityState == EntityState.IDLE) {
             idleAudioTimer -= dt;
             if (idleAudioTimer <= 0) {
                 EnemyAudioManager.playEventAudio(this, "idle");
@@ -109,12 +102,12 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             }
         }
 
-        double duration = getFramesForState(currentState) * getFrameDuration();
+        double duration = getFramesForState(currentEntityState.ordinal()) * getFrameDuration();
 
-        if (currentState == STATE_ENTRANCE) {
-            if (getFramesForState(STATE_ENTRANCE) <= 0 || getStateTime() >= duration) {
+        if (currentEntityState == EntityState.ENTRANCE) {
+            if (getFramesForState(EntityState.ENTRANCE.ordinal()) <= 0 || getStateTime() >= duration) {
                 setEnabled(true); // Riattiva la fisica e le collisioni
-                setCurrentState(STATE_IDLE);
+                setEntityState(EntityState.IDLE);
                 if (entity.isBoss()) {
                     shockwave.trigger(2.0, 1500, 15);
                 }
@@ -122,12 +115,12 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
                 EnemyAudioManager.playEventAudio(this, "spawn");
             }
         }
-        else if (currentState != STATE_IDLE && currentState != STATE_DEATH) {
+        else if (currentEntityState != EntityState.IDLE && currentEntityState != EntityState.DEATH) {
             if (getStateTime() >= duration) {
-                setCurrentState(STATE_IDLE);
+                setEntityState(EntityState.IDLE);
             }
         }
-        else if (currentState == STATE_DEATH) {
+        else if (currentEntityState == EntityState.DEATH) {
             if (getStateTime() >= duration && !completeKillCalled) {
                 completeKill();
             }
@@ -136,9 +129,9 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
     @Override
     public void extinguish(boolean silent) {
-        if (entity.animationFrames() != null && entity.animationFrames().length > STATE_DEATH) {
-            if (currentState == STATE_DEATH) return;
-            setCurrentState(STATE_DEATH);
+        if (entity.animationFrames() != null && entity.animationFrames().length > EntityState.DEATH.ordinal()) {
+            if (currentEntityState == EntityState.DEATH) return;
+            setEntityState(EntityState.DEATH);
         } else {
             super.extinguish(silent);
             completeKill();
@@ -147,7 +140,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
     @Override
     public boolean shouldRemove() {
-        if (currentState == STATE_DEATH && !completeKillCalled) return false;
+        if (currentEntityState == EntityState.DEATH && !completeKillCalled) return false;
         return super.shouldRemove();
     }
 

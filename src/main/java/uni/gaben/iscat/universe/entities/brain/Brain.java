@@ -5,7 +5,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entities.brain.abilities.AbilityCategory;
 import uni.gaben.iscat.universe.entities.brain.rotation.RotationGoal;
@@ -16,7 +16,7 @@ import uni.gaben.iscat.universe.entities.shooters.Shooter;
 
 import java.util.*;
 
-public class Brain<T extends AbstractEntityModel> implements IEntityController {
+public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityController {
 
     // Cache the Enum array globally to prevent allocation on every single values() call
     protected static final AbilityCategory[] CATEGORIES = AbilityCategory.values();

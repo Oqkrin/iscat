@@ -85,7 +85,7 @@ public class UniverseSpawner {
     }
 
     // Generic spawn for any IEntityController factory (covers Brain and old controllers)
-    public  <M extends AbstractEntityModel> M spawnWithController(
+    public  <M extends AbstractPhysicalEntityModel> M spawnWithController(
             BiFunction<Double, Double, M> modelFactory,
             Function<M, IEntityController> controllerFactory,
             double x, double y) {
@@ -105,7 +105,7 @@ public class UniverseSpawner {
         return entityModel;
     }
 
-    public <T extends AbstractEntityModel> T spawnEntity(T entity) {
+    public <T extends AbstractPhysicalEntityModel> T spawnEntity(T entity) {
         model.addEntity(entity);
         return entity;
     }

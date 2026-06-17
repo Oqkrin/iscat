@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 
 import java.util.Collections;
 
@@ -19,7 +19,7 @@ public class GravityPullAbility extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
         return true;
     }
 
@@ -37,7 +37,7 @@ public class GravityPullAbility extends Ability {
         double myMass = brain.getEntity().getMass().getMass();
 
         // 3. Apply gravitational force to each nearby entity
-        for (AbstractEntityModel item : inRange.getEntities(world)) {
+        for (AbstractPhysicalEntityModel item : inRange.getEntities(world)) {
             if (item == brain.getEntity() || item == null) continue;
 
             Vector2 otherPos = item.getTransform().getTranslation();

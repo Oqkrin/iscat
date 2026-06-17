@@ -27,7 +27,7 @@ public class EntityRecordBuilder {
     private double maxVelocity = 10.0;
     private double maxForce = 10.0;
     private double maxAngularVelocity = 5.0;
-    private double angularOffsetRad = 0.0;
+    private double visualAngularOffset = 0.0;
     private int xpReward = 10;
     private EntityRecord.ShapeType shapeType = EntityRecord.ShapeType.CIRCLE;
     // Behavioural
@@ -178,8 +178,8 @@ public class EntityRecordBuilder {
         return this;
     }
 
-    public EntityRecordBuilder angularOffsetRad(double angularOffsetRad) {
-        this.angularOffsetRad = angularOffsetRad;
+    public EntityRecordBuilder visualAngularOffset(double rad) {
+        this.visualAngularOffset = rad;
         return this;
     }
 
@@ -188,7 +188,7 @@ public class EntityRecordBuilder {
                 entityKey, name, type, description, bestiaryOrder, threatLevel,
                 spritePath, frameW, frameH, scale,
                 animationFrames, isBoss, hasEntranceAnimation,
-                initLife, linearDamping, mass, maxVelocity, angularOffsetRad, maxForce, maxAngularVelocity, xpReward, shapeType,
+                initLife, linearDamping, mass, maxVelocity, maxForce, maxAngularVelocity, visualAngularOffset, xpReward, shapeType,
                 detectionRange, combatRange, preferredRange, actionCooldownSec,
                 audio, brain, player
         );

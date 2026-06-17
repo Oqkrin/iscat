@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entities.brain.abilities;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.utils.Cooldown;
@@ -24,7 +24,7 @@ public class DodgeDashAbility extends Ability {
     private final Random rand = new Random();
     private Vector2 dashDirection = new Vector2();
 
-    public DodgeDashAbility(AbstractEntityModel entity, double cooldownSec, double durationSec, double maxPredictionTime,
+    public DodgeDashAbility(AbstractPhysicalEntityModel entity, double cooldownSec, double durationSec, double maxPredictionTime,
                             double avoidRadius, double dashImpulse, Target threatSupplier) {
         super("dodgeDash", AbilityCategory.MOVEMENT, Collections.emptySet());
         this.dashCooldown = new Cooldown(durationSec+cooldownSec);
@@ -36,11 +36,11 @@ public class DodgeDashAbility extends Ability {
     }
 
     @Override
-    public boolean canActivate(AbstractEntityModel self, UniverseModel world, double dt) {
+    public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
         if (dashCooldown.isCoolingDown()) return false;
         if (dashDuration.isCoolingDown()) return false; // already dashing
 
-        List<AbstractEntityModel> threats = threatSupplier.getEntities(world);
+        List<AbstractPhysicalEntityModel> threats = threatSupplier.getEntities(world);
         if (threats == null || threats.isEmpty()) return false;
 
         Vector2 selfPos = self.getTransform().getTranslation();
@@ -49,9 +49,9 @@ public class DodgeDashAbility extends Ability {
         Vector2 dv = UU.vector2zero();
 
         double shortestTime = Double.MAX_VALUE;
-        AbstractEntityModel mostImminent = null;
+        AbstractPhysicalEntityModel mostImminent = null;
 
-        for (AbstractEntityModel threat : threats) {
+        for (AbstractPhysicalEntityModel threat : threats) {
             if (threat == self || threat.shouldRemove()) continue;
 
             dp.set(threat.getTransform().getTranslation()).subtract(selfPos);
@@ -79,12 +79,12 @@ public class DodgeDashAbility extends Ability {
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
-        AbstractEntityModel self = brain.getEntity();
+        AbstractPhysicalEntityModel self = brain.getEntity();
         self.setTemporaryTerminalVelocity(self.getTerminalVelocity()*3);
         self.setDashLinearDamping(0);
 
         // Find the most imminent threat again (or re-use from canActivate, but we recompute for safety)
-        List<AbstractEntityModel> threats = threatSupplier.getEntities(world);
+        List<AbstractPhysicalEntityModel> threats = threatSupplier.getEntities(world);
         if (threats == null || threats.isEmpty()) return;
 
         Vector2 selfPos = self.getTransform().getTranslation();
@@ -93,9 +93,9 @@ public class DodgeDashAbility extends Ability {
         Vector2 dv = UU.vector2zero();
 
         double shortestTime = Double.MAX_VALUE;
-        AbstractEntityModel mostImminent = null;
+        AbstractPhysicalEntityModel mostImminent = null;
 
-        for (AbstractEntityModel threat : threats) {
+        for (AbstractPhysicalEntityModel threat : threats) {
             if (threat == self || threat.shouldRemove()) continue;
 
             dp.set(threat.getTransform().getTranslation()).subtract(selfPos);

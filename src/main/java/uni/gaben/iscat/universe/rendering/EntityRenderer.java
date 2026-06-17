@@ -30,7 +30,7 @@ public final class EntityRenderer {
 
     public record SpriteKey(String path, int width, int height) {}
 
-    private static final Map<Class<?>, BiConsumer<AbstractEntityModel, OptimizedLayeredRenderer>> LAYERED_RENDERERS = new HashMap<>();
+    private static final Map<Class<?>, BiConsumer<AbstractPhysicalEntityModel, OptimizedLayeredRenderer>> LAYERED_RENDERERS = new HashMap<>();
     private static final Map<SpriteKey, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
 
     static {
@@ -43,10 +43,10 @@ public final class EntityRenderer {
     private EntityRenderer() {}
 
     // Main entry point for batched rendering
-    public static void renderLayered(AbstractEntityModel entity, OptimizedLayeredRenderer layers, boolean debug) {
+    public static void renderLayered(AbstractPhysicalEntityModel entity, OptimizedLayeredRenderer layers, boolean debug) {
         if (entity == null || entity.shouldRemove()) return;
 
-        BiConsumer<AbstractEntityModel, OptimizedLayeredRenderer> custom = LAYERED_RENDERERS.get(entity.getClass());
+        BiConsumer<AbstractPhysicalEntityModel, OptimizedLayeredRenderer> custom = LAYERED_RENDERERS.get(entity.getClass());
         if (custom != null) {
             custom.accept(entity, layers);
         } else if (entity instanceof HasSprite sprite) {
@@ -61,7 +61,7 @@ public final class EntityRenderer {
     // ------------------------------------------------------------------
     // Batched Sprite pipeline – collects transform + image + color tint
     // ------------------------------------------------------------------
-    private static void renderSpriteEntityBatched(AbstractEntityModel entity, HasSprite sprite, OptimizedLayeredRenderer layers) {
+    private static void renderSpriteEntityBatched(AbstractPhysicalEntityModel entity, HasSprite sprite, OptimizedLayeredRenderer layers) {
         double cx = UU.mToPx(entity.getTransform().getTranslationX());
         double cy = UU.mToPx(entity.getTransform().getTranslationY());
         double w  = entity.getWidthPx();
@@ -113,7 +113,7 @@ public final class EntityRenderer {
     // ------------------------------------------------------------------
     // Custom batched handlers
     // ------------------------------------------------------------------
-    private static void renderProjectileBatched(AbstractEntityModel e, OptimizedLayeredRenderer layers) {
+    private static void renderProjectileBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer layers) {
         ProjectileModel p = (ProjectileModel) e;
         double cx = UU.mToPx(e.getTransform().getTranslationX());
         double cy = UU.mToPx(e.getTransform().getTranslationY());
@@ -140,7 +140,7 @@ public final class EntityRenderer {
                 cx, cy, trailX2, trailY2, trailWidth);
     }
 
-    private static void renderAsteroidBatched(AbstractEntityModel e, OptimizedLayeredRenderer batcher) {
+    private static void renderAsteroidBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer batcher) {
         AsteroidModel asteroid = (AsteroidModel) e;
         Vector2[] vertices = asteroid.getDisplayVertices();
         if (vertices == null || vertices.length == 0) return;
@@ -193,7 +193,7 @@ public final class EntityRenderer {
         }
     }
 
-    private static void renderPlayerBatched(AbstractEntityModel e, OptimizedLayeredRenderer batcher) {
+    private static void renderPlayerBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer batcher) {
         PlayerModel player = (PlayerModel) e;
         // Draw the player sprite (if any)
         if (player instanceof HasSprite sprite) {
@@ -210,7 +210,7 @@ public final class EntityRenderer {
         }
     }
 
-    private static void renderBlackHoleBatched(AbstractEntityModel e, OptimizedLayeredRenderer batcher) {
+    private static void renderBlackHoleBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer batcher) {
         BlackHoleModel bh = (BlackHoleModel) e;
         double cx = UU.mToPx(bh.getTransform().getTranslationX());
         double cy = UU.mToPx(bh.getTransform().getTranslationY());
@@ -219,7 +219,7 @@ public final class EntityRenderer {
         }
     }
 
-    private static void renderDebugCollisionBatched(AbstractEntityModel e, OptimizedLayeredRenderer renderer) {
+    private static void renderDebugCollisionBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer renderer) {
         double cx = UU.mToPx(e.getTransform().getTranslationX());
         double cy = UU.mToPx(e.getTransform().getTranslationY());
         double w = e.getWidthPx();

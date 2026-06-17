@@ -17,7 +17,7 @@ import uni.gaben.iscat.universe.spawn.UniverseWaveController;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 
 public class GameController {
@@ -109,7 +109,7 @@ public class GameController {
         });
     }
 
-    private void onEntityDied(AbstractEntityModel entity, boolean killedByProjectile) {
+    private void onEntityDied(AbstractPhysicalEntityModel entity, boolean killedByProjectile) {
         if (entity instanceof ProjectileModel || entity instanceof HeartModel) {
             return;
         }

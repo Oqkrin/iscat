@@ -9,7 +9,7 @@ import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.effects.EnduranceIndicator;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
@@ -28,7 +28,7 @@ public class UniverseRenderer {
 
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
-    private final List<AbstractEntityModel> entitySnapshotBuffer = new ArrayList<>();
+    private final List<AbstractPhysicalEntityModel> entitySnapshotBuffer = new ArrayList<>();
 
     // Batched drawing helper
     private final OptimizedLayeredRenderer layers = new OptimizedLayeredRenderer();
@@ -81,7 +81,7 @@ public class UniverseRenderer {
 
         boolean debug = debugPanelVisible && gameController.isDebugModeOn();
 
-        for (AbstractEntityModel entity : entitySnapshotBuffer) {
+        for (AbstractPhysicalEntityModel entity : entitySnapshotBuffer) {
             if (!entity.isInsideViewport(minX, maxX, minY, maxY)) continue;
             EntityRenderer.renderLayered(entity, layers, debug);
         }
@@ -90,10 +90,8 @@ public class UniverseRenderer {
 
         renderEnduranceAlterations(universe, camera, gameModel.getDt(), gc);
 
-        // 6. Post‑processing effects that cannot be batched easily
         renderHurt(camera, gc);
 
-        // 7. FPS overlay (single draw call)
         if (gameController.isFpsOn()) drawFps(gc, w);
     }
 
@@ -101,7 +99,7 @@ public class UniverseRenderer {
         if (camera.getHurtFlashIntensity() > 0.01) {
             gc.save();
             gc.setGlobalAlpha(camera.getHurtFlashIntensity() * 0.40);
-            gc.setFill(javafx.scene.paint.Color.RED);
+            gc.setFill(ThemeManager.getInstance().getColorError());
             gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
             gc.restore();
         }
@@ -128,7 +126,6 @@ public class UniverseRenderer {
     private final List<EnduranceIndicator> enduranceIndicators = new ArrayList<>();
 
     private void renderEnduranceAlterations(UniverseModel universe, CameraModel camera, double dt, GraphicsContext gc) {
-        // 1. Create new indicators from the map
         Map<Vector2, Double> altered = universe.getAlteredEndurances();
         if (!altered.isEmpty()) {
             for (Map.Entry<Vector2, Double> entry : altered.entrySet()) {
@@ -159,7 +156,6 @@ public class UniverseRenderer {
         for (EnduranceIndicator ind : enduranceIndicators) {
             DrawVFX.drawEnduranceIndicator(ind, gc);
         }
-        gc.setEffect(null);
         gc.restore();
     }
 

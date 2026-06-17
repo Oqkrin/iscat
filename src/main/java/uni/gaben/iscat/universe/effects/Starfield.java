@@ -1,14 +1,14 @@
 package uni.gaben.iscat.universe.effects;
 
 import uni.gaben.iscat.universe.UniverseSettings;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Starfield extends AbstractEntityModel {
+public class Starfield extends AbstractPhysicalEntityModel {
     private final List<Star> stars = new ArrayList<>();
 
     public Starfield(double x, double y) {

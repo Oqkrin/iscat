@@ -5,16 +5,16 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.effects.Shockwave;
 import uni.gaben.iscat.utils.Updatable;
 
-public class BlackHoleModel extends AbstractEntityModel implements Updatable, HasShockwave {
+public class BlackHoleModel extends AbstractPhysicalEntityModel implements Updatable, HasShockwave {
 
     private UU radius;
     private BodyFixture fixture;
@@ -57,11 +57,11 @@ public class BlackHoleModel extends AbstractEntityModel implements Updatable, Ha
         shockwave.update(0.85);
     }
 
-    private void absorbEntity(AbstractEntityModel other) {
+    private void absorbEntity(AbstractPhysicalEntityModel other) {
         if (other == null || other.shouldRemove()) return;
         // Don't absorb other black holes or projectiles (projectiles just die)
         if (other instanceof BlackHoleModel) return;
-        if (other instanceof AbstractProjectileModel) {
+        if (other instanceof AbstractPhysicalProjectileModel) {
             other.setShouldRemove(true);
             return;
         }

@@ -10,15 +10,15 @@ import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
  * Concrete subclasses (e.g. {@link ProjectileModel}) are responsible for adding their own
  * fixture via {@code setType()} — no default fixture is added here to avoid double-allocation.
  */
-public abstract class AbstractProjectileModel extends AbstractLivingEntityModel {
+public abstract class AbstractPhysicalProjectileModel extends AbstractLivingEntityModel {
     protected double terminalVelocity;
     protected double baseAccelerationPerTick = 20.0;
 
-    protected AbstractProjectileModel(double maxLife) {
+    protected AbstractPhysicalProjectileModel(double maxLife) {
         this(0, 0, new EntityRecordBuilder().initLife(maxLife).build());
     }
 
-    protected AbstractProjectileModel(double x, double y, EntityRecord projectileRecord) {
+    protected AbstractPhysicalProjectileModel(double x, double y, EntityRecord projectileRecord) {
         super(x, y, projectileRecord);
         setBullet(true);
         setMass(MassType.NORMAL);

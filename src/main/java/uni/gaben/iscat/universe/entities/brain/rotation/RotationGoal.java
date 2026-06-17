@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entities.brain.rotation;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.utils.Cooldown;
 
@@ -14,7 +14,7 @@ public interface RotationGoal {
     /**
      * @return desired angle in radians, or Double.NaN if no rotation should occur.
      */
-    double compute(AbstractEntityModel self, UniverseModel world, double dt);
+    double compute(AbstractPhysicalEntityModel self, UniverseModel world, double dt);
 
     static RotationGoal still()  {return (self, _, _) -> self.getEntityRecord().angularOffsetRad();}
 
@@ -41,7 +41,7 @@ public interface RotationGoal {
         return new RotationGoal() {
             private double currentAngle = Double.NaN;
             @Override
-            public double compute(AbstractEntityModel self, UniverseModel world, double dt) {
+            public double compute(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
                 if (Double.isNaN(currentAngle)) {
                     currentAngle = self.getTransform().getRotationAngle();
                 }
@@ -60,7 +60,7 @@ public interface RotationGoal {
             private boolean isPaused = true;
 
             @Override
-            public double compute(AbstractEntityModel self, UniverseModel world, double dt) {
+            public double compute(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
                 // 1. Lazy Initialization on the first valid simulation frame
                 if (Double.isNaN(currentAngle)) {
                     currentAngle = self.getTransform().getRotationAngle();

@@ -13,15 +13,15 @@ import uni.gaben.iscat.utils.Updatable;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
-public abstract class AbstractEntityModel extends Body implements Dynamic, Updatable, Removable, Collidable, Stateful {
+public abstract class AbstractPhysicalEntityModel extends Body implements Dynamic, Updatable, Removable, Collidable, Stateful {
     protected final EntityRecord entity;
     protected int state = 0;
     protected boolean shouldRemove = false;
     protected double stateTime = 0.0;
     // Callback for collisions
-    protected HashMap<String,Consumer<AbstractEntityModel>> collisionEffects =  new HashMap<>();
+    protected HashMap<String,Consumer<AbstractPhysicalEntityModel>> collisionEffects =  new HashMap<>();
 
-    protected AbstractEntityModel(double x, double y, EntityRecord entity) {
+    protected AbstractPhysicalEntityModel(double x, double y, EntityRecord entity) {
         super();
         this.entity = entity;
         this.setUserData(this);
@@ -44,15 +44,15 @@ public abstract class AbstractEntityModel extends Body implements Dynamic, Updat
     public void updateStateTime(double dt) { this.stateTime += dt; }
     // ---- Collision callbacks ----
     @Override
-    public void addOnCollision(String id, Consumer<AbstractEntityModel> onCollision) { this.collisionEffects.put(id, onCollision); }
+    public void addOnCollision(String id, Consumer<AbstractPhysicalEntityModel> onCollision) { this.collisionEffects.put(id, onCollision); }
     @Override
     public boolean hasAnyCollision() { return !collisionEffects.isEmpty(); }
     @Override
-    public void triggerAllCollisions(AbstractEntityModel other) {
+    public void triggerAllCollisions(AbstractPhysicalEntityModel other) {
         if (hasAnyCollision()) collisionEffects.forEach((s, onCollision) -> onCollision.accept(other));
     }
     @Override
-    public void triggerCollision(String id, AbstractEntityModel other) {
+    public void triggerCollision(String id, AbstractPhysicalEntityModel other) {
         collisionEffects.get(id).accept(other);
     }
     // ---- Physical capability getters (delegated to definition) ----
