@@ -31,4 +31,9 @@ public class ProjectileModel extends AbstractPhysicalProjectileModel {
     }
 
     public ProjectileType getType() { return type; }
+
+    @Override
+    public boolean isInalterable() {
+        return false;
+    }
 }

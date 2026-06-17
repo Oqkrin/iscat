@@ -228,6 +228,11 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     @Override
+    public boolean isInalterable() {
+        return isDashing();
+    }
+
+    @Override
     public Thrust thrust() {
         return thrust;
     }

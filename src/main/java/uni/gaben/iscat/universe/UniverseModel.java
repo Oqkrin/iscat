@@ -268,7 +268,7 @@ public class UniverseModel extends World<Body> {
                     }
                 }
 
-                enemy.alter(-damage);
+                enemy.damage(damage);
                 player.startMeleeCooldown();
             }
         }

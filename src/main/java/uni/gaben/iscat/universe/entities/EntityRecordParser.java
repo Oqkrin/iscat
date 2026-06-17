@@ -339,7 +339,7 @@ public final class EntityRecordParser {
             }
             case HEAL -> new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
             case SUMMON -> new ShootAbility(ac.combatRange(), ac.cooldownSec(),
-                    ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex()),
+                    ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx()),
                     target, ac.aimAtTarget(), ac.nerfPrediction());
             case MELEE -> new MeleeAbility<>(ac.type().jsonKey, entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
             case KAMIKAZE -> new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);

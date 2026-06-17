@@ -53,9 +53,9 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
                 if (other instanceof PlayerModel player) {
                     double speed = this.getLinearVelocity().getMagnitude();
                     if (speed > entity.maxVelocity() * 0.85) {
-                        player.alter(-heavyDamage);
+                        player.damage(heavyDamage);
                     } else {
-                        player.alter(-lightDamage);
+                        player.damage(lightDamage);
                     }
                 }
             });
@@ -163,4 +163,9 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     @Override public double getVisualAngularOffsetDeg() { return Math.toDegrees(entity.angularOffsetRad()); }
     @Override public double getFrameDuration() { return UU.UNIVERSE_TICK * 3; }
     @Override public double getFrameDuration(int state, int frame) { return getFrameDuration(); }
+
+    @Override
+    public boolean isInalterable() {
+        return false;
+    }
 }

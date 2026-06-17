@@ -14,11 +14,13 @@ public interface Alterable {
 
     /** Chiamato per applicare un delta alla resistenza attuale **/
     void alter(double delta);
-    default void damage(double positiveAmount) {
-        alter(-positiveAmount);
+    default void damage(double positiveValue) {
+        if (isInalterable()) return;
+        alter(-positiveValue);
     }
-    default void restore(double positiveAmount) {
-        alter(positiveAmount);
+    default void restore(double positiveValue) {
+        if (isInalterable()) return;
+        alter(positiveValue);
     }
     /** Verifica se l'entità è ancora in vita (HP > 0). */
     default boolean canEndure() { return getEndurance() > 0; }
@@ -26,4 +28,7 @@ public interface Alterable {
     default void extinguish() {
         setEndurance(0);
     }
+
+    boolean isInalterable();
+
 }

@@ -97,7 +97,7 @@ public class Shooter<T extends CollisionBody> {
                 if (target instanceof AbstractLivingEntityModel lem) {
                     lem.setKilledByProjectile(true);
                 }
-                target.alter(-p.getEndurance());
+                target.damage(p.getEndurance());
                 if (!(target instanceof PlayerModel)) {
                     SessionScoreTracker.getInstance().addDamageDealt((int) p.getEndurance());
                 }

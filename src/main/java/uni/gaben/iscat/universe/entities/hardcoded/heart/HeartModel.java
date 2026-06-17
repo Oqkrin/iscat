@@ -65,5 +65,10 @@ public class HeartModel extends AbstractLivingEntityModel implements HasSprite {
     public double getVisualAngularOffsetDeg() {
         return 0;
     }
+
+    @Override
+    public boolean isInalterable() {
+        return false;
+    }
 }
 
