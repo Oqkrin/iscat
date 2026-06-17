@@ -31,6 +31,7 @@
     "type": "pursuit",
     "maxPredictionTime": 1
   },
+  "rotation": { "type": "target", "target": "player" },
   "abilities": [],
   "modifiers": [
     { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },

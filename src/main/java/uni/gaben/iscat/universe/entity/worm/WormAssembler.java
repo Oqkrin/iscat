@@ -6,6 +6,7 @@ import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.EntityFactory;
 import uni.gaben.iscat.universe.entity.EntityBrain;
+import uni.gaben.iscat.universe.entity.brain.rotation.RotationGoal;
 import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoal;
 import uni.gaben.iscat.universe.entity.brain.target.Target;
 
@@ -33,7 +34,8 @@ public class WormAssembler {
             if (body != null && previousModel != null) {
                 EntityBrain bodyBrain = chain.getLatestBrain();
                 if (bodyBrain != null) {
-                    bodyBrain.setSteeringGoal(SteeringGoal.pursuit(Target.ofEntity(previousModel), 0.0));
+                    bodyBrain.setSteeringGoal(SteeringGoal.pursuit(Target.ofEntity(previousModel), .5));
+                    bodyBrain.setRotationGoal(RotationGoal.target(Target.ofEntity(previousModel)));
                 }
                 previousModel = body;
             }
