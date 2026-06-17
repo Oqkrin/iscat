@@ -7,19 +7,19 @@
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",
-  "Scale": 3.0,
+  "Scale": 4.0,
   "InitLife": 250,
   "LinearDamping": 1.0,
   "mass": 1.0,
-  "MaxVelocity": 9,
-  "MaxForce": 27,
+  "MaxVelocity": 18,
+  "MaxForce": 45,
   "player": {
     "dashImpulse": 35.0,
     "dashDurationSec": 0.2,
     "dashCooldownSec": 1.0,
     "stunDurationSec": 2.0,
     "baseCooldownSec": 0.3,
-    "meleeDamage": 80.0,
-    "meleeCooldownSec": 0.5
+    "meleeDamage": 200.0,
+    "meleeCooldownSec": 0.1
   }
 }
