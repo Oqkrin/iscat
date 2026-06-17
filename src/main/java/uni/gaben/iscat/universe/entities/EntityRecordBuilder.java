@@ -10,6 +10,7 @@ public class EntityRecordBuilder {
 
     private Integer bestiaryOrder = 0;
     private ThreatLevel threatLevel = ThreatLevel.NORMAL;
+    private EntityType type = null;
 
     // Visual
     private String spritePath = "";
@@ -184,7 +185,7 @@ public class EntityRecordBuilder {
 
     public EntityRecord build() {
         return new EntityRecord(
-                entityKey, name, description, bestiaryOrder, threatLevel,
+                entityKey, name, type, description, bestiaryOrder, threatLevel,
                 spritePath, frameW, frameH, scale,
                 animationFrames, isBoss, hasEntranceAnimation,
                 initLife, linearDamping, mass, maxVelocity, angularOffsetRad, maxForce, maxAngularVelocity, xpReward, shapeType,
