@@ -6,6 +6,7 @@ import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entity.EntityRecordParser;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entity.shooters.Shooter;
@@ -172,7 +173,7 @@ public class PlayerController {
         for (EntityRecord.LevelAbility ability : data.player().levelAbilities()) {
             if (level >= ability.minLevel()) {
 
-                this.currentAttack = Pattern.createPattern(ability.pattern());
+                this.currentAttack = EntityRecordParser.createPattern(ability.pattern());
                 player.setCooldownFuocoSec(ability.cooldownSec());
                 break;
             }

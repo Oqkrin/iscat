@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain.abilities;
+package uni.gaben.iscat.universe.entity;
 
 
 public enum AbilityIndex {

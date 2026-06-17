@@ -181,20 +181,20 @@ public class EntityBrain extends Brain<EntityModel> {
         if (s.brain() == null) return brain;
 
         // Steering
-        brain.setSteeringGoal(SteeringGoal.createSteeringGoal(s.brain().steering()));
+        brain.setSteeringGoal(EntityRecordParser.createSteeringGoal(s.brain().steering()));
 
         // Rotation
-        brain.setRotationGoal(RotationGoal.createRotationGoal(s.brain().rotation()));
+        brain.setRotationGoal(EntityRecordParser.createRotationGoal(s.brain().rotation()));
 
         // Abilities
         for (EntityRecord.AbilityRecord ac : s.brain().abilities()) {
-            Ability ability = Ability.createAbility(ac, entity);
+            Ability ability = EntityRecordParser.createAbility(ac, entity);
             if (ability != null) brain.addAction(ability);
         }
 
         // Modifiers
         for (EntityRecord.ModifierRecord mc : s.brain().modifiers()) {
-            SteeringModifier mod = SteeringModifier.createModifier(mc, entity);
+            SteeringModifier mod = EntityRecordParser.createModifier(mc, entity);
             if (mod != null) brain.addModifier(mod);
         }
         return brain;

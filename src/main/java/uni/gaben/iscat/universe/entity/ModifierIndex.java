@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain.steering;
+package uni.gaben.iscat.universe.entity;
 
 public enum ModifierIndex {
     SEPARATION("separation"),

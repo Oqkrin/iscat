@@ -32,14 +32,6 @@ public class UniverseRenderer {
 
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
-
-    private final List<EnduranceIndicator> enduranceIndicator = new ArrayList<>();
-    private static final double NUMBER_DURATION = 2;  // seconds
-    private static final double NUMBER_RISE_SPEED = 60; // pixels per second
-    private static final Font NUMBER_FONT = Font.font("Miracode", FontWeight.MEDIUM, 18);
-
-
-    // Buffer to avoid per‑frame ArrayList allocation
     private final List<AbstractEntityModel> entitySnapshotBuffer = new ArrayList<>();
 
     // Batched drawing helper

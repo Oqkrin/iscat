@@ -1,13 +1,22 @@
 package uni.gaben.iscat.universe.entity;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uni.gaben.iscat.universe.ThreatLevel;
-import uni.gaben.iscat.universe.entity.brain.steering.ModifierIndex;
-import uni.gaben.iscat.universe.entity.brain.rotation.RotationGoalIndex;
-import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoalIndex;
-import uni.gaben.iscat.universe.entity.brain.abilities.AbilityIndex;
-import uni.gaben.iscat.universe.entity.shooters.PatternType;
+import uni.gaben.iscat.universe.entity.brain.abilities.*;
+import uni.gaben.iscat.universe.entity.brain.abilities.shoot.RandomizedShootAbility;
+import uni.gaben.iscat.universe.entity.brain.abilities.shoot.ShootAbility;
+import uni.gaben.iscat.universe.entity.brain.rotation.RotationGoal;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoal;
+import uni.gaben.iscat.universe.entity.brain.steering.SteeringModifier;
+import uni.gaben.iscat.universe.entity.brain.target.Target;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entity.shooters.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -232,7 +241,7 @@ public final class EntityRecordParser {
     private static EntityRecord.PatternRecord parsePattern(JSONObject obj) {
         if (obj == null) return null;
         return new EntityRecord.PatternRecord(
-                PatternType.fromJson(obj.optString("type")),
+                PatternIndex.fromJson(obj.optString("type")),
                 obj.optInt("count", 1),
                 obj.optDouble("angleStepDeg", 30.0),
                 obj.optDouble("intervalSec", 0.15),
@@ -268,5 +277,97 @@ public final class EntityRecordParser {
             }
         }
         return list;
+    }
+
+    public static SteeringGoal createSteeringGoal(EntityRecord.SteeringRecord steeringData) {
+        Target target = Target.ofPlayer(); // could be extended to support other targets
+        return switch (steeringData.type()) {
+            case PURSUIT -> SteeringGoal.pursuit(target, steeringData.maxPredictionTime());
+            case EVADE -> SteeringGoal.evade(target, steeringData.maxPredictionTime());
+            case PURSUIT_WITH_RANGE ->
+                    SteeringGoal.pursuitWithRange(target, steeringData.maxPredictionTime(), steeringData.minDistance(), steeringData.maxDistance());
+            case EVADE_WITH_RANGE -> SteeringGoal.evadeWithRange(target, steeringData.maxPredictionTime(), steeringData.safetyDistance());
+            default -> SteeringGoal.idle(); // IDLE and ORBIT both fall through to idle
+        };
+    }
+
+    public static SteeringModifier createModifier(EntityRecord.ModifierRecord mc, EntityModel entity) {
+        if (mc.type() == null) return null;
+        DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
+        Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
+        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm&&pm.getType()== ProjectileType.ENEMY_BULLET));
+        Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof AbstractProjectileModel));
+        return switch (mc.type()) {
+            case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
+            case ALIGNMENT -> SteeringModifier.alignment(everythingButProjectiles, weight);
+            case COHESION -> SteeringModifier.cohesion(everythingButProjectiles, weight);
+            case COLLISION_AVOIDANCE ->
+                    SteeringModifier.collisionAvoidance(everythingButEnemyProjectiles, mc.maxPredictionTime(), mc.avoidRadius(), weight);
+        };
+    }
+
+    public static RotationGoal createRotationGoal(EntityRecord.RotationRecord rotation) {
+        if (rotation == null) return RotationGoal.idle();
+        return switch (rotation.type()) {
+            case STILL -> RotationGoal.still();
+            case MOVEMENT -> RotationGoal.movement();
+            case TARGET -> RotationGoal.target(Target.ofPlayer());
+            case CONTINUES_SPIN -> RotationGoal.continuesSpin(rotation.spinSpeedRadPerSec());
+            case INTERVAL_SPIN -> RotationGoal.intervalSpin(rotation.spinSteps(), rotation.stepPauseSec(), rotation.spinSpeedRadPerSec());
+            default -> RotationGoal.idle();
+        };
+    }
+
+    public static Ability createAbility(EntityRecord.AbilityRecord ac, EntityModel entity) {
+        if (ac.type() == null) return null;
+        Target target = Target.ofPlayer();
+        return switch (ac.type()) {
+            case SHOOT -> {
+                Pattern shooter = createPattern(ac.pattern());
+                yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
+                        ProjectileType.valueOf(ac.bulletType()), shooter,
+                        target, ac.aimAtTarget(), ac.nerfPrediction());
+            }
+            case RANDOMIZED_SHOOT -> {
+                List<Pattern> patterns = new ArrayList<>();
+                for (EntityRecord.PatternRecord pc : ac.patterns()) patterns.add(createPattern(pc));
+                yield RandomizedShootAbility.targetingPlayer(ac.combatRange(), ac.cooldownSec(),
+                        ProjectileType.valueOf(ac.bulletType()), ac.aimAtTarget(),
+                        ac.nerfPrediction(), patterns.toArray(new Pattern[0]));
+            }
+            case HEAL -> new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
+            case SUMMON -> new ShootAbility(ac.combatRange(), ac.cooldownSec(),
+                    ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx(), ac.attackStateIndex()),
+                    target, ac.aimAtTarget(), ac.nerfPrediction());
+            case MELEE -> new MeleeAbility<>(ac.type().jsonKey, entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
+            case KAMIKAZE -> new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);
+            case DASH -> new DodgeDashAbility(entity, ac.dashCooldownMS()/1000, ac.dashDurationMS()/1000, ac.dashPrediction(), ac.dashAvoidRange(), ac.dashImpulse(),
+                    Target.neighboursCached(entity, ac.dashAvoidRange(), body -> body instanceof ProjectileModel pm && pm.getType() == ProjectileType.PLAYER_BULLET));
+            case PLUNGE -> new PlungeAbility(
+                    entity,
+                    ac.plungeCooldownMS() / 1000,
+                    ac.dashDurationMS() / 1000,
+                    ac.dashPrediction(),
+                    ac.dashImpulse(),
+                    Target.ofPlayer()
+            );
+        };
+    }
+
+    public static Pattern createPattern(EntityRecord.PatternRecord pc) {
+        if (pc == null) return new SingleShotPattern();
+        return switch (pc.type()) {
+            case SINGLE_SHOT -> new SingleShotPattern();
+            case SPREAD -> new SpreadPattern(pc.count(), pc.angleStepDeg());
+            case MULTI_DIRECTION ->
+                    new MultiDirectionPattern(pc.count(), Math.toRadians(pc.angleStepDeg()), createPattern(pc.innerPattern()));
+            case RING -> new RingPattern(pc.count());
+            case REPEATER ->
+                    new RepeaterPattern(pc.repeats(), pc.intervalSec(), createPattern(pc.innerPattern()));
+            case PARALLEL_LINE ->
+                    new ParallelLinePattern(pc.count(), pc.angleStepDeg()); // angleStepDeg used as spacing
+            case SUMMON -> new SummonPattern(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());
+            case FIGURE -> new FigurePattern(pc.count(), FigurePattern.FigureType.valueOf(pc.figureType()));
+        };
     }
 }

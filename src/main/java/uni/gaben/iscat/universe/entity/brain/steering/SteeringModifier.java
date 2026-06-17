@@ -1,18 +1,11 @@
 package uni.gaben.iscat.universe.entity.brain.steering;
 
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.EntityFilters;
-import uni.gaben.iscat.universe.entity.EntityModel;
-import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.brain.target.Target;
-import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileType;
 
 import java.util.List;
 
@@ -20,21 +13,6 @@ import java.util.List;
 public interface SteeringModifier {
 
     void computeSteer(AbstractEntityModel self, UniverseModel world, double maxForce, double dt, Vector2 outForce);
-
-    static SteeringModifier createModifier(EntityRecord.ModifierRecord mc, EntityModel entity) {
-        if (mc.type() == null) return null;
-        DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
-        Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
-        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm&&pm.getType()==ProjectileType.ENEMY_BULLET));
-        Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof AbstractProjectileModel));
-        return switch (mc.type()) {
-            case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
-            case ALIGNMENT -> SteeringModifier.alignment(everythingButProjectiles, weight);
-            case COHESION -> SteeringModifier.cohesion(everythingButProjectiles, weight);
-            case COLLISION_AVOIDANCE ->
-                    SteeringModifier.collisionAvoidance(everythingButEnemyProjectiles, mc.maxPredictionTime(), mc.avoidRadius(), weight);
-        };
-    }
 
     static SteeringModifier separation(Target neighborhood, double separationRadius, DoubleProperty weight) {
         Vector2 toNeighbor = UU.vector2zero();

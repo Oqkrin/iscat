@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entity.brain.rotation;
+package uni.gaben.iscat.universe.entity;
 
 public enum RotationGoalIndex {
     STILL("still"),

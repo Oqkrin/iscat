@@ -4,7 +4,6 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.EntityRecord;
 import uni.gaben.iscat.universe.entity.brain.target.Predictor;
 import uni.gaben.iscat.universe.entity.brain.target.Target;
 
@@ -14,18 +13,6 @@ import java.util.List;
 public interface SteeringGoal {
 
     Vector2 computeDesiredVelocity(AbstractEntityModel self, UniverseModel universe, double dt);
-
-    static SteeringGoal createSteeringGoal(EntityRecord.SteeringRecord steeringData) {
-        Target target = Target.ofPlayer(); // could be extended to support other targets
-        return switch (steeringData.type()) {
-            case PURSUIT -> SteeringGoal.pursuit(target, steeringData.maxPredictionTime());
-            case EVADE -> SteeringGoal.evade(target, steeringData.maxPredictionTime());
-            case PURSUIT_WITH_RANGE ->
-                    SteeringGoal.pursuitWithRange(target, steeringData.maxPredictionTime(), steeringData.minDistance(), steeringData.maxDistance());
-            case EVADE_WITH_RANGE -> SteeringGoal.evadeWithRange(target, steeringData.maxPredictionTime(), steeringData.safetyDistance());
-            default -> SteeringGoal.idle(); // IDLE and ORBIT both fall through to idle
-        };
-    }
 
     static SteeringGoal idle() {
         Vector2 idleVelocity = UU.vector2zero();

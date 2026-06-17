@@ -1,11 +1,6 @@
 package uni.gaben.iscat.universe.entity;
 
 import uni.gaben.iscat.universe.ThreatLevel;
-import uni.gaben.iscat.universe.entity.brain.steering.ModifierIndex;
-import uni.gaben.iscat.universe.entity.brain.rotation.RotationGoalIndex;
-import uni.gaben.iscat.universe.entity.brain.steering.SteeringGoalIndex;
-import uni.gaben.iscat.universe.entity.brain.abilities.AbilityIndex;
-import uni.gaben.iscat.universe.entity.shooters.PatternType;
 
 import java.util.List;
 
@@ -112,7 +107,7 @@ public record EntityRecord(
     ) {}
 
     public record PatternRecord(
-            PatternType type,
+            PatternIndex type,
             int count,
             double angleStepDeg,
             double intervalSec,

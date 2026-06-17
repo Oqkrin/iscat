@@ -15,8 +15,7 @@ public class EntityFilters {
     };
 
     public static final Predicate<Body> IS_ENEMY = body -> {
-        // Assume anything that is a EntityModel is an enemy for now.
-        // If there are other enemy types, they should be added here.
+        if (IS_PLAYER.test(body)) return false;
         if (body instanceof EntityModel) return true;
         return body.getUserData() instanceof EntityModel;
     };
