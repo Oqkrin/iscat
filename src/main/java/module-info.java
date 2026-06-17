@@ -14,6 +14,7 @@ module uni.gaben.iscat {
     requires org.slf4j;
     requires org.json;
 
+
     opens uni.gaben.iscat to javafx.fxml;
     opens uni.gaben.iscat.controller to javafx.fxml;
     opens uni.gaben.iscat.database to javafx.fxml;

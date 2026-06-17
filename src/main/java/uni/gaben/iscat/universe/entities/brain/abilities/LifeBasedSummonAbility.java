@@ -30,7 +30,10 @@ public class LifeBasedSummonAbility extends Ability {
     }
 
     @Override
-    public boolean update(Brain<?> brain, UniverseModel world, double dt) {
+    public boolean progressActivation(Brain<?> brain, UniverseModel world, double dt) {
         return false;
     }
+
+    @Override
+    public void update(Brain<?> brain, UniverseModel world, double dt) {}
 }

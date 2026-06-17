@@ -144,13 +144,21 @@ public class DodgeDashAbility extends Ability {
     }
 
     @Override
-    public boolean update(Brain<?> brain, UniverseModel world, double dt) {
-        dashCooldown.update(dt);
-        dashDuration.update(dt);
+    public boolean progressActivation(Brain<?> brain, UniverseModel world, double dt) {
         if (dashDuration.isReady()) {
            brain.getEntity().restoreTerminalVelocity();
            brain.getEntity().restoreLinearDamping();
         }
         return dashDuration.isCoolingDown(); // true while dashing
+    }
+
+    @Override
+    public void update(Brain<?> brain, UniverseModel world, double dt) {
+        if(dashCooldown.isCoolingDown()) {
+            dashCooldown.update(dt);
+        }
+        if(dashDuration.isCoolingDown()) {
+            dashDuration.update(dt);
+        }
     }
 }

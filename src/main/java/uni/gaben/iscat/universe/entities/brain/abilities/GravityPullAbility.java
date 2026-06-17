@@ -24,15 +24,15 @@ public class GravityPullAbility extends Ability {
     }
 
     @Override
-    public void onActivate(Brain<?> brain, UniverseModel world) {
-    }
-
-
+    public void onActivate(Brain<?> brain, UniverseModel world) {}
 
     @Override
-    public boolean update(Brain<?> brain, UniverseModel world, double dt) {
-        if (world == null) return false;
+    public boolean progressActivation(Brain<?> brain, UniverseModel world, double dt) {
+        return world != null;
+    }
 
+    @Override
+    public void update(Brain<?> brain, UniverseModel world, double dt) {
         Vector2 myPos = brain.getEntity().getTransform().getTranslation();
         double myMass = brain.getEntity().getMass().getMass();
 
@@ -52,7 +52,5 @@ public class GravityPullAbility extends Ability {
             direction.normalize();
             item.applyForce(direction.multiply(forceMagnitude));
         }
-
-        return true;
     }
 }

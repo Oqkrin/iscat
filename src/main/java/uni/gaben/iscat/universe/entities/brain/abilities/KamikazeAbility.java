@@ -37,7 +37,10 @@ public class KamikazeAbility extends Ability {
     public void onActivate(Brain<?> brain, UniverseModel world) {}
 
     @Override
-    public boolean update(Brain<?> brain, UniverseModel world, double dt) {
+    public boolean progressActivation(Brain<?> brain, UniverseModel world, double dt) {
         return false;
     }
+
+    @Override
+    public void update(Brain<?> brain, UniverseModel world, double dt) {}
 }

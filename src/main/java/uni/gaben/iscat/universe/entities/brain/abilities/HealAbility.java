@@ -27,8 +27,6 @@ public class HealAbility extends Ability {
 
     @Override
     public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
-        healCooldown.update(dt);
-        visualHealCooldown.update(dt);
         if (healCooldown.isCoolingDown()) return false;
         
         for (AbstractLivingEntityModel l : world.getEntitiesOfType(AbstractLivingEntityModel.class)) {
@@ -61,8 +59,14 @@ public class HealAbility extends Ability {
     }
 
     @Override
-    public boolean update(Brain<?> brain, UniverseModel world, double dt) {
+    public boolean progressActivation(Brain<?> brain, UniverseModel world, double dt) {
         // Instant action
         return false;
+    }
+
+    @Override
+    public void update(Brain<?> brain, UniverseModel world, double dt) {
+        healCooldown.update(dt);
+        visualHealCooldown.update(dt);
     }
 }

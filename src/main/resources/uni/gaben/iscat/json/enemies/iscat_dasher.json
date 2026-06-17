@@ -28,28 +28,29 @@
     "spawn": []
   },"ai": {
   "steering": {
-    "type": "Orbit"
+    "type": "pursuit",
+    "maxPredictionTime": 10
   },
   "rotation": {
     "type": "movement"
   },
   "abilities": [
     {     "type": "dash",
-      "dashCooldownMS": 100,
+      "dashCooldownMS": 1000,
       "dashDurationMS": 100,
-      "dashPrediction": 1.2,
-      "dashAvoidRange": 50,
-      "dashImpulse": 800
+      "dashPrediction": 3,
+      "dashAvoidRange": 1,
+      "dashImpulse": 120
     },
     {
       "type": "plunge",
-      "plungeCooldownMS": 300,
-      "dashDurationMS": 100,
-      "dashPrediction": 1,
+      "plungeCooldownMS": 3000,
+      "dashDurationMS": 200,
+      "dashPrediction": 2,
       "dashAvoidRange": 50,
-      "dashImpulse": 1200
+      "dashImpulse": 150
     },
-    { "type": "melee", "meleeDamage": 15}
+    { "type": "melee", "meleeDamage": 3}
   ],
   "modifiers": [
     { "type": "collisionAvoidance", "radius": 7.5, "weight": 30, "maxPredictionTime": 3, "avoidRadius": 7.0 },

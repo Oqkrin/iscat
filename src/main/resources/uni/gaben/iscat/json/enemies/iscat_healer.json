@@ -28,9 +28,10 @@
     "spawn": []
   },"ai": {
   "steering": {
-    "type": "evadeWithRange",
-    "maxPredictionTime": 3,
-    "safetyDistance": 15
+    "type": "pursuitWithRange",
+    "maxPredictionTime": 10,
+    "minDistance": 15,
+    "maxDistance": 25
   },
   "rotation": { "type": "still" },
   "abilities": [

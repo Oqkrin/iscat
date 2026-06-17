@@ -76,13 +76,7 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
     public void update(UniverseModel universe, double dt) {
         if(entity == null || entity.shouldRemove()) return;
         processActionLifecycles(universe, dt);
-        if (activeActions.get(AbilityCategory.MOVEMENT) == null) {
-
-            computeAndApplySteering(universe, dt);
-        } else {
-                System.out.println(entity.getEntityRecord().entityKey() + " can't move");
-
-        }
+        computeAndApplySteering(universe, dt);
         processRotation(universe, dt);
     }
 
@@ -91,10 +85,15 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
     // ========================================================================
 
     private void processActionLifecycles(UniverseModel universe, double dt) {
+        // ===== 0. Tick cooldowns for EVERY ability, regardless of state =====
+        for (Ability ability : actionsMap.values()) {
+            ability.update(this, universe, dt);
+        }
+
         blockedCategories.clear();
         finishedCategoriesList.clear();
 
-        // 1. Refresh blocked categories based on what's active (No Iterator allocation)
+        // 1. Refresh blocked categories based on what's active
         for (int i = 0; i < CATEGORIES.length; i++) {
             Ability ability = activeActions.get(CATEGORIES[i]);
             if (ability != null) {
@@ -103,23 +102,23 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
             }
         }
 
-        // 2. Tick current active actions, gather completed categories
+        // 2. Tick active abilities, gather completed categories
         for (int i = 0; i < CATEGORIES.length; i++) {
             AbilityCategory cat = CATEGORIES[i];
             Ability ability = activeActions.get(cat);
             if (ability != null) {
-                if (!ability.update(this, universe, dt)) {
+                if (!ability.progressActivation(this, universe, dt)) {
                     finishedCategoriesList.add(cat);
                 }
             }
         }
 
-        // Prune the finished actions
+        // Prune finished actions
         for (int i = 0; i < finishedCategoriesList.size(); i++) {
             activeActions.remove(finishedCategoriesList.get(i));
         }
 
-        // 3. Attempt to evaluate and wake up higher priority idle actions
+        // 3. Attempt to activate higher‑priority idle abilities
         for (int i = 0; i < CATEGORIES.length; i++) {
             AbilityCategory cat = CATEGORIES[i];
             if (blockedCategories.contains(cat) || activeActions.containsKey(cat)) {

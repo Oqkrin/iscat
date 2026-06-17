@@ -30,9 +30,9 @@
   "ai": {
     "steering": {
       "type": "pursuitWithRange",
-      "maxPredictionTime": 2.5,
-      "minDistance": 7,
-      "maxDistance": 25
+      "maxPredictionTime": 5,
+      "minDistance": 3,
+      "maxDistance": 12
     },
     "rotation": { "type": "target", "target": "player" },
     "abilities": [

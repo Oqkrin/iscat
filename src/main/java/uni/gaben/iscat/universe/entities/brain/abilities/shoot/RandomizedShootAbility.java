@@ -70,7 +70,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     }
 
     @Override
-    public boolean update(Brain<?> brain, UniverseModel world, double dt) {
+    public boolean progressActivation(Brain<?> brain, UniverseModel world, double dt) {
         if (burstLeft <= 0) return false; // done, action can be dequeued
 
         burstTimer -= dt;
@@ -90,6 +90,9 @@ public class RandomizedShootAbility extends AbstractShootAbility {
 
         return burstLeft > 0; // keep alive while bursts remain
     }
+
+    @Override
+    public void update(Brain<?> brain, UniverseModel world, double dt) {}
 
     public void setCustomizer(Consumer<ProjectileModel> customizer) {
         this.customizer = customizer;

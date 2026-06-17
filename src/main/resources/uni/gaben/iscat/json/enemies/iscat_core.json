@@ -59,7 +59,7 @@
         "dashDurationMS": 1000,
         "dashPrediction": 1,
         "dashAvoidRange": 50,
-        "dashImpulse": 1200
+        "dashImpulse": 1000
       },
       { "type": "melee", "meleeDamage": 30}
 

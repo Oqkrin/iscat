@@ -93,13 +93,22 @@ public class PlungeAbility extends Ability {
     }
 
     @Override
-    public boolean update(Brain<?> brain, UniverseModel world, double dt) {
-        plungeCooldown.update(dt);
-        plungeDuration.update(dt);
+    public boolean progressActivation(Brain<?> brain, UniverseModel world, double dt) {
+
         if (plungeDuration.isReady()) {
             brain.getEntity().restoreLinearDamping();
             brain.getEntity().restoreTerminalVelocity();
         }
         return plungeDuration.isCoolingDown();
+    }
+
+    @Override
+    public void update(Brain<?> brain, UniverseModel world, double dt) {
+        if(plungeCooldown.isCoolingDown()) {
+            plungeCooldown.update(dt);
+        }
+        if(plungeDuration.isCoolingDown()) {
+            plungeDuration.update(dt);
+        }
     }
 }
