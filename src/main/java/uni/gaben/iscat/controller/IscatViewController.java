@@ -20,13 +20,17 @@ public class IscatViewController {
     private final IscatModel model;
     private final EnumMap<IscatViews, AbstractIscatStackPane> viewRegistry = new EnumMap<>(IscatViews.class);
 
+    private static final java.util.Set<IscatViews> DYNAMIC_VIEWS = java.util.EnumSet.of(IscatViews.GAME);
+
     public IscatViewController(IscatModel model, StackPane contentRoot) {
         this.model = model;
         this.contentRoot = contentRoot;
 
-        // 1. Initialize all views here
+        // Inizializza le view non statiche
         for (IscatViews scene : IscatViews.values()) {
-            viewRegistry.put(scene, IscatMVCRegistry.getMVC(scene));
+            if (!DYNAMIC_VIEWS.contains(scene)) {
+                viewRegistry.put(scene, IscatMVCRegistry.getMVC(scene));
+            }
         }
 
         // 2. Listen for subsequent navigation intents
@@ -51,6 +55,9 @@ public class IscatViewController {
     }
 
     private void performTransition(IscatViews oldScene, IscatViews newScene, IscatModel.TransitionType type) {
+        if (DYNAMIC_VIEWS.contains(newScene)) {
+            viewRegistry.put(newScene, IscatMVCRegistry.getMVC(newScene));
+        }
         AbstractIscatStackPane nextView = viewRegistry.get(newScene);
         if (nextView == null) return;
 
