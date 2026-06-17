@@ -237,7 +237,6 @@ public class UniverseModel extends World<Body> {
         PlayerModel player = null;
         AbstractLivingEntityModel enemy = null;
 
-        // Determina chi è il player e chi è il nemico
         if (a instanceof PlayerModel && b instanceof AbstractLivingEntityModel && !(b instanceof PlayerModel)) {
             player = (PlayerModel) a;
             enemy = (AbstractLivingEntityModel) b;
@@ -246,20 +245,35 @@ public class UniverseModel extends World<Body> {
             enemy = (AbstractLivingEntityModel) a;
         }
 
-        // Se abbiamo un player che può infliggere danno da mischia e un nemico
-        if (player != null && enemy != null && player.canDealMeleeDamage()) {
-            // Infliggi il danno
-            enemy.alter(-player.getMeleeDamage());
-            player.startMeleeCooldown();
+        // Verifica che il nemico non sia un proiettile
+        if (player != null && enemy != null && !(enemy instanceof AbstractPhysicalProjectileModel)) {
 
-            // knockback sul nemico
-            Vector2 knockbackDir = enemy.getTransform().getTranslation()
-                    .copy()
-                    .subtract(player.getTransform().getTranslation());
-            if (knockbackDir.getMagnitude() > 0.001) {
-                knockbackDir.normalize();
-                knockbackDir.multiply(100);
-                enemy.applyImpulse(knockbackDir);
+            if (player.canDealMeleeDamage()) {
+                // Danno base
+                double damage = player.getMeleeDamage();
+
+                // Danno doppio durante il dash
+                if (player.isDashing()) {
+                    damage *= 2;
+                    System.out.println("[MELEE] DASH! Danno doppio: " + damage);
+
+                    // Knockback durante il dash
+                    Vector2 knockbackDir = enemy.getTransform().getTranslation()
+                            .copy()
+                            .subtract(player.getTransform().getTranslation());
+
+                    double distance = knockbackDir.getMagnitude();
+                    if (distance > 0.001) {
+                        knockbackDir.multiply(500.0 / distance);
+                        enemy.applyImpulse(knockbackDir);
+                        System.out.println("Knockback applicato durante il dash!");
+                    }
+                } else {
+                    System.out.println("[MELEE] Danno normale: " + damage);
+                }
+
+                enemy.alter(-damage);
+                player.startMeleeCooldown();
             }
         }
     }

@@ -19,7 +19,7 @@
     "dashCooldownSec": 1.0,
     "stunDurationSec": 2.0,
     "baseCooldownSec": 0.3,
-    "meleeDamage": 20.0,
+    "meleeDamage": 80.0,
     "meleeCooldownSec": 0.5
   }
 }

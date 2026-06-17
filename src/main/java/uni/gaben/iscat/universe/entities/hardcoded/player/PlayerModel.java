@@ -91,6 +91,7 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         dashDuration.update(dt);
         weaponCooldown.update(dt);
         quickDashCooldown.update(dt);
+        meleeCooldown.update(dt);
         updateThrust();
         updateStateTime(dt);
 
