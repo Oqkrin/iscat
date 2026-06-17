@@ -98,7 +98,7 @@ public class PlungeAbility extends Ability {
         plungeDuration.update(dt);
         if (plungeDuration.isReady()) {
             brain.getEntity().restoreLinearDamping();
-            brain.getEntity().setTemporaryTerminalVelocity(-1);
+            brain.getEntity().restoreTerminalVelocity();
         }
         return plungeDuration.isCoolingDown();
     }

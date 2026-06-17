@@ -1,5 +1,6 @@
 package uni.gaben.iscat.utils;
 
+@FunctionalInterface
 public interface Updatable {
-    public void update(double dt);
+    void update(double dt);
 }

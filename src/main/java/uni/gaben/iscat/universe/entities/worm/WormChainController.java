@@ -52,13 +52,13 @@ public class WormChainController implements IEntityController {
 
     public void addSegment(EntityModel model, EntityBrain brain) {
         boolean isHead = segments.isEmpty();
-        boolean isTail = model.getEntity().entityKey().equals(tailKey);
+        boolean isTail = model.getEntityRecord().entityKey().equals(tailKey);
         segments.add(new WormSegmentData(model, brain, isHead, isTail));
     }
 
     public EntityBrain getLatestBrain() {
         if (segments.isEmpty()) return null;
-        return segments.get(segments.size() - 1).brain;
+        return segments.getLast().brain;
     }
 
     @Override
@@ -107,11 +107,11 @@ public class WormChainController implements IEntityController {
 
         // CASO 1: Muore la testa (indice 0)
         if (deadIndex == 0 && deadSegment.isHead) {
-            segments.remove(0);
+            segments.removeFirst();
 
             if (!segments.isEmpty()) {
-                WormSegmentData newHead = segments.get(0);
-                String newHeadKey = newHead.model.getEntity().entityKey();
+                WormSegmentData newHead = segments.getFirst();
+                String newHeadKey = newHead.model.getEntityRecord().entityKey();
 
                 if (newHeadKey.equals(bodyKey)) {
                     // solo il corpo può diventare testa
@@ -127,12 +127,12 @@ public class WormChainController implements IEntityController {
         }
 
         // CASO 2: Muore un segmento centrale (taglio a metà)
-        if (deadIndex > 0 && deadIndex < segments.size()) {
+        if (deadIndex > 0 && deadIndex < segments.size()-1) {
             List<WormSegmentData> backPart = new ArrayList<>(
                     segments.subList(deadIndex, segments.size())
             );
 
-            backPart.remove(0);
+            backPart.removeFirst();
             segments.subList(deadIndex, segments.size()).clear();
 
             if (!backPart.isEmpty()) {
@@ -142,7 +142,7 @@ public class WormChainController implements IEntityController {
     }
 
     private void promoteToHead(UniverseModel universe, WormSegmentData segment) {
-        if (!segment.model.getEntity().entityKey().equals(bodyKey)) {
+        if (!segment.model.getEntityRecord().entityKey().equals(bodyKey)) {
             return;
         }
 
@@ -185,7 +185,7 @@ public class WormChainController implements IEntityController {
 
     private void handleBackPart(UniverseModel universe, List<WormSegmentData> backPart) {
         WormSegmentData firstSegment = backPart.get(0);
-        String firstKey = firstSegment.model.getEntity().entityKey();
+        String firstKey = firstSegment.model.getEntityRecord().entityKey();
 
         if (firstKey.equals(bodyKey)) {
             createNewWormFromSegments(universe, backPart);
@@ -207,7 +207,7 @@ public class WormChainController implements IEntityController {
         WormChainController newWormChain = new WormChainController(universeController, headKey, bodyKey, tailKey);
 
         WormSegmentData firstSegment = newSegments.get(0);
-        String firstKey = firstSegment.model.getEntity().entityKey();
+        String firstKey = firstSegment.model.getEntityRecord().entityKey();
 
         if (firstKey.equals(bodyKey)) {
             promoteToHead(universe, firstSegment);
@@ -219,7 +219,7 @@ public class WormChainController implements IEntityController {
 
         for (int i = 1; i < newSegments.size(); i++) {
             WormSegmentData segment = newSegments.get(i);
-            boolean isTail = segment.model.getEntity().entityKey().equals(tailKey);
+            boolean isTail = segment.model.getEntityRecord().entityKey().equals(tailKey);
             newWormChain.addSegment(segment.model, segment.brain, false, isTail);
         }
 

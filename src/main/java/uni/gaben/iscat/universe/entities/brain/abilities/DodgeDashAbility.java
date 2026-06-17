@@ -148,7 +148,7 @@ public class DodgeDashAbility extends Ability {
         dashCooldown.update(dt);
         dashDuration.update(dt);
         if (dashDuration.isReady()) {
-           brain.getEntity().setTemporaryTerminalVelocity(-1);
+           brain.getEntity().restoreTerminalVelocity();
            brain.getEntity().restoreLinearDamping();
         }
         return dashDuration.isCoolingDown(); // true while dashing

@@ -115,7 +115,7 @@ public class UniverseSpawner {
                 .spawn(id, x, y, model, controller);
 
         if (jsonEntity != null) {
-            if (jsonEntity.getEntity().isBoss()) {
+            if (jsonEntity.getEntityRecord().isBoss()) {
                 jsonEntity.setWaveController(this.waveController);
             }
         }

@@ -3,6 +3,7 @@ package uni.gaben.iscat.universe.entities;
 import org.json.JSONObject;
 import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.entities.json.EntityJsonLoader;
 
 import java.util.List;
 import java.util.Map;

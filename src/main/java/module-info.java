@@ -77,4 +77,6 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.universe.entities.worm to javafx.fxml, org.json;
     exports uni.gaben.iscat.universe.spawn;
     opens uni.gaben.iscat.universe.spawn to javafx.fxml, org.json;
+    exports uni.gaben.iscat.universe.entities.json;
+    opens uni.gaben.iscat.universe.entities.json to javafx.fxml, org.json;
 }

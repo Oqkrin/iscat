@@ -163,14 +163,11 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     @Override public Shockwave shockwave() { return shockwave; }
-    @Override public double getTerminalVelocity() { return entity.maxVelocity(); }
-    @Override public double getMaxAngularVelocity() { return entity.maxAngularVelocity(); }
-    public EntityRecord getEntity() { return entity; }
     @Override public String getSpritePath() { return entity.spritePath(); }
     @Override public int getSpriteFrameWidth() { return entity.frameW(); }
     @Override public int getSpriteFrameHeight() { return entity.frameH(); }
     @Override public double getVisualScale() { return entity.scale(); }
-    @Override public double getVisualAngularOffsetDeg() { return 0; }
+    @Override public double getVisualAngularOffsetDeg() { return Math.toDegrees(entity.angularOffsetRad()); }
     @Override public double getFrameDuration() { return UU.UNIVERSE_TICK * 3; }
     @Override public double getFrameDuration(int state, int frame) { return getFrameDuration(); }
 }
