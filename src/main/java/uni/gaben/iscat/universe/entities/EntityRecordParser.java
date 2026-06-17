@@ -141,6 +141,8 @@ public final class EntityRecordParser {
                 json.optDouble("dashCooldownSec", 0.8),
                 json.optDouble("stunDurationSec", 1.0),
                 json.optDouble("baseCooldownSec", 0.3),
+                json.optDouble("meleeDamage", 0),
+                json.optDouble("meleeCooldownSec", 0.5),
                 parseLevelAbilities(json.optJSONArray("levelAbilities"))
         );
     }
