@@ -34,6 +34,10 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     private final Thrust thrust;
     private Runnable onDeathCallback;
 
+    private final Cooldown meleeCooldown = new Cooldown();
+    private double meleeDamage = 0;
+    private double meleeCooldownSec = 0.5;
+
     private final EntityRecord data;
     private final Vector2 dashDir = UU.vector2zero();
     private final Vector2 quickDashDir =  UU.vector2zero();
@@ -46,6 +50,9 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     public PlayerModel(double x, double y, EntityRecord data) {
         super(x, y, data);
         this.data = data;
+
+        this.meleeDamage = data.player().meleeDamage();
+        this.meleeCooldownSec = data.player().meleeCooldownSec();
 
         // Usiamo i dati dinamici dal JSON al posto di PlayerSettings
         double radiusInMeters = UU.pxToM(data.frameW() / 2.5); // o usa un valore specifico
@@ -78,13 +85,12 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         quickDashCooldown.start(0.2);
     }
 
-    // In update() – add quickDashCooldown.update(dt)
     @Override
     public void update(double dt) {
         dashCooldown.update(dt);
         dashDuration.update(dt);
         weaponCooldown.update(dt);
-        quickDashCooldown.update(dt);   // ← new
+        quickDashCooldown.update(dt);
         updateThrust();
         updateStateTime(dt);
 
@@ -259,4 +265,19 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     public double getVisualAngularOffsetDeg() {
         return 180;
     }
+
+    public boolean canDealMeleeDamage() {
+        return meleeDamage > 0 && meleeCooldown.isReady();
+    }
+
+    public double getMeleeDamage() {
+        return meleeDamage;
+    }
+
+    public void startMeleeCooldown() {
+        if (meleeDamage > 0) {
+            meleeCooldown.start(meleeCooldownSec);
+        }
+    }
+
 }

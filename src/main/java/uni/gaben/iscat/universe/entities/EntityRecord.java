@@ -132,6 +132,8 @@ public record EntityRecord(
             double dashCooldownSec,
             double stunDurationSec,
             double baseCooldownSec,
+            double meleeDamage,
+            double meleeCooldownSec,
             List<LevelAbility> levelAbilities
     ) {}
 
