@@ -254,22 +254,18 @@ public class UniverseModel extends World<Body> {
 
                 // Danno doppio durante il dash
                 if (player.isDashing()) {
-                    damage *= 2;
-                    System.out.println("[MELEE] DASH! Danno doppio: " + damage);
-
-                    // Knockback durante il dash
                     Vector2 knockbackDir = enemy.getTransform().getTranslation()
                             .copy()
                             .subtract(player.getTransform().getTranslation());
 
                     double distance = knockbackDir.getMagnitude();
                     if (distance > 0.001) {
-                        knockbackDir.multiply(500.0 / distance);
+                        // Applica knockback inversamente proporzionale alla massa del nemico
+                        double enemyMass = enemy.getMass().getMass();
+                        double knockbackForce = 1000.0 / Math.max(enemyMass, 1.0);
+                        knockbackDir.multiply(knockbackForce / distance);
                         enemy.applyImpulse(knockbackDir);
-                        System.out.println("Knockback applicato durante il dash!");
                     }
-                } else {
-                    System.out.println("[MELEE] Danno normale: " + damage);
                 }
 
                 enemy.alter(-damage);
