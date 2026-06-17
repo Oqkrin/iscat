@@ -91,32 +91,33 @@ public class PlayerController {
 
         // Dash & slow‑motion
         if (!player.isStunned()) {
-            handleDashAndSlowMotion(input, dx, dy, nextAngle);
+            handleDashAndSlowMotion(input, nextAngle);
+        }
+
+        // Quick dash (double‑tap)
+        if (!player.isStunned() && !player.isDashing()) {
+            javafx.geometry.Point2D quickDir = input.consumeQuickDash();
+            if (quickDir != null) {
+                double angle = Math.atan2(quickDir.getY(), quickDir.getX());
+                player.quickDash(angle);
+            }
         }
     }
 
-    private void handleDashAndSlowMotion(GameInputsHandler input, double dx, double dy, double aimAngle) {
+    private void handleDashAndSlowMotion(GameInputsHandler input, double aimAngle) {
         // --- Slow‑motion from mouse dodge button (hold) ---
         if (gameModel != null) {
             gameModel.setTimeScale(input.slowMotionRequested ? 0.2 : 1.0);
         }
 
-        // --- Keyboard dash (instant) ---
+        // --- Keyboard dash (instant) – always toward mouse aim ---
         if (input.dashKeyPressed && player.canDash()) {
-            // Determine dash direction: movement keys if any, else aim angle
-            double dashAngle;
-            if (dx != 0 || dy != 0) {
-                dashAngle = Math.atan2(dy, dx);
-            } else {
-                dashAngle = aimAngle;
-            }
+            // Dash always in the direction the player is facing (mouse aim)
+            double dashAngle = aimAngle;
             player.getTransform().setRotation(dashAngle);
             player.dashTowards(dashAngle);
             input.dashKeyPressed = false; // consume
         }
-
-        // (Optional) Mouse dash could also trigger a short slow‑motion after press.
-        // Currently we use hold‑to‑slow – no extra action needed.
     }
 
     public void setPlayer(PlayerModel player) {

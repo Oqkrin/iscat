@@ -36,6 +36,8 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
 
     private final EntityRecord data;
     private final Vector2 dashDir = UU.vector2zero();
+    private final Vector2 quickDashDir =  UU.vector2zero();
+    private final Cooldown quickDashCooldown = new Cooldown();
 
     public void setOnDeathCallback(Runnable callback) {
         this.onDeathCallback = callback;
@@ -57,11 +59,32 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         thrust = new Thrust();
     }
 
+
+
+    // Add this method
+    public void quickDash(double angle) {
+        if (!quickDashCooldown.isReady() || isStunned() || data.player() == null) return;
+
+        // Use a fraction of the main dash impulse (e.g., 40%)
+        double impulse = data.player().dashImpulse() * 1;
+        quickDashDir.set(Math.cos(angle), Math.sin(angle));
+
+        // Cancel existing velocity if moving opposite
+        if (getLinearVelocity().dot(quickDashDir) < 0) {
+            setLinearVelocity(0, 0);
+        }
+
+        applyImpulse(quickDashDir.setMagnitude(impulse * getMass().getMass()));
+        quickDashCooldown.start(0.3); // 0.3 second cooldown – tune as needed
+    }
+
+    // In update() – add quickDashCooldown.update(dt)
     @Override
     public void update(double dt) {
         dashCooldown.update(dt);
         dashDuration.update(dt);
         weaponCooldown.update(dt);
+        quickDashCooldown.update(dt);   // ← new
         updateThrust();
         updateStateTime(dt);
 
