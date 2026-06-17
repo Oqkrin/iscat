@@ -23,4 +23,7 @@ public interface SettingsDAO {
     void updateVolume(int userId, String columnName, double volumeValue);
 
     void updateThemeSetting(int userId, String choosenTheme, String hexvalue);
+
+    void updatePlayerSkin(int userId, String skinKey);
+    String loadPlayerSkin(int userId);
 }

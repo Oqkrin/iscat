@@ -3,7 +3,6 @@ package uni.gaben.iscat.controller;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.database.IscatDB;
@@ -15,6 +14,9 @@ import uni.gaben.iscat.model.login.LoginState;
 import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.model.ScoreModel;
 import uni.gaben.iscat.model.user.UserSettings;
+import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.theme.ThemeManager;
@@ -125,22 +127,22 @@ public class LoginController {
         loginAuth.exists(u).thenCompose(userExists -> {
             if (userExists) return loginAuth.login(u, p);
             else return loginAuth.register(u, p);
-        }).thenApply(sessionOpt -> {
-            if (sessionOpt.isEmpty()) return new LoginResult("Credenziali errate o errore di registrazione");
+        }).thenCompose(sessionOpt ->
+                IscatDB.getInstance().queryAsync(() -> {
+                    if (sessionOpt.isEmpty()) return new LoginResult("Credenziali errate o errore di registrazione");
 
-            SessionUser user = sessionOpt.get();
-            // Load associated data
-            UserSettings settings = settingsDAO.loadSettings(user.id()).orElseGet(() -> {
-                settingsDAO.createDefault(user.id());
-                return settingsDAO.loadSettings(user.id()).orElse(null);
-            });
-            scoreDAO.createIfNotExists(user.id());
+                    SessionUser user = sessionOpt.get();
+                    UserSettings settings = settingsDAO.loadSettings(user.id()).orElseGet(() -> {
+                        settingsDAO.createDefault(user.id());
+                        return settingsDAO.loadSettings(user.id()).orElse(null);
+                    });
+                    scoreDAO.createIfNotExists(user.id());
+                    ScoreModel scoreModel = scoreDAO.load(user.id()).orElse(new ScoreModel(user.id()));
+                    String savedSkinKey = settingsDAO.loadPlayerSkin(user.id());
 
-            ScoreModel scoreModel = scoreDAO.load(user.id())
-                    .orElse(new ScoreModel(user.id()));
-
-            return new LoginResult(user, settings, scoreModel, "ACCESSO EFFETTUATO!");
-        }).thenAccept(result -> Platform.runLater(() -> {
+                    return new LoginResult(user, settings, scoreModel, savedSkinKey, "ACCESSO EFFETTUATO!");
+                })
+        ).thenAccept(result -> Platform.runLater(() -> {
             if (result.isSuccess()) {
                 SessionManager.getInstance().setCurrentUser(result.user());
                 SessionManager.getInstance().setCurrentSettings(result.settings());
@@ -154,12 +156,19 @@ public class LoginController {
 
                 applyLoadedSettings(result.settings(), activeScene);
 
+                EntityRecord skinRecord = EntityFactory.getCache().get(result.skinKey());
+                if (skinRecord != null) {
+                    PlayerSettings.setPlayerSkinKey(result.skinKey());
+                    PlayerSettings.setPlayerSkin(skinRecord.spritePath());
+                }
+
                 model.setStatus(result.message());
                 model.setLoggedIn(true);
             } else {
                 handleError(result.message());
             }
         })).exceptionally(ex -> {
+            ex.printStackTrace();
             Platform.runLater(() -> handleError("Errore di connessione"));
             return null;
         });
@@ -188,30 +197,26 @@ public class LoginController {
         return this.model;
     }
 
-    /** Record DTO interno per trasportare in sicurezza i dati letti dal thread DB al thread UI. */
-    private record LoginResult(SessionUser user, UserSettings settings, ScoreModel scoreModel, String message, boolean isSuccess) {
-        public LoginResult(SessionUser u, UserSettings s, ScoreModel d, String m) {
-            this(u, s, d, m, true);
+    private record LoginResult(SessionUser user, UserSettings settings, ScoreModel scoreModel, String skinKey, String message, boolean isSuccess) {
+        public LoginResult(SessionUser u, UserSettings s, ScoreModel d, String skin, String m) {
+            this(u, s, d, skin, m, true);
         }
         public LoginResult(String err) {
-            this(null, null, null, err, false);
+            this(null, null, null, "player1", err, false);
         }
     }
 
     private void applyLoadedSettings(UserSettings settings, Scene currentScene) {
         if (settings == null || currentScene == null) return;
 
-        // AUDIO
         AudioManager audio = AudioManager.getInstance();
         audio.setMasterVolume(settings.getVolumeMaster());
         audio.setBgmVolume(settings.getVolumeBgm());
         audio.setSfxVolume(settings.getVolumeSfx());
 
-        // FULLSCREEN
         boolean goFullscreen = (settings.getFullscreen() == 1);
         IscatNavigator.getInstance().getModel().setFullscreen(goFullscreen);
 
-        // RAINBOW MODE E LIGHT MODE
         ThemeManager themeEngine = ThemeManager.getInstance();
         SessionManager.getInstance().isLightModeSelected = (settings.getLightmode() == 1);
 
@@ -221,8 +226,6 @@ public class LoginController {
             themeEngine.stopRainbowMode();
         }
 
-        // THEMA
-        // Applichiamo i colori statici solo se l'effetto Rainbow è spento
         if (settings.getRainbowMode() != 1) {
             if (settings.getPrimaryTheme() != null && !settings.getPrimaryTheme().equalsIgnoreCase("#FFFFFF")) {
                 List<String> savedPalette = List.of(

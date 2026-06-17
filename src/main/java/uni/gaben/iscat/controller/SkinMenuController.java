@@ -11,10 +11,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.ComponentsUtils;
+import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 import java.util.ArrayList;
@@ -23,10 +26,7 @@ import java.util.Map;
 
 public class SkinMenuController implements IscatMenuController {
 
-    private enum InfoMode {
-        DESCRIPTION, STATS, EXTRA
-    }
-
+    private enum InfoMode { DESCRIPTION, STATS, EXTRA }
     private InfoMode currentInfoMode = InfoMode.DESCRIPTION;
 
     @FXML private GridPane skinGrid;
@@ -51,7 +51,6 @@ public class SkinMenuController implements IscatMenuController {
 
     private AnimatedCanvas previewCanvas;
     private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
-
     private final List<EntityRecord> playerSkins = new ArrayList<>();
 
     private static final double BASE_SIZE = 32.0;
@@ -70,18 +69,18 @@ public class SkinMenuController implements IscatMenuController {
         ComponentsUtils.applyIconButton(btnStats,       "fas-chart-bar");
         ComponentsUtils.applyIconButton(btnExtra,       "fas-info-circle");
 
-        // Carica e filtra i dati dal JSON tramite EntityFactory
         loadSkinsFromJson();
-
-        // Popola la griglia dinamicamente basandosi sulla lista estratta
         populateGrid();
 
-        // Stato iniziale basato sulla prima skin disponibile nel JSON (se presente)
-        if (!playerSkins.isEmpty()) {
-            EntityRecord firstSkin = playerSkins.get(0);
-            selectSkin(firstSkin.entityKey(), firstSkin.spritePath(), firstSkin.name());
+        // Preseleziona la skin attualmente salvata
+        String currentKey = PlayerSettings.getPlayerSkinKey();
+        EntityRecord current = EntityFactory.getCache().get(currentKey);
+        if (current != null) {
+            selectSkin(current.entityKey(), current.spritePath(), current.name());
+        } else if (!playerSkins.isEmpty()) {
+            EntityRecord first = playerSkins.get(0);
+            selectSkin(first.entityKey(), first.spritePath(), first.name());
         } else {
-            // Fallback se la cache è vuota al momento dell'init
             this.selectedSkinKey = "player1";
             this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
             this.skinNameLabel.setText("BATTLE SHIP");
@@ -94,26 +93,19 @@ public class SkinMenuController implements IscatMenuController {
         skinStackPane.heightProperty().addListener(sizeListener);
 
         Platform.runLater(this::updateDynamicScaling);
-
         registerEscHandler();
     }
 
-    /**
-     * Legge la cache globale dei JSON ed estrae esclusivamente i record configurati per il Player
-     */
     private void loadSkinsFromJson() {
         playerSkins.clear();
         Map<String, EntityRecord> globalCache = EntityFactory.getCache();
-
         for (Map.Entry<String, EntityRecord> entry : globalCache.entrySet()) {
             EntityRecord record = entry.getValue();
             String key = entry.getKey().toLowerCase().trim();
-
             if (record.player() != null || key.contains("player")) {
                 playerSkins.add(record);
             }
         }
-
     }
 
     private void updateDynamicScaling() {
@@ -123,7 +115,6 @@ public class SkinMenuController implements IscatMenuController {
         if (w < 200 || h < 200) return;
 
         isScaling = true;
-
         double iconDim = getIconDim(w, h);
         double previewDim = iconDim * 3.5;
         double btnDim = iconDim + 30;
@@ -154,9 +145,6 @@ public class SkinMenuController implements IscatMenuController {
         return BASE_SIZE * multiplier;
     }
 
-    /**
-     * Popola la griglia usando la lista generata dinamicamente dai file JSON
-     */
     private void populateGrid() {
         skinGrid.getChildren().clear();
         buttonCanvases.clear();
@@ -164,13 +152,11 @@ public class SkinMenuController implements IscatMenuController {
 
         for (int i = 0; i < playerSkins.size(); i++) {
             EntityRecord skin = playerSkins.get(i);
-
-            String key = skin.entityKey();
+            String key  = skin.entityKey();
             String path = skin.spritePath();
             String name = skin.name();
 
             AnimatedCanvas canvas = new AnimatedCanvas(BASE_SIZE);
-            // Legge le dimensioni del frame direttamente dal JSON dell'entità
             canvas.loadSkin(path, skin.frameW(), skin.frameH());
             buttonCanvases.add(canvas);
 
@@ -178,24 +164,20 @@ public class SkinMenuController implements IscatMenuController {
             btn.getStyleClass().add("skin-button");
             btn.setGraphic(canvas);
             btn.setFocusTraversable(false);
-
             btn.setMinSize(initialDim, initialDim);
             btn.setPrefSize(initialDim, initialDim);
             btn.setMaxSize(initialDim, initialDim);
-
             btn.setOnAction(e -> selectSkin(key, path, name));
 
-            // Disposizione automatica in griglia a 3 colonne
             skinGrid.add(btn, i % 3, i / 3);
         }
     }
 
     private void selectSkin(String key, String path, String name) {
-        this.selectedSkinKey = key;
+        this.selectedSkinKey  = key;
         this.selectedSkinPath = path;
         this.skinNameLabel.setText(name.toUpperCase());
 
-        // Applica le dimensioni corrette recuperandole dal record
         EntityRecord record = EntityFactory.getCache().get(key);
         if (record != null) {
             previewCanvas.loadSkin(path, record.frameW(), record.frameH());
@@ -211,36 +193,29 @@ public class SkinMenuController implements IscatMenuController {
     @FXML
     private void selectRandom() {
         if (playerSkins.isEmpty()) return;
-
         int idx;
         EntityRecord randomSkin;
         do {
             idx = java.util.concurrent.ThreadLocalRandom.current().nextInt(playerSkins.size());
             randomSkin = playerSkins.get(idx);
         } while (randomSkin.spritePath().equals(selectedSkinPath) && playerSkins.size() > 1);
-
         selectSkin(randomSkin.entityKey(), randomSkin.spritePath(), randomSkin.name());
     }
 
     private void refreshInfoZone() {
         if (selectedSkinKey == null || infoCardController == null) return;
-
         EntityRecord record = EntityFactory.getCache().get(selectedSkinKey);
         if (record == null) {
             infoCardController.updateInfo("N/A", "Nessun dato caricato per " + selectedSkinKey);
             return;
         }
-
-        // Convertiamo l'InfoMode locale del menu in quello accettato dall'infoCardController
         InfoCardController.InfoMode targetMode = InfoCardController.InfoMode.valueOf(currentInfoMode.name());
-
-        // Passiamo tutto all'infoCard (0 uccisioni visto che è un player)
         infoCardController.updateEntityInfo(targetMode, record, 0);
     }
 
     @FXML private void showDescription() { currentInfoMode = InfoMode.DESCRIPTION; refreshInfoZone(); }
-    @FXML private void showStats()       { currentInfoMode = InfoMode.STATS; refreshInfoZone(); }
-    @FXML private void showExtra()       { currentInfoMode = InfoMode.EXTRA; refreshInfoZone(); }
+    @FXML private void showStats()       { currentInfoMode = InfoMode.STATS;        refreshInfoZone(); }
+    @FXML private void showExtra()       { currentInfoMode = InfoMode.EXTRA;        refreshInfoZone(); }
 
     @Override public Pane getRootPane() { return skinStackPane; }
     @FXML private void handleBack(ActionEvent event) { handleBack(); }
@@ -250,6 +225,14 @@ public class SkinMenuController implements IscatMenuController {
         if (selectedSkinPath != null && selectedSkinKey != null) {
             PlayerSettings.setPlayerSkin(selectedSkinPath);
             PlayerSettings.setPlayerSkinKey(selectedSkinKey);
+
+            SessionUser user = SessionManager.getInstance().getCurrentUser();
+            if (user != null) {
+                IscatDB.getInstance().executeAsync(() ->
+                        IscatDB.getInstance().getSettingsDAO().updatePlayerSkin(user.id(), selectedSkinKey)
+                );
+            }
+
             System.out.println("[SkinMenu] Salvata skin: " + selectedSkinKey);
         }
         handleBack();
