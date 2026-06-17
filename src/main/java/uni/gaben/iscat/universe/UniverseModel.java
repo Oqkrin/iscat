@@ -9,6 +9,7 @@ import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.universe.effects.Starfield;
+import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
@@ -58,10 +59,10 @@ public class UniverseModel extends World<Body> {
                         Bbefore = ab.getEndurance();
                     }
 
+                    handlePlayerMeleeDamage(a, b);
 
                     a.triggerAllCollisions(b);
                     b.triggerAllCollisions(a);
-
 
                     double Aafter = 0;
                     double Bafter = 0;
@@ -229,6 +230,37 @@ public class UniverseModel extends World<Body> {
 
     public Map<Vector2, Double> getAlteredEndurances() {
         return alteredEndurance;
+    }
+
+    // Metodo per gestire il danno da mischia del player
+    private void handlePlayerMeleeDamage(AbstractPhysicalEntityModel a, AbstractPhysicalEntityModel b) {
+        PlayerModel player = null;
+        AbstractLivingEntityModel enemy = null;
+
+        // Determina chi è il player e chi è il nemico
+        if (a instanceof PlayerModel && b instanceof AbstractLivingEntityModel && !(b instanceof PlayerModel)) {
+            player = (PlayerModel) a;
+            enemy = (AbstractLivingEntityModel) b;
+        } else if (b instanceof PlayerModel && a instanceof AbstractLivingEntityModel && !(a instanceof PlayerModel)) {
+            player = (PlayerModel) b;
+            enemy = (AbstractLivingEntityModel) a;
+        }
+
+        // Se abbiamo un player che può infliggere danno da mischia e un nemico
+        if (player != null && enemy != null && player.canDealMeleeDamage()) {
+            // Infliggi il danno
+            enemy.alter(-player.getMeleeDamage());
+            player.startMeleeCooldown();
+
+            // knockback sul nemico
+            Vector2 knockbackDir = enemy.getTransform().getTranslation()
+                    .copy()
+                    .subtract(player.getTransform().getTranslation());
+            if (knockbackDir.getMagnitude() > 0.001) {
+                knockbackDir.normalize();
+                enemy.applyImpulse(knockbackDir);
+            }
+        }
     }
 
 }
