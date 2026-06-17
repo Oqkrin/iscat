@@ -251,7 +251,7 @@ public class GameView extends AbstractIscatStackPane {
         }
 
         gameController.setDrawCall(
-                () -> universeRenderer.renderFrame(null, null, debugPanelVisible));
+                () -> universeRenderer.renderFrame(debugPanelVisible));
 
         gameController.getInputManager().attachToScene(this.getScene());
 

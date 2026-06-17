@@ -44,7 +44,7 @@ public class UniverseRenderer {
         this.starfieldRenderer = starfieldRenderer;
     }
 
-    public void renderFrame(Canvas timerCanvas, StarryText starryTimer, boolean debugPanelVisible) {
+    public void renderFrame(boolean debugPanelVisible) {
         GraphicsContext gc = mainCanvas.getGraphicsContext2D();
         gc.setImageSmoothing(false);
 
@@ -96,18 +96,9 @@ public class UniverseRenderer {
 
         // 6. Post‑processing effects that cannot be batched easily
         renderHurt(camera, gc);
-        renderTimer(timerCanvas, starryTimer);
 
         // 7. FPS overlay (single draw call)
         if (gameController.isFpsOn()) drawFps(gc, w);
-    }
-
-    private static void renderTimer(Canvas timerCanvas, StarryText starryTimer) {
-        if (timerCanvas != null && starryTimer != null) {
-            GraphicsContext tgc = timerCanvas.getGraphicsContext2D();
-            tgc.clearRect(0, 0, timerCanvas.getWidth(), timerCanvas.getHeight());
-            starryTimer.updateAndDraw(tgc);
-        }
     }
 
     private void renderHurt(CameraModel camera, GraphicsContext gc) {
