@@ -258,6 +258,7 @@ public class UniverseModel extends World<Body> {
                     .subtract(player.getTransform().getTranslation());
             if (knockbackDir.getMagnitude() > 0.001) {
                 knockbackDir.normalize();
+                knockbackDir.multiply(100);
                 enemy.applyImpulse(knockbackDir);
             }
         }

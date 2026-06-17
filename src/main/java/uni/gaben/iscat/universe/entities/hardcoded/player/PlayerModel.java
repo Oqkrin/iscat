@@ -271,7 +271,7 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     public double getMeleeDamage() {
-        return meleeDamage;
+        return meleeDamage + (getLevel() - 1) * 2;
     }
 
     public void startMeleeCooldown() {
