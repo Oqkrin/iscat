@@ -314,6 +314,7 @@ public class Brain<T extends AbstractEntityModel> implements IEntityController {
     // ========================================================================
 
     public void setSteeringGoal(SteeringGoal goal) { this.currentSteeringGoal = goal; }
+    public SteeringGoal getSteeringGoal() {return this.currentSteeringGoal;}
     public SteeringGoal getMovementGoal() { return currentSteeringGoal; }
     public SteeringGoal getDefaultGoal() { return defaultSteeringGoal; }
 

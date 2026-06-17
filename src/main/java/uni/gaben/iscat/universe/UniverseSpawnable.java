@@ -1,19 +1,19 @@
 package uni.gaben.iscat.universe;
 
+import uni.gaben.iscat.universe.entity.EntityModel;
 import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entity.hardcoded.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegment;
 
 public enum UniverseSpawnable {
     PLAYER(PlayerModel.class),
     ASTEROID(AsteroidModel.class),
     BLACKHOLE(BlackHoleModel.class),
     HEART(HeartModel.class),
-    WORM(IscatWormSegment.class),
+    WORM(EntityModel.class),
     PROJECTILE(ProjectileModel.class);
 
     private final Class<? extends AbstractEntityModel> modelClass;

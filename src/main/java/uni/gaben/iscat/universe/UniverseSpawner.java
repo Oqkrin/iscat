@@ -1,17 +1,15 @@
 package uni.gaben.iscat.universe;
 
 import uni.gaben.iscat.universe.entity.*;
-import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormModel;
-import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartController;
 import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartModel;
-import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegmentBrain;
 import uni.gaben.iscat.universe.entity.hardcoded.blackhole.BlackHoleBrain;
 import uni.gaben.iscat.universe.entity.hardcoded.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.universe.entity.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
+import uni.gaben.iscat.universe.entity.worm.WormAssembler;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -72,16 +70,16 @@ public class UniverseSpawner {
         return player;
     }
 
-    public IscatWormModel spawnWorm(double x, double y) {
-        IscatWormModel worm = new IscatWormModel(x, y);
-        for (IscatWormSegment seg : worm.getSegments()) {
-            model.addEntity(seg);
-            // Use custom brain instead of GenericEntityBrain
-            IscatWormSegmentBrain brain = new IscatWormSegmentBrain(seg, worm.getHead());
-            controller.addEntityController(brain);
-        }
-        worm.connectSegments(model);   // add joints
-        return worm;
+    public EntityModel spawnWorm(double x, double y) {
+        return WormAssembler.assemble(
+                "iscat_worm_head",
+                "iscat_worm_body_part",
+                "iscat_worm_tail",
+                5,
+                x, y,
+                model,
+                controller
+        );
     }
 
     // Generic spawn for any IEntityController factory (covers Brain and old controllers)

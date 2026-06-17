@@ -12,7 +12,6 @@ import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectilePool;
-import uni.gaben.iscat.universe.entity.hardcoded.worm.IscatWormSegment;
 import uni.gaben.iscat.universe.entity.AbstractEntityModel;
 import uni.gaben.iscat.universe.entity.brain.IEntityController;
 import uni.gaben.iscat.universe.entity.interfaces.Dynamic;
@@ -57,7 +56,6 @@ public class UniverseController {
         updateEntities(dt);
         updateAI(dt);
         applyTerminalVelocityLimits();
-        syncWormSegmentRotations();
         universeModel.stepPhysics(dt);
         updateProjectiles(camera, dt);
         processEntityCleanup(player);
@@ -98,15 +96,6 @@ public class UniverseController {
                 double maxSpeed = entity.getTerminalVelocity();
                 Vector2 vel = body.getLinearVelocity();
                 if (vel.getMagnitude() > maxSpeed) body.getLinearVelocity().setMagnitude(maxSpeed);
-            }
-        }
-    }
-
-    private void syncWormSegmentRotations() {
-        for (Body body : universeModel.getBodies()) {
-            if (body instanceof IscatWormSegment seg && seg.getType() != IscatWormSegment.Type.HEAD) {
-                Vector2 vel = body.getLinearVelocity();
-                if (vel.getMagnitudeSquared() > 0.01) body.getTransform().setRotation(vel.getDirection());
             }
         }
     }

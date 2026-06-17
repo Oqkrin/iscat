@@ -46,7 +46,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entity.brain.abilities;
     exports uni.gaben.iscat.universe.camera;
     exports uni.gaben.iscat.universe.entity.hardcoded.heart;
-    exports uni.gaben.iscat.universe.entity.hardcoded.worm;
     exports uni.gaben.iscat.universe.entity.hardcoded.asteroid;
     exports uni.gaben.iscat.universe.entity.shooters;
     exports uni.gaben.iscat.universe.entity.hardcoded.player;
@@ -74,4 +73,6 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.universe to javafx.fxml, org.json;
     exports uni.gaben.iscat.universe.effects;
     opens uni.gaben.iscat.universe.effects to javafx.fxml, org.json;
+    exports uni.gaben.iscat.universe.entity.worm;
+    opens uni.gaben.iscat.universe.entity.worm to javafx.fxml, org.json;
 }
