@@ -1,0 +1,6 @@
+package uni.gaben.iscat.universe.entities.interfaces;
+
+public interface Stunnable {
+    void stun(double duration);
+    boolean isStunned();
+}

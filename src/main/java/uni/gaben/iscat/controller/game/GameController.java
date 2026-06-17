@@ -9,14 +9,16 @@ import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.hardcoded.heart.HeartModel;
-import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
-import uni.gaben.iscat.universe.entity.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
+import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.spawn.UniverseSpawner;
+import uni.gaben.iscat.universe.spawn.UniverseWaveController;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
-import uni.gaben.iscat.universe.entity.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
+import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 
 public class GameController {
 

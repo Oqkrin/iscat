@@ -5,8 +5,8 @@ import javafx.scene.text.FontWeight;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entity.interfaces.Removable;
-import uni.gaben.iscat.universe.entity.interfaces.Stateful;
+import uni.gaben.iscat.universe.entities.interfaces.Removable;
+import uni.gaben.iscat.universe.entities.interfaces.Stateful;
 import uni.gaben.iscat.utils.Updatable;
 
 public class EnduranceIndicator implements Stateful, Updatable, Removable {

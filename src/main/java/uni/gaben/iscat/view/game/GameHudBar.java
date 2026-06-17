@@ -11,7 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.controller.game.GameController;
-import uni.gaben.iscat.universe.UniverseWaveController;
+import uni.gaben.iscat.universe.spawn.UniverseWaveController;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 /**

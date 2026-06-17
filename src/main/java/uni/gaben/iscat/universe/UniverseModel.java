@@ -9,10 +9,10 @@ import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.universe.effects.Starfield;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerModel;
-import uni.gaben.iscat.universe.entity.hardcoded.projectiles.AbstractProjectileModel;
-import uni.gaben.iscat.universe.entity.interfaces.Alterable;
+import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractProjectileModel;
+import uni.gaben.iscat.universe.entities.interfaces.Alterable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

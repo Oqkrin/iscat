@@ -1,8 +1,8 @@
 package uni.gaben.iscat.model;
 
 import uni.gaben.iscat.database.IscatDB;
-import uni.gaben.iscat.universe.entity.EntityFactory;
-import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.universe.entities.EntityRecord;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

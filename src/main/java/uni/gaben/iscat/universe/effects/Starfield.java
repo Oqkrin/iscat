@@ -1,8 +1,8 @@
 package uni.gaben.iscat.universe.effects;
 
 import uni.gaben.iscat.universe.UniverseSettings;
-import uni.gaben.iscat.universe.entity.AbstractEntityModel;
-import uni.gaben.iscat.universe.entity.EntityRecordBuilder;
+import uni.gaben.iscat.universe.entities.AbstractEntityModel;
+import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -8,7 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.model.BestiaryModel;
-import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 import uni.gaben.iscat.utils.SessionManager;

@@ -3,8 +3,8 @@ package uni.gaben.iscat.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import uni.gaben.iscat.universe.entity.EntityRecord;
-import uni.gaben.iscat.universe.ThreatLevel;
+import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.ThreatLevel;
 
 public class InfoCardController {
 

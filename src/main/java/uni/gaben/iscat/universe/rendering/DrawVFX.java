@@ -9,7 +9,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.effects.EnduranceIndicator;
 import uni.gaben.iscat.universe.effects.Shockwave;
 import uni.gaben.iscat.universe.effects.Thrust;
-import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
+import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 

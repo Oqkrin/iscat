@@ -9,9 +9,9 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.controller.game.GameController;
-import uni.gaben.iscat.universe.UniverseSpawnable;
-import uni.gaben.iscat.universe.entity.EntityFactory;
-import uni.gaben.iscat.universe.entity.EntityRecord;
+import uni.gaben.iscat.universe.spawn.UniverseSpawnable;
+import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.utils.design.CssHelper;
 
 import java.util.Map;

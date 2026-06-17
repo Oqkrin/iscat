@@ -11,9 +11,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import uni.gaben.iscat.universe.entity.EntityFactory;
-import uni.gaben.iscat.universe.entity.EntityRecord;
-import uni.gaben.iscat.universe.entity.hardcoded.player.PlayerSettings;
+import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 

@@ -42,16 +42,16 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.controller.components.options;
 
     exports uni.gaben.iscat.universe;
-    exports uni.gaben.iscat.universe.entity.brain;
-    exports uni.gaben.iscat.universe.entity.brain.abilities;
+    exports uni.gaben.iscat.universe.entities.brain;
+    exports uni.gaben.iscat.universe.entities.brain.abilities;
     exports uni.gaben.iscat.universe.camera;
-    exports uni.gaben.iscat.universe.entity.hardcoded.heart;
-    exports uni.gaben.iscat.universe.entity.hardcoded.asteroid;
-    exports uni.gaben.iscat.universe.entity.shooters;
-    exports uni.gaben.iscat.universe.entity.hardcoded.player;
-    exports uni.gaben.iscat.universe.entity.hardcoded.projectiles;
+    exports uni.gaben.iscat.universe.entities.hardcoded.heart;
+    exports uni.gaben.iscat.universe.entities.hardcoded.asteroid;
+    exports uni.gaben.iscat.universe.entities.shooters;
+    exports uni.gaben.iscat.universe.entities.hardcoded.player;
+    exports uni.gaben.iscat.universe.entities.hardcoded.projectiles;
     exports uni.gaben.iscat.universe.rendering;
-    exports uni.gaben.iscat.universe.entity.brain.target;
+    exports uni.gaben.iscat.universe.entities.brain.target;
 
     exports uni.gaben.iscat.utils;
     exports uni.gaben.iscat.utils.sprite;
@@ -63,16 +63,18 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.model.user;
     exports uni.gaben.iscat.view.components;
     opens uni.gaben.iscat.view.components to javafx.fxml;
-    exports uni.gaben.iscat.universe.entity;
-    opens uni.gaben.iscat.universe.entity.hardcoded.asteroid to javafx.fxml;
-    exports uni.gaben.iscat.universe.entity.interfaces;
-    opens uni.gaben.iscat.universe.entity.interfaces to javafx.fxml, org.json;
-    opens uni.gaben.iscat.universe.entity to javafx.fxml, org.json;
-    exports uni.gaben.iscat.universe.entity.brain.rotation;
-    exports uni.gaben.iscat.universe.entity.brain.steering;
+    exports uni.gaben.iscat.universe.entities;
+    opens uni.gaben.iscat.universe.entities.hardcoded.asteroid to javafx.fxml;
+    exports uni.gaben.iscat.universe.entities.interfaces;
+    opens uni.gaben.iscat.universe.entities.interfaces to javafx.fxml, org.json;
+    opens uni.gaben.iscat.universe.entities to javafx.fxml, org.json;
+    exports uni.gaben.iscat.universe.entities.brain.rotation;
+    exports uni.gaben.iscat.universe.entities.brain.steering;
     opens uni.gaben.iscat.universe to javafx.fxml, org.json;
     exports uni.gaben.iscat.universe.effects;
     opens uni.gaben.iscat.universe.effects to javafx.fxml, org.json;
-    exports uni.gaben.iscat.universe.entity.worm;
-    opens uni.gaben.iscat.universe.entity.worm to javafx.fxml, org.json;
+    exports uni.gaben.iscat.universe.entities.worm;
+    opens uni.gaben.iscat.universe.entities.worm to javafx.fxml, org.json;
+    exports uni.gaben.iscat.universe.spawn;
+    opens uni.gaben.iscat.universe.spawn to javafx.fxml, org.json;
 }

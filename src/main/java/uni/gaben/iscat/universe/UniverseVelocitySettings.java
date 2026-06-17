@@ -18,54 +18,19 @@ public final class UniverseVelocitySettings {
     // ─── PROJECTILES ──────────────────────────────────────────────────────────
 
     /** Velocity of a player bullet (m/s). */
-    public static final double PLAYER_BULLET_VELOCITY = 11.0;
+    public static final double PLAYER_PROJECTILE_VELOCITY = 11.0;
 
     /** Velocity of a generic enemy bullet (m/s). */
-    public static final double ENEMY_BULLET_VELOCITY  = PLAYER_BULLET_VELOCITY;
+    public static final double ENEMY_PROJECTILE_VELOCITY = PLAYER_PROJECTILE_VELOCITY;
 
     // ─── PLAYER ───────────────────────────────────────────────────────────────
 
     /** Top speed the player ship can reach under thrust (m/s). */
-    public static final double PLAYER_MAX_VELOCITY    = ENEMY_BULLET_VELOCITY*.8;
+    public static final double PLAYER_MAX_VELOCITY    = ENEMY_PROJECTILE_VELOCITY *.8;
 
     /** Impulse magnitude of the player dash (m/s added instantly). */
-    public static final double PLAYER_DASH_IMPULSE    = ENEMY_BULLET_VELOCITY;
+    public static final double PLAYER_DASH_IMPULSE    = ENEMY_PROJECTILE_VELOCITY;
 
-    // ─── SMALL / FAST ENEMIES ─────────────────────────────────────────────────
-
-    /** IscatMob max movement speed (m/s). */
-    public static final double MOB_MAX_VELOCITY       = ENEMY_BULLET_VELOCITY;
-
-    /** IscatEater max movement speed (m/s). */
-    public static final double EATER_MAX_VELOCITY     = ENEMY_BULLET_VELOCITY;
-
-    /** IscatCore max movement speed (m/s). */
-    public static final double CORE_MAX_VELOCITY      = ENEMY_BULLET_VELOCITY/2;
-
-    /** IscatBomber max movement speed (m/s). */
-    public static final double BOMBER_MAX_VELOCITY    = ENEMY_BULLET_VELOCITY/2;
-
-    /** FallenStarGolem max movement speed (m/s). */
-    public static final double GOLEM_MAX_VELOCITY     = ENEMY_BULLET_VELOCITY/2.5;
-
-    /** FakeIscat max movement speed (m/s). */
-    public static final double FAKE_ISCAT_MAX_VELOCITY = ENEMY_BULLET_VELOCITY;
-
-    // ─── BOSS ENEMIES ─────────────────────────────────────────────────────────
-
-    /** IscatMother boss max movement speed (m/s). */
-    public static final double MOTHER_MAX_VELOCITY    = ENEMY_BULLET_VELOCITY/3;
-
-    /** IscatWorm head max movement speed (m/s). */
-    public static final double WORM_HEAD_MAX_SPEED    = ENEMY_BULLET_VELOCITY*4;
-
-    public static final double ISCAT_MASTER_MAX_VELOCITY = ENEMY_BULLET_VELOCITY*10;
-
-    // ─── ASTEROIDS ────────────────────────────────────────────────────────────
-
-    /** Initial random drift assigned to newly spawned asteroids (m/s range). */
-    public static final double ASTEROID_SPAWN_SPEED_MIN = 0.3;
-    public static final double ASTEROID_SPAWN_SPEED_MAX = 1.0;
 
     /**
      * Computes the terminal velocity for an asteroid of given pixel size.
