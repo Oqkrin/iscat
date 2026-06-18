@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.DisplaySettingsController">
+<StackPane VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.DisplaySettingsController">
 
     <VBox alignment="TOP_CENTER">
          <Label styleClass="card-header" text="DISPLAY" />
