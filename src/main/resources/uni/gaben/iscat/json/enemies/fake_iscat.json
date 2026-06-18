@@ -20,6 +20,7 @@
   "CombatRange": 40,
   "PreferredRange": 40,
   "actionCooldownS": 800,
+  "AngularOffsetDeg": 90,
   "audio": {
     "attack": [
       "fake_iscat_attack"
