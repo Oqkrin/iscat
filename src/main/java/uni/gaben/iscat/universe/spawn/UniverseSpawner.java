@@ -1,5 +1,6 @@
 package uni.gaben.iscat.universe.spawn;
 
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.*;
@@ -37,16 +38,16 @@ public class UniverseSpawner {
 
     public Object spawn(String id, double x, double y) {
         if (model != null) {
-            double radius = model.getUniverseRadius();
-            double margin = 2.0;
-            double maxAllowedRadius = radius - margin;
+            double radiusPx = UU.mToPx(model.getUniverseRadius());
+            double margin = UU.mToPx(2.0);
+            double maxAllowedRadiusPx = radiusPx - margin;
 
             double distance = Math.sqrt(x * x + y * y);
 
-            if (distance > maxAllowedRadius) {
+            if (distance > maxAllowedRadiusPx) {
                 double angle = Math.atan2(y, x);
-                x = Math.cos(angle) * maxAllowedRadius;
-                y = Math.sin(angle) * maxAllowedRadius;
+                x = Math.cos(angle) * maxAllowedRadiusPx;
+                y = Math.sin(angle) * maxAllowedRadiusPx;
             }
         }
 
