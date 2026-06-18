@@ -253,12 +253,4 @@ public class UniverseModel extends World<Body> {
             else if(delta > 0) AudioManager.getInstance().playSFX("heal");
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Boundary Fallbacks (Adattati al raggio per retrocompatibilità)
-    // -------------------------------------------------------------------------
-    public double getMinXBoundary() { return -getUniverseRadius(); }
-    public double getMaxXBoundary() { return getUniverseRadius(); }
-    public double getMinYBoundary() { return -getUniverseRadius(); }
-    public double getMaxYBoundary() { return getUniverseRadius(); }
 }
