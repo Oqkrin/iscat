@@ -12,14 +12,14 @@
       "InitLife": 50000,
       "LinearDamping": 2,
       "mass": 1,
-      "MaxVelocity": 10,
-      "MaxForce": 25,
+      "MaxVelocity": 100,
+      "MaxForce": 250,
       "MaxAngularVelocity": 1,
       "XPReward": 10000,
       "DetectionRange": 10000,
-      "CombatRange": 10000,
-      "PreferredRange": 10000,
-      "actionCooldownS": 1000,
+      "CombatRange": 100,
+      "PreferredRange": 200,
+      "actionCooldownS": 60,
       "IsBoss": true,
       "HasEntranceAnimation": true,
       "AnimationFrames": [21, 4, 3, 7, 8, 5, 6],
@@ -31,6 +31,12 @@
         "spawn": ["master_spawn"]
       },"ai": {
         "rotation": { "type": "still" },
+        "steering": {
+          "type": "pursuitWithRange",
+          "maxPredictionTime": 10,
+          "minDistance": 5,
+          "maxDistance": 20
+        },
         "abilities": [
         {
           "type": "randomizedShoot",
