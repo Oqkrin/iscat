@@ -61,7 +61,7 @@ public class UniverseRenderer {
         double w = mainCanvas.getWidth();
         double h = mainCanvas.getHeight();
 
-        // 1. Clear + background
+        // Clear + background
         gc.clearRect(0, 0, w, h);
         gc.setFill(ThemeManager.getInstance().getBgPrimary());
         gc.fillRect(0, 0, w, h);
@@ -71,20 +71,20 @@ public class UniverseRenderer {
 
         CameraModel camera = gameController.getCameraModel();
 
-        // 2. Starfield (drawn directly – it’s already a single loop)
+        // Starfield (drawn directly – it’s already a single loop)
         starfieldRenderer.setW(w);
         starfieldRenderer.setH(h);
         starfieldRenderer.setCameraX(camera.getX());
         starfieldRenderer.setCameraY(camera.getY());
         starfieldRenderer.render(universe.getStarfieldModel(), gc);
 
-        // Bordo
+        // Bordo Circolare dell'Arena
         drawUniverseBoundaries(gc, universe, camera);
 
-        // 3. Prepare the batch collector for this frame
+        // Prepare the batch collector for this frame
         layers.begin(gc, camera, w, h);
 
-        // 4. Collect all visible entities into the batch (no drawing yet)
+        // Collect all visible entities into the batch (no drawing yet)
         entitySnapshotBuffer.clear();
         entitySnapshotBuffer.addAll(universe.getEntities());
 
@@ -177,30 +177,32 @@ public class UniverseRenderer {
     }
 
     private void drawUniverseBoundaries(GraphicsContext gc, UniverseModel universe, CameraModel camera) {
-        // Convertiamo i confini fisici da metri a pixel di gioco
-        double minX = UU.mToPx(universe.getMinXBoundary());
-        double maxX = UU.mToPx(universe.getMaxXBoundary());
-        double minY = UU.mToPx(universe.getMinYBoundary());
-        double maxY = UU.mToPx(universe.getMaxYBoundary()); // <--- FIXATO QUI
+        // Otteniamo il raggio in metri dall'UniverseModel e lo convertiamo in pixel
+        double radiusPx = UU.mToPx(universe.getUniverseRadius());
 
-        double mapWidthPx = maxX - minX;
-        double mapHeightPx = maxY - minY;
+        // Il centro del mondo
+        double worldCenterX = 0.0;
+        double worldCenterY = 0.0;
 
-        // Applichiamo la trasformazione della telecamera per posizionarlo correttamente a schermo
+        // Applichiamo la trasformazione della telecamera per trovare il centro a schermo
         double zoom = camera.getZoom();
-        double screenCenterX = mainCanvas.getWidth() / 2.0;  // Usiamo mainCanvas direttamente per sicurezza
+        double screenCenterX = mainCanvas.getWidth() / 2.0;
         double screenCenterY = mainCanvas.getHeight() / 2.0;
 
-        double drawX = screenCenterX + (minX - camera.getX()) * zoom;
-        double drawY = screenCenterY + (minY - camera.getY()) * zoom;
-        double drawW = mapWidthPx * zoom;
-        double drawH = mapHeightPx * zoom;
+        double drawCenterX = screenCenterX + (worldCenterX - camera.getX()) * zoom;
+        double drawCenterY = screenCenterY + (worldCenterY - camera.getY()) * zoom;
 
-        // Disegniamo il rettangolo di contorno bianco
+        // Calcoliamo il raggio scalato e il diametro finale in base allo zoom
+        double scaledRadius = radiusPx * zoom;
+        double diameter = scaledRadius * 2.0;
+
+        // Disegniamo l'anello di contorno circolare
         gc.save();
         gc.setStroke(Color.WHITE);
         gc.setLineWidth(2.0 * zoom); // Spessore della linea proporzionale allo zoom della camera
-        gc.strokeRect(drawX, drawY, drawW, drawH);
+
+        // strokeOval richiede l'angolo top-left del rettangolo immaginario che inscrive il cerchio
+        gc.strokeOval(drawCenterX - scaledRadius, drawCenterY - scaledRadius, diameter, diameter);
         gc.restore();
     }
 }

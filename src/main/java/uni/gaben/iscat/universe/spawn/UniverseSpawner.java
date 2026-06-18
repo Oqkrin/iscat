@@ -35,17 +35,20 @@ public class UniverseSpawner {
     }
 
     public Object spawn(String id, double x, double y) {
-        // Se il modello ha dei confini validi, forziamo x e y a rimanere dentro la gabbia
-        // lasciando un piccolo margine di sicurezza (es. 2 metri) per non farli nascere dentro al muro
-        if (model != null && model.getWidth() > 0 && model.getHeight() > 0) {
-            double margin = 2.0; // Margine di sicurezza in metri dal bordo bianco
-            double minX = model.getMinXBoundary() + margin;
-            double maxX = model.getMaxXBoundary() - margin;
-            double minY = model.getMinYBoundary() + margin;
-            double maxY = model.getMaxYBoundary() - margin;
+        if (model != null) {
+            double radius = model.getUniverseRadius();
+            double margin = 2.0; // Margine di sicurezza in metri dal perimetro bianco
+            double maxAllowedRadius = radius - margin;
 
-            x = Math.clamp(x, minX, maxX);
-            y = Math.clamp(y, minY, maxY);
+            // Distanza euclidea dal centro del mondo (0,0)
+            double distance = Math.sqrt(x * x + y * y);
+
+            // Se lo spawn richiesto è fuori dal cerchio, lo riposizioniamo sul bordo limite
+            if (distance > maxAllowedRadius) {
+                double angle = Math.atan2(y, x);
+                x = Math.cos(angle) * maxAllowedRadius;
+                y = Math.sin(angle) * maxAllowedRadius;
+            }
         }
 
         UniverseSpawnable type = UniverseSpawnable.fromString(id);

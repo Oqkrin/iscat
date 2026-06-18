@@ -55,12 +55,10 @@ public class GameController {
         this.universeController.setEntityDeathListener(this::onEntityDied);
         this.universeController.getPlayerController().setGameModel(gameModel);
         this.waveController.setOnBossDeadCallback(this::notifyBossDead);
+
         if (gameModel.getUniverseModel() != null) {
-            //TODO DIMENSIONI MIGLIORI
-            double mapWidthMetres  = UU.pxToM(4000);
-            double mapHeightMetres = UU.pxToM(4000);
-            gameModel.getUniverseModel().setDimensions(mapWidthMetres, mapHeightMetres);
-            gameModel.getUniverseModel().createUniverseBoundaries();
+            double arenaDiameterMetres = 10.0;
+            gameModel.getUniverseModel().setDimensions(arenaDiameterMetres, arenaDiameterMetres);
         }
     }
 
@@ -68,6 +66,26 @@ public class GameController {
         if (inputs.consumePause()) togglePause();
         if (!gameModel.getGameState().isPaused()) {
             universeController.updatev(dt, inputs, getCameraModel());
+            UniverseModel universe = gameModel.getUniverseModel();
+            if (universe != null && universe.getPlayer() != null) {
+                PlayerModel player = universe.getPlayer();
+                org.dyn4j.geometry.Vector2 pos = player.getTransform().getTranslation();
+                double radius = universe.getUniverseRadius();
+                double dist = pos.getMagnitude();
+
+                if (dist > radius) {
+                    org.dyn4j.geometry.Vector2 normal = pos.getNormalized();
+                    player.getTransform().setTranslation(normal.x * radius, normal.y * radius);
+
+                    // Annulla la velocità proiettata verso l'esterno
+                    org.dyn4j.geometry.Vector2 vel = player.getLinearVelocity();
+                    double dot = vel.dot(normal);
+                    if (dot > 0) {
+                        vel.subtract(normal.product(dot));
+                    }
+                }
+            }
+
             if (waveController != null && gameModel.isWaveActive())
                 waveController.update(dt, getCameraModel(), gameModel);
         }
