@@ -329,7 +329,7 @@ public class GameView extends AbstractIscatStackPane {
     }
 
     private StackPane loadPauseMenu() {
-        return loadFxml("/uni/gaben/iscat/fxml/PauseMenu.fxml",
+        return loadFxml("/uni/gaben/iscat/fxml/GamePauseMenu.fxml",
                 (GamePauseMenuController c) -> {
                     this.gamePauseMenuController = c;
                     c.initData(gameController, this);

@@ -37,7 +37,7 @@
 
                 <VBox alignment="CENTER" spacing="16.0">
                     <Button fx:id="resumeBtn" alignment="CENTER" onAction="#handleResume" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu, primario" text="RESUME GAME" />
-                    <Button fx:id="optionBtn" alignment="CENTER" onAction="#openOptionMenu" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu" text="OPTIONS" />
+                    <Button fx:id="settingsBtn" alignment="CENTER" onAction="#openSettingsMenu" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu" text="SETTINGS" />
                     <Button fx:id="menuBtn" alignment="CENTER" onAction="#handleQuitToMenu" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu" text="QUIT TO MENU" />
                     <Button fx:id="quitBtn" alignment="CENTER" onAction="#handleQuitGame" prefHeight="50.0" prefWidth="280.0" styleClass="pulsante-menu, pericolo" text="QUIT GAME" />
                 </VBox>

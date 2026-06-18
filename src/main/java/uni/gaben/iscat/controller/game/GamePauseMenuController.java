@@ -15,7 +15,7 @@ public class GamePauseMenuController implements IscatFxmlController {
     @FXML private Button resumeBtn;
     @FXML private Button menuBtn;
     @FXML private Button quitBtn;
-    @FXML private Button optionBtn;
+    @FXML private Button settingsBtn;
 
     @FXML private DisplaySettingsController subDisplayController;
     @FXML private AudioSettingsController subAudioController;
@@ -31,12 +31,12 @@ public class GamePauseMenuController implements IscatFxmlController {
         ComponentsUtils.applyIconButton(resumeBtn, "fas-play");
         ComponentsUtils.applyIconButton(menuBtn,   "fas-home");
         ComponentsUtils.applyIconButton(quitBtn,   "fas-power-off");
-        ComponentsUtils.applyIconButton(optionBtn, "fas-sliders-h");
+        ComponentsUtils.applyIconButton(settingsBtn, "fas-sliders-h");
 
         ComponentsUtils.setupButtonHoverTween(resumeBtn);
         ComponentsUtils.setupButtonHoverTween(menuBtn);
         ComponentsUtils.setupButtonHoverTween(quitBtn);
-        ComponentsUtils.setupButtonHoverTween(optionBtn);
+        ComponentsUtils.setupButtonHoverTween(settingsBtn);
     }
 
     /**
@@ -104,7 +104,7 @@ public class GamePauseMenuController implements IscatFxmlController {
     }
 
     @FXML
-    private void openOptionMenu() {
+    private void openSettingsMenu() {
         if (gameView != null) gameView.openSettings();
     }
 
