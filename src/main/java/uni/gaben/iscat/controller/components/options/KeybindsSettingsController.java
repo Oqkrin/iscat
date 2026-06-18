@@ -15,7 +15,7 @@ import uni.gaben.iscat.utils.SessionManager;
  * Controller per la schermata di configurazione dei comandi (keybinds).
  * Gestisce la mappatura dei tasti per i controlli di gioco.
  */
-public class OptionKeybindsController {
+public class KeybindsSettingsController {
 
     @FXML private Button walkUp, walkDown, walkLeft, walkRight, dash1, dash2, attack, esc;
 
@@ -26,7 +26,7 @@ public class OptionKeybindsController {
 
     private final SettingsDAO settingsDAO;
 
-    public OptionKeybindsController() {
+    public KeybindsSettingsController() {
         this.settingsDAO = IscatDB.getInstance().getSettingsDAO();
     }
 

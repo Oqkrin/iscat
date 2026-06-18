@@ -29,7 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class OptionThemeController {
+public class ThemeSettingsController {
     @FXML private ColorPicker accentPrimary, accentSecondary, accentTernary, bgPrimary;
     @FXML private CheckBox lightModeCheck, rainbowModeCheck;
     @FXML private HBox paletteHolder, pickerRow1, pickerRow2;

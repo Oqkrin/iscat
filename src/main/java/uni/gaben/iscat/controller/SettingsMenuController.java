@@ -29,11 +29,11 @@ public class SettingsMenuController implements IscatMenuController {
     @FXML private Button btnAccount;
     @FXML private Button ExitBtn;
 
-    @FXML private OptionDisplayController subDisplayController;
-    @FXML private OptionAudioController subAudioController;
-    @FXML private OptionThemeController subThemeController;
-    @FXML private OptionKeybindsController subKeybindsController;
-    @FXML private OptionAccountController subAccountController;
+    @FXML private DisplaySettingsController subDisplayController;
+    @FXML private AudioSettingsController subAudioController;
+    @FXML private ThemeSettingsController subThemeController;
+    @FXML private KeybindsSettingsController subKeybindsController;
+    @FXML private AccountSettingsController subAccountController;
     @FXML private StackPane confirmOverlay;
     @FXML private ConfirmationOverlayController confirmOverlayController;
 

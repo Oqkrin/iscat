@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Slider;
 import uni.gaben.iscat.utils.AudioManager;
 
-public class OptionAudioController {
+public class AudioSettingsController {
     @FXML private Slider masterSlider;
     @FXML private Slider BGMSlider;
     @FXML private Slider SFXSlider;

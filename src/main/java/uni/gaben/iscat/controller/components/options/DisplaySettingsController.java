@@ -8,7 +8,7 @@ import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
 
-public class OptionDisplayController {
+public class DisplaySettingsController {
 
     @FXML private CheckBox checkFps;
     @FXML private CheckBox FullscreenCheck;

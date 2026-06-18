@@ -13,7 +13,7 @@
 
 
 <VBox fx:id="theme" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="uni.gaben.iscat.controller.components.options.OptionThemeController"
+      fx:controller="uni.gaben.iscat.controller.components.options.ThemeSettingsController"
       styleClass="glowing-border, controls-card">
     <VBox alignment="CENTER" spacing="16.0" VBox.vgrow="ALWAYS">
         <padding>

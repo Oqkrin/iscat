@@ -16,14 +16,14 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.PasswordHasher;
 import uni.gaben.iscat.utils.SessionManager;
 
-public class OptionAccountController {
+public class AccountSettingsController {
 
     private ConfirmationOverlayController confirmOverlayController;
     private final ScoreDAO scoreDAO;
     private final SettingsDAO settingsDAO;
     private final UserDAO userDAO;
 
-    public OptionAccountController() {
+    public AccountSettingsController() {
         this.scoreDAO = IscatDB.getInstance().getScoreDAO();
         this.settingsDAO = IscatDB.getInstance().getSettingsDAO();
         this.userDAO = IscatDB.getInstance().getUserDAO();

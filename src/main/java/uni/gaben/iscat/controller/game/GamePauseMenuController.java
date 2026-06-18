@@ -7,8 +7,8 @@ import uni.gaben.iscat.controller.IscatFxmlController;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.game.GameView;
-import uni.gaben.iscat.controller.components.options.OptionAudioController;
-import uni.gaben.iscat.controller.components.options.OptionDisplayController;
+import uni.gaben.iscat.controller.components.options.AudioSettingsController;
+import uni.gaben.iscat.controller.components.options.DisplaySettingsController;
 
 public class GamePauseMenuController implements IscatFxmlController {
 
@@ -17,8 +17,8 @@ public class GamePauseMenuController implements IscatFxmlController {
     @FXML private Button quitBtn;
     @FXML private Button optionBtn;
 
-    @FXML private OptionDisplayController subDisplayController;
-    @FXML private OptionAudioController subAudioController;
+    @FXML private DisplaySettingsController subDisplayController;
+    @FXML private AudioSettingsController subAudioController;
 
     private GameController gameController;
     private GameView       gameView;
