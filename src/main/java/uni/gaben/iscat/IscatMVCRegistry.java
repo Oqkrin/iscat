@@ -28,7 +28,7 @@ public class IscatMVCRegistry {
             case SKIN_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/SkinMenu.fxml");
             case BESTIARY_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/BestiaryMenu.fxml");
             case SCORE_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/ScoreMenu.fxml");
-            case OPTIONS_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/settings/SettingsMenu.fxml");
+            case OPTIONS_MENU -> new GenericIscatView("uni/gaben/iscat/fxml/SettingsMenu.fxml");
             case CREDITS -> new GenericIscatView("/uni/gaben/iscat/fxml/CreditsMenu.fxml");
             case LEADERBOARD_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/LeaderboardMenu.fxml");
         };
