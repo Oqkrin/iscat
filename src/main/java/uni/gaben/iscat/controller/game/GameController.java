@@ -57,7 +57,7 @@ public class GameController {
         this.waveController.setOnBossDeadCallback(this::notifyBossDead);
 
         if (gameModel.getUniverseModel() != null) {
-            double arenaDiameterMetres = 10.0;
+            double arenaDiameterMetres = 250.0;
             gameModel.getUniverseModel().setDimensions(arenaDiameterMetres, arenaDiameterMetres);
         }
     }

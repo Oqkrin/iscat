@@ -40,7 +40,7 @@ public class GameLifecycleManager {
             canvasH = UniverseSettings.DEFAULT_HEIGHT;
         }
 
-        // 1. Reset the universe model (fresh physics world)
+        // 1. Reset the universe model
         gameModel.resetUniverse();
         UniverseModel newUniverse = gameModel.getUniverseModel();
         newUniverse.setDimensions(canvasW, canvasH);
@@ -54,18 +54,15 @@ public class GameLifecycleManager {
         // 3. Re‑initialise the UniverseSpawner with the new universe and controllers
         UniverseSpawner.getInstance().init(newUniverse, newUniverseController, newWaveController);
 
-        // 4. Spawn player with the specified skin and asteroids
-        double midX = canvasW / 2.0;
-        double midY = canvasH / 2.0;
-
-        UniverseSpawner.getInstance().spawnPlayer(midX, midY, skinKey);
+        // 4. Spawn player
+        UniverseSpawner.getInstance().spawnPlayer(0.0, 0.0, skinKey);
 
         AsteroidMazeGenerator asteroidMazeGenerator = new AsteroidMazeGenerator();
-        asteroidMazeGenerator.generate(midX, midY);
+        asteroidMazeGenerator.generate(0.0, 0.0);
 
-        // 5. Reset camera springs to the new player position
-        camera.getSpringX().setPosition(midX);
-        camera.getSpringY().setPosition(midY);
+        // 5. Reset camera springs alla posizione del player
+        camera.getSpringX().setPosition(0.0);
+        camera.getSpringY().setPosition(0.0);
         camera.getSpringX().snap();
         camera.getSpringY().snap();
 
