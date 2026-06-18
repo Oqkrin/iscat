@@ -24,6 +24,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     private final List<Pattern> attackPool;
     private final Random rand = new Random();
     private Consumer<ProjectileModel> customizer;
+    private final double damage;
 
     // Burst state — only active when a RepeaterPattern was selected
     private int burstLeft = 0;
@@ -35,17 +36,22 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     public RandomizedShootAbility(double combatRange, double cooldownSec,
                                   ProjectileType bulletType,
                                   Target target, boolean aimAtTarget, double nerfPrediction,
+                                  double damage,
                                   Pattern... attacks) {
         super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
+        this.damage = damage;
         this.attackPool = List.of(attacks);
+
+        this.customizer = projectile -> projectile.setEnergyDirect(damage);
     }
 
     public static RandomizedShootAbility targetingPlayer(double combatRange, double cooldownSec,
                                                          ProjectileType bulletType, boolean aimAtTarget,
                                                          double nerfPrediction,
+                                                         double damage,
                                                          Pattern... attacks) {
         return new RandomizedShootAbility(combatRange, cooldownSec, bulletType,
-                universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget, nerfPrediction, attacks);
+                universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget, nerfPrediction, damage, attacks);
     }
 
     @Override

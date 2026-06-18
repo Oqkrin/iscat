@@ -19,12 +19,26 @@ import uni.gaben.iscat.universe.entities.shooters.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Classe di utilità responsabile del parsing dei file di configurazione JSON
+ * per la generazione di oggetti {@link EntityRecord}.
+ * Centralizza la conversione dei parametri fisici, visivi, audio e delle logiche
+ * di intelligenza artificiale (AI) di gioco.
+ */
 public final class EntityRecordParser {
+
+    /**
+     * Costruttore privato per impedire l'istanza della classe di utilità.
+     */
     private EntityRecordParser() {
-        /* This utility class should not be instantiated */
     }
 
-
+    /**
+     * Analizza un oggetto JSON completo e restituisce l'immutabile {@link EntityRecord} risultante.
+     *
+     * @param json L'oggetto JSON contenente i dati dell'entità.
+     * @return     Un record di entità completamente configurato.
+     */
     public static EntityRecord parse(JSONObject json) {
         EntityRecordBuilder builder = new EntityRecordBuilder();
         parseIdentity(json, builder);
@@ -42,16 +56,35 @@ public final class EntityRecordParser {
         return builder.build();
     }
 
+    /**
+     * Estrae i dati identificativi di base dell'entità.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseIdentity(JSONObject json, EntityRecordBuilder builder) {
         builder.entityKey(json.optString("EntityKey", ""))
                 .name(json.optString("Name", ""))
                 .description(json.optString("Description", ""));
     }
 
+    /**
+     * Estrae l'ordinamento dell'entità all'interno del Bestiario.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseBestiaryOrder(JSONObject json, EntityRecordBuilder builder) {
         builder.bestiaryOrder(json.optInt("BestiaryOrder", 0));
     }
 
+    /**
+     * Determina il livello di minaccia dell'entità convertendo la stringa JSON nell'apposita Enum.
+     * In caso di errore o valore non mappato, applica il valore di fallback {@link ThreatLevel#NONE}.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseThreatLevel(JSONObject json, EntityRecordBuilder builder) {
         String threatStr = json.optString("ThreatLevel", "NONE").toUpperCase().trim();
         try {
@@ -63,6 +96,12 @@ public final class EntityRecordParser {
         }
     }
 
+    /**
+     * Ricava il percorso relativo della texture associata all'entità, distinguendo tra giocatori ed elementi ostili.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseSpritePath(JSONObject json, EntityRecordBuilder builder) {
         String spriteName = json.optString("SpriteName", "").trim();
         if (spriteName.toLowerCase().endsWith(".png")) {
@@ -72,13 +111,27 @@ public final class EntityRecordParser {
         builder.spritePath("/uni/gaben/iscat/sprites/" + spriteFolder + "/" + spriteName + ".png");
     }
 
+    /**
+     * Estrae le configurazioni geometriche e visuali dell'entità, inclusi l'offset angolare di rendering.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseVisuals(JSONObject json, EntityRecordBuilder builder) {
         builder.frameW(json.optInt("FrameW", 32))
                 .frameH(json.optInt("FrameH", 32))
                 .shapeType(EntityRecord.ShapeType.valueOf(json.optString("ShapeType", "CIRCLE")))
-                .scale(json.optDouble("Scale", 1.0)).visualAngularOffset(json.optDouble("AngularOffsetDeg", 0.0));
+                .scale(json.optDouble("Scale", 1.0))
+                .visualAngularOffset(json.optDouble("AngularOffsetDeg", 0.0));
     }
 
+    /**
+     * Estrae i parametri della simulazione fisica del corpo rigido e i valori di ricompensa.
+     * Corretto il doppio inserimento di visualAngularOffset mappandolo correttamente sulla chiave del JSON.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parsePhysics(JSONObject json, EntityRecordBuilder builder) {
         builder .initLife(json.optDouble("InitLife", 100.0))
                 .linearDamping(json.optDouble("LinearDamping", 2.0))
@@ -86,23 +139,41 @@ public final class EntityRecordParser {
                 .maxVelocity(json.optDouble("MaxVelocity", 10.0))
                 .maxForce(json.optDouble("MaxForce", 30.0))
                 .maxAngularVelocity(json.optDouble("MaxAngularVelocity", 5.0))
-                .visualAngularOffset(json.optDouble("AngularOffsetRad", 0.0))
                 .xpReward(json.optInt("XPReward", 10))
                 .dannoProiettile(json.optDouble("DannoProiettile", 4.0));
     }
 
+    /**
+     * Configura le distanze di ingaggio dell'entità e i tempi di ricarica delle abilità principali.
+     * Rimossa la divisione errata per 1000.0 poiché il cooldown nel JSON è già espresso in secondi.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseBehavioural(JSONObject json, EntityRecordBuilder builder) {
         builder.detectionRange(json.optDouble("DetectionRange", 15.0))
                 .combatRange(json.optDouble("CombatRange", 10.0))
                 .preferredRange(json.optDouble("PreferredRange", 10.0))
-                .actionCooldownSec(json.optDouble("actionCooldownS", 800.0) / 1000.0);
+                .actionCooldownSec(json.optDouble("actionCooldownS", 1.0));
     }
 
+    /**
+     * Analizza e setta i flag booleani relativi allo stato di boss dell'entità.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseBossFlags(JSONObject json, EntityRecordBuilder builder) {
         builder.isBoss(json.optBoolean("IsBoss", false))
                 .hasEntranceAnimation(json.optBoolean("HasEntranceAnimation", false));
     }
 
+    /**
+     * Estrae l'array numerico contenente la mappatura dei frame di animazione dell'entità.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseAnimationFrames(JSONObject json, EntityRecordBuilder builder) {
         if (json.has("AnimationFrames")) {
             JSONArray framesArray = json.getJSONArray("AnimationFrames");
@@ -114,6 +185,12 @@ public final class EntityRecordParser {
         }
     }
 
+    /**
+     * Associa le liste di file audio ai rispettivi trigger ed eventi dell'entità viva.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseAudioProfiles(JSONObject json, EntityRecordBuilder builder) {
         if (json.has("audio")) {
             JSONObject audioJson = json.getJSONObject("audio");
@@ -127,18 +204,36 @@ public final class EntityRecordParser {
         }
     }
 
+    /**
+     * Inizializza la configurazione decisionale del cervello dell'AI se presente nel sotto-nodo JSON dedicato.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parseAIConfig(JSONObject json, EntityRecordBuilder builder) {
         if (json.has("ai")) {
             builder.brain(parseBrain(json.getJSONObject("ai")));
         }
     }
 
+    /**
+     * Inizializza i dati specifici del giocatore qualora la struttura descriva un'entità utente controllabile.
+     *
+     * @param json    L'oggetto JSON sorgente.
+     * @param builder Il builder di destinazione dei dati.
+     */
     private static void parsePlayerConfig(JSONObject json, EntityRecordBuilder builder) {
         if (json.has("player")) {
             builder.player(parsePlayerRecord(json.getJSONObject("player")));
         }
     }
 
+    /**
+     * Esegue il parsing atomico dell'oggetto di configurazione dei parametri di movimento e abilità del giocatore.
+     *
+     * @param json L'oggetto JSON parziale relativo al nodo del giocatore.
+     * @return     Un'istanza strutturata di {@link EntityRecord.PlayerRecord}.
+     */
     private static EntityRecord.PlayerRecord parsePlayerRecord(JSONObject json) {
         return new EntityRecord.PlayerRecord(
                 json.optDouble("dashImpulse", 35.0),
@@ -156,6 +251,12 @@ public final class EntityRecordParser {
         );
     }
 
+    /**
+     * Genera l'elenco delle abilità sbloccabili del giocatore indicizzate per livello.
+     *
+     * @param arr L'array JSON contenente i nodi delle abilità di livello.
+     * @return    Una lista ordinata decrescente per livello minimo richiesto di {@link EntityRecord.LevelAbility}.
+     */
     private static List<EntityRecord.LevelAbility> parseLevelAbilities(JSONArray arr) {
         List<EntityRecord.LevelAbility> list = new ArrayList<>();
         if (arr == null) return list;
@@ -170,6 +271,12 @@ public final class EntityRecordParser {
         return list;
     }
 
+    /**
+     * Costruisce il record logico complessivo del comportamento dell'AI (movimento, puntamento, pattern e modificatori).
+     *
+     * @param aiJson L'oggetto JSON corrispondente alla chiave principale "ai".
+     * @return       Un'istanza completa di {@link EntityRecord.BrainRecord}.
+     */
     private static EntityRecord.BrainRecord parseBrain(JSONObject aiJson) {
         EntityRecord.SteeringRecord steering = parseSteering(aiJson.optJSONObject("steering"));
         EntityRecord.RotationRecord rotation = parseRotation(aiJson.optJSONObject("rotation"));
@@ -178,6 +285,12 @@ public final class EntityRecordParser {
         return new EntityRecord.BrainRecord(steering, rotation, abilities, modifiers);
     }
 
+    /**
+     * Parsifica i vincoli e gli obiettivi di posizionamento algoritmico della forza di sterzata (Steering).
+     *
+     * @param obj L'oggetto JSON parziale relativo allo steering.
+     * @return    Un record pre-compilato {@link EntityRecord.SteeringRecord}.
+     */
     private static EntityRecord.SteeringRecord parseSteering(JSONObject obj) {
         if (obj == null) return new EntityRecord.SteeringRecord(SteeringGoalIndex.IDLE, 2.5, 2.5, 10.0, 5.0);
         return new EntityRecord.SteeringRecord(
@@ -189,6 +302,12 @@ public final class EntityRecordParser {
         );
     }
 
+    /**
+     * Parsifica le modalità di rotazione angolare sul proprio asse del modello dell'entità.
+     *
+     * @param obj L'oggetto JSON parziale relativo alla rotazione.
+     * @return    Un record pre-compilato {@link EntityRecord.RotationRecord}.
+     */
     private static EntityRecord.RotationRecord parseRotation(JSONObject obj) {
         if (obj == null) return new EntityRecord.RotationRecord(RotationGoalIndex.IDLE, 0.0, 8, 0.1, "player");
         return new EntityRecord.RotationRecord(
@@ -200,6 +319,12 @@ public final class EntityRecordParser {
         );
     }
 
+    /**
+     * Estrae la lista sequenziale di attacchi, cure, spawn o abilità attive assegnate all'entità.
+     *
+     * @param arr L'array JSON contenente i blocchi delle singole abilità.
+     * @return    Una lista di oggetti di tipo {@link EntityRecord.AbilityRecord}.
+     */
     private static List<EntityRecord.AbilityRecord> parseAbilities(JSONArray arr) {
         List<EntityRecord.AbilityRecord> list = new ArrayList<>();
         if (arr == null) return list;
@@ -240,6 +365,12 @@ public final class EntityRecordParser {
         return list;
     }
 
+    /**
+     * Mappa un sotto-array JSON di configurazioni balistiche ricorsive o nidificate.
+     *
+     * @param arr L'array JSON dei pattern balistici o di sventagliata.
+     * @return    Una lista strutturata di {@link EntityRecord.PatternRecord}.
+     */
     private static List<EntityRecord.PatternRecord> parsePatternList(JSONArray arr) {
         List<EntityRecord.PatternRecord> list = new ArrayList<>();
         if (arr == null) return list;
@@ -249,6 +380,12 @@ public final class EntityRecordParser {
         return list;
     }
 
+    /**
+     * Parsifica un singolo schema balistico o di evocazione, supportando la ricorsione di sotto-pattern.
+     *
+     * @param obj L'oggetto JSON parziale relativo al pattern del proiettile.
+     * @return    Un oggetto descrittivo {@link EntityRecord.PatternRecord}, o null se l'input è assente.
+     */
     private static EntityRecord.PatternRecord parsePattern(JSONObject obj) {
         if (obj == null) return null;
         return new EntityRecord.PatternRecord(
@@ -264,6 +401,12 @@ public final class EntityRecordParser {
         );
     }
 
+    /**
+     * Estrae i modificatori di comportamento di gruppo (flocking) quali coesione, separazione o evitamento ostacoli.
+     *
+     * @param arr L'array JSON contenente l'elenco dei modificatori fisici ambientali.
+     * @return    Una lista riempita di elementi {@link EntityRecord.ModifierRecord}.
+     */
     private static List<EntityRecord.ModifierRecord> parseModifiers(JSONArray arr) {
         List<EntityRecord.ModifierRecord> list = new ArrayList<>();
         if (arr == null) return list;
@@ -280,6 +423,12 @@ public final class EntityRecordParser {
         return list;
     }
 
+    /**
+     * Metodo di supporto per convertire in modo sicuro un {@link JSONArray} di stringhe in una lista Java nativa.
+     *
+     * @param array L'array JSON sorgente.
+     * @return      Una lista di stringhe corrispondente ai valori estratti.
+     */
     private static List<String> jsonArrayToList(JSONArray array) {
         List<String> list = new ArrayList<>();
         if (array != null) {
@@ -290,23 +439,36 @@ public final class EntityRecordParser {
         return list;
     }
 
+    /**
+     * Fabbrica l'istanza operativa del comportamento di sterzata (SteeringGoal) associandolo al tracciamento del giocatore.
+     *
+     * @param steeringData I metadati estratti in precedenza durante il parsing del record.
+     * @return             L'oggetto pronto per l'esecuzione sul motore fisico {@link SteeringGoal}.
+     */
     public static SteeringGoal createSteeringGoal(EntityRecord.SteeringRecord steeringData) {
-        Target target = Target.ofPlayer(); // could be extended to support other targets
+        Target target = Target.ofPlayer();
         return switch (steeringData.type()) {
             case PURSUIT -> SteeringGoal.pursuit(target, steeringData.maxPredictionTime());
             case EVADE -> SteeringGoal.evade(target, steeringData.maxPredictionTime());
             case PURSUIT_WITH_RANGE ->
                     SteeringGoal.pursuitWithRange(target, steeringData.maxPredictionTime(), steeringData.minDistance(), steeringData.maxDistance());
             case EVADE_WITH_RANGE -> SteeringGoal.evadeWithRange(target, steeringData.maxPredictionTime(), steeringData.safetyDistance());
-            default -> SteeringGoal.idle(); // IDLE and ORBIT both fall through to idle
+            default -> SteeringGoal.idle();
         };
     }
 
+    /**
+     * Genera un modificatore di sterzata contestuale escludendo in automatico i proiettili amici dai calcoli di vicinato.
+     *
+     * @param mc     I dati descrittivi del modificatore da generare.
+     * @param entity L'entità proprietaria del comportamento che richiede la scansione di prossimità.
+     * @return       Il comportamento applicabile finale {@link SteeringModifier}.
+     */
     public static SteeringModifier createModifier(EntityRecord.ModifierRecord mc, EntityModel entity) {
         if (mc.type() == null) return null;
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
-        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm&&pm.getType()== ProjectileType.ENEMY_BULLET));
+        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm && pm.getType() == ProjectileType.ENEMY_BULLET));
         Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof AbstractPhysicalProjectileModel));
         return switch (mc.type()) {
             case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
@@ -317,6 +479,12 @@ public final class EntityRecordParser {
         };
     }
 
+    /**
+     * Instanzia l'algoritmo di rotazione e puntamento dell'asse del corpo in base ai requisiti dell'AI.
+     *
+     * @param rotation I dati di configurazione della rotazione.
+     * @return         Un modulo operativo pronto {@link RotationGoal}.
+     */
     public static RotationGoal createRotationGoal(EntityRecord.RotationRecord rotation) {
         if (rotation == null) return RotationGoal.idle();
         return switch (rotation.type()) {
@@ -329,13 +497,23 @@ public final class EntityRecordParser {
         };
     }
 
+    /**
+     * Fabbrica l'abilità attiva di attacco o utilità iniettandovi i parametri balistici e i modificatori di danno dell'entità.
+     *
+     * @param ac     Il record descrittivo dell'abilità estratto dal file JSON.
+     * @param entity L'istanza dell'entità di gioco che andrà ad eseguire l'azione.
+     * @return       L'oggetto operativo estensione dell'interfaccia {@link Ability}.
+     */
     public static Ability createAbility(EntityRecord.AbilityRecord ac, EntityModel entity) {
         if (ac.type() == null) return null;
         Target target = Target.ofPlayer();
+
+        // Recuperiamo il DannoProiettile configurato nella radice del JSON dell'entità (es. 100 per Master, 5 per Mob)
+        double dannoEntita = entity.getEntityRecord().dannoProiettile();
+
         return switch (ac.type()) {
             case SHOOT -> {
                 Pattern shooter = createPattern(ac.pattern());
-                double dannoEntita = entity.getEntityRecord().dannoProiettile();
                 yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), shooter,
                         target, ac.aimAtTarget(), ac.nerfPrediction(), dannoEntita);
@@ -345,11 +523,10 @@ public final class EntityRecordParser {
                 for (EntityRecord.PatternRecord pc : ac.patterns()) patterns.add(createPattern(pc));
                 yield RandomizedShootAbility.targetingPlayer(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), ac.aimAtTarget(),
-                        ac.nerfPrediction(), patterns.toArray(new Pattern[0]));
+                        ac.nerfPrediction(), dannoEntita, patterns.toArray(new Pattern[0]));
             }
             case HEAL -> new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
             case SUMMON -> {
-                double dannoEntita = entity.getEntityRecord().dannoProiettile();
                 yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx()),
                         target, ac.aimAtTarget(), ac.nerfPrediction(), dannoEntita);
@@ -369,6 +546,12 @@ public final class EntityRecordParser {
         };
     }
 
+    /**
+     * Risolve ricorsivamente le strutture dei sotto-pattern balistici istanziando le classi logiche dedicate ai proiettili o alle evocazioni.
+     *
+     * @param pc I metadati descrittivi della sventagliata o ripetizione.
+     * @return   L'oggetto di calcolo geometrico {@link Pattern}.
+     */
     public static Pattern createPattern(EntityRecord.PatternRecord pc) {
         if (pc == null) return new SingleShotPattern();
         return switch (pc.type()) {
@@ -380,7 +563,7 @@ public final class EntityRecordParser {
             case REPEATER ->
                     new RepeaterPattern(pc.repeats(), pc.intervalSec(), createPattern(pc.innerPattern()));
             case PARALLEL_LINE ->
-                    new ParallelLinePattern(pc.count(), pc.angleStepDeg()); // angleStepDeg used as spacing
+                    new ParallelLinePattern(pc.count(), pc.angleStepDeg());
             case SUMMON -> new SummonPattern(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());
             case FIGURE -> new FigurePattern(pc.count(), FigurePattern.FigureType.valueOf(pc.figureType()));
         };

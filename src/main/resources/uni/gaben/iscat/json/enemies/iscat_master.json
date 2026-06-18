@@ -23,7 +23,8 @@
       "IsBoss": true,
       "HasEntranceAnimation": true,
       "AnimationFrames": [21, 4, 3, 7, 8, 5, 6],
-      "AngularOffsetDeg": -90,
+      "AngularOffsetDeg": 90,
+      "DannoProiettile": 100,
       "audio": {
         "attack": [],
         "idle": [],
