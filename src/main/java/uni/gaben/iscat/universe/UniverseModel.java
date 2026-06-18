@@ -14,6 +14,7 @@ import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.EntityAudioManager;
 
 import java.util.*;
@@ -224,7 +225,8 @@ public class UniverseModel extends World<Body> {
         alteredEndurance.put(entity.getTransform().getTranslation(), delta);
 
         if (entity instanceof EntityModel entityModel) {
-            EntityAudioManager.playEventAudio(entityModel, delta < 0 ? "hurt" : "heal");
+            if(delta < 0) EntityAudioManager.playEventAudio(entityModel, "hurt");
+            else if(delta > 0) AudioManager.getInstance().playSFX("heal");
         }
     }
 
