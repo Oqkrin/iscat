@@ -337,7 +337,7 @@ public class GameView extends AbstractIscatStackPane {
     }
 
     private StackPane loadGameOverMenu() {
-        return loadFxml("/uni/gaben/iscat/fxml/game-over-menu.fxml",
+        return loadFxml("/uni/gaben/iscat/fxml/GameOverMenu.fxml",
                 (GameOverMenuController c) -> c.initData(gameController, this));
     }
 }

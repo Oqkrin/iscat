@@ -83,5 +83,5 @@
         <Region minHeight="24.0" prefHeight="24.0" VBox.vgrow="NEVER" />
     </VBox>
 
-    <fx:include fx:id="confirmOverlay" source="../confirmation-overlay.fxml" />
+    <fx:include fx:id="confirmOverlay" source="../ConfirmationOverlay.fxml" />
 </StackPane>
