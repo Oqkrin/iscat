@@ -12,7 +12,7 @@ import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidShapeFactory
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entities.interfaces.HasSprite;
-import uni.gaben.iscat.utils.EnemyAudioManager;
+import uni.gaben.iscat.utils.EntityAudioManager;
 
 public class EntityModel extends AbstractLivingEntityModel implements HasSprite, HasShockwave {
     private final Shockwave shockwave = new Shockwave();
@@ -62,7 +62,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         }
 
         if (!entity.hasEntranceAnimation()) {
-            EnemyAudioManager.playEventAudio(this, "spawn");
+            EntityAudioManager.playEventAudio(this, "spawn");
         }
     }
 
@@ -97,7 +97,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         if (currentEntityState == EntityState.IDLE) {
             idleAudioTimer -= dt;
             if (idleAudioTimer <= 0) {
-                EnemyAudioManager.playEventAudio(this, "idle");
+                EntityAudioManager.playEventAudio(this, "idle");
                 idleAudioTimer = 8.0 + Math.random() * 14.0;
             }
         }
@@ -112,7 +112,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
                     shockwave.trigger(2.0, 1500, 15);
                 }
 
-                EnemyAudioManager.playEventAudio(this, "spawn");
+                EntityAudioManager.playEventAudio(this, "spawn");
             }
         }
         else if (currentEntityState != EntityState.IDLE && currentEntityState != EntityState.DEATH) {

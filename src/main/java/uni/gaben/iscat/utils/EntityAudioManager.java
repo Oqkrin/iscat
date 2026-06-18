@@ -8,7 +8,7 @@ import java.util.Random;
  * Helper per mappare ed eseguire gli eventi audio specifici delle entità generiche
  * interfacciandosi con l'AudioManager centralizzato di ISCAT.
  */
-public class EnemyAudioManager {
+public class EntityAudioManager {
 
     private static final Random RANDOM = new Random();
 

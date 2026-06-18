@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
-import uni.gaben.iscat.utils.EnemyAudioManager;
+import uni.gaben.iscat.utils.EntityAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityModel implements Alterable, hasXpReward {
@@ -48,7 +48,7 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
         }
         else if (clamped < oldEndurance) {
             if (this instanceof EntityModel entityModel) {
-                EnemyAudioManager.playEventAudio(entityModel, "hurt");
+                EntityAudioManager.playEventAudio(entityModel, "hurt");
             }
         }
     }
@@ -86,7 +86,7 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
 
             if (!silent && !isProjectile && !isHeart) {
                 if (this instanceof EntityModel entityModel) {
-                    EnemyAudioManager.playEventAudio(entityModel, "death");
+                    EntityAudioManager.playEventAudio(entityModel, "death");
                 }
             }
 

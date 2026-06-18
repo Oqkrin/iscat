@@ -13,6 +13,13 @@
   "mass": 1.0,
   "MaxVelocity": 9,
   "MaxForce": 27,
+  "audio": {
+    "attack": ["iscat_core_attack"],
+    "idle": ["iscat_core_idle"],
+    "hurt": [],
+    "death": ["iscat_core_death"],
+    "spawn": []
+  },
   "player": {
     "dashImpulse": 35.0,
     "dashDurationSec": 0.2,
