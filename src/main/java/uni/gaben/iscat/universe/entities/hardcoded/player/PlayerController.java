@@ -55,7 +55,8 @@ public class PlayerController {
             if (dx != 0 || dy != 0) {
                 Vector2 dir = new Vector2(dx, dy).getNormalized();
                 if (!player.isStunned()) {
-                    player.applyForce(dir.multiply(PlayerSettings.FORZA_SPINTA * player.getMass().getMass()));
+                    double force = player.getEntityRecord().player().baseThrustForce();
+                    player.applyForce(dir.multiply(force * player.getMass().getMass()));
                 }
             }
 
@@ -144,7 +145,6 @@ public class PlayerController {
     private void handleShooting(GameInputsHandler input) {
         if (player == null || shooter == null || currentAttack == null) return;
 
-        // Only update attack pattern when level actually changes
         int currentLevel = player.getLevel();
         if (currentLevel != lastLevel) {
             updateAttackPatternByLevel();
@@ -155,9 +155,18 @@ public class PlayerController {
             double angle = player.getTransform().getRotationAngle();
 
             Consumer<ProjectileModel> customizer = bullet -> {
+                // Applichiamo il tipo (che imposta la fisica base)
+                bullet.setType(ProjectileType.PLAYER_BULLET);
+
+                // Calcoliamo il danno dinamico basato sul livello
+                double dynamicDamage = player.getProjectileDamage();
+
+                // Forziamo l'energia calcolata sul proiettile
+                bullet.setEnergyDirect(dynamicDamage);
+
+                // Se la logica precedente modificava ulteriormente la durata/vita del proiettile:
                 double boostedLife = bullet.getEndurance() + player.getLevel();
                 bullet.setMaxLifeDirect(boostedLife);
-                bullet.setType(ProjectileType.PLAYER_BULLET);
             };
 
             currentAttack.execute(shooter, ProjectileType.PLAYER_BULLET, angle, customizer);

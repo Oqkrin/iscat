@@ -67,7 +67,7 @@ public class GameHudBar extends StackPane {
         waveLabel.setMaxWidth(Double.MAX_VALUE);
         waveLabel.setAlignment(Pos.CENTER);
 
-        // Riga 4 - Threat level (NUOVO)
+        // Riga 4 - Threat level
         threatLabel = styledLabel("", FONT_SIZE_SM);
         threatLabel.setOpacity(0.7);
         threatLabel.setMaxWidth(Double.MAX_VALUE);

@@ -14,23 +14,17 @@ public final class PlayerSettings {
     public static String getPlayerSkin() { return playerSkin.getValue(); }
     public static void setPlayerSkin(String skin) { playerSkin.setValue(skin); }
 
-    public static StringProperty playerSkinKeyProperty() { return playerSkinKey; }
     public static String getPlayerSkinKey() { return playerSkinKey.getValue(); }
     public static void setPlayerSkinKey(String key) { playerSkinKey.setValue(key); }
 
     private PlayerSettings() {}
 
     // === Core Physics (BULLET HELL REWORK) ===
-    public static final double MASSA = 1.0;
-    public static final double VELOCITA_MAX = UniverseVelocitySettings.PLAYER_MAX_VELOCITY;
 
     // === Combat & Vitals ===
-    public static double COOLDOWN_FUOCO_SEC = 0.3;
-    public static final double FORZA_SPINTA = UniverseVelocitySettings.PLAYER_MAX_VELOCITY * 3;
     public static final double DANNO_PROIETTILE = 30.0;
 
     // === Visuals & Dimensions ===
-    public static final double DIMENSIONE_DA_DISEGNARE = 64.0;
     public static final double HP_BAR_OFFSET_Y = 10.0;
     public static final double HP_BAR_HEIGHT = 4.0;
 
@@ -41,6 +35,4 @@ public final class PlayerSettings {
     public static final double THRUST_MIN_PARTICLE_SIZE = 1.0;
     public static final double THRUST_PARTICLE_SIZE_VARIATION = 7.0;
 
-    // === Progression System ===
-    public static final double XP_BASE_NECESSARIA = 100.0;
 }
