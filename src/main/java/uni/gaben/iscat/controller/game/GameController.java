@@ -53,7 +53,7 @@ public class GameController {
         this.waveController = bundle.waveController();
 
         // Viene letto ad ogni avvio/reset della partita per azzerare e ricaricare il flusso
-        this.waveController.loadWavesFromResource("/uni/gaben/iscat/config/waves.json");
+        this.waveController.loadWavesFromResource("/uni/gaben/iscat/json/config/waves.json");
 
         this.universeController.setEntityDeathListener(this::onEntityDied);
         this.universeController.getPlayerController().setGameModel(gameModel);
