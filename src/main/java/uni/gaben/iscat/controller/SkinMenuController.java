@@ -1,6 +1,9 @@
 package uni.gaben.iscat.controller;
 
-import javafx.animation.ScaleTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -10,9 +13,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import uni.gaben.iscat.controller.components.InfoCardController;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.universe.entities.EntityFactory;
@@ -28,9 +33,9 @@ import java.util.Map;
 public class SkinMenuController implements IscatMenuController {
 
     @FXML private FlowPane skinFlow;
-    @FXML private Label skinNameLabel;   // still used to show selected skin name
+    @FXML private Label skinNameLabel;
     @FXML private StackPane skinStackPane;
-    @FXML private VBox previewBox;       // will be removed from FXML, but keep for fallback
+    @FXML private VBox previewBox;       // kept for fallback, not used in FXML
 
     @FXML private Button confirmBtn;
     @FXML private Button randomBtn;
@@ -47,7 +52,7 @@ public class SkinMenuController implements IscatMenuController {
 
     private static final double BASE_SIZE = 32.0;          // icon size
     private static final double BASE_BUTTON_SIZE = 80.0;   // default button size
-    private static final double SELECTED_SCALE = 4.0;      // how many times larger
+    private static final double SELECTED_BUTTON_SIZE = BASE_BUTTON_SIZE * 4.0; // 320
 
     private boolean isScaling = false;
     private Button selectedButton;
@@ -72,12 +77,10 @@ public class SkinMenuController implements IscatMenuController {
         } else {
             this.selectedSkinKey = "player1";
             this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
-            // fallback: just show name, no preview
             if (skinNameLabel != null) skinNameLabel.setText("BATTLE SHIP");
             refreshInfoZone();
         }
 
-        // Dynamic scaling listener for window resize (optional)
         ChangeListener<Number> sizeListener = (obs, oldVal, newVal) -> updateDynamicScaling();
         skinStackPane.widthProperty().addListener(sizeListener);
         skinStackPane.heightProperty().addListener(sizeListener);
@@ -99,9 +102,8 @@ public class SkinMenuController implements IscatMenuController {
     }
 
     private void updateDynamicScaling() {
-        // Adjust icon sizes based on container width – we'll keep it simple;
-        // we can set a fixed size and rely on the 4x scale.
-        // This method can be removed or simplified.
+        // This method can be left empty; it's kept for compatibility.
+        // Sizes are fixed and animated via the selection mechanism.
     }
 
     private void populateFlow() {
@@ -138,41 +140,68 @@ public class SkinMenuController implements IscatMenuController {
 
         refreshInfoZone();
         updateSelection(key);
-        // Optional: play a spawn tween on the info card or flow
         ComponentsUtils.playSpawnTween(skinFlow);
     }
 
     private void updateSelection(String selectedKey) {
         // Reset previous selection
         if (selectedButton != null) {
-            ScaleTransition reset = new ScaleTransition(Duration.millis(200), selectedButton);
-            reset.setToX(1.0);
-            reset.setToY(1.0);
-            reset.play();
-            // Also reset the canvas size to base
+            animateButtonSize(selectedButton, BASE_BUTTON_SIZE);
             if (selectedButton.getGraphic() instanceof AnimatedCanvas canvas) {
                 canvas.resize(BASE_SIZE);
             }
             selectedButton.getStyleClass().remove("selected-skin-button");
         }
 
-        // Find and scale up the new button
+        // Find and enlarge the new button
         for (Node node : skinFlow.getChildren()) {
             if (node instanceof Button btn && selectedKey.equals(btn.getUserData())) {
                 selectedButton = btn;
-                // Grow the button itself
-                ScaleTransition grow = new ScaleTransition(Duration.millis(300), btn);
-                grow.setToX(SELECTED_SCALE);
-                grow.setToY(SELECTED_SCALE);
-                grow.play();
-                // Also resize the canvas inside to 4x base size
+                animateButtonSize(btn, SELECTED_BUTTON_SIZE);
                 if (btn.getGraphic() instanceof AnimatedCanvas canvas) {
-                    canvas.resize(BASE_SIZE * SELECTED_SCALE);
+                    canvas.resize(BASE_SIZE * 4);
                 }
                 btn.getStyleClass().add("selected-skin-button");
                 break;
             }
         }
+    }
+
+    private void animateButtonSize(Button btn, double targetSize) {
+        // Allow the button to grow beyond its current constraints
+        btn.setMinSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+        btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        double startW = btn.getPrefWidth();
+        double startH = btn.getPrefHeight();
+        if (startW <= 0) startW = BASE_BUTTON_SIZE;
+        if (startH <= 0) startH = BASE_BUTTON_SIZE;
+
+        final double fromW = startW;
+        final double fromH = startH;
+        final double toW = targetSize;
+        final double toH = targetSize;
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(btn.prefWidthProperty(), fromW),
+                        new KeyValue(btn.prefHeightProperty(), fromH)
+                ),
+                new KeyFrame(Duration.millis(300),
+                        new KeyValue(btn.prefWidthProperty(), toW, Interpolator.EASE_OUT),
+                        new KeyValue(btn.prefHeightProperty(), toH, Interpolator.EASE_OUT)
+                )
+        );
+        timeline.setOnFinished(e -> {
+            // Lock the final size to avoid layout shifts after animation
+            btn.setPrefWidth(toW);
+            btn.setPrefHeight(toH);
+            btn.setMinSize(targetSize, targetSize);
+            btn.setMaxSize(targetSize, targetSize);
+            // Force FlowPane to reflow
+            skinFlow.requestLayout();
+        });
+        timeline.play();
     }
 
     @FXML
@@ -197,8 +226,11 @@ public class SkinMenuController implements IscatMenuController {
         }
     }
 
-    @Override public Pane getRootPane() { return skinStackPane; }
-    @FXML private void handleBack(ActionEvent event) { handleBack(); }
+    @Override
+    public Pane getRootPane() { return skinStackPane; }
+
+    @FXML
+    private void handleBack(ActionEvent event) { handleBack(); }
 
     @FXML
     private void handleConfirm(ActionEvent event) {
@@ -212,11 +244,11 @@ public class SkinMenuController implements IscatMenuController {
                         IscatDB.getInstance().getSettingsDAO().updatePlayerSkin(user.id(), selectedSkinKey)
                 );
             }
-
             System.out.println("[SkinMenu] Salvata skin: " + selectedSkinKey);
         }
         handleBack();
     }
 
-    @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
+    @Override
+    public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
 }

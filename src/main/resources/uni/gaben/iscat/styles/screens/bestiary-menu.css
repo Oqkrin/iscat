@@ -1,4 +1,5 @@
 @import url("../components/iscat-text-inputs.css");
+@import url("../components/iscat-entity-info-card.css");
 
 .button-icon {
     -fx-icon-color: -accent-primary;

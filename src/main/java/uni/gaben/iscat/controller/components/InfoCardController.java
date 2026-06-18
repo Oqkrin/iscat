@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.components;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;

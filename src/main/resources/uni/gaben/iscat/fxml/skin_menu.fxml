@@ -33,6 +33,7 @@
                         </padding>
 
                         <Label styleClass="card-header" text="SKINS" />
+                        <Label fx:id="skinNameLabel" styleClass="card-subheader" text="SELECT A SKIN" wrapText="true" />
 
                         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
                             <content>

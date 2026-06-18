@@ -1,30 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" rotate="0.7" spacing="12.0" styleClass="glowing-border, secondary-card" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.InfoCardController">
+<VBox alignment="TOP_CENTER" rotate="0.7" spacing="12.0" styleClass="glowing-border, secondary-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.InfoCardController">
     <padding>
         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
     </padding>
-
-    <Label fx:id="cardHeader" styleClass="card-header" text="DETAILS" />
-    <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
-        <Tab text="Lore" closable="false">
-            <TextArea fx:id="loreArea" editable="false" wrapText="true"
-                      style="-fx-background-color: transparent; -fx-control-inner-background: transparent;"/>
+    <TabPane side="RIGHT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <Tab closable="false" text="Lore">
+            <TextArea fx:id="loreArea" editable="false" style="-fx-background-color: transparent; -fx-control-inner-background: transparent;" wrapText="true">
+            <padding>
+               <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding></TextArea>
         </Tab>
-        <Tab text="Stats" closable="false">
-            <TextArea fx:id="statsArea" editable="false" wrapText="true"
-                      style="-fx-background-color: transparent; -fx-control-inner-background: transparent;"/>
+        <Tab closable="false" text="Stats">
+            <TextArea fx:id="statsArea" editable="false" style="-fx-background-color: transparent; -fx-control-inner-background: transparent;" wrapText="true">
+            <padding>
+               <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding></TextArea>
         </Tab>
-        <Tab text="Extra" closable="false">
-            <TextArea fx:id="extraArea" editable="false" wrapText="true"
-                      style="-fx-background-color: transparent; -fx-control-inner-background: transparent;"/>
+        <Tab closable="false" text="Extra">
+            <TextArea fx:id="extraArea" editable="false" style="-fx-background-color: transparent; -fx-control-inner-background: transparent;" wrapText="true">
+            <padding>
+               <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding></TextArea>
         </Tab>
+      <opaqueInsets>
+         <Insets />
+      </opaqueInsets>
     </TabPane>
 </VBox>
