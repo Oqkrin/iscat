@@ -1,162 +1,130 @@
 package uni.gaben.iscat.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.universe.entities.ThreatLevel;
 
 public class InfoCardController {
 
-    public enum InfoMode {
-        DESCRIPTION, STATS, EXTRA
-    }
-
-    @FXML private Label rightCardHeader;
-    @FXML private TextArea description;
+    @FXML private TextArea loreArea;
+    @FXML private TextArea statsArea;
+    @FXML private TextArea extraArea;
 
     @FXML
     public void initialize() {
-        description.setEditable(false);
-        description.setWrapText(true);
-
-        // Disabilita il focus iniziale
-        description.setFocusTraversable(false);
-
-        // Blocca l'evidenziazione blu verificando la lunghezza del range
-        description.selectionProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null && newSelection.getLength() > 0) {
-                description.deselect();
-            }
-        });
+        for (TextArea area : new TextArea[]{loreArea, statsArea, extraArea}) {
+            area.setEditable(false);
+            area.setWrapText(true);
+            area.setFocusTraversable(false);
+            area.selectionProperty().addListener((obs, old, newSel) -> {
+                if (newSel != null && newSel.getLength() > 0) area.deselect();
+            });
+        }
     }
 
-    /**
-     * Metodo generico per impostare del testo libero (es. per messaggi di blocco o fallback)
-     */
     public void updateInfo(String header, String content) {
-        rightCardHeader.setText(header.toUpperCase());
-        description.setText(content);
+        // Fallback for compatibility; we can populate all tabs with the same content or ignore.
+        loreArea.setText(header + "\n\n" + content);
+        statsArea.setText("N/A");
+        extraArea.setText("N/A");
     }
 
     /**
-     * Genera autonomamente il testo formattato estraendo i dati dal JSON (EntityRecord)
-     * Funziona sia per i Player che per gli Enemies in base all'InfoMode selezionato.
-     * * @param mode Modalità di visualizzazione scelta (DESCRIPTION, STATS, EXTRA)
-     * @param record Il record dell'entità letto dal JSON
-     * @param killCount Il numero di uccisioni (usato solo per gli enemies, metti 0 per i player)
+     * Populates all three tabs from a single EntityRecord.
      */
-    public void updateEntityInfo(InfoMode mode, EntityRecord record, int killCount) {
+    public void updateEntityInfo(EntityRecord record) {
         if (record == null) {
-            updateInfo("N/A", "Nessun dato disponibile.");
+            loreArea.setText("No data");
+            statsArea.setText("No data");
+            extraArea.setText("No data");
             return;
         }
 
-        // Verifica centralizzata per capire se è un Player o un Enemy
+        // ---- Lore (Description) ----
+        String description = record.description() != null ? record.description() : "No description available.";
+        ThreatLevel threat = record.threatLevel() != null ? record.threatLevel() : ThreatLevel.NONE;
+        String threatDisplay = switch (threat) {
+            case NONE -> "[No Threat]";
+            case LOW -> "[Low Risk]";
+            case NORMAL -> "[Normal Risk]";
+            case HIGH -> "[High Risk]";
+            case EXTREME -> "[Extreme Risk]";
+            case APOCALYPSE -> "[APOCALYPSE RISK]";
+        };
+        loreArea.setText("⚠️ Threat Level: " + threatDisplay + "\n\n" + description);
+
+        // ---- Stats ----
         boolean isPlayer = record.player() != null || record.entityKey().toLowerCase().contains("player");
+        String hpLabel = isPlayer ? "Hull Integrity" : "Health";
+        String velLabel = isPlayer ? "Maneuver Speed" : "Max Speed";
+        String frictionLabel = isPlayer ? "Friction Coefficient" : "Linear Damping";
+        String massLabel = isPlayer ? "Structural Mass" : "Mass";
+        String forceLabel = isPlayer ? "Thrust Power" : "Max Force";
 
-        // Recuperiamo i dati di ordinamento e minaccia con gestione dei null di sicurezza
-        int order = (record.bestiaryOrder() != null) ? record.bestiaryOrder() : 0;
-        ThreatLevel threat = (record.threatLevel() != null) ? record.threatLevel() : ThreatLevel.NONE;
+        String statsText = String.format("""
+                %s (Index #%03d)
+                ❤ %s: %.0f HP
+                ⚡ %s: %.1f m/s
+                ✨ XP Reward: %d
+                📐 Scale: %.1fx
+                ⚓ %s: %.1f
+                ⚙ %s: %.1f kg
+                💪 %s: %.1f N
+                """,
+                isPlayer ? "SHIP STATS" : "ENEMY STATS",
+                record.bestiaryOrder() != null ? record.bestiaryOrder() : 0,
+                hpLabel, record.initLife(),
+                velLabel, record.maxVelocity(),
+                record.xpReward(),
+                record.scale(),
+                frictionLabel, record.linearDamping(),
+                massLabel, record.mass(),
+                forceLabel, record.maxForce()
+        );
+        statsArea.setText(statsText);
 
-        switch (mode) {
-            case DESCRIPTION -> {
-                String headerText = "";
-
-                String pericoloVisual = switch (threat) {
-                    case NONE        -> "[Nessun Pericolo]";
-                    case LOW         -> "[Rischio Basso]";
-                    case NORMAL      -> "[Rischio Normale]";
-                    case HIGH        -> "[Rischio Alto]";
-                    case EXTREME     -> "[Rischio Estremo]";
-                    case APOCALYPSE  -> "[Rischio APOCALYPSE]";
-                };
-
-                headerText += "⚠️ Grado Pericolo: " + pericoloVisual + "\n\n";
-                updateInfo("DESCRIPTION", headerText + record.description());
-
-            }
-            case STATS -> {
-                // Scegliamo l'intestazione appropriata
-                String title = isPlayer ? "STATISTICHE DELLA NAVE" : "STATISTICHE DI BASE";
-                String hpLabel = isPlayer ? "Integrità Scafo" : "Punti Vita";
-                String velLabel = isPlayer ? "Velocità di Manovra" : "Velocità Massima";
-                String frictionLabel = isPlayer ? "Coefficiente Attrito" : "Attrito Lineare";
-                String massLabel = isPlayer ? "Massa Strutturale" : "Massa";
-                String forceLabel = isPlayer ? "Spinta Propulsori" : "Forza Massima";
-
-                String statsText = String.format("""
-                    %s (Index #%03d)
-                    
-                    💀 Minaccia Target: %s
-                    ❤ %s: %.0f HP
-                    ⚡ %s: %.1f m/s
-                    ✨ Ricompensa Esperienza: %d XP
-                    📐 Scala Grafica: %.1fx
-                    ⚓ %s: %.1f
-                    ⚙ %s: %.1f kg
-                    💪 %s: %.1f N
-                    """,
-                        title, order,
-                        threat.getDisplayName(),
-                        hpLabel, record.initLife(),
-                        velLabel, record.maxVelocity(),
-                        record.xpReward(),
-                        record.scale(),
-                        frictionLabel, record.linearDamping(),
-                        massLabel, record.mass(),
-                        forceLabel, record.maxForce()
-                );
-                updateInfo("STATS", statsText);
-            }
-            case EXTRA -> {
-                if (isPlayer) {
-                    double cooldownSparo = record.actionCooldownSec();
-                    double dashImpulse = 0;
-                    double dashCooldown = 0;
-
-                    if (record.player() != null) {
-                        dashImpulse = record.player().dashImpulse();
-                        dashCooldown = record.player().dashCooldownSec();
-                        if (record.player().baseCooldownSec() > 0) {
-                            cooldownSparo = record.player().baseCooldownSec();
-                        }
-                    }
-
-                    String extraText = String.format("""
-                        SPECIFICHE DI SISTEMA
-                        
-                        🔢 Registro Indice: #%03d
-                        ⏱ Cooldown Fuoco Base: %.2f sec
-                        💨 Impulso Propulsione (Dash): %.1f N/s
-                        ⏱ Ricarica Scatto (Dash): %.2f sec
-                        🆔 ID Interno Risorsa: %s
-                        """,
-                            order, cooldownSparo, dashImpulse, dashCooldown, record.entityKey()
-                    );
-                    updateInfo("EXTRA INFO", extraText);
-                } else {
-                    double cooldownSeconds = (record.actionCooldownSec() > 0) ? record.actionCooldownSec() : (record.actionCooldownSec() / 1000.0);
-
-                    String extraText = String.format("""
-                        INFORMAZIONI EXTRA
-                        
-                        🔢 Registro Indice: #%03d
-                        ☠️ Classe di Rischio: %s
-                        👁 Raggio di Avvistamento: %.1f unità
-                        ⚔ Raggio di Combattimento: %.1f unità
-                        🎯 Raggio Preferito: %.1f unità
-                        ⏱ Cooldown Azione: %.1f secondi
-                        🆔 ID : %s
-                        📊 Totale Uccisi: %d
-                        """,
-                            order, threat.getDisplayName(),
-                            record.detectionRange(), record.combatRange(), record.preferredRange(),
-                            cooldownSeconds, record.entityKey(), killCount
-                    );
-                    updateInfo("EXTRA INFO", extraText);
+        // ---- Extra ----
+        String extraText;
+        if (isPlayer) {
+            double cooldown = record.actionCooldownSec();
+            double dashImpulse = 0, dashCooldown = 0;
+            if (record.player() != null) {
+                dashImpulse = record.player().dashImpulse();
+                dashCooldown = record.player().dashCooldownSec();
+                if (record.player().baseCooldownSec() > 0) {
+                    cooldown = record.player().baseCooldownSec();
                 }
             }
+            extraText = String.format("""
+                    SYSTEM SPECS
+                    🔢 Index: #%03d
+                    ⏱ Base Fire Cooldown: %.2f sec
+                    💨 Dash Impulse: %.1f N/s
+                    ⏱ Dash Recharge: %.2f sec
+                    🆔 Internal ID: %s
+                    """,
+                    record.bestiaryOrder() != null ? record.bestiaryOrder() : 0,
+                    cooldown, dashImpulse, dashCooldown, record.entityKey()
+            );
+        } else {
+            double cooldown = record.actionCooldownSec() > 0 ? record.actionCooldownSec() : record.actionCooldownSec() / 1000.0;
+            extraText = String.format("""
+                    EXTRA INFO
+                    🔢 Index: #%03d
+                    ☠️ Threat Class: %s
+                    👁 Detection Range: %.1f units
+                    ⚔ Combat Range: %.1f units
+                    🎯 Preferred Range: %.1f units
+                    ⏱ Action Cooldown: %.1f s
+                    🆔 ID: %s
+                    """,
+                    record.bestiaryOrder() != null ? record.bestiaryOrder() : 0,
+                    threat.getDisplayName(),
+                    record.detectionRange(), record.combatRange(), record.preferredRange(),
+                    cooldown, record.entityKey()
+            );
         }
+        extraArea.setText(extraText);
     }
 }

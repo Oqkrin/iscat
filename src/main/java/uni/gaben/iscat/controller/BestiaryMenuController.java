@@ -22,10 +22,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BestiaryMenuController implements IscatMenuController {
 
-    private enum InfoMode {
-        DESCRIPTION, STATS, EXTRA
-    }
-
     private enum CategoryMode {
         ENEMIES, PLAYERS
     }
@@ -38,7 +34,6 @@ public class BestiaryMenuController implements IscatMenuController {
     private static final double ICON_SIZE = 32.0;
 
     private String currentEnemyId = null;
-    private InfoMode currentInfoMode = InfoMode.DESCRIPTION;
     private CategoryMode currentCategory = CategoryMode.ENEMIES;
 
     @FXML private StackPane previewContainer;
@@ -48,9 +43,6 @@ public class BestiaryMenuController implements IscatMenuController {
 
     @FXML private Button btnToggleCategory;
     @FXML private Button btnRandom;
-    @FXML private Button btnDescription;
-    @FXML private Button btnStats;
-    @FXML private Button btnExtra;
     @FXML private Button btnBack;
 
     @FXML private InfoCardController infoCardController;
@@ -66,9 +58,6 @@ public class BestiaryMenuController implements IscatMenuController {
 
         ComponentsUtils.applyIconButton(btnToggleCategory, "fas-exchange-alt");
         ComponentsUtils.applyIconButton(btnRandom,         "fas-dice");
-        ComponentsUtils.applyIconButton(btnDescription,    "fas-book");
-        ComponentsUtils.applyIconButton(btnStats,          "fas-chart-bar");
-        ComponentsUtils.applyIconButton(btnExtra,          "fas-info-circle");
         ComponentsUtils.applyIconButton(btnBack,           "fas-arrow-left");
 
         SessionManager.getInstance().saveDataProperty().addListener((obs, old, data) -> {
@@ -76,6 +65,7 @@ public class BestiaryMenuController implements IscatMenuController {
         });
 
         refreshBestiary();
+        registerEscHandler();
     }
 
     private void refreshBestiary() {
@@ -240,21 +230,14 @@ public class BestiaryMenuController implements IscatMenuController {
         if (enemy == null) return;
 
         boolean unlocked = isPlayer(currentEnemyId, enemy) || bestiaryModel.isUnlocked(currentEnemyId);
-        int currentKills = bestiaryModel.getKillCount(currentEnemyId);
 
         if (!unlocked) {
             infoCardController.updateInfo("LOCKED", "[ INFO NASCOSTE ]\n\nSconfiggi o sblocca questa entità per visualizzarla.");
             return;
         }
 
-        // Sincronizza l'enum ed invia i dati strutturati comprensivi del killCount
-        InfoCardController.InfoMode targetMode = InfoCardController.InfoMode.valueOf(currentInfoMode.name());
-        infoCardController.updateEntityInfo(targetMode, enemy, currentKills);
+        infoCardController.updateEntityInfo(enemy);
     }
-
-    @FXML private void showDescription() { currentInfoMode = InfoMode.DESCRIPTION; refreshInfoZone(); }
-    @FXML private void showStats()       { currentInfoMode = InfoMode.STATS; refreshInfoZone(); }
-    @FXML private void showExtra()       { currentInfoMode = InfoMode.EXTRA; refreshInfoZone(); }
 
     @FXML
     private void selectRandom() {

@@ -42,12 +42,6 @@
                         <Button fx:id="btnRandom" maxWidth="Infinity" onAction="#selectRandom" styleClass="menu-button" text="RANDOM" />
                     </VBox>
 
-                    <HBox alignment="CENTER" spacing="12.0">
-                        <Button fx:id="btnDescription" onAction="#showDescription" styleClass="menu-button" text="INFO" minWidth="-Infinity" prefWidth="110.0" />
-                        <Button fx:id="btnStats" onAction="#showStats" styleClass="menu-button" text="STATS" minWidth="-Infinity" prefWidth="110.0" />
-                        <Button fx:id="btnExtra" onAction="#showExtra" styleClass="menu-button" text="EXTRA" minWidth="-Infinity" prefWidth="110.0" />
-                    </HBox>
-
                     <Region prefHeight="10.0" VBox.vgrow="ALWAYS" />
 
                     <Button fx:id="btnBack" maxWidth="Infinity" onAction="#handleBack" styleClass="menu-button, back-button" text="MAIN MENU" />
