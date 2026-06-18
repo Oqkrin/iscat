@@ -60,21 +60,21 @@
                 </padding>
 
                 <VBox fx:id="tabMainSettings" alignment="CENTER" spacing="20.0" visible="true">
-                    <fx:include fx:id="subDisplay" source="SettingsDisplay.fxml" />
+                    <fx:include fx:id="subDisplay" source="components/settings/DisplaySettings.fxml" />
                     <Region minHeight="10.0" prefHeight="20.0" />
-                    <fx:include fx:id="subAudio" source="SettingsAudio.fxml" />
+                    <fx:include fx:id="subAudio" source="components/settings/AudioSettings.fxml" />
                 </VBox>
 
                 <VBox fx:id="tabControls" alignment="CENTER" visible="false">
-                    <fx:include fx:id="subKeybinds" source="SettingsKeyinds.fxml" />
+                    <fx:include fx:id="subKeybinds" source="components/settings/KeybindsSettings.fxml" />
                 </VBox>
 
                 <VBox fx:id="tabTheme" alignment="CENTER" visible="false">
-                    <fx:include fx:id="subTheme" source="SettingsTheme.fxml" />
+                    <fx:include fx:id="subTheme" source="components/settings/ThemeSettings.fxml" />
                 </VBox>
 
                 <VBox fx:id="tabAccount" alignment="CENTER" visible="false">
-                    <fx:include fx:id="subAccount" source="SettingsAccount.fxml" />
+                    <fx:include fx:id="subAccount" source="components/settings/AccountSettings.fxml" />
                 </VBox>
             </StackPane>
 
@@ -83,5 +83,5 @@
         <Region minHeight="24.0" prefHeight="24.0" VBox.vgrow="NEVER" />
     </VBox>
 
-    <fx:include fx:id="confirmOverlay" source="../ConfirmationOverlay.fxml" />
+    <fx:include fx:id="confirmOverlay" source="components/ConfirmationOverlay.fxml" />
 </StackPane>
