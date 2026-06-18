@@ -246,7 +246,9 @@ public class PlayerModel extends AbstractLivingEntityModel
     }
 
     public double getProjectileDamage() {
-        return dannoProiettile + (getLevel() * 5.0);
+        if (getLevel() > 1)
+            return dannoProiettile + ((getLevel() - 1) * 25.0);
+        return dannoProiettile;
     }
 
     // ==================== PROPERTIES JAVAFX ====================

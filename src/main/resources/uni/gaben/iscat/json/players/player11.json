@@ -19,6 +19,7 @@
     "dashCooldownSec": 0.8,
     "stunDurationSec": 1.0,
     "baseCooldownSec": 0.3,
+    "dannoProiettile": 50,
     "levelAbilities": [
       {
         "minLevel": 10,
