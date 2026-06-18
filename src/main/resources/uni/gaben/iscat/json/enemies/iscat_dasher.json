@@ -2,7 +2,7 @@
   "EntityKey": "iscat_dasher",
   "Name": "Iscat Dasher",
   "Description": "Nessuno riesce a capire\nse Iscat Dasher stia attaccando\noppure abbia semplicemente dimenticato\ncome frenare.",
-  "SpriteName": "iscat_dasher_S",
+  "SpriteName": "iscat_dasher",
   "BestiaryOrder": 4,
   "ThreatLevel": "HIGH",
   "FrameW": 32,
