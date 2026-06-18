@@ -16,7 +16,7 @@ import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.controller.game.GameOverMenuController;
 import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.model.game.GameModel;
-import uni.gaben.iscat.controller.OptionsMenuController;
+import uni.gaben.iscat.controller.SettingsMenuController;
 import uni.gaben.iscat.controller.game.GamePauseMenuController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
@@ -314,7 +314,7 @@ public class GameView extends AbstractIscatStackPane {
         transitionTo(GameState.IN_OPTIONS);
         final StackPane[] wrapper = new StackPane[1];
         wrapper[0] = loadFxml("/uni/gaben/iscat/fxml/SettingsMenu.fxml",
-                (OptionsMenuController c) -> {
+                (SettingsMenuController c) -> {
                     c.initGameContext(gameController);
                     c.setCustomBackAction(() -> closeOptions(wrapper[0]));
                     c.syncAllProperties();

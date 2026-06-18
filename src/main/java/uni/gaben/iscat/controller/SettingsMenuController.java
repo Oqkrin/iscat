@@ -14,7 +14,7 @@ import uni.gaben.iscat.controller.components.options.*;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 
-public class OptionsMenuController implements IscatMenuController {
+public class SettingsMenuController implements IscatMenuController {
 
     @FXML private VBox paneMaster;
 
