@@ -19,11 +19,6 @@ public final class PlayerSettings {
 
     private PlayerSettings() {}
 
-    // === Core Physics (BULLET HELL REWORK) ===
-
-    // === Combat & Vitals ===
-    public static final double DANNO_PROIETTILE = 30.0;
-
     // === Visuals & Dimensions ===
     public static final double HP_BAR_OFFSET_Y = 10.0;
     public static final double HP_BAR_HEIGHT = 4.0;
