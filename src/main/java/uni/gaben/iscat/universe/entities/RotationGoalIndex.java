@@ -6,7 +6,8 @@ public enum RotationGoalIndex {
     MOVEMENT("movement"),
     TARGET("target"),
     CONTINUES_SPIN("continuesSpin"),
-    INTERVAL_SPIN("intervalSpin");
+    INTERVAL_SPIN("intervalSpin"),
+    LOCKED("locked");
 
     public final String jsonKey;
 

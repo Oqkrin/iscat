@@ -21,7 +21,6 @@ public class EntityBrain extends Brain<EntityModel> {
 
         // Rotation
         brain.setRotationGoal(EntityRecordParser.createRotationGoal(entityRecord.brain().rotation()));
-
         // Abilities
         for (EntityRecord.AbilityRecord ac : entityRecord.brain().abilities()) {
             Ability ability = EntityRecordParser.createAbility(ac, entity);

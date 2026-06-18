@@ -110,4 +110,13 @@ public interface RotationGoal {
             }
         };
     }
+
+    static RotationGoal fixedAngle(double angleRadians) {
+        return (self, world, dt) -> {
+            // Forza istantaneamente la rotazione del corpo rigido all'angolo fisso
+            self.getTransform().setRotation(angleRadians);
+            self.setAngularVelocity(0); // Azzera forze rotazionali o collisioni esterne
+            return angleRadians;
+        };
+    }
 }

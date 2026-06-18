@@ -32,7 +32,7 @@
         "death": ["master_death"],
         "spawn": ["master_spawn"]
       },"ai": {
-        "rotation": { "type": "still" },
+        "rotation": { "type": "locked" },
         "steering": {
           "type": "pursuitWithRange",
           "maxPredictionTime": 10,

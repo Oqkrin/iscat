@@ -482,8 +482,9 @@ public final class EntityRecordParser {
     /**
      * Instanzia l'algoritmo di rotazione e puntamento dell'asse del corpo in base ai requisiti dell'AI.
      *
-     * @param rotation I dati di configurazione della rotazione.
-     * @return         Un modulo operativo pronto {@link RotationGoal}.
+     * @param rotation     I dati di configurazione della rotazione.
+     * @param entityRecord
+     * @return Un modulo operativo pronto {@link RotationGoal}.
      */
     public static RotationGoal createRotationGoal(EntityRecord.RotationRecord rotation) {
         if (rotation == null) return RotationGoal.idle();
@@ -493,6 +494,7 @@ public final class EntityRecordParser {
             case TARGET -> RotationGoal.target(Target.ofPlayer());
             case CONTINUES_SPIN -> RotationGoal.continuesSpin(rotation.spinSpeedRadPerSec());
             case INTERVAL_SPIN -> RotationGoal.intervalSpin(rotation.spinSteps(), rotation.stepPauseSec(), rotation.spinSpeedRadPerSec());
+            case LOCKED -> RotationGoal.fixedAngle(0.0);
             default -> RotationGoal.idle();
         };
     }

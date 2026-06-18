@@ -33,7 +33,7 @@
       "type": "pursuit",
       "maxPredictionTime": 0.5
     },
-    "rotation": { "type": "still" },
+    "rotation": { "type": "locked" },
     "abilities": [
       {
         "type": "kamikaze",

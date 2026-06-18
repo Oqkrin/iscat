@@ -34,7 +34,7 @@
     "minDistance": 15,
     "maxDistance": 25
   },
-  "rotation": { "type": "still" },
+  "rotation": { "type": "locked" },
   "abilities": [
     {
       "type": "heal",
