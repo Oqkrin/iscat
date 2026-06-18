@@ -105,7 +105,7 @@ public class GamePauseMenuController implements IscatFxmlController {
 
     @FXML
     private void openOptionMenu() {
-        if (gameView != null) gameView.openOptions();
+        if (gameView != null) gameView.openSettings();
     }
 
     @Override

@@ -310,7 +310,7 @@ public class GameView extends AbstractIscatStackPane {
         }
     }
 
-    public void openOptions() {
+    public void openSettings() {
         transitionTo(GameState.IN_OPTIONS);
         final StackPane[] wrapper = new StackPane[1];
         wrapper[0] = loadFxml("/uni/gaben/iscat/fxml/SettingsMenu.fxml",
