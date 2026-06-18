@@ -313,7 +313,7 @@ public class GameView extends AbstractIscatStackPane {
     public void openOptions() {
         transitionTo(GameState.IN_OPTIONS);
         final StackPane[] wrapper = new StackPane[1];
-        wrapper[0] = loadFxml("/uni/gaben/iscat/fxml/settings/SettingsMenu.fxml",
+        wrapper[0] = loadFxml("/uni/gaben/iscat/fxml/SettingsMenu.fxml",
                 (OptionsMenuController c) -> {
                     c.initGameContext(gameController);
                     c.setCustomBackAction(() -> closeOptions(wrapper[0]));
