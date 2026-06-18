@@ -11,6 +11,7 @@ import uni.gaben.iscat.universe.entities.EntityDeathListener;
 import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
@@ -62,7 +63,11 @@ public class UniverseController {
         processPlayerInputs(player, inputs, camera, dt);
         updateEntities(dt);
         updateAI(dt);
+
+        // Applica i limiti fisici prima di avanzare con lo step del motore di dyn4j
         applyTerminalVelocityLimits();
+        applyCircularBoundaries();
+
         universeModel.stepPhysics(dt);
         updateProjectiles(camera, dt);
         processEntityCleanup(player);
@@ -103,6 +108,35 @@ public class UniverseController {
                 double maxSpeed = entity.getTerminalVelocity();
                 Vector2 vel = body.getLinearVelocity();
                 if (vel.getMagnitude() > maxSpeed) body.getLinearVelocity().setMagnitude(maxSpeed);
+            }
+        }
+    }
+
+    private void applyCircularBoundaries() {
+        double radius = universeModel.getUniverseRadius();
+        if (radius <= 0) return;
+
+        for (Body body : universeModel.getBodies()) {
+            if (body instanceof AbstractPhysicalProjectileModel || body instanceof AsteroidModel) {
+                continue;
+            }
+
+            Vector2 pos = body.getTransform().getTranslation();
+            double distance = pos.getMagnitude();
+
+            if (distance > radius) {
+                // Calcoliamo la normale di rimbalzo/congelamento verso il centro
+                Vector2 normal = pos.getNormalized();
+
+                // Forza la posizione sul perimetro esatto del cerchio
+                body.getTransform().setTranslation(normal.x * radius, normal.y * radius);
+
+                // Annulla o devia il vettore velocità proiettato al di fuori del bordo
+                Vector2 vel = body.getLinearVelocity();
+                double dotProduct = vel.dot(normal);
+                if (dotProduct > 0) {
+                    vel.subtract(normal.product(dotProduct));
+                }
             }
         }
     }
@@ -171,21 +205,18 @@ public class UniverseController {
      * This includes audio, heart drops, and score/kill tracking.
      */
     private void handleEntityDeathEffects(AbstractLivingEntityModel entity) {
-        // Play death audio if it's an enemy (not player, projectile, heart)
         if (entity instanceof EntityModel enemy) {
             EntityAudioManager.playEventAudio(enemy, "death");
         }
 
-        // Only enemies killed by projectiles drop hearts and count kills
         if (!(entity instanceof PlayerModel) && !(entity instanceof HeartModel) && !(entity instanceof ProjectileModel) && entity.isKilledByProjectile()) {
-                SessionScoreTracker.getInstance().addDeaths(1);
-                if (Math.random() < 0.25) {
-                    double px = UU.mToPx(entity.getTransform().getTranslationX());
-                    double py = UU.mToPx(entity.getTransform().getTranslationY());
-                    UniverseSpawner.getInstance().spawn("HEART", px, py);
-                }
+            SessionScoreTracker.getInstance().addDeaths(1);
+            if (Math.random() < 0.25) {
+                double px = UU.mToPx(entity.getTransform().getTranslationX());
+                double py = UU.mToPx(entity.getTransform().getTranslationY());
+                UniverseSpawner.getInstance().spawn("HEART", px, py);
             }
-
+        }
     }
 
     // ── Camera ────────────────────────────────────────────────────────────────
