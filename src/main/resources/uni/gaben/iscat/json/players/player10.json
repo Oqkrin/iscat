@@ -3,7 +3,7 @@
   "Name": "SPINNER",
   "Description": "SPIN TO WIN, SPIN TO VICTORY.",
   "SpriteName": "player10",
-  "BestiaryOrder": 8,
+  "BestiaryOrder": 9,
   "FrameW": 32,
   "FrameH": 32,
   "ShapeType": "CIRCLE",
