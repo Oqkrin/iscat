@@ -8,8 +8,10 @@ import uni.gaben.iscat.universe.camera.CameraController;
 import uni.gaben.iscat.universe.camera.CameraSettings;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityDeathListener;
+import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectilePool;
@@ -18,7 +20,10 @@ import uni.gaben.iscat.universe.entities.brain.IEntityController;
 import uni.gaben.iscat.universe.entities.interfaces.Dynamic;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerController;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.spawn.UniverseWaveController;
+import uni.gaben.iscat.utils.EntityAudioManager;
+import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
@@ -126,7 +131,9 @@ public class UniverseController {
     private void processEntityCleanup(PlayerModel player) {
         List<AbstractPhysicalEntityModel> toRemove = new ArrayList<>();
 
-        for (AbstractPhysicalEntityModel entity : universeModel.getEntities()) {
+        // Snapshot to avoid ConcurrentModificationException
+        List<AbstractPhysicalEntityModel> snapshot = new ArrayList<>(universeModel.getEntities());
+        for (AbstractPhysicalEntityModel entity : snapshot) {
             if (entity == null) continue;
 
             boolean remove = entity.shouldRemove();
@@ -140,18 +147,45 @@ public class UniverseController {
             if (remove) {
                 toRemove.add(entity);
                 if (entity instanceof AbstractLivingEntityModel living && living != player) {
+                    // Notify external listener (e.g., for wave controller)
                     if (entityDeathListener != null) {
                         entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
                     }
+
+                    // Apply death side effects (audio, heart spawn, etc.)
+                    handleEntityDeathEffects(living);
                 }
             }
         }
 
+        // Now safely remove all entities in toRemove
         for (AbstractPhysicalEntityModel entity : toRemove) {
             universeModel.removeEntity(entity);
             entityControllers.removeIf(ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
             if (entity instanceof ProjectileModel p) ProjectilePool.release(p);
         }
+    }
+
+    /**
+     * Handles all side effects when a living entity dies.
+     * This includes audio, heart drops, and score/kill tracking.
+     */
+    private void handleEntityDeathEffects(AbstractLivingEntityModel entity) {
+        // Play death audio if it's an enemy (not player, projectile, heart)
+        if (entity instanceof EntityModel enemy) {
+            EntityAudioManager.playEventAudio(enemy, "death");
+        }
+
+        // Only enemies killed by projectiles drop hearts and count kills
+        if (!(entity instanceof PlayerModel) && !(entity instanceof HeartModel) && !(entity instanceof ProjectileModel) && entity.isKilledByProjectile()) {
+                SessionScoreTracker.getInstance().addDeaths(1);
+                if (Math.random() < 0.25) {
+                    double px = UU.mToPx(entity.getTransform().getTranslationX());
+                    double py = UU.mToPx(entity.getTransform().getTranslationY());
+                    UniverseSpawner.getInstance().spawn("HEART", px, py);
+                }
+            }
+
     }
 
     // ── Camera ────────────────────────────────────────────────────────────────

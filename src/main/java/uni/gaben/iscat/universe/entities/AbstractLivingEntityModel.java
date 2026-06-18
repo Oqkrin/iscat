@@ -7,9 +7,6 @@ import uni.gaben.iscat.universe.entities.interfaces.hasXpReward;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.UU;
-import uni.gaben.iscat.universe.spawn.UniverseSpawner;
-import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
-import uni.gaben.iscat.utils.EntityAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityModel implements Alterable, hasXpReward {
@@ -31,13 +28,15 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
     public DoubleProperty enduranceProperty() { return endurance; }
 
     @Override
-    public double getEndurance() {
-        return endurance.get();
-    }
+    public double getEndurance() { return endurance.get(); }
 
     @Override
     public double getMaxEndurance() { return maxEndurance; }
-    public void setMaxEndurance(double maxEndurance) { this.maxEndurance = maxEndurance; setEndurance(getEndurance()); }
+
+    public void setMaxEndurance(double maxEndurance) {
+        this.maxEndurance = maxEndurance;
+        setEndurance(getEndurance());
+    }
 
     public void setEndurance(double endurance) {
         double clamped = Math.clamp(endurance, 0, maxEndurance);
@@ -48,7 +47,9 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
     }
 
     @Override
-    public void alter(double amount) { setEndurance(getEndurance() + amount); }
+    public void alter(double amount) {
+        setEndurance(getEndurance() + amount);
+    }
 
     public void setMaxEnduranceDirect(double maxLife) {
         this.maxEndurance = maxLife;
@@ -65,34 +66,15 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
 
     public void setOnDeath(Runnable callback) { this.onDeath = callback; }
 
-
     @Override
     public void extinguish() { extinguish(false); }
+
     public void extinguish(boolean silent) {
-        if (!shouldRemove()) {
-            if(getEndurance() > 0) setEndurance(0);
-            setShouldRemove(true);
-            if (onDeath != null) onDeath.run();
-
-            boolean isProjectile = this instanceof ProjectileModel;
-            boolean isPlayer = this instanceof PlayerModel;
-            boolean isHeart = this instanceof HeartModel;
-
-            if (!silent && !isProjectile && !isHeart) {
-                AbstractLivingEntityModel entityModel = this;
-                EntityAudioManager.playEventAudio(entityModel, "death");
-            }
-
-            if (!isHeart && !isProjectile && !isPlayer && killedByProjectile) {
-                SessionScoreTracker.getInstance().addDeaths(1);
-                if (Math.random() < 0.25) {
-                    double px = UU.mToPx(getTransform().getTranslationX());
-                    double py = UU.mToPx(getTransform().getTranslationY());
-                    UniverseSpawner.getInstance().spawn("HEART", px, py);
-                }
-            }
-            onDeath();
-        }
+        if (shouldRemove()) return;
+        if (getEndurance() > 0) setEndurance(0);
+        setShouldRemove(true);
+        if (onDeath != null) onDeath.run();
+        onDeath();
     }
 
     public void onDeath() {}
