@@ -17,7 +17,7 @@ import java.util.List;
 public class MainMenuController implements IscatFxmlController {
 
     @FXML private Button playButton;
-    @FXML private Button optionsButton;
+    @FXML private Button settingsButton;
     @FXML private Button scoreButton;
     @FXML private Button skinButton;
     @FXML private Button bestiaryButton;
@@ -53,7 +53,7 @@ public class MainMenuController implements IscatFxmlController {
         });
 
         setIcon(playButton,        "fas-rocket");
-        setIcon(optionsButton,     "fas-cog");
+        setIcon(settingsButton,     "fas-cog");
         setIcon(scoreButton,       "fas-eye");
         setIcon(skinButton,        "fas-gift");
         setIcon(bestiaryButton,    "fas-bug");
@@ -70,7 +70,7 @@ public class MainMenuController implements IscatFxmlController {
     }
 
     @FXML public void playGame()            { navigate(IscatViews.GAME);             }
-    @FXML public void openOptionsMenu()     { navigate(IscatViews.SETTINGS_MENU);     }
+    @FXML public void openSettingsMenu()     { navigate(IscatViews.SETTINGS_MENU);     }
     @FXML public void openScoreMenu()       { navigate(IscatViews.SCORE_MENU);       }
     @FXML public void openSkinMenu()        { navigate(IscatViews.SKIN_MENU);        }
     @FXML public void openBestiaryMenu()    { navigate(IscatViews.BESTIARY_MENU);    }

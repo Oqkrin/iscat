@@ -35,7 +35,6 @@ public class GameController {
 
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
-    private final BooleanProperty optionsMenuOpen = new SimpleBooleanProperty(false);
 
     public GameController(GameModel gameModel) {
         this.gameModel = gameModel;
@@ -194,10 +193,6 @@ public class GameController {
     public boolean isDebugModeOn() { return showDebugMode.get(); }
     public void setShowDebugMode(boolean v) { showDebugMode.set(v); }
     public BooleanProperty debugModeProperty() { return showDebugMode; }
-
-    public boolean isOptionsMenuOpen() { return optionsMenuOpen.get(); }
-    public void setOptionsMenuOpen(boolean v) { optionsMenuOpen.set(v); }
-    public BooleanProperty optionsMenuOpenProperty() { return optionsMenuOpen; }
 
     public void stopGameLoop() { gameLoop.stop(); }
     public void startGameLoop() { gameLoop.start(); }

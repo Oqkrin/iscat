@@ -85,7 +85,7 @@
                      </styleClass>
                   </Button>
 
-                  <Button fx:id="optionsButton" contentDisplay="LEFT" onAction="#openOptionsMenu" prefWidth="240.0" maxWidth="240.0" rotate="3.0" text="SETTINGS">
+                  <Button fx:id="settingsButton" contentDisplay="LEFT" onAction="#openSettingsMenu" prefWidth="240.0" maxWidth="240.0" rotate="3.0" text="SETTINGS">
                      <padding>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                      </padding>

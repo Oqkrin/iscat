@@ -198,7 +198,7 @@ public class GameView extends AbstractIscatStackPane {
         this.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             KeyCode code = e.getCode();
 
-            if (code == KeyCode.ESCAPE && gameModel.getGameState() != GameState.IN_OPTIONS) {
+            if (code == KeyCode.ESCAPE && gameModel.getGameState() != GameState.IN_SETTINGS) {
                 transitionTo(gameModel.getGameState().onEscape());
                 e.consume();
                 return;
@@ -311,19 +311,19 @@ public class GameView extends AbstractIscatStackPane {
     }
 
     public void openSettings() {
-        transitionTo(GameState.IN_OPTIONS);
+        transitionTo(GameState.IN_SETTINGS);
         final StackPane[] wrapper = new StackPane[1];
         wrapper[0] = loadFxml("/uni/gaben/iscat/fxml/SettingsMenu.fxml",
                 (SettingsMenuController c) -> {
                     c.initGameContext(gameController);
-                    c.setCustomBackAction(() -> closeOptions(wrapper[0]));
+                    c.setCustomBackAction(() -> closeSettings(wrapper[0]));
                     c.syncAllProperties();
                 });
         wrapper[0].getStyleClass().add("game-pause-overlay");
         getContentRoot().getChildren().add(wrapper[0]);
     }
 
-    private void closeOptions(StackPane optionsView) {
+    private void closeSettings(StackPane optionsView) {
         getContentRoot().getChildren().remove(optionsView);
         transitionTo(GameState.IN_PAUSE);
     }
