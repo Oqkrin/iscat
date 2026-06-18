@@ -8,22 +8,19 @@ import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 public enum ProjectileType {
+    PLAYER_BULLET(UniverseVelocitySettings.PLAYER_PROJECTILE_VELOCITY, 4.0, UniverseCollisionLayers.PROJECTILE_FILTER, ThemeManager.getInstance().getAccentPrimary()),
+    ENEMY_BULLET (UniverseVelocitySettings.ENEMY_PROJECTILE_VELOCITY,  4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getColorError()),
+    STUN_BULLET (UniverseVelocitySettings.ENEMY_PROJECTILE_VELOCITY, 7.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getAccentTernary());
 
-    PLAYER_BULLET(UniverseVelocitySettings.PLAYER_PROJECTILE_VELOCITY, 4.0, PlayerSettings.DANNO_PROIETTILE, UniverseCollisionLayers.PROJECTILE_FILTER, ThemeManager.getInstance().getAccentPrimary()),
-    ENEMY_BULLET (UniverseVelocitySettings.ENEMY_PROJECTILE_VELOCITY,  4.0, 4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getColorError()),
-    STUN_BULLET (UniverseVelocitySettings.ENEMY_PROJECTILE_VELOCITY, 7.0, 1.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getAccentTernary()),;
-    public final double         terminalVelocity;
-    public final double         radiusPx;
-    public final double energy;
+    public final double terminalVelocity;
+    public final double radiusPx;
     public final CategoryFilter filter;
-    public final Color          color;
+    public final Color color;
 
-    ProjectileType(double terminalVelocity, double radiusPx,
-                   double energy, CategoryFilter filter, Color color) {
+    ProjectileType(double terminalVelocity, double radiusPx, CategoryFilter filter, Color color) {
         this.terminalVelocity = terminalVelocity;
-        this.radiusPx         = radiusPx;
-        this.energy = energy;
-        this.filter           = filter;
-        this.color            = color;
+        this.radiusPx = radiusPx;
+        this.filter = filter;
+        this.color = color;
     }
 }

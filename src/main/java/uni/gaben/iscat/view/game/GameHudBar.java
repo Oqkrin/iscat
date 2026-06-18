@@ -14,9 +14,6 @@ import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.spawn.UniverseWaveController;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
-/**
- * HUD bar trasparente mostrata in cima allo schermo durante il gioco.
- */
 public class GameHudBar extends StackPane {
 
     private static final String FONT_FAMILY  = "Miracode";
@@ -29,20 +26,16 @@ public class GameHudBar extends StackPane {
     private Label timerLabel;
     private Label enemiesCounterLabel;
     private Label waveLabel;
+    private Label threatLabel;
 
     public GameHudBar(GameController controller) {
         buildNodes(controller.getUniverseWaveController());
         bindToWaveController(controller.getUniverseWaveController());
 
-        // Timer aggiornato dal model
         controller.getGameModel().timerProperty()
                 .addListener((obs, oldV, newV) -> updateTimer(newV.intValue()));
         updateTimer(controller.getGameModel().getTimer());
     }
-
-    // -------------------------------------------------------------------------
-    // Build
-    // -------------------------------------------------------------------------
 
     private void buildNodes(UniverseWaveController wave) {
         // Riga 1
@@ -53,7 +46,6 @@ public class GameHudBar extends StackPane {
         killsLabel.setMinWidth(170);
         killsLabel.setAlignment(Pos.CENTER_RIGHT);
 
-        // Binding diretto sulla property observable — si aggiorna ad ogni kill
         killsLabel.textProperty().bind(
                 UniverseWaveController.totalKillsProperty().asString(ICON_KILLS + "  %d"));
 
@@ -69,18 +61,20 @@ public class GameHudBar extends StackPane {
         enemiesCounterLabel.setMaxWidth(Double.MAX_VALUE);
         enemiesCounterLabel.setAlignment(Pos.CENTER);
 
-        // Riga 3
-        waveLabel = styledLabel("Wave  1", FONT_SIZE_SM);
+        // Riga 3 - Wave number
+        waveLabel = styledLabel("Wave 1", FONT_SIZE_SM);
         waveLabel.setOpacity(0.55);
         waveLabel.setMaxWidth(Double.MAX_VALUE);
         waveLabel.setAlignment(Pos.CENTER);
 
-        // Binding diretto al numero di wave
-        waveLabel.textProperty().bind(
-                wave.currentWaveProperty().asString("Wave  %d"));
+        // Riga 4 - Threat level
+        threatLabel = styledLabel("", FONT_SIZE_SM);
+        threatLabel.setOpacity(0.7);
+        threatLabel.setMaxWidth(Double.MAX_VALUE);
+        threatLabel.setAlignment(Pos.CENTER);
 
-        //Assemblaggio nel VBox
-        VBox content = new VBox(6, headerRow, enemiesCounterLabel, waveLabel);
+        // Assemblaggio nel VBox
+        VBox content = new VBox(6, headerRow, enemiesCounterLabel, waveLabel, threatLabel);
         content.setPadding(new Insets(12, 20, 10, 20));
         content.setAlignment(Pos.CENTER);
         content.setMaxHeight(VBox.USE_PREF_SIZE);
@@ -95,10 +89,6 @@ public class GameHudBar extends StackPane {
         setMouseTransparent(true);
     }
 
-    // -------------------------------------------------------------------------
-    // Binding alle property del WaveController
-    // -------------------------------------------------------------------------
-
     private void bindToWaveController(UniverseWaveController wave) {
         // Aggiorna il testo quando cambiano i nemici rimanenti o il totale della wave
         wave.enemiesRemainingProperty().addListener((obs, oldV, newV) -> refreshEnemiesLabel(
@@ -106,13 +96,19 @@ public class GameHudBar extends StackPane {
         wave.waveTotalProperty().addListener((obs, oldV, newV) -> refreshEnemiesLabel(
                 wave.enemiesRemainingProperty().get(), newV.intValue()));
 
+        // Aggiorna la wave label (SOLO numero)
+        wave.currentWaveProperty().addListener((obs, oldV, newV) ->
+                waveLabel.setText("Wave " + newV.intValue()));
+
+        // Aggiorna la threat label
+        wave.currentWaveProperty().addListener((obs, oldV, newV) ->
+                threatLabel.setText(wave.getCurrentThreatLevelDisplay()));
+
         // Inizializza
         refreshEnemiesLabel(wave.getEnemiesRemaining(), wave.getWaveTotal());
+        waveLabel.setText("Wave " + wave.getCurrentWave());
+        threatLabel.setText(wave.getCurrentThreatLevelDisplay());
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     private void refreshEnemiesLabel(int remaining, int total) {
         enemiesCounterLabel.setText("Nemici rimanenti: " + remaining + " / " + total);
@@ -129,21 +125,21 @@ public class GameHudBar extends StackPane {
     }
 
     public void rebindToWaveController(UniverseWaveController newWave) {
-        // Rimuove i binding diretti precedenti per evitare memory leak o conflitti
-        waveLabel.textProperty().unbind();
-
-        // Applica il nuovo binding del testo della Wave
-        waveLabel.textProperty().bind(
-                newWave.currentWaveProperty().asString("Wave  %d"));
-
-        // Sovrascrive i listener per il contatore dei nemici rimanenti
+        // Aggiorna i listener
         newWave.enemiesRemainingProperty().addListener((obs, oldV, newV) -> refreshEnemiesLabel(
                 newV.intValue(), newWave.waveTotalProperty().get()));
         newWave.waveTotalProperty().addListener((obs, oldV, newV) -> refreshEnemiesLabel(
                 newWave.enemiesRemainingProperty().get(), newV.intValue()));
 
-        // Sincronizza immediatamente la grafica ai valori iniziali del nuovo ciclo
+        newWave.currentWaveProperty().addListener((obs, oldV, newV) -> {
+            waveLabel.setText("Wave " + newV.intValue());
+            threatLabel.setText(newWave.getCurrentThreatLevelDisplay());
+        });
+
+        // Sincronizza immediatamente
         refreshEnemiesLabel(newWave.getEnemiesRemaining(), newWave.getWaveTotal());
+        waveLabel.setText("Wave " + newWave.getCurrentWave());
+        threatLabel.setText(newWave.getCurrentThreatLevelDisplay());
     }
 
     private Label styledLabel(String text, double size) {

@@ -83,7 +83,8 @@ public final class EntityRecordParser {
                 .maxForce(json.optDouble("MaxForce", 30.0))
                 .maxAngularVelocity(json.optDouble("MaxAngularVelocity", 5.0))
                 .visualAngularOffset(json.optDouble("AngularOffsetRad", 0.0))
-                .xpReward(json.optInt("XPReward", 10));
+                .xpReward(json.optInt("XPReward", 10))
+                .dannoProiettile(json.optDouble("DannoProiettile", 4.0));
     }
 
     private static void parseBehavioural(JSONObject json, EntityRecordBuilder builder) {
@@ -143,6 +144,10 @@ public final class EntityRecordParser {
                 json.optDouble("baseCooldownSec", 0.3),
                 json.optDouble("meleeDamage", 0),
                 json.optDouble("meleeCooldownSec", 0.5),
+                json.optDouble("baseSpeed", 10.0),
+                json.optDouble("baseThrustForce", 30.0),
+                json.optDouble("baseXPNeeded", 100.0),
+                json.optDouble("dannoProiettile", 50.0),
                 parseLevelAbilities(json.optJSONArray("levelAbilities"))
         );
     }
@@ -326,9 +331,10 @@ public final class EntityRecordParser {
         return switch (ac.type()) {
             case SHOOT -> {
                 Pattern shooter = createPattern(ac.pattern());
+                double dannoEntita = entity.getEntityRecord().dannoProiettile();
                 yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), shooter,
-                        target, ac.aimAtTarget(), ac.nerfPrediction());
+                        target, ac.aimAtTarget(), ac.nerfPrediction(), dannoEntita);
             }
             case RANDOMIZED_SHOOT -> {
                 List<Pattern> patterns = new ArrayList<>();
@@ -338,9 +344,12 @@ public final class EntityRecordParser {
                         ac.nerfPrediction(), patterns.toArray(new Pattern[0]));
             }
             case HEAL -> new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
-            case SUMMON -> new ShootAbility(ac.combatRange(), ac.cooldownSec(),
-                    ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx()),
-                    target, ac.aimAtTarget(), ac.nerfPrediction());
+            case SUMMON -> {
+                double dannoEntita = entity.getEntityRecord().dannoProiettile();
+                yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
+                        ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx()),
+                        target, ac.aimAtTarget(), ac.nerfPrediction(), dannoEntita);
+            }
             case MELEE -> new MeleeAbility<>(ac.type().jsonKey, entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
             case KAMIKAZE -> new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);
             case DASH -> new DodgeDashAbility(entity, ac.dashCooldownMS()/1000, ac.dashDurationMS()/1000, ac.dashPrediction(), ac.dashAvoidRange(), ac.dashImpulse(),

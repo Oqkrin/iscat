@@ -9,7 +9,7 @@
   "FrameH": 32,
   "ShapeType": "CIRCLE",
   "Scale": 3,
-  "InitLife": 300,
+  "InitLife": 250,
   "LinearDamping": 2,
   "mass": 1,
   "MaxVelocity": 11,

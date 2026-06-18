@@ -35,6 +35,8 @@ public class EntityRecordBuilder {
     private double combatRange = 10.0;
     private double preferredRange = 7.0;
     private double actionCooldownSec = 0.8;
+    // Combat statistics
+    private double dannoProiettile = 4.0;
     // Audio
     private EntityRecord.AudioProfile audio = new EntityRecord.AudioProfile(List.of(), List.of(), List.of(), List.of(), List.of());
     // AI
@@ -163,6 +165,11 @@ public class EntityRecordBuilder {
         return this;
     }
 
+    public EntityRecordBuilder dannoProiettile(double v) {
+        dannoProiettile = v;
+        return this;
+    }
+
     public EntityRecordBuilder audio(EntityRecord.AudioProfile v) {
         audio = v;
         return this;
@@ -189,7 +196,7 @@ public class EntityRecordBuilder {
                 spritePath, frameW, frameH, scale,
                 animationFrames, isBoss, hasEntranceAnimation,
                 initLife, linearDamping, mass, maxVelocity, maxForce, maxAngularVelocity, visualAngularOffset, xpReward, shapeType,
-                detectionRange, combatRange, preferredRange, actionCooldownSec,
+                detectionRange, combatRange, preferredRange, actionCooldownSec, dannoProiettile,
                 audio, brain, player
         );
     }

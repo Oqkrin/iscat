@@ -5,9 +5,9 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.dyn4j.dynamics.BodyFixture;
+import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
-import org.dyn4j.geometry.Geometry;
 
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityRecord;
@@ -20,63 +20,80 @@ import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
-public class PlayerModel extends AbstractLivingEntityModel implements HasSprite, HasThrust, HasDash,Stunnable, Progression {
+/**
+ * Modello del giocatore che gestisce movimento, progressione, dash e combattimento.
+ * Implementa diverse interfacce per abilitare comportamenti modulari.
+ */
+public class PlayerModel extends AbstractLivingEntityModel
+        implements HasSprite, HasThrust, HasDash, Stunnable, Progression {
 
-    // LEVEL SYSTEM VARIABLES
+    // ==================== PROPRIETÀ DI PROGRESSIONE ====================
     private final IntegerProperty level = new SimpleIntegerProperty(1);
     private final DoubleProperty xp = new SimpleDoubleProperty(0);
-    private double xpNeeded = PlayerSettings.XP_BASE_NECESSARIA;
+    private double xpNeeded;
 
+    // ==================== COOLDOWN SYSTEMS ====================
     private final Cooldown dashCooldown = new Cooldown();
     private final Cooldown dashDuration = new Cooldown();
     private final Cooldown weaponCooldown = new Cooldown();
     private final Cooldown stunCooldown = new Cooldown();
+    private final Cooldown meleeCooldown = new Cooldown();
+    private final Cooldown quickDashCooldown = new Cooldown();
+
+    // ==================== THRUST E CALLBACK ====================
     private final Thrust thrust;
     private Runnable onDeathCallback;
 
-    private final Cooldown meleeCooldown = new Cooldown();
-    private double meleeDamage = 0;
-    private double meleeCooldownSec = 0.5;
+    // ==================== STATISTICHE DI COMBATTIMENTO ====================
+    private double meleeDamage;
+    private double meleeCooldownSec;
+    private double currentWeaponCooldown;
+    private double dannoProiettile;
 
+    // ==================== DATI E VETTORI DI MOVIMENTO ====================
     private final EntityRecord data;
     private final Vector2 dashDir = UU.vector2zero();
-    private final Vector2 quickDashDir =  UU.vector2zero();
-    private final Cooldown quickDashCooldown = new Cooldown();
+    private final Vector2 quickDashDir = UU.vector2zero();
 
-    public void setOnDeathCallback(Runnable callback) {
-        this.onDeathCallback = callback;
-    }
-
+    // ==================== COSTRUTTORE ====================
     public PlayerModel(double x, double y, EntityRecord data) {
         super(x, y, data);
         this.data = data;
 
+        // Inizializzazione dai dati del record
+        this.xpNeeded = data.player().baseXPNeeded();
         this.meleeDamage = data.player().meleeDamage();
         this.meleeCooldownSec = data.player().meleeCooldownSec();
+        this.currentWeaponCooldown = data.player().baseCooldownSec();
+        this.dannoProiettile = data.player().dannoProiettile();
 
-        // Usiamo i dati dinamici dal JSON al posto di PlayerSettings
-        double radiusInMeters = UU.pxToM(data.frameW() / 2.5); // o usa un valore specifico
-        BodyFixture fixture = addFixture(Geometry.createCircle(radiusInMeters*data.scale()));
+        // Configurazione fisica del corpo
+        double radiusInMeters = UU.pxToM(data.frameW() / 2.5);
+        BodyFixture fixture = addFixture(
+                Geometry.createCircle(radiusInMeters * data.scale())
+        );
         fixture.setFilter(UniverseCollisionLayers.PLAYER_FILTER);
 
         setMass(MassType.NORMAL);
-
         setLinearDamping(data.linearDamping());
-
-        thrust = new Thrust();
+        this.thrust = new Thrust();
     }
 
+    // ==================== METODI DI MOVIMENTO ====================
 
-
-    // Add this method
+    /**
+     * Esegue un dash rapido nella direzione specificata.
+     * @param angle Angolo in radianti della direzione del dash
+     */
     public void quickDash(double angle) {
-        if (!quickDashCooldown.isReady() || isStunned() || data.player() == null) return;
+        if (!quickDashCooldown.isReady() || isStunned() || data.player() == null) {
+            return;
+        }
 
-        // Use a fraction of the main dash impulse (e.g., 40%)
         double impulse = data.player().dashImpulse() * 3;
         quickDashDir.set(Math.cos(angle), Math.sin(angle));
 
-        // Cancel existing velocity if moving opposite
+        // Annulla la velocità se si sta muovendo in direzione opposta
         if (getLinearVelocity().dot(quickDashDir) < 0) {
             setLinearVelocity(0, 0);
         }
@@ -86,27 +103,36 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     @Override
-    public void update(double dt) {
-        dashCooldown.update(dt);
-        dashDuration.update(dt);
-        weaponCooldown.update(dt);
-        quickDashCooldown.update(dt);
-        meleeCooldown.update(dt);
-        updateThrust();
-        updateStateTime(dt);
-
-        if (data.player() != null) {
-            setLinearDamping(isDashing() ? 0.0 : data.linearDamping());
+    public void dashTowards(double angle) {
+        if (data.player() == null) {
+            return;
         }
+
+        dashDir.set(Math.cos(angle), Math.sin(angle));
+
+        if (getLinearVelocity().dot(dashDir) < 0) {
+            setLinearVelocity(0, 0);
+        }
+
+        applyImpulse(dashDir.setMagnitude(
+                data.player().dashImpulse() * getMass().getMass()
+        ));
+
+        dashDuration.start(data.player().dashDurationSec());
+        dashCooldown.start(data.player().dashCooldownSec());
     }
 
+    /**
+     * Aggiorna lo stato del thrust in base alla velocità attuale.
+     */
     public void updateThrust() {
         Vector2 worldVel = getLinearVelocity();
         double speed = worldVel.getMagnitude();
-        double intensity = Math.min(speed / PlayerSettings.VELOCITA_MAX, 1.0);
+        double maxSpeed = data.player().baseSpeed();
+        double intensity = Math.min(speed / maxSpeed, 1.0);
 
-        double normVx = worldVel.x / PlayerSettings.VELOCITA_MAX;
-        double normVy = worldVel.y / PlayerSettings.VELOCITA_MAX;
+        double normVx = worldVel.x / maxSpeed;
+        double normVy = worldVel.y / maxSpeed;
 
         double rotRad = getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET;
         double cos = Math.cos(rotRad);
@@ -115,30 +141,130 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         double localDriftX = -normVx * cos - normVy * sin;
         double localDriftY =  normVx * sin - normVy * cos;
 
-        thrust.update(intensity, new Vector2(localDriftX, localDriftY),
-                getWidthPx(), getHeightPx());
+        thrust.update(intensity,
+                new Vector2(localDriftX, localDriftY),
+                getWidthPx(),
+                getHeightPx());
     }
 
-    @Override
-    public void dashTowards(double angle) {
-        if (data.player() == null) return;
+    // ==================== METODI DI AGGIORNAMENTO ====================
 
-        dashDir.set(Math.cos(angle), Math.sin(angle));
-        if (getLinearVelocity().dot(dashDir) < 0) {
-            setLinearVelocity(0, 0);
+    @Override
+    public void update(double dt) {
+        // Aggiorna tutti i cooldown
+        dashCooldown.update(dt);
+        dashDuration.update(dt);
+        weaponCooldown.update(dt);
+        quickDashCooldown.update(dt);
+        meleeCooldown.update(dt);
+
+        updateThrust();
+        updateStateTime(dt);
+
+        // Gestisce lo smorzamento durante il dash
+        if (data.player() != null) {
+            setLinearDamping(isDashing() ? 0.0 : data.linearDamping());
         }
-
-        applyImpulse(dashDir.setMagnitude(data.player().dashImpulse() * getMass().getMass()));
-        dashDuration.start(data.player().dashDurationSec());
-        dashCooldown.start(data.player().dashCooldownSec());
     }
 
-    // LEVEL SYSTEM GETTERS
-    public IntegerProperty levelProperty() { return level; }
-    @Override
-    public int getLevel() { return level.get(); }
+    // ==================== METODI DI PROGRESSIONE ====================
 
-    public DoubleProperty xpProperty() { return xp; }
+    @Override
+    public void levelUp() {
+        this.xp.set(this.xp.get() - xpNeeded);
+        this.level.set(this.level.get() + 1);
+        this.xpNeeded = this.xpNeeded * 1.2;
+
+        AudioManager.getInstance().playSFX("levelup");
+        setMaxEndurance(getMaxEndurance() + 100);
+        setEndurance(getMaxEndurance());
+        applyImpulse(new Vector2(0, 0));
+    }
+
+    @Override
+    public void incrementExperience(double amount) {
+        if (amount <= 0) return;
+
+        setExperience(this.xp.get() + amount);
+
+        while (this.xp.get() >= xpNeeded) {
+            levelUp();
+        }
+    }
+
+    // ==================== METODI DI COMBATTIMENTO ====================
+
+    public void startCooldownFuoco() {
+        weaponCooldown.start(currentWeaponCooldown);
+    }
+
+    public void setCooldownFuocoSec(double cooldown) {
+        this.currentWeaponCooldown = cooldown;
+    }
+
+    public boolean canDealMeleeDamage() {
+        return meleeDamage > 0 && meleeCooldown.isReady();
+    }
+
+    public double getMeleeDamage() {
+        return meleeDamage * getLevel();
+    }
+
+    public void startMeleeCooldown() {
+        if (meleeDamage > 0) {
+            meleeCooldown.start(meleeCooldownSec);
+        }
+    }
+
+    // ==================== GETTER E SETTER ====================
+
+    public void setOnDeathCallback(Runnable callback) {
+        this.onDeathCallback = callback;
+    }
+
+    @Override
+    public void onDeath() {
+        if (onDeathCallback != null) {
+            onDeathCallback.run();
+        }
+    }
+
+    @Override
+    public void alter(double delta) {
+        super.alter(delta);
+        if (delta < 0) {
+            SessionScoreTracker.getInstance()
+                    .addDamageReceived((int) Math.abs(delta));
+        }
+    }
+
+    @Override
+    public void setLevel(int level) {
+        for (int i = getLevel(); i <= level; i++) {
+            levelUp();
+        }
+    }
+
+    public double getProjectileDamage() {
+        return dannoProiettile + (getLevel() * 5.0);
+    }
+
+    // ==================== PROPERTIES JAVAFX ====================
+
+    public IntegerProperty levelProperty() {
+        return level;
+    }
+
+    public DoubleProperty xpProperty() {
+        return xp;
+    }
+
+    // ==================== GETTER DI STATO ====================
+
+    @Override
+    public int getLevel() {
+        return level.get();
+    }
 
     @Override
     public double getExperience() {
@@ -156,62 +282,17 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     @Override
-    public boolean canDash() { return dashCooldown.isReady(); }
-
-    @Override
-    public boolean isDashing() { return dashDuration.isCoolingDown(); }
-    public boolean isSparoDisponibile() { return weaponCooldown.isReady(); }
-
-    public void startCooldownFuoco() {
-        weaponCooldown.start(PlayerSettings.COOLDOWN_FUOCO_SEC);
-    }
-
-    public void setCooldownFuocoSec(double cooldown) {
-        PlayerSettings.COOLDOWN_FUOCO_SEC = cooldown;
+    public boolean canDash() {
+        return dashCooldown.isReady();
     }
 
     @Override
-    public double getTerminalVelocity() {
-        return data.maxVelocity() * (isDashing() ? 10 : 1);
-    }
-    @Override
-    public void onDeath() {
-        if (onDeathCallback != null) onDeathCallback.run();
+    public boolean isDashing() {
+        return dashDuration.isCoolingDown();
     }
 
-    @Override
-    public void incrementExperience(double amount) {
-        if (amount <= 0) return;
-        setExperience(this.xp.get() + amount);
-        if (this.xpNeeded <= 0) this.xpNeeded = 100.0;
-        while (this.xp.get() >= xpNeeded) {
-            levelUp();
-        }
-    }
-
-    @Override
-     public void levelUp() {
-        this.xp.set(this.xp.get() - xpNeeded);
-        this.level.set(this.level.get() + 1);
-        this.xpNeeded = this.xpNeeded * 1.2;
-
-        AudioManager.getInstance().playSFX("levelup");
-        setMaxEndurance(getMaxEndurance() + 100);
-        setEndurance(getMaxEndurance());
-        System.out.println("[LEVEL UP] New Level: " + getLevel() + " | Next: " + this.xpNeeded + " XP");
-        applyImpulse(new Vector2(0, 0));
-    }
-
-    @Override
-    public void setLevel(int level) {
-        for (int i = getLevel(); i<=level; i++) {
-            levelUp();
-        }
-    }
-
-    @Override
-    public void stun(double duration) {
-        stunCooldown.start(duration);
+    public boolean isSparoDisponibile() {
+        return weaponCooldown.isReady();
     }
 
     @Override
@@ -220,17 +301,16 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     @Override
-    public void alter(double delta) {
-        super.alter(delta);
-        if (delta < 0) {
-            SessionScoreTracker.getInstance().addDamageReceived((int) Math.abs(delta));
-        }
-    }
-
-    @Override
     public boolean isInalterable() {
         return isDashing();
     }
+
+    @Override
+    public double getTerminalVelocity() {
+        return data.maxVelocity() * (isDashing() ? 10 : 1);
+    }
+
+    // ==================== GETTER VISUALI ====================
 
     @Override
     public Thrust thrust() {
@@ -248,16 +328,6 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     @Override
-    public double getFrameDuration() {
-        return UU.UNIVERSE_TICK * 6;
-    }
-
-    @Override
-    public double getFrameDuration(int state, int frame) {
-        return UU.UNIVERSE_TICK * 6;
-    }
-
-    @Override
     public int getSpriteFrameHeight() {
         return data.frameH();
     }
@@ -272,18 +342,18 @@ public class PlayerModel extends AbstractLivingEntityModel implements HasSprite,
         return 180;
     }
 
-    public boolean canDealMeleeDamage() {
-        return meleeDamage > 0 && meleeCooldown.isReady();
+    @Override
+    public double getFrameDuration() {
+        return UU.UNIVERSE_TICK * 6;
     }
 
-    public double getMeleeDamage() {
-        return meleeDamage * getLevel();
+    @Override
+    public double getFrameDuration(int state, int frame) {
+        return UU.UNIVERSE_TICK * 6;
     }
 
-    public void startMeleeCooldown() {
-        if (meleeDamage > 0) {
-            meleeCooldown.start(meleeCooldownSec);
-        }
+    @Override
+    public void stun(double duration) {
+        stunCooldown.start(duration);
     }
-
 }

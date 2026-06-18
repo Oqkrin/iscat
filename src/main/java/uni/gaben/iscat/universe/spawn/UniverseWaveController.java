@@ -43,8 +43,6 @@ public class UniverseWaveController {
     private final List<ActiveEnemy> activeEnemies = new ArrayList<>();
     private Runnable onBossDeadCallback;
 
-    public boolean forceBossSpawn = false;
-
     private final Random random       = new Random();
     private boolean bossSpawned       = false;
     private boolean bossDead          = false;
@@ -55,11 +53,12 @@ public class UniverseWaveController {
     private int enemiesSpawnedThisWave       = 0;
 
     private boolean inIntermission    = true;
-    private double  intermissionTimer = 3.0;
+    private double  intermissionTimer = 5.0;
     private double  spawnTimer        = 0.0;
 
     private static final double SPAWN_DELAY           = 1.5;
     private static final double INTERMISSION_DURATION = 5.0;
+    private static final double FIRST_WAVE_DELAY      = 5.0;
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
 
@@ -96,24 +95,35 @@ public class UniverseWaveController {
         enemiesSpawnedThisWave = 0;
         spawnTimer             = 0.0;
 
-        if (forceBossSpawn || currentWave >= 5) {
-            currentThreatLevel = ThreatLevel.APOCALYPSE;
+        if (currentWave <= 2) {
+            currentThreatLevel = ThreatLevel.LOW;
+        } else if (currentWave <= 4) {
+            currentThreatLevel = ThreatLevel.NORMAL;
+        } else if (currentWave <= 6) {
+            currentThreatLevel = ThreatLevel.HIGH;
+        } else if (currentWave <= 9) {
+            currentThreatLevel = ThreatLevel.EXTREME;
         } else {
-            currentThreatLevel = switch (currentWave) {
-                case 1 -> ThreatLevel.LOW;
-                case 2 -> ThreatLevel.NORMAL;
-                case 3 -> ThreatLevel.HIGH;
-                default -> ThreatLevel.EXTREME;
-            };
+            currentThreatLevel = ThreatLevel.APOCALYPSE;
         }
 
         if (currentThreatLevel == ThreatLevel.APOCALYPSE) {
-            totalEnemiesToSpawnThisWave = 1;
+            totalEnemiesToSpawnThisWave = 1; // Solo il boss
             System.out.println("[WAVE CONTROLLER] !!! APOCALYPSE DETECTED: IMMINENT BOSS SPAWN !!!");
+            AudioManager.getInstance().playSFX("alarm");
         } else {
-            totalEnemiesToSpawnThisWave = 3 + (currentWave * 2);
+            // Più nemici per livelli più alti
+            totalEnemiesToSpawnThisWave = switch (currentThreatLevel) {
+                case LOW -> 3 + currentWave;
+                case NORMAL -> 4 + currentWave;
+                case HIGH -> 5 + currentWave;
+                case EXTREME -> 6 + currentWave;
+                default -> 3 + (currentWave * 2);
+            };
+
             System.out.printf("[WAVE CONTROLLER] Avviata WAVE %d | Minaccia: %s | Nemici totali: %d%n",
                     currentWave, currentThreatLevel.name(), totalEnemiesToSpawnThisWave);
+            AudioManager.getInstance().playSFX("alarm");
         }
 
         waveTotalProperty.set(totalEnemiesToSpawnThisWave);
@@ -251,15 +261,18 @@ public class UniverseWaveController {
         enemiesSpawnedThisWave      = 0;
         totalEnemiesToSpawnThisWave = 0;
         inIntermission              = true;
-        intermissionTimer           = 3.0;
-        forceBossSpawn              = false;
+        intermissionTimer           = FIRST_WAVE_DELAY;
         activeEnemies.clear();
-
         totalKillsProperty.set(0);
         enemiesRemainingProperty.set(0);
         waveTotalProperty.set(0);
         currentWaveProperty.set(1);
     }
+
+    public String getCurrentThreatLevelDisplay() {
+        return "Minaccia: " + currentThreatLevel.name();
+    }
+
 
     public void setOnBossDeadCallback(Runnable callback) { this.onBossDeadCallback = callback; }
 

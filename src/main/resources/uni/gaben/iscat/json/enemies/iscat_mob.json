@@ -20,6 +20,7 @@
   "CombatRange": 7,
   "PreferredRange": 10,
   "actionCooldownS": 800,
+  "DannoProiettile": 5,
   "audio": {
     "attack": [],
     "idle": [],

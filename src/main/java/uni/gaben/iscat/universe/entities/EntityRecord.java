@@ -41,6 +41,9 @@ public record EntityRecord(
         double preferredRange,
         double actionCooldownSec,   // seconds, not ms
 
+        // bullet damage
+        double dannoProiettile,
+
         // Audio
         AudioProfile audio,
 
@@ -134,6 +137,10 @@ public record EntityRecord(
             double baseCooldownSec,
             double meleeDamage,
             double meleeCooldownSec,
+            double baseSpeed,
+            double baseThrustForce,
+            double baseXPNeeded,
+            double dannoProiettile,
             List<LevelAbility> levelAbilities
     ) {}
 

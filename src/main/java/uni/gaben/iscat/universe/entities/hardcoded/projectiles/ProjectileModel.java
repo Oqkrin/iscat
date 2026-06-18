@@ -13,7 +13,8 @@ public class ProjectileModel extends AbstractPhysicalProjectileModel {
     public void setInPool(boolean inPool) { this.inPool = inPool; }
 
     public ProjectileModel(ProjectileType type) {
-        super(type.energy);
+        // Passiamo un valore di fallback temporaneo alla classe base astratta
+        super(1.0);
         setType(type);
     }
 
@@ -26,8 +27,18 @@ public class ProjectileModel extends AbstractPhysicalProjectileModel {
         fixture.setFilter(type.filter);
         setMass(MassType.NORMAL);
         setTerminalVelocity(type.terminalVelocity);
-        this.endurance.set(type.energy);
-        setMaxEndurance(type.energy);
+
+        // Valore iniziale di default (sarà sovrascritto dinamicamente da chi spara)
+        this.endurance.set(1.0);
+        setMaxEndurance(1.0);
+    }
+
+    /**
+     * Imposta l'energia (danno/durata) del proiettile in modo dinamico.
+     */
+    public void setEnergyDirect(double energy) {
+        this.endurance.set(energy);
+        setMaxEndurance(energy);
     }
 
     public ProjectileType getType() { return type; }
