@@ -269,6 +269,11 @@ public class UniverseWaveController {
         currentWaveProperty.set(1);
     }
 
+    public String getCurrentThreatLevelDisplay() {
+        return "Minaccia: " + currentThreatLevel.name();
+    }
+
+
     public void setOnBossDeadCallback(Runnable callback) { this.onBossDeadCallback = callback; }
 
     public int         getCurrentWave()        { return currentWave; }
