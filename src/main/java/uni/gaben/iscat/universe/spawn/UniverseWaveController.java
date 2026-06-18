@@ -146,28 +146,48 @@ public class UniverseWaveController {
 
         String enemyIdToSpawn = selectEligibleEnemyId();
 
-        double margin    = 100.0;
-        double halfWidth  = (camera.getScreenWidth()  / 2.0) + margin;
+        double margin = 100.0;
+        double halfWidth = (camera.getScreenWidth() / 2.0) + margin;
         double halfHeight = (camera.getScreenHeight() / 2.0) + margin;
 
-        int    side   = random.nextInt(4);
+        int side = random.nextInt(4);
         double spawnX = camera.getX();
         double spawnY = camera.getY();
 
         switch (side) {
-            case 0 -> { spawnX = camera.getX() - halfWidth + (random.nextDouble() * halfWidth * 2); spawnY = camera.getY() - halfHeight; }
-            case 1 -> { spawnX = camera.getX() - halfWidth + (random.nextDouble() * halfWidth * 2); spawnY = camera.getY() + halfHeight; }
-            case 2 -> { spawnX = camera.getX() - halfWidth; spawnY = camera.getY() - halfHeight + (random.nextDouble() * halfHeight * 2); }
-            case 3 -> { spawnX = camera.getX() + halfWidth; spawnY = camera.getY() - halfHeight + (random.nextDouble() * halfHeight * 2); }
+            case 0 -> {
+                spawnX = camera.getX() - halfWidth + (random.nextDouble() * halfWidth * 2);
+                spawnY = camera.getY() - halfHeight;
+            }
+            case 1 -> {
+                spawnX = camera.getX() - halfWidth + (random.nextDouble() * halfWidth * 2);
+                spawnY = camera.getY() + halfHeight;
+            }
+            case 2 -> {
+                spawnX = camera.getX() - halfWidth;
+                spawnY = camera.getY() - halfHeight + (random.nextDouble() * halfHeight * 2);
+            }
+            case 3 -> {
+                spawnX = camera.getX() + halfWidth;
+                spawnY = camera.getY() - halfHeight + (random.nextDouble() * halfHeight * 2);
+            }
         }
 
         Object spawnedObject = UniverseSpawner.getInstance().spawn(enemyIdToSpawn, spawnX, spawnY);
 
         if (spawnedObject instanceof AbstractPhysicalEntityModel enemyModel) {
             if (enemyModel instanceof AbstractLivingEntityModel livingModel) {
-                double masterTimeSec = gameModel.getTotalElapsedSeconds();
-                int playerLevel      = gameModel.getUniverseModel().getPlayer().getLevel();
-                int difficultyMult   = (int) (playerLevel + currentWave + (masterTimeSec / 60));
+                // Calcola il moltiplicatore in base al ThreatLevel corrente dell'ondata
+                double difficultyMult = switch (currentThreatLevel) {
+                    case LOW -> 1.0;
+                    case NORMAL -> 1.25;
+                    case HIGH -> 1.5;
+                    case EXTREME -> 2.5;
+                    case APOCALYPSE -> 3.0;
+                    default -> 1.0;
+                };
+
+                // Applica il moltiplicatore alla vita del mob
                 livingModel.setMaxEndurance(livingModel.getMaxEndurance() * difficultyMult);
                 livingModel.setEndurance(livingModel.getMaxEndurance());
             }

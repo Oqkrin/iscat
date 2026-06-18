@@ -76,7 +76,7 @@ public final class EntityRecordParser {
     }
 
     private static void parsePhysics(JSONObject json, EntityRecordBuilder builder) {
-        builder.initLife(json.optInt("InitLife", 100))
+        builder .initLife(json.optDouble("InitLife", 100.0))
                 .linearDamping(json.optDouble("LinearDamping", 2.0))
                 .mass(json.optDouble("mass", 1.0))
                 .maxVelocity(json.optDouble("MaxVelocity", 10.0))

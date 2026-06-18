@@ -26,7 +26,12 @@ public class ProjectileModel extends AbstractPhysicalProjectileModel {
         BodyFixture fixture = addFixture(Geometry.createCircle(radiusMeters));
         fixture.setFilter(type.filter);
         setMass(MassType.NORMAL);
-        setTerminalVelocity(type.terminalVelocity);
+
+        if (type == ProjectileType.PLAYER_BULLET) {
+            setTerminalVelocity(type.terminalVelocity * 1.5);
+        } else {
+            setTerminalVelocity(type.terminalVelocity);
+        }
 
         // Valore iniziale di default (sarà sovrascritto dinamicamente da chi spara)
         this.endurance.set(1.0);
