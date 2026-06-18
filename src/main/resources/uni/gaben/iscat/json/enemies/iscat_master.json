@@ -9,7 +9,7 @@
       "FrameH": 128,
       "ShapeType": "SQUARE",
       "Scale": 3,
-      "InitLife": 10000,
+      "InitLife": 50000,
       "LinearDamping": 2,
       "mass": 1,
       "MaxVelocity": 10,
