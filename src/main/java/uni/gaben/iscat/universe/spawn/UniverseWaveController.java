@@ -8,6 +8,10 @@ import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.model.BestiaryModel;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +20,8 @@ import java.util.Random;
 public class UniverseWaveController {
 
     private record ActiveEnemy(AbstractPhysicalEntityModel model, String enemyId) { }
+
+    private record WaveConfig(ThreatLevel threatLevel, int totalEnemies) { }
 
     // ── Properties observable per HUD binding ─────────────────────────────────
     private static final IntegerProperty totalKillsProperty    = new SimpleIntegerProperty(0);
@@ -41,11 +47,15 @@ public class UniverseWaveController {
 
     // ── Stato interno ─────────────────────────────────────────────────────────
     private final List<ActiveEnemy> activeEnemies = new ArrayList<>();
+    private final List<WaveConfig> fileWaves = new ArrayList<>();
     private Runnable onBossDeadCallback;
 
     private final Random random       = new Random();
     private boolean bossSpawned       = false;
     private boolean bossDead          = false;
+
+    private double bossDeadTimer             = 0.0;
+    private boolean bossCallbackTriggered    = false;
 
     private int currentWave                  = 1;
     private ThreatLevel currentThreatLevel   = ThreatLevel.LOW;
@@ -62,14 +72,59 @@ public class UniverseWaveController {
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
 
-    // -------------------------------------------------------------------------
+    // Caricamento del file delle ondate
+    public void loadWavesFromResource(String resourcePath) {
+        fileWaves.clear();
+
+        // Utilizza il getResourceAsStream per caricarlo dentro al file JAR finale senza problemi di path
+        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                System.err.println("[WAVE CONTROLLER] Impossibile trovare il file delle ondate in: " + resourcePath + ". Uso logica procedurale.");
+                return;
+            }
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    // Salta linee vuote o commenti che iniziano con #
+                    if (line.isEmpty() || line.startsWith("#")) continue;
+
+                    // Splitta alla virgola
+                    String[] parts = line.split(",");
+                    if (parts.length >= 2) {
+                        try {
+                            ThreatLevel level = ThreatLevel.valueOf(parts[0].trim().toUpperCase());
+                            int count = Integer.parseInt(parts[1].trim());
+                            fileWaves.add(new WaveConfig(level, count));
+                        } catch (IllegalArgumentException e) {
+                            System.err.println("[WAVE CONTROLLER] Errore di sintassi nel file ondate sulla riga: " + line);
+                        }
+                    }
+                }
+                System.out.printf("[WAVE CONTROLLER] Configurazione caricata con successo! Rilevate %d ondate custom.%n", fileWaves.size());
+            }
+        } catch (IOException e) {
+            System.err.println("[WAVE CONTROLLER] Errore durante la lettura del file ondate: " + e.getMessage());
+        }
+    }
+
     // Update principale
-    // -------------------------------------------------------------------------
     public void update(double dt, CameraModel camera, GameModel gameModel) {
         if (gameModel == null || gameModel.getUniverseModel().getPlayer() == null) return;
 
         activeEnemies.removeIf(ae -> ae.model == null || ae.model.shouldRemove());
         enemiesRemainingProperty.set(activeEnemies.size());
+
+        if (bossDead && !bossCallbackTriggered) {
+            bossDeadTimer -= dt;
+            if (bossDeadTimer <= 0) {
+                bossCallbackTriggered = true;
+                if (onBossDeadCallback != null) {
+                    onBossDeadCallback.run();
+                }
+            }
+        }
 
         if (inIntermission) {
             intermissionTimer -= dt;
@@ -94,25 +149,31 @@ public class UniverseWaveController {
     private void startNewWave() {
         enemiesSpawnedThisWave = 0;
         spawnTimer             = 0.0;
+        int waveIndex          = currentWave - 1;
 
-        if (currentWave <= 2) {
-            currentThreatLevel = ThreatLevel.LOW;
-        } else if (currentWave <= 4) {
-            currentThreatLevel = ThreatLevel.NORMAL;
-        } else if (currentWave <= 6) {
-            currentThreatLevel = ThreatLevel.HIGH;
-        } else if (currentWave <= 9) {
-            currentThreatLevel = ThreatLevel.EXTREME;
-        } else {
-            currentThreatLevel = ThreatLevel.APOCALYPSE;
+        // Se ci sono ondate caricate da file e non le abbiamo ancora esaurite
+        if (!fileWaves.isEmpty() && waveIndex < fileWaves.size()) {
+            WaveConfig config           = fileWaves.get(waveIndex);
+            currentThreatLevel          = config.threatLevel();
+            totalEnemiesToSpawnThisWave = config.totalEnemies();
+
+            System.out.printf("[WAVE CONTROLLER] Avviata WAVE CUSTOM %d (da file) | Minaccia: %s | Nemici: %d%n",
+                    currentWave, currentThreatLevel.name(), totalEnemiesToSpawnThisWave);
         }
+        // Se il file non c'è o abbiamo superato il numero di ondate scritte nel testo, vai in procedurale
+        else {
+            if (currentWave <= 2) {
+                currentThreatLevel = ThreatLevel.LOW;
+            } else if (currentWave <= 4) {
+                currentThreatLevel = ThreatLevel.NORMAL;
+            } else if (currentWave <= 6) {
+                currentThreatLevel = ThreatLevel.HIGH;
+            } else if (currentWave <= 9) {
+                currentThreatLevel = ThreatLevel.EXTREME;
+            } else {
+                currentThreatLevel = ThreatLevel.APOCALYPSE;
+            }
 
-        if (currentThreatLevel == ThreatLevel.APOCALYPSE) {
-            totalEnemiesToSpawnThisWave = 1; // Solo il boss
-            System.out.println("[WAVE CONTROLLER] !!! APOCALYPSE DETECTED: IMMINENT BOSS SPAWN !!!");
-            AudioManager.getInstance().playSFX("alarm");
-        } else {
-            // Più nemici per livelli più alti
             totalEnemiesToSpawnThisWave = switch (currentThreatLevel) {
                 case LOW -> 3 + currentWave;
                 case NORMAL -> 4 + currentWave;
@@ -121,10 +182,15 @@ public class UniverseWaveController {
                 default -> 3 + (currentWave * 2);
             };
 
-            System.out.printf("[WAVE CONTROLLER] Avviata WAVE %d | Minaccia: %s | Nemici totali: %d%n",
+            System.out.printf("[WAVE CONTROLLER] Avviata WAVE PROCEDURALE %d | Minaccia: %s | Nemici: %d%n",
                     currentWave, currentThreatLevel.name(), totalEnemiesToSpawnThisWave);
-            AudioManager.getInstance().playSFX("alarm");
         }
+
+        if (currentThreatLevel == ThreatLevel.APOCALYPSE) {
+            System.out.println("[WAVE CONTROLLER] !!! APOCALYPSE DETECTED: IMMINENT BOSS SPAWN !!!");
+        }
+
+        AudioManager.getInstance().playSFX("alarm");
 
         waveTotalProperty.set(totalEnemiesToSpawnThisWave);
         enemiesRemainingProperty.set(totalEnemiesToSpawnThisWave);
@@ -138,46 +204,21 @@ public class UniverseWaveController {
         currentWave++;
     }
 
-    // -------------------------------------------------------------------------
-    // Spawn
-    // -------------------------------------------------------------------------
     private void spawnSingleEnemyOffScreen(CameraModel camera, GameModel gameModel) {
         if (camera == null) return;
 
         String enemyIdToSpawn = selectEligibleEnemyId();
 
-        double margin = 100.0;
-        double halfWidth = (camera.getScreenWidth() / 2.0) + margin;
-        double halfHeight = (camera.getScreenHeight() / 2.0) + margin;
+        double angle = random.nextDouble() * Math.PI * 2.0;
+        double spawnDistance = 28.0 + random.nextDouble() * 10.0;
 
-        int side = random.nextInt(4);
-        double spawnX = camera.getX();
-        double spawnY = camera.getY();
-
-        switch (side) {
-            case 0 -> {
-                spawnX = camera.getX() - halfWidth + (random.nextDouble() * halfWidth * 2);
-                spawnY = camera.getY() - halfHeight;
-            }
-            case 1 -> {
-                spawnX = camera.getX() - halfWidth + (random.nextDouble() * halfWidth * 2);
-                spawnY = camera.getY() + halfHeight;
-            }
-            case 2 -> {
-                spawnX = camera.getX() - halfWidth;
-                spawnY = camera.getY() - halfHeight + (random.nextDouble() * halfHeight * 2);
-            }
-            case 3 -> {
-                spawnX = camera.getX() + halfWidth;
-                spawnY = camera.getY() - halfHeight + (random.nextDouble() * halfHeight * 2);
-            }
-        }
+        double spawnX = camera.getX() + Math.cos(angle) * spawnDistance;
+        double spawnY = camera.getY() + Math.sin(angle) * spawnDistance;
 
         Object spawnedObject = UniverseSpawner.getInstance().spawn(enemyIdToSpawn, spawnX, spawnY);
 
         if (spawnedObject instanceof AbstractPhysicalEntityModel enemyModel) {
             if (enemyModel instanceof AbstractLivingEntityModel livingModel) {
-                // Calcola il moltiplicatore in base al ThreatLevel corrente dell'ondata
                 double difficultyMult = switch (currentThreatLevel) {
                     case LOW -> 1.0;
                     case NORMAL -> 1.25;
@@ -187,7 +228,6 @@ public class UniverseWaveController {
                     default -> 1.0;
                 };
 
-                // Applica il moltiplicatore alla vita del mob
                 livingModel.setMaxEndurance(livingModel.getMaxEndurance() * difficultyMult);
                 livingModel.setEndurance(livingModel.getMaxEndurance());
             }
@@ -215,7 +255,6 @@ public class UniverseWaveController {
 
         bestiaryModel.loadEnemies(userId);
 
-        // INIEZIONE MANUALE DI WORM
         if (currentThreatLevel == ThreatLevel.EXTREME) {
             pool.add("WORM");
         }
@@ -226,14 +265,12 @@ public class UniverseWaveController {
 
             if (key.contains("player") || "iscat_master".equals(key)) continue;
 
-            // FILTRO PREVENTIVO SEGMENTI WORM
             if (key.contains("worm")) {
                 if (key.contains("tail") || key.contains("body") || key.contains("head") || key.contains("segment")) {
                     continue;
                 }
             }
 
-            // REGOLA SPECIALE GOBLIN INVADER (spawna solo se il player ha ucciso il master almeno una volta)
             if ("goblin_invader".equals(key)) {
                 if (!bestiaryModel.isUnlocked("iscat_master")) {
                     continue;
@@ -250,9 +287,6 @@ public class UniverseWaveController {
         return pool.isEmpty() ? "iscat_mob" : pool.get(random.nextInt(pool.size()));
     }
 
-    // -------------------------------------------------------------------------
-    // Boss callbacks
-    // -------------------------------------------------------------------------
     public void notifyBossSpawned() {
         if (!bossSpawned) {
             bossSpawned = true;
@@ -264,18 +298,18 @@ public class UniverseWaveController {
     public void notifyBossDead() {
         if (bossSpawned && !bossDead) {
             bossDead = true;
+            bossDeadTimer = 3.0;
+            bossCallbackTriggered = false;
             AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/SuperHero_original.wav", true);
-            if (onBossDeadCallback != null) onBossDeadCallback.run();
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Reset
-    // -------------------------------------------------------------------------
     public void reset() {
         spawnTimer                  = 0.0;
         bossSpawned                 = false;
         bossDead                    = false;
+        bossDeadTimer               = 0.0;
+        bossCallbackTriggered       = false;
         currentWave                 = 1;
         currentThreatLevel          = ThreatLevel.LOW;
         enemiesSpawnedThisWave      = 0;
@@ -293,9 +327,7 @@ public class UniverseWaveController {
         return "Minaccia: " + currentThreatLevel.name();
     }
 
-
     public void setOnBossDeadCallback(Runnable callback) { this.onBossDeadCallback = callback; }
-
     public int         getCurrentWave()        { return currentWave; }
     public ThreatLevel getCurrentThreatLevel() { return currentThreatLevel; }
 }

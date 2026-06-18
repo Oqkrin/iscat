@@ -52,6 +52,10 @@ public class GameController {
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath, currentSkinKey);
         this.universeController = bundle.universeController();
         this.waveController = bundle.waveController();
+
+        // Viene letto ad ogni avvio/reset della partita per azzerare e ricaricare il flusso
+        this.waveController.loadWavesFromResource("/uni/gaben/iscat/config/waves.txt");
+
         this.universeController.setEntityDeathListener(this::onEntityDied);
         this.universeController.getPlayerController().setGameModel(gameModel);
         this.waveController.setOnBossDeadCallback(this::notifyBossDead);
@@ -140,7 +144,6 @@ public class GameController {
         }
 
         if (entity instanceof AbstractLivingEntityModel living) {
-            // Incrementa kills solo per nemici reali (filtra proiettili/asteroidi via ThreatLevel)
             UniverseWaveController.incrementKills(entity);
 
             if (living.getXpReward() > 0) {
