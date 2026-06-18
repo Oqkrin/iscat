@@ -44,7 +44,7 @@
             </VBox>
 
             <!-- Right panel: info card only (no preview) -->
-            <fx:include fx:id="infoCard" source="EntityInfoCard.fxml" HBox.hgrow="ALWAYS" />
+            <fx:include fx:id="infoCard" source="components/EntityInfoCard.fxml" HBox.hgrow="ALWAYS" />
 
         </HBox>
 

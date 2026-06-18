@@ -51,5 +51,5 @@
         </HBox>
     </VBox>
 
-    <fx:include fx:id="confirmOverlay" source="ConfirmationOverlay.fxml" />
+    <fx:include fx:id="confirmOverlay" source="components/ConfirmationOverlay.fxml" />
 </StackPane>
