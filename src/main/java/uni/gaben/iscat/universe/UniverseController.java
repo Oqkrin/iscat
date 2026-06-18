@@ -205,9 +205,7 @@ public class UniverseController {
             }
 
             camera.updateEffects(dt);
-
-            double newZoom = getDynamicZoom(player, camera, dt);
-            camera.setActualZoom(newZoom);
+            camera.setActualZoom(camera.getBaseZoom());
 
             double px = UU.mToPx(player.getTransform().getTranslationX());
             double py = UU.mToPx(player.getTransform().getTranslationY());

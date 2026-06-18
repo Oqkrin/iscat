@@ -41,6 +41,6 @@ public final class CameraSettings {
     public static final double ZOOM_SMOOTHING_SPEED  = 2;  // Slightly slower for a more "cinematic" pull
 
     // Limits for the user's manual base zoom
-    public static final double MIN_MANUAL_ZOOM = .5;
+    public static final double MIN_MANUAL_ZOOM = .1;
     public static final double MAX_MANUAL_ZOOM = 3.0;
 }
