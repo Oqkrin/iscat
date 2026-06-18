@@ -1,5 +1,6 @@
 package uni.gaben.iscat.utils;
 
+import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityModel;
 import java.util.List;
 import java.util.Random;
@@ -16,7 +17,7 @@ public class EntityAudioManager {
      * Riproduce un effetto sonoro per l'entità in base all'evento richiesto.
      * Cerca i nomi nel JSON; se non trova nulla, applica un fallback di default.
      */
-    public static void playEventAudio(EntityModel model, String eventType) {
+    public static void playEventAudio(AbstractLivingEntityModel model, String eventType) {
         if (model == null || model.getEntityRecord() == null || model.getEntityRecord().audio() == null) return;
 
         // Recupera la lista di chiavi (nomi dei file) dal tipo di evento
