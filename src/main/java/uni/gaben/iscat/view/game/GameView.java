@@ -323,8 +323,8 @@ public class GameView extends AbstractIscatStackPane {
         getContentRoot().getChildren().add(wrapper[0]);
     }
 
-    private void closeSettings(StackPane optionsView) {
-        getContentRoot().getChildren().remove(optionsView);
+    private void closeSettings(StackPane settingsView) {
+        getContentRoot().getChildren().remove(settingsView);
         transitionTo(GameState.IN_PAUSE);
     }
 
