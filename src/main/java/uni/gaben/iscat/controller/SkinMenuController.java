@@ -97,7 +97,7 @@ public class SkinMenuController implements IscatMenuController {
         }
 
         // Calculate maximum vertical clearance space avoiding overflow
-        double squareCellSize = getSquareCellSize(maxRow);
+        double squareCellSize = getSquareCellSize(maxCol);
 
         // Apply matching constraints to enforce square grids
         for (int r = 0; r < maxRow; r++) {
@@ -138,8 +138,8 @@ public class SkinMenuController implements IscatMenuController {
         }
     }
 
-    private double getSquareCellSize(int maxRow) {
-        return skinGrid.getHeight() / maxRow;
+    private double getSquareCellSize(int maxCol) {
+        return (skinsVbox.getWidth()-64) / maxCol;
     }
 
     private Button createSkinButton(EntityRecord skin, double width, double height) {

@@ -47,7 +47,7 @@
                     <Button fx:id="btnBack" maxWidth="Infinity" onAction="#handleBack" styleClass="menu-button, back-button" text="MAIN MENU" />
                 </VBox>
 
-                <fx:include fx:id="infoCard" source="InfoCard.fxml" />
+                <fx:include fx:id="infoCard" source="EntityInfoCard.fxml" />
 
             </HBox>
             <Region minHeight="56.0" prefHeight="56.0" />
