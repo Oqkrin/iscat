@@ -1,4 +1,4 @@
-package uni.gaben.iscat.database.sqlite.options;
+package uni.gaben.iscat.database.sqlite.settings;
 
 import uni.gaben.iscat.model.user.UserSettings;
 
