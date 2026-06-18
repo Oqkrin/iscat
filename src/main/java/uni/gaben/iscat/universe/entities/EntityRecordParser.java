@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class EntityRecordParser {
+    private EntityRecordParser() {
+        /* This utility class should not be instantiated */
+    }
+
 
     public static EntityRecord parse(JSONObject json) {
         EntityRecordBuilder builder = new EntityRecordBuilder();
@@ -72,7 +76,7 @@ public final class EntityRecordParser {
         builder.frameW(json.optInt("FrameW", 32))
                 .frameH(json.optInt("FrameH", 32))
                 .shapeType(EntityRecord.ShapeType.valueOf(json.optString("ShapeType", "CIRCLE")))
-                .scale(json.optDouble("Scale", 1.0));
+                .scale(json.optDouble("Scale", 1.0)).visualAngularOffset(json.optDouble("AngularOffsetDeg", 0.0));
     }
 
     private static void parsePhysics(JSONObject json, EntityRecordBuilder builder) {

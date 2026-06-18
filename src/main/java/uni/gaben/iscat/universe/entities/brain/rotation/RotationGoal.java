@@ -16,7 +16,7 @@ public interface RotationGoal {
      */
     double compute(AbstractPhysicalEntityModel self, UniverseModel world, double dt);
 
-    static RotationGoal still()  {return (self, _, _) -> self.getEntityRecord().angularOffsetRad();}
+    static RotationGoal still()  {return (_, _, _) -> 0.0;}
 
     static RotationGoal movement() {
         return (self, world, dt) -> {

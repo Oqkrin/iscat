@@ -185,8 +185,8 @@ public class EntityRecordBuilder {
         return this;
     }
 
-    public EntityRecordBuilder visualAngularOffset(double rad) {
-        this.visualAngularOffset = rad;
+    public EntityRecordBuilder visualAngularOffset(double deg) {
+        this.visualAngularOffset = deg;
         return this;
     }
 

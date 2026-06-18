@@ -20,6 +20,7 @@
   "CombatRange": 5,
   "PreferredRange": 5,
   "actionCooldownS": 500,
+  "AngularOffsetDeg": -270,
   "audio": {
     "attack": [],
     "idle": [],

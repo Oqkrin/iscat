@@ -31,7 +31,7 @@ public record EntityRecord(
         double maxVelocity,
         double maxForce,
         double maxAngularVelocity,
-        double angularOffsetRad,
+        double angularOffsetDeg,
         int xpReward,
         ShapeType shapeType,
 

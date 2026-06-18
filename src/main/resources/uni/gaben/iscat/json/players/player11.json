@@ -13,6 +13,7 @@
   "mass": 1.0,
   "MaxVelocity": 8,
   "MaxForce": 27,
+  "AngularOffsetDeg": -180,
   "player": {
     "dashImpulse": 15.0,
     "dashDurationSec": 0.2,
