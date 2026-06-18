@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane alignment="CENTER" rotate="1.0" scaleX="1.25" scaleY="1.25" maxWidth="450.0" minWidth="380.0" VBox.vgrow="NEVER"
+<StackPane rotate="1.0" scaleX="1.25" scaleY="1.25" maxWidth="450.0" minWidth="380.0" VBox.vgrow="NEVER"
            xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="uni.gaben.iscat.controller.components.options.OptionKeybindsController">
 
