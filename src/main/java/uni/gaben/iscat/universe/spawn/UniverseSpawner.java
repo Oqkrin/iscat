@@ -11,6 +11,7 @@ import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.brain.IEntityController;
 import uni.gaben.iscat.universe.entities.worm.WormAssembler;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.utils.SessionManager;
 
 import java.util.function.BiFunction;
@@ -37,13 +38,11 @@ public class UniverseSpawner {
     public Object spawn(String id, double x, double y) {
         if (model != null) {
             double radius = model.getUniverseRadius();
-            double margin = 2.0; // Margine di sicurezza in metri dal perimetro bianco
+            double margin = 2.0;
             double maxAllowedRadius = radius - margin;
 
-            // Distanza euclidea dal centro del mondo (0,0)
             double distance = Math.sqrt(x * x + y * y);
 
-            // Se lo spawn richiesto è fuori dal cerchio, lo riposizioniamo sul bordo limite
             if (distance > maxAllowedRadius) {
                 double angle = Math.atan2(y, x);
                 x = Math.cos(angle) * maxAllowedRadius;
@@ -100,8 +99,7 @@ public class UniverseSpawner {
         );
     }
 
-    // Generic spawn for any IEntityController factory (covers Brain and old controllers)
-    public  <M extends AbstractPhysicalEntityModel> M spawnWithController(
+    public <M extends AbstractPhysicalEntityModel> M spawnWithController(
             BiFunction<Double, Double, M> modelFactory,
             Function<M, IEntityController> controllerFactory,
             double x, double y) {
@@ -112,7 +110,7 @@ public class UniverseSpawner {
         }
 
         M entityModel = modelFactory.apply(x, y);
-        model.addEntity(entityModel);
+        spawnEntity(entityModel); // Usiamo spawnEntity internamente per uniformare i controlli
 
         if (controllerFactory != null) {
             IEntityController ctrl = controllerFactory.apply(entityModel);
@@ -122,6 +120,10 @@ public class UniverseSpawner {
     }
 
     public <T extends AbstractPhysicalEntityModel> T spawnEntity(T entity) {
+        if (entity instanceof ProjectileModel projectile) {
+            projectile.setUniverseModel(this.model);
+        }
+
         model.addEntity(entity);
         return entity;
     }
