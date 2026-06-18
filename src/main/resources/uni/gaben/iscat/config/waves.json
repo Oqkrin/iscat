@@ -1,0 +1,6 @@
+[
+  { "threat_level": "LOW", "total_enemies": 12 },
+  { "threat_level": "LOW", "total_enemies": 15 },
+  { "threat_level": "NORMAL", "total_enemies": 18 },
+  { "threat_level": "APOCALYPSE", "total_enemies": 1 }
+]

@@ -19,28 +19,73 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * Gestore principale delle ondate del gioco (Wave Controller).
+ * Si occupa del caricamento dei dati delle ondate da file JSON, dello spawn
+ * dei nemici fuori dallo schermo in base al livello di minaccia corrente,
+ * della gestione degli intervalli di intermissione e del rilevamento dello
+ * stato di vittoria finale al completamento dell'ultima ondata.
+ */
 public class UniverseWaveController {
 
+    /**
+     * Record interno per tracciare un nemico attivo sulla mappa.
+     *
+     * @param model    Il modello fisico dell'entità nemica.
+     * @param enemyId  L'identificativo univoco del tipo di nemico.
+     */
     private record ActiveEnemy(AbstractPhysicalEntityModel model, String enemyId) { }
+
+    /**
+     * Record interno che mappa la configurazione di una singola ondata caricata.
+     *
+     * @param threatLevel   Il livello di minaccia associato all'ondata.
+     * @param totalEnemies  Il numero totale di nemici previsti per l'ondata.
+     */
     private record WaveConfig(ThreatLevel threatLevel, int totalEnemies) { }
 
-    // ── Properties observable per HUD binding ─────────────────────────────────
+    /** Proprietà globale osservabile per il conteggio totale dei nemici sconfitti. */
     private static final IntegerProperty totalKillsProperty    = new SimpleIntegerProperty(0);
+
+    /** Proprietà osservabile per il numero di nemici attualmente rimasti vivi nell'ondata. */
     private final IntegerProperty enemiesRemainingProperty = new SimpleIntegerProperty(0);
+
+    /** Proprietà osservabile per il numero totale di nemici previsti nell'ondata corrente. */
     private final IntegerProperty waveTotalProperty         = new SimpleIntegerProperty(0);
+
+    /** Proprietà osservabile per l'indice numerico dell'ondata corrente. */
     private final IntegerProperty currentWaveProperty      = new SimpleIntegerProperty(1);
 
-    // Proprietà osservabile per il testo della minaccia nella HUD
+    /** Proprietà osservabile per la rappresentazione testuale del livello di minaccia attuale. */
     private final StringProperty currentThreatLevelProperty = new SimpleStringProperty("LOW");
 
+    /** @return La proprietà osservabile delle uccisioni totali. */
     public static IntegerProperty totalKillsProperty()     { return totalKillsProperty; }
+
+    /** @return La proprietà osservabile dei nemici rimanenti nell'ondata attuale. */
     public IntegerProperty enemiesRemainingProperty()      { return enemiesRemainingProperty; }
+
+    /** @return La proprietà osservabile del totale di nemici dell'ondata attuale. */
     public IntegerProperty waveTotalProperty()             { return waveTotalProperty; }
+
+    /** @return La proprietà osservabile dell'indice dell'ondata corrente. */
     public IntegerProperty currentWaveProperty()           { return currentWaveProperty; }
 
+    /** @return La proprietà osservabile del livello di minaccia corrente. */
+    public StringProperty currentThreatLevelProperty()     { return currentThreatLevelProperty; }
+
+    /** @return Il numero intero di nemici rimanenti nell'ondata attuale. */
     public int getEnemiesRemaining()   { return enemiesRemainingProperty.get(); }
+
+    /** @return Il numero intero totale di nemici previsti per l'ondata attuale. */
     public int getWaveTotal()          { return waveTotalProperty.get(); }
 
+    /**
+     * Incrementa il contatore globale delle uccisioni se l'entità specificata
+     * possiede un record valido e un livello di minaccia diverso da NONE.
+     *
+     * @param entity L'entità fisica che è stata eliminata.
+     */
     public static void incrementKills(AbstractPhysicalEntityModel entity) {
         if (entity == null) return;
         EntityRecord record = entity.getEntityRecord();
@@ -48,92 +93,174 @@ public class UniverseWaveController {
         totalKillsProperty.set(totalKillsProperty.get() + 1);
     }
 
-    // ── Stato interno ─────────────────────────────────────────────────────────
+    /** Lista dei nemici attualmente attivi e vivi all'interno dell'universo di gioco. */
     private final List<ActiveEnemy> activeEnemies = new ArrayList<>();
+
+    /** Lista delle configurazioni delle ondate caricate dal file risorsa JSON. */
     private final List<WaveConfig> fileWaves = new ArrayList<>();
+
+    /** Callback di fine partita eseguito allo scadere del timer di vittoria dell'ultima ondata. */
     private Runnable onBossDeadCallback;
 
+    /** Generatore di numeri casuali per angoli e distanze di spawn dei nemici. */
     private final Random random       = new Random();
+
+    /** Flag che indica se il boss principale dell'universo è stato generato. */
     private boolean bossSpawned       = false;
+
+    /** Flag che indica se il boss principale è stato sconfitto. */
     private boolean bossDead          = false;
 
-    private double bossDeadTimer             = 0.0;
-    private boolean bossCallbackTriggered    = false;
+    /** Flag che indica se i requisiti di vittoria dell'ultima ondata sono stati soddisfatti. */
+    private boolean gameWon                  = false;
 
+    /** Timer di countdown per ritardare l'attivazione del cambio scena dopo la vittoria. */
+    private double victoryTimer              = 0.0;
+
+    /** Flag di sicurezza per evitare l'esecuzione multipla del callback di vittoria. */
+    private boolean victoryCallbackTriggered = false;
+
+    /** Indice numerico dell'ondata corrente. */
     private int currentWave                  = 1;
+
+    /** Livello di minaccia associato all'ondata correntemente attiva. */
     private ThreatLevel currentThreatLevel   = ThreatLevel.LOW;
+
+    /** Quantità complessiva di nemici che devono essere generati nell'ondata corrente. */
     private int totalEnemiesToSpawnThisWave  = 0;
+
+    /** Quantità di nemici già generati nell'ondata corrente. */
     private int enemiesSpawnedThisWave       = 0;
 
+    /** Flag che indica se il gioco si trova nella fase di pausa tra un'ondata e la successiva. */
     private boolean inIntermission    = true;
-    private double  intermissionTimer = 5.0;
+
+    /** Timer rimanente per la fine dell'intermissione corrente. */
+    private double intermissionTimer = 5.0;
+
+    /** Timer di cooldown tra la generazione di un singolo nemico e il successivo. */
     private double  spawnTimer        = 0.0;
 
+    /** Intervallo di tempo standard espresso in secondi tra lo spawn di ciascun nemico. */
     private static final double SPAWN_DELAY           = 1.5;
+
+    /** Durata standard espressa in secondi dell'intervallo di pausa tra le ondate. */
     private static final double INTERMISSION_DURATION = 5.0;
+
+    /** Durata iniziale espressa in secondi dell'intermissione prima dell'avvio della prima ondata. */
     private static final double FIRST_WAVE_DELAY      = 5.0;
 
+    /** Modello del bestiario per verificare lo stato di sblocco delle entità nemiche. */
     private final BestiaryModel bestiaryModel = new BestiaryModel();
 
-    // -------------------------------------------------------------------------
-    // Caricamento file delle ondate
-    // -------------------------------------------------------------------------
+    /**
+     * Esegue il caricamento e il parsing manuale sequenziale del file risorsa JSON
+     * contenente la sequenza delle ondate e dei livelli di minaccia personalizzati.
+     *
+     * @param resourcePath Il percorso della risorsa JSON all'interno del pacchetto applicativo.
+     */
     public void loadWavesFromResource(String resourcePath) {
         fileWaves.clear();
 
         try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
             if (is == null) {
-                System.err.println("[WAVE CONTROLLER] File non trovato in: " + resourcePath + ". Uso logica procedurale.");
+                System.err.println("[WAVE CONTROLLER] JSON non trovato in: " + resourcePath + ". Fallback procedurale.");
                 return;
             }
 
+            StringBuilder sb = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
                 String line;
                 while ((line = br.readLine()) != null) {
-                    line = line.trim();
-                    if (line.isEmpty() || line.startsWith("#")) continue;
-
-                    String[] parts = line.split(",");
-                    if (parts.length >= 2) {
-                        try {
-                            ThreatLevel level = ThreatLevel.valueOf(parts[0].trim().toUpperCase());
-                            int count = Integer.parseInt(parts[1].trim());
-                            fileWaves.add(new WaveConfig(level, count));
-                        } catch (IllegalArgumentException e) {
-                            System.err.println("[WAVE CONTROLLER] Errore di sintassi riga: " + line);
-                        }
-                    }
-                }
-                System.out.printf("[WAVE CONTROLLER] Configurazione caricata! Rilevate %d ondate custom.%n", fileWaves.size());
-
-                // Se abbiamo appena caricato il file e siamo alla wave 1, aggiorna subito il testo per la HUD
-                if (!fileWaves.isEmpty() && currentWave == 1) {
-                    currentThreatLevel = fileWaves.get(0).threatLevel();
-                    currentThreatLevelProperty.set(currentThreatLevel.name());
+                    sb.append(line);
                 }
             }
+
+            String json = sb.toString();
+            int index = 0;
+
+            while ((index = json.indexOf('{', index)) != -1) {
+                int end = json.indexOf('}', index);
+                if (end == -1) break;
+
+                String objStr = json.substring(index + 1, end);
+                String threatLevelStr = extractJsonValue(objStr, "threat_level");
+                String totalEnemiesStr = extractJsonValue(objStr, "total_enemies");
+
+                if (threatLevelStr != null && totalEnemiesStr != null) {
+                    try {
+                        ThreatLevel level = ThreatLevel.valueOf(threatLevelStr.toUpperCase().trim());
+                        int count = Integer.parseInt(totalEnemiesStr.trim());
+                        fileWaves.add(new WaveConfig(level, count));
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("[WAVE CONTROLLER] Errore parsing dati JSON: " + objStr);
+                    }
+                }
+                index = end + 1;
+            }
+
+            System.out.printf("[WAVE CONTROLLER] JSON caricato! Rilevate %d ondate custom.%n", fileWaves.size());
+
+            if (!fileWaves.isEmpty() && currentWave == 1) {
+                currentThreatLevel = fileWaves.get(0).threatLevel();
+                currentThreatLevelProperty.set(currentThreatLevel.name());
+            }
+
         } catch (IOException e) {
-            System.err.println("[WAVE CONTROLLER] Errore di lettura: " + e.getMessage());
+            System.err.println("[WAVE CONTROLLER] Errore di lettura file JSON: " + e.getMessage());
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Update principale
-    // -------------------------------------------------------------------------
+    /**
+     * Estrae il valore testuale associato a una chiave specifica da una stringa oggetto JSON.
+     *
+     * @param objStr La porzione di stringa racchiusa tra parentesi graffe che rappresenta l'oggetto JSON.
+     * @param key    La chiave di cui estrarre il rispettivo valore.
+     * @return       Il valore estratto come stringa pulita, oppure null se la chiave non viene trovata.
+     */
+    private String extractJsonValue(String objStr, String key) {
+        int keyIndex = objStr.indexOf("\"" + key + "\"");
+        if (keyIndex == -1) return null;
+        int colonIndex = objStr.indexOf(":", keyIndex);
+        if (colonIndex == -1) return null;
+
+        int valueStart = colonIndex + 1;
+        while (valueStart < objStr.length() && (Character.isWhitespace(objStr.charAt(valueStart)) || objStr.charAt(valueStart) == '"')) {
+            valueStart++;
+        }
+
+        int valueEnd = valueStart;
+        while (valueEnd < objStr.length() && !Character.isWhitespace(objStr.charAt(valueEnd)) && objStr.charAt(valueEnd) != '"' && objStr.charAt(valueEnd) != ',') {
+            valueEnd++;
+        }
+
+        return (valueStart >= valueEnd) ? null : objStr.substring(valueStart, valueEnd);
+    }
+
+    /**
+     * Aggiorna lo stato logico del controllore ad ogni frame di gioco.
+     * Gestisce la rimozione dei nemici distrutti, il countdown dei timer di intermissione,
+     * la temporizzazione dello spawn dei singoli nemici e il controllo del timer di vittoria.
+     *
+     * @param dt        Il tempo trascorso dall'ultimo frame espresso in secondi.
+     * @param camera    Il modello della telecamera per calcolare le coordinate di spawn off-screen.
+     * @param gameModel Il modello generale del gioco per verificare la validità dello stato del giocatore.
+     */
     public void update(double dt, CameraModel camera, GameModel gameModel) {
         if (gameModel == null || gameModel.getUniverseModel().getPlayer() == null) return;
 
         activeEnemies.removeIf(ae -> ae.model == null || ae.model.shouldRemove());
         enemiesRemainingProperty.set(activeEnemies.size());
 
-        if (bossDead && !bossCallbackTriggered) {
-            bossDeadTimer -= dt;
-            if (bossDeadTimer <= 0) {
-                bossCallbackTriggered = true;
+        if (gameWon && !victoryCallbackTriggered) {
+            victoryTimer -= dt;
+            if (victoryTimer <= 0) {
+                victoryCallbackTriggered = true;
                 if (onBossDeadCallback != null) {
                     onBossDeadCallback.run();
                 }
             }
+            return;
         }
 
         if (inIntermission) {
@@ -156,6 +283,11 @@ public class UniverseWaveController {
         }
     }
 
+    /**
+     * Configura e avvia la logica di una nuova ondata.
+     * Determina i parametri di minaccia e volume dei nemici leggendoli dalle liste caricate da JSON
+     * oppure applica algoritmi di generazione procedurale qualora non vi siano dati custom sufficienti.
+     */
     private void startNewWave() {
         enemiesSpawnedThisWave = 0;
         spawnTimer             = 0.0;
@@ -170,17 +302,11 @@ public class UniverseWaveController {
                     currentWave, currentThreatLevel.name(), totalEnemiesToSpawnThisWave);
         }
         else {
-            if (currentWave <= 2) {
-                currentThreatLevel = ThreatLevel.LOW;
-            } else if (currentWave <= 4) {
-                currentThreatLevel = ThreatLevel.NORMAL;
-            } else if (currentWave <= 6) {
-                currentThreatLevel = ThreatLevel.HIGH;
-            } else if (currentWave <= 9) {
-                currentThreatLevel = ThreatLevel.EXTREME;
-            } else {
-                currentThreatLevel = ThreatLevel.APOCALYPSE;
-            }
+            if (currentWave <= 2) currentThreatLevel = ThreatLevel.LOW;
+            else if (currentWave <= 4) currentThreatLevel = ThreatLevel.NORMAL;
+            else if (currentWave <= 6) currentThreatLevel = ThreatLevel.HIGH;
+            else if (currentWave <= 9) currentThreatLevel = ThreatLevel.EXTREME;
+            else currentThreatLevel = ThreatLevel.APOCALYPSE;
 
             totalEnemiesToSpawnThisWave = switch (currentThreatLevel) {
                 case LOW -> 3 + currentWave;
@@ -194,7 +320,6 @@ public class UniverseWaveController {
                     currentWave, currentThreatLevel.name(), totalEnemiesToSpawnThisWave);
         }
 
-        // Notifica la modifica della stringa alla proprietà osservabile
         currentThreatLevelProperty.set(currentThreatLevel.name());
 
         if (currentThreatLevel == ThreatLevel.APOCALYPSE) {
@@ -208,8 +333,24 @@ public class UniverseWaveController {
         currentWaveProperty.set(currentWave);
     }
 
+    /**
+     * Conclude l'ondata attualmente attiva.
+     * Verifica se l'ondata appena completata coincide con l'ultima del file di configurazione custom;
+     * in caso affermativo imposta lo stato di vittoria del gioco, altrimenti avvia l'intermissione per l'ondata successiva.
+     */
     private void endCurrentWave() {
-        System.out.printf("[WAVE CONTROLLER] WAVE %d COMPLETATA! Preparazione prossima ondata...%n", currentWave);
+        System.out.printf("[WAVE CONTROLLER] WAVE %d COMPLETATA!%n", currentWave);
+
+        if (!fileWaves.isEmpty() && currentWave >= fileWaves.size()) {
+            System.out.println("[WAVE CONTROLLER] !!! COMPLIMENTI: ULTIMA ONDATA SUPERATA. GIOCO VINTO !!!");
+            gameWon = true;
+            victoryTimer = 3.0;
+            victoryCallbackTriggered = false;
+
+            AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/SuperHero_original.wav", true);
+            return;
+        }
+
         inIntermission    = true;
         intermissionTimer = INTERMISSION_DURATION;
         currentWave++;
@@ -220,6 +361,13 @@ public class UniverseWaveController {
         }
     }
 
+    /**
+     * Calcola una posizione casuale lungo una circonferenza esterna rispetto al raggio di visione
+     * della telecamera ed esegue lo spawn di un singolo nemico idoneo tramite l'UniverseSpawner.
+     *
+     * @param camera    La telecamera usata come centro del calcolo della distanza di spawn.
+     * @param gameModel Il modello globale per l'iniezione dell'entità generata nel sistema.
+     */
     private void spawnSingleEnemyOffScreen(CameraModel camera, GameModel gameModel) {
         if (camera == null) return;
 
@@ -259,6 +407,12 @@ public class UniverseWaveController {
         }
     }
 
+    /**
+     * Filtra e seleziona un identificativo di nemico idoneo dal registro di fabbrica delle entità,
+     * basandosi sul livello di minaccia corrente dell'ondata e sullo stato dei progressi sbloccati nel bestiario dell'utente.
+     *
+     * @return L'identificativo testuale del nemico estratto casualmente dal pool idoneo.
+     */
     private String selectEligibleEnemyId() {
         if (currentThreatLevel == ThreatLevel.APOCALYPSE) return "ISCAT_MASTER";
 
@@ -301,6 +455,9 @@ public class UniverseWaveController {
         return pool.isEmpty() ? "iscat_mob" : pool.get(random.nextInt(pool.size()));
     }
 
+    /**
+     * Attiva lo stato del boss nel sistema di gioco avviando la traccia musicale di sottofondo dedicata.
+     */
     public void notifyBossSpawned() {
         if (!bossSpawned) {
             bossSpawned = true;
@@ -309,24 +466,33 @@ public class UniverseWaveController {
         }
     }
 
+    /**
+     * Registra l'avvenuta sconfitta del boss, reimpostando la musica di sottofondo standard.
+     * La gestione della vittoria finale rimane demandata esclusivamente al completamento totale dei nemici dell'ondata.
+     */
     public void notifyBossDead() {
         if (bossSpawned && !bossDead) {
             bossDead = true;
-            bossDeadTimer = 3.0;
-            bossCallbackTriggered = false;
             AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/SuperHero_original.wav", true);
         }
     }
 
+    /**
+     * Ripristina integralmente lo stato interno del controllore riportandolo ai parametri di default iniziali.
+     * Azzera tutti i contatori di ondate, nemici vivi, uccisioni globali e i timer di vittoria,
+     * preparando l'istanza per una nuova partita pulita.
+     */
     public void reset() {
         spawnTimer                  = 0.0;
         bossSpawned                 = false;
         bossDead                    = false;
-        bossDeadTimer               = 0.0;
-        bossCallbackTriggered       = false;
+
+        gameWon                     = false;
+        victoryTimer                = 0.0;
+        victoryCallbackTriggered    = false;
+
         currentWave                 = 1;
 
-        // Se resettiamo e il file è già stato caricato, mostra subito la minaccia della prima ondata custom
         if (!fileWaves.isEmpty()) {
             currentThreatLevel = fileWaves.get(0).threatLevel();
         } else {
@@ -345,11 +511,13 @@ public class UniverseWaveController {
         currentWaveProperty.set(1);
     }
 
-    @Deprecated
-    public String getCurrentThreatLevelDisplay() {
-        return "Minaccia: " + currentThreatLevel.name();
-    }
-
+    /**
+     * Imposta la routine esterna da lanciare nel momento in cui il timer post-vittoria scade con successo.
+     *
+     * @param callback L'oggetto {@link Runnable} che definisce l'azione di fine partita.
+     */
     public void setOnBossDeadCallback(Runnable callback) { this.onBossDeadCallback = callback; }
+
+    /** @return L'indice intero dell'ondata corrente. */
     public int         getCurrentWave()        { return currentWave; }
 }
