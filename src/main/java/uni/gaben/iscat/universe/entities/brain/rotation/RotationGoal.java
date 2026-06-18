@@ -28,7 +28,15 @@ public interface RotationGoal {
     static RotationGoal target(Target target) {
         AtomicReference<Vector2> pos = new AtomicReference<>(UU.vector2zero());
         return (self, world, dt) -> {
-            pos.set(target.getPosition(world));
+            Vector2 currentTargetPos = target.getPosition(world);
+
+            // Se il target non è ancora nella mappa o è morto,
+            // restituiamo NaN per fermare la rotazione senza far crashare il gioco.
+            if (currentTargetPos == null) {
+                return Double.NaN;
+            }
+
+            pos.set(currentTargetPos);
             return pos.get().subtract(self.getTransform().getTranslation()).getDirection();
         };
     }
