@@ -22,7 +22,7 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.database.sqlite to javafx.fxml;
     opens uni.gaben.iscat.model to javafx.fxml;
     opens uni.gaben.iscat.controller.game to javafx.fxml;
-    opens uni.gaben.iscat.controller.components.options to javafx.fxml;
+    opens uni.gaben.iscat.controller.components.settings to javafx.fxml;
 
     opens uni.gaben.iscat.utils to javafx.fxml;
     opens uni.gaben.iscat.utils.sprite to javafx.fxml;
@@ -40,7 +40,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.model.game;
     exports uni.gaben.iscat.view.game;
     exports uni.gaben.iscat.model.login;
-    exports uni.gaben.iscat.controller.components.options;
+    exports uni.gaben.iscat.controller.components.settings;
 
     exports uni.gaben.iscat.universe;
     exports uni.gaben.iscat.universe.entities.brain;

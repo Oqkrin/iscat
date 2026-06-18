@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller.components.options;
+package uni.gaben.iscat.controller.components.settings;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Slider;

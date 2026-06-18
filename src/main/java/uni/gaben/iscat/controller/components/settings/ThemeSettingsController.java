@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller.components.options;
+package uni.gaben.iscat.controller.components.settings;
 
 import de.androidpit.colorthief.ColorThief;
 import javafx.animation.AnimationTimer;

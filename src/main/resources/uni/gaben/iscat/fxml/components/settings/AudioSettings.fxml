@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <StackPane rotate="1.0" scaleX="1.25" scaleY="1.25" maxWidth="450.0" minWidth="380.0" VBox.vgrow="NEVER"
            xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.controller.components.options.AudioSettingsController">
+           fx:controller="uni.gaben.iscat.controller.components.settings.AudioSettingsController">
 
     <Region styleClass="glowing-border, controls-card" />
 
