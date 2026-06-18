@@ -3,9 +3,11 @@ package uni.gaben.iscat.universe.rendering;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.paint.Color;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.model.game.GameModel;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.effects.EnduranceIndicator;
@@ -48,7 +50,6 @@ public class UniverseRenderer {
         if (width <= 0 || height <= 0) return;
         UniverseModel universe = gameController.getUniverseController().getUniverseModel();
         if (universe != null) {
-            universe.setDimensions(width, height);
             universe.getStarfieldModel().generate(width, height);
         }
     }
@@ -76,6 +77,9 @@ public class UniverseRenderer {
         starfieldRenderer.setCameraX(camera.getX());
         starfieldRenderer.setCameraY(camera.getY());
         starfieldRenderer.render(universe.getStarfieldModel(), gc);
+
+        // Bordo
+        drawUniverseBoundaries(gc, universe, camera);
 
         // 3. Prepare the batch collector for this frame
         layers.begin(gc, camera, w, h);
@@ -169,6 +173,34 @@ public class UniverseRenderer {
         for (EnduranceIndicator ind : enduranceIndicators) {
             DrawVFX.drawEnduranceIndicator(ind, gc);
         }
+        gc.restore();
+    }
+
+    private void drawUniverseBoundaries(GraphicsContext gc, UniverseModel universe, CameraModel camera) {
+        // Convertiamo i confini fisici da metri a pixel di gioco
+        double minX = UU.mToPx(universe.getMinXBoundary());
+        double maxX = UU.mToPx(universe.getMaxXBoundary());
+        double minY = UU.mToPx(universe.getMinYBoundary());
+        double maxY = UU.mToPx(universe.getMaxYBoundary()); // <--- FIXATO QUI
+
+        double mapWidthPx = maxX - minX;
+        double mapHeightPx = maxY - minY;
+
+        // Applichiamo la trasformazione della telecamera per posizionarlo correttamente a schermo
+        double zoom = camera.getZoom();
+        double screenCenterX = mainCanvas.getWidth() / 2.0;  // Usiamo mainCanvas direttamente per sicurezza
+        double screenCenterY = mainCanvas.getHeight() / 2.0;
+
+        double drawX = screenCenterX + (minX - camera.getX()) * zoom;
+        double drawY = screenCenterY + (minY - camera.getY()) * zoom;
+        double drawW = mapWidthPx * zoom;
+        double drawH = mapHeightPx * zoom;
+
+        // Disegniamo il rettangolo di contorno bianco
+        gc.save();
+        gc.setStroke(Color.WHITE);
+        gc.setLineWidth(2.0 * zoom); // Spessore della linea proporzionale allo zoom della camera
+        gc.strokeRect(drawX, drawY, drawW, drawH);
         gc.restore();
     }
 }

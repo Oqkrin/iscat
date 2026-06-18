@@ -55,6 +55,13 @@ public class GameController {
         this.universeController.setEntityDeathListener(this::onEntityDied);
         this.universeController.getPlayerController().setGameModel(gameModel);
         this.waveController.setOnBossDeadCallback(this::notifyBossDead);
+        if (gameModel.getUniverseModel() != null) {
+            //TODO DIMENSIONI MIGLIORI
+            double mapWidthMetres  = UU.pxToM(4000);
+            double mapHeightMetres = UU.pxToM(4000);
+            gameModel.getUniverseModel().setDimensions(mapWidthMetres, mapHeightMetres);
+            gameModel.getUniverseModel().createUniverseBoundaries();
+        }
     }
 
     private void tick(double dt) {

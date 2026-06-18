@@ -35,6 +35,19 @@ public class UniverseSpawner {
     }
 
     public Object spawn(String id, double x, double y) {
+        // Se il modello ha dei confini validi, forziamo x e y a rimanere dentro la gabbia
+        // lasciando un piccolo margine di sicurezza (es. 2 metri) per non farli nascere dentro al muro
+        if (model != null && model.getWidth() > 0 && model.getHeight() > 0) {
+            double margin = 2.0; // Margine di sicurezza in metri dal bordo bianco
+            double minX = model.getMinXBoundary() + margin;
+            double maxX = model.getMaxXBoundary() - margin;
+            double minY = model.getMinYBoundary() + margin;
+            double maxY = model.getMaxYBoundary() - margin;
+
+            x = Math.clamp(x, minX, maxX);
+            y = Math.clamp(y, minY, maxY);
+        }
+
         UniverseSpawnable type = UniverseSpawnable.fromString(id);
         if (type != null) return spawn(type, x, y);
         return spawnCustomRuntimeEntity(id, x, y);

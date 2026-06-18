@@ -32,8 +32,8 @@ import java.util.Random;
 
             // 2. Metrics (Basing scale off UniverseModel defaults)
             // We set the radius to be large enough to contain the play area
-            double boundaryRadius = centerX * 2.5;
-            double wallThickness = 500.0; // Depth of the asteroid ring
+            double boundaryRadius = centerX * 5.0;
+            double wallThickness = 1000.0; // Depth of the asteroid ring
 
             // Calculate circumference to determine how many steps we need for a "solid" wall
             double circumference = 2 * Math.PI * boundaryRadius;

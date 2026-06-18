@@ -38,8 +38,11 @@ public class CachedNeighboursTarget implements Target {
         );
 
         cachedEntities = universe.detect(detectionBox, filter).stream()
-                .map(r -> (AbstractPhysicalEntityModel) r.getBody())
-                .filter(e -> e != self).toList();
+                .map(r -> r.getBody())
+                .filter(body -> body instanceof AbstractPhysicalEntityModel)
+                .map(body -> (AbstractPhysicalEntityModel) body)
+                .filter(e -> e != self)
+                .toList();
         lastQueryTime = now;
         return cachedEntities;
     }

@@ -1,7 +1,5 @@
 package uni.gaben.iscat.universe.camera;
 
-import uni.gaben.iscat.utils.Updatable;
-
 /**
  * Controller that updates the {@link CameraModel} to follow a target position.
  *
@@ -34,7 +32,13 @@ public class CameraController {
     public void update(CameraModel model, double targetWorldX, double targetWorldY,
                        double viewW, double viewH, double mouseWorldX, double mouseWorldY, double dt) {
 
+        // Se lo zoom scende sotto lo 0.1, lo costringiamo a un valore minimo sicuro.
+        // Usiamo setActualZoom visto che setZoom non esiste nel tuo modello.
         double zoom = model.getZoom();
+        if (zoom < 0.1) {
+            zoom = 0.1;
+            model.setActualZoom(0.1);
+        }
 
         // 1. Calculate Look-Ahead (toward mouse)
         double offsetX = (mouseWorldX - targetWorldX) * 0.15;
@@ -45,7 +49,7 @@ public class CameraController {
         offsetX = Math.clamp(offsetX, -maxOffset, maxOffset);
         offsetY = Math.clamp(offsetY, -maxOffset, maxOffset);
 
-        // 3. SET TARGET AS WORLD CENTER (Remove the -viewW/2 logic)
+        // 3. SET TARGET AS WORLD CENTER
         double targetCentreX = targetWorldX + offsetX;
         double targetCentreY = targetWorldY + offsetY;
 

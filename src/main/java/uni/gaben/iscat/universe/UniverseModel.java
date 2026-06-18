@@ -230,4 +230,51 @@ public class UniverseModel extends World<Body> {
         }
     }
 
+    /**
+     * Crea le barriere fisiche ai confini dell'universo basandosi su larghezza e altezza correnti.
+     * Chiama questo metodo subito dopo aver istanziato l'UniverseModel e aver settato le dimensioni.
+     */
+    public void createUniverseBoundaries() {
+        double thickness = 5.0; // Spessore in metri per evitare passaggi ad alta velocità
+
+        // Le coordinate del centro della mappa (assumendo coordinate centrate su 0,0)
+        double halfW = width / 2.0;
+        double halfH = height / 2.0;
+
+        // 1. Muro Superiore
+        Body topWall = createWallBody(0, -halfH - (thickness / 2.0), width + (thickness * 2), thickness);
+        // 2. Muro Inferiore
+        Body bottomWall = createWallBody(0, halfH + (thickness / 2.0), width + (thickness * 2), thickness);
+        // 3. Muro Sinistro
+        Body leftWall = createWallBody(-halfW - (thickness / 2.0), 0, thickness, height);
+        // 4. Muro Destro
+        Body rightWall = createWallBody(halfW + (thickness / 2.0), 0, thickness, height);
+
+        // Aggiungiamo i corpi statici al motore fisico dyn4j di questa istanza
+        this.addBody(topWall);
+        this.addBody(bottomWall);
+        this.addBody(leftWall);
+        this.addBody(rightWall);
+    }
+
+    private Body createWallBody(double x, double y, double w, double h) {
+        Body wall = new Body();
+        org.dyn4j.dynamics.BodyFixture fixture = wall.addFixture(org.dyn4j.geometry.Geometry.createRectangle(w, h));
+
+        // Utilizza i filtri di collisione standard dei nemici/ostacoli in modo che blocchino il player
+        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
+
+        wall.setMass(MassType.INFINITE); // Rende il corpo un muro fisso inamovibile
+        wall.getTransform().setTranslation(x, y);
+        return wall;
+    }
+
+    /**
+     * Ritorna le coordinate minime e massime in metri utilizzabili dal renderer per disegnare il bordo.
+     */
+    public double getMinXBoundary() { return -width / 2.0; }
+    public double getMaxXBoundary() { return width / 2.0; }
+    public double getMinYBoundary() { return -height / 2.0; }
+    public double getMaxYBoundary() { return height / 2.0; }
+
 }
