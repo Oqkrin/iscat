@@ -31,7 +31,7 @@
   "ai": {
     "steering": {
       "type": "pursuitWithRange",
-      "maxPredictionTime": 5,
+      "maxPredictionTime": 10,
       "minDistance": 3,
       "maxDistance": 12
     },
@@ -48,10 +48,10 @@
       }
     ],
     "modifiers": [
-      { "type": "collisionAvoidance", "radius": 7.5, "weight": 3, "maxPredictionTime": 5, "avoidRadius": 5.0 },
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 5, "maxPredictionTime": 10, "avoidRadius": 7.0 },
       { "type": "alignment", "radius": 7.5, "weight": 1 },
-      { "type": "cohesion", "radius": 7.5, "weight": 1.5 },
-      { "type": "separation", "radius": 3.75, "weight": 5 }
+      { "type": "cohesion", "radius": 7.5, "weight": 2 },
+      { "type": "separation", "radius": 3.75, "weight": 3 }
     ]
   }
 }

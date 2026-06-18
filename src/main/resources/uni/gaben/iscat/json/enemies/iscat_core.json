@@ -4,7 +4,7 @@
   "Description": "Iscat, Macchina e Roccia che cos'è quest'abominio.\nSembra sprizzare magia ma non c'è nulla naturale in lui,\nUn omuncolo frutto del malsano ingegno del maestro nella sua ricerca perpetua dell'immortalità\nla spiraleggiante effimerezza dei golem è riuscito ad imbrigliare la creazione di questa nuova specie molti pensano sia solo il bisogno logistico di un esercito, \nma da dove nasce un iscat cosa proteggono i golem domande che un giovane maestro ha risolto, \nora in zone remote dell'universo le madri degli iscat vengono sfruttate curate e torturate e con esse la loro prole, \ne da cotanto dolore i cometa golem arrivano da ogni dove in massa; parte della loro linfa magica estratta per sostenere il maestro; \normai vacui e deboli vengono ammassati e compressati insieme agli iscat che volevano proteggere fusi nelle immonde creature che sono gli iscat core \nchimere magiche meccaniche ma vive, questo barlume di vita e magia sprizza via nei suoi ultimi momenti",
   "SpriteName": "iscat_core",
   "BestiaryOrder": 7,
-  "ThreatLevel": "HIGH",
+  "ThreatLevel": "NORMAL",
   "FrameW": 64,
   "FrameH": 64,
   "ShapeType": "SQUARE",
