@@ -11,6 +11,7 @@ import org.dyn4j.geometry.Vector2;
 
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.*;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.universe.effects.Thrust;
@@ -77,6 +78,13 @@ public class PlayerModel extends AbstractLivingEntityModel
         setMass(MassType.NORMAL);
         setLinearDamping(data.linearDamping());
         this.thrust = new Thrust();
+
+        addOnCollision("melee", other -> {
+            if (other instanceof AbstractLivingEntityModel enemy && !(other instanceof AbstractPhysicalProjectileModel)) {
+                handleMeleeCollision(enemy);
+            }
+        });
+
     }
 
     // ==================== METODI DI MOVIMENTO ====================
@@ -190,6 +198,29 @@ public class PlayerModel extends AbstractLivingEntityModel
         while (this.xp.get() >= xpNeeded) {
             levelUp();
         }
+    }
+
+    public void handleMeleeCollision(AbstractLivingEntityModel enemy) {
+        if (!canDealMeleeDamage() || enemy == null) return;
+
+        double damage = getMeleeDamage();
+
+        if (isDashing()) {
+            // Knockback
+            Vector2 knockbackDir = enemy.getTransform().getTranslation()
+                    .copy()
+                    .subtract(this.getTransform().getTranslation());
+            double distance = knockbackDir.getMagnitude();
+            if (distance > 0.001) {
+                double enemyMass = enemy.getMass().getMass();
+                double knockbackForce = 1000.0 / Math.max(enemyMass, 1.0);
+                knockbackDir.multiply(knockbackForce / distance);
+                enemy.applyImpulse(knockbackDir);
+            }
+        }
+
+        enemy.damage(damage);
+        startMeleeCooldown();
     }
 
     // ==================== METODI DI COMBATTIMENTO ====================

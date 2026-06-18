@@ -9,11 +9,12 @@ import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.universe.effects.Starfield;
-import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
+import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
+import uni.gaben.iscat.utils.EntityAudioManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,43 +48,22 @@ public class UniverseModel extends World<Body> {
             public void begin(ContactCollisionData<Body> collision, Contact contact) {
                 AbstractPhysicalEntityModel a = extractEntity(collision.getBody1());
                 AbstractPhysicalEntityModel b = extractEntity(collision.getBody2());
-                if (a != null && b != null) {
-                    double Abefore = 0;
-                    double Bbefore = 0;
+                if (a == null || b == null) return;
 
-                    if(a instanceof Alterable aa) {
-                        Abefore = aa.getEndurance();
-                    }
+                // 1. Record endurance before collision callbacks
+                double aBefore = getAbstractPhysicalEntityEndurance(a);
+                double bBefore = getAbstractPhysicalEntityEndurance(b);
 
-                    if(b instanceof Alterable ab) {
-                        Bbefore = ab.getEndurance();
-                    }
+                // 2. Trigger all collision callbacks (includes player melee)
+                a.triggerAllCollisions(b);
+                b.triggerAllCollisions(a);
 
-                    handlePlayerMeleeDamage(a, b);
+                // 3. Record endurance after and track changes
+                double aAfter = getAbstractPhysicalEntityEndurance(a);
+                double bAfter = getAbstractPhysicalEntityEndurance(b);
 
-                    a.triggerAllCollisions(b);
-                    b.triggerAllCollisions(a);
-
-                    double Aafter = 0;
-                    double Bafter = 0;
-
-                    if(a instanceof Alterable aa) {
-                        Aafter = aa.getEndurance();
-                    }
-
-                    if(b instanceof Alterable ab) {
-                        Bafter = ab.getEndurance();
-                    }
-
-                    if(Aafter != Abefore && !(a instanceof AbstractPhysicalProjectileModel)) {
-                        alteredEndurance.put(a.getTransform().getTranslation(), Aafter-Abefore);
-                    }
-
-                    if(Bafter != Bbefore &&  !(b instanceof AbstractPhysicalProjectileModel)) {
-                        alteredEndurance.put(b.getTransform().getTranslation(), Bafter-Bbefore);
-                    }
-
-                }
+                handleEnduranceAlteration(a, aBefore, aAfter);
+                handleEnduranceAlteration(b, bBefore, bAfter);
             }
         });
     }
@@ -232,45 +212,19 @@ public class UniverseModel extends World<Body> {
         return alteredEndurance;
     }
 
-    // Metodo per gestire il danno da mischia del player
-    private void handlePlayerMeleeDamage(AbstractPhysicalEntityModel a, AbstractPhysicalEntityModel b) {
-        PlayerModel player = null;
-        AbstractLivingEntityModel enemy = null;
+    private double getAbstractPhysicalEntityEndurance(AbstractPhysicalEntityModel entity) {
+        return (entity instanceof Alterable alterable) ? alterable.getEndurance() : 0;
+    }
 
-        if (a instanceof PlayerModel && b instanceof AbstractLivingEntityModel && !(b instanceof PlayerModel)) {
-            player = (PlayerModel) a;
-            enemy = (AbstractLivingEntityModel) b;
-        } else if (b instanceof PlayerModel && a instanceof AbstractLivingEntityModel && !(a instanceof PlayerModel)) {
-            player = (PlayerModel) b;
-            enemy = (AbstractLivingEntityModel) a;
-        }
+    private void handleEnduranceAlteration(AbstractPhysicalEntityModel entity, double before, double after) {
+        if (before == after) return;
+        if (entity instanceof AbstractPhysicalProjectileModel) return;
 
-        // Verifica che il nemico non sia un proiettile
-        if (player != null && enemy != null && !(enemy instanceof AbstractPhysicalProjectileModel)) {
+        double delta = after - before;
+        alteredEndurance.put(entity.getTransform().getTranslation(), delta);
 
-            if (player.canDealMeleeDamage()) {
-                // Danno base
-                double damage = player.getMeleeDamage();
-
-                // Danno doppio durante il dash
-                if (player.isDashing()) {
-                    Vector2 knockbackDir = enemy.getTransform().getTranslation()
-                            .copy()
-                            .subtract(player.getTransform().getTranslation());
-
-                    double distance = knockbackDir.getMagnitude();
-                    if (distance > 0.001) {
-                        // Applica knockback inversamente proporzionale alla massa del nemico
-                        double enemyMass = enemy.getMass().getMass();
-                        double knockbackForce = 1000.0 / Math.max(enemyMass, 1.0);
-                        knockbackDir.multiply(knockbackForce / distance);
-                        enemy.applyImpulse(knockbackDir);
-                    }
-                }
-
-                enemy.damage(damage);
-                player.startMeleeCooldown();
-            }
+        if (entity instanceof EntityModel entityModel) {
+            EntityAudioManager.playEventAudio(entityModel, delta < 0 ? "hurt" : "heal");
         }
     }
 

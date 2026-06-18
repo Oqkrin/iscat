@@ -166,7 +166,7 @@ public class PlayerController {
 
                 // Se la logica precedente modificava ulteriormente la durata/vita del proiettile:
                 double boostedLife = bullet.getEndurance() + player.getLevel();
-                bullet.setMaxLifeDirect(boostedLife);
+                bullet.setMaxEnduranceDirect(boostedLife);
             };
 
             currentAttack.execute(shooter, ProjectileType.PLAYER_BULLET, angle, customizer);
