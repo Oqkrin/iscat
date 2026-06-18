@@ -29,23 +29,23 @@
     "levelAbilities": [
       {
         "minLevel": 10,
-        "cooldownSec": 0.24,
-        "pattern": { "type": "figure", "figureType": "STAR", "count": 30 }
+        "cooldownSec": 0.255,
+        "pattern": { "type": "spread", "count": 5, "angleStepDeg": 45.0 }
       },
       {
         "minLevel": 7,
-        "cooldownSec": 0.255,
-        "pattern": { "type": "spread", "count": 7, "angleStepDeg": 45.0 }
+        "cooldownSec": 0.27,
+        "pattern": { "type": "spread", "count": 4, "angleStepDeg": 30.0 }
       },
       {
         "minLevel": 4,
-        "cooldownSec": 0.27,
-        "pattern": { "type": "spread", "count": 5, "angleStepDeg": 30.0 }
+        "cooldownSec": 0.285,
+        "pattern": { "type": "spread", "count": 3, "angleStepDeg": 15.0 }
       },
       {
         "minLevel": 2,
         "cooldownSec": 0.285,
-        "pattern": { "type": "spread", "count": 3, "angleStepDeg": 15.0 }
+        "pattern": { "type": "spread", "count": 2, "angleStepDeg": 15.0 }
       },
       {
         "minLevel": 1,
