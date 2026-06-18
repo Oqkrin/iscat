@@ -20,7 +20,6 @@ import uni.gaben.iscat.controller.OptionsMenuController;
 import uni.gaben.iscat.controller.game.GamePauseMenuController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.rendering.StarfieldRenderer;
 import uni.gaben.iscat.universe.rendering.UniverseRenderer;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.design.CssHelper;
@@ -39,8 +38,6 @@ public class GameView extends AbstractIscatStackPane {
 
     private Canvas           canvas;
     private UniverseRenderer universeRenderer;
-    private final StarfieldRenderer starfieldRenderer = new StarfieldRenderer();
-
 
     private GameHudBar hudBar;
     private GameSpawnerToolbar      spawnerToolbar;
@@ -70,6 +67,9 @@ public class GameView extends AbstractIscatStackPane {
     protected void initNodes() {
         canvas = new Canvas();
 
+        // UniverseRenderer now creates its own StarfieldRenderer internally
+        universeRenderer = new UniverseRenderer(canvas, gameController);
+
         hudBar         = new GameHudBar(gameController);
         spawnerToolbar = new GameSpawnerToolbar(gameController);
         pauseMenu      = loadPauseMenu();
@@ -89,8 +89,6 @@ public class GameView extends AbstractIscatStackPane {
         debugButtonsContainer.setFocusTraversable(false);
         debugButtonsContainer.setPickOnBounds(false);
         spawnerToolbar.setPickOnBounds(false);
-
-        universeRenderer = new UniverseRenderer(canvas, gameController, starfieldRenderer);
     }
 
     @Override
@@ -147,6 +145,7 @@ public class GameView extends AbstractIscatStackPane {
         camera.screenWidthProperty().bind(canvas.widthProperty());
         camera.screenHeightProperty().bind(canvas.heightProperty());
 
+        // Delegate canvas resize to UniverseRenderer
         canvas.widthProperty().addListener((obs, oldW, newW) -> onCanvasSizeChanged());
         canvas.heightProperty().addListener((obs, oldH, newH) -> onCanvasSizeChanged());
 
@@ -258,7 +257,7 @@ public class GameView extends AbstractIscatStackPane {
         gameController.setOnUniverseResetCallback(this::bindToCurrentUniverse);
 
         runLater(() -> {
-            onCanvasSizeChanged();
+            onCanvasSizeChanged(); // update viewport and starfield
             bindToCurrentUniverse();
             gameController.startGameLoop();
             canvas.requestFocus();
@@ -291,8 +290,8 @@ public class GameView extends AbstractIscatStackPane {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
         if (w <= 0 || h <= 0) return;
-        gameController.getUniverseModel().setDimensions(w, h);
-        gameController.getUniverseModel().getStarfieldModel().generate(w, h);
+        // Delegate to UniverseRenderer to update dimensions and starfield
+        universeRenderer.updateViewport(w, h);
     }
 
     private void bindToCurrentUniverse() {

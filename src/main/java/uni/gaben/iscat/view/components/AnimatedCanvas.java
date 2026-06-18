@@ -3,17 +3,20 @@ package uni.gaben.iscat.view.components;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.Bloom;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
+import uni.gaben.iscat.utils.sprite.SpriteUtils;
+import uni.gaben.iscat.utils.theme.ThemeManager;
 
 /**
  * Canvas ottimizzato per il rendering e l'animazione di sprite-sheet pixel-art
  * con supporto al color-tinting dinamico tramite ThemeManager.
+ *
+ * <p>Reworked to share sprite loading and animation logic with the entity
+ * rendering system, avoiding duplication.</p>
  */
 public class AnimatedCanvas extends Canvas {
 
@@ -24,6 +27,7 @@ public class AnimatedCanvas extends Canvas {
     private long lastTime = 0;
     private double currentFrameDuration = 0.1;
 
+    // Cached tinted frame (same caching strategy as EntityRenderer)
     private Image cachedTintedFrame;
     private Color lastAppliedTint;
     private int lastRow = -1;
@@ -37,9 +41,13 @@ public class AnimatedCanvas extends Canvas {
         super(size, size);
     }
 
+    /**
+     * Sets the duration of each frame in seconds.
+     */
     public void setFrameDuration(double duration) {
         this.currentFrameDuration = duration;
         if (animator != null) {
+            // Recalculate durations for all frames/states
             animator.constantDurationFiller(
                     duration,
                     spriteSheet.getTotalFrames(),
@@ -48,26 +56,37 @@ public class AnimatedCanvas extends Canvas {
         }
     }
 
+    /**
+     * Loads a sprite sheet with default frame size (32x32).
+     */
     public void loadSkin(String path) {
         loadSkin(path, 32, 32);
     }
 
+    /**
+     * Loads a sprite sheet with custom frame dimensions.
+     */
     public void loadSkin(String path, int frameW, int frameH) {
-        stop();
+        stop(); // stop any running animation
 
+        // Use the central sprite library – same as EntityRenderer
         spriteSheet = SpritesLibrary.getInstance().getSprite(path, frameW, frameH);
         if (spriteSheet == null || spriteSheet.getSheet() == null) {
-            System.err.println("[AnimatedCanvas] Errore: Impossibile caricare lo sprite da: " + path);
+            System.err.println("[AnimatedCanvas] Failed to load sprite: " + path);
             return;
         }
 
-        animator = new SpriteSheetsAnimator(currentFrameDuration, 1, 1);
+        // Create animator with the same logic as EntityRenderer
+        int states = spriteSheet.getTotalStates();
+        int framesPerState = spriteSheet.getFramesPerRow().length; // assuming uniform rows
+        animator = new SpriteSheetsAnimator(currentFrameDuration, framesPerState, states);
         animator.constantDurationFiller(
                 currentFrameDuration,
                 spriteSheet.getTotalFrames(),
-                spriteSheet.getTotalStates()
+                states
         );
 
+        // Reset cache
         invalidateCache();
         startTimer();
     }
@@ -81,20 +100,21 @@ public class AnimatedCanvas extends Canvas {
                     lastTime = now;
                     return;
                 }
-
                 double delta = (now - lastTime) / 1_000_000_000.0;
                 lastTime = now;
 
                 if (animator != null) {
                     animator.update(delta);
                 }
-
                 render();
             }
         };
         timer.start();
     }
 
+    /**
+     * Resizes the canvas to a square of the given size.
+     */
     public void resize(double size) {
         setWidth(size);
         setHeight(size);
@@ -109,38 +129,39 @@ public class AnimatedCanvas extends Canvas {
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.setImageSmoothing(false);
 
-        int sheetRow = Math.clamp(animator.getCurrentState(), 0, spriteSheet.getTotalStates() - 1);
-        int sheetColumn = Math.clamp(animator.getCurrentFrame(), 0, spriteSheet.getTotalFrames() - 1);
+        int state = Math.clamp(animator.getCurrentState(), 0, spriteSheet.getTotalStates() - 1);
+        int frame = Math.clamp(animator.getCurrentFrame(), 0, spriteSheet.getTotalFrames() - 1);
 
-        Color currentTint = ThemeManager.getInstance().getAccentSecondary();
+        // Use the same tint as EntityRenderer (accent secondary for UI)
+        Color tint = ThemeManager.getInstance().getAccentSecondary();
 
+        // Only regenerate the tinted frame if something changed
         if (cachedTintedFrame == null
-                || !currentTint.equals(lastAppliedTint)
-                || sheetRow != lastRow
-                || sheetColumn != lastCol) {
+                || !tint.equals(lastAppliedTint)
+                || state != lastRow
+                || frame != lastCol) {
 
-            // Preleva il frame già tagliato dal parser (leggerissimo)
-            Image tinyFrame = spriteSheet.getFrame(sheetRow, sheetColumn);
-
-            if (tinyFrame != null) {
-                // Tinge solo il singolo quadratino
-                cachedTintedFrame = ThemeManager.getInstance().getTintedImage(tinyFrame, currentTint);
+            Image rawFrame = spriteSheet.getFrame(state, frame);
+            if (rawFrame != null) {
+                // Apply tint using the same utility as EntityRenderer
+                cachedTintedFrame = SpriteUtils.tinted(rawFrame, tint);
+            } else {
+                cachedTintedFrame = null;
             }
 
-            lastAppliedTint = currentTint;
-            lastRow = sheetRow;
-            lastCol = sheetColumn;
+            lastAppliedTint = tint;
+            lastRow = state;
+            lastCol = frame;
         }
 
-        // Disegna direttamente il frame tinto senza bisogno di calcolare le coordinate sorgente (sx, sy)
         if (cachedTintedFrame != null) {
-            gc.drawImage(
-                    cachedTintedFrame,
-                    0, 0, getWidth(), getHeight()
-            );
+            gc.drawImage(cachedTintedFrame, 0, 0, getWidth(), getHeight());
         }
     }
 
+    /**
+     * Forces the cache to be rebuilt on next render.
+     */
     public void invalidateCache() {
         this.cachedTintedFrame = null;
         this.lastAppliedTint = null;
@@ -148,6 +169,9 @@ public class AnimatedCanvas extends Canvas {
         this.lastCol = -1;
     }
 
+    /**
+     * Stops the animation timer.
+     */
     public void stop() {
         if (timer != null) {
             timer.stop();

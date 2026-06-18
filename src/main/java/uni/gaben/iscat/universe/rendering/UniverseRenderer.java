@@ -24,7 +24,7 @@ public class UniverseRenderer {
     private final Canvas          mainCanvas;
     private final GameController  gameController;
     private final GameModel       gameModel;
-    private final StarfieldRenderer starfieldRenderer;
+    private final StarfieldRenderer starfieldRenderer; // now created internally
 
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
@@ -33,11 +33,24 @@ public class UniverseRenderer {
     // Batched drawing helper
     private final OptimizedLayeredRenderer layers = new OptimizedLayeredRenderer();
 
-    public UniverseRenderer(Canvas mainCanvas, GameController gameController, StarfieldRenderer starfieldRenderer) {
+    public UniverseRenderer(Canvas mainCanvas, GameController gameController) {
         this.mainCanvas       = mainCanvas;
         this.gameController   = gameController;
         this.gameModel        = gameController.getGameModel();
-        this.starfieldRenderer = starfieldRenderer;
+        this.starfieldRenderer = new StarfieldRenderer(); // create internally
+    }
+
+    /**
+     * Updates the viewport dimensions and regenerates the starfield accordingly.
+     * Called when the canvas is resized.
+     */
+    public void updateViewport(double width, double height) {
+        if (width <= 0 || height <= 0) return;
+        UniverseModel universe = gameController.getUniverseController().getUniverseModel();
+        if (universe != null) {
+            universe.setDimensions(width, height);
+            universe.getStarfieldModel().generate(width, height);
+        }
     }
 
     public void renderFrame(boolean debugPanelVisible) {
@@ -158,5 +171,4 @@ public class UniverseRenderer {
         }
         gc.restore();
     }
-
 }
