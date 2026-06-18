@@ -9,7 +9,7 @@ import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
+import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 import java.util.List;
@@ -87,31 +87,34 @@ public class MainMenuController implements IscatFxmlController {
         if (btn == null) return;
 
         try {
-            if (iconCode.equals("fas-gift")) {
-                PlayerSettings.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
-                    skin.loadSkin(newValue, 32, 32);
+            switch (iconCode) {
+                case "fas-gift" -> {
+                    SessionManager.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
+                        skin.loadSkin(newValue, 32, 32);
+                        skin.resize(128.0);
+                    });
+                    skin.loadSkin(SessionManager.getPlayerSkin(), 32, 32);
                     skin.resize(128.0);
-                });
-                skin.loadSkin(PlayerSettings.getPlayerSkin(), 32, 32);
-                skin.resize(128.0);
-                skin.setFrameDuration(0.20);
-                btn.setGraphic(skin);
+                    skin.setFrameDuration(0.20);
+                    btn.setGraphic(skin);
+                }
+                case "fas-bug" -> {
+                    mobCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/iscat_mob.png", 32, 32);
+                    mobCanvas.resize(128.0);
+                    mobCanvas.setFrameDuration(0.20);
+                    btn.setGraphic(mobCanvas);
+                }
+                case "fas-eye", "fas-list-ol" -> {
+                    FontIcon icon = new FontIcon(iconCode);
+                    icon.setIconSize(128);
+                    btn.setGraphic(icon);
 
-            } else if (iconCode.equals("fas-bug")) {
-                mobCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/iscat_mob.png", 32, 32);
-                mobCanvas.resize(128.0);
-                mobCanvas.setFrameDuration(0.20);
-                btn.setGraphic(mobCanvas);
-
-            } else if (iconCode.equals("fas-eye") || iconCode.equals("fas-list-ol")) {
-                FontIcon icon = new FontIcon(iconCode);
-                icon.setIconSize(128);
-                btn.setGraphic(icon);
-
-            } else {
-                FontIcon icon = new FontIcon(iconCode);
-                icon.setIconSize(32);
-                btn.setGraphic(icon);
+                }
+                default -> {
+                    FontIcon icon = new FontIcon(iconCode);
+                    icon.setIconSize(32);
+                    btn.setGraphic(icon);
+                }
             }
         } catch (Exception e) {
             System.err.println("Impossibile caricare l'icona: " + iconCode + " per il bottone " + btn.getId());

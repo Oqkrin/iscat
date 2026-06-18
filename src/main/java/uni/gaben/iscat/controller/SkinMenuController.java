@@ -15,7 +15,6 @@ import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
@@ -73,7 +72,7 @@ public class SkinMenuController implements IscatMenuController {
         populateGrid();
 
         // Preseleziona la skin attualmente salvata
-        String currentKey = PlayerSettings.getPlayerSkinKey();
+        String currentKey = SessionManager.getPlayerSkinKey();
         EntityRecord current = EntityFactory.getCache().get(currentKey);
         if (current != null) {
             selectSkin(current.entityKey(), current.spritePath(), current.name());
@@ -223,8 +222,8 @@ public class SkinMenuController implements IscatMenuController {
     @FXML
     private void handleConfirm(ActionEvent event) {
         if (selectedSkinPath != null && selectedSkinKey != null) {
-            PlayerSettings.setPlayerSkin(selectedSkinPath);
-            PlayerSettings.setPlayerSkinKey(selectedSkinKey);
+            SessionManager.setPlayerSkin(selectedSkinPath);
+            SessionManager.setPlayerSkinKey(selectedSkinKey);
 
             SessionUser user = SessionManager.getInstance().getCurrentUser();
             if (user != null) {

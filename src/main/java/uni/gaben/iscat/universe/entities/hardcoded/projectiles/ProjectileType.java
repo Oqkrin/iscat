@@ -4,7 +4,6 @@ import javafx.scene.paint.Color;
 import org.dyn4j.collision.CategoryFilter;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.UniverseVelocitySettings;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 public enum ProjectileType {

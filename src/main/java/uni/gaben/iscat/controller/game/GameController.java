@@ -10,11 +10,11 @@ import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.spawn.UniverseWaveController;
 import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
@@ -47,7 +47,7 @@ public class GameController {
     }
 
     private void setupUniverse() {
-        String currentSkinKey = PlayerSettings.getPlayerSkinKey();
+        String currentSkinKey = SessionManager.getPlayerSkinKey();
 
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath, currentSkinKey);
         this.universeController = bundle.universeController();

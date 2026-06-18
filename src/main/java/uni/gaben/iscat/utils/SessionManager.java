@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 public class SessionManager {
+    // === Sistema di Skin (Centralizzato & Data-Driven) ===
+    private static final StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/players/player1.png");
+    private static final StringProperty playerSkinKey = new SimpleStringProperty("player1");
     private static SessionManager instance;
 
     private SessionUser currentUser;
@@ -42,6 +45,16 @@ public class SessionManager {
         if (instance == null) instance = new SessionManager();
         return instance;
     }
+
+    public static StringProperty playerSkinProperty() { return playerSkin; }
+
+    public static String getPlayerSkin() { return playerSkin.getValue(); }
+
+    public static void setPlayerSkin(String skin) { playerSkin.setValue(skin); }
+
+    public static String getPlayerSkinKey() { return playerSkinKey.getValue(); }
+
+    public static void setPlayerSkinKey(String key) { playerSkinKey.setValue(key); }
 
     public SessionUser getCurrentUser()        { return currentUser; }
     public void setCurrentUser(SessionUser user) {

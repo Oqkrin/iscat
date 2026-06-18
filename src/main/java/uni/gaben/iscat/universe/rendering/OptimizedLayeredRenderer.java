@@ -22,7 +22,11 @@ public class OptimizedLayeredRenderer {
     private record OvalBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill) {}
     private record RectBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double angle) {}
     private record PolygonBatch(double[] xPoints, double[] yPoints, Color color, double alpha, boolean fill, double lineWidth) {}
-    record HpBarBatch(double x, double y, double w, double h, double percent) {}
+    record HpBarBatch(double x, double y, double w, double h, double percent) {
+        // === Visuals & Dimensions ===
+        public static final double HP_BAR_OFFSET_Y = 10.0;
+        public static final double HP_BAR_HEIGHT = 4.0;
+    }
     private record ThrustBatch(double cx, double cy, double angle, Thrust thrust) {}
     private record ShockwaveBatch(double cx, double cy, Shockwave shockwave, boolean isBlackHole) {}
     record ProjectileBatch(

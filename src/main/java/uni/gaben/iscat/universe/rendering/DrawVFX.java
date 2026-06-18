@@ -9,7 +9,6 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.effects.EnduranceIndicator;
 import uni.gaben.iscat.universe.effects.Shockwave;
 import uni.gaben.iscat.universe.effects.Thrust;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
@@ -152,8 +151,8 @@ public final class DrawVFX {
         double h = thrust.getShipHeight();
         Vector2 drift = thrust.getLocalDrift();
 
-        int particleCount = (int) (PlayerSettings.THRUST_MIN_PARTICLES
-                + intensity * PlayerSettings.THRUST_EXTRA_PARTICLES);
+        int particleCount = (int) (Thrust.THRUST_MIN_PARTICLES
+                + intensity * Thrust.THRUST_EXTRA_PARTICLES);
         double maxThrustHeight = ScalareAureo.phiMaggiore(h) * 1.2;
         Color accent = ThemeManager.getInstance().getAccentPrimary();
 
@@ -165,7 +164,7 @@ public final class DrawVFX {
 
         for (int i = 0; i < particleCount; i++) {
             double distRatio = RANDOM.nextDouble();
-            double spreadX = w * (0.15 + Math.pow(distRatio, 1.5) * PlayerSettings.THRUST_SPREAD_X_FACTOR);
+            double spreadX = w * (0.15 + Math.pow(distRatio, 1.5) * Thrust.THRUST_SPREAD_X_FACTOR);
             double whipX = 0;
             if (distRatio > 0.15) {
                 double curveRatio = (distRatio - 0.15) / 0.85;
@@ -174,8 +173,8 @@ public final class DrawVFX {
             double offsetX = (RANDOM.nextGaussian() * 0.22) * spreadX + whipX;
             double offsetY = (h / 2) + (distRatio * maxThrustHeight) + drift.y * distRatio * (h * 0.1);
             offsetY = Math.max(offsetY, h / 2);
-            double size = (PlayerSettings.THRUST_MIN_PARTICLE_SIZE
-                    + RANDOM.nextDouble() * PlayerSettings.THRUST_PARTICLE_SIZE_VARIATION)
+            double size = (Thrust.THRUST_MIN_PARTICLE_SIZE
+                    + RANDOM.nextDouble() * Thrust.THRUST_PARTICLE_SIZE_VARIATION)
                     * (1.2 - distRatio * 0.9) * (0.7 + intensity * 0.5);
 
             gc.setFill(getParticleColor(distRatio, intensity, RANDOM.nextDouble(), accent));

@@ -9,7 +9,6 @@ import uni.gaben.iscat.universe.entities.*;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entities.interfaces.HasSprite;
@@ -104,9 +103,9 @@ public final class EntityRenderer {
         // HP bar – queued as a rectangle pair (background + fill)
         if (entity instanceof Alterable ld) {
             double barX = cx - w/2;
-            double barY = cy - h/2 - PlayerSettings.HP_BAR_OFFSET_Y;
+            double barY = cy - h/2 - OptimizedLayeredRenderer.HpBarBatch.HP_BAR_OFFSET_Y;
             double percent = ld.getEndurance() / ld.getMaxEndurance();
-            layers.addHpBar(barX, barY, w, PlayerSettings.HP_BAR_HEIGHT, percent);
+            layers.addHpBar(barX, barY, w, OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT, percent);
         }
     }
 

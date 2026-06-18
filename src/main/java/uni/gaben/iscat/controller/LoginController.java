@@ -16,7 +16,6 @@ import uni.gaben.iscat.model.ScoreModel;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.theme.ThemeManager;
@@ -158,8 +157,8 @@ public class LoginController {
 
                 EntityRecord skinRecord = EntityFactory.getCache().get(result.skinKey());
                 if (skinRecord != null) {
-                    PlayerSettings.setPlayerSkinKey(result.skinKey());
-                    PlayerSettings.setPlayerSkin(skinRecord.spritePath());
+                    SessionManager.setPlayerSkinKey(result.skinKey());
+                    SessionManager.setPlayerSkin(skinRecord.spritePath());
                 }
 
                 model.setStatus(result.message());

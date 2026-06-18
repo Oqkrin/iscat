@@ -8,10 +8,10 @@ import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleBrain;
 import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerSettings;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.brain.IEntityController;
 import uni.gaben.iscat.universe.entities.worm.WormAssembler;
+import uni.gaben.iscat.utils.SessionManager;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -42,7 +42,7 @@ public class UniverseSpawner {
 
     public Object spawn(UniverseSpawnable type, double x, double y) {
         return switch (type) {
-            case PLAYER            -> spawnPlayer(x, y, PlayerSettings.getPlayerSkinKey());
+            case PLAYER            -> spawnPlayer(x, y, SessionManager.getPlayerSkinKey());
             case ASTEROID          -> spawnEntity(new AsteroidModel(x, y));
             case BLACKHOLE         -> spawnWithController(BlackHoleModel::new, BlackHoleBrain::new, x, y);
             case HEART             -> spawnWithController(HeartModel::new, HeartController::new, x, y);
