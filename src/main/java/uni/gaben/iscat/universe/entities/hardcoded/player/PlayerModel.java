@@ -56,6 +56,9 @@ public class PlayerModel extends AbstractLivingEntityModel
     private final Vector2 dashDir = UU.vector2zero();
     private final Vector2 quickDashDir = UU.vector2zero();
 
+    // === IDLE ====
+    private double idleAudioTimer = 8.0 + Math.random() * 10.0;
+
     // ==================== COSTRUTTORE ====================
     public PlayerModel(double x, double y, EntityRecord data) {
         super(x, y, data);
@@ -169,6 +172,16 @@ public class PlayerModel extends AbstractLivingEntityModel
         updateThrust();
         updateStateTime(dt);
 
+        // LOGICA AUDIO IDLE
+        if (!isStunned() && !isDashing()) {
+            idleAudioTimer -= dt;
+            if (idleAudioTimer <= 0) {
+                uni.gaben.iscat.utils.EntityAudioManager.playEventAudio(this, "idle");
+                // Imposta un intervallo casuale per il prossimo suono (es. tra 8 e 22 secondi)
+                idleAudioTimer = 8.0 + Math.random() * 14.0;
+            }
+        }
+
         // Gestisce lo smorzamento durante il dash
         if (data.player() != null) {
             setLinearDamping(isDashing() ? 0.0 : data.linearDamping());
@@ -227,6 +240,8 @@ public class PlayerModel extends AbstractLivingEntityModel
 
     public void startCooldownFuoco() {
         weaponCooldown.start(currentWeaponCooldown);
+        // Resettiamo il timer quando spari
+        this.idleAudioTimer = 8.0 + Math.random() * 14.0;
     }
 
     public void setCooldownFuocoSec(double cooldown) {
