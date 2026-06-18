@@ -70,7 +70,7 @@ public class MainMenuController implements IscatFxmlController {
     }
 
     @FXML public void playGame()            { navigate(IscatViews.GAME);             }
-    @FXML public void openOptionsMenu()     { navigate(IscatViews.OPTIONS_MENU);     }
+    @FXML public void openOptionsMenu()     { navigate(IscatViews.SETTINGS_MENU);     }
     @FXML public void openScoreMenu()       { navigate(IscatViews.SCORE_MENU);       }
     @FXML public void openSkinMenu()        { navigate(IscatViews.SKIN_MENU);        }
     @FXML public void openBestiaryMenu()    { navigate(IscatViews.BESTIARY_MENU);    }

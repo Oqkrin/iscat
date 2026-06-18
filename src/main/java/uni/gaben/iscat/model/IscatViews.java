@@ -8,7 +8,7 @@ public enum IscatViews {
     SKIN_MENU,
     BESTIARY_MENU,
     SCORE_MENU,
-    OPTIONS_MENU,
+    SETTINGS_MENU,
     CREDITS,
     LEADERBOARD_MENU
 }

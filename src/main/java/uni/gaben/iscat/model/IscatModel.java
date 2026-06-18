@@ -40,7 +40,7 @@ public class IscatModel {
                  LEADERBOARD_MENU,
                  SCORE_MENU,
                  CREDITS,
-                 OPTIONS_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
+                 SETTINGS_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
             case GAME          -> "/uni/gaben/iscat/audio/BGM/SuperHero_original.wav";
         };
     }
