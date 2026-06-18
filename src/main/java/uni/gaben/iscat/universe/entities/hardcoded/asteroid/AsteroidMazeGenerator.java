@@ -1,7 +1,9 @@
 package uni.gaben.iscat.universe.entities.hardcoded.asteroid;
 
 import org.dyn4j.geometry.Vector2;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 
 import java.util.Random;
@@ -24,41 +26,25 @@ import java.util.Random;
          * Generates a circular boundary of asteroids around the world center.
          */
         public void generate(double centerX, double centerY) {
-            // 1. Sanity Checks
-            if (Double.isNaN(centerX) || Double.isNaN(centerY) || centerX == 0.0 || centerY == 0.0) {
-                centerX = UniverseModel.DEFAULT_SPAWN_WIDTHCENTER;
-                centerY = UniverseModel.DEFAULT_SPAWN_HEIGHTCENTER;
-            }
+            UniverseModel universe = UniverseSpawner.getInstance().getUniverseModel();
+            double boundaryRadius = universe != null
+                    ? universe.getUniverseRadius() * 12
+                    : UniverseSettings.DEFAULT_WIDTH / 2.0 * 0.9;
 
-            // 2. Metrics (Basing scale off UniverseModel defaults)
-            // We set the radius to be large enough to contain the play area
-            double boundaryRadius = centerX * 5.0;
-            double wallThickness = 1000.0; // Depth of the asteroid ring
-
-            // Calculate circumference to determine how many steps we need for a "solid" wall
+            double wallThickness = 1000.0;
             double circumference = 2 * Math.PI * boundaryRadius;
-            double angularStepSize = 250.0; // Pixels between clusters
+            double angularStepSize = 250.0;
             int totalSteps = (int) (circumference / angularStepSize);
 
-            // 3. Radial Generation Loop
             for (int step = 0; step < totalSteps; step++) {
-                // Current angle in radians
                 double angle = (step / (double) totalSteps) * Math.PI * 2.0;
-
-                // Number of asteroids to spawn at this specific angular slice
                 int density = random.nextInt(5, 12);
 
                 for (int i = 0; i < density; i++) {
-                    // Add jitter to the radius so it's a thick band, not a thin line
                     double radialJitter = (random.nextDouble() - 0.5) * wallThickness;
                     double finalRadius = boundaryRadius + radialJitter;
-
-                    // Polar to Cartesian conversion
-                    double ax = centerX + Math.cos(angle) * finalRadius;
-                    double ay = centerY + Math.sin(angle) * finalRadius;
-
-                    // Slightly randomize the angle for each rock in the slice to prevent "spoke" patterns
                     double angleJitter = (random.nextDouble() - 0.5) * 0.05;
+
                     double finalX = centerX + Math.cos(angle + angleJitter) * finalRadius;
                     double finalY = centerY + Math.sin(angle + angleJitter) * finalRadius;
 

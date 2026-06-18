@@ -140,4 +140,6 @@ public class UniverseSpawner {
         }
         return jsonEntity;
     }
+
+    public UniverseModel getUniverseModel() { return model; }
 }
