@@ -79,9 +79,8 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
             boolean isHeart = this instanceof HeartModel;
 
             if (!silent && !isProjectile && !isHeart) {
-                if (this instanceof EntityModel entityModel) {
-                    EntityAudioManager.playEventAudio(entityModel, "death");
-                }
+                AbstractLivingEntityModel entityModel = this;
+                EntityAudioManager.playEventAudio(entityModel, "death");
             }
 
             if (!isHeart && !isProjectile && !isPlayer && killedByProjectile) {

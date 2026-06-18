@@ -37,7 +37,7 @@ public class Shooter<T extends CollisionBody> {
     public T getModel() { return model; }
 
     private void triggerAttackAudio() {
-        if (model instanceof EntityModel entity) {
+        if (model instanceof AbstractLivingEntityModel entity) {
             EntityAudioManager.playEventAudio(entity, "attack");
         }
     }

@@ -14,7 +14,7 @@
   "MaxVelocity": 9,
   "MaxForce": 27,
   "audio": {
-    "attack": ["iscat_core_attack"],
+    "attack": ["fake_iscat_attack"],
     "idle": ["iscat_core_idle"],
     "hurt": [],
     "death": ["iscat_core_death"],
