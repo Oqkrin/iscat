@@ -60,21 +60,21 @@
                 </padding>
 
                 <VBox fx:id="tabMainSettings" alignment="CENTER" spacing="20.0" visible="true">
-                    <fx:include fx:id="subDisplay" source="option_display.fxml" />
+                    <fx:include fx:id="subDisplay" source="SettingsDisplay.fxml" />
                     <Region minHeight="10.0" prefHeight="20.0" />
-                    <fx:include fx:id="subAudio" source="option_audio.fxml" />
+                    <fx:include fx:id="subAudio" source="SettingsAudio.fxml" />
                 </VBox>
 
                 <VBox fx:id="tabControls" alignment="CENTER" visible="false">
-                    <fx:include fx:id="subKeybinds" source="option_keybinds.fxml" />
+                    <fx:include fx:id="subKeybinds" source="SettingsKeyinds.fxml" />
                 </VBox>
 
                 <VBox fx:id="tabTheme" alignment="CENTER" visible="false">
-                    <fx:include fx:id="subTheme" source="option_theme.fxml" />
+                    <fx:include fx:id="subTheme" source="SettingsTheme.fxml" />
                 </VBox>
 
                 <VBox fx:id="tabAccount" alignment="CENTER" visible="false">
-                    <fx:include fx:id="subAccount" source="option_account.fxml" />
+                    <fx:include fx:id="subAccount" source="SettingsAccount.fxml" />
                 </VBox>
             </StackPane>
 
