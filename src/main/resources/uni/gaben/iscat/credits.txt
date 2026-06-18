@@ -45,6 +45,10 @@ https://opengameart.org/content/game-over-diamond-dust
 teckpow (CC0)
 https://opengameart.org/content/lasershootingsx
 
+#WAVE ALLARM
+yd (CC0)
+https://opengameart.org/content/short-alarm
+
 #FART_ALT (1, 2, 3)
 aPebble (Royalty-Free)
 https://pixabay.com/it/sound-effects/search/fart/

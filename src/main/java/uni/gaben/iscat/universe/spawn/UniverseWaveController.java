@@ -55,11 +55,12 @@ public class UniverseWaveController {
     private int enemiesSpawnedThisWave       = 0;
 
     private boolean inIntermission    = true;
-    private double  intermissionTimer = 3.0;
+    private double  intermissionTimer = 5.0;
     private double  spawnTimer        = 0.0;
 
     private static final double SPAWN_DELAY           = 1.5;
     private static final double INTERMISSION_DURATION = 5.0;
+    private static final double FIRST_WAVE_DELAY      = 5.0;
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
 
@@ -110,10 +111,12 @@ public class UniverseWaveController {
         if (currentThreatLevel == ThreatLevel.APOCALYPSE) {
             totalEnemiesToSpawnThisWave = 1;
             System.out.println("[WAVE CONTROLLER] !!! APOCALYPSE DETECTED: IMMINENT BOSS SPAWN !!!");
+            AudioManager.getInstance().playSFX("alarm");
         } else {
             totalEnemiesToSpawnThisWave = 3 + (currentWave * 2);
             System.out.printf("[WAVE CONTROLLER] Avviata WAVE %d | Minaccia: %s | Nemici totali: %d%n",
                     currentWave, currentThreatLevel.name(), totalEnemiesToSpawnThisWave);
+            AudioManager.getInstance().playSFX("alarm");
         }
 
         waveTotalProperty.set(totalEnemiesToSpawnThisWave);
@@ -251,7 +254,7 @@ public class UniverseWaveController {
         enemiesSpawnedThisWave      = 0;
         totalEnemiesToSpawnThisWave = 0;
         inIntermission              = true;
-        intermissionTimer           = 3.0;
+        intermissionTimer           = FIRST_WAVE_DELAY;
         forceBossSpawn              = false;
         activeEnemies.clear();
 
