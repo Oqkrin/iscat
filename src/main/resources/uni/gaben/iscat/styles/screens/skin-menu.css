@@ -23,8 +23,7 @@
 }
 
 .selected-skin-button {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
     -fx-border-color: -accent-primary;
-    -fx-border-width: 4px;
-    -fx-border-radius: 12px;
-    -fx-effect: dropshadow(gaussian, rgba(255,215,0,0.8), 30, 0.4, 0, 0);
+    -fx-effect: dropshadow(gaussian, -accent-primary, 8, 0.3, 0, 0);
 }
