@@ -64,7 +64,7 @@ public class LoginView extends AbstractIscatStackPane {
         super(new StackPane(), true); // Attiva lo sfondo animato stellato interattivo
         this.controller = loginController;
         this.model = loginController.getLoginModel();
-        this.root = getContentRoot();
+        this.root = getViewRootPointer();
 
         root.setStyle("-fx-background-color: transparent;");
         initialize();

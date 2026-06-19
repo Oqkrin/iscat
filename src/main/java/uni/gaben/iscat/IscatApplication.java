@@ -42,6 +42,7 @@ public class IscatApplication extends Application {
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
         IscatDB.getInstance().init();
+        Platform.runLater(EntityFactory::ensureCacheLoaded);
         IscatNavigator.getInstance().initialize(iscatModel);
     }
 

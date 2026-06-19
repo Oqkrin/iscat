@@ -126,7 +126,7 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
     /**
      * Il componente stesso funge da ContentRoot nelle gerarchie delle sottoclassi.
      */
-    public StackPane getContentRoot() {
+    public StackPane getViewRootPointer() {
         return this;
     }
 

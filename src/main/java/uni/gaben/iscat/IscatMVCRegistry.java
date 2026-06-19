@@ -10,7 +10,7 @@ import uni.gaben.iscat.model.login.LoginAuth;
 import uni.gaben.iscat.model.login.LoginModel;
 import uni.gaben.iscat.view.LoginView;
 import uni.gaben.iscat.view.components.AbstractIscatStackPane;
-import uni.gaben.iscat.view.GenericIscatView;
+import uni.gaben.iscat.view.IscatView;
 
 public class IscatMVCRegistry {
     private IscatMVCRegistry() {
@@ -24,13 +24,13 @@ public class IscatMVCRegistry {
                 GameController gameController = new GameController(new GameModel());
                 yield new GameView(gameController);
             }
-            case MAIN_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/MainMenu.fxml");
-            case SKIN_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/SkinMenu.fxml");
-            case BESTIARY_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/BestiaryMenu.fxml");
-            case SCORE_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/ScoreMenu.fxml");
-            case SETTINGS_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/SettingsMenu.fxml");
-            case CREDITS -> new GenericIscatView("/uni/gaben/iscat/fxml/CreditsMenu.fxml");
-            case LEADERBOARD_MENU -> new GenericIscatView("/uni/gaben/iscat/fxml/LeaderboardMenu.fxml");
+            case MAIN_MENU -> new IscatView("/uni/gaben/iscat/fxml/MainMenu.fxml");
+            case SKIN_MENU -> new IscatView("/uni/gaben/iscat/fxml/SkinMenu.fxml");
+            case BESTIARY_MENU -> new IscatView("/uni/gaben/iscat/fxml/BestiaryMenu.fxml");
+            case SCORE_MENU -> new IscatView("/uni/gaben/iscat/fxml/ScoreMenu.fxml");
+            case SETTINGS_MENU -> new IscatView("/uni/gaben/iscat/fxml/SettingsMenu.fxml");
+            case CREDITS -> new IscatView("/uni/gaben/iscat/fxml/CreditsMenu.fxml");
+            case LEADERBOARD_MENU -> new IscatView("/uni/gaben/iscat/fxml/LeaderboardMenu.fxml");
         };
     }
 }

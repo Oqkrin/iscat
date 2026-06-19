@@ -83,7 +83,6 @@ public class SkinMenuController implements IscatMenuController {
     }
 
     private void loadSkinsFromJson() {
-        EntityFactory.ensureCacheLoaded();
         List<EntityRecord> skins = new ArrayList<>();
         Map<String, EntityRecord> globalCache = EntityFactory.getCache();
         for (Map.Entry<String, EntityRecord> entry : globalCache.entrySet()) {

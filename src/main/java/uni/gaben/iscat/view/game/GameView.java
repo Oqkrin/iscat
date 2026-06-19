@@ -93,7 +93,7 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initStyles() {
-        getContentRoot().getStyleClass().add("game-view-container");
+        getViewRootPointer().getStyleClass().add("game-view-container");
         getStylesheets().add(Objects.requireNonNull(
                         GameView.class.getResource("/uni/gaben/iscat/styles/screens/game.css"))
                 .toExternalForm());
@@ -110,7 +110,7 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initLayout() {
-        getContentRoot().getChildren().addAll(
+        getViewRootPointer().getChildren().addAll(
                 canvas,
                 hudBar,
                 levelLabel,
@@ -132,14 +132,14 @@ public class GameView extends AbstractIscatStackPane {
 
     @Override
     protected void initBindings() {
-        canvas.widthProperty().bind(getContentRoot().widthProperty());
-        canvas.heightProperty().bind(getContentRoot().heightProperty());
+        canvas.widthProperty().bind(getViewRootPointer().widthProperty());
+        canvas.heightProperty().bind(getViewRootPointer().heightProperty());
 
         hudBar.maxWidthProperty().bind(
-                getContentRoot().widthProperty().multiply(ScalareAureo.IPHI_D));
+                getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
 
-        spawnerToolbar.maxHeightProperty().bind(getContentRoot().heightProperty().divide(5));
-        spawnerToolbar.maxWidthProperty().bind(getContentRoot().widthProperty().multiply(ScalareAureo.IPHI_D));
+        spawnerToolbar.maxHeightProperty().bind(getViewRootPointer().heightProperty().divide(5));
+        spawnerToolbar.maxWidthProperty().bind(getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
 
         CameraModel camera = gameController.getCameraModel();
         camera.screenWidthProperty().bind(canvas.widthProperty());
@@ -320,11 +320,11 @@ public class GameView extends AbstractIscatStackPane {
                     c.syncAllProperties();
                 });
         wrapper[0].getStyleClass().add("game-pause-overlay");
-        getContentRoot().getChildren().add(wrapper[0]);
+        getViewRootPointer().getChildren().add(wrapper[0]);
     }
 
     private void closeSettings(StackPane settingsView) {
-        getContentRoot().getChildren().remove(settingsView);
+        getViewRootPointer().getChildren().remove(settingsView);
         transitionTo(GameState.IN_PAUSE);
     }
 
