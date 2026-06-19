@@ -5,6 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox alignment="CENTER" spacing="16.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.DisplaySettingsController">
@@ -13,25 +14,29 @@
          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
       </padding>
    </Label>
-   <VBox alignment="CENTER_RIGHT">
+   <HBox alignment="CENTER">
       <children>
-             <CheckBox fx:id="checkFps" contentDisplay="BOTTOM" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleFPSVisible" styleClass="modern-checkbox" text="Display FPS">
-            <padding>
-               <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-            </padding>
-         </CheckBox>
-             <CheckBox fx:id="FullscreenCheck" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleFullscreen" styleClass="modern-checkbox" text="FULLSCREEN">
-            <padding>
-               <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-            </padding>
-         </CheckBox>
-             <CheckBox fx:id="DebugModeCheck" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleDebugMode" styleClass="modern-checkbox" text="Disaply Debug Controls">
-            <padding>
-               <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-            </padding>
-         </CheckBox>
+         <VBox alignment="CENTER_RIGHT">
+            <children>
+                   <CheckBox fx:id="checkFps" contentDisplay="BOTTOM" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleFPSVisible" styleClass="modern-checkbox" text="Display FPS">
+                  <padding>
+                     <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                  </padding>
+               </CheckBox>
+                   <CheckBox fx:id="FullscreenCheck" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleFullscreen" styleClass="modern-checkbox" text="FULLSCREEN">
+                  <padding>
+                     <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                  </padding>
+               </CheckBox>
+                   <CheckBox fx:id="DebugModeCheck" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleDebugMode" styleClass="modern-checkbox" text="Disaply Debug Controls">
+                  <padding>
+                     <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                  </padding>
+               </CheckBox>
+            </children>
+         </VBox>
       </children>
-   </VBox>
+   </HBox>
    <styleClass>
       <String fx:value="glowing-border" />
       <String fx:value="controls-card" />
