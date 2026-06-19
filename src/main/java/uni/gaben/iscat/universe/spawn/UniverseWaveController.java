@@ -4,6 +4,8 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import uni.gaben.iscat.universe.entities.*;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
@@ -14,6 +16,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,53 +166,48 @@ public class UniverseWaveController {
      */
     public void loadWavesFromResource(String resourcePath) {
         fileWaves.clear();
+        URL url = getClass().getResource(resourcePath);
 
-        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
-            if (is == null) {
-                System.err.println("[WAVE CONTROLLER] JSON non trovato in: " + resourcePath + ". Fallback procedurale.");
-                return;
+        if (url == null) {
+            System.err.println("[WAVE CONTROLLER] Risorsa non trovata: " + resourcePath + ". Fallback procedurale.");
+            return;
+        }
+
+        // Read the entire file into a String (using try-with-resources)
+        StringBuilder sb = new StringBuilder();
+        try (InputStream is = url.openStream();
+             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
             }
-
-            StringBuilder sb = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-            }
-
-            String json = sb.toString();
-            int index = 0;
-
-            while ((index = json.indexOf('{', index)) != -1) {
-                int end = json.indexOf('}', index);
-                if (end == -1) break;
-
-                String objStr = json.substring(index + 1, end);
-                String threatLevelStr = extractJsonValue(objStr, "threat_level");
-                String totalEnemiesStr = extractJsonValue(objStr, "total_enemies");
-
-                if (threatLevelStr != null && totalEnemiesStr != null) {
-                    try {
-                        ThreatLevel level = ThreatLevel.valueOf(threatLevelStr.toUpperCase().trim());
-                        int count = Integer.parseInt(totalEnemiesStr.trim());
-                        fileWaves.add(new WaveConfig(level, count));
-                    } catch (IllegalArgumentException e) {
-                        System.err.println("[WAVE CONTROLLER] Errore parsing dati JSON: " + objStr);
-                    }
-                }
-                index = end + 1;
-            }
-
-            System.out.printf("[WAVE CONTROLLER] JSON caricato! Rilevate %d ondate custom.%n", fileWaves.size());
-
-            if (!fileWaves.isEmpty() && currentWave == 1) {
-                currentThreatLevel = fileWaves.get(0).threatLevel();
-                currentThreatLevelProperty.set(currentThreatLevel.name());
-            }
-
         } catch (IOException e) {
-            System.err.println("[WAVE CONTROLLER] Errore di lettura file JSON: " + e.getMessage());
+            System.err.println("[WAVE CONTROLLER] Errore nella lettura del file: " + resourcePath);
+            return;
+        }
+
+        // Parse the JSON array
+        try {
+            JSONArray jsonArray = new JSONArray(sb.toString());
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject obj = jsonArray.getJSONObject(i);
+                String threatStr = obj.getString("threat_level");
+                int total = obj.getInt("total_enemies");
+
+                ThreatLevel level = ThreatLevel.valueOf(threatStr.toUpperCase().trim());
+                fileWaves.add(new WaveConfig(level, total));
+            }
+        } catch (Exception e) {
+            System.err.println("[WAVE CONTROLLER] Errore nel parsing del JSON delle ondate: " + e.getMessage());
+            return;
+        }
+
+        System.out.printf("[WAVE CONTROLLER] JSON caricato! Rilevate %d ondate custom.%n", fileWaves.size());
+
+        // If we are about to start the game (currentWave == 1) and we have waves, set initial threat level
+        if (!fileWaves.isEmpty() && currentWave == 1) {
+            currentThreatLevel = fileWaves.get(0).threatLevel();
+            currentThreatLevelProperty.set(currentThreatLevel.name());
         }
     }
 

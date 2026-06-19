@@ -1,0 +1,16 @@
+[
+  { "threat_level": "LOW", "total_enemies": 1 },
+  { "threat_level": "LOW", "total_enemies": 2 },
+  { "threat_level": "LOW", "total_enemies": 3 },
+  { "threat_level": "NORMAL", "total_enemies": 4 },
+  { "threat_level": "NORMAL", "total_enemies": 5 },
+  { "threat_level": "NORMAL", "total_enemies": 6 },
+  { "threat_level": "HIGH", "total_enemies": 7 },
+  { "threat_level": "HIGH", "total_enemies": 8 },
+  { "threat_level": "HIGH", "total_enemies": 9 },
+  { "threat_level": "EXTREME", "total_enemies": 10 },
+  { "threat_level": "EXTREME", "total_enemies": 11 },
+  { "threat_level": "EXTREME", "total_enemies": 12 },
+  { "threat_level": "APOCALYPSE", "total_enemies":1  },
+  { "threat_level": "LOW", "total_enemies": 1000 }
+]
