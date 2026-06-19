@@ -15,9 +15,20 @@ public class GameStatsManager {
     private final ScoreDAO scoreDAO = IscatDB.getInstance().getScoreDAO();
     private final SessionScoreTracker tracker = SessionScoreTracker.getInstance();
 
-    public void saveStats(int elapsedSeconds, boolean gameWon) {
+    /**
+     * Salva le statistiche di fine partita nel Database.
+     * Se l'utente ha barato o usato i tool di debug, il salvataggio viene bypassato.
+     */
+    public void saveStats(int elapsedSeconds, boolean gameWon, boolean isDebugActive) {
         SessionUser user = SessionManager.getInstance().getCurrentUser();
         if (user == null) return;
+
+        // Se il debug è stato attivato, puliamo i dati correnti ma non scriviamo sul DB
+        if (isDebugActive) {
+            System.out.println("[STATS] Partita terminata con Debug Mode attivo. Progressi non salvati.");
+            tracker.reset();
+            return;
+        }
 
         int userId = user.id();
         final int dealt      = tracker.getDamageDealt();
@@ -26,12 +37,9 @@ public class GameStatsManager {
         final int kills      = tracker.getKills();
         final int boosts     = tracker.getBoosts();
 
-        // Score accumulato in tempo reale + bonus tempo calcolato a fine partita
-        // Il gioco premia chi finisce prima: più tempo = meno bonus
         final int timeBonus    = Math.max(0, 10000 - elapsedSeconds * 10);
         final int sessionScore = tracker.getScore() + timeBonus;
 
-        // DISABILITATO
         final Map<String, Integer> enemyKills = Map.copyOf(tracker.getEnemyKills());
 
         tracker.reset();
@@ -55,7 +63,6 @@ public class GameStatsManager {
             scoreDAO.increment(userId, "BoostCollected",      boosts);
             scoreDAO.increment(userId, "TimesPlayed",         1);
 
-            // Salva kill per tipo nemico in batch
             enemyKills.forEach((key, count) -> {
                 if (count > 0) {
                     IscatDB.getInstance().getBestiaryDAO().incrementKill(userId, key, count);

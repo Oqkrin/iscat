@@ -36,6 +36,7 @@ public class GameController {
     private Runnable onUniverseResetCallback;
 
     private boolean showFps = false;
+    private boolean debugUsedInThisSession = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
 
     private final BooleanProperty godMode = new SimpleBooleanProperty(false);
@@ -47,7 +48,18 @@ public class GameController {
         this.gameLoop = new GameLoopTimer(gameModel, this::tick);
         this.lifecycleManager = new GameLifecycleManager(gameModel, inputs, gameLoop);
 
+        this.showDebugMode.addListener((obs, oldV, newV) -> {
+            if (newV) {
+                this.debugUsedInThisSession = true;
+                System.out.println("[SECURITY] Debug attivato in partita. Salvataggio statistiche disabilitato per questa sessione.");
+            }
+        });
+
         setupUniverse();
+    }
+
+    public boolean isDebugUsedInThisSession() {
+        return debugUsedInThisSession;
     }
 
     private void setupUniverse() {
@@ -55,6 +67,10 @@ public class GameController {
 
         this.godMode.set(false);
         this.ghostMode.set(false);
+
+        // Se la modalità debug è già attiva nelle impostazioni all'avvio del livello,
+        // invalidiamo subito i record per la sessione corrente
+        this.debugUsedInThisSession = isDebugModeOn();
 
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath, currentSkinKey);
         this.universeController = bundle.universeController();
@@ -188,7 +204,8 @@ public class GameController {
 
     public void quitToMainMenu() {
         gameLoop.stop();
-        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false);
+        // AGGIORNATO: Passa lo stato di utilizzo del debug
+        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false, isDebugUsedInThisSession());
         resetGame();
         AudioManager.getInstance().stopBGM();
         showDebugMode.set(false);
@@ -202,7 +219,8 @@ public class GameController {
             AudioManager.getInstance().stopBGM();
             AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/gameover.wav", true);
             gameModel.setGameState(GameState.GAME_OVER);
-            statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false);
+            // AGGIORNATO: Passa lo stato di utilizzo del debug
+            statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false, isDebugUsedInThisSession());
         });
     }
 
@@ -233,7 +251,8 @@ public class GameController {
     }
 
     public void notifyBossDead() {
-        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(),true);
+        // AGGIORNATO: Passa lo stato di utilizzo del debug
+        statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), true, isDebugUsedInThisSession());
         Platform.runLater(() -> {
             AudioManager.getInstance().stopBGM();
             gameModel.setGameState(GameState.WIN);
