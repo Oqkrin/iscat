@@ -56,6 +56,7 @@ public class SettingsMenuController implements IscatMenuController {
             ExitBtn.setGraphicTextGap(14.0);
         }
 
+        if (subDisplayController != null) subDisplayController.setConfirmOverlayController(confirmOverlayController);
         if (subThemeController != null) subThemeController.injectParentPane(paneMaster);
         if (subAccountController != null) subAccountController.setConfirmOverlayController(confirmOverlayController);
         if (subKeybindsController != null) subKeybindsController.setConfirmOverlayController(confirmOverlayController);
@@ -146,12 +147,23 @@ public class SettingsMenuController implements IscatMenuController {
         else IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
+    /**
+     * Inizializza il contesto quando i settaggi vengono aperti a partita in corso.
+     */
     public void initGameContext(uni.gaben.iscat.controller.game.GameController gameController) {
         if (gameController == null || subDisplayController == null) return;
+
         subDisplayController.getCheckFps().setSelected(gameController.isFpsOn());
         subDisplayController.getDebugModeCheck().setSelected(gameController.isDebugModeOn());
-        subDisplayController.getCheckFps().selectedProperty().addListener((obs, oldV, newV) -> gameController.setShowFps(newV));
-        subDisplayController.getDebugModeCheck().selectedProperty().addListener((obs, oldV, newV) -> gameController.setShowDebugMode(newV));
+
+        subDisplayController.getCheckFps().selectedProperty().addListener((obs, oldV, newV) ->
+                gameController.setShowFps(newV));
+
+        gameController.debugModeProperty().addListener((obs, oldV, newV) -> {
+            if (subDisplayController.getDebugModeCheck().isSelected() != newV) {
+                subDisplayController.getDebugModeCheck().setSelected(newV);
+            }
+        });
     }
 
     @FXML void handleBackAction(ActionEvent event) { handleBack(); }

@@ -47,14 +47,19 @@ public class GamePauseMenuController implements IscatFxmlController {
         this.gameView       = view;
 
         if (subDisplayController != null) {
+            subDisplayController.setConfirmOverlayController(this.confirmOverlayController);
+
             subDisplayController.getCheckFps().setSelected(gameController.isFpsOn());
             subDisplayController.getDebugModeCheck().setSelected(gameController.isDebugModeOn());
 
             subDisplayController.getCheckFps().selectedProperty().addListener((obs, oldV, newV) ->
                     gameController.setShowFps(newV));
 
-            subDisplayController.getDebugModeCheck().selectedProperty().addListener((obs, oldV, newV) ->
-                    gameController.setShowDebugMode(newV));
+            gameController.debugModeProperty().addListener((obs, oldV, newV) -> {
+                if (subDisplayController.getDebugModeCheck().isSelected() != newV) {
+                    subDisplayController.getDebugModeCheck().setSelected(newV);
+                }
+            });
         }
     }
 

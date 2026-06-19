@@ -1,9 +1,11 @@
 package uni.gaben.iscat.controller.components.settings;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.stage.Stage;
+import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
@@ -13,6 +15,9 @@ public class DisplaySettingsController {
     @FXML private CheckBox checkFps;
     @FXML private CheckBox FullscreenCheck;
     @FXML private CheckBox DebugModeCheck;
+
+    // Riferimento all'overlay di conferma (esattamente come in AccountSettingsController)
+    private ConfirmationOverlayController confirmOverlayController;
 
     @FXML
     public void initialize() {
@@ -24,6 +29,13 @@ public class DisplaySettingsController {
                 DebugModeCheck.setSelected(settings.getDebugMode() == 1);
             }
         }
+    }
+
+    /**
+     * Permette di iniettare il controller dell'overlay dal gestore principale delle impostazioni.
+     */
+    public void setConfirmOverlayController(ConfirmationOverlayController controller) {
+        this.confirmOverlayController = controller;
     }
 
     /**
@@ -93,8 +105,43 @@ public class DisplaySettingsController {
     @FXML
     void toggleDebugMode(ActionEvent event) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
-        if (settings != null && DebugModeCheck != null) {
-            int debugValue = DebugModeCheck.isSelected() ? 1 : 0;
+        if (settings == null || DebugModeCheck == null) return;
+
+        boolean requestedState = DebugModeCheck.isSelected();
+
+        // Se l'utente tenta di attivare il Debug, fermiamo l'azione e chiediamo conferma
+        if (requestedState) {
+            // Ripristiniamo momentaneamente la checkbox a vuota (false) per non barare visivamente
+            DebugModeCheck.setSelected(false);
+
+            if (confirmOverlayController != null) {
+                // Utilizziamo askWithButtons per passare sia il blocco di conferma (SÌ) che il reset grafico (NO / Annulla)
+                confirmOverlayController.askWithButtons(
+                        "Attivare Debug Mode?",
+                        "Attivando la console di debug, i progressi di gioco e i punteggi non verranno salvati.",
+                        "SÌ", "NO",
+                        () -> {
+                            // Accetta, spunta la checkbox e aggiorna il Database
+                            DebugModeCheck.setSelected(true);
+                            int debugValue = 1;
+                            settings.setDebugMode(debugValue);
+
+                            IscatDB.getInstance().executeAsync(() ->
+                                    IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "DebugMode", debugValue)
+                            );
+                        },
+                        () -> {
+                            // CALLBACK NO: Lascia la checkbox deselezionata (Stato pulito)
+                            DebugModeCheck.setSelected(false);
+                        }
+                );
+            } else {
+                // Fallback nel caso in cui il controller non sia stato iniettato
+                DebugModeCheck.setSelected(true);
+            }
+        } else {
+            // Se sta disattivando il Debug, procediamo istantaneamente senza popup
+            int debugValue = 0;
             settings.setDebugMode(debugValue);
 
             IscatDB.getInstance().executeAsync(() ->
@@ -103,15 +150,7 @@ public class DisplaySettingsController {
         }
     }
 
-    public javafx.scene.control.CheckBox getCheckFps() {
-        return checkFps;
-    }
-
-    public javafx.scene.control.CheckBox getDebugModeCheck() {
-        return DebugModeCheck;
-    }
-
-    public javafx.scene.control.CheckBox getFullscreenCheck() {
-        return FullscreenCheck;
-    }
+    public javafx.scene.control.CheckBox getCheckFps() { return checkFps; }
+    public javafx.scene.control.CheckBox getDebugModeCheck() { return DebugModeCheck; }
+    public javafx.scene.control.CheckBox getFullscreenCheck() { return FullscreenCheck; }
 }
