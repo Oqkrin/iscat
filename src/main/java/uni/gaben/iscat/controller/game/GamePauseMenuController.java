@@ -109,5 +109,5 @@ public class GamePauseMenuController implements IscatFxmlController {
     }
 
     @Override
-    public void setContentRoot(StackPane contentRoot) {}
+    public void setPointerToView(StackPane pointer) {}
 }

@@ -1,5 +1,6 @@
 package uni.gaben.iscat.controller;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -9,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.controller.components.InfoCardController;
 import uni.gaben.iscat.model.BestiaryModel;
+import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
@@ -48,12 +50,13 @@ public class BestiaryMenuController implements IscatMenuController {
 
     @FXML private InfoCardController infoCardController;
 
-    private StackPane contentRoot;
+    private StackPane viewRoot;
     private AnimatedCanvas previewCanvas;
     private final List<AnimatedCanvas> buttonCanvases = new ArrayList<>();
 
     @FXML
     public void initialize() {
+        Platform.runLater(EntityFactory::ensureCacheLoaded);
         previewCanvas = new AnimatedCanvas(DISPLAY_SIZE);
         previewContainer.getChildren().add(previewCanvas);
 
@@ -252,7 +255,7 @@ public class BestiaryMenuController implements IscatMenuController {
         showEnemyById(randomId);
     }
 
-    @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
+    @Override public void setPointerToView(StackPane pointer) { this.viewRoot = pointer; }
     @Override public Pane getRootPane() { return (Pane) btnBack.getParent().getParent(); }
     @FXML private void handleBack(ActionEvent event) { handleBack(); }
 }

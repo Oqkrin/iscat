@@ -8,7 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
-import javafx.util.Duration;
 import uni.gaben.iscat.controller.components.InfoCardController;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.SkinGridModel;
@@ -28,7 +27,6 @@ public class SkinMenuController implements IscatMenuController {
 
     @FXML public VBox skinsVbox;
     @FXML private GridPane skinGrid;
-    @FXML private Label skinNameLabel;
     @FXML private StackPane skinStackPane;
     @FXML private Button confirmBtn;
     // randomBtn removed from FXML – we'll use the grid cell instead
@@ -85,6 +83,7 @@ public class SkinMenuController implements IscatMenuController {
     }
 
     private void loadSkinsFromJson() {
+        EntityFactory.ensureCacheLoaded();
         List<EntityRecord> skins = new ArrayList<>();
         Map<String, EntityRecord> globalCache = EntityFactory.getCache();
         for (Map.Entry<String, EntityRecord> entry : globalCache.entrySet()) {
@@ -207,7 +206,6 @@ public class SkinMenuController implements IscatMenuController {
     private void selectSkin(String key, String path, String name) {
         this.selectedSkinKey = key;
         this.selectedSkinPath = path;
-        if (skinNameLabel != null) skinNameLabel.setText(name.toUpperCase());
         gridModel.setSelectedKey(key);
         ComponentsUtils.playSpawnTween(skinGrid);
     }
@@ -223,7 +221,6 @@ public class SkinMenuController implements IscatMenuController {
         } else {
             this.selectedSkinKey = "player1";
             this.selectedSkinPath = "/uni/gaben/iscat/sprites/players/player1.png";
-            if (skinNameLabel != null) skinNameLabel.setText("BATTLE SHIP");
         }
     }
 
@@ -275,5 +272,5 @@ public class SkinMenuController implements IscatMenuController {
 
     @FXML private void handleBack(ActionEvent event) { handleBack(); }
     @Override public Pane getRootPane() { return skinStackPane; }
-    @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
+    @Override public void setPointerToView(StackPane pointer) { this.contentRoot = pointer; }
 }

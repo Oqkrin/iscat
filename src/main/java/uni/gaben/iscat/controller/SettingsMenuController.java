@@ -156,5 +156,5 @@ public class SettingsMenuController implements IscatMenuController {
 
     @FXML void handleBackAction(ActionEvent event) { handleBack(); }
     public void setCustomBackAction(Runnable customBackAction) { this.customBackAction = customBackAction; }
-    @Override public void setContentRoot(StackPane contentRoot) { this.contentRoot = contentRoot; }
+    @Override public void setPointerToView(StackPane pointer) { this.contentRoot = pointer; }
 }

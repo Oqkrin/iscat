@@ -9,6 +9,7 @@ import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
@@ -37,8 +38,8 @@ public class GameController {
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
 
     public GameController(GameModel gameModel) {
+        Platform.runLater(EntityFactory::ensureCacheLoaded);
         this.gameModel = gameModel;
-
         this.gameLoop = new GameLoopTimer(gameModel, this::tick);
         this.lifecycleManager = new GameLifecycleManager(gameModel, inputs, gameLoop);
 

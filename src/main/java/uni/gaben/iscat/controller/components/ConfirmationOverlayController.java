@@ -101,8 +101,8 @@ public class ConfirmationOverlayController implements IscatMenuController {
     }
 
     @Override
-    public void setContentRoot(StackPane contentRoot) {
-        this.contentRoot = contentRoot;
+    public void setPointerToView(StackPane pointer) {
+        this.contentRoot = pointer;
     }
 
     /**

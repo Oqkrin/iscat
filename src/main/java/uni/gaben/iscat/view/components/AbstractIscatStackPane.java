@@ -143,14 +143,16 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
             Parent fxmlContent = loader.load();
 
             if (loader.getController() instanceof IscatFxmlController controller) {
-                controller.setContentRoot(this);
+                controller.setPointerToView(this);
             }
+
 
             if (fxmlContent instanceof Region region) {
                 region.setMinSize(0, 0);
                 region.prefWidthProperty().bind(this.widthProperty());
                 region.prefHeightProperty().bind(this.heightProperty());
             }
+
 
             this.getChildren().add(fxmlContent);
             StackPane.setAlignment(fxmlContent, Pos.CENTER);
@@ -177,7 +179,7 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
             var loader = new FXMLLoader(getClass().getResource(path));
             StackPane view = loader.load();
             C controller = loader.getController();
-            if (controller instanceof IscatFxmlController c) c.setContentRoot(this);
+            if (controller instanceof IscatFxmlController c) c.setPointerToView(this);
             init.accept(controller);
             return view;
         } catch (IOException e) {

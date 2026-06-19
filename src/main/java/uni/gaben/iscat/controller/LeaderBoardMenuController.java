@@ -7,11 +7,9 @@ import javafx.geometry.HPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
-import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.utils.ComponentsUtils;
 
 import java.util.List;
@@ -165,8 +163,8 @@ public class LeaderBoardMenuController implements IscatMenuController {
     }
 
     @Override
-    public void setContentRoot(StackPane contentRoot) {
-        this.contentRoot = contentRoot;
+    public void setPointerToView(StackPane pointer) {
+        this.contentRoot = pointer;
     }
 
     @Override

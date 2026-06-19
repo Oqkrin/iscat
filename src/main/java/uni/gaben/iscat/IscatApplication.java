@@ -29,49 +29,51 @@ import java.util.Objects;
 public class IscatApplication extends Application {
 
     private final IscatModel iscatModel = new IscatModel();
-
-    private final StackPane iscatApplicationRoot = new StackPane();
-    private final Scene iscatRootScene = new Scene(iscatApplicationRoot);
-    private final StackPane iscatContentRoot = new StackPane();
+    private final StackPane iscatRootPane = new StackPane();
+    private final Scene iscatRootScene = new Scene(iscatRootPane);
+    private final StackPane iscatPointerToContent = new StackPane();
     private final IscatTitleBar iscatTitleBar = new IscatTitleBar();
     private final Region iscatWindowBorderOverlay = new Region();
-    private final IscatDB db = IscatDB.getInstance();
-    private IscatWindowController iscatWindowController;
-    private IscatViewController iscatViewController;
+
+    IscatViewController iscatViewController;
+    IscatWindowController iscatWindowController;
 
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
-        db.init();
-        Platform.runLater(EntityFactory::ensureCacheLoaded);
+        IscatDB.getInstance().init();
         IscatNavigator.getInstance().initialize(iscatModel);
-        AudioManager.getInstance().loadAllSFX("/uni/gaben/iscat/audio/SFX/entitiesSFX");
-        AudioManager.getInstance().loadDefaultAudio();
     }
 
     @Override
     public void start(Stage stage) {
+
+
+        AudioManager.getInstance().loadAllSFX("/uni/gaben/iscat/audio/SFX/entitiesSFX");
+        AudioManager.getInstance().loadDefaultAudio();
+
+
         iscatRootScene.setFill(ThemeManager.getInstance().getBgPrimary());
         iscatTitleBar.setMaxHeight(56.0);
 
         //this might fix scalings
-        iscatContentRoot.prefWidthProperty().bind(iscatApplicationRoot.widthProperty());
-        iscatContentRoot.prefHeightProperty().bind(iscatApplicationRoot.heightProperty());
+        iscatPointerToContent.prefWidthProperty().bind(iscatRootPane.widthProperty());
+        iscatPointerToContent.prefHeightProperty().bind(iscatRootPane.heightProperty());
 
 
         iscatWindowBorderOverlay.getStyleClass().add("window-border");
         iscatWindowBorderOverlay.setMouseTransparent(true);
         StackPane.setAlignment(iscatTitleBar, Pos.TOP_CENTER);
 
-        iscatApplicationRoot.getChildren().addAll(iscatContentRoot, iscatTitleBar, iscatWindowBorderOverlay);
+        iscatRootPane.getChildren().addAll(iscatPointerToContent, iscatTitleBar, iscatWindowBorderOverlay);
 
-        IscatUtils.roundRectangle(iscatApplicationRoot, IscatSettings.BORDER_RADIUS);
+        IscatUtils.roundRectangle(iscatRootPane, IscatSettings.BORDER_RADIUS);
         addIscatStyles(iscatRootScene);
 
         iscatWindowBorderOverlay.visibleProperty().bind(iscatModel.fullscreenProperty().not());
 
         iscatWindowController = new IscatWindowController(iscatModel, stage, iscatRootScene, iscatTitleBar);
-        iscatViewController = new IscatViewController(iscatModel, iscatContentRoot);
+        iscatViewController = new IscatViewController(iscatModel, iscatPointerToContent);
         iscatViewController.showInitialView(IscatViews.LOGIN_MENU);
 
         stage.initStyle(StageStyle.UNDECORATED);

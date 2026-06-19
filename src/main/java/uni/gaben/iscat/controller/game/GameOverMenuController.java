@@ -96,5 +96,5 @@ public class GameOverMenuController implements IscatFxmlController {
     }
 
     @Override
-    public void setContentRoot(StackPane contentRoot) {}
+    public void setPointerToView(StackPane pointer) {}
 }
