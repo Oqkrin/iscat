@@ -4,46 +4,35 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<StackPane rotate="1.0" scaleX="1.25" scaleY="1.25" maxWidth="450.0" minWidth="380.0" VBox.vgrow="NEVER"
-           xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="uni.gaben.iscat.controller.components.settings.AudioSettingsController">
 
-    <Region styleClass="glowing-border, controls-card" />
 
-    <VBox alignment="TOP_CENTER" spacing="16.0">
-        <padding>
-            <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
-        </padding>
 
-        <VBox alignment="CENTER" spacing="4.0">
-            <Label styleClass="card-header" text="AUDIO" />
-        </VBox>
+ <VBox alignment="TOP_CENTER" spacing="16.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.AudioSettingsController">
+     <padding>
+         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+     </padding>
 
-        <Region minHeight="4.0" prefHeight="4.0" />
+     <VBox alignment="CENTER" spacing="4.0">
+         <Label styleClass="card-header" text="AUDIO" />
+     </VBox>
 
-        <VBox spacing="12.0" alignment="CENTER">
+     <VBox alignment="CENTER" spacing="12.0">
 
-            <HBox alignment="CENTER_LEFT" styleClass="audio-row">
-                <Label styleClass="control-label" text="MASTER" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Slider fx:id="masterSlider" minWidth="160.0" HBox.hgrow="NEVER" />
-            </HBox>
+         <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
+             <Label styleClass="control-label" text="MASTER" />
+             <Slider fx:id="masterSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
+         </HBox>
 
-            <HBox alignment="CENTER_LEFT" styleClass="audio-row">
-                <Label styleClass="control-label" text="BGM" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Slider fx:id="BGMSlider" minWidth="160.0" HBox.hgrow="NEVER" />
-            </HBox>
+         <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
+             <Label styleClass="control-label" text="BGM" />
+             <Slider fx:id="BGMSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
+         </HBox>
 
-            <HBox alignment="CENTER_LEFT" styleClass="audio-row">
-                <Label styleClass="control-label" text="SFX" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Slider fx:id="SFXSlider" minWidth="160.0" HBox.hgrow="NEVER" />
-            </HBox>
+         <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
+             <Label styleClass="control-label" text="SFX" />
+             <Slider fx:id="SFXSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
+         </HBox>
 
-        </VBox>
-    </VBox>
-</StackPane>
+     </VBox>
+ </VBox>

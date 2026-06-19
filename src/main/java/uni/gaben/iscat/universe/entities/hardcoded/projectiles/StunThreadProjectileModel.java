@@ -37,6 +37,7 @@ public class StunThreadProjectileModel extends ProjectileModel {
         this.stunDuration = duration;
         clearOnCollisions();
         addOnCollision("stun", other -> {
+            other.applyImpulse(getLinearVelocity().copy().multiply(12000));
             if (other instanceof Stunnable toStun) {
                 toStun.stun(duration);
                 extinguish(true);
