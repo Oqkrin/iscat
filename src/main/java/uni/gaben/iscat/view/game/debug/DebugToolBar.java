@@ -38,19 +38,24 @@ public class DebugToolBar extends StackPane {
         closeButton.setPrefSize(30, 30);
         closeButton.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         closeButton.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        closeButton.setAlignment(Pos.CENTER);
+        closeButton.getStyleClass().add("glowing-border");
 
         closeButton.setStyle(
-                "-fx-background-color: #e74c3c; " +
-                        "-fx-text-fill: white; " +
+                "-fx-background-color: #000000; " +
+                        "-fx-text-fill: #FFFFFF; " +
                         "-fx-font-family: 'Miracode'; " +
                         "-fx-font-weight: bold; " +
                         "-fx-font-size: 14px; " +
-                        "-fx-background-radius: 4px; " +
-                        "-fx-cursor: hand;"
+                        "-fx-background-radius: 16px; " +
+                        "-fx-border-radius: 1px; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-padding: 0; " +
+                        "-fx-content-display: TEXT_ONLY;"
         );
 
-        closeButton.setOnMouseEntered(e -> closeButton.setStyle(closeButton.getStyle() + "-fx-background-color: #c0392b;"));
-        closeButton.setOnMouseExited(e -> closeButton.setStyle(closeButton.getStyle() + "-fx-background-color: #e74c3c;"));
+        closeButton.setOnMouseEntered(e -> closeButton.setStyle(closeButton.getStyle() + "-fx-background-color: #222222;"));
+        closeButton.setOnMouseExited(e -> closeButton.setStyle(closeButton.getStyle() + "-fx-background-color: #000000;"));
 
         closeButton.setOnAction(e -> {
             setVisible(false);
@@ -103,10 +108,7 @@ public class DebugToolBar extends StackPane {
     }
 
     private void applyStyles() {
-        CssHelper.sfondoScuro(this);
-        CssHelper.bordoArrotondato(this);
-        CssHelper.ombra3(this);
-        CssHelper.bordoPrimario(this);
-        setStyle(getStyle() + "-fx-background-color: rgba(13,15,18,0.96); -fx-border-width: 1.5;");
+        getStyleClass().add("glowing-border");
+        setStyle("-fx-background-color: #000000;");
     }
 }

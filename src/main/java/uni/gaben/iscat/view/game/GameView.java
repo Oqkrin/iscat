@@ -166,7 +166,8 @@ public class GameView extends AbstractIscatStackPane {
         hudBar.maxWidthProperty().bind(
                 getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
 
-        spawnerToolbar.maxHeightProperty().bind(getViewRootPointer().heightProperty().divide(5));
+        // Imposta l'altezza massima della toolbar di debug esattamente al 35% dell'altezza della vista di gioco
+        spawnerToolbar.maxHeightProperty().bind(getViewRootPointer().heightProperty().multiply(0.35));
         spawnerToolbar.maxWidthProperty().bind(getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
 
         CameraModel camera = gameController.getCameraModel();
