@@ -68,7 +68,7 @@ public class IscatApplication extends Application {
 
         iscatRootPane.getChildren().addAll(iscatPointerToContent, iscatTitleBar, iscatWindowBorderOverlay);
 
-        IscatUtils.roundRectangle(iscatRootPane, IscatSettings.BORDER_RADIUS);
+        IscatUtils.roundRectangle(iscatRootPane, IscatSettings.STANDARD_UNIT);
         addIscatStyles(iscatRootScene);
 
         iscatWindowBorderOverlay.visibleProperty().bind(iscatModel.fullscreenProperty().not());

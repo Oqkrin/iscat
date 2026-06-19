@@ -106,7 +106,7 @@ public class LeaderBoardMenuController implements IscatMenuController {
     private GridPane buildRow(int rank, ScoreDAO.UserScoreEntry entry) {
         GridPane row = new GridPane();
         row.getStyleClass().add("leaderboard-row");
-        row.setHgap(IscatSettings.BORDER_RADIUS);
+        row.setHgap(IscatSettings.STANDARD_UNIT);
 
         // Configurazione colonne
         ColumnConstraints rankCol = new ColumnConstraints();

@@ -85,13 +85,14 @@ public class SkinMenuController implements IscatMenuController {
     private void loadSkinsFromJson() {
         List<EntityRecord> skins = new ArrayList<>();
         Map<String, EntityRecord> globalCache = EntityFactory.getCache();
-        for (Map.Entry<String, EntityRecord> entry : globalCache.entrySet()) {
-            EntityRecord record = entry.getValue();
-            String key = entry.getKey().toLowerCase().trim();
-            if (record.player() != null || key.contains("player")) {
-                skins.add(record);
-            }
-        }
+        globalCache.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .sorted(Comparator.comparing(entry -> entry.getValue().bestiaryOrder())).forEach(entry -> {
+                    String key = entry.getKey().toLowerCase().trim();
+                    if (entry.getValue().player() != null || key.contains("player")) {
+                        skins.add(entry.getValue());
+                    }
+                });
         gridModel.getSkins().setAll(skins);
     }
 
