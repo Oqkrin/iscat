@@ -10,20 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-/**
- * Model for the skin selection grid.
- * Anchors the selected item to its structural index coordinates and shifts its bounds
- * upstream if it encounters an edge boundary.
- */
 public class SkinGridModel {
 
-    private static final int DEFAULT_COLUMNS = 4;
-    private static final int SELECTED_SPAN = 2;   // 2x2 multi-cell span
+    public static final int SELECTED_SPAN = 2;         // 2×2 expanded item
+    private static final int RANDOM_INDEX = -2;        // sentinel for the random cell
 
     private final ObservableList<EntityRecord> skins = FXCollections.observableArrayList();
-    private final IntegerProperty columns = new SimpleIntegerProperty(DEFAULT_COLUMNS);
+    private final IntegerProperty columns = new SimpleIntegerProperty(4);
     private final StringProperty selectedKey = new SimpleStringProperty(null);
-    private final ReadOnlyListWrapper<SkinPlacement> placements = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    private final ReadOnlyListWrapper<SkinPlacement> placements =
+            new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
 
     public SkinGridModel() {
         skins.addListener((ListChangeListener<EntityRecord>) c -> recomputeLayout());
@@ -35,26 +31,23 @@ public class SkinGridModel {
     public ObservableList<EntityRecord> getSkins() { return skins; }
     public IntegerProperty columnsProperty() { return columns; }
     public int getColumns() { return columns.get(); }
-    public void setColumns(int columns) { this.columns.set(columns); }
+    public void setColumns(int cols) { columns.set(Math.max(cols, SELECTED_SPAN)); }
     public StringProperty selectedKeyProperty() { return selectedKey; }
     public String getSelectedKey() { return selectedKey.get(); }
-    public void setSelectedKey(String key) { this.selectedKey.set(key); }
+    public void setSelectedKey(String key) { selectedKey.set(key); }
 
-    public ReadOnlyListProperty<SkinPlacement> placementsProperty() { return placements.getReadOnlyProperty(); }
+    public ReadOnlyListProperty<SkinPlacement> placementsProperty() {
+        return placements.getReadOnlyProperty();
+    }
     public ObservableList<SkinPlacement> getPlacements() { return placements.get(); }
 
     private void recomputeLayout() {
         List<EntityRecord> skinList = new ArrayList<>(skins);
         int n = skinList.size();
         int cols = getColumns();
-        if (n == 0 || cols <= 0) {
+        if (n == 0 || cols < SELECTED_SPAN) {
             placements.set(FXCollections.observableArrayList());
             return;
-        }
-
-        if (cols < SELECTED_SPAN) {
-            cols = SELECTED_SPAN;
-            this.columns.set(cols);
         }
 
         String selected = getSelectedKey();
@@ -63,94 +56,65 @@ public class SkinGridModel {
                 .findFirst()
                 .orElse(-1);
 
-        // Precompute total spatial footprint requirement
-        int extraCells = (selectedIndex >= 0) ? (SELECTED_SPAN * SELECTED_SPAN - 1) : 0;
-        int totalCellsNeeded = n + extraCells;
-        int rows = (int) Math.ceil((double) totalCellsNeeded / cols);
-        if (selectedIndex >= 0 && rows < SELECTED_SPAN) {
-            rows = SELECTED_SPAN;
-        }
+        // total cells = all 1×1 skins + 3 (expanded item loses 1 cell) + 1 (random)
+        int totalCells = n + (SELECTED_SPAN * SELECTED_SPAN - 1) + 1;
+        int rows = (int) Math.ceil((double) totalCells / cols);
+        rows = Math.max(rows, SELECTED_SPAN);   // at least 2 rows for the expanded item
 
         int[][] occupancy = new int[rows][cols];
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                occupancy[r][c] = -1;
-            }
-        }
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++)
+                occupancy[r][c] = -1;   // -1 = empty
 
         List<SkinPlacement> placementList = new ArrayList<>();
 
-        java.util.function.BiConsumer<Integer, int[]> placeSkin = (index, span) -> {
-            int row = span[0];
-            int col = span[1];
-            int rowSpan = span[2];
-            int colSpan = span[3];
-            for (int r = row; r < row + rowSpan; r++) {
-                for (int c = col; c < col + colSpan; c++) {
-                    occupancy[r][c] = index;
-                }
-            }
-            placementList.add(new SkinPlacement(
-                    index, skinList.get(index), row, col, rowSpan, colSpan, index == selectedIndex
-            ));
-        };
-
-        // --- Step 1: Claim space for the expanded item based on its index position ---
+        // --- 1. Place expanded (selected) item ---
         if (selectedIndex >= 0) {
             int naturalRow = selectedIndex / cols;
             int naturalCol = selectedIndex % cols;
+            if (naturalCol + SELECTED_SPAN > cols) naturalCol = cols - SELECTED_SPAN;
+            if (naturalRow + SELECTED_SPAN > rows) naturalRow = rows - SELECTED_SPAN;
 
-            // Shift left if the 2x2 box spills over the right border
-            if (naturalCol + SELECTED_SPAN > cols) {
-                naturalCol = cols - SELECTED_SPAN;
-            }
-            // Shift up if the 2x2 box spills over the bottom border
-            if (naturalRow + SELECTED_SPAN > rows) {
-                naturalRow = rows - SELECTED_SPAN;
-            }
+            for (int r = naturalRow; r < naturalRow + SELECTED_SPAN; r++)
+                for (int c = naturalCol; c < naturalCol + SELECTED_SPAN; c++)
+                    occupancy[r][c] = selectedIndex;
 
-            naturalRow = Math.max(0, naturalRow);
-            naturalCol = Math.max(0, naturalCol);
-
-            placeSkin.accept(selectedIndex, new int[]{naturalRow, naturalCol, SELECTED_SPAN, SELECTED_SPAN});
+            placementList.add(new SkinPlacement(
+                    selectedIndex, skinList.get(selectedIndex),
+                    naturalRow, naturalCol, SELECTED_SPAN, SELECTED_SPAN, true));
         }
 
-        // --- Step 2: Route all remaining skins into empty slots ---
+        // --- 2. Fill remaining skins ---
         for (int i = 0; i < n; i++) {
             if (i == selectedIndex) continue;
             boolean placed = false;
-            for (int r = 0; r < rows; r++) {
+            for (int r = 0; r < rows && !placed; r++) {
                 for (int c = 0; c < cols; c++) {
                     if (occupancy[r][c] == -1) {
-                        placeSkin.accept(i, new int[]{r, c, 1, 1});
+                        occupancy[r][c] = i;
+                        placementList.add(new SkinPlacement(i, skinList.get(i), r, c, 1, 1, false));
                         placed = true;
                         break;
                     }
                 }
-                if (placed) break;
+            }
+        }
+
+        // --- 3. Place the random cell in the first empty spot ---
+        boolean randomPlaced = false;
+        for (int r = 0; r < rows && !randomPlaced; r++) {
+            for (int c = 0; c < cols; c++) {
+                if (occupancy[r][c] == -1) {
+                    placementList.add(new SkinPlacement(RANDOM_INDEX, null, r, c, 1, 1, false));
+                    randomPlaced = true;
+                    break;
+                }
             }
         }
 
         placements.set(FXCollections.observableArrayList(placementList));
     }
 
-    public static class SkinPlacement {
-        public final int index;
-        public final EntityRecord record;
-        public final int row;
-        public final int col;
-        public final int rowSpan;
-        public final int colSpan;
-        public final boolean selected;
-
-        public SkinPlacement(int index, EntityRecord record, int row, int col, int rowSpan, int colSpan, boolean selected) {
-            this.index = index;
-            this.record = record;
-            this.row = row;
-            this.col = col;
-            this.rowSpan = rowSpan;
-            this.colSpan = colSpan;
-            this.selected = selected;
-        }
-    }
+    public record SkinPlacement(int index, EntityRecord record, int row, int col,
+                                int rowSpan, int colSpan, boolean selected) {}
 }

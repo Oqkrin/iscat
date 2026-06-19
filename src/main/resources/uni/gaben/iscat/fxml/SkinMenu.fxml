@@ -2,66 +2,57 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="skinStackPane" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/skin-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.SkinMenuController">
+<StackPane fx:id="skinStackPane" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/skin-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.SkinMenuController">
     <VBox>
-        <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="ALWAYS" />
-
-        <HBox alignment="CENTER" spacing="48.0" VBox.vgrow="ALWAYS">
+        <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="NEVER" />
+        <GridPane VBox.vgrow="ALWAYS">
+            <columnConstraints>
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="61.8" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+            </rowConstraints>
             <padding>
-                <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
             </padding>
 
-            <!-- Left panel: skin list -->
-            <VBox alignment="TOP_CENTER" maxWidth="600.0" minWidth="400.0" spacing="14.0" HBox.hgrow="ALWAYS">
+            <VBox fx:id="skinsVbox" alignment="TOP_CENTER" spacing="16.0" styleClass="glowing-border, secondary-card">
                 <padding>
-                    <Insets top="40.0" />
+                    <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                 </padding>
-
-                <VBox fx:id="skinsVbox" alignment="TOP_CENTER" rotate="-1.5" spacing="16.0" styleClass="glowing-border, secondary-card" VBox.vgrow="ALWAYS">
+                <GridPane fx:id="skinGrid" alignment="CENTER" hgap="12.0" vgap="12.0" VBox.vgrow="ALWAYS" />
+                <HBox alignment="CENTER" spacing="16.0" VBox.vgrow="NEVER">
+                    <children>
+                 <Button fx:id="confirmBtn" onAction="#handleConfirm" styleClass="menu-button, play-button" text="CONFERMA">
+                     <padding>
+                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                     </padding>
+                 </Button>
+                 <Button fx:id="cancelBtn" onAction="#handleBack" styleClass="menu-button, back-button" text="ANNULLA">
+                     <padding>
+                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                     </padding>
+                 </Button>
+                    </children>
                     <padding>
                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                     </padding>
-
-                    <Label styleClass="card-header" text="SKINS" />
-                    <Label fx:id="skinNameLabel" styleClass="card-subheader" text="SELECT A SKIN" wrapText="true" />
-                      <GridPane fx:id="skinGrid" alignment="CENTER" hgap="12.0" vgap="12.0" VBox.vgrow="ALWAYS" />
-
-                    <Button fx:id="randomBtn" onAction="#selectRandom" styleClass="menu-button" text="RANDOM">
-                        <padding>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                        </padding>
-                    </Button>
-
-                    <Label fx:id="underGridLabel" alignment="CENTER" styleClass="card-subheader" text="SELEZIONA UNA SKIN!" />
-                </VBox>
+                </HBox>
             </VBox>
 
             <!-- Right panel: info card only (no preview) -->
-            <fx:include fx:id="infoCard" source="components/EntityInfoCard.fxml" HBox.hgrow="ALWAYS" />
+            <fx:include fx:id="infoCard" rotate="0.5" source="components/EntityInfoCard.fxml" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" />
+        </GridPane>
 
-        </HBox>
-
-        <!-- Confirm / Cancel buttons at bottom -->
-        <HBox alignment="CENTER" spacing="24.0">
-            <Button fx:id="confirmBtn" onAction="#handleConfirm" styleClass="menu-button, play-button" text="CONFERMA">
-                <padding>
-                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0" />
-                </padding>
-            </Button>
-            <Button fx:id="cancelBtn" onAction="#handleBack" styleClass="menu-button, back-button" text="ANNULLA">
-                <padding>
-                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0" />
-                </padding>
-            </Button>
-        </HBox>
-
-        <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="ALWAYS" />
+        <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="NEVER" />
     </VBox>
 </StackPane>
