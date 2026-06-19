@@ -42,7 +42,7 @@ public class GameView extends AbstractIscatStackPane {
     private UniverseRenderer universeRenderer;
 
     private GameHudBar hudBar;
-    private DebugToolBar spawnerToolbar;
+    private DebugToolBar debugToolBar;
     private StackPane               pauseMenu;
     private GamePauseMenuController gamePauseMenuController;
     private StackPane               gameOverMenu;
@@ -73,7 +73,7 @@ public class GameView extends AbstractIscatStackPane {
         universeRenderer = new UniverseRenderer(canvas, gameController);
 
         hudBar         = new GameHudBar(gameController);
-        spawnerToolbar = new DebugToolBar(gameController);
+        debugToolBar = new DebugToolBar(gameController);
         pauseMenu      = loadPauseMenu();
         gameOverMenu   = loadGameOverMenu();
 
@@ -102,7 +102,7 @@ public class GameView extends AbstractIscatStackPane {
         debugButtonsContainer = new HBox(10, debugButton, toggleWave);
         debugButtonsContainer.setFocusTraversable(false);
         debugButtonsContainer.setPickOnBounds(false);
-        spawnerToolbar.setPickOnBounds(false);
+        debugToolBar.setPickOnBounds(false);
     }
 
     @Override
@@ -135,14 +135,14 @@ public class GameView extends AbstractIscatStackPane {
                 hudBar,
                 levelLabel,
                 cheatLabelsContainer,
-                spawnerToolbar,
+                debugToolBar,
                 debugButtonsContainer,
                 pauseMenu,
                 gameOverMenu
         );
 
         StackPane.setAlignment(hudBar,                Pos.TOP_CENTER);
-        StackPane.setAlignment(spawnerToolbar,        Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(debugToolBar,        Pos.BOTTOM_CENTER);
         StackPane.setAlignment(debugButtonsContainer, Pos.TOP_LEFT);
         StackPane.setAlignment(levelLabel,            Pos.BOTTOM_RIGHT);
 
@@ -167,8 +167,8 @@ public class GameView extends AbstractIscatStackPane {
                 getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
 
         // Imposta l'altezza massima della toolbar di debug esattamente al 35% dell'altezza della vista di gioco
-        spawnerToolbar.maxHeightProperty().bind(getViewRootPointer().heightProperty().multiply(0.35));
-        spawnerToolbar.maxWidthProperty().bind(getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
+        debugToolBar.maxHeightProperty().bind(getViewRootPointer().heightProperty().multiply(0.35));
+        debugToolBar.maxWidthProperty().bind(getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
 
         CameraModel camera = gameController.getCameraModel();
         camera.screenWidthProperty().bind(canvas.widthProperty());
@@ -206,8 +206,8 @@ public class GameView extends AbstractIscatStackPane {
             debugButtonsContainer.setVisible(debugOn);
             debugButtonsContainer.setManaged(debugOn);
             if (!debugOn) {
-                spawnerToolbar.setVisible(false);
-                spawnerToolbar.setManaged(false);
+                debugToolBar.setVisible(false);
+                debugToolBar.setManaged(false);
                 debugPanelVisible = false;
                 debugButton.setText("DEBUG");
             }
@@ -216,8 +216,8 @@ public class GameView extends AbstractIscatStackPane {
         boolean initDebug = gameController.isDebugModeOn();
         debugButtonsContainer.setVisible(initDebug);
         debugButtonsContainer.setManaged(initDebug);
-        spawnerToolbar.setVisible(false);
-        spawnerToolbar.setManaged(false);
+        debugToolBar.setVisible(false);
+        debugToolBar.setManaged(false);
 
         gameModel.timerProperty().addListener((obs, oldV, newV) -> hudBar.updateTimer(newV.intValue()));
         runLater(() -> hudBar.updateTimer(gameModel.getTimer()));
@@ -250,8 +250,8 @@ public class GameView extends AbstractIscatStackPane {
         debugButton.setOnAction(ev -> {
             if (gameController.isDebugModeOn()) {
                 debugPanelVisible = !debugPanelVisible;
-                spawnerToolbar.setVisible(debugPanelVisible);
-                spawnerToolbar.setManaged(debugPanelVisible);
+                debugToolBar.setVisible(debugPanelVisible);
+                debugToolBar.setManaged(debugPanelVisible);
                 debugButton.setText(debugPanelVisible ? "HIDE DEBUG" : "DEBUG");
                 canvas.requestFocus();
             }

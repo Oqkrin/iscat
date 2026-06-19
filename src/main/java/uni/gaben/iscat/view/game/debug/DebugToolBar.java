@@ -7,77 +7,68 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.Region;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.utils.design.CssHelper;
 
+/**
+ * Pannello contenitore principale per gli strumenti di debug.
+ * Gestisce la navigazione tra il menu principale delle opzioni, la console dei trucchi (Cheats)
+ * e il generatore di entità (Spawner).
+ */
 public class DebugToolBar extends StackPane {
 
+    /** Riferimento al controller principale del gioco. */
     private final GameController controller;
 
+    /** Vista del menu principale della console di debug. */
     private VBox mainMenuView;
-    private DebugToolBarCheats cheatsView;
-    private DebugToolBarSpawner spawnerView;
-    private Button closeButton;
 
+    /** Sotto-pannello dedicato all'attivazione dei trucchi (GodMode, GhostMode, ecc.). */
+    private DebugToolBarCheats cheatsView;
+
+    /** Sotto-pannello dedicato allo spawn visivo dei nemici e degli oggetti di gioco. */
+    private DebugToolBarSpawner spawnerView;
+
+    /**
+     * Costruisce e inizializza la barra degli strumenti di debug.
+     *
+     * @param controller Il controller logico del gioco.
+     */
     public DebugToolBar(GameController controller) {
         this.controller = controller;
 
         this.cheatsView = new DebugToolBarCheats(controller, this::showMainMenu);
         this.spawnerView = new DebugToolBarSpawner(controller, this::showMainMenu);
 
-        buildCloseButton();
         buildMainMenu();
         applyStyles();
         showMainMenu();
     }
 
-    private void buildCloseButton() {
-        closeButton = new Button("X");
-        closeButton.setFocusTraversable(false);
-        closeButton.setPrefSize(30, 30);
-        closeButton.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-        closeButton.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-        closeButton.setAlignment(Pos.CENTER);
-        closeButton.getStyleClass().add("glowing-border");
-
-        closeButton.setStyle(
-                "-fx-background-color: #000000; " +
-                        "-fx-text-fill: #FFFFFF; " +
-                        "-fx-font-family: 'Miracode'; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-font-size: 14px; " +
-                        "-fx-background-radius: 16px; " +
-                        "-fx-border-radius: 1px; " +
-                        "-fx-cursor: hand; " +
-                        "-fx-padding: 0; " +
-                        "-fx-content-display: TEXT_ONLY;"
-        );
-
-        closeButton.setOnMouseEntered(e -> closeButton.setStyle(closeButton.getStyle() + "-fx-background-color: #222222;"));
-        closeButton.setOnMouseExited(e -> closeButton.setStyle(closeButton.getStyle() + "-fx-background-color: #000000;"));
-
-        closeButton.setOnAction(e -> {
-            setVisible(false);
-            setManaged(false);
-        });
-
-        StackPane.setAlignment(closeButton, Pos.TOP_RIGHT);
-        StackPane.setMargin(closeButton, new Insets(10));
-    }
-
+    /**
+     * Mostra la schermata principale della console di debug.
+     */
     public void showMainMenu() {
-        getChildren().setAll(mainMenuView, closeButton);
+        getChildren().setAll(mainMenuView);
     }
 
+    /**
+     * Mostra il sotto-menu relativo ai Cheats.
+     */
     public void showCheatsMenu() {
-        getChildren().setAll(cheatsView, closeButton);
+        getChildren().setAll(cheatsView);
     }
 
+    /**
+     * Mostra il sotto-menu relativo allo Spawner.
+     */
     public void showSpawnerMenu() {
-        getChildren().setAll(spawnerView, closeButton);
+        getChildren().setAll(spawnerView);
     }
 
+    /**
+     * Costruisce il layout e i nodi del menu principale della console.
+     */
     private void buildMainMenu() {
         mainMenuView = new VBox(20);
         mainMenuView.setAlignment(Pos.CENTER);
@@ -107,6 +98,9 @@ public class DebugToolBar extends StackPane {
         mainMenuView.getChildren().addAll(titleLabel, optionsContainer);
     }
 
+    /**
+     * Applica le classi CSS e lo stile di sfondo alla barra di debug.
+     */
     private void applyStyles() {
         getStyleClass().add("glowing-border");
         setStyle("-fx-background-color: #000000;");
