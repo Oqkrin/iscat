@@ -20,7 +20,7 @@ public record EntityRecord(
         int frameW,
         int frameH,
         double scale,
-        int[] animationFrames,
+        List<AnimationRecord> animations,
         boolean isBoss,
         boolean hasEntranceAnimation,
 
@@ -54,6 +54,13 @@ public record EntityRecord(
         PlayerRecord player
 ) {
     public enum ShapeType { CIRCLE, SQUARE, POLYGON }
+
+    public record AnimationRecord(
+            String type,
+            int row,
+            int frames,
+            double durationSec
+    ) {}
 
     public record AudioProfile(
             List<String> attack,

@@ -14,8 +14,13 @@ import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entities.interfaces.HasSprite;
 import uni.gaben.iscat.utils.EntityAudioManager;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class EntityModel extends AbstractLivingEntityModel implements HasSprite, HasShockwave {
     private final Shockwave shockwave = new Shockwave();
+    private static final Random RNG = new Random();
 
     private EntityState currentEntityState = EntityState.IDLE;
     private boolean completeKillCalled = false;
@@ -29,10 +34,10 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
         if (entity.hasEntranceAnimation()) {
             this.currentEntityState = EntityState.ENTRANCE;
-            this.currentAnimationRow = EntityState.ENTRANCE.ordinal();
+            this.currentAnimationRow = findRowByType("ENTRANCE", EntityState.ENTRANCE.ordinal());
             setEnabled(false);
         } else {
-            this.currentAnimationRow = EntityState.IDLE.ordinal();
+            this.currentAnimationRow = findRowByType("IDLE", EntityState.IDLE.ordinal());
             setState(this.currentAnimationRow);
         }
 
@@ -52,7 +57,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             final double heavyDamage = entity.mass() * 5.0;
             final double lightDamage = entity.mass() * 2.0;
 
-            addOnCollision("velocityDamage",other -> {
+            addOnCollision("velocityDamage", other -> {
                 if (other instanceof PlayerModel player) {
                     double speed = this.getLinearVelocity().getMagnitude();
                     if (speed > entity.maxVelocity() * 0.85) {
@@ -79,7 +84,8 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     public void setEntityState(EntityState state) {
-        setEntityState(state, state.ordinal());
+        // Fallback sul vecchio sistema se chiamato senza riga esplicita (usa la row associata al tipo)
+        setEntityState(state, findRowByType(state.name(), state.ordinal()));
     }
 
     public void setEntityState(EntityState state, int animationRow) {
@@ -91,9 +97,40 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         }
     }
 
-    public int getFramesForState(int state) {
-        if (entity.animationFrames() != null && state >= 0 && state < entity.animationFrames().length) {
-            return entity.animationFrames()[state];
+    /**
+     * Recupera l'oggetto di configurazione dell'animazione analizzando la riga fisica corrente
+     */
+    private EntityRecord.AnimationRecord getCurrentAnimationRecord() {
+        if (entity.animations() == null) return null;
+        for (EntityRecord.AnimationRecord anim : entity.animations()) {
+            if (anim.row() == currentAnimationRow) {
+                return anim;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Cerca nel JSON tutte le righe fisiche associate a un tipo (es. "ATTACK").
+     * Se ne trova più di una le pesca a caso, così un nemico con 3 righe ATTACK
+     * le ruota in modo casuale. Se non ne trova nessuna usa fallbackRow.
+     */
+    private int findRowByType(String typeName, int fallbackRow) {
+        if (entity.animations() == null) return fallbackRow;
+        List<Integer> candidates = new ArrayList<>();
+        for (EntityRecord.AnimationRecord anim : entity.animations()) {
+            if (anim.type().equalsIgnoreCase(typeName)) {
+                candidates.add(anim.row());
+            }
+        }
+        if (candidates.isEmpty()) return fallbackRow;
+        return candidates.get(RNG.nextInt(candidates.size()));
+    }
+
+    public int getFramesForState(int rowIndex) {
+        if (entity.animations() == null) return 1;
+        for (EntityRecord.AnimationRecord anim : entity.animations()) {
+            if (anim.row() == rowIndex) return anim.frames();
         }
         return 1;
     }
@@ -111,15 +148,15 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             }
         }
 
-        double duration;
-        if (currentEntityState == EntityState.ATTACK) {
-            duration = 3.0;
-        } else {
-            duration = getFramesForState(currentEntityState.ordinal()) * getFrameDuration();
+        // Calcola la durata totale leggendo la configurazione della riga corrente
+        double duration = 0;
+        EntityRecord.AnimationRecord anim = getCurrentAnimationRecord();
+        if (anim != null) {
+            duration = anim.durationSec() > 0 ? anim.durationSec() : anim.frames() * getFrameDuration();
         }
 
         if (currentEntityState == EntityState.ENTRANCE) {
-            if (getFramesForState(EntityState.ENTRANCE.ordinal()) <= 0 || getStateTime() >= duration) {
+            if (getFramesForState(currentAnimationRow) <= 0 || getStateTime() >= duration) {
                 setEnabled(true);
                 setEntityState(EntityState.IDLE);
                 if (entity.isBoss()) {
@@ -129,7 +166,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             }
         }
         else if (currentEntityState != EntityState.IDLE && currentEntityState != EntityState.DEATH) {
-            // Questo blocco intercetta l'ATTACK: dopo 3 secondi esatti (duration = 3.0), resetta lo stato in IDLE
             if (getStateTime() >= duration) {
                 setEntityState(EntityState.IDLE);
             }
@@ -143,9 +179,19 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
     @Override
     public void extinguish(boolean silent) {
-        if (entity.animationFrames() != null && entity.animationFrames().length > EntityState.DEATH.ordinal()) {
+        boolean hasDeathAnimation = false;
+        if (entity.animations() != null) {
+            for (EntityRecord.AnimationRecord anim : entity.animations()) {
+                if (anim.type().equalsIgnoreCase("DEATH")) {
+                    hasDeathAnimation = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasDeathAnimation) {
             if (currentEntityState == EntityState.DEATH) return;
-            setEntityState(EntityState.DEATH);
+            setEntityState(EntityState.DEATH, findRowByType("DEATH", EntityState.DEATH.ordinal()));
         } else {
             super.extinguish(silent);
             completeKill();
@@ -175,18 +221,24 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     @Override public int getSpriteFrameHeight() { return entity.frameH(); }
     @Override public double getVisualScale() { return entity.scale(); }
     @Override public double getVisualAngularOffsetDeg() { return entity.angularOffsetDeg(); }
+
     @Override
     public double getFrameDuration() {
-        if (currentEntityState == EntityState.ATTACK) {
-            int totalFrames = getFramesForState(currentEntityState.ordinal());
-            return totalFrames > 0 ? (3.0 / totalFrames) : UU.UNIVERSE_TICK * 3;
+        EntityRecord.AnimationRecord anim = getCurrentAnimationRecord();
+        if (anim != null && anim.durationSec() > 0) {
+            return anim.durationSec() / (double) anim.frames();
         }
         return UU.UNIVERSE_TICK * 6;
     }
+
     @Override public double getFrameDuration(int state, int frame) { return getFrameDuration(); }
 
     @Override
     public boolean isInalterable() {
         return false;
+    }
+
+    public EntityState getCurrentEntityState() {
+        return currentEntityState;
     }
 }

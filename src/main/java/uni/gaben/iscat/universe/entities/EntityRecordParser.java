@@ -175,14 +175,22 @@ public final class EntityRecordParser {
      * @param builder Il builder di destinazione dei dati.
      */
     private static void parseAnimationFrames(JSONObject json, EntityRecordBuilder builder) {
-        if (json.has("AnimationFrames")) {
-            JSONArray framesArray = json.getJSONArray("AnimationFrames");
-            int[] frames = new int[framesArray.length()];
-            for (int i = 0; i < framesArray.length(); i++) {
-                frames[i] = framesArray.optInt(i, 1);
+        List<EntityRecord.AnimationRecord> animationList = new ArrayList<>();
+
+        if (json.has("Animations")) {
+            JSONArray animsArray = json.getJSONArray("Animations");
+            for (int i = 0; i < animsArray.length(); i++) {
+                JSONObject animJson = animsArray.getJSONObject(i);
+                String type = animJson.optString("type", "IDLE").toUpperCase();
+
+                int row = animJson.optInt("row", i);
+                int frames = animJson.optInt("frames", 1);
+                double durationSec = animJson.optDouble("durationSec", 0.0);
+
+                animationList.add(new EntityRecord.AnimationRecord(type, row, frames, durationSec));
             }
-            builder.animationFrames(frames);
         }
+        builder.animations(animationList);
     }
 
     /**

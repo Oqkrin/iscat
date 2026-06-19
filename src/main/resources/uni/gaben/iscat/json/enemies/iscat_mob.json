@@ -21,6 +21,10 @@
   "PreferredRange": 10,
   "actionCooldownS": 800,
   "DannoProiettile": 5,
+  "Animations": [
+    { "type": "IDLE",   "row": 0, "frames": 8 },
+    { "type": "ATTACK", "row": 1, "frames": 8 }
+  ],
   "audio": {
     "attack": [],
     "idle": [],
@@ -41,6 +45,7 @@
         "type": "shoot",
         "combatRange": 15,
         "cooldownSec": 0.8,
+        "attackStateIndex": 1,
         "bulletType": "ENEMY_BULLET",
         "aimAtTarget": true,
         "nerfPrediction": 2.6,

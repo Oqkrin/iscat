@@ -17,9 +17,15 @@ public class EntityBrain extends Brain<EntityModel> {
      */
     @Override
     public void update(UniverseModel universe, double dt) {
-        if (entity != null && entity.getState() == EntityState.ENTRANCE.ordinal()) {
-            return; // Congela abilità, steering e rotazione durante lo spawn animation
+        if (entity == null) return;
+
+        EntityState state = entity.getCurrentEntityState();
+        if (state == EntityState.ENTRANCE
+                || state == EntityState.SPAWN_ATTACK
+                || state == EntityState.DEATH) {
+            return;
         }
+
         super.update(universe, dt);
     }
 

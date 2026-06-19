@@ -1,10 +1,11 @@
 package uni.gaben.iscat.universe.entities.shooters;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.Shooter;
+import uni.gaben.iscat.universe.entities.EntityState;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.UU;
 
 import java.util.function.Consumer;
@@ -25,6 +26,10 @@ public class SummonPattern implements Pattern {
     @Override
     public void execute(Shooter<?> shooter, ProjectileType pType, double angle, Consumer<ProjectileModel> customizer) {
         var model = shooter.getModel();
+
+        if (model instanceof EntityModel entityModel) {
+            entityModel.setEntityState(EntityState.SPAWN_ATTACK);
+        }
 
         Vector2 originPos = model.getTransform().getTranslation();
         double spawnRadiusM = UU.pxToM(spawnRadiusPx);

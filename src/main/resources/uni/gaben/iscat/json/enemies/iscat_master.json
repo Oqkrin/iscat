@@ -22,9 +22,17 @@
   "actionCooldownS": 60,
   "IsBoss": true,
   "HasEntranceAnimation": true,
-  "AnimationFrames": [21, 4, 3, 7, 8, 5, 6],
   "AngularOffsetDeg": 90,
   "DannoProiettile": 100,
+  "Animations": [
+    { "type": "ENTRANCE",    "row": 0, "frames": 21, "durationSec": 4.0 },
+    { "type": "IDLE",        "row": 1, "frames": 4 },
+    { "type": "ATTACK",  "row": 2, "frames": 3,  "durationSec": 3.0 },
+    { "type": "ATTACK",        "row": 3, "frames": 7 },
+    { "type": "SPAWN_ATTACK",       "row": 4, "frames": 8, "durationSec": 4.0 },
+    { "type": "ATTACK",      "row": 5, "frames": 5,  "durationSec": 3.0 },
+    { "type": "DEATH",     "row": 6, "frames": 6 }
+  ],
   "audio": {
     "attack": [],
     "idle": [],
