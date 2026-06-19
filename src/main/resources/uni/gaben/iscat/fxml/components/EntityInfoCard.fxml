@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" rotate="0.7" spacing="12.0" styleClass="glowing-border, secondary-card" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.InfoCardController">
+<VBox alignment="CENTER" rotate="0.7" spacing="16.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.InfoCardController">
     <padding>
         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
     </padding>
-    <TabPane side="RIGHT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+    <TabPane side="RIGHT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="NEVER">
         <Tab closable="false" text="Lore">
             <TextArea fx:id="loreArea" editable="false" style="-fx-background-color: transparent; -fx-control-inner-background: transparent;" wrapText="true">
             <padding>
@@ -33,4 +34,8 @@
          <Insets />
       </opaqueInsets>
     </TabPane>
+   <styleClass>
+      <String fx:value="secondary-card" />
+      <String fx:value="glowing-border" />
+   </styleClass>
 </VBox>
