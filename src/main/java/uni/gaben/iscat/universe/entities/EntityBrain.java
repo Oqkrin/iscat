@@ -1,14 +1,26 @@
 package uni.gaben.iscat.universe.entities;
 
+import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.brain.*;
 import uni.gaben.iscat.universe.entities.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringModifier;
-
 
 public class EntityBrain extends Brain<EntityModel> {
 
     public EntityBrain(EntityModel entity) {
         super(entity);
+    }
+
+    /**
+     * Override del ciclo di aggiornamento del cervello.
+     * Controlla se l'entità sta eseguendo l'animazione d'ingresso prima di procedere.
+     */
+    @Override
+    public void update(UniverseModel universe, double dt) {
+        if (entity != null && entity.getState() == EntityState.ENTRANCE.ordinal()) {
+            return; // Congela abilità, steering e rotazione durante lo spawn animation
+        }
+        super.update(universe, dt);
     }
 
     public static EntityBrain fromRecord(EntityModel entity) {
@@ -21,6 +33,7 @@ public class EntityBrain extends Brain<EntityModel> {
 
         // Rotation
         brain.setRotationGoal(EntityRecordParser.createRotationGoal(entityRecord.brain().rotation()));
+
         // Abilities
         for (EntityRecord.AbilityRecord ac : entityRecord.brain().abilities()) {
             Ability ability = EntityRecordParser.createAbility(ac, entity);
@@ -34,6 +47,4 @@ public class EntityBrain extends Brain<EntityModel> {
         }
         return brain;
     }
-
-
 }

@@ -1,65 +1,79 @@
 {
-      "EntityKey": "iscat_master",
-      "Name": "Iscat Master",
-      "Description": "Il creatore di Iscat Mother.\nQuesta creatura misteriosa\nha studiato per anni\ncome diventare DIO.\nDurante le sue ricerche\nha creato una nuova forma di vita:\ngli Iscat.\nCon il loro potere\nIscat Master ha iniziato\na portare distruzione e caos\nin tutto il mondo.",
-      "SpriteName": "iscat_master",
-      "BestiaryOrder": 13,
-      "ThreatLevel": "APOCALYPSE",
-      "FrameW": 128,
-      "FrameH": 128,
-      "ShapeType": "SQUARE",
-      "Scale": 3,
-      "InitLife": 50000,
-      "LinearDamping": 2,
-      "mass": 1,
-      "MaxVelocity": 100,
-      "MaxForce": 250,
-      "MaxAngularVelocity": 1,
-      "XPReward": 10000,
-      "DetectionRange": 10000,
-      "CombatRange": 100,
-      "PreferredRange": 200,
-      "actionCooldownS": 60,
-      "IsBoss": true,
-      "HasEntranceAnimation": true,
-      "AnimationFrames": [21, 4, 3, 7, 8, 5, 6],
-      "AngularOffsetDeg": 90,
-      "DannoProiettile": 100,
-      "audio": {
-        "attack": [],
-        "idle": [],
-        "hurt": [],
-        "death": ["master_death"],
-        "spawn": ["master_spawn"]
-      },"ai": {
-        "rotation": { "type": "locked" },
-        "steering": {
-          "type": "pursuitWithRange",
-          "maxPredictionTime": 10,
-          "minDistance": 5,
-          "maxDistance": 20
-        },
-        "abilities": [
-        {
-          "type": "randomizedShoot",
-          "combatRange": 10000,
-          "cooldownSec": 1.0,
-          "bulletType": "ENEMY_BULLET",
-          "aimAtTarget": true,
-          "nerfPrediction": 0,
-          "patterns": [
-            { "type": "ring", "count": 32 },
-            { "type": "summon", "count": 2, "summonedEntityKey": "eater", "summonRadiusPx": 100 },
-            { "type": "summon", "count": 1, "summonedEntityKey": "iscat_dasher", "summonRadiusPx": 100 },
-            { "type": "repeater", "repeats": 3, "intervalSec": 0.3, "pattern": { "type": "ring", "count": 16 } },
-            { "type": "repeater", "repeats": 4, "intervalSec": 0.3, "pattern": { "type": "spread", "count": 8, "angleStepDeg": 45 } }
-          ]
-        }
-      ],
-      "modifiers": [
-        { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
-        { "type": "alignment", "radius": 7.5, "weight": 1 },
-        { "type": "cohesion", "radius": 7.5, "weight": 1 },
-        { "type": "separation", "radius": 3.75, "weight": 3 }
-      ]    }
-    }
+  "EntityKey": "iscat_master",
+  "Name": "Iscat Master",
+  "Description": "Il creatore di Iscat Mother.\nQuesta creatura misteriosa\nha studiato per anni\ncome diventare DIO.\nDurante le sue ricerche\nha creato una nuova forma di vita:\ngli Iscat.\nCon il loro potere\nIscat Master ha iniziato\na portare distruzione e caos\nin tutto il mondo.",
+  "SpriteName": "iscat_master",
+  "BestiaryOrder": 13,
+  "ThreatLevel": "APOCALYPSE",
+  "FrameW": 128,
+  "FrameH": 128,
+  "ShapeType": "SQUARE",
+  "Scale": 3,
+  "InitLife": 50000,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 100,
+  "MaxForce": 250,
+  "MaxAngularVelocity": 1,
+  "XPReward": 10000,
+  "DetectionRange": 10000,
+  "CombatRange": 100,
+  "PreferredRange": 200,
+  "actionCooldownS": 60,
+  "IsBoss": true,
+  "HasEntranceAnimation": true,
+  "AnimationFrames": [21, 4, 3, 7, 8, 5, 6],
+  "AngularOffsetDeg": 90,
+  "DannoProiettile": 100,
+  "audio": {
+    "attack": [],
+    "idle": [],
+    "hurt": [],
+    "death": ["master_death"],
+    "spawn": ["master_spawn"]
+  },
+  "ai": {
+    "rotation": { "type": "locked" },
+    "steering": {
+      "type": "pursuitWithRange",
+      "maxPredictionTime": 10,
+      "minDistance": 5,
+      "maxDistance": 20
+    },
+    "abilities": [
+      {
+        "type": "randomizedShoot",
+        "combatRange": 10000,
+        "cooldownSec": 1.5,
+        "bulletType": "ENEMY_BULLET",
+        "aimAtTarget": true,
+        "nerfPrediction": 0,
+        "attackStateIndex": 2,
+        "patterns": [
+          { "type": "ring", "count": 32 },
+          { "type": "repeater", "repeats": 3, "intervalSec": 0.3, "pattern": { "type": "ring", "count": 16 } },
+          { "type": "repeater", "repeats": 4, "intervalSec": 0.3, "pattern": { "type": "spread", "count": 8, "angleStepDeg": 45 } }
+        ]
+      },
+      {
+        "type": "randomizedShoot",
+        "combatRange": 10000,
+        "cooldownSec": 4.0,
+        "bulletType": "ENEMY_BULLET",
+        "aimAtTarget": true,
+        "nerfPrediction": 0,
+        "attackStateIndex": 5,
+        "patterns": [
+          { "type": "summon", "count": 2, "summonedEntityKey": "eater", "summonRadiusPx": 100 },
+          { "type": "summon", "count": 1, "summonedEntityKey": "iscat_dasher", "summonRadiusPx": 100 }
+        ]
+      }
+    ],
+    "modifiers": [
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
+      { "type": "alignment", "radius": 7.5, "weight": 1 },
+      { "type": "cohesion", "radius": 7.5, "weight": 1 },
+      { "type": "separation", "radius": 3.75, "weight": 3 }
+    ]
+  }
+}
