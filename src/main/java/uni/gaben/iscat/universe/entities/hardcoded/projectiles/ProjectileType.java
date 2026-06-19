@@ -8,8 +8,8 @@ import uni.gaben.iscat.utils.theme.ThemeManager;
 
 public enum ProjectileType {
     PLAYER_BULLET(UniverseVelocitySettings.PLAYER_PROJECTILE_VELOCITY, 4.0, UniverseCollisionLayers.PROJECTILE_FILTER, ThemeManager.getInstance().getAccentPrimary()),
-    ENEMY_BULLET (UniverseVelocitySettings.ENEMY_PROJECTILE_VELOCITY,  4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getColorError()),
-    STUN_BULLET (UniverseVelocitySettings.ENEMY_PROJECTILE_VELOCITY, 7.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getAccentTernary());
+    ENEMY_BULLET(UniverseVelocitySettings.ENEMY_PROJECTILE_VELOCITY,  4.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getColorError()),
+    STUN_BULLET(UniverseVelocitySettings.ENEMY_PROJECTILE_VELOCITY, 7.0, UniverseCollisionLayers.ENEMY_PROJECTILE_FILTER, ThemeManager.getInstance().getAccentTernary());
 
     public final double terminalVelocity;
     public final double radiusPx;

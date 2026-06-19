@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.universe.entities.EntityRecordParser;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entities.shooters.Shooter;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.Shooter;
 import uni.gaben.iscat.universe.entities.shooters.*;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.Cooldown;

@@ -5,6 +5,7 @@ import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.Shooter;
 
 import java.util.function.Consumer;
 

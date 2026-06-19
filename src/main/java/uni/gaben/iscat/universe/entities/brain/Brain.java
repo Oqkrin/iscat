@@ -12,7 +12,7 @@ import uni.gaben.iscat.universe.entities.brain.rotation.RotationGoal;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringGoal;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringModifier;
 import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
-import uni.gaben.iscat.universe.entities.shooters.Shooter;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.Shooter;
 
 import java.util.*;
 

@@ -401,7 +401,7 @@ public class PlayerModel extends AbstractLivingEntityModel
     }
 
     @Override
-    public void stun(double duration) {
-        stunCooldown.start(duration);
+    public void stun(double ms) {
+        stunCooldown.start(ms);
     }
 }

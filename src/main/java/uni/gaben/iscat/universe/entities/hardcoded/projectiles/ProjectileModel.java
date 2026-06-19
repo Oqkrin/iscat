@@ -10,24 +10,39 @@ import uni.gaben.iscat.universe.UniverseModel;
 public class ProjectileModel extends AbstractPhysicalProjectileModel {
     private ProjectileType type;
     private boolean inPool = false;
-
     private UniverseModel universeModel;
 
     public boolean isInPool() { return inPool; }
     public void setInPool(boolean inPool) { this.inPool = inPool; }
 
     public ProjectileModel(ProjectileType type) {
-        // Passiamo un valore di fallback temporaneo alla classe base astratta
         super(1.0);
         setType(type);
     }
 
-    /** Associa l'universo al proiettile per i controlli sui confini radiali. */
+    /**
+     * Resets the projectile state for pool recycling.
+     */
+    public void reset(ProjectileType type) {
+        this.inPool = false;
+        this.clearOnCollisions();
+        this.setKilledByProjectile(false);
+        this.setShouldRemove(false);
+        this.setEnabled(true);
+        this.setAtRest(false);
+        this.getTransform().setTranslation(0, 0);
+        this.getTransform().setRotation(0);
+        this.setLinearVelocity(0, 0);
+        this.setAngularVelocity(0);
+        this.clearAccumulatedForce();
+        this.clearAccumulatedTorque();
+        this.setType(type);
+    }
+
     public void setUniverseModel(UniverseModel universeModel) {
         this.universeModel = universeModel;
     }
 
-    /** Imposta il tipo e ricostruisce fixture + parametri fisici di conseguenza. */
     public void setType(ProjectileType type) {
         this.type = type;
         removeAllFixtures();
@@ -42,14 +57,10 @@ public class ProjectileModel extends AbstractPhysicalProjectileModel {
             setTerminalVelocity(type.terminalVelocity);
         }
 
-        // Valore iniziale di default (sarà sovrascritto dinamicamente da chi spara)
         this.endurance.set(1.0);
         setMaxEndurance(1.0);
     }
 
-    /**
-     * Imposta l'energia (danno/durata) del proiettile in modo dinamico.
-     */
     public void setEnergyDirect(double energy) {
         this.endurance.set(energy);
         setMaxEndurance(energy);
@@ -58,23 +69,17 @@ public class ProjectileModel extends AbstractPhysicalProjectileModel {
     public ProjectileType getType() { return type; }
 
     @Override
-    public boolean isInalterable() {
-        return false;
-    }
+    public boolean isInalterable() { return false; }
 
     @Override
     public boolean shouldRemove() {
-        // Controlla prima i criteri standard della classe base
         if (super.shouldRemove()) {
             return true;
         }
-
-        // Se l'universo è associato, controlliamo se il proiettile è fuori dal cerchio
         if (universeModel != null) {
             Vector2 pos = this.getTransform().getTranslation();
             double distanceSquared = pos.getMagnitudeSquared();
             double radius = universeModel.getUniverseRadius();
-
             return distanceSquared > radius * radius;
         }
         return false;

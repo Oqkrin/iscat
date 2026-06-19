@@ -5,11 +5,6 @@ import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
 
-/**
- * Base class for all projectile entities.
- * Concrete subclasses (e.g. {@link ProjectileModel}) are responsible for adding their own
- * fixture via {@code setType()} — no default fixture is added here to avoid double-allocation.
- */
 public abstract class AbstractPhysicalProjectileModel extends AbstractLivingEntityModel {
     protected double terminalVelocity;
     protected double baseAccelerationPerTick = 20.0;
@@ -27,4 +22,15 @@ public abstract class AbstractPhysicalProjectileModel extends AbstractLivingEnti
     @Override
     public double getTerminalVelocity() { return terminalVelocity; }
     public void setTerminalVelocity(double v) { this.terminalVelocity = v; }
+
+    /**
+     * Override extinguish to prevent any side effects (audio, heart drops, etc.)
+     * Projectiles simply disappear.
+     */
+    @Override
+    public void extinguish(boolean silent) {
+        if (shouldRemove()) return;
+        setShouldRemove(true);
+        onDeath();
+    }
 }

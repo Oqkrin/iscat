@@ -46,6 +46,11 @@ public final class EntityRenderer {
         if (entity == null || entity.shouldRemove()) return;
 
         BiConsumer<AbstractPhysicalEntityModel, OptimizedLayeredRenderer> custom = LAYERED_RENDERERS.get(entity.getClass());
+
+        if (custom == null && entity instanceof ProjectileModel) {
+            custom = LAYERED_RENDERERS.get(ProjectileModel.class);
+        }
+
         if (custom != null) {
             custom.accept(entity, layers);
         } else if (entity instanceof HasSprite sprite) {

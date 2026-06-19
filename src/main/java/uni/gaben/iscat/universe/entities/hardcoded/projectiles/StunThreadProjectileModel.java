@@ -1,62 +1,50 @@
 package uni.gaben.iscat.universe.entities.hardcoded.projectiles;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.UU;
+import uni.gaben.iscat.universe.entities.interfaces.Stunnable;
 
-/**
- * A projectile fired by the IscatBomber that stuns the player on impact.
- * <p>
- * The thread deals no damage but temporarily immobilizes the player,
- * giving the bomber an opportunity to reposition or land other attacks.
- */
 public class StunThreadProjectileModel extends ProjectileModel {
 
-    /** Default stun duration in seconds when not specified. */
-    private static final double DEFAULT_STUN_DURATION = 10;
+    public static final double DEFAULT_STUN_DURATION = 0.5;
+    private double stunDuration;
 
-    private final double stunDuration;
+    public StunThreadProjectileModel() {
+        this(UU.vector2zero(), UU.vector2zero(), 0, DEFAULT_STUN_DURATION);
+    }
 
-    /**
-     * Creates a stun thread projectile with default stun duration.
-     *
-     * @param position  spawn position (world coordinates, meters)
-     * @param direction normalized direction vector
-     * @param speed     projectile speed (meters/second)
-     */
     public StunThreadProjectileModel(Vector2 position, Vector2 direction, double speed) {
         this(position, direction, speed, DEFAULT_STUN_DURATION);
     }
 
-    /**
-     * Creates a stun thread projectile with a custom stun duration.
-     *
-     * @param position     spawn position (world coordinates, meters)
-     * @param direction    normalized direction vector
-     * @param speed        projectile speed (meters/second)
-     * @param stunDuration how long the player will be stunned (seconds)
-     */
     public StunThreadProjectileModel(Vector2 position, Vector2 direction, double speed, double stunDuration) {
-        // Reuse ENEMY_BULLET type – correct collision filter, zero damage set below
-        super(ProjectileType.ENEMY_BULLET);
+        super(ProjectileType.STUN_BULLET);
         this.stunDuration = stunDuration;
-
-        // Place and launch the projectile
         getTransform().setTranslation(position);
         setLinearVelocity(direction.multiply(speed));
-
-        // Override damage: stun threads should not hurt, only disable
+        setMaxEnduranceDirect(1.0);
         setEndurance(1.0);
-        setMaxEndurance(1.0);
+        setStunCollisionHandler(stunDuration);
+    }
 
-        // Custom collision handler: apply stun to player, then vanish
+    @Override
+    public void reset(ProjectileType type) {
+        super.reset(type);
+        setStunCollisionHandler(DEFAULT_STUN_DURATION);
+    }
+
+    public void setStunCollisionHandler(double duration) {
+        this.stunDuration = duration;
+        clearOnCollisions();
         addOnCollision("stun", other -> {
-            if (other instanceof PlayerModel player) {
-                player.stun(stunDuration);
+            if (other instanceof Stunnable toStun) {
+                toStun.stun(duration);
                 extinguish(true);
             } else if (!(other instanceof StunThreadProjectileModel)) {
-                // Remove on contact with any other solid object (walls, other enemies, etc.)
                 extinguish(true);
             }
         });
     }
+
+    public double getStunDuration() { return stunDuration; }
 }

@@ -468,7 +468,7 @@ public final class EntityRecordParser {
         if (mc.type() == null) return null;
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
-        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm && pm.getType() == ProjectileType.ENEMY_BULLET));
+        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm && pm.getType() != ProjectileType.PLAYER_BULLET));
         Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof AbstractPhysicalProjectileModel));
         return switch (mc.type()) {
             case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
