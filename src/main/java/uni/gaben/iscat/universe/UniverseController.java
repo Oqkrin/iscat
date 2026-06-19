@@ -209,7 +209,7 @@ public class UniverseController {
             EntityAudioManager.playEventAudio(enemy, "death");
         }
 
-        if (!(entity instanceof PlayerModel) && !(entity instanceof HeartModel) && !(entity instanceof ProjectileModel) && entity.isKilledByProjectile()) {
+        if (!(entity instanceof PlayerModel) && !(entity instanceof HeartModel) && !(entity instanceof ProjectileModel) && (entity.isKilledByProjectile() || entity.isKilledByMeele())) {
             SessionScoreTracker.getInstance().addDeaths(1);
             if (Math.random() < 0.25) {
                 double px = UU.mToPx(entity.getTransform().getTranslationX());

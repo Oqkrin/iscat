@@ -15,7 +15,9 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
     protected double xpReward;
     protected String entityKey;
     protected boolean killedByProjectile = false;
+    protected boolean killedByMeele = false;
     private Runnable onDeath;
+    protected PlayerModel meleeAttacker = null;
 
     protected AbstractLivingEntityModel(double x, double y, EntityRecord data) {
         super(x, y, data);
@@ -36,6 +38,10 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
     public void setMaxEndurance(double maxEndurance) {
         this.maxEndurance = maxEndurance;
         setEndurance(getEndurance());
+    }
+
+    public void setMeleeAttacker(PlayerModel attacker) {
+        this.meleeAttacker = attacker;
     }
 
     public void setEndurance(double endurance) {
@@ -63,6 +69,9 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
 
     public void setKilledByProjectile(boolean value) { this.killedByProjectile = value; }
     public boolean isKilledByProjectile() { return killedByProjectile; }
+
+    public void setKilledByMeele(boolean value) { this.killedByMeele = value; }
+    public boolean isKilledByMeele() { return killedByMeele; }
 
     public void setOnDeath(Runnable callback) { this.onDeath = callback; }
 

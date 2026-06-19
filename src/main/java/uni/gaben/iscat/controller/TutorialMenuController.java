@@ -24,7 +24,6 @@ import java.util.Map;
  * Gestisce l'interfaccia utente del menu e implementa un effetto scenico a sistema
  * solare in primo piano.
  *
- * @version 1.2
  */
 public class TutorialMenuController implements IscatMenuController {
 
@@ -86,11 +85,9 @@ public class TutorialMenuController implements IscatMenuController {
         List<EntityRecord> availableSkins = new ArrayList<>();
         Map<String, EntityRecord> globalCache = EntityFactory.getCache();
 
-        if (globalCache != null) {
-            globalCache.values().stream()
-                    .filter(record -> record != null && (record.player() != null || record.entityKey().toLowerCase().contains("player")))
-                    .forEach(availableSkins::add);
-        }
+        globalCache.values().stream()
+                .filter(record -> record != null && (record.player() != null || record.entityKey().toLowerCase().contains("player")))
+                .forEach(availableSkins::add);
 
         if (availableSkins.isEmpty()) return;
 

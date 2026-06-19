@@ -220,24 +220,40 @@ public class PlayerModel extends AbstractLivingEntityModel
         double damage = getMeleeDamage();
 
         if (isDashing()) {
-            // Knockback
             Vector2 knockbackDir = enemy.getTransform().getTranslation()
                     .copy()
                     .subtract(this.getTransform().getTranslation());
+
             double distance = knockbackDir.getMagnitude();
             if (distance > 0.001) {
-                double enemyMass = enemy.getMass().getMass();
-                double knockbackForce = 1000.0 / Math.max(enemyMass, 1.0);
-                knockbackDir.multiply(knockbackForce / distance);
-                enemy.applyImpulse(knockbackDir);
+                knockbackDir.multiply(1.0 / distance);
+
+                double knockbackMagnitude = 75.0 * enemy.getMass().getMass();
+                Vector2 impulse = knockbackDir.product(knockbackMagnitude);
+
+                enemy.setLinearVelocity(0, 0);
+
+                enemy.applyImpulse(impulse);
             }
         }
 
-        enemy.damage(damage);
+        enemy.setMeleeAttacker(this);
+
+        if (enemy.getEndurance() - damage <= 0) {
+            enemy.setKilledByMeele(true);
+            enemy.setKilledByProjectile(true);
+        }
+
+        enemy.alter(-damage);
+
+        if (enemy.getEndurance() <= 0) {
+            this.incrementExperience(enemy.getXpReward());
+            SessionScoreTracker.getInstance().addKill();
+        }
+
         startMeleeCooldown();
     }
 
-    // ==================== METODI DI COMBATTIMENTO ====================
 
     public void startCooldownFuoco() {
         weaponCooldown.start(currentWeaponCooldown);
