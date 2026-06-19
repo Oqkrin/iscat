@@ -6,6 +6,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entities.*;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
@@ -373,11 +374,21 @@ public class UniverseWaveController {
 
         String enemyIdToSpawn = selectEligibleEnemyId();
 
-        double angle = random.nextDouble() * Math.PI * 2.0;
-        double spawnDistance = 28.0 + random.nextDouble() * 10.0;
+        var player = gameModel.getUniverseModel().getPlayer();
+        double playerX = player != null ? UU.mToPx(player.getTransform().getTranslationX()) : camera.getX();
+        double playerY = player != null ? UU.mToPx(player.getTransform().getTranslationY()) : camera.getY();
 
-        double spawnX = camera.getX() + Math.cos(angle) * spawnDistance;
-        double spawnY = camera.getY() + Math.sin(angle) * spawnDistance;
+        double MIN_SPAWN_DISTANCE = 500;
+        double spawnX, spawnY;
+        int attempts = 0;
+
+        do {
+            double angle = random.nextDouble() * Math.PI * 2.0;
+            double spawnDistance = 1000 + random.nextDouble() * 10.0;
+            spawnX = camera.getX() + Math.cos(angle) * spawnDistance;
+            spawnY = camera.getY() + Math.sin(angle) * spawnDistance;
+            attempts++;
+        } while (Math.hypot(spawnX - playerX, spawnY - playerY) < MIN_SPAWN_DISTANCE && attempts < 10);
 
         Object spawnedObject = UniverseSpawner.getInstance().spawn(enemyIdToSpawn, spawnX, spawnY);
 
