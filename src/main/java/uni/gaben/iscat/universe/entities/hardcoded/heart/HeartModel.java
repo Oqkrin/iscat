@@ -20,15 +20,13 @@ public class HeartModel extends AbstractLivingEntityModel implements HasSprite {
         fixture.setFilter(UniverseCollisionLayers.BOOST_FILTER);
         // Rende l'oggetto un sensore: viene rilevato il tocco ma ci passi attraverso
         fixture.setSensor(true);
-        // Hearth si muove se c'è il player nel suo raggio
-        this.setMass(MassType.NORMAL);
-        // Applica l'attrito lineare per simulare la resistenza al movimento nel vuoto
-        //setLinearDamping(ISCATMOB.dampingLineare);
+        // Blocca la rotazione fisica ma permette lo spostamento lineare
+        this.setMass(MassType.FIXED_ANGULAR_VELOCITY);
     }
 
     @Override
     public double getTerminalVelocity() {
-        return 10; /*ISCATMOB.maxVelocity*/
+        return 10;
     }
 
     @Override
@@ -63,7 +61,7 @@ public class HeartModel extends AbstractLivingEntityModel implements HasSprite {
 
     @Override
     public double getVisualAngularOffsetDeg() {
-        return 0;
+        return 90;
     }
 
     @Override
@@ -71,4 +69,3 @@ public class HeartModel extends AbstractLivingEntityModel implements HasSprite {
         return false;
     }
 }
-
