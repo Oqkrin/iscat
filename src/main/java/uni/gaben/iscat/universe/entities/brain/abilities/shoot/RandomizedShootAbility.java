@@ -36,9 +36,9 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     public RandomizedShootAbility(double combatRange, double cooldownSec,
                                   ProjectileType bulletType,
                                   Target target, boolean aimAtTarget, double nerfPrediction,
-                                  double damage,
+                                  double damage, int attackStateIndex, // <-- AGGIUNTO QUI
                                   Pattern... attacks) {
-        super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
+        super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction, attackStateIndex);
         this.damage = damage;
         this.attackPool = List.of(attacks);
 
@@ -48,30 +48,30 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     public static RandomizedShootAbility targetingPlayer(double combatRange, double cooldownSec,
                                                          ProjectileType bulletType, boolean aimAtTarget,
                                                          double nerfPrediction,
-                                                         double damage,
+                                                         double damage, int attackStateIndex, // <-- AGGIUNTO QUI
                                                          Pattern... attacks) {
         return new RandomizedShootAbility(combatRange, cooldownSec, bulletType,
-                universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget, nerfPrediction, damage, attacks);
+                universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget, nerfPrediction, damage, attackStateIndex, attacks);
     }
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
+        super.onActivate(brain, world);
+
         double angle = getAimAngle(brain, world, bulletType.terminalVelocity);
         Pattern selected = attackPool.get(rand.nextInt(attackPool.size()));
 
         if (selected instanceof RepeaterPattern repeater) {
             burstPattern = repeater.inner();
-            burstLeft = repeater.times() - 1; // first shot fires now
+            burstLeft = repeater.times() - 1;
             burstInterval = repeater.intervalSeconds();
             burstTimer = burstInterval;
-            // Fire the first burst immediately
             burstPattern.execute(brain.getShooter(), bulletType, angle, customizer);
         } else {
             burstLeft = 0;
             burstPattern = null;
             selected.execute(brain.getShooter(), bulletType, angle, customizer);
         }
-        // Always start the main cooldown immediately — burst continuation is handled in update()
         cooldown.start();
     }
 

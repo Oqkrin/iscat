@@ -21,16 +21,19 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     private boolean completeKillCalled = false;
     private UniverseWaveController waveController;
     private double idleAudioTimer = 5.0 + Math.random() * 10.0;
+    private int currentAnimationRow;
 
     public EntityModel(double x, double y, EntityRecord entity) {
         super(x, y, entity);
-
         setXpReward(entity.xpReward());
 
-        // Gestione stato iniziale ed Entrance Animation
         if (entity.hasEntranceAnimation()) {
             this.currentEntityState = EntityState.ENTRANCE;
-            setEnabled(false); // Disabilitato per la fisica/collisioni durante lo spawn
+            this.currentAnimationRow = EntityState.ENTRANCE.ordinal();
+            setEnabled(false);
+        } else {
+            this.currentAnimationRow = EntityState.IDLE.ordinal();
+            setState(this.currentAnimationRow);
         }
 
         double collisionSize = UU.pxToM(entity.frameW() * entity.scale() * 0.9);
@@ -72,13 +75,18 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
 
     @Override
     public int getState() {
-        return currentEntityState.ordinal();
+        return currentAnimationRow;
     }
 
     public void setEntityState(EntityState state) {
-        if (this.currentEntityState != state) {
+        setEntityState(state, state.ordinal());
+    }
+
+    public void setEntityState(EntityState state, int animationRow) {
+        if (this.currentEntityState != state || this.currentAnimationRow != animationRow) {
             this.currentEntityState = state;
-            setState(currentEntityState.ordinal());
+            this.currentAnimationRow = animationRow;
+            setState(animationRow);
             setStateTime(0);
         }
     }
@@ -90,6 +98,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         return 1;
     }
 
+    @Override
     public void update(double dt) {
         updateStateTime(dt);
         shockwave.update(dt);
@@ -102,20 +111,25 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             }
         }
 
-        double duration = getFramesForState(currentEntityState.ordinal()) * getFrameDuration();
+        double duration;
+        if (currentEntityState == EntityState.ATTACK) {
+            duration = 3.0;
+        } else {
+            duration = getFramesForState(currentEntityState.ordinal()) * getFrameDuration();
+        }
 
         if (currentEntityState == EntityState.ENTRANCE) {
             if (getFramesForState(EntityState.ENTRANCE.ordinal()) <= 0 || getStateTime() >= duration) {
-                setEnabled(true); // Riattiva la fisica e le collisioni
+                setEnabled(true);
                 setEntityState(EntityState.IDLE);
                 if (entity.isBoss()) {
                     shockwave.trigger(2.0, 1500, 15);
                 }
-
                 EntityAudioManager.playEventAudio(this, "spawn");
             }
         }
         else if (currentEntityState != EntityState.IDLE && currentEntityState != EntityState.DEATH) {
+            // Questo blocco intercetta l'ATTACK: dopo 3 secondi esatti (duration = 3.0), resetta lo stato in IDLE
             if (getStateTime() >= duration) {
                 setEntityState(EntityState.IDLE);
             }
@@ -161,7 +175,14 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     @Override public int getSpriteFrameHeight() { return entity.frameH(); }
     @Override public double getVisualScale() { return entity.scale(); }
     @Override public double getVisualAngularOffsetDeg() { return entity.angularOffsetDeg(); }
-    @Override public double getFrameDuration() { return UU.UNIVERSE_TICK * 3; }
+    @Override
+    public double getFrameDuration() {
+        if (currentEntityState == EntityState.ATTACK) {
+            int totalFrames = getFramesForState(currentEntityState.ordinal());
+            return totalFrames > 0 ? (3.0 / totalFrames) : UU.UNIVERSE_TICK * 3;
+        }
+        return UU.UNIVERSE_TICK * 6;
+    }
     @Override public double getFrameDuration(int state, int frame) { return getFrameDuration(); }
 
     @Override

@@ -510,7 +510,6 @@ public final class EntityRecordParser {
         if (ac.type() == null) return null;
         Target target = Target.ofPlayer();
 
-        // Recuperiamo il DannoProiettile configurato nella radice del JSON dell'entità (es. 100 per Master, 5 per Mob)
         double dannoEntita = entity.getEntityRecord().dannoProiettile();
 
         return switch (ac.type()) {
@@ -518,21 +517,21 @@ public final class EntityRecordParser {
                 Pattern shooter = createPattern(ac.pattern());
                 yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), shooter,
-                        target, ac.aimAtTarget(), ac.nerfPrediction(), dannoEntita);
+                        target, ac.aimAtTarget(), ac.nerfPrediction(),
+                        dannoEntita, ac.attackStateIndex());
             }
             case RANDOMIZED_SHOOT -> {
                 List<Pattern> patterns = new ArrayList<>();
                 for (EntityRecord.PatternRecord pc : ac.patterns()) patterns.add(createPattern(pc));
                 yield RandomizedShootAbility.targetingPlayer(ac.combatRange(), ac.cooldownSec(),
                         ProjectileType.valueOf(ac.bulletType()), ac.aimAtTarget(),
-                        ac.nerfPrediction(), dannoEntita, patterns.toArray(new Pattern[0]));
+                        ac.nerfPrediction(), dannoEntita, ac.attackStateIndex(), patterns.toArray(new Pattern[0]));
             }
             case HEAL -> new HealAbility(ac.cooldownSec(), ac.combatRange(), ac.healAmount());
-            case SUMMON -> {
-                yield new ShootAbility(ac.combatRange(), ac.cooldownSec(),
-                        ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx()),
-                        target, ac.aimAtTarget(), ac.nerfPrediction(), dannoEntita);
-            }
+            case SUMMON -> new ShootAbility(ac.combatRange(), ac.cooldownSec(),
+                    ProjectileType.valueOf(ac.bulletType()), new SummonPattern(ac.summonCount(), ac.summonEntityKey(), ac.summonRadiusPx()),
+                    target, ac.aimAtTarget(), ac.nerfPrediction(),
+                    dannoEntita, ac.attackStateIndex());
             case MELEE -> new MeleeAbility<>(ac.type().jsonKey, entity, ac.cooldownSec(), ac.meleeDamage(), EntityFilters.IS_PLAYER);
             case KAMIKAZE -> new KamikazeAbility(entity, ac.meleeDamage(), EntityFilters.IS_PLAYER);
             case DASH -> new DodgeDashAbility(entity, ac.dashCooldownMS()/1000, ac.dashDurationMS()/1000, ac.dashPrediction(), ac.dashAvoidRange(), ac.dashImpulse(),

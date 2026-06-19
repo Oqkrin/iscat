@@ -22,8 +22,10 @@ public class LineOfSightShootAbility extends ShootAbility {
                                    ProjectileType bulletType, Pattern pattern,
                                    Target target, boolean aimAtTarget, double maxAngle,
                                    AbstractPhysicalEntityModel self,
-                                   double dannoProiettile) {
-        super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget, 0, dannoProiettile);
+                                   double dannoProiettile,
+                                   int attackStateIndex) { // <-- AGGIUNTO QUI
+
+        super(combatRange, cooldownSec, bulletType, pattern, target, aimAtTarget, 0, dannoProiettile, attackStateIndex);
         this.maxAngle = maxAngle;
         this.losFilter = new DetectFilter<>(true, true, null) {
             @Override

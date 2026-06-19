@@ -3,10 +3,10 @@ package uni.gaben.iscat.universe.entities.brain.abilities.shoot;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.entities.*;
 import uni.gaben.iscat.universe.entities.brain.*;
 import uni.gaben.iscat.universe.entities.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entities.brain.abilities.AbilityCategory;
-import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
 import uni.gaben.iscat.utils.Cooldown;
@@ -21,10 +21,13 @@ public abstract class AbstractShootAbility extends Ability {
     protected Vector2 targetPos = UU.vector2zero();
     protected final boolean aimAtTarget;
 
+    protected final int attackStateIndex;
+
     private double nerfPrediction;
 
     protected AbstractShootAbility(String name, double combatRange, double cooldownSec,
-                                   ProjectileType bulletType, Target target, boolean aimAtTarget, double nerfPrediction) {
+                                   ProjectileType bulletType, Target target, boolean aimAtTarget,
+                                   double nerfPrediction, int attackStateIndex) {
         super(name, AbilityCategory.ATTACK, Set.of());
         this.combatRange = combatRange;
         this.cooldown = new Cooldown(cooldownSec);
@@ -32,6 +35,18 @@ public abstract class AbstractShootAbility extends Ability {
         this.target = target;
         this.aimAtTarget = aimAtTarget;
         this.nerfPrediction = nerfPrediction;
+        this.attackStateIndex = attackStateIndex;
+    }
+
+    @Override
+    public void onActivate(Brain<?> brain, UniverseModel world) {
+        if (brain.getEntity() instanceof EntityModel model) {
+            EntityState directState = (this.attackStateIndex == 5)
+                    ? EntityState.SPAWN_ATTACK
+                    : EntityState.ATTACK;
+
+            model.setEntityState(directState, this.attackStateIndex);
+        }
     }
 
     @Override

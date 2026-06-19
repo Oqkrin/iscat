@@ -15,14 +15,17 @@ public class ShootAbility extends AbstractShootAbility {
     public ShootAbility(double combatRange, double cooldownSec,
                         ProjectileType bulletType, Pattern pattern,
                         Target target, boolean aimAtTarget, double nerfPrediction,
-                        double dannoProiettile) {
-        super("shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction);
+                        double dannoProiettile, int attackStateIndex) {
+
+        super("shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction, attackStateIndex);
         this.pattern = pattern;
         this.dannoProiettile = dannoProiettile;
     }
 
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
+        super.onActivate(brain, world);
+
         double angle = getAimAngle(brain, world, bulletType.terminalVelocity);
 
         // Definiamo il customizer per applicare il tipo e il danno dinamico
