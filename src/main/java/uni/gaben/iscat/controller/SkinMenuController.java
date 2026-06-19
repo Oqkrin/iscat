@@ -23,18 +23,17 @@ import java.util.*;
 public class SkinMenuController implements IscatMenuController {
 
     public static final double SKIN_TO_BUTTON_RATIO = 0.75;
-    private static final int RANDOM_INDEX = -2;   // matches model constant
+    private static final int RANDOM_INDEX = -2;
 
     @FXML public VBox skinsVbox;
     @FXML private GridPane skinGrid;
     @FXML private StackPane skinStackPane;
     @FXML private Button confirmBtn;
-    // randomBtn removed from FXML – we'll use the grid cell instead
     @FXML private Button cancelBtn;
     @FXML private InfoCardController infoCardController;
 
     private final SkinGridModel gridModel = new SkinGridModel();
-    private final Random rng = new Random();   // dedicated Random instance
+    private final Random rng = new Random();
     private StackPane contentRoot;
     private String selectedSkinPath;
     private String selectedSkinKey = "player1";
@@ -70,7 +69,7 @@ public class SkinMenuController implements IscatMenuController {
             if (n.doubleValue() > 0) adjustColumnsAndRebuild();
         });
 
-        preselectSkin();   // safe – rebuild will happen when size is ready
+        preselectSkin();
 
         registerEscHandler();
     }
@@ -78,7 +77,7 @@ public class SkinMenuController implements IscatMenuController {
     private void adjustColumnsAndRebuild() {
         double width = skinGrid.getWidth();
         if (width <= 0) return;
-        int cols = Math.max(2, (int) (width / SkinGridModel.NCOL));   // roughly one column per 300px
+        int cols = Math.max(2, (int) (width / SkinGridModel.NCOL));
         gridModel.setColumns(cols);
     }
 
