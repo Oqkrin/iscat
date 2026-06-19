@@ -165,6 +165,7 @@ public class PlayerModel extends AbstractLivingEntityModel
         // Aggiorna tutti i cooldown
         dashCooldown.update(dt);
         dashDuration.update(dt);
+        stunCooldown.update(dt);
         weaponCooldown.update(dt);
         quickDashCooldown.update(dt);
         meleeCooldown.update(dt);

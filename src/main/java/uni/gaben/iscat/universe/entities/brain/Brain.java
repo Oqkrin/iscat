@@ -29,7 +29,6 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
     protected final T entity;
     protected final Shooter<T> shooter;
 
-    // Completely contained zero-GC mathematical vector workspaces
     private final Vector2 steerForce = UU.vector2zero();
     private final Vector2 modifierSteer = new Vector2();
 
