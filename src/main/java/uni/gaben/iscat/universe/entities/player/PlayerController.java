@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities.hardcoded.player;
+package uni.gaben.iscat.universe.entities.player;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.controller.game.GameInputsHandler;

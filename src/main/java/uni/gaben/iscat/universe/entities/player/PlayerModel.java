@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities.hardcoded.player;
+package uni.gaben.iscat.universe.entities.player;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;

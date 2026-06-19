@@ -5,7 +5,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.utils.EntityAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;

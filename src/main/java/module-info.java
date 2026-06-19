@@ -49,7 +49,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entities.hardcoded.heart;
     exports uni.gaben.iscat.universe.entities.hardcoded.asteroid;
     exports uni.gaben.iscat.universe.entities.shooters;
-    exports uni.gaben.iscat.universe.entities.hardcoded.player;
+    exports uni.gaben.iscat.universe.entities.player;
     exports uni.gaben.iscat.universe.entities.hardcoded.projectiles;
     exports uni.gaben.iscat.universe.rendering;
     exports uni.gaben.iscat.universe.entities.brain.target;

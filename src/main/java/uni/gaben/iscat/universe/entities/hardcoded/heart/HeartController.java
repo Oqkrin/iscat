@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringGoal;
 import uni.gaben.iscat.universe.UniverseModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 public class HeartController extends Brain<HeartModel> {
 
     private final HeartModel heart;

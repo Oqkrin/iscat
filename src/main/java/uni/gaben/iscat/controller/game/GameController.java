@@ -19,7 +19,7 @@ import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 
 public class GameController {
 

@@ -11,7 +11,7 @@ import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.universe.effects.Starfield;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.EntityModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
 import uni.gaben.iscat.utils.AudioManager;

@@ -9,7 +9,7 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.spawn.UniverseWaveController;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidShapeFactory;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entities.interfaces.HasSprite;
 import uni.gaben.iscat.utils.EntityAudioManager;

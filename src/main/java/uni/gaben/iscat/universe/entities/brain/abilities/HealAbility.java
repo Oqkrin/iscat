@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Collections;

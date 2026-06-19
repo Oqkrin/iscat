@@ -8,7 +8,7 @@ import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartController;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleBrain;
 import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.brain.IEntityController;
 import uni.gaben.iscat.universe.entities.worm.WormAssembler;

@@ -9,7 +9,7 @@ import org.dyn4j.world.DetectFilter;
 import org.dyn4j.world.result.DetectResult;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 
 import java.util.ArrayList;
 import java.util.Collections;

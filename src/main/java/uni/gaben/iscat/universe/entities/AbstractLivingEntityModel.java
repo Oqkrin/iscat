@@ -4,10 +4,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
 import uni.gaben.iscat.universe.entities.interfaces.hasXpReward;
-import uni.gaben.iscat.universe.entities.hardcoded.player.PlayerModel;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.UU;
-import uni.gaben.iscat.utils.SessionScoreTracker;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 
 public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityModel implements Alterable, hasXpReward {
     protected final DoubleProperty endurance = new SimpleDoubleProperty();
