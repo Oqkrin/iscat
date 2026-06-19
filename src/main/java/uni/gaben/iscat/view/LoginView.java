@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.controller.LoginController;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.login.LoginModel;
@@ -93,7 +94,7 @@ public class LoginView extends AbstractIscatStackPane {
         loginIcon = new FontIcon("fas-id-card-alt");
         loginIcon.iconSizeProperty().bind(usernameLabel.baseFontSizeProperty());
         loginIcon.getStyleClass().add("login-icon");
-        HBox.setMargin(loginIcon, new Insets(0, 16, 16, 16));
+        HBox.setMargin(loginIcon, new Insets(0, IscatSettings.STANDARD_UNIT, IscatSettings.STANDARD_UNIT, IscatSettings.STANDARD_UNIT));
 
         // Password Set
         passwordLabel = new AutoFittingLabel(TipografiaAurea.HEADLINE[TipografiaAurea.MEDIUM], FONT, "login-text");
@@ -104,7 +105,7 @@ public class LoginView extends AbstractIscatStackPane {
         passwdIcon = new FontIcon("fas-asterisk");
         passwdIcon.iconSizeProperty().bind(passwordLabel.baseFontSizeProperty());
         passwdIcon.getStyleClass().add("login-icon");
-        HBox.setMargin(passwdIcon, new Insets(0, 16, 16, 16));
+        HBox.setMargin(passwdIcon, new Insets(0, IscatSettings.STANDARD_UNIT, IscatSettings.STANDARD_UNIT, IscatSettings.STANDARD_UNIT));
 
         statusLabel = new AutoFittingLabel(TipografiaAurea.LABEL[TipografiaAurea.LARGE], FONT, "login-text-status");
 

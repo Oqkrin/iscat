@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -68,14 +70,14 @@ public class SettingsMenuController implements IscatMenuController {
 
         getRootPane().sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                newScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
                     if (subKeybindsController != null && subKeybindsController.isListening()) {
                         boolean consumed = subKeybindsController.handleKeyPress(e);
                         if (consumed) e.consume();
                     }
                 });
 
-                newScene.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, e -> {
+                newScene.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
                     if (subKeybindsController != null && subKeybindsController.isListening()) {
                         boolean consumed = subKeybindsController.handleMousePress(e);
                         if (consumed) e.consume();
