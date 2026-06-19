@@ -27,6 +27,7 @@
     "death": [],
     "spawn": []
   },"ai": {
+  "rotation": { "type": "target", "target": "player" },
   "steering": {
     "type": "pursuitWithRange",
     "maxPredictionTime": 3,
