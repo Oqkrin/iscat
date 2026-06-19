@@ -134,3 +134,31 @@
         0
     );
 }
+
+
+/* Struttura del bottone principale */
+.menu-button {
+    -fx-text-fill: -accent-primary;
+
+}
+/* ============================================
+   ICONS (IMAGE VIEW / IKONLI)
+   ============================================ */
+
+/* Gestione icone standard */
+.menu-button .image-view {
+    -fx-text-fill: -accent-primary;
+}
+
+/* Gestione icone vettoriali Ikonli */
+.menu-button .ikonli-font-icon {
+    -fx-icon-color: -accent-primary;
+}
+
+.menu-button:hover .ikonli-font-icon {
+    -fx-icon-color: -accent-primary;
+}
+
+.menu-button:pressed .ikonli-font-icon {
+    -fx-icon-color: -accent-primary;
+}

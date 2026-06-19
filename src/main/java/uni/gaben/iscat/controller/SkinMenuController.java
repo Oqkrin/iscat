@@ -78,9 +78,9 @@ public class SkinMenuController implements IscatMenuController {
     }
 
     private void adjustColumnsAndRebuild() {
-        double width = skinStackPane.getWidth();
+        double width = skinGrid.getWidth();
         if (width <= 0) return;
-        int cols = Math.max(2, (int) (width / 300));   // roughly one column per 300px
+        int cols = Math.max(2, (int) (width / SkinGridModel.NCOL));   // roughly one column per 300px
         gridModel.setColumns(cols);
     }
 

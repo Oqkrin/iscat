@@ -12,11 +12,12 @@ import java.util.stream.IntStream;
 
 public class SkinGridModel {
 
-    public static final int SELECTED_SPAN = 2;         // 2×2 expanded item
+    public static final int SELECTED_SPAN = 2;   // 2×2 expanded item
     private static final int RANDOM_INDEX = -2;        // sentinel for the random cell
+    public static final int NCOL = 6;
 
     private final ObservableList<EntityRecord> skins = FXCollections.observableArrayList();
-    private final IntegerProperty columns = new SimpleIntegerProperty(4);
+    private final IntegerProperty columns = new SimpleIntegerProperty(NCOL);
     private final StringProperty selectedKey = new SimpleStringProperty(null);
     private final ReadOnlyListWrapper<SkinPlacement> placements =
             new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
