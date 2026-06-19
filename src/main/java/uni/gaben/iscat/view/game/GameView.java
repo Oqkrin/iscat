@@ -10,6 +10,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.controller.game.GameController;
@@ -26,6 +27,7 @@ import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.view.components.AbstractIscatStackPane;
+import uni.gaben.iscat.view.game.debug.DebugToolBar;
 
 import java.util.Objects;
 
@@ -40,11 +42,16 @@ public class GameView extends AbstractIscatStackPane {
     private UniverseRenderer universeRenderer;
 
     private GameHudBar hudBar;
-    private GameSpawnerToolbar      spawnerToolbar;
+    private DebugToolBar spawnerToolbar;
     private StackPane               pauseMenu;
     private GamePauseMenuController gamePauseMenuController;
     private StackPane               gameOverMenu;
+
     private Label levelLabel;
+
+    private Label godModeLabel;
+    private Label ghostModeLabel;
+    private VBox cheatLabelsContainer;
 
     private HBox   debugButtonsContainer;
     private Button debugButton;
@@ -59,25 +66,32 @@ public class GameView extends AbstractIscatStackPane {
         initialize();
     }
 
-    // -------------------------------------------------------------------------
-    // AbstractIscatStackPane lifecycle
-    // -------------------------------------------------------------------------
-
     @Override
     protected void initNodes() {
         canvas = new Canvas();
 
-        // UniverseRenderer now creates its own StarfieldRenderer internally
         universeRenderer = new UniverseRenderer(canvas, gameController);
 
         hudBar         = new GameHudBar(gameController);
-        spawnerToolbar = new GameSpawnerToolbar(gameController);
+        spawnerToolbar = new DebugToolBar(gameController);
         pauseMenu      = loadPauseMenu();
         gameOverMenu   = loadGameOverMenu();
 
         levelLabel = new Label("LEVEL 1");
         levelLabel.setFocusTraversable(false);
         levelLabel.setMouseTransparent(true);
+
+        godModeLabel = new Label("GOD MODE ACTIVE");
+        godModeLabel.setFocusTraversable(false);
+        godModeLabel.setMouseTransparent(true);
+
+        ghostModeLabel = new Label("GHOST MODE ACTIVE");
+        ghostModeLabel.setFocusTraversable(false);
+        ghostModeLabel.setMouseTransparent(true);
+
+        cheatLabelsContainer = new VBox(12, godModeLabel, ghostModeLabel);
+        cheatLabelsContainer.setFocusTraversable(false);
+        cheatLabelsContainer.setMouseTransparent(true);
 
         debugButton = new Button("DEBUG");
         debugButton.setFocusTraversable(false);
@@ -106,6 +120,12 @@ public class GameView extends AbstractIscatStackPane {
         levelLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 24));
         levelLabel.setTextFill(ThemeManager.getInstance().getColorSuccess());
         levelLabel.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 0);");
+
+        godModeLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 20));
+        godModeLabel.setStyle("-fx-text-fill: #f1c40f; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
+
+        ghostModeLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 20));
+        ghostModeLabel.setStyle("-fx-text-fill: #9b59b6; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
     }
 
     @Override
@@ -114,6 +134,7 @@ public class GameView extends AbstractIscatStackPane {
                 canvas,
                 hudBar,
                 levelLabel,
+                cheatLabelsContainer,
                 spawnerToolbar,
                 debugButtonsContainer,
                 pauseMenu,
@@ -125,9 +146,16 @@ public class GameView extends AbstractIscatStackPane {
         StackPane.setAlignment(debugButtonsContainer, Pos.TOP_LEFT);
         StackPane.setAlignment(levelLabel,            Pos.BOTTOM_RIGHT);
 
+        cheatLabelsContainer.setAlignment(Pos.BOTTOM_LEFT);
+        StackPane.setAlignment(cheatLabelsContainer,  Pos.BOTTOM_LEFT);
+
+        cheatLabelsContainer.setMaxSize(VBox.USE_PREF_SIZE, VBox.USE_PREF_SIZE);
+
         StackPane.setMargin(hudBar,                   new Insets(20, 0, 0, 0));
         StackPane.setMargin(debugButtonsContainer,    new Insets(50, 0, 0, 50));
         StackPane.setMargin(levelLabel,               new Insets(0, 50, 50, 0));
+
+        StackPane.setMargin(cheatLabelsContainer,     new Insets(0, 0, 50, 50));
     }
 
     @Override
@@ -145,11 +173,15 @@ public class GameView extends AbstractIscatStackPane {
         camera.screenWidthProperty().bind(canvas.widthProperty());
         camera.screenHeightProperty().bind(canvas.heightProperty());
 
-        // Delegate canvas resize to UniverseRenderer
         canvas.widthProperty().addListener((obs, oldW, newW) -> onCanvasSizeChanged());
         canvas.heightProperty().addListener((obs, oldH, newH) -> onCanvasSizeChanged());
 
-        // Menu visibility driven by gameState
+        godModeLabel.visibleProperty().bind(gameController.godModeProperty());
+        godModeLabel.managedProperty().bind(godModeLabel.visibleProperty());
+
+        ghostModeLabel.visibleProperty().bind(gameController.ghostModeProperty());
+        ghostModeLabel.managedProperty().bind(ghostModeLabel.visibleProperty());
+
         gameOverMenu.visibleProperty().bind(
                 gameModel.gameStateProperty().isEqualTo(GameState.GAME_OVER)
                         .or(gameModel.gameStateProperty().isEqualTo(GameState.WIN))
@@ -186,7 +218,6 @@ public class GameView extends AbstractIscatStackPane {
         spawnerToolbar.setVisible(false);
         spawnerToolbar.setManaged(false);
 
-        // Timer → HUD bar
         gameModel.timerProperty().addListener((obs, oldV, newV) -> hudBar.updateTimer(newV.intValue()));
         runLater(() -> hudBar.updateTimer(gameModel.getTimer()));
     }
@@ -234,10 +265,6 @@ public class GameView extends AbstractIscatStackPane {
         });
     }
 
-    // -------------------------------------------------------------------------
-    // Show / hide / unload
-    // -------------------------------------------------------------------------
-
     @Override
     public void onShow() {
         super.onShow();
@@ -257,7 +284,7 @@ public class GameView extends AbstractIscatStackPane {
         gameController.setOnUniverseResetCallback(this::bindToCurrentUniverse);
 
         runLater(() -> {
-            onCanvasSizeChanged(); // update viewport and starfield
+            onCanvasSizeChanged();
             bindToCurrentUniverse();
             gameController.startGameLoop();
             canvas.requestFocus();
@@ -277,10 +304,6 @@ public class GameView extends AbstractIscatStackPane {
         gameController.stopGameLoop();
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     public void transitionTo(GameState next) {
         if (gameModel.gameStateProperty().get() != next)
             gameModel.setGameState(next);
@@ -290,7 +313,6 @@ public class GameView extends AbstractIscatStackPane {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
         if (w <= 0 || h <= 0) return;
-        // Delegate to UniverseRenderer to update dimensions and starfield
         universeRenderer.updateViewport(w, h);
     }
 

@@ -3,6 +3,7 @@ package uni.gaben.iscat.controller.game;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import org.dyn4j.collision.CategoryFilter;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.game.GameModel;
@@ -12,6 +13,7 @@ import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.spawn.UniverseWaveController;
 import uni.gaben.iscat.utils.AudioManager;
@@ -19,7 +21,6 @@ import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
-import uni.gaben.iscat.universe.entities.player.PlayerModel;
 
 public class GameController {
 
@@ -37,6 +38,9 @@ public class GameController {
     private boolean showFps = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
 
+    private final BooleanProperty godMode = new SimpleBooleanProperty(false);
+    private final BooleanProperty ghostMode = new SimpleBooleanProperty(false);
+
     public GameController(GameModel gameModel) {
         Platform.runLater(EntityFactory::ensureCacheLoaded);
         this.gameModel = gameModel;
@@ -49,11 +53,13 @@ public class GameController {
     private void setupUniverse() {
         String currentSkinKey = SessionManager.getPlayerSkinKey();
 
+        this.godMode.set(false);
+        this.ghostMode.set(false);
+
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath, currentSkinKey);
         this.universeController = bundle.universeController();
         this.waveController = bundle.waveController();
 
-        // Viene letto ad ogni avvio/reset della partita per azzerare e ricaricare il flusso
         this.waveController.loadWavesFromResource("/uni/gaben/iscat/json/config/waves.json");
 
         assert this.universeController != null;
@@ -70,19 +76,24 @@ public class GameController {
     private void tick(double dt) {
         if (inputs.consumePause()) togglePause();
         if (!gameModel.getGameState().isPaused()) {
+
+            PlayerModel player = gameModel.getUniverseModel() != null ? gameModel.getUniverseModel().getPlayer() : null;
+
+            if (godMode.get() && player != null) {
+                player.setEndurance(player.getMaxEndurance());
+            }
+
             universeController.updatev(dt, inputs, getCameraModel());
-            UniverseModel universe = gameModel.getUniverseModel();
-            if (universe != null && universe.getPlayer() != null) {
-                PlayerModel player = universe.getPlayer();
+
+            if (player != null) {
                 org.dyn4j.geometry.Vector2 pos = player.getTransform().getTranslation();
-                double radius = universe.getUniverseRadius();
+                double radius = gameModel.getUniverseModel().getUniverseRadius();
                 double dist = pos.getMagnitude();
 
                 if (dist > radius) {
                     org.dyn4j.geometry.Vector2 normal = pos.getNormalized();
                     player.getTransform().setTranslation(normal.x * radius, normal.y * radius);
 
-                    // Annulla la velocità proiettata verso l'esterno
                     org.dyn4j.geometry.Vector2 vel = player.getLinearVelocity();
                     double dot = vel.dot(normal);
                     if (dot > 0) {
@@ -94,6 +105,62 @@ public class GameController {
             if (waveController != null && gameModel.isWaveActive())
                 waveController.update(dt, getCameraModel(), gameModel);
         }
+    }
+
+    public void debugHeal(double amount) {
+        PlayerModel player = getPlayer();
+        if (player != null) {
+            player.alter(amount);
+            System.out.println("[DEBUG CHEAT] Curato di: " + amount);
+        }
+    }
+
+    public void debugDamage(double amount) {
+        if (godMode.get()) return;
+        PlayerModel player = getPlayer();
+        if (player != null) {
+            player.alter(-amount);
+            System.out.println("[DEBUG CHEAT] Danno autoinflitto: " + amount);
+        }
+    }
+
+    public void debugToggleGodMode() {
+        this.godMode.set(!this.godMode.get());
+        System.out.println("[DEBUG CHEAT] Godmode impostato a: " + godMode.get());
+    }
+
+    public void debugToggleGhostMode() {
+        PlayerModel player = getPlayer();
+        if (player == null) return;
+
+        this.ghostMode.set(!this.ghostMode.get());
+
+        CategoryFilter filter = ghostMode.get()
+                ? new CategoryFilter(UniverseCollisionLayers.PLAYER, 0)
+                : UniverseCollisionLayers.PLAYER_FILTER;
+
+        player.getFixtures().forEach(fixture -> fixture.setFilter(filter));
+        System.out.println("[DEBUG CHEAT] Ghost Mode (No Collision) impostato a: " + ghostMode.get());
+    }
+
+    public void debugLevelUp() {
+        PlayerModel player = getPlayer();
+        if (player != null) {
+            player.levelUp();
+            System.out.println("[DEBUG CHEAT] Livello aumentato! Livello attuale: " + player.getLevel());
+        }
+    }
+
+    public void debugLevelDown() {
+        PlayerModel player = getPlayer();
+        if (player != null && player.getLevel() > 1) {
+            player.levelProperty().set(player.getLevel() - 1);
+            System.out.println("[DEBUG CHEAT] Livello diminuito! Livello attuale: " + player.getLevel());
+        }
+    }
+
+    private PlayerModel getPlayer() {
+        return gameModel.getUniverseModel() != null ? gameModel.getUniverseModel().getPlayer() : null;
     }
 
     public void togglePause() {
@@ -153,7 +220,7 @@ public class GameController {
                 boolean isSpecial = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
 
                 if (killedByProjectile || isSpecial) {
-                    PlayerModel player = gameModel.getUniverseModel().getPlayer();
+                    PlayerModel player = getPlayer();
                     if (player != null) player.incrementExperience(living.getXpReward());
 
                     SessionScoreTracker tracker = SessionScoreTracker.getInstance();
@@ -195,6 +262,9 @@ public class GameController {
     public boolean isDebugModeOn() { return showDebugMode.get(); }
     public void setShowDebugMode(boolean v) { showDebugMode.set(v); }
     public BooleanProperty debugModeProperty() { return showDebugMode; }
+
+    public BooleanProperty godModeProperty() { return godMode; }
+    public BooleanProperty ghostModeProperty() { return ghostMode; }
 
     public void stopGameLoop() { gameLoop.stop(); }
     public void startGameLoop() { gameLoop.start(); }
