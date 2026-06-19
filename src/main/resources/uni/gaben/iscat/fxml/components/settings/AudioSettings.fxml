@@ -6,33 +6,32 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
-
- <VBox alignment="TOP_CENTER" spacing="16.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.AudioSettingsController">
+<VBox alignment="CENTER" spacing="16.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.AudioSettingsController">
      <padding>
          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
      </padding>
-
-     <VBox alignment="CENTER" spacing="4.0">
-         <Label styleClass="card-header" text="AUDIO" />
-     </VBox>
-
-     <VBox alignment="CENTER" spacing="12.0">
-
-         <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
-             <Label styleClass="control-label" text="MASTER" />
-             <Slider fx:id="masterSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
-         </HBox>
-
-         <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
-             <Label styleClass="control-label" text="BGM" />
-             <Slider fx:id="BGMSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
-         </HBox>
-
-         <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
-             <Label styleClass="control-label" text="SFX" />
-             <Slider fx:id="SFXSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
-         </HBox>
-
-     </VBox>
+      <Label styleClass="card-header" text="AUDIO" />
+   <HBox alignment="CENTER">
+      <children>
+      
+                 <VBox alignment="CENTER_RIGHT" fillWidth="false" spacing="16.0">
+      
+                     <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
+                   <Label styleClass="control-label" text="MASTER" />
+                   <Slider fx:id="masterSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
+               </HBox>
+      
+                     <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
+                   <Label styleClass="control-label" text="BGM" />
+                   <Slider fx:id="BGMSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
+               </HBox>
+      
+                     <HBox alignment="TOP_RIGHT" spacing="16.0" styleClass="audio-row">
+                   <Label styleClass="control-label" text="SFX" />
+                   <Slider fx:id="SFXSlider" showTickLabels="true" showTickMarks="true" value="100.0" HBox.hgrow="NEVER" />
+               </HBox>
+      
+                 </VBox>
+      </children>
+   </HBox>
  </VBox>
