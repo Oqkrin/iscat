@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/leaderboard-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.TutorialMenuController">
+
+    <BorderPane fx:id="rootPane">
+        <padding>
+            <Insets bottom="32.0" left="40.0" right="40.0" top="32.0" />
+        </padding>
+
+        <left>
+            <VBox alignment="CENTER" spacing="40.0" BorderPane.alignment="CENTER">
+                <children>
+                    <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
+                        <padding>
+                            <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+                        </padding>
+                        <Label styleClass="score-stat" text="MOVIMENTO" />
+                        <Label styleClass="leaderboard-gold" text="WASD" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 20px;"/>
+                    </VBox>
+                    <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
+                        <padding>
+                            <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+                        </padding>
+                        <Label styleClass="score-stat" text="ATTACCO" />
+                        <Label styleClass="leaderboard-gold" text="Tasto Sinistro" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 18px;"/>
+                    </VBox>
+                </children>
+            </VBox>
+        </left>
+
+        <center>
+            <VBox alignment="CENTER" spacing="24.0" BorderPane.alignment="CENTER">
+                <children>
+                    <VBox alignment="CENTER" maxHeight="320.0" maxWidth="320.0" minHeight="320.0" minWidth="320.0" prefHeight="320.0" prefWidth="320.0" styleClass="glowing-border, main-card">
+                        <padding>
+                            <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                        </padding>
+                        <Label styleClass="score-title" text="ISCAT TUTORIAL" textAlignment="CENTER" wrapText="true" />
+                    </VBox>
+
+                    <Button fx:id="backBtn" onAction="#handleBackAction" styleClass="menu-button, play-button" text="BACK">
+                        <padding>
+                            <Insets bottom="10.0" left="24.0" right="24.0" top="10.0" />
+                        </padding>
+                    </Button>
+                </children>
+            </VBox>
+        </center>
+
+        <right>
+            <VBox alignment="CENTER" spacing="40.0" BorderPane.alignment="CENTER">
+                <children>
+                    <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
+                        <padding>
+                            <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+                        </padding>
+                        <Label styleClass="score-stat" text="DASH" />
+                        <Label styleClass="leaderboard-gold" text="Tasto Destro" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 18px;"/>
+                    </VBox>
+                    <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
+                        <padding>
+                            <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+                        </padding>
+                        <Label styleClass="score-stat" text="ZOOM" />
+                        <Label styleClass="leaderboard-gold" text="+ o -" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 22px;"/>
+                    </VBox>
+                </children>
+            </VBox>
+        </right>
+    </BorderPane>
+</StackPane>

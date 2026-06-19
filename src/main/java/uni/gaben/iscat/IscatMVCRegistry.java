@@ -31,6 +31,7 @@ public class IscatMVCRegistry {
             case SETTINGS_MENU -> new IscatView("/uni/gaben/iscat/fxml/SettingsMenu.fxml");
             case CREDITS -> new IscatView("/uni/gaben/iscat/fxml/CreditsMenu.fxml");
             case LEADERBOARD_MENU -> new IscatView("/uni/gaben/iscat/fxml/LeaderboardMenu.fxml");
+            case TUTORIAL_MENU -> new IscatView("/uni/gaben/iscat/fxml/TutorialMenu.fxml");
         };
     }
 }

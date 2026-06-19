@@ -73,6 +73,17 @@
                         <String fx:value="title-large" />
                      </styleClass>
                   </Button>
+
+                  <Button fx:id="tutorialButton" alignment="CENTER" contentDisplay="LEFT" onAction="#openTutorialMenu" prefWidth="240.0" maxWidth="240.0" rotate="-1.5" text="TUTORIAL" textAlignment="CENTER">
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                     <styleClass>
+                        <String fx:value="menu-button" />
+                        <String fx:value="title-large" />
+                     </styleClass>
+                  </Button>
+
                   <Region VBox.vgrow="ALWAYS" />
 
                   <Button fx:id="creditsButton" contentDisplay="LEFT" graphicTextGap="16.0" onAction="#openCreditsMenu" prefWidth="240.0" maxWidth="240.0" rotate="-3.0" text="CREDITS">

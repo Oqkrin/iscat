@@ -10,5 +10,6 @@ public enum IscatViews {
     SCORE_MENU,
     SETTINGS_MENU,
     CREDITS,
-    LEADERBOARD_MENU
+    LEADERBOARD_MENU,
+    TUTORIAL_MENU
 }
