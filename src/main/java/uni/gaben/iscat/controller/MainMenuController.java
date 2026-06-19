@@ -93,7 +93,7 @@ public class MainMenuController implements IscatFxmlController {
             switch (iconCode) {
                 case "fas-gift" -> {
                     SessionManager.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
-                        skin.loadSkin(newValue, 32, 32);
+                        skin.loadSkin(newValue, 64, 64);
                         skin.resize(128.0);
                     });
                     skin.loadSkin(SessionManager.getPlayerSkin(), 32, 32);
