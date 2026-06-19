@@ -37,7 +37,7 @@
                <padding>
                   <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                </padding></Button>
-                 <Button fx:id="settingsBtn" alignment="CENTER" onAction="#openSettingsMenu" styleClass="pulsante-menu" text="OPTIONS">
+                 <Button fx:id="settingsBtn" alignment="CENTER" onAction="#openSettingsMenu" styleClass="pulsante-menu" text="SETTINGS">
                <padding>
                   <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                </padding></Button>

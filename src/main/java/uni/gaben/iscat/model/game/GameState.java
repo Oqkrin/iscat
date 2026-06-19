@@ -13,7 +13,6 @@ public enum GameState {
     public boolean isPlaying() { return this == PLAYING; }
     public boolean isGameOver(){ return this == GAME_OVER; }
 
-    /** ESC transition: PLAYING ↔ IN_PAUSE, IN_OPTIONS → IN_PAUSE. */
     public GameState onEscape() {
         return switch (this) {
             case PLAYING    -> IN_PAUSE;
