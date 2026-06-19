@@ -2,6 +2,7 @@ package uni.gaben.iscat.universe.entities.shooters;
 
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.entities.EntityState;
+import uni.gaben.iscat.universe.entities.hardcoded.projectiles.Shooter;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
