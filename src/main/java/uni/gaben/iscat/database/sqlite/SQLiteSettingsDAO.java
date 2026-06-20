@@ -95,8 +95,8 @@ public class SQLiteSettingsDAO implements SettingsDAO {
     @Override
     public void delete(int userId) {
         String deleteSettingsSql = "DELETE FROM ImpostazioniUtenti WHERE UserID = ?";
-        String deleteSavesSql    = "DELETE FROM Salvataggi WHERE UserID = ?";
-        String deleteBestiarySql = "DELETE FROM BestiarioUtente WHERE UserID = ?";
+        String deleteSavesSql    = "DELETE FROM UserScore WHERE UserID = ?";
+        String deleteBestiarySql = "DELETE FROM Bestiario WHERE UserID = ?";
         String deleteUserSql     = "DELETE FROM Utenti WHERE ID = ?";
 
         try (Connection conn = IscatDB.getInstance().getConnection()) {
