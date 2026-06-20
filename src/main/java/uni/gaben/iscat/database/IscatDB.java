@@ -2,7 +2,6 @@ package uni.gaben.iscat.database;
 
 import uni.gaben.iscat.database.dao.*;
 import uni.gaben.iscat.database.sqlite.*;
-import uni.gaben.iscat.database.sqlite.SQLiteSettingsDAO;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.sql.Connection;
@@ -20,13 +19,11 @@ public class IscatDB {
     private static IscatDB instance;
     private static final String URL = "jdbc:sqlite:IscatDB.db";
 
-    // Pool a thread singolo dedicato a gestire sequenzialmente tutte le operazioni sul DB
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
-    // Thread in background per scalare il conto alla rovescia di inattività
     private final ScheduledExecutorService ticker = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "IscatDB-Cooldown-Ticker");
-        t.setDaemon(true); // Previene il blocco dell'uscita dell'applicazione
+        t.setDaemon(true);
         return t;
     });
 
@@ -38,6 +35,7 @@ public class IscatDB {
     private ScoreDAO scoreDAO;
     private SettingsDAO settingsDAO;
     private BestiaryDAO bestiaryDAO;
+
     private IscatDB() {
         init();
     }
@@ -55,7 +53,6 @@ public class IscatDB {
         this.settingsDAO = new SQLiteSettingsDAO();
         this.bestiaryDAO = new SQLiteBestiaryDAO();
 
-        // Avvia il ticker per monitorare il cooldown della connessione condivisa
         ticker.scheduleAtFixedRate(() -> {
             synchronized (this) {
                 if (sharedConnection != null && activeTasks == 0) {
@@ -100,10 +97,12 @@ public class IscatDB {
     }
 
     public void executeAsync(Runnable task) {
-        dbExecutor.submit(() -> {
+        dbExecutor.execute(() -> {
             preExecuteTask();
             try {
                 task.run();
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 postExecuteTask();
             }
@@ -128,7 +127,17 @@ public class IscatDB {
 
     public void shutdown() {
         dbExecutor.shutdown();
+        try {
+            if (!dbExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                dbExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            dbExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
         ticker.shutdown();
+
         synchronized (this) {
             if (sharedConnection != null) {
                 try {
