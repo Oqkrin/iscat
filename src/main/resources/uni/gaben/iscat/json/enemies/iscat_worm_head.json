@@ -31,6 +31,14 @@
       {
         "type": "kamikaze",
         "meleeDamage": 150
+      },
+      {
+        "type": "plunge",
+        "plungeCooldownMS": 1500,
+        "dashDurationMS": 300,
+        "dashPrediction": 0,
+        "dashAvoidRange": 30,
+        "dashImpulse": 300
       }
     ],
     "modifiers": []

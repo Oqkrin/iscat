@@ -3,34 +3,46 @@ package uni.gaben.iscat.universe.entities.hardcoded.projectiles;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entities.interfaces.Stunnable;
-import uni.gaben.iscat.utils.Updatable;
 
 public class StunThreadProjectileModel extends ProjectileModel {
 
     public static final double DEFAULT_STUN_DURATION = 0.5;
-    private double stunDuration;
-    private final Vector2 wave = UU.vector2zero();
+    public static final double DEFAULT_FORWARD_SPEED = 10.0;
+    public static final double DEFAULT_AMPLITUDE    = 10.0;
+    public static final double DEFAULT_FREQUENCY    = 1.0;
 
-    private Vector2 forwardDir;              // cached travel direction (set once in constructor)
-    private Vector2 perpendicular;           // cached perpendicular vector (90° left)
-    private double amplitude = 9.0;          // how hard the lateral push is (force units)
-    private double frequency = 1.2;          // oscillations per second
+    private double stunDuration;
+    private double forwardSpeed;
+    private double amplitude;
+    private double frequency;
+
+    private TrajectoryModifier trajectoryModifier;
     private boolean justSpawned = true;
 
-
+    // ---- constructors ----
     public StunThreadProjectileModel() {
-        this(UU.vector2zero(), UU.vector2zero(), 0, DEFAULT_STUN_DURATION);
+        this(UU.vector2zero(), UU.vector2zero(), DEFAULT_FORWARD_SPEED, DEFAULT_AMPLITUDE, DEFAULT_FREQUENCY);
     }
 
-    public StunThreadProjectileModel(Vector2 position, Vector2 direction, double speed) {
-        this(position, direction, speed, DEFAULT_STUN_DURATION);
+    public StunThreadProjectileModel(Vector2 position, Vector2 direction, double forwardSpeed) {
+        this(position, direction, forwardSpeed, DEFAULT_AMPLITUDE, DEFAULT_FREQUENCY);
     }
 
-    public StunThreadProjectileModel(Vector2 position, Vector2 direction, double speed, double stunDuration) {
+    public StunThreadProjectileModel(Vector2 position, Vector2 direction,
+                                     double forwardSpeed, double amplitude, double frequency) {
+        this(position, direction, forwardSpeed, amplitude, frequency, DEFAULT_STUN_DURATION);
+    }
+
+    public StunThreadProjectileModel(Vector2 position, Vector2 direction,
+                                     double forwardSpeed, double amplitude,
+                                     double frequency, double stunDuration) {
         super(ProjectileType.STUN_BULLET);
+        this.forwardSpeed = forwardSpeed;
+        this.amplitude = amplitude;
+        this.frequency = frequency;
         this.stunDuration = stunDuration;
         getTransform().setTranslation(position);
-        setLinearVelocity(direction.multiply(speed));
+        setLinearVelocity(direction.getNormalized().multiply(forwardSpeed));
         setMaxEnduranceDirect(1.0);
         setEndurance(1.0);
         setStunCollisionHandler(stunDuration);
@@ -45,22 +57,33 @@ public class StunThreadProjectileModel extends ProjectileModel {
 
     @Override
     public void update(double dt) {
-        super.update(dt);  // normal integration (collision detection, etc.)
+        super.update(dt);
 
         if (justSpawned) {
-            forwardDir = getLinearVelocity().getNormalized();
-            perpendicular = forwardDir.getLeftHandOrthogonalVector();    // unit vector, 90° counter‑clockwise
+            Vector2 fwd = getLinearVelocity().getNormalized();
+            trajectoryModifier = new TrajectoryModifier(
+                    fwd, fwd.getLeftHandOrthogonalVector(),
+                    amplitude, frequency, 0.0   // or a non‑zero phaseOffset if you like
+            );
             justSpawned = false;
         }
 
-        // Lateral speed oscillates (world units per second)
-        double lateralSpeed = amplitude * Math.sin(2 * Math.PI * frequency * getStateTime());
-
-        // Compose final velocity = forward + lateral
-        wave.set(forwardDir).multiply(getTerminalVelocity()).add(perpendicular.copy().multiply(lateralSpeed));
-        setLinearVelocity(wave);
+        trajectoryModifier.update(dt);
+        setLinearVelocity(trajectoryModifier.getTrajectory(forwardSpeed));
     }
 
+    // Make setters actually useful
+    public void setAmplitude(double amplitude) {
+        this.amplitude = amplitude;
+        if (trajectoryModifier != null) trajectoryModifier.setAmplitude(amplitude);
+    }
+
+    public void setFrequency(double frequency) {
+        this.frequency = frequency;
+        if (trajectoryModifier != null) trajectoryModifier.setFrequency(frequency);
+    }
+
+    // ---- stun collision ----
     public void setStunCollisionHandler(double duration) {
         this.stunDuration = duration;
         clearOnCollisions();
@@ -76,4 +99,8 @@ public class StunThreadProjectileModel extends ProjectileModel {
     }
 
     public double getStunDuration() { return stunDuration; }
+    public double getForwardSpeed() { return forwardSpeed; }
+    public void setForwardSpeed(double forwardSpeed) { this.forwardSpeed = forwardSpeed; }
+    public double getAmplitude() { return amplitude; }
+    public double getFrequency() { return frequency; }
 }

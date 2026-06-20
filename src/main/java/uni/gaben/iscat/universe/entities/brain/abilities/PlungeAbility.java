@@ -41,6 +41,7 @@ public class PlungeAbility extends Ability {
         this.maxPredictionTime = maxPredictionTime;
         this.plungeImpulse = impulse;
         this.plungeTarget = target;
+        plungeCooldown.start();
     }
 
     @Override

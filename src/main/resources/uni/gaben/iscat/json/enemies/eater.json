@@ -31,7 +31,7 @@
   "ai": {
     "steering": {
       "type": "pursuit",
-      "maxPredictionTime": 0.5
+      "maxPredictionTime": 0.2
     },
     "rotation": { "type": "locked" },
     "abilities": [
@@ -41,7 +41,7 @@
       }
     ],
     "modifiers": [
-      { "type": "separation", "radius": 3.75, "weight": 6 },
+      { "type": "separation", "radius": 3.75, "weight": 2 },
       { "type": "alignment", "radius": 7.5, "weight": 0.5 },
       { "type": "cohesion", "radius": 7.5, "weight": 0.5 }
     ]
