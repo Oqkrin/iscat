@@ -12,13 +12,13 @@
   "initlife": 10000,
   "lineardamping": 0,
   "mass": 1,
-  "maxvelocity": 1000,
-  "maxforce": 1000,
-  "maxangularvelocity": 1000,
+  "maxvelocity": 200,
+  "maxforce": 10,
+  "maxangularvelocity": 500,
   "xpreward": 15,
-  "detectionrange": 45,
-  "combatrange": 25,
-  "preferredrange": 20,
+  "detectionrange": 500,
+  "combatrange": 15,
+  "preferredrange": 15,
   "actioncooldowns": 0,
   "dannoproiettile": 50,
   "hasentranceanimation": false,
@@ -39,14 +39,41 @@
     "rotation": { "type": "target", "target": "player" },
     "abilities": [
       {
-        "type": "shoot",
-        "combatrange": 25,
-        "cooldownsec": 0.8,
-        "attackstateindex": 0,
-        "bullettype": "ENEMY_BULLET",
-        "aimattarget": true,
-        "nerfprediction": 2.6,
-        "pattern": { "type": "singleShot" }
+        "type": "randomizedShoot",
+        "combatRange": 40,
+        "cooldownSec": 0.8,
+        "bulletType": "ENEMY_BULLET",
+        "aimAtTarget": true,
+        "nerfPrediction": 1,
+        "patterns": [
+          {
+            "type": "spread",
+            "count": 9,
+            "angleStepDeg": 30
+          },
+          {
+            "type": "multiDirection",
+            "count": 8,
+            "angleStepDeg": 0,
+            "pattern": {
+              "type": "singleShot"
+            }
+          },
+          {
+            "type": "randomizedShoot",
+            "combatRange": 10000,
+            "cooldownSec": 4.0,
+            "bulletType": "ENEMY_BULLET",
+            "aimAtTarget": true,
+            "nerfPrediction": 0,
+            "attackStateIndex": 5,
+            "patterns": [
+              { "type": "summon", "count": 5, "summonedEntityKey": "iscat_mob", "summonRadiusPx": 100 },
+              { "type": "summon", "count": 2, "summonedEntityKey": "iscat_bomber", "summonRadiusPx": 100 },
+              { "type": "summon", "count": 1, "summonedEntityKey": "fake_iscat", "summonRadiusPx": 100 }
+            ]
+          }
+        ]
       }
     ],
     "modifiers": [
