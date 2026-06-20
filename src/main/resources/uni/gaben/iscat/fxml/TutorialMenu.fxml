@@ -22,14 +22,14 @@
                             <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
                         </padding>
                         <Label styleClass="score-stat" text="MOVIMENTO" />
-                        <Label styleClass="leaderboard-gold" text="WASD" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 20px;"/>
+                        <Label fx:id="moveLabel" styleClass="leaderboard-gold" text="WASD" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 20px;"/>
                     </VBox>
                     <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
                         <padding>
                             <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
                         </padding>
                         <Label styleClass="score-stat" text="ATTACCO" />
-                        <Label styleClass="leaderboard-gold" text="Tasto Sinistro" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 18px;"/>
+                        <Label fx:id="attackLabel" styleClass="leaderboard-gold" text="Tasto Sinistro" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 18px;"/>
                     </VBox>
                 </children>
             </VBox>
@@ -62,7 +62,7 @@
                             <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
                         </padding>
                         <Label styleClass="score-stat" text="DASH" />
-                        <Label styleClass="leaderboard-gold" text="Tasto Destro" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 18px;"/>
+                        <Label fx:id="dashLabel" styleClass="leaderboard-gold" text="Tasto Destro" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 18px;"/>
                     </VBox>
                     <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
                         <padding>
