@@ -9,6 +9,7 @@ import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.effects.HitSpark;
 import uni.gaben.iscat.universe.effects.Starfield;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.EntityModel;
@@ -40,6 +41,10 @@ public class UniverseModel extends World<Body> {
     private double physicsLifetime;
     private final Map<Vector2, Double> alteredEndurance = new ConcurrentHashMap<>();
 
+    // In UniverseModel.java
+
+    private final List<HitSpark> hitSparks = new ArrayList<>();
+
     // -------------------------------------------------------------------------
     // Construction
     // -------------------------------------------------------------------------
@@ -52,6 +57,38 @@ public class UniverseModel extends World<Body> {
                 AbstractPhysicalEntityModel a = extractEntity(collision.getBody1());
                 AbstractPhysicalEntityModel b = extractEntity(collision.getBody2());
                 if (a == null || b == null) return;
+
+                // If one of them is a projectile, spawn a hit spark
+                AbstractPhysicalProjectileModel proj = null;
+                AbstractPhysicalEntityModel target = null;
+                if (a instanceof AbstractPhysicalProjectileModel app) {
+                    proj = app;
+                    target = b;
+                } else if (b instanceof AbstractPhysicalProjectileModel bpp) {
+                    proj = bpp;
+                    target = a;
+                }
+
+                if (proj != null && target != null) {
+                    // Get impact point (the contact point)
+                    Vector2 impactWorld = contact.getPoint(); // contact point in world coords
+
+                    // Get projectile velocity
+                    Vector2 vel = proj.getLinearVelocity();
+
+                    // Create spark with 20 confetti and 10 sequins (adjust as needed)
+                    HitSpark spark = HitSpark.create(
+                            impactWorld,
+                            camera,
+                            vel,
+                            getCamera().getScreenWidth(),
+                            getCamera().getScreenHeight(),
+                            20, 10
+                    );
+                    addHitSpark(spark);
+                }
+
+
 
                 // 1. Record endurance before collision callbacks
                 double aBefore = getAbstractPhysicalEntityEndurance(a);
@@ -263,4 +300,23 @@ public class UniverseModel extends World<Body> {
     public CameraModel getCamera() {
         return camera;
     }
+
+    public void addHitSpark(HitSpark spark) {
+        hitSparks.add(spark);
+    }
+
+    public List<HitSpark> getHitSparks() {
+        return Collections.unmodifiableList(hitSparks);
+    }
+
+    // In your update loop (e.g., stepPhysics or a separate update method)
+    public void updateSparks(double dt) {
+        Iterator<HitSpark> it = hitSparks.iterator();
+        while (it.hasNext()) {
+            HitSpark spark = it.next();
+            spark.update(dt);
+            if (spark.shouldRemove()) it.remove();
+        }
+    }
+
 }

@@ -71,6 +71,7 @@ public class UniverseController {
         applyCircularBoundaries();
 
         universeModel.stepPhysics(dt);
+        universeModel.updateSparks(dt);
         updateProjectiles(camera, dt);
         processEntityCleanup(player, dt);
         updateCamera(player, camera, inputs, dt);
