@@ -110,19 +110,33 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
      * le ruota in modo casuale. Se non ne trova nessuna usa fallbackRow.
      */
     private int findRowByType(String typeName, int fallbackRow) {
-        if (entity.animations() == null) return fallbackRow;
+        if (entity.animations() == null || entity.animations().isEmpty()) {
+            if (typeName.equalsIgnoreCase("IDLE")) {
+                return 0;
+            }
+            return fallbackRow;
+        }
+
         List<Integer> candidates = new ArrayList<>();
         for (EntityRecord.AnimationRecord anim : entity.animations()) {
             if (anim.type().equalsIgnoreCase(typeName)) {
                 candidates.add(anim.row());
             }
         }
-        if (candidates.isEmpty()) return fallbackRow;
+
+        if (candidates.isEmpty()) {
+            if (typeName.equalsIgnoreCase("IDLE")) {
+                return 0;
+            }
+            return fallbackRow;
+        }
         return candidates.get(RNG.nextInt(candidates.size()));
     }
 
     public int getFramesForState(int rowIndex) {
-        if (entity.animations() == null) return 1;
+        if (entity.animations() == null || entity.animations().isEmpty()) {
+            return 1;
+        }
         for (EntityRecord.AnimationRecord anim : entity.animations()) {
             if (anim.row() == rowIndex) return anim.frames();
         }
