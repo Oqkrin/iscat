@@ -1,8 +1,8 @@
 {
-  "EntityKey": "iscat_star",
-  "Name": "Iscat Star",
-  "Description": "Una stella vivente, \n il potere della fusione atomica imbrigliato, emana tempesti solari capaci di manomettere ogni tecnologia evoluta, la morte di una stella non è la sua fine ",
-  "SpriteName": "iscat_star",
+  "EntityKey": "iscat_sun",
+  "Name": "Iscat Sun",
+  "Description": "Un sole vivente, \n il potere della fusione atomica imbrigliato, emana tempesti solari capaci di manomettere ogni tecnologia evoluta, la morte di una stella non è la sua fine ",
+  "SpriteName": "iscat_sun",
   "BestiaryOrder": 2,
   "ThreatLevel": "LOW",
   "FrameW": 32,

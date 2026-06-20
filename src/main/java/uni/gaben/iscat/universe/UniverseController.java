@@ -210,7 +210,7 @@ public class UniverseController {
         if (entity instanceof EntityModel enemy) {
             EntityAudioManager.playEventAudio(enemy, "death");
         }
-        if(entity.getEntityRecord().entityKey().equals("iscat_star") && Math.random() < 0.5) {
+        if(entity.getEntityRecord().entityKey().equals("iscat_sun") && Math.random() < 0.5) {
                 UniverseSpawner.getInstance().spawn(UniverseSpawnable.BLACKHOLE, entity.getTransform().getTranslationX(), entity.getTransform().getTranslationY());
         }
 

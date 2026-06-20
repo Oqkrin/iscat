@@ -6,7 +6,7 @@ import uni.gaben.iscat.universe.entities.interfaces.Stunnable;
 
 public class StunThreadProjectileModel extends ProjectileModel {
 
-    public static final double DEFAULT_STUN_DURATION = 0.5;
+    public static final double DEFAULT_STUN_DURATION = 1.5;
     public static final double DEFAULT_FORWARD_SPEED = 10.0;
     public static final double DEFAULT_AMPLITUDE    = 10.0;
     public static final double DEFAULT_FREQUENCY    = 1.0;
