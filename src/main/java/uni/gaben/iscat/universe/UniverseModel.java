@@ -8,6 +8,7 @@ import org.dyn4j.world.ContactCollisionData;
 import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListenerAdapter;
+import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.effects.Starfield;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.EntityModel;
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UniverseModel extends World<Body> {
 
     private PlayerModel player;
+    private CameraModel camera;
 
     private final List<AbstractPhysicalEntityModel> entities = new ArrayList<>();
     private final List<AbstractPhysicalProjectileModel> projectiles = new ArrayList<>();
@@ -252,5 +254,13 @@ public class UniverseModel extends World<Body> {
             if(delta < 0) EntityAudioManager.playEventAudio(entityModel, "hurt");
             else if(delta > 0) AudioManager.getInstance().playSFX("heal");
         }
+    }
+
+    public void setCamera(CameraModel camera) {
+        this.camera = camera;
+    }
+
+    public CameraModel getCamera() {
+        return camera;
     }
 }

@@ -99,7 +99,7 @@ public class UniverseRenderer {
         boolean debug = debugPanelVisible && gameController.isDebugModeOn();
 
         for (AbstractPhysicalEntityModel entity : entitySnapshotBuffer) {
-            if (!entity.isInsideViewport(minX, maxX, minY, maxY)) continue;
+            if (!entity.isInsideRect(minX, maxX, minY, maxY)) continue;
             EntityRenderer.renderLayered(entity, layers, debug);
         }
 

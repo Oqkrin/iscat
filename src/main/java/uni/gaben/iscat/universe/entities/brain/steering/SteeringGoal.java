@@ -93,9 +93,10 @@ public interface SteeringGoal {
         };
     }
 
-    static SteeringGoal pursuitWithRange(Target target, double maxPredictionTime, double minDistance, double maxDistance) {
+    static SteeringGoal pursuitWithRange(Target target, double maxPredictionTime,
+                                         double minDistance, double maxDistance) {
         Vector2 desiredVelocity = UU.vector2zero();
-        Vector2 predictedPos = UU.vector2zero();
+        Vector2 predictedPos   = UU.vector2zero();
 
         return (self, universe, dt) -> {
             List<AbstractPhysicalEntityModel> targets = target.getEntities(universe);
@@ -116,26 +117,38 @@ public interface SteeringGoal {
 
             Predictor.extrapolate(target, universe, lookAheadTime, predictedPos);
 
+            // Vector from self to predicted target
             desiredVelocity.set(predictedPos).subtract(selfPos);
             double distance = desiredVelocity.getMagnitude();
+            double idealDistance = (minDistance + maxDistance) * 0.5;
+            double error = distance - idealDistance;
 
-            if (distance > maxDistance) {
-                if (distance > 0) desiredVelocity.setMagnitude(self.getTerminalVelocity());
-            } else if (distance < minDistance) {
-                if (distance > 0) {
-                    desiredVelocity.multiply(-1.0);
-                    desiredVelocity.setMagnitude(self.getTerminalVelocity());
-                } else {
-                    desiredVelocity.set(1, 0).setMagnitude(self.getTerminalVelocity());
-                }
+            // Desired speed: proportional to error, clamped between ±terminalVelocity
+            double gain = 3.0;   // stiffness – higher = tighter
+            double rawSpeed = gain * error;
+            double desiredSpeed = Math.clamp(rawSpeed, -self.getTerminalVelocity(), self.getTerminalVelocity());
+
+            // Direction: towards/away from predicted target
+            if (distance > 0.0001) {
+                desiredVelocity.normalize();
             } else {
+                // If right on top, pick a safe direction (e.g., target's velocity or a random)
                 desiredVelocity.set(entity.getLinearVelocity());
+                if (desiredVelocity.isZero()) desiredVelocity.set(1, 0);
             }
+            desiredVelocity.multiply(desiredSpeed);
 
+            // Add the target's velocity to seamlessly follow when distance is ideal
+            // (scale it so that when error=0 we fully match the target's movement)
+            double followFactor = 1.0 - Math.abs(error) / (maxDistance - minDistance + 0.0001);
+            followFactor = Math.clamp(followFactor, 0.0, 1.0);
+            desiredVelocity.add(entity.getLinearVelocity().copy().multiply(followFactor));
+
+            // Steering = desired velocity – current velocity
             desiredVelocity.subtract(self.getLinearVelocity());
 
             if (!desiredVelocity.isZero()) {
-                desiredVelocity.setMagnitude(self.getAcceleration());
+                desiredVelocity.setMagnitude(self.getAcceleration()); // Clamp acceleration
             }
 
             return desiredVelocity;

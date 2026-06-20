@@ -1,5 +1,6 @@
 package uni.gaben.iscat.universe.entities;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.brain.*;
 import uni.gaben.iscat.universe.entities.brain.abilities.Ability;
@@ -46,11 +47,21 @@ public class EntityBrain extends Brain<EntityModel> {
             if (ability != null) brain.addAction(ability);
         }
 
+        brain.addModifier("boundaryContainment",
+                SteeringModifier.boundaryContainment(
+                        50.0,                           // margin in world units (start pushing 50m before edge)
+                        new SimpleDoubleProperty(2.0)   // high weight so it dominates
+                )
+        );
+
         // Modifiers
         for (EntityRecord.ModifierRecord mc : entityRecord.brain().modifiers()) {
             SteeringModifier mod = EntityRecordParser.createModifier(mc, entity);
             if (mod != null) brain.addModifier(mod);
         }
+
+
+
         return brain;
     }
 }

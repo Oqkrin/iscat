@@ -1,8 +1,8 @@
 {
-  "EntityKey": "iscat_bomber",
-  "Name": "Iscat Bomber",
-  "Description": "Iscat Bomber vive con un solo obiettivo:\nesplodere nel modo più spettacolare possibile.\nNessuno sa se sia nato così\noppure se abbia semplicemente fatto una scelta di vita discutibile.",
-  "SpriteName": "iscat_bomber",
+  "EntityKey": "iscat_star",
+  "Name": "Iscat Star",
+  "Description": "Una stella vivente, \n il potere della fusione atomica imbrigliato, emana tempesti solari capaci di manomettere ogni tecnologia evoluta, la morte di una stella non è la sua fine ",
+  "SpriteName": "iscat_star",
   "BestiaryOrder": 2,
   "ThreatLevel": "LOW",
   "FrameW": 32,

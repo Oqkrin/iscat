@@ -74,8 +74,7 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
     public double getWidthPx() { return UU.mToPx(getWidthMeters()); }
     public double getHeightPx() { return UU.mToPx(getHeightMeters()); }
 
-    // ---- Viewport culling ----
-    public boolean isInsideViewport(double minX, double maxX, double minY, double maxY) {
+    public boolean isInsideRect(double minX, double maxX, double minY, double maxY) {
         double cx = UU.mToPx(this.getTransform().getTranslationX());
         double cy = UU.mToPx(this.getTransform().getTranslationY());
         double padding = Math.max(getWidthPx(), getHeightPx());

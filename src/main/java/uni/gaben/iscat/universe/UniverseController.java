@@ -21,6 +21,7 @@ import uni.gaben.iscat.universe.entities.brain.IEntityController;
 import uni.gaben.iscat.universe.entities.interfaces.Dynamic;
 import uni.gaben.iscat.universe.entities.player.PlayerController;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
+import uni.gaben.iscat.universe.spawn.UniverseSpawnable;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.EntityAudioManager;
@@ -29,6 +30,7 @@ import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Master controller for the game universe.
@@ -70,7 +72,7 @@ public class UniverseController {
 
         universeModel.stepPhysics(dt);
         updateProjectiles(camera, dt);
-        processEntityCleanup(player);
+        processEntityCleanup(player, dt);
         updateCamera(player, camera, inputs, dt);
     }
 
@@ -162,7 +164,7 @@ public class UniverseController {
      * solo per nemici reali (filtraggio in {@link UniverseWaveController#incrementKills}),
      * poi rimuove i corpi dal mondo fisico.
      */
-    private void processEntityCleanup(PlayerModel player) {
+    private void processEntityCleanup(PlayerModel player, double dt) {
         List<AbstractPhysicalEntityModel> toRemove = new ArrayList<>();
 
         // Snapshot to avoid ConcurrentModificationException
@@ -208,6 +210,10 @@ public class UniverseController {
         if (entity instanceof EntityModel enemy) {
             EntityAudioManager.playEventAudio(enemy, "death");
         }
+        if(entity.getEntityRecord().entityKey().equals("iscat_star") && Math.random() < 0.5) {
+                UniverseSpawner.getInstance().spawn(UniverseSpawnable.BLACKHOLE, entity.getTransform().getTranslationX(), entity.getTransform().getTranslationY());
+        }
+
 
         if (!(entity instanceof PlayerModel) && !(entity instanceof HeartModel) && !(entity instanceof ProjectileModel) && (entity.isKilledByProjectile() || entity.isKilledByMeele())) {
             SessionScoreTracker.getInstance().addDeaths(1);

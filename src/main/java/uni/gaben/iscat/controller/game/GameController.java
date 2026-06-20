@@ -87,6 +87,8 @@ public class GameController {
             double arenaDiameterMetres = 250.0;
             gameModel.getUniverseModel().setDimensions(arenaDiameterMetres, arenaDiameterMetres);
         }
+
+        universeController.getUniverseModel().setCamera(getCameraModel());
     }
 
     private void tick(double dt) {

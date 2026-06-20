@@ -250,4 +250,7 @@ public class CameraModel {
      */
     public double getViewportTopY() {
         return getY() - (getScreenHeight() / getZoom()) / 2.0;
-    }}
+    }
+
+
+}

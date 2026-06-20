@@ -52,22 +52,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         setMass(entity.maxAngularVelocity() > 0 ? MassType.NORMAL : MassType.FIXED_LINEAR_VELOCITY);
         setLinearDamping(entity.linearDamping());
 
-        // Logica danno da sfondamento (RAM)
-        if (entity.mass() > 2.0) {
-            final double heavyDamage = entity.mass() * 5.0;
-            final double lightDamage = entity.mass() * 2.0;
-
-            addOnCollision("velocityDamage", other -> {
-                if (other instanceof PlayerModel player) {
-                    double speed = this.getLinearVelocity().getMagnitude();
-                    if (speed > entity.maxVelocity() * 0.85) {
-                        player.damage(heavyDamage);
-                    } else {
-                        player.damage(lightDamage);
-                    }
-                }
-            });
-        }
 
         if (!entity.hasEntranceAnimation()) {
             EntityAudioManager.playEventAudio(this, "spawn");
