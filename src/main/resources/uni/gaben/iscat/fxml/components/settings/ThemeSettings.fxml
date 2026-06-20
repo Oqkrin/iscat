@@ -26,20 +26,28 @@
             </StackPane>
       </children>
    </VBox>
-   <HBox alignment="CENTER" spacing="4.0">
+   <VBox alignment="CENTER" fillWidth="false" spacing="16.0">
       <children>
-           <CheckBox fx:id="rainbowModeCheck" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleRainbowMode" text="Rainbow Mode" />
-            <HBox fx:id="pickerRow1" alignment="CENTER" spacing="8.0" styleClass="color-picker-row" HBox.hgrow="NEVER" />
-            <HBox fx:id="pickerRow2" alignment="CENTER" spacing="8.0" styleClass="color-picker-row" HBox.hgrow="NEVER" />
-           <CheckBox fx:id="lightModeCheck" nodeOrientation="LEFT_TO_RIGHT" onAction="#toggleThemeMode" text="Light Mode" />
+         <HBox alignment="CENTER" spacing="4.0">
+            <children>
+                  <HBox fx:id="pickerRow1" alignment="CENTER" spacing="8.0" styleClass="color-picker-row" HBox.hgrow="NEVER" />
+                  <HBox fx:id="pickerRow2" alignment="CENTER" spacing="8.0" styleClass="color-picker-row" HBox.hgrow="NEVER" />
+            </children>
+            <padding>
+               <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+            </padding>
+         </HBox>
+         <HBox alignment="CENTER" spacing="32.0">
+            <children>
+                 <CheckBox fx:id="rainbowModeCheck" nodeOrientation="LEFT_TO_RIGHT" onAction="#toggleRainbowMode" text="Rainbow Mode" />
+                 <CheckBox fx:id="lightModeCheck" alignment="CENTER_RIGHT" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleThemeMode" text="Light Mode" />
+            </children>
+         </HBox>
       </children>
-      <padding>
-         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-      </padding>
-   </HBox>
+   </VBox>
 
     <!-- Palette hint -->
-    <Label fx:id="paletteTip" styleClass="palette-hint" text="PALETTE GENERATA : SELEZIONA COLORE PER MODIFICARE MANUALMENTE!" />
+    <Label fx:id="paletteTip" styleClass="palette-hint" text="PALETTE GENERATA : SELEZIONA COLORE DA MODIFICARE MANUALMENTE!" />
 
     <!-- Extracted palette circles -->
     <HBox fx:id="paletteHolder" alignment="CENTER" spacing="16.0" styleClass="palette-holder" VBox.vgrow="NEVER" />

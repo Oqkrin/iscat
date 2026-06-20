@@ -171,35 +171,46 @@ public class ThemeSettingsController {
      * Costruisce un singolo widget: rettangolo colorato + etichetta + pulsante freccia.
      */
     private void buildCustomPicker(ColorPicker picker, String role, HBox row) {
-        // Nascondi il picker originale
-        picker.setVisible(false);
+        // Il picker originale rimane visibile (per avere coordinate valide) ma invisibile all'utente
+        picker.setOpacity(0);
+        picker.setMouseTransparent(true);
         picker.setManaged(false);
+        // Non chiamare picker.setVisible(false)!
 
-        // Rettangolo che mostra il colore corrente
+        // Rettangolo colorato
         Rectangle rect = new Rectangle(60, 28);
         rect.setArcWidth(8);
         rect.setArcHeight(8);
         rect.fillProperty().bind(picker.valueProperty());
 
-        // Etichetta con il ruolo (Primary, Secondary, ...)
+        // Etichetta ruolo
         Label roleLabel = new Label(role);
         roleLabel.setFont(Font.font("System", FontWeight.BOLD, 10));
         roleLabel.textFillProperty().bind(Bindings.createObjectBinding(() ->
                         picker.getValue().getBrightness() > 0.5 ? Color.BLACK : Color.WHITE,
                 picker.valueProperty()));
 
+        // Box colorato con etichetta
         StackPane colorBox = new StackPane(rect, roleLabel);
         colorBox.getStyleClass().add("custom-color-box");
         colorBox.setOnMouseClicked(e -> setActivePicker(picker));
 
+        // Pulsante freccia (ora punta a picker.show())
         Button arrowBtn = new Button("+");
         arrowBtn.getStyleClass().add("arrow-button");
         arrowBtn.setOnAction(e -> picker.show());
 
-        HBox widget = new HBox(2, colorBox, arrowBtn);
+        // StackPane che contiene sia il colorBox sia il picker invisibile
+        StackPane overlay = new StackPane(colorBox, picker);
+        overlay.setAlignment(Pos.CENTER);
+        // Fissa le dimensioni minime per evitare che collassi
+        overlay.setMinSize(IscatSettings.STANDARD_UNIT*7, IscatSettings.STANDARD_UNIT*3);
+        overlay.setPrefSize(IscatSettings.STANDARD_UNIT*7, IscatSettings.STANDARD_UNIT*3);
+        overlay.setMaxSize(IscatSettings.STANDARD_UNIT*7, IscatSettings.STANDARD_UNIT*3);
+
+        HBox widget = new HBox(IscatSettings.STANDARD_UNIT/3, overlay, arrowBtn);
         widget.setAlignment(Pos.CENTER_LEFT);
 
-        // Registra il box nel modello per l'evidenziazione
         pickerBoxes.put(picker, colorBox);
         row.getChildren().add(widget);
     }

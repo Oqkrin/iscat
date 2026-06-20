@@ -166,11 +166,12 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
         }
 
         // 3. Apply physical mass
+        /*
         double currentMass = entity.getMass().getMass();
         if (currentMass > 0.0 && currentMass != 1.0) {
             steerForce.divide(currentMass);
         }
-
+        */
         // 4. Apply physical force (Velocity constraints handled by UniverseController)
         entity.applyForce(steerForce);
     }
