@@ -40,11 +40,11 @@
     "abilities": [
       {
         "type": "randomizedShoot",
-        "combatRange": 40,
-        "cooldownSec": 0.8,
-        "bulletType": "ENEMY_BULLET",
-        "aimAtTarget": true,
-        "nerfPrediction": 1,
+        "combatrange": 40,
+        "cooldownsec": 0.8,
+        "bullettype": "ENEMY_BULLET",
+        "aimattarget": true,
+        "nerfprediction": 1,
         "patterns": [
           {
             "type": "spread",
@@ -52,32 +52,27 @@
             "angleStepDeg": 30
           },
           {
-            "type": "multiDirection",
-            "count": 8,
-            "angleStepDeg": 0,
-            "pattern": {
-              "type": "singleShot"
-            }
-          },
-          {
-            "type": "randomizedShoot",
-            "combatRange": 10000,
-            "cooldownSec": 4.0,
-            "bulletType": "ENEMY_BULLET",
-            "aimAtTarget": true,
-            "nerfPrediction": 0,
-            "attackStateIndex": 5,
-            "patterns": [
-              { "type": "summon", "count": 5, "summonedEntityKey": "iscat_mob", "summonRadiusPx": 100 },
-              { "type": "summon", "count": 2, "summonedEntityKey": "iscat_bomber", "summonRadiusPx": 100 },
-              { "type": "summon", "count": 1, "summonedEntityKey": "fake_iscat", "summonRadiusPx": 100 }
-            ]
+            "type": "singleShot",
+            "count": 8
           }
+        ]
+      },
+      {
+        "type": "randomizedShoot",
+        "combatrange": 500,
+        "cooldownsec": 4.0,
+        "bullettype": "ENEMY_BULLET",
+        "aimattarget": true,
+        "nerfprediction": 0,
+        "patterns": [
+          { "type": "summon", "count": 5, "summonedEntityKey": "iscat_mob", "summonRadiusPx": 100 },
+          { "type": "summon", "count": 2, "summonedEntityKey": "iscat_bomber", "summonRadiusPx": 100 },
+          { "type": "summon", "count": 1, "summonedEntityKey": "fake_iscat", "summonRadiusPx": 100 }
         ]
       }
     ],
     "modifiers": [
-      { "type": "collisionAvoidance", "radius": 45.0, "weight": 4, "maxPredictionTime": 2, "avoidRadius": 35.0 },
+      { "type": "collisionavoidance", "radius": 45.0, "weight": 4, "maxpredictiontime": 2, "avoidradius": 35.0 },
       { "type": "separation", "radius": 30.0, "weight": 4 },
       { "type": "alignment", "radius": 45.0, "weight": 1 },
       { "type": "cohesion", "radius": 45.0, "weight": 2 }
