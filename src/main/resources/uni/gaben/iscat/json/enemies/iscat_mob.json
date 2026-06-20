@@ -55,7 +55,6 @@
     "modifiers": [
       { "type": "alignment", "radius": 7.5, "weight": 1 },
       { "type": "cohesion", "radius": 7.5, "weight": 2 },
-      { "type": "separation", "radius": 3.75, "weight": 3 }
     ]
   }
 }
