@@ -18,54 +18,51 @@ public class HitSpark implements Stateful, Updatable, Removable {
 
     private static final Random RANDOM = new Random();
 
-    // ===== Physics constants (tweak for desired feel) =====
+    // Physics constants (adjusted for time‑based movement)
     private static final double GRAVITY = 0.15;          // pixels/sec²
-    private static final double DRAG = 0.5;              // per second
-    private static final double TERMINAL_VELOCITY = 3.0; // pixels/sec
-    private static final double MAX_LIFETIME = 1.5;      // seconds
-
-    // ===== Particle burst parameters =====
-    private static final int CONF_COUNT = 30;
-    private static final int SEQUIN_COUNT = 15;
-    private static final double CONF_SPEED_MIN = 40;   // pixels/sec
-    private static final double CONF_SPEED_MAX = 90;
-    private static final double SEQUIN_SPEED_MIN = 30;
-    private static final double SEQUIN_SPEED_MAX = 60;
+    private static final double DRAG_CONFETTI = 0.5;     // per second
+    private static final double DRAG_SEQUINS = 0.3;      // per second
+    private static final double TERMINAL_VELOCITY = 2.0; // pixels/sec
 
     private final List<Particle> particles = new ArrayList<>();
     private boolean expired = false;
     private double duration = 0.0;
+    private static final double MAX_LIFETIME = 1.5; // seconds
 
-    // ------------------------------------------------------------------------
-    // Factory: create a hit spark at a world position (metres)
-    // ------------------------------------------------------------------------
+    /**
+     * Factory method: creates a hit spark at a world position, with an optional velocity bias.
+     * @param worldPos  impact point in world metres
+     * @param camera    current camera (to convert to screen pixels)
+     * @param velocity  projectile's linear velocity (world metres/sec) – used to bias particles
+     * @param canvasWidth, canvasHeight  viewport size in pixels
+     */
     public static HitSpark create(Vector2 worldPos, CameraModel camera,
-                                  Vector2 velocity, int countConfetti, int countSequins) {
-        // Convert world position to world pixels (for camera‑space rendering)
+                                  Vector2 velocity, double canvasWidth, double canvasHeight,
+                                  int countConfetti, int countSequins) {
         double px = UU.mToPx(worldPos.x);
         double py = UU.mToPx(worldPos.y);
-        // Convert projectile velocity to pixels/sec (for bias)
-        double vxPx = UU.mToPx(velocity.x);
-        double vyPx = UU.mToPx(velocity.y);
+        double zoom = camera.getZoom();
+        double screenX = (px - camera.getX()) * zoom + canvasWidth / 2.0;
+        double screenY = (py - camera.getY()) * zoom + canvasHeight / 2.0;
 
-        return new HitSpark(px, py, vxPx, vyPx, countConfetti, countSequins);
+        // Convert velocity to pixels/sec and scale for particle burst
+        double vxPx = UU.mToPx(velocity.x) * zoom;
+        double vyPx = UU.mToPx(velocity.y) * zoom;
+
+        return new HitSpark(screenX, screenY, vxPx, vyPx, countConfetti, countSequins);
     }
 
-    private HitSpark(double worldX, double worldY, double biasVx, double biasVy,
-                     int confettiCount, int sequinCount) {
-        // Confetti
+    private HitSpark(double x, double y, double vx, double vy, int confettiCount, int sequinCount) {
+        // Spawn confetti
         for (int i = 0; i < confettiCount; i++) {
-            particles.add(new ConfettiParticle(worldX, worldY, biasVx, biasVy));
+            particles.add(new ConfettiParticle(x, y, vx, vy));
         }
-        // Sequins
+        // Spawn sequins
         for (int i = 0; i < sequinCount; i++) {
-            particles.add(new SequinParticle(worldX, worldY, biasVx, biasVy));
+            particles.add(new SequinParticle(x, y, vx, vy));
         }
     }
 
-    // ------------------------------------------------------------------------
-    // Lifecycle
-    // ------------------------------------------------------------------------
     @Override
     public void update(double dt) {
         duration += dt;
@@ -83,6 +80,7 @@ public class HitSpark implements Stateful, Updatable, Removable {
 
     @Override
     public boolean shouldRemove() { return expired; }
+
     @Override
     public boolean setShouldRemove(boolean remove) { this.expired = remove; return true; }
 
@@ -90,67 +88,38 @@ public class HitSpark implements Stateful, Updatable, Removable {
     public boolean isExpired() { return expired; }
 
     // ------------------------------------------------------------------------
-    // Particle hierarchy (world pixel coordinates)
+    // Particle hierarchy
     // ------------------------------------------------------------------------
-    public abstract static class Particle {
-        double x, y;          // world pixel coordinates
-        double vx, vy;        // pixels/sec
-        double alpha = 1.0;
-        double decay;         // alpha decay per second
-        boolean dead = false;
 
-        // Trail positions (for drawing a faint line)
-        double[] trailX = new double[3];
-        double[] trailY = new double[3];
-        public int trailIdx = 0;
+    public abstract static class Particle {
+        double x, y;
+        double vx, vy;
+        boolean dead = false;
 
         Particle(double x, double y) {
             this.x = x;
             this.y = y;
-            for (int i = 0; i < 3; i++) {
-                trailX[i] = x;
-                trailY[i] = y;
-            }
-            decay = randomRange(0.4, 1.2); // alpha loss per second
         }
 
         abstract void update(double dt);
         boolean isDead() { return dead; }
 
+        // Time‑based physics
         protected void applyPhysics(double dt, double drag) {
-            // Drag
-            vx -= vx * drag * dt;
-            // Gravity (positive = down)
-            vy += GRAVITY * dt;
+            vx -= vx * drag * dt;                 // drag
+            vy += GRAVITY * dt;                   // gravity
             if (vy > TERMINAL_VELOCITY) vy = TERMINAL_VELOCITY;
-            // Update position
             x += vx * dt;
             y += vy * dt;
-            // Fade
-            alpha -= decay * dt;
-            if (alpha <= 0.01) dead = true;
-            // Update trail
-            trailX[trailIdx] = x;
-            trailY[trailIdx] = y;
-            trailIdx = (trailIdx + 1) % 3;
+            // Kill if off‑screen (well beyond viewport)
+            if (y > 10000) dead = true;
         }
 
         protected static double randomRange(double min, double max) {
             return RANDOM.nextDouble() * (max - min) + min;
         }
-
-        // Getters for renderer
-        public double getX() { return x; }
-        public double getY() { return y; }
-        public double getAlpha() { return alpha; }
-        public double[] getTrailX() { return trailX; }
-        public double[] getTrailY() { return trailY; }
-        public abstract Color getColor();
-        public abstract double getSize();
-        public abstract boolean hasTrail();
     }
 
-    // ===== Confetti =====
     public static class ConfettiParticle extends Particle {
         private final Color frontColor, backColor;
         private final double width, height;
@@ -160,7 +129,7 @@ public class HitSpark implements Stateful, Updatable, Removable {
 
         ConfettiParticle(double x, double y, double biasVx, double biasVy) {
             super(x, y);
-            // Add slight random offset for organic spread
+            // Slight random offset to avoid exact clustering
             this.x += randomRange(-2, 2);
             this.y += randomRange(-2, 2);
 
@@ -172,69 +141,63 @@ public class HitSpark implements Stateful, Updatable, Removable {
             rotation = randomRange(0, 2 * Math.PI);
             randomModifier = randomRange(0, 99);
 
-            // Isotropic burst with bias
+            // Isotropic burst with moderate speed
             double angle = randomRange(0, 2 * Math.PI);
-            double speed = randomRange(CONF_SPEED_MIN, CONF_SPEED_MAX);
+            double speed = randomRange(30, 80); // pixels/sec
             vx = Math.cos(angle) * speed + biasVx * 0.15;
             vy = Math.sin(angle) * speed + biasVy * 0.15;
         }
 
         @Override
         void update(double dt) {
-            applyPhysics(dt, DRAG);
-            // Spin effect: scaleY oscillates with y
+            applyPhysics(dt, DRAG_CONFETTI);
             scaleY = Math.cos((y + randomModifier) * 0.09);
         }
 
-        @Override
-        public Color getColor() { return scaleY > 0 ? frontColor : backColor; }
-        @Override
-        public double getSize() { return width; } // not used directly
-        @Override
-        public boolean hasTrail() { return false; } // confetti no trail
-
+        public double getX() { return x; }
+        public double getY() { return y; }
         public double getWidth() { return width; }
-        public double getHeight() { return height * scaleY; }
+        public double getHeight() { return height; }
         public double getRotation() { return rotation; }
+        public double getScaleY() { return scaleY; }
+        public Color getColor() { return scaleY > 0 ? frontColor : backColor; }
     }
 
-    // ===== Sequin (simple circle) =====
     public static class SequinParticle extends Particle {
-        public final Color color;
-        public final double radius;
+        private final Color color;
+        private final double radius;
 
         SequinParticle(double x, double y, double biasVx, double biasVy) {
             super(x, y);
             this.x += randomRange(-1.5, 1.5);
             this.y += randomRange(-1.5, 1.5);
+
             color = pickRandomColor().darker();
-            radius = randomRange(1, 3);
+            radius = randomRange(1, 2.5);
 
             double angle = randomRange(0, 2 * Math.PI);
-            double speed = randomRange(SEQUIN_SPEED_MIN, SEQUIN_SPEED_MAX);
+            double speed = randomRange(20, 50); // pixels/sec
             vx = Math.cos(angle) * speed + biasVx * 0.1;
             vy = Math.sin(angle) * speed + biasVy * 0.1;
         }
 
         @Override
         void update(double dt) {
-            applyPhysics(dt, DRAG * 0.7); // sequins have slightly less drag
+            applyPhysics(dt, DRAG_SEQUINS);
         }
 
-        @Override
+        public double getX() { return x; }
+        public double getY() { return y; }
+        public double getRadius() { return radius; }
         public Color getColor() { return color; }
-        @Override
-        public double getSize() { return radius; }
-        @Override
-        public boolean hasTrail() { return true; } // sequins leave a faint trail
     }
 
-    // ===== Color palette =====
     private static Color pickRandomColor() {
+        // Use your ThemeManager or a fixed palette
         Color[] palette = {
                 ThemeManager.getInstance().getAccentPrimary(),
                 ThemeManager.getInstance().getAccentSecondary(),
-                ThemeManager.getInstance().getAccentTernary(),
+                ThemeManager.getInstance().getAccentTernary()
         };
         return palette[RANDOM.nextInt(palette.length)];
     }
