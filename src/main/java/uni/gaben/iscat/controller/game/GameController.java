@@ -22,6 +22,10 @@ import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 
+/**
+ * Controller principale del ciclo di vita della partita, addetto alla gestione
+ * degli input fisici, dei trucchi di debug, del ticking del mondo e del recupero dati.
+ */
 public class GameController {
 
     private final GameModel gameModel;
@@ -38,10 +42,13 @@ public class GameController {
     private boolean showFps = false;
     private boolean debugUsedInThisSession = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
-
     private final BooleanProperty godMode = new SimpleBooleanProperty(false);
-    private final BooleanProperty ghostMode = new SimpleBooleanProperty(false);
 
+    /**
+     * Inizializza il core del controller di gioco configurando i timer di loop e i listener di sessione.
+     *
+     * @param gameModel Il modello dati contenente lo stato del gioco attuale
+     */
     public GameController(GameModel gameModel) {
         Platform.runLater(EntityFactory::ensureCacheLoaded);
         this.gameModel = gameModel;
@@ -64,12 +71,7 @@ public class GameController {
 
     private void setupUniverse() {
         String currentSkinKey = SessionManager.getPlayerSkinKey();
-
         this.godMode.set(false);
-        this.ghostMode.set(false);
-
-        // Se la modalità debug è già attiva nelle impostazioni all'avvio del livello,
-        // invalidiamo subito i record per la sessione corrente
         this.debugUsedInThisSession = isDebugModeOn();
 
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath, currentSkinKey);
@@ -142,23 +144,23 @@ public class GameController {
         }
     }
 
+    /**
+     * Commuta lo stato della Godmode. Incorpora anche le vecchie proprietà di Ghost Mode,
+     * disabilitando completamente i layer di collisione del giocatore quando attiva.
+     */
     public void debugToggleGodMode() {
         this.godMode.set(!this.godMode.get());
         System.out.println("[DEBUG CHEAT] Godmode impostato a: " + godMode.get());
-    }
 
-    public void debugToggleGhostMode() {
         PlayerModel player = getPlayer();
-        if (player == null) return;
+        if (player != null) {
+            CategoryFilter filter = godMode.get()
+                    ? new CategoryFilter(UniverseCollisionLayers.PLAYER, 0)
+                    : UniverseCollisionLayers.PLAYER_FILTER;
 
-        this.ghostMode.set(!this.ghostMode.get());
-
-        CategoryFilter filter = ghostMode.get()
-                ? new CategoryFilter(UniverseCollisionLayers.PLAYER, 0)
-                : UniverseCollisionLayers.PLAYER_FILTER;
-
-        player.getFixtures().forEach(fixture -> fixture.setFilter(filter));
-        System.out.println("[DEBUG CHEAT] Ghost Mode (No Collision) impostato a: " + ghostMode.get());
+            player.getFixtures().forEach(fixture -> fixture.setFilter(filter));
+            System.out.println("[DEBUG CHEAT] Collisioni del giocatore aggiornate per rispecchiare lo stato Godmode.");
+        }
     }
 
     public void debugLevelUp() {
@@ -198,15 +200,12 @@ public class GameController {
     private void resetGame() {
         AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/SuperHero_original.wav", true);
         gameModel.setGameState(GameState.PLAYING);
-
         setupUniverse();
-
         if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
 
     public void quitToMainMenu() {
         gameLoop.stop();
-        // AGGIORNATO: Passa lo stato di utilizzo del debug
         statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false, isDebugUsedInThisSession());
         resetGame();
         AudioManager.getInstance().stopBGM();
@@ -221,7 +220,6 @@ public class GameController {
             AudioManager.getInstance().stopBGM();
             AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/gameover.wav", true);
             gameModel.setGameState(GameState.GAME_OVER);
-            // AGGIORNATO: Passa lo stato di utilizzo del debug
             statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false, isDebugUsedInThisSession());
         });
     }
@@ -253,7 +251,6 @@ public class GameController {
     }
 
     public void notifyBossDead() {
-        // AGGIORNATO: Passa lo stato di utilizzo del debug
         statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), true, isDebugUsedInThisSession());
         Platform.runLater(() -> {
             AudioManager.getInstance().stopBGM();
@@ -283,9 +280,7 @@ public class GameController {
     public boolean isDebugModeOn() { return showDebugMode.get(); }
     public void setShowDebugMode(boolean v) { showDebugMode.set(v); }
     public BooleanProperty debugModeProperty() { return showDebugMode; }
-
     public BooleanProperty godModeProperty() { return godMode; }
-    public BooleanProperty ghostModeProperty() { return ghostMode; }
 
     public void stopGameLoop() { gameLoop.stop(); }
     public void startGameLoop() { gameLoop.start(); }

@@ -33,6 +33,10 @@ import java.util.Objects;
 
 import static javafx.application.Platform.runLater;
 
+/**
+ * Vista principale di gioco che gestisce il canvas di rendering, l'HUD,
+ * la toolbar di debug e i menu di sovrapposizione come pausa e game over.
+ */
 public class GameView extends AbstractIscatStackPane {
 
     private final GameModel      gameModel;
@@ -48,10 +52,8 @@ public class GameView extends AbstractIscatStackPane {
     private StackPane               gameOverMenu;
 
     private Label levelLabel;
-
     private Label godModeLabel;
-    private Label ghostModeLabel;
-    private Label debugWarningLabel; // <--- Nuova label per l'avviso di salvataggio disabilitato
+    private Label debugWarningLabel;
     private VBox cheatLabelsContainer;
 
     private HBox   debugButtonsContainer;
@@ -60,6 +62,11 @@ public class GameView extends AbstractIscatStackPane {
 
     private boolean debugPanelVisible = false;
 
+    /**
+     * Costruisce la vista di gioco agganciandola al rispettivo controller.
+     *
+     * @param gameController Il controller logico del gioco
+     */
     public GameView(GameController gameController) {
         super(new StackPane());
         this.gameController = gameController;
@@ -70,7 +77,6 @@ public class GameView extends AbstractIscatStackPane {
     @Override
     protected void initNodes() {
         canvas = new Canvas();
-
         universeRenderer = new UniverseRenderer(canvas, gameController);
 
         hudBar         = new GameHudBar(gameController);
@@ -86,17 +92,11 @@ public class GameView extends AbstractIscatStackPane {
         godModeLabel.setFocusTraversable(false);
         godModeLabel.setMouseTransparent(true);
 
-        ghostModeLabel = new Label("GHOST MODE ACTIVE");
-        ghostModeLabel.setFocusTraversable(false);
-        ghostModeLabel.setMouseTransparent(true);
-
-        // Inizializzazione della label di avviso per il debug
         debugWarningLabel = new Label("DEBUG MODE ACTIVATED - SCORE WILL NOT BE SAVED");
         debugWarningLabel.setFocusTraversable(false);
         debugWarningLabel.setMouseTransparent(true);
 
-        // Aggiunta al contenitore dei cheat visivi a schermo
-        cheatLabelsContainer = new VBox(12, debugWarningLabel, godModeLabel, ghostModeLabel);
+        cheatLabelsContainer = new VBox(12, debugWarningLabel, godModeLabel);
         cheatLabelsContainer.setFocusTraversable(false);
         cheatLabelsContainer.setMouseTransparent(true);
 
@@ -131,10 +131,6 @@ public class GameView extends AbstractIscatStackPane {
         godModeLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 20));
         godModeLabel.setStyle("-fx-text-fill: #f1c40f; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
 
-        ghostModeLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 20));
-        ghostModeLabel.setStyle("-fx-text-fill: #9b59b6; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
-
-        // Stile aggressivo di errore/alert per la scritta sul salvataggio bloccato
         debugWarningLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 18));
         debugWarningLabel.setStyle("-fx-text-fill: #e74c3c; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
     }
@@ -165,7 +161,6 @@ public class GameView extends AbstractIscatStackPane {
         StackPane.setMargin(hudBar,                   new Insets(20, 0, 0, 0));
         StackPane.setMargin(debugButtonsContainer,    new Insets(50, 0, 0, 50));
         StackPane.setMargin(levelLabel,               new Insets(0, 50, 50, 0));
-
         StackPane.setMargin(cheatLabelsContainer,     new Insets(0, 0, 50, 50));
     }
 
@@ -190,10 +185,6 @@ public class GameView extends AbstractIscatStackPane {
         godModeLabel.visibleProperty().bind(gameController.godModeProperty());
         godModeLabel.managedProperty().bind(godModeLabel.visibleProperty());
 
-        ghostModeLabel.visibleProperty().bind(gameController.ghostModeProperty());
-        ghostModeLabel.managedProperty().bind(ghostModeLabel.visibleProperty());
-
-        // Binding dinamico per mostrare l'avviso se il debug è stato toccato/usato in sessione
         debugWarningLabel.setVisible(gameController.isDebugUsedInThisSession());
         debugWarningLabel.setManaged(debugWarningLabel.isVisible());
 
@@ -220,7 +211,6 @@ public class GameView extends AbstractIscatStackPane {
             debugButtonsContainer.setVisible(debugOn);
             debugButtonsContainer.setManaged(debugOn);
 
-            // Quando si attiva il debug (debugOn == true), aggiorna la visibilità dell'avviso di salvataggio
             if (debugOn) {
                 debugWarningLabel.setVisible(true);
                 debugWarningLabel.setManaged(true);
@@ -275,7 +265,6 @@ public class GameView extends AbstractIscatStackPane {
                 debugToolBar.setManaged(debugPanelVisible);
                 debugButton.setText(debugPanelVisible ? "HIDE DEBUG" : "DEBUG");
 
-                // Forza la ricomparsa visiva immediata anche al click del pannello
                 debugWarningLabel.setVisible(true);
                 debugWarningLabel.setManaged(true);
 
@@ -303,7 +292,6 @@ public class GameView extends AbstractIscatStackPane {
             gameController.setShowDebugMode(currentSettings.getDebugMode() == 1);
         }
 
-        // Forza la sincronizzazione corretta all'apertura del livello
         debugWarningLabel.setVisible(gameController.isDebugUsedInThisSession());
         debugWarningLabel.setManaged(debugWarningLabel.isVisible());
 
@@ -311,7 +299,6 @@ public class GameView extends AbstractIscatStackPane {
                 () -> universeRenderer.renderFrame(debugPanelVisible));
 
         gameController.getInputManager().attachToScene(this.getScene());
-
         gameController.setOnUniverseResetCallback(this::bindToCurrentUniverse);
 
         runLater(() -> {

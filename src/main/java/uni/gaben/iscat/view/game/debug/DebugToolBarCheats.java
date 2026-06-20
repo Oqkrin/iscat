@@ -15,6 +15,13 @@ import uni.gaben.iscat.utils.design.CssHelper;
  */
 public class DebugToolBarCheats extends VBox {
 
+    /**
+     * Inizializza il pannello dei trucchi strutturando i bottoni per la gestione della salute,
+     * delle modalità speciali (Godmode) e dei livelli del giocatore.
+     *
+     * @param controller Il controller di gioco corrente
+     * @param onBack     Azione per tornare alla schermata precedente della toolbar
+     */
     public DebugToolBarCheats(GameController controller, Runnable onBack) {
         super(12);
         setPadding(new Insets(12, 20, 20, 20));
@@ -58,13 +65,10 @@ public class DebugToolBarCheats extends VBox {
         FlowPane statesFlow = new FlowPane(10, 10);
         statesFlow.setAlignment(Pos.CENTER);
 
-        Button btnGhost = createCheatButton("GHOST MODE", "color-special");
-        btnGhost.setOnAction(e -> controller.debugToggleGhostMode());
-
         Button btnGod = createCheatButton("GODMODE", "color-god");
         btnGod.setOnAction(e -> controller.debugToggleGodMode());
 
-        statesFlow.getChildren().addAll(btnGhost, btnGod);
+        statesFlow.getChildren().addAll(btnGod);
 
         Label lblLevels = createSectionLabel("LEVEL PROGRESSION");
         HBox levelsBox = new HBox(12);
