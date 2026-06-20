@@ -12,8 +12,8 @@
   "InitLife": 2000,
   "LinearDamping": 0,
   "mass": 1,
-  "MaxVelocity": 500,
-  "MaxForce": 10,
+  "MaxVelocity": 12,
+  "MaxForce": 50,
   "MaxAngularVelocity": 500  ,
   "XPReward": 300,
   "DetectionRange": 20,
@@ -26,7 +26,6 @@
       "type": "pursuit",
       "maxPredictionTime": 1
     },
-    "rotation": { "type": "target", "target": "player" },
     "abilities": [
       {
         "type": "kamikaze",
