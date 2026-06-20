@@ -4,6 +4,7 @@ import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.ScoreModel;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -90,26 +91,45 @@ public class SQLiteScoreDAO implements ScoreDAO {
 
     @Override
     public void reset(int userId) {
-        String sql = """
-            UPDATE UserScore 
-            SET Score = 0, 
-                TotalKills = 0, 
-                Deaths = 0, 
-                TotalDamageDealt = 0, 
-                TotalDamageReceived = 0, 
-                BestTime = 0,
-                BoostCollected = 0,
-                LongestTime = 0,
-                TimesPlayed = 0,
-                TimesLogged = 0,
-                LastUpdated = CURRENT_TIMESTAMP
-            WHERE UserID = ?
-            """;
-        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            stmt.executeUpdate();
+        String updateScoreSql = """
+        UPDATE UserScore 
+        SET Score = 0, 
+            TotalKills = 0, 
+            Deaths = 0, 
+            TotalDamageDealt = 0, 
+            TotalDamageReceived = 0, 
+            BestTime = 0,
+            BoostCollected = 0,
+            LongestTime = 0,
+            TimesPlayed = 0,
+            TimesLogged = 0,
+            LastUpdated = CURRENT_TIMESTAMP
+        WHERE UserID = ?
+        """;
+
+        String deleteBestiarySql = "DELETE FROM Bestiario WHERE UserID = ?";
+
+        try (Connection conn = IscatDB.getInstance().getConnection()) {
+            conn.setAutoCommit(false);
+
+            try {
+                try (PreparedStatement stmtScore = conn.prepareStatement(updateScoreSql)) {
+                    stmtScore.setInt(1, userId);
+                    stmtScore.executeUpdate();
+                }
+
+                try (PreparedStatement stmtBestiary = conn.prepareStatement(deleteBestiarySql)) {
+                    stmtBestiary.setInt(1, userId);
+                    stmtBestiary.executeUpdate();
+                }
+
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore reset statistiche per userId: " + userId, e);
+            throw new RuntimeException("Errore durante il reset delle statistiche e del bestiario per userId: " + userId, e);
         }
     }
 
