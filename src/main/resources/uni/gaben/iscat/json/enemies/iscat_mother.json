@@ -50,10 +50,10 @@
       }
     ],
     "modifiers": [
-      { "type": "collisionavoidance", "radius": 45.0, "weight": 5, "maxpredictiontime": 10, "avoidradius": 35.0 },
+      { "type": "collisionAvoidance", "radius": 45.0, "weight": 4, "maxPredictionTime": 2, "avoidRadius": 35.0 },
+      { "type": "separation", "radius": 30.0, "weight": 4 },
       { "type": "alignment", "radius": 45.0, "weight": 1 },
-      { "type": "cohesion", "radius": 45.0, "weight": 2 },
-      { "type": "separation", "radius": 30.0, "weight": 6 }
+      { "type": "cohesion", "radius": 45.0, "weight": 2 }
     ]
   }
 }
