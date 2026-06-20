@@ -11,11 +11,10 @@ public class StunThreadProjectileModel extends ProjectileModel {
     private double stunDuration;
     private final Vector2 wave = UU.vector2zero();
 
-    private double elapsed = 0;               // time accumulator (in seconds)
     private Vector2 forwardDir;              // cached travel direction (set once in constructor)
     private Vector2 perpendicular;           // cached perpendicular vector (90° left)
-    private double amplitude = 2.0;          // how hard the lateral push is (force units)
-    private double frequency = 3.0;          // oscillations per second
+    private double amplitude = 9.0;          // how hard the lateral push is (force units)
+    private double frequency = 1.2;          // oscillations per second
     private boolean justSpawned = true;
 
 
@@ -40,24 +39,26 @@ public class StunThreadProjectileModel extends ProjectileModel {
     @Override
     public void reset(ProjectileType type) {
         super.reset(type);
+        this.justSpawned = true;
         setStunCollisionHandler(DEFAULT_STUN_DURATION);
     }
 
     @Override
     public void update(double dt) {
-        super.update(dt);
+        super.update(dt);  // normal integration (collision detection, etc.)
+
         if (justSpawned) {
             forwardDir = getLinearVelocity().getNormalized();
-            perpendicular = getLinearVelocity().getLeftHandOrthogonalVector();
+            perpendicular = forwardDir.getLeftHandOrthogonalVector();    // unit vector, 90° counter‑clockwise
             justSpawned = false;
         }
 
-        // Compute lateral force magnitude using a sine wave
-        double lateralForce = amplitude * Math.sin(2 * Math.PI * frequency * getStateTime());
+        // Lateral speed oscillates (world units per second)
+        double lateralSpeed = amplitude * Math.sin(2 * Math.PI * frequency * getStateTime());
 
-        // Apply a force perpendicular to the initial direction
-        wave.set(perpendicular).multiply(lateralForce);
-        applyForce(wave);
+        // Compose final velocity = forward + lateral
+        wave.set(forwardDir).multiply(getTerminalVelocity()).add(perpendicular.copy().multiply(lateralSpeed));
+        setLinearVelocity(wave);
     }
 
     public void setStunCollisionHandler(double duration) {
