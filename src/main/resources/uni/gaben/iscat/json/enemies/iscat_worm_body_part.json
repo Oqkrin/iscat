@@ -26,5 +26,8 @@
     "hurt": [],
     "death": [],
     "spawn": []
-  }
+  },
+  "modifiers": [
+    { "type": "separation", "radius": 10.0, "weight": 3 }
+  ]
 }

@@ -12,8 +12,8 @@
   "InitLife": 2000,
   "LinearDamping": 0,
   "mass": 1,
-  "MaxVelocity": 50,
-  "MaxForce": 100,
+  "MaxVelocity": 30,
+  "MaxForce": 90,
   "MaxAngularVelocity": 500  ,
   "XPReward": 300,
   "DetectionRange": 20,
@@ -26,6 +26,7 @@
       "type": "pursuit",
       "maxPredictionTime": 1
     },
+    "rotation": { "type": "target", "target": "player" },
     "abilities": [
       {
         "type": "kamikaze",
@@ -33,13 +34,15 @@
       },
       {
         "type": "plunge",
-        "plungeCooldownMS": 1500,
+        "plungeCooldownMS": 5000,
         "dashDurationMS": 300,
         "dashPrediction": 0,
         "dashAvoidRange": 30,
         "dashImpulse": 300
       }
     ],
-    "modifiers": []
+    "modifiers": [
+      { "type": "separation", "radius": 5.0, "weight": 1 }
+    ]
   }
 }

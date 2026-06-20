@@ -93,7 +93,7 @@ public class UniverseSpawner {
                 "iscat_worm_head",
                 "iscat_worm_body_part",
                 "iscat_worm_tail",
-                5,
+                10,
                 x, y,
                 model,
                 controller
