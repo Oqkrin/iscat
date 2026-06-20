@@ -1,11 +1,11 @@
 package uni.gaben.iscat.controller.components.settings;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.stage.Stage;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
+import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
@@ -16,8 +16,9 @@ public class DisplaySettingsController {
     @FXML private CheckBox FullscreenCheck;
     @FXML private CheckBox DebugModeCheck;
 
-    // Riferimento all'overlay di conferma (esattamente come in AccountSettingsController)
     private ConfirmationOverlayController confirmOverlayController;
+
+    private GameController gameController;
 
     @FXML
     public void initialize() {
@@ -31,31 +32,23 @@ public class DisplaySettingsController {
         }
     }
 
-    /**
-     * Permette di iniettare il controller dell'overlay dal gestore principale delle impostazioni.
-     */
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
     public void setConfirmOverlayController(ConfirmationOverlayController controller) {
         this.confirmOverlayController = controller;
     }
 
-    /**
-     * Sincronizza in modo sicuro ed efficiente lo stato del pannello video tra Finestra e Database.
-     */
     public void bindDisplayProperties(Stage stage) {
         if (stage == null) return;
 
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
         if (settings != null) {
-            if (checkFps != null) {
-                checkFps.setSelected(settings.getShowFps() == 1);
-            }
-            if (FullscreenCheck != null) {
-                FullscreenCheck.setSelected(stage.isFullScreen());
-            }
-            if (DebugModeCheck != null) {
-                DebugModeCheck.setSelected(settings.getDebugMode() == 1);
-            }
+            if (checkFps != null) checkFps.setSelected(settings.getShowFps() == 1);
+            if (FullscreenCheck != null) FullscreenCheck.setSelected(stage.isFullScreen());
+            if (DebugModeCheck != null) DebugModeCheck.setSelected(settings.getDebugMode() == 1);
         } else if (FullscreenCheck != null) {
             FullscreenCheck.setSelected(stage.isFullScreen());
         }
@@ -109,40 +102,42 @@ public class DisplaySettingsController {
 
         boolean requestedState = DebugModeCheck.isSelected();
 
-        // Se l'utente tenta di attivare il Debug, fermiamo l'azione e chiediamo conferma
         if (requestedState) {
-            // Ripristiniamo momentaneamente la checkbox a vuota (false) per non barare visivamente
             DebugModeCheck.setSelected(false);
 
             if (confirmOverlayController != null) {
-                // Utilizziamo askWithButtons per passare sia il blocco di conferma (SÌ) che il reset grafico (NO / Annulla)
                 confirmOverlayController.askWithButtons(
                         "Attivare Debug Mode?",
                         "Attivando la console di debug, i progressi di gioco e i punteggi non verranno salvati.",
                         "SÌ", "NO",
                         () -> {
-                            // Accetta, spunta la checkbox e aggiorna il Database
                             DebugModeCheck.setSelected(true);
                             int debugValue = 1;
                             settings.setDebugMode(debugValue);
+
+                            if (gameController != null) {
+                                gameController.setShowDebugMode(true);
+                            }
 
                             IscatDB.getInstance().executeAsync(() ->
                                     IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "DebugMode", debugValue)
                             );
                         },
                         () -> {
-                            // CALLBACK NO: Lascia la checkbox deselezionata (Stato pulito)
                             DebugModeCheck.setSelected(false);
                         }
                 );
             } else {
-                // Fallback nel caso in cui il controller non sia stato iniettato
                 DebugModeCheck.setSelected(true);
+                if (gameController != null) gameController.setShowDebugMode(true);
             }
         } else {
-            // Se sta disattivando il Debug, procediamo istantaneamente senza popup
             int debugValue = 0;
             settings.setDebugMode(debugValue);
+
+            if (gameController != null) {
+                gameController.setShowDebugMode(false);
+            }
 
             IscatDB.getInstance().executeAsync(() ->
                     IscatDB.getInstance().getSettingsDAO().updateDisplaySetting(settings.getUserId(), "DebugMode", debugValue)
