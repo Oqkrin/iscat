@@ -30,61 +30,95 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller per la scheda delle impostazioni del tema.
- *
- * <p>Responsabile esclusivamente della creazione e gestione della UI.
- * Tutta la logica di business (estrazione colori, persistenza, stato) è delegata al {@link ThemeSettingsModel}.</p>
- *
+ * Controller per la gestione dell'interfaccia utente dedicata alla personalizzazione del tema visivo.
+ * Coordina l'interazione tra i selettori colore (ColorPicker), il sistema di carosello per gli sfondi,
+ * l'estrazione di palette e le modalità speciali Rainbow e Light Mode.
  */
 public class ThemeSettingsController {
 
+    /** Selettori nativi JavaFX per la gestione dei colori di accento e dello sfondo. */
     @FXML private ColorPicker accentPrimary, accentSecondary, accentTernary, bgPrimary;
+
+    /** Caselle di controllo per l'attivazione della Light Mode e della Rainbow Mode. */
     @FXML private CheckBox lightModeCheck, rainbowModeCheck;
+
+    /** Contenitori orizzontali per l'allineamento dei widget di selezione colore e dei cerchi della palette. */
     @FXML private HBox paletteHolder, pickerRow1, pickerRow2;
 
+    /** Contenitore radice del componente della vista. */
     @FXML private VBox theme;
+
+    /** Area di posizionamento della preview dell'immagine di sfondo. */
     @FXML private StackPane imageArea;
+
+    /** Visualizzatore grafico dell'immagine attiva estratta dal carosello. */
     @FXML private ImageView themePreview;
+
+    /** Pulsanti di navigazione per scorrere gli elementi presenti all'interno del carosello. */
     @FXML private Button prevThemeBtn, nextThemeBtn;
+
+    /** Pulsante iniziale posizionato al centro per l'apertura del selettore di immagini. */
     @FXML private Button pickImageBtn;
+
+    /** Pulsante per il ripristino istantaneo di tutte le impostazioni cromatiche di default. */
+    @FXML private Button restoreBtn;
+
+    /** Pulsante secondario per aggiungere ulteriori immagini all'elenco esistente. */
     @FXML private Button addImageBtn;
+
+    /** Etichetta di testo informativa per guidare l'utente nell'utilizzo dei campioni colore generati. */
     @FXML private Label paletteTip;
 
+    /** Riferimento al pannello contenitore di livello superiore all'interno del quale viene iniettata la scena. */
     private Pane paneMaster;
+
+    /** Istanza del modello di business associata alla logica di sincronizzazione e persistenza del tema. */
     private ThemeSettingsModel model;
 
+    /** Mappa di associazione per rintracciare l'etichetta testuale personalizzata legata a ciascun ColorPicker nativo. */
     private final Map<ColorPicker, Label> pickerBoxes = new HashMap<>();
-    private final ObjectProperty<Object> activePicker = new SimpleObjectProperty<>(null);
+
+    /** Proprietà che memorizza il selettore colore attualmente attivo e selezionato dall'utente. */
+    private final ObjectProperty<ColorPicker> activePicker = new SimpleObjectProperty<>(null);
 
     /**
-     * Inizializza il controller creando il modello e collegando la UI.
+     * Inizializza i componenti della vista FXML. Configura i binding bidirezionali,
+     * i listener reattivi sulle proprietà del modello, le maschere di ritaglio geometriche
+     * e le impostazioni di ridimensionamento automatico delle immagini.
      */
     @FXML
     public void initialize() {
         model = new ThemeSettingsModel();
-
-        // Carica i dati dal database
         model.loadFromDatabase();
 
-        // Collega le proprietà del modello ai controlli JavaFX (bidirezionale)
         lightModeCheck.selectedProperty().bindBidirectional(model.lightModeProperty());
         rainbowModeCheck.selectedProperty().bindBidirectional(model.rainbowModeProperty());
 
-        // All'avvio, sincronizza i picker con i colori del modello (che ha già i valori dal DB)
         accentPrimary.valueProperty().bindBidirectional(model.accentPrimaryProperty());
         accentSecondary.valueProperty().bindBidirectional(model.accentSecondaryProperty());
         accentTernary.valueProperty().bindBidirectional(model.accentTernaryProperty());
         bgPrimary.valueProperty().bindBidirectional(model.bgPrimaryProperty());
 
-        // Costruisci i widget personalizzati per i color picker (nascosti)
+        accentPrimary.valueProperty().addListener((obs, oldV, newV) -> {
+            if (!rainbowModeCheck.isSelected()) applyModelColorsToScene();
+        });
+        accentSecondary.valueProperty().addListener((obs, oldV, newV) -> {
+            if (!rainbowModeCheck.isSelected()) applyModelColorsToScene();
+        });
+        accentTernary.valueProperty().addListener((obs, oldV, newV) -> {
+            if (!rainbowModeCheck.isSelected()) applyModelColorsToScene();
+        });
+        bgPrimary.valueProperty().addListener((obs, oldV, newV) -> {
+            if (!rainbowModeCheck.isSelected()) applyModelColorsToScene();
+        });
+
         buildCustomPickers();
 
-        // Configura i pulsanti
         addImageBtn.setOnAction(this::onImagePick);
+        pickImageBtn.setOnAction(this::onImagePick);
         prevThemeBtn.setOnAction(e -> model.navigateCarousel(false));
         nextThemeBtn.setOnAction(e -> model.navigateCarousel(true));
 
-        // Gestione dell'anteprima immagine
         themePreview.managedProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.visibleProperty().bind(themePreview.imageProperty().isNotNull());
         themePreview.fitWidthProperty().bind(imageArea.widthProperty().multiply(0.9));
@@ -93,7 +127,6 @@ public class ThemeSettingsController {
         paletteTip.setVisible(false);
         paletteTip.visibleProperty().bind(addImageBtn.visibleProperty());
 
-        // Clip arrotondata per l'anteprima
         Rectangle clip = new Rectangle();
         clip.setArcWidth(IscatSettings.STANDARD_UNIT);
         clip.setArcHeight(IscatSettings.STANDARD_UNIT);
@@ -103,9 +136,6 @@ public class ThemeSettingsController {
         });
         themePreview.setClip(clip);
 
-        // Carica la palette e l'immagine se presenti in sessione (ereditate da SessionManager? meglio dal modello)
-        // Se SessionManager conteneva dati persistenti, vanno spostati nel modello.
-        // Per semplicità assumiamo che il modello ora sia l'unica fonte.
         if (!model.getCurrentPalette().isEmpty()) {
             rebuildPaletteUI();
         }
@@ -115,7 +145,6 @@ public class ThemeSettingsController {
         }
         updateCarouselButtons();
 
-        // Ascolto cambiamenti dell'immagine corrente
         model.currentImageIndexProperty().addListener((obs, oldIdx, newIdx) -> {
             File img = model.getCurrentImage();
             if (img != null) {
@@ -123,28 +152,24 @@ public class ThemeSettingsController {
             }
             updateCarouselButtons();
         });
-
-        // Ricostruisci la palette quando cambia la lista dei colori (opzionale)
-        // model.getCurrentPalette() non è osservabile; potremmo chiamare rebuildPaletteUI dopo ogni estrazione
     }
 
     /**
-     * Inietta il pannello padre (necessario per ottenere la scena e applicare i temi CSS).
+     * Inietta il riferimento al pannello contenitore master radice. Se la modalità arcobaleno
+     * è attiva, avvia i timer grafici per l'aggiornamento real-time dei colori.
+     * * @param paneMaster Il contenitore grafico padre da associare.
      */
     public void injectParentPane(Pane paneMaster) {
         this.paneMaster = paneMaster;
-        // Se la modalità arcobaleno era attiva, avvia il timer di sincronizzazione UI
         if (model.rainbowModeProperty().get()) {
             model.startRainbowSyncTimer();
         }
-
-        // Applica i colori del modello alla scena (richiede la scena)
         applyModelColorsToScene();
     }
 
     /**
-     * Applica i colori attuali del modello alla scena tramite ThemeManager.
-     * Da chiamare dopo che la scena è disponibile e dopo ogni cambiamento.
+     * Estrae i codici colore esadecimali memorizzati nel modello e li applica ai fogli di stile
+     * CSS agganciati alla finestra principale tramite l'interfaccia singleton del {@link ThemeManager}.
      */
     private void applyModelColorsToScene() {
         if (paneMaster == null || paneMaster.getScene() == null) return;
@@ -157,10 +182,8 @@ public class ThemeSettingsController {
         ThemeManager.getInstance().applyHexColorsTheme(paneMaster.getScene(), hexPalette, 0.2);
     }
 
-    // ==================== Costruzione UI personalizzata ====================
-
     /**
-     * Crea i widget personalizzati per i quattro ColorPicker (due file da due).
+     * Avvia il processo di generazione grafica di tutti e quattro i selettori colore personalizzati.
      */
     private void buildCustomPickers() {
         buildCustomPicker(accentPrimary, "Primary", pickerRow1);
@@ -170,10 +193,13 @@ public class ThemeSettingsController {
     }
 
     /**
-     * Costruisce un singolo widget: rettangolo colorato + etichetta + pulsante freccia.
+     * Trasforma l'aspetto visivo di un selettore colore nativo mascherandolo sotto forma di blocco di testo
+     * interattivo con colorazione dinamica adattiva dello sfondo, e vi applica fogli di stile esterni CSS personalizzati.
+     * * @param picker Il componente {@link ColorPicker} nativo da configurare.
+     * @param role   L'etichetta testuale descrittiva del ruolo del colore.
+     * @param row    Il contenitore orizzontale in cui innestare il widget finale.
      */
     private void buildCustomPicker(ColorPicker picker, String role, HBox row) {
-        // The real picker is invisible (just used for coordinate reference)
         picker.setOpacity(0);
         picker.setMouseTransparent(true);
         picker.setManaged(false);
@@ -181,12 +207,10 @@ public class ThemeSettingsController {
             if (isShowing) {
                 PopupWindow popup = getPopup(picker);
                 if (popup != null && popup.getScene() != null) {
-                    // Add your main CSS (adjust path to your actual file)
                     String css = getClass().getResource("/uni/gaben/iscat/styles/screens/settings-menu.css").toExternalForm();
                     if (!popup.getScene().getStylesheets().contains(css)) {
                         popup.getScene().getStylesheets().add(css);
                     }
-                    // Optionally also add the specific color‑picker CSS if it’s separate
                     String pickerCss = getClass().getResource("/uni/gaben/iscat/styles/components/iscat-color-picker.css").toExternalForm();
                     if (!popup.getScene().getStylesheets().contains(pickerCss)) {
                         popup.getScene().getStylesheets().add(pickerCss);
@@ -195,24 +219,18 @@ public class ThemeSettingsController {
             }
         });
 
-        // --- The colour swatch + role name ---
         Label colorLabel = new Label(role);
         colorLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
         colorLabel.setAlignment(Pos.CENTER);
         colorLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
 
-        // Bind the background colour to the picker value
         colorLabel.backgroundProperty().bind(
                 Bindings.createObjectBinding(
-                        () -> {
-                            Color c = picker.getValue();
-                            return new Background(new BackgroundFill(c, new CornerRadii(8), Insets.EMPTY));
-                        },
+                        () -> new Background(new BackgroundFill(picker.getValue(), new CornerRadii(8), Insets.EMPTY)),
                         picker.valueProperty()
                 )
         );
 
-        // Auto‑adjust text colour for contrast
         colorLabel.textFillProperty().bind(
                 Bindings.createObjectBinding(
                         () -> picker.getValue().getBrightness() > 0.5 ? Color.BLACK : Color.WHITE,
@@ -220,7 +238,6 @@ public class ThemeSettingsController {
                 )
         );
 
-        // Size and style
         double boxWidth = IscatSettings.STANDARD_UNIT * 5;
         double boxHeight = IscatSettings.STANDARD_UNIT * 2;
         colorLabel.setMinSize(boxWidth, boxHeight);
@@ -229,32 +246,29 @@ public class ThemeSettingsController {
         colorLabel.getStyleClass().add("custom-color-box");
         colorLabel.setOnMouseClicked(e -> setActivePicker(picker));
 
-        // --- Arrow button ---
         Button arrowBtn = new Button("▼");
         arrowBtn.getStyleClass().add("arrow-button");
         arrowBtn.setOnAction(e -> picker.show());
-        // Make the button a little larger to match the box
         arrowBtn.setMinHeight(boxHeight);
         arrowBtn.setPrefHeight(boxHeight);
         arrowBtn.setMaxHeight(boxHeight);
 
-        // --- Overlay for the invisible real picker (for correct popup position) ---
         StackPane overlay = new StackPane(colorLabel, picker);
         overlay.setAlignment(Pos.CENTER);
         overlay.setMinSize(boxWidth, boxHeight);
         overlay.setPrefSize(boxWidth, boxHeight);
         overlay.setMaxSize(boxWidth, boxHeight);
 
-        // --- Final widget ---
         HBox widget = new HBox(4, overlay, arrowBtn);
         widget.setAlignment(Pos.CENTER_LEFT);
 
-        pickerBoxes.put(picker, colorLabel);   // store the actual widget for active highlighting
+        pickerBoxes.put(picker, colorLabel);
         row.getChildren().add(widget);
     }
 
     /**
-     * Evidenzia il picker selezionato e aggiorna il modello.
+     * Gestisce e aggiorna l'evidenziazione visiva del bordo del selettore colore attualmente attivo nella UI.
+     * * @param picker L'istanza del componente {@link ColorPicker} da rendere attiva e selezionata.
      */
     private void setActivePicker(ColorPicker picker) {
         pickerBoxes.values().forEach(box -> box.getStyleClass().remove("picker-active"));
@@ -265,7 +279,8 @@ public class ThemeSettingsController {
     }
 
     /**
-     * Ricostruisce l'area dei cerchi colorati a partire dalla palette del modello.
+     * Ricostruisce dinamicamente i cerchi colorati di anteprima all'interno della barra della palette estratta.
+     * Calcola le dimensioni dei singoli campioni e ne organizza la disposizione ordinandoli per luminanza.
      */
     private void rebuildPaletteUI() {
         paletteHolder.getChildren().clear();
@@ -287,18 +302,19 @@ public class ThemeSettingsController {
             Circle circle = new Circle(diameter / 2.0, color);
             circle.getStyleClass().add("palette-swatch");
             circle.setOnMouseClicked(e -> {
-
-                if (activePicker.get() instanceof ColorPicker picker) {
+                ColorPicker picker = activePicker.get();
+                if (picker != null) {
                     picker.setValue(color);
-                    // Il cambio di valore farà scattare il listener che chiama applyThemeToManager
                 }
             });
             paletteHolder.getChildren().add(circle);
         }
     }
 
-    // ==================== Azioni UI ====================
-
+    /**
+     * Gestisce l'evento di pressione dei pulsanti per la selezione delle immagini di sfondo locali via {@link FileChooser}.
+     * * @param event L'evento di azione scatenato dal click sul componente grafico.
+     */
     @FXML
     void onImagePick(ActionEvent event) {
         FileChooser chooser = new FileChooser();
@@ -308,10 +324,16 @@ public class ThemeSettingsController {
             themePreview.setImage(new Image(chosen.toURI().toString()));
             rebuildPaletteUI();
             updateCarouselButtons();
-            applyModelColorsToScene();
+            if (!rainbowModeCheck.isSelected()) {
+                applyModelColorsToScene();
+            }
         }
     }
 
+    /**
+     * Alterna lo stato di attivazione della Rainbow Mode sincronizzando di conseguenza il ciclo del manager grafico.
+     * * @param event L'evento di selezione scatenato dalla casella di controllo.
+     */
     @FXML
     void toggleRainbowMode(ActionEvent event) {
         boolean active = rainbowModeCheck.isSelected();
@@ -328,19 +350,27 @@ public class ThemeSettingsController {
         }
     }
 
+    /**
+     * Gestisce l'attivazione o la disattivazione della Light Mode, avviando l'aggiornamento dei colori dello sfondo.
+     * * @param event L'evento di selezione associato alla checkbox della Light Mode.
+     */
     @FXML
     void toggleThemeMode(ActionEvent event) {
         boolean light = lightModeCheck.isSelected();
         model.setLightMode(light);
-        // Dopo il cambio potrebbe servire ricostruire la palette se c'è un'immagine
+
         if (!model.getCurrentPalette().isEmpty()) {
             rebuildPaletteUI();
         }
-        applyModelColorsToScene();
+
+        if (paneMaster != null && paneMaster.getScene() != null && !rainbowModeCheck.isSelected()) {
+            applyModelColorsToScene();
+        }
     }
 
     /**
-     * Aggiorna la visibilità dei pulsanti del carosello in base al numero di immagini.
+     * Monitora la quantità complessiva delle immagini caricate per nascondere o mostrare selettivamente
+     * i pulsanti di navigazione destra/sinistra e per alternare la visibilità dei selettori principali.
      */
     private void updateCarouselButtons() {
         int total = model.getCarouselSize();
@@ -359,31 +389,14 @@ public class ThemeSettingsController {
     }
 
     /**
-     * Helper to extract the PopupWindow from a ColorPicker (the popup with the colour grid).
-     * Works for JavaFX 8+.
+     * Isola ed individua l'istanza corretta della finestra Popup associata al ColorPicker nativo in primo piano.
+     *
+     * @param picker Il componente per cui rintracciare la finestra di dialogo.
+     * @return L'oggetto {@link PopupWindow} se presente e visibile, altrimenti {@code null}.
      */
     private PopupWindow getPopup(ColorPicker picker) {
-        // The popup is hidden inside the skin; we can find it via lookup
-        // or by accessing the skin's popup. A reliable way:
-        if (picker.getSkin() != null) {
-            // The skin is usually a ColorPickerSkin, which has a method getPopupContent()
-            // but it's not public. Using reflection is overkill, so we can search the scene.
-            // Alternatively, listen to the popup's ownerWindow.
-            // Simplest: iterate over all open popups? Not ideal.
-            // Better: use the internal property "popup" via reflection or rely on the fact that
-            // the popup is a child of the picker's scene window? No, it's separate.
-        }
-        // For a simple solution, we can obtain the popup by checking the children of the
-        // ColorPicker's scene's window? Not reliable.
-        // Instead, we can use the fact that the popup is shown when isShowing is true,
-        // and we can access it via `picker.getScene().getWindow()`? No.
-
-        // A common workaround: after the popup is shown, we can find it by searching for
-        // a PopupWindow whose owner is the picker's scene's window.
-        // Let's use a straightforward, safe approach with Java 8+:
         for (Window window : Window.getWindows()) {
-            if (window instanceof javafx.stage.PopupWindow popup && popup.isShowing()) {
-                // Check if the popup's owner scene is the same as the picker's scene
+            if (window instanceof PopupWindow popup && popup.isShowing()) {
                 if (popup.getOwnerWindow() == picker.getScene().getWindow()) {
                     return popup;
                 }
@@ -392,7 +405,28 @@ public class ThemeSettingsController {
         return null;
     }
 
+    /**
+     * Carica dal database e imposta sulla scena attiva i colori e i parametri salvati nell'ultima sessione utente.
+     */
     public void loadAndApplySavedTheme() {
         model.loadFromDatabase();
+        if (!model.rainbowModeProperty().get()) {
+            applyModelColorsToScene();
+        }
+    }
+
+    /**
+     * Interrompe le animazioni attive e ripristina istantaneamente l'interfaccia utente
+     * e la palette cromatico-visiva ai valori iniziali originali dell'applicazione.
+     * * @param event L'evento scatenato dalla pressione del tasto RESTORE.
+     */
+    @FXML
+    void onRestoreDefaults(ActionEvent event) {
+        ThemeManager.getInstance().stopRainbowMode();
+        model.restoreDefaultTheme();
+        paletteHolder.getChildren().clear();
+        themePreview.setImage(null);
+        updateCarouselButtons();
+        applyModelColorsToScene();
     }
 }
