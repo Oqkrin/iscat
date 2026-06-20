@@ -24,7 +24,7 @@ public class DebugToolBarCheats extends VBox {
         btnBack.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(btnBack);
         CssHelper.testoSecondario(btnBack);
-        btnBack.setStyle(btnBack.getStyle() + "; -fx-font-size: 11px; -fx-padding: 4 12;");
+        btnBack.getStyleClass().add("debug-btn-back");
         btnBack.setOnAction(e -> onBack.run());
 
         HBox topBar = new HBox(btnBack);
@@ -32,24 +32,24 @@ public class DebugToolBarCheats extends VBox {
 
         Label mainTitle = new Label("CHEAT MODIFIERS");
         CssHelper.testoPrimario(mainTitle);
-        mainTitle.setStyle(mainTitle.getStyle() + "; -fx-font-weight: bold; -fx-font-size: 14px;");
+        mainTitle.getStyleClass().add("debug-main-title");
 
         Label lblHealth = createSectionLabel("PLAYER HEALTH & DAMAGE");
         FlowPane healthFlow = new FlowPane(8, 8);
         healthFlow.setAlignment(Pos.CENTER);
 
-        Button btnHeal100 = createCheatButton("HEAL 100", "#2ecc71");
+        Button btnHeal100 = createCheatButton("HEAL 100", "color-heal");
         btnHeal100.setOnAction(e -> controller.debugHeal(100));
-        Button btnHeal1000 = createCheatButton("HEAL 1000", "#2ecc71");
+        Button btnHeal1000 = createCheatButton("HEAL 1000", "color-heal");
         btnHeal1000.setOnAction(e -> controller.debugHeal(1000));
-        Button btnHeal10000 = createCheatButton("HEAL 10000", "#2ecc71");
+        Button btnHeal10000 = createCheatButton("HEAL 10000", "color-heal");
         btnHeal10000.setOnAction(e -> controller.debugHeal(10000));
 
-        Button btnDmg100 = createCheatButton("DAMAGE 100", "#e74c3c");
+        Button btnDmg100 = createCheatButton("DAMAGE 100", "color-damage");
         btnDmg100.setOnAction(e -> controller.debugDamage(100));
-        Button btnDmg1000 = createCheatButton("DAMAGE 1000", "#e74c3c");
+        Button btnDmg1000 = createCheatButton("DAMAGE 1000", "color-damage");
         btnDmg1000.setOnAction(e -> controller.debugDamage(1000));
-        Button btnDmg10000 = createCheatButton("DAMAGE 10000", "#e74c3c");
+        Button btnDmg10000 = createCheatButton("DAMAGE 10000", "color-damage");
         btnDmg10000.setOnAction(e -> controller.debugDamage(10000));
 
         healthFlow.getChildren().addAll(btnHeal100, btnHeal1000, btnHeal10000, btnDmg100, btnDmg1000, btnDmg10000);
@@ -58,10 +58,10 @@ public class DebugToolBarCheats extends VBox {
         FlowPane statesFlow = new FlowPane(10, 10);
         statesFlow.setAlignment(Pos.CENTER);
 
-        Button btnGhost = createCheatButton("GHOST MODE", "#9b59b6");
+        Button btnGhost = createCheatButton("GHOST MODE", "color-special");
         btnGhost.setOnAction(e -> controller.debugToggleGhostMode());
 
-        Button btnGod = createCheatButton("GODMODE", "#f1c40f");
+        Button btnGod = createCheatButton("GODMODE", "color-god");
         btnGod.setOnAction(e -> controller.debugToggleGodMode());
 
         statesFlow.getChildren().addAll(btnGhost, btnGod);
@@ -70,10 +70,10 @@ public class DebugToolBarCheats extends VBox {
         HBox levelsBox = new HBox(12);
         levelsBox.setAlignment(Pos.CENTER);
 
-        Button btnLvlUp = createCheatButton("LEVEL UP ▲", "#3498db");
+        Button btnLvlUp = createCheatButton("LEVEL UP ▲", "color-level-up");
         btnLvlUp.setOnAction(e -> controller.debugLevelUp());
 
-        Button btnLvlDown = createCheatButton("LEVEL DOWN ▼", "#e67e22");
+        Button btnLvlDown = createCheatButton("LEVEL DOWN ▼", "color-level-down");
         btnLvlDown.setOnAction(e -> controller.debugLevelDown());
 
         levelsBox.getChildren().addAll(btnLvlUp, btnLvlDown);
@@ -81,23 +81,20 @@ public class DebugToolBarCheats extends VBox {
         getChildren().addAll(topBar, mainTitle, lblHealth, healthFlow, lblStates, statesFlow, lblLevels, levelsBox);
     }
 
-    private Button createCheatButton(String text, String colorHex) {
+    private Button createCheatButton(String text, String colorStyleClass) {
         Button btn = new Button(text);
         btn.setFocusTraversable(false);
         btn.setPrefHeight(32);
         CssHelper.stilePulsanteMenu(btn);
         CssHelper.testoPrimario(btn);
-        btn.setStyle(btn.getStyle() + String.format(
-                "; -fx-font-size: 11px; -fx-font-weight: bold; -fx-border-color: %1$s; -fx-text-fill: %1$s; -fx-padding: 0 12;",
-                colorHex
-        ));
+        btn.getStyleClass().addAll("cheat-button", colorStyleClass);
         return btn;
     }
 
     private Label createSectionLabel(String text) {
         Label lbl = new Label(text);
         CssHelper.testoSecondario(lbl);
-        lbl.setStyle(lbl.getStyle() + "; -fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #68768a; -fx-margin-top: 5px;");
+        lbl.getStyleClass().add("debug-section-label");
         return lbl;
     }
 }

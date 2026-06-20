@@ -10,6 +10,8 @@ import javafx.scene.layout.VBox;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.utils.design.CssHelper;
 
+import java.util.Objects;
+
 /**
  * Pannello contenitore principale per gli strumenti di debug.
  * Gestisce la navigazione tra il menu principale delle opzioni, la console dei trucchi (Cheats)
@@ -17,17 +19,14 @@ import uni.gaben.iscat.utils.design.CssHelper;
  */
 public class DebugToolBar extends StackPane {
 
-    /** Riferimento al controller principale del gioco. */
-    private final GameController controller;
-
     /** Vista del menu principale della console di debug. */
     private VBox mainMenuView;
 
     /** Sotto-pannello dedicato all'attivazione dei trucchi (GodMode, GhostMode, ecc.). */
-    private DebugToolBarCheats cheatsView;
+    private final DebugToolBarCheats cheatsView;
 
     /** Sotto-pannello dedicato allo spawn visivo dei nemici e degli oggetti di gioco. */
-    private DebugToolBarSpawner spawnerView;
+    private final DebugToolBarSpawner spawnerView;
 
     /**
      * Costruisce e inizializza la barra degli strumenti di debug.
@@ -35,7 +34,6 @@ public class DebugToolBar extends StackPane {
      * @param controller Il controller logico del gioco.
      */
     public DebugToolBar(GameController controller) {
-        this.controller = controller;
 
         this.cheatsView = new DebugToolBarCheats(controller, this::showMainMenu);
         this.spawnerView = new DebugToolBarSpawner(controller, this::showMainMenu);
@@ -77,7 +75,8 @@ public class DebugToolBar extends StackPane {
         Label titleLabel = new Label("DEBUG CONSOLE");
         CssHelper.testoPrimario(titleLabel);
         CssHelper.labelLarge(titleLabel);
-        titleLabel.setStyle(titleLabel.getStyle() + "; -fx-font-weight: bold; -fx-text-fill: #ffaa00; -fx-font-size: 16px;");
+        // Rimosso l'hardcoded setStyle, ora gestito dalla classe CSS
+        titleLabel.getStyleClass().add("debug-title");
 
         HBox optionsContainer = new HBox(15);
         optionsContainer.setAlignment(Pos.CENTER);
@@ -99,10 +98,11 @@ public class DebugToolBar extends StackPane {
     }
 
     /**
-     * Applica le classi CSS e lo stile di sfondo alla barra di debug.
+     * Applica le classi CSS alla barra di debug.
      */
     private void applyStyles() {
-        getStyleClass().add("glowing-border");
-        setStyle("-fx-background-color: #000000;");
+        getStyleClass().addAll("debug-tool-bar", "glowing-border");
+        String cssPath = Objects.requireNonNull(getClass().getResource("/uni/gaben/iscat/styles/screens/game/debug-tool-bar.css")).toExternalForm();
+        getStylesheets().add(cssPath);
     }
 }

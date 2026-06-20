@@ -116,7 +116,7 @@ public class GameView extends AbstractIscatStackPane {
     protected void initStyles() {
         getViewRootPointer().getStyleClass().add("game-view-container");
         getStylesheets().add(Objects.requireNonNull(
-                        GameView.class.getResource("/uni/gaben/iscat/styles/screens/game.css"))
+                        GameView.class.getResource("/uni/gaben/iscat/styles/screens/game/game.css"))
                 .toExternalForm());
 
         CssHelper.stilePulsanteMenu(debugButton);
