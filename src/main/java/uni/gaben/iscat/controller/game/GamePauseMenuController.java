@@ -4,7 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.controller.IscatFxmlController;
+import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.view.game.GameView;

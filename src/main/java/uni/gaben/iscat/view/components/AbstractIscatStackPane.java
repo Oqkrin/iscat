@@ -7,7 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import uni.gaben.iscat.controller.IscatFxmlController;
+import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.model.IscatViewLifecycle;
 
 import java.io.IOException;

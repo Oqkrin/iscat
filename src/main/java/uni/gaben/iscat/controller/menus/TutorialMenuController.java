@@ -1,17 +1,21 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.controller.interfaces.IscatMenuController;
+import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.utils.ComponentsUtils;
+import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 import java.util.ArrayList;
@@ -19,21 +23,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Controller per la schermata dei comandi e del tutorial di gioco (Iscat Tutorial).
- * Gestisce l'interfaccia utente del menu e implementa un effetto scenico a sistema
- * solare in primo piano.
- *
- */
 public class TutorialMenuController implements IscatMenuController {
 
     @FXML private BorderPane rootPane;
     @FXML private Button backBtn;
 
+    @FXML private Label moveLabel;
+    @FXML private Label attackLabel;
+    @FXML private Label dashLabel;
+
     private StackPane contentRoot;
     private AnimationTimer solarSystemTimer;
     private Pane spaceOverlay;
     private final List<PlanetNode> planets = new ArrayList<>();
+    private UserSettings userSettings;
 
     private static final int NUMBER_OF_PLANETS = 6;
     private static final double ORBIT_RADIUS = 310.0;
@@ -43,6 +46,10 @@ public class TutorialMenuController implements IscatMenuController {
         Button button;
         double angle;
         double speedModifier;
+    }
+
+    public void setUserSettings(UserSettings userSettings) {
+        this.userSettings = userSettings;
     }
 
     @FXML
@@ -80,6 +87,9 @@ public class TutorialMenuController implements IscatMenuController {
     }
 
     private void setupSolarSystem() {
+        this.userSettings = SessionManager.getInstance().getCurrentSettings();
+        updateStaticLabels();
+
         clearSolarSystem();
 
         List<EntityRecord> availableSkins = new ArrayList<>();
@@ -115,6 +125,8 @@ public class TutorialMenuController implements IscatMenuController {
         int count = Math.min(NUMBER_OF_PLANETS, availableSkins.size());
         double angleStep = (2 * Math.PI) / count;
 
+        List<String> controlLabels = getControlLabels();
+
         for (int i = 0; i < count; i++) {
             EntityRecord skinRecord = availableSkins.get(i);
 
@@ -127,6 +139,10 @@ public class TutorialMenuController implements IscatMenuController {
             planetBtn.getStyleClass().add("skin-button");
             planetBtn.setGraphic(canvas);
             planetBtn.setFocusTraversable(false);
+
+            if (i < controlLabels.size()) {
+                planetBtn.setText(controlLabels.get(i));
+            }
 
             planetBtn.setMinSize(96, 96);
             planetBtn.setMaxSize(96, 96);
@@ -168,6 +184,36 @@ public class TutorialMenuController implements IscatMenuController {
             }
         };
         solarSystemTimer.start();
+    }
+
+    private void updateStaticLabels() {
+        if (userSettings == null || moveLabel == null || attackLabel == null || dashLabel == null) return;
+
+        String keys = userSettings.getWalkUp() + userSettings.getWalkLeft() + userSettings.getWalkDown() + userSettings.getWalkRight();
+        moveLabel.setText(keys.toUpperCase());
+        attackLabel.setText(userSettings.getAttack());
+        dashLabel.setText(userSettings.getDash1());
+    }
+
+    private List<String> getControlLabels() {
+        List<String> labels = new ArrayList<>();
+        if (userSettings == null) {
+            labels.add("SU");
+            labels.add("GIÙ");
+            labels.add("SINISTRA");
+            labels.add("DESTRA");
+            labels.add("ATTACCO");
+            labels.add("DASH");
+            return labels;
+        }
+
+        labels.add("Su: " + userSettings.getWalkUp());
+        labels.add("Giù: " + userSettings.getWalkDown());
+        labels.add("Sinistra: " + userSettings.getWalkLeft());
+        labels.add("Destra: " + userSettings.getWalkRight());
+        labels.add("Attacco: " + userSettings.getAttack());
+        labels.add("Dash: " + userSettings.getDash1());
+        return labels;
     }
 
     @FXML

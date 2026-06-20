@@ -1,7 +1,7 @@
 package uni.gaben.iscat.view;
 
 import javafx.scene.layout.StackPane;
-import uni.gaben.iscat.controller.LoginMenuController;
+import uni.gaben.iscat.controller.menus.LoginMenuController;
 import uni.gaben.iscat.model.login.LoginModel;
 import uni.gaben.iscat.view.components.AbstractIscatStackPane;
 

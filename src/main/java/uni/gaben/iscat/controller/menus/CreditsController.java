@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -18,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.model.IscatViews;
 
 import java.io.BufferedReader;
@@ -104,7 +105,7 @@ public class CreditsController implements IscatFxmlController {
     }
 
     private void loadCreditsFromFile() {
-        String filePath = "/uni/gaben/iscat/credits.txt";
+        String filePath = "/uni/gaben/iscat/credits/credits.txt";
 
         try (InputStream is = getClass().getResourceAsStream(filePath)) {
             if (is == null) {

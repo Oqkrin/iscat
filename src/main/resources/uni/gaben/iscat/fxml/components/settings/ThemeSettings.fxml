@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="theme" alignment="CENTER" spacing="16.0" styleClass="glowing-border, controls-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.ThemeSettingsController">
+<VBox fx:id="theme" alignment="CENTER" spacing="16.0" styleClass="glowing-border, controls-card" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.ThemeSettingsController">
    <HBox alignment="CENTER" spacing="16.0">
       <children>
             <Button fx:id="prevThemeBtn" styleClass="nav-button" text="&lt;" />

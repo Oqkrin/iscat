@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;
 import uni.gaben.iscat.model.BestiaryModel;

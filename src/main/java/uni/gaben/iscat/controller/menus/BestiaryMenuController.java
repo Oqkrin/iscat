@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.controller.components.InfoCardController;
+import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.model.BestiaryModel;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;

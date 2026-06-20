@@ -1,8 +1,10 @@
 package uni.gaben.iscat.controller.components.settings;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import uni.gaben.iscat.database.IscatDB;
@@ -11,18 +13,15 @@ import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
 
-/**
- * Controller per la schermata di configurazione dei comandi (keybinds).
- * Gestisce la mappatura dei tasti per i controlli di gioco.
- */
 public class KeybindsSettingsController {
 
+    @FXML private VBox mainContainer;
     @FXML private Button walkUp, walkDown, walkLeft, walkRight, dash1, dash2, attack, esc;
 
     private ConfirmationOverlayController confirmOverlayController;
     private Button selectedButton = null;
     private String selectedColumn = null;
-    private boolean isListening = false;  // Stato di ascolto per la registrazione tasti
+    private boolean isListening = false;
 
     private final SettingsDAO settingsDAO;
 
@@ -33,18 +32,24 @@ public class KeybindsSettingsController {
     @FXML
     public void initialize() {
         refreshButtonLabels();
+
+        mainContainer.visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
+            if (isNowVisible) {
+                Platform.runLater(this::refreshButtonLabels);
+            }
+        });
+
+        mainContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null && mainContainer.isVisible()) {
+                Platform.runLater(this::refreshButtonLabels);
+            }
+        });
     }
 
-    /**
-     * Imposta il controller dell'overlay di conferma.
-     */
     public void setConfirmOverlayController(ConfirmationOverlayController controller) {
         this.confirmOverlayController = controller;
     }
 
-    /**
-     * Aggiorna le etichette dei pulsanti con i valori correnti delle impostazioni.
-     */
     public void refreshButtonLabels() {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
@@ -59,9 +64,6 @@ public class KeybindsSettingsController {
         if (esc != null) esc.setText(settings.getPauseGame());
     }
 
-    /**
-     * Avvia la procedura di cambio comando per il pulsante cliccato.
-     */
     @FXML
     void changeControl(ActionEvent event) {
         isListening = false;
@@ -70,7 +72,6 @@ public class KeybindsSettingsController {
 
         selectedButton = (Button) event.getSource();
 
-        // Identifica la colonna corrispondente al pulsante selezionato
         if (selectedButton == walkUp) selectedColumn = "WalkUp";
         else if (selectedButton == walkDown) selectedColumn = "WalkDown";
         else if (selectedButton == walkLeft) selectedColumn = "WalkLeft";
@@ -93,14 +94,9 @@ public class KeybindsSettingsController {
         }
     }
 
-    /**
-     * Gestisce la pressione dei tasti durante la modalità di ascolto.
-     * @return true se il tasto è stato processato
-     */
     public boolean handleKeyPress(KeyEvent event) {
         if (!isListening || selectedButton == null || selectedColumn == null) return false;
 
-        // ESCAPE annulla la mappatura
         if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
             clearSelection();
             if (confirmOverlayController != null) confirmOverlayController.handleBack();
@@ -112,10 +108,6 @@ public class KeybindsSettingsController {
         return true;
     }
 
-    /**
-     * Gestisce la pressione del mouse durante la modalità di ascolto.
-     * @return true se il click è stato processato
-     */
     public boolean handleMousePress(MouseEvent event) {
         if (!isListening || selectedButton == null || selectedColumn == null) return false;
 
@@ -124,10 +116,6 @@ public class KeybindsSettingsController {
         return true;
     }
 
-    /**
-     * Mostra un overlay di conferma per il nuovo comando.
-     * @param pendingValue Il tasto/valore da assegnare
-     */
     private void askForConfirmation(String pendingValue) {
         isListening = false;
 
@@ -145,15 +133,10 @@ public class KeybindsSettingsController {
         }
     }
 
-    /**
-     * Salva il nuovo comando nel database e aggiorna l'interfaccia.
-     * @param value Il tasto/valore da salvare
-     */
     private void saveBinding(String value) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
         if (settings != null) {
-            // Aggiorna l'oggetto settings in memoria
             switch (selectedColumn) {
                 case "WalkUp"    -> settings.setWalkUp(value);
                 case "WalkDown"  -> settings.setWalkDown(value);
@@ -165,36 +148,28 @@ public class KeybindsSettingsController {
                 case "PauseGame" -> settings.setPauseGame(value);
             }
 
-            // Persiste la modifica nel database
             IscatDB.getInstance().executeAsync(() ->
                     settingsDAO.updateControl(settings.getUserId(), selectedColumn, value)
             );
         }
 
-        // Aggiorna il testo del pulsante
         selectedButton.setText(value);
 
-        // Chiude l'overlay se presente
         if (confirmOverlayController != null) {
             confirmOverlayController.handleBack();
         }
 
-        // Resetta lo stato
         selectedButton = null;
         selectedColumn = null;
         isListening = false;
     }
 
-    /**
-     * Resetta tutti i comandi ai valori predefiniti.
-     */
     @FXML
     void resetControls(ActionEvent event) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings == null) return;
         int uid = settings.getUserId();
 
-        // Valori predefiniti
         settings.setWalkUp("W");
         settings.setWalkDown("S");
         settings.setWalkLeft("A");
@@ -206,7 +181,6 @@ public class KeybindsSettingsController {
 
         refreshButtonLabels();
 
-        // Persiste i valori predefiniti nel database
         IscatDB.getInstance().executeAsync(() -> {
             settingsDAO.updateControl(uid, "WalkUp", "W");
             settingsDAO.updateControl(uid, "WalkDown", "S");
@@ -219,16 +193,10 @@ public class KeybindsSettingsController {
         });
     }
 
-    /**
-     * Verifica se c'è una selezione attiva.
-     */
     public boolean hasActiveSelection() {
         return selectedButton != null;
     }
 
-    /**
-     * Annulla la selezione corrente e resetta l'interfaccia.
-     */
     public void clearSelection() {
         selectedButton = null;
         selectedColumn = null;
@@ -236,9 +204,6 @@ public class KeybindsSettingsController {
         refreshButtonLabels();
     }
 
-    /**
-     * Verifica se è in ascolto per la registrazione di un tasto.
-     */
     public boolean isListening() {
         return isListening;
     }
