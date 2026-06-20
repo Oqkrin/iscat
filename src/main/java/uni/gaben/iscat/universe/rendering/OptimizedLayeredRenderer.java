@@ -189,9 +189,11 @@ public class OptimizedLayeredRenderer {
                 gc.fillPolygon(p.xPoints, p.yPoints, p.xPoints.length);
             }
             if (p.lineWidth > 0) {
+                gc.setEffect(PROJECTILE_EFFECT);
                 gc.setStroke(p.color);
                 gc.setLineWidth(p.lineWidth);
                 gc.strokePolygon(p.xPoints, p.yPoints, p.xPoints.length);
+                gc.setEffect(null);
             }
         }
     }

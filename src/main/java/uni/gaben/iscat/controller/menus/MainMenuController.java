@@ -10,6 +10,9 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.rendering.EntityRenderer;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
@@ -93,11 +96,12 @@ public class MainMenuController implements IscatFxmlController {
         try {
             switch (iconCode) {
                 case "fas-gift" -> {
+                    EntityRecord player = EntityFactory.getCache().get(SessionManager.getPlayerSkinKey());
                     SessionManager.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
-                        skin.loadSkin(newValue, 64, 64);
+                        skin.loadSkin(newValue,player.frameW(), player.frameH());
                         skin.resize(128.0);
                     });
-                    skin.loadSkin(SessionManager.getPlayerSkin(), 32, 32);
+                    skin.loadSkin(SessionManager.getPlayerSkin(), player.frameW(), player.frameH());
                     skin.resize(128.0);
                     skin.setFrameDuration(0.20);
                     btn.setGraphic(skin);
