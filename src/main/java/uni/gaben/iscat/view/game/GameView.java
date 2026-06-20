@@ -4,13 +4,10 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.controller.game.GameController;
@@ -23,11 +20,9 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.rendering.UniverseRenderer;
 import uni.gaben.iscat.utils.SessionManager;
-import uni.gaben.iscat.utils.design.CssHelper;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.view.components.AbstractIscatStackPane;
-import uni.gaben.iscat.view.game.debug.DebugToolBar;
 
 import java.util.Objects;
 
@@ -35,7 +30,7 @@ import static javafx.application.Platform.runLater;
 
 /**
  * Vista principale di gioco che gestisce il canvas di rendering, l'HUD,
- * la toolbar di debug e i menu di sovrapposizione come pausa e game over.
+ * l'overlay di debug separato e i menu nativi di sovrapposizione.
  */
 public class GameView extends AbstractIscatStackPane {
 
@@ -46,21 +41,12 @@ public class GameView extends AbstractIscatStackPane {
     private UniverseRenderer universeRenderer;
 
     private GameHudBar hudBar;
-    private DebugToolBar debugToolBar;
+    private GameDebugOverlay debugOverlay;
     private StackPane               pauseMenu;
     private GamePauseMenuController gamePauseMenuController;
     private StackPane               gameOverMenu;
 
     private Label levelLabel;
-    private Label godModeLabel;
-    private Label debugWarningLabel;
-    private VBox cheatLabelsContainer;
-
-    private HBox   debugButtonsContainer;
-    private Button debugButton;
-    private Button toggleWave;
-
-    private boolean debugPanelVisible = false;
 
     /**
      * Costruisce la vista di gioco agganciandola al rispettivo controller.
@@ -79,37 +65,15 @@ public class GameView extends AbstractIscatStackPane {
         canvas = new Canvas();
         universeRenderer = new UniverseRenderer(canvas, gameController);
 
-        hudBar         = new GameHudBar(gameController);
-        debugToolBar   = new DebugToolBar(gameController);
-        pauseMenu      = loadPauseMenu();
-        gameOverMenu   = loadGameOverMenu();
+        hudBar       = new GameHudBar(gameController);
+        pauseMenu    = loadPauseMenu();
+        gameOverMenu = loadGameOverMenu();
 
         levelLabel = new Label("LEVEL 1");
         levelLabel.setFocusTraversable(false);
         levelLabel.setMouseTransparent(true);
 
-        godModeLabel = new Label("GOD MODE ACTIVE");
-        godModeLabel.setFocusTraversable(false);
-        godModeLabel.setMouseTransparent(true);
-
-        debugWarningLabel = new Label("DEBUG MODE ACTIVATED - SCORE WILL NOT BE SAVED");
-        debugWarningLabel.setFocusTraversable(false);
-        debugWarningLabel.setMouseTransparent(true);
-
-        cheatLabelsContainer = new VBox(12, debugWarningLabel, godModeLabel);
-        cheatLabelsContainer.setFocusTraversable(false);
-        cheatLabelsContainer.setMouseTransparent(true);
-
-        debugButton = new Button("DEBUG");
-        debugButton.setFocusTraversable(false);
-
-        toggleWave = new Button("pause wave");
-        toggleWave.setFocusTraversable(false);
-
-        debugButtonsContainer = new HBox(10, debugButton, toggleWave);
-        debugButtonsContainer.setFocusTraversable(false);
-        debugButtonsContainer.setPickOnBounds(false);
-        debugToolBar.setPickOnBounds(false);
+        debugOverlay = new GameDebugOverlay(gameController, isVisible -> canvas.requestFocus());
     }
 
     @Override
@@ -119,20 +83,9 @@ public class GameView extends AbstractIscatStackPane {
                         GameView.class.getResource("/uni/gaben/iscat/styles/screens/game/game.css"))
                 .toExternalForm());
 
-        CssHelper.stilePulsanteMenu(debugButton);
-        CssHelper.testoPrimario(debugButton);
-        CssHelper.stilePulsanteMenu(toggleWave);
-        CssHelper.testoPrimario(toggleWave);
-
         levelLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 24));
         levelLabel.setTextFill(ThemeManager.getInstance().getColorSuccess());
         levelLabel.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 0);");
-
-        godModeLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 20));
-        godModeLabel.setStyle("-fx-text-fill: #f1c40f; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
-
-        debugWarningLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 18));
-        debugWarningLabel.setStyle("-fx-text-fill: #e74c3c; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
     }
 
     @Override
@@ -141,27 +94,16 @@ public class GameView extends AbstractIscatStackPane {
                 canvas,
                 hudBar,
                 levelLabel,
-                cheatLabelsContainer,
-                debugToolBar,
-                debugButtonsContainer,
+                debugOverlay,
                 pauseMenu,
                 gameOverMenu
         );
 
-        StackPane.setAlignment(hudBar,                Pos.TOP_CENTER);
-        StackPane.setAlignment(debugToolBar,          Pos.BOTTOM_CENTER);
-        StackPane.setAlignment(debugButtonsContainer, Pos.TOP_LEFT);
-        StackPane.setAlignment(levelLabel,            Pos.BOTTOM_RIGHT);
+        StackPane.setAlignment(hudBar,     Pos.TOP_CENTER);
+        StackPane.setAlignment(levelLabel, Pos.BOTTOM_RIGHT);
 
-        cheatLabelsContainer.setAlignment(Pos.BOTTOM_LEFT);
-        StackPane.setAlignment(cheatLabelsContainer,  Pos.BOTTOM_LEFT);
-
-        cheatLabelsContainer.setMaxSize(VBox.USE_PREF_SIZE, VBox.USE_PREF_SIZE);
-
-        StackPane.setMargin(hudBar,                   new Insets(20, 0, 0, 0));
-        StackPane.setMargin(debugButtonsContainer,    new Insets(50, 0, 0, 50));
-        StackPane.setMargin(levelLabel,               new Insets(0, 50, 50, 0));
-        StackPane.setMargin(cheatLabelsContainer,     new Insets(0, 0, 50, 50));
+        StackPane.setMargin(hudBar,     new Insets(20, 0, 0, 0));
+        StackPane.setMargin(levelLabel, new Insets(0, 50, 50, 0));
     }
 
     @Override
@@ -172,21 +114,12 @@ public class GameView extends AbstractIscatStackPane {
         hudBar.maxWidthProperty().bind(
                 getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
 
-        debugToolBar.maxHeightProperty().bind(getViewRootPointer().heightProperty().multiply(0.35));
-        debugToolBar.maxWidthProperty().bind(getViewRootPointer().widthProperty().multiply(ScalareAureo.IPHI_D));
-
         CameraModel camera = gameController.getCameraModel();
         camera.screenWidthProperty().bind(canvas.widthProperty());
         camera.screenHeightProperty().bind(canvas.heightProperty());
 
         canvas.widthProperty().addListener((obs, oldW, newW) -> onCanvasSizeChanged());
         canvas.heightProperty().addListener((obs, oldH, newH) -> onCanvasSizeChanged());
-
-        godModeLabel.visibleProperty().bind(gameController.godModeProperty());
-        godModeLabel.managedProperty().bind(godModeLabel.visibleProperty());
-
-        debugWarningLabel.setVisible(gameController.isDebugUsedInThisSession());
-        debugWarningLabel.setManaged(debugWarningLabel.isVisible());
 
         gameOverMenu.visibleProperty().bind(
                 gameModel.gameStateProperty().isEqualTo(GameState.GAME_OVER)
@@ -206,29 +139,6 @@ public class GameView extends AbstractIscatStackPane {
                 runLater(() -> canvas.requestFocus());
             }
         });
-
-        gameController.debugModeProperty().addListener((obs, oldV, debugOn) -> {
-            debugButtonsContainer.setVisible(debugOn);
-            debugButtonsContainer.setManaged(debugOn);
-
-            if (debugOn) {
-                debugWarningLabel.setVisible(true);
-                debugWarningLabel.setManaged(true);
-            }
-
-            if (!debugOn) {
-                debugToolBar.setVisible(false);
-                debugToolBar.setManaged(false);
-                debugPanelVisible = false;
-                debugButton.setText("DEBUG");
-            }
-        });
-
-        boolean initDebug = gameController.isDebugModeOn();
-        debugButtonsContainer.setVisible(initDebug);
-        debugButtonsContainer.setManaged(initDebug);
-        debugToolBar.setVisible(false);
-        debugToolBar.setManaged(false);
 
         gameModel.timerProperty().addListener((obs, oldV, newV) -> hudBar.updateTimer(newV.intValue()));
         runLater(() -> hudBar.updateTimer(gameModel.getTimer()));
@@ -257,28 +167,6 @@ public class GameView extends AbstractIscatStackPane {
                 e.consume();
             }
         });
-
-        debugButton.setOnAction(ev -> {
-            if (gameController.isDebugModeOn()) {
-                debugPanelVisible = !debugPanelVisible;
-                debugToolBar.setVisible(debugPanelVisible);
-                debugToolBar.setManaged(debugPanelVisible);
-                debugButton.setText(debugPanelVisible ? "HIDE DEBUG" : "DEBUG");
-
-                debugWarningLabel.setVisible(true);
-                debugWarningLabel.setManaged(true);
-
-                canvas.requestFocus();
-            }
-        });
-
-        toggleWave.setOnAction(ev -> {
-            if (gameController.isDebugModeOn()) {
-                gameModel.waveActiveProperty().set(!gameModel.isWaveActive());
-                toggleWave.setText(gameModel.isWaveActive() ? "pause wave" : "restart wave");
-                canvas.requestFocus();
-            }
-        });
     }
 
     @Override
@@ -292,11 +180,10 @@ public class GameView extends AbstractIscatStackPane {
             gameController.setShowDebugMode(currentSettings.getDebugMode() == 1);
         }
 
-        debugWarningLabel.setVisible(gameController.isDebugUsedInThisSession());
-        debugWarningLabel.setManaged(debugWarningLabel.isVisible());
+        debugOverlay.syncWarningState();
 
         gameController.setDrawCall(
-                () -> universeRenderer.renderFrame(debugPanelVisible));
+                () -> universeRenderer.renderFrame(debugOverlay.isDebugPanelVisible()));
 
         gameController.getInputManager().attachToScene(this.getScene());
         gameController.setOnUniverseResetCallback(this::bindToCurrentUniverse);
