@@ -13,6 +13,7 @@ import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.brain.IEntityController;
 import uni.gaben.iscat.universe.entities.worm.WormAssembler;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.SessionManager;
 
 import java.util.function.BiFunction;

@@ -5,7 +5,7 @@ import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidMazeGenerator;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
-import uni.gaben.iscat.universe.spawn.UniverseWaveController;
+import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 
 /**

@@ -22,7 +22,7 @@ import uni.gaben.iscat.universe.entities.interfaces.Dynamic;
 import uni.gaben.iscat.universe.entities.player.PlayerController;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
-import uni.gaben.iscat.universe.spawn.UniverseWaveController;
+import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.EntityAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.utils.Updatable;
