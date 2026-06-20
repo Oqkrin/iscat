@@ -70,20 +70,15 @@ public class UniverseModel extends World<Body> {
                 }
 
                 if (proj != null && target != null) {
-                    // Get impact point (the contact point)
-                    Vector2 impactWorld = contact.getPoint(); // contact point in world coords
-
-                    // Get projectile velocity
+                    Vector2 impactWorld = contact.getPoint();
                     Vector2 vel = proj.getLinearVelocity();
 
-                    // Create spark with 20 confetti and 10 sequins (adjust as needed)
+                    // Create spark with 30 confetti and 15 sequins
                     HitSpark spark = HitSpark.create(
-                            impactWorld,
-                            camera,
+                            impactWorld,          // world metres
+                            camera,               // for zoom (if needed) – but we don't need zoom now
                             vel,
-                            getCamera().getScreenWidth(),
-                            getCamera().getScreenHeight(),
-                            20, 10
+                            30, 15
                     );
                     addHitSpark(spark);
                 }

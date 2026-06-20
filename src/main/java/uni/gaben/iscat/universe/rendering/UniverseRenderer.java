@@ -104,22 +104,18 @@ public class UniverseRenderer {
             if (!entity.isInsideRect(minX, maxX, minY, maxY)) continue;
             EntityRenderer.renderLayered(entity, layers, debug);
         }
-        
+
+        renderHitSparks(universe, layers);
+
+
         layers.render();
 
-        renderHitSparksDirect(universe, gc);
 
         renderEnduranceAlterations(universe, camera, gameModel.getDt(), gc);
 
         renderHurt(camera, gc);
 
         if (gameController.isFpsOn()) drawFps(gc, w);
-    }
-
-    private void renderHitSparksDirect(UniverseModel universe, GraphicsContext gc) {
-        for (HitSpark spark : universe.getHitSparks()) {
-            HitSparkVFX.drawHitSpark(spark, gc);
-        }
     }
 
     private void renderHitSparks(UniverseModel universe, OptimizedLayeredRenderer layers) {

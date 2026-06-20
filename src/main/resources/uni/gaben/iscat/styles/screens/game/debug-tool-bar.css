@@ -1,10 +1,10 @@
 .debug-tool-bar {
-    -fx-background-color: #000000;
+    -fx-background-color: -bg-primary;
 }
 
 .debug-title {
     -fx-font-weight: bold;
-    -fx-text-fill: #ffaa00;
+    -fx-text-fill: -color-warning;
     -fx-font-size: 16px;
 }
 
@@ -22,7 +22,7 @@
 .debug-section-label {
     -fx-font-size: 10px;
     -fx-font-weight: bold;
-    -fx-text-fill: #68768a;
+    -fx-text-fill: -accent-primary;
 }
 
 /* Cheat Buttons Standard */
@@ -33,12 +33,12 @@
 }
 
 /* Varianti di colore dinamiche */
-.cheat-button.color-heal { -fx-border-color: #2ecc71; -fx-text-fill: #2ecc71; }
-.cheat-button.color-damage { -fx-border-color: #e74c3c; -fx-text-fill: #e74c3c; }
-.cheat-button.color-special { -fx-border-color: #9b59b6; -fx-text-fill: #9b59b6; }
-.cheat-button.color-god { -fx-border-color: #f1c40f; -fx-text-fill: #f1c40f; }
-.cheat-button.color-level-up { -fx-border-color: #3498db; -fx-text-fill: #3498db; }
-.cheat-button.color-level-down { -fx-border-color: #e67e22; -fx-text-fill: #e67e22; }
+.cheat-button.color-heal { -fx-border-color: -color-success; -fx-text-fill: -color-success; }
+.cheat-button.color-damage { -fx-border-color: -color-error; -fx-text-fill: -color-error; }
+.cheat-button.color-special { -fx-border-color: -accent-primary; -fx-text-fill: -accent-primary; }
+.cheat-button.color-god { -fx-border-color: -color-warning; -fx-text-fill: -color-warning; }
+.cheat-button.color-level-up { -fx-border-color: -accent-secondary; -fx-text-fill: -accent-secondary; }
+.cheat-button.color-level-down { -fx-border-color: -accent-tertiary; -fx-text-fill: -accent-tertiary; }
 
 .debug-spawner-scroll {
     -fx-background: transparent;
