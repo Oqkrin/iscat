@@ -40,23 +40,23 @@
     "steering": {
       "type": "pursuitWithRange",
       "maxPredictionTime": 2,
-      "minDistance": 7,
-      "maxDistance": 15
+      "minDistance": 3,
+      "maxDistance": 7
     },
     "rotation": { "type": "locked" },
     "abilities": [
       {
         "type": "randomizedShoot",
         "combatRange": 40,
-        "cooldownSec": 0.8,
+        "cooldownSec": 2,
         "bulletType": "ENEMY_BULLET",
         "aimAtTarget": true,
         "nerfPrediction": 1,
         "patterns": [
           {
             "type": "spread",
-            "count": 3,
-            "angleStepDeg": 30
+            "count": 4,
+            "angleStepDeg": 15
           },
           {
             "type": "multiDirection",
@@ -68,8 +68,8 @@
           },
           {
             "type": "repeater",
-            "repeats": 3,
-            "intervalSec": 0.25,
+            "repeats": 6,
+            "intervalSec": 0.3,
             "pattern": {
               "type": "singleShot"
             }
@@ -79,9 +79,9 @@
     ],
     "modifiers": [
       { "type": "collisionAvoidance", "radius": 7.5, "weight": 0.5, "maxPredictionTime": 2, "avoidRadius": 1 },
-      { "type": "separation", "radius": 1, "weight": 2 },
-      { "type": "alignment", "radius": 7.5, "weight": 1 },
-      { "type": "cohesion", "radius": 7.5, "weight": 1.5 }
+      { "type": "separation", "radius": 1, "weight": 0.7 },
+      { "type": "alignment", "radius": 7.5, "weight": 0.5 },
+      { "type": "cohesion", "radius": 7.5, "weight": 0.5 }
     ]
   }
 }

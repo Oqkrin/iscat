@@ -33,17 +33,17 @@
     "spawn": []
   },"ai": {
   "steering": { "type": "idle" },
-  "rotation": { "type": "continuesSpin", "spinSpeedRadPerSec": 0.1 },
+  "rotation": { "type": "continuesSpin", "spinSpeedRadPerSec": 0.2 },
   "abilities": [
     {
       "type": "shoot",
       "combatRange": 30,
-      "cooldownSec": 0.8,
+      "cooldownSec": 4,
       "bulletType": "ENEMY_BULLET",
       "aimAtTarget": false,
       "pattern": {
         "type": "repeater",
-        "repeats": 2,
+        "repeats": 5,
         "intervalSec": 0.5,
         "pattern": { "type": "ring", "count": 16 }
       }

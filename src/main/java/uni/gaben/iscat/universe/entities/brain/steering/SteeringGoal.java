@@ -3,6 +3,7 @@ package uni.gaben.iscat.universe.entities.brain.steering;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.target.Predictor;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
@@ -123,11 +124,11 @@ public interface SteeringGoal {
             double idealDistance = (minDistance + maxDistance) * 0.5;
 
             // Clamp ideal distance to camera view so they don't back away out of bounds
-            uni.gaben.iscat.universe.camera.CameraModel camera = universe.getCamera();
+            CameraModel camera = universe.getCamera();
             if (camera != null) {
                 double zoom = camera.getZoom();
-                double halfVW = UU.pxToM(camera.getScreenWidth() / 2.0) / zoom;
-                double halfVH = UU.pxToM(camera.getScreenHeight() / 2.0) / zoom;
+                double halfVW = UU.pxToM((camera.getScreenWidth() / 2.0) / zoom);
+                double halfVH = UU.pxToM((camera.getScreenHeight() / 2.0) / zoom);
                 double minScreenDim = Math.min(halfVW, halfVH) - UU.pxToM(50.0); // 50px margin
                 if (idealDistance > minScreenDim && minScreenDim > 0) {
                     idealDistance = minScreenDim;
@@ -139,8 +140,15 @@ public interface SteeringGoal {
             // Desired speed: proportional to error, clamped between ±terminalVelocity
             double gain = 3.0;   // stiffness – higher = tighter
             double rawSpeed = gain * error;
-            double desiredSpeed = Math.clamp(rawSpeed, -self.getTerminalVelocity(), self.getTerminalVelocity());
-
+            double desiredSpeed;
+            if (error > 0) {
+                // moving towards – keep full authority
+                desiredSpeed = Math.clamp(gain * error, 0, self.getTerminalVelocity());
+            } else {
+                // moving away – damp heavily
+                double backSpeed = 0.4 * self.getTerminalVelocity();
+                desiredSpeed = Math.clamp(gain * error, -backSpeed, 0);
+            }
             // Direction: towards/away from predicted target
             if (distance > 0.0001) {
                 desiredVelocity.normalize();
@@ -148,6 +156,10 @@ public interface SteeringGoal {
                 // If right on top, pick a safe direction (e.g., target's velocity or a random)
                 desiredVelocity.set(entity.getLinearVelocity());
                 if (desiredVelocity.isZero()) desiredVelocity.set(1, 0);
+            }
+            double deadZone = 0.5; // meters
+            if (Math.abs(error) < deadZone) {
+                return desiredVelocity.set(0, 0);
             }
             desiredVelocity.multiply(desiredSpeed);
 

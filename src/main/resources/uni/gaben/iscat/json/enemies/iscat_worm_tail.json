@@ -31,13 +31,18 @@
   "abilities": [
     {
       "type": "randomizedShoot",
-      "combatRange": 30,
-      "cooldownSec": 0.5,
+      "combatRange": 15,
+      "cooldownSec": 3,
       "bulletType": "ENEMY_BULLET",
       "aimAtTarget": true,
       "nerfPrediction": 3,
       "patterns": [
-        { "type": "ring", "count": 16 },
+        {
+          "type": "repeater",
+          "repeats": 3,
+          "intervalSec": 0.3,
+          "pattern": { "type": "ring", "count": 8 }
+        },
         { "type": "ring", "count": 8 },
         { "type": "ring", "count": 24 }
       ]

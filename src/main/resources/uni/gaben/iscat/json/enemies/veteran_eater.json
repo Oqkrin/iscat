@@ -46,7 +46,7 @@
       }
     ],
     "modifiers": [
-      { "type": "separation", "radius": 1, "weight": 6 },
+      { "type": "separation", "radius": 1, "weight": 0.8 },
       { "type": "alignment", "radius": 7.5, "weight": 0.5 },
       { "type": "cohesion", "radius": 7.5, "weight": 0.5 }
     ]
