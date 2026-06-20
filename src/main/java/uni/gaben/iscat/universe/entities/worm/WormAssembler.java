@@ -1,5 +1,6 @@
 package uni.gaben.iscat.universe.entities.worm;
 
+import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.UniverseController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.EntityModel;
@@ -23,6 +24,10 @@ public class WormAssembler {
         // Testa
         EntityModel head = spawnSegment(headKey, startX, startY, universe, controller, chain, true, false);
         if (head != null) {
+            EntityBrain headBrain = chain.getLatestBrain();
+            if (headBrain != null) {
+                headBrain.setSteeringGoal(SteeringGoal.pursuit(Target.ofPlayer(), 1.0));
+            }
             previousModel = head;
         }
 
@@ -67,10 +72,11 @@ public class WormAssembler {
         EntityModel model = new EntityModel(x, y, record);
         EntityBrain brain = EntityBrain.fromRecord(model);
 
+        // Applica il filtro worm a tutti i segmenti
+        model.setCollisionFilter(UniverseCollisionLayers.WORM_BODY_FILTER);
+
         universe.addEntity(model);
         controller.addEntityController(brain);
-
-        // Aggiungi il segmento con i flag isHead e isTail
         chain.addSegment(model, brain, isHead, isTail);
 
         return model;

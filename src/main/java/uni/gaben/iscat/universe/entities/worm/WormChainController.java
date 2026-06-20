@@ -47,12 +47,9 @@ public class WormChainController implements IEntityController {
     }
 
     public void addSegment(EntityModel model, EntityBrain brain, boolean isHead, boolean isTail) {
-        segments.add(new WormSegmentData(model, brain, isHead, isTail));
-    }
-
-    public void addSegment(EntityModel model, EntityBrain brain) {
-        boolean isHead = segments.isEmpty();
-        boolean isTail = model.getEntityRecord().entityKey().equals(tailKey);
+        if (!isHead && brain != null) {
+            brain.setEnabled(false);
+        }
         segments.add(new WormSegmentData(model, brain, isHead, isTail));
     }
 
@@ -178,7 +175,7 @@ public class WormChainController implements IEntityController {
         EntityBrain newBrain = EntityBrain.fromRecord(tailSegment.model);
         tailSegment.brain.setSteeringGoal(newBrain.getSteeringGoal());
         tailSegment.brain.setRotationGoal(newBrain.getRotationGoal());
-
+        tailSegment.brain.setEnabled(true);
         tailSegment.isHead = false;
         tailSegment.isTail = true;
     }

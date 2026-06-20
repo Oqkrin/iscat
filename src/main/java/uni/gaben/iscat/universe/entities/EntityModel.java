@@ -88,6 +88,12 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         setEntityState(state, findRowByType(state.name(), state.ordinal()));
     }
 
+    public void setCollisionFilter(org.dyn4j.collision.CategoryFilter filter) {
+        for (int i = 0; i < getFixtureCount(); i++) {
+            getFixture(i).setFilter(filter);
+        }
+    }
+
     public void setEntityState(EntityState state, int animationRow) {
         if (this.currentEntityState != state || this.currentAnimationRow != animationRow) {
             this.currentEntityState = state;

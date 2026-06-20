@@ -28,6 +28,8 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
     // Core Dependencies
     protected final T entity;
     protected final Shooter<T> shooter;
+    private boolean enabled = true;
+
 
     private final Vector2 steerForce = UU.vector2zero();
     private final Vector2 modifierSteer = new Vector2();
@@ -73,6 +75,7 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
 
     @Override
     public void update(UniverseModel universe, double dt) {
+        if (!enabled) return;
         if(entity == null || entity.shouldRemove()) return;
         processActionLifecycles(universe, dt);
         computeAndApplySteering(universe, dt);
@@ -343,4 +346,7 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
 
     public T getEntity() { return entity; }
     public Shooter<T> getShooter() { return shooter; }
+
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public boolean isEnabled() { return enabled; }
 }
