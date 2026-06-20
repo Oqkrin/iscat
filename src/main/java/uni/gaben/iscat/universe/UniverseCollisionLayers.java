@@ -15,19 +15,18 @@ public final class UniverseCollisionLayers {
     public static final long PROJECTILE       = 8;
     public static final long BOOST            = 16;
     public static final long ENEMY_PROJECTILE = 32;
-    public static final long WORM_BODY        = 64; // Categoria per corpo e coda del verme
+    public static final long WORM_BODY        = 64;
+    public static final long MASTER           = 128;
 
-    // Filters
     public static final CategoryFilter PLAYER_FILTER = new CategoryFilter(PLAYER,
             PLAYER | ASTEROID | ENEMY | WORM_BODY | ENEMY_PROJECTILE | BOOST);
 
     public static final CategoryFilter ASTEROID_FILTER = new CategoryFilter(ASTEROID,
-            PLAYER | ASTEROID | ENEMY | WORM_BODY | PROJECTILE | ENEMY_PROJECTILE);
+            PLAYER | ASTEROID | ENEMY | WORM_BODY | PROJECTILE | ENEMY_PROJECTILE );
 
     public static final CategoryFilter ENEMY_FILTER = new CategoryFilter(ENEMY,
             PLAYER | ASTEROID | ENEMY | PROJECTILE);
 
-    // collisione unica per il worm
     public static final CategoryFilter WORM_BODY_FILTER = new CategoryFilter(WORM_BODY,
             PLAYER | ASTEROID | PROJECTILE);
 
@@ -38,5 +37,8 @@ public final class UniverseCollisionLayers {
             PLAYER | ASTEROID );
 
     public static final CategoryFilter PROJECTILE_FILTER = new CategoryFilter(PROJECTILE,
-            ASTEROID | ENEMY | WORM_BODY);
+            ASTEROID | ENEMY | WORM_BODY | MASTER);
+
+    public static final CategoryFilter MASTER_FILTER = new CategoryFilter(MASTER,
+            PLAYER | ASTEROID | PROJECTILE);
 }

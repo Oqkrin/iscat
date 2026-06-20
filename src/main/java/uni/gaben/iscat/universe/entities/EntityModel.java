@@ -48,7 +48,11 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             case POLYGON -> addFixture(new Polygon(AsteroidShapeFactory.getScaledShape(collisionSize)));
         };
 
-        fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
+        if (entity.isBoss() || "iscat-master".equals(entity.entityKey())) {
+            fixture.setFilter(UniverseCollisionLayers.MASTER_FILTER);
+        } else {
+            fixture.setFilter(UniverseCollisionLayers.ENEMY_FILTER);
+        }
         setMass(entity.maxAngularVelocity() > 0 ? MassType.NORMAL : MassType.FIXED_LINEAR_VELOCITY);
         setLinearDamping(entity.linearDamping());
 
