@@ -24,7 +24,6 @@ public interface SteeringModifier {
 
             Vector2 selfPos = self.getTransform().getTranslation();
 
-
             for (int i = 0; i < neighbors.size(); i++) {
                 AbstractPhysicalEntityModel neighbor = neighbors.get(i);
                 if (neighbor == self || neighbor.shouldRemove()) continue;
@@ -35,10 +34,18 @@ public interface SteeringModifier {
                 if (distSq > 0.0001 && distSq < (separationRadius * separationRadius)) {
                     double dist = Math.sqrt(distSq);
                     double strength = 1.0 - (dist / separationRadius);
-                    toNeighbor.divide(dist).multiply(strength*weight.get());
-                    outForce.add(toNeighbor);
 
+                    // CORRETTO: Separato normalize() da multiply()
+                    toNeighbor.normalize();
+                    toNeighbor.multiply(maxForce * strength);
+                    outForce.add(toNeighbor);
                 }
+            }
+
+            if (!outForce.isZero()) {
+                // CORRETTO: Separato normalize() da multiply()
+                outForce.normalize();
+                outForce.multiply(maxForce * weight.get());
             }
         };
     }
@@ -63,7 +70,17 @@ public interface SteeringModifier {
 
             if (count > 0) {
                 avgVelocity.divide(count);
-                outForce.set(avgVelocity).subtract(self.getLinearVelocity()).multiply(weight.get());
+                if (!avgVelocity.isZero()) {
+                    // CORRETTO: Separato normalize() da multiply()
+                    avgVelocity.normalize();
+                    avgVelocity.multiply(maxForce);
+                }
+                outForce.set(avgVelocity).subtract(self.getLinearVelocity());
+                if (!outForce.isZero()) {
+                    // CORRETTO: Separato normalize() da multiply()
+                    outForce.normalize();
+                    outForce.multiply(maxForce * weight.get());
+                }
             }
         };
     }
@@ -90,7 +107,19 @@ public interface SteeringModifier {
 
             if (count > 0) {
                 centerOfMass.divide(count);
-                outForce.set(centerOfMass).subtract(selfPos).multiply(weight.get());
+                Vector2 desired = centerOfMass.subtract(selfPos);
+                if (!desired.isZero()) {
+                    // CORRETTO: Separato normalize() da multiply()
+                    desired.normalize();
+                    desired.multiply(maxForce);
+
+                    outForce.set(desired).subtract(self.getLinearVelocity());
+                    if (!outForce.isZero()) {
+                        // CORRETTO: Separato normalize() da multiply()
+                        outForce.normalize();
+                        outForce.multiply(maxForce * weight.get());
+                    }
+                }
             }
         };
     }
@@ -98,8 +127,6 @@ public interface SteeringModifier {
     static SteeringModifier collisionAvoidance(Target threats, double maxPredictionTime, double avoidRadius, DoubleProperty weight) {
         Vector2 dp = UU.vector2zero();
         Vector2 dv = UU.vector2zero();
-        Vector2 myFuture = UU.vector2zero();
-        Vector2 threatFuture = UU.vector2zero();
 
         return (self, world, maxForce, dt, outForce) -> {
             outForce.set(0, 0);
@@ -137,22 +164,34 @@ public interface SteeringModifier {
             }
 
             if (mostImminent != null) {
-                // Future positions at the predicted collision moment
-                threatFuture.set(mostImminent.getTransform().getTranslation());
-                threatFuture.add(mostImminent.getLinearVelocity().x * shortestTime,
-                        mostImminent.getLinearVelocity().y * shortestTime);
+                Vector2 threatVel = mostImminent.getLinearVelocity();
 
-                myFuture.set(selfPos);
-                myFuture.add(selfVel.x * shortestTime, selfVel.y * shortestTime);
+                if (!threatVel.isZero()) {
+                    // 1. Otteniamo la direzione del proiettile/minaccia
+                    Vector2 bulletDir = threatVel.copy();
+                    bulletDir.normalize();
 
-                // Direction away from threat
-                outForce.set(myFuture).subtract(threatFuture);
+                    // 2. Calcoliamo il vettore perpendicolare (Schivata Laterale a 90 gradi)
+                    Vector2 lateralEvasion = new Vector2(-bulletDir.y, bulletDir.x);
 
-                double urgency = 1.0 - (shortestTime / maxPredictionTime);  // 1 = immediate, 0 = far
-                urgency = Math.max(urgency, 0.1);                           // always some push
+                    // 3. Scegliamo il lato (+ o -) che ci allontana dal proiettile, senza indietreggiare
+                    Vector2 toSelf = selfPos.copy().subtract(mostImminent.getTransform().getTranslation());
+                    if (lateralEvasion.dot(toSelf) < 0) {
+                        lateralEvasion.multiply(-1);
+                    }
+
+                    outForce.set(lateralEvasion);
+                } else {
+                    // Fallback nel caso in cui la minaccia sia ferma (es. un ostacolo statico)
+                    outForce.set(selfPos).subtract(mostImminent.getTransform().getTranslation());
+                    if (!outForce.isZero()) outForce.normalize();
+                }
+
+                double urgency = 1.0 - (shortestTime / maxPredictionTime);
+                urgency = Math.clamp(urgency, 0.1, 1.0);
 
                 if (!outForce.isZero()) {
-                    outForce.normalize();
+                    // Applica la forza laterale scalata sul peso
                     outForce.multiply(maxForce * weight.get() * urgency);
                 }
             }

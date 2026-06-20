@@ -42,7 +42,6 @@
       }
     ],
     "modifiers": [
-      { "type": "collisionAvoidance", "radius": 7.5, "weight": 5, "maxPredictionTime": 2, "avoidRadius": 3.0 },
       { "type": "separation", "radius": 3.75, "weight": 6 },
       { "type": "alignment", "radius": 7.5, "weight": 0.5 },
       { "type": "cohesion", "radius": 7.5, "weight": 0.5 }
