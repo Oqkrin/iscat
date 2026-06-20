@@ -85,8 +85,7 @@ public class PlungeAbility extends Ability {
 
         // Compute direction and apply impulse
         plungeDirection.set(predictedPos).subtract(selfPos).normalize();
-        double mass = self.getMass().getMass();
-        self.applyImpulse(plungeDirection.multiply(plungeImpulse * mass));
+        self.applyImpulse(plungeDirection.multiply(plungeImpulse));
 
         // Start cooldowns
         plungeDuration.start();
