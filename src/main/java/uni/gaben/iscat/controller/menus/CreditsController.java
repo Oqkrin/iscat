@@ -105,7 +105,7 @@ public class CreditsController implements IscatFxmlController {
     }
 
     private void loadCreditsFromFile() {
-        String filePath = "/uni/gaben/iscat/credits.txt";
+        String filePath = "/uni/gaben/iscat/credits/credits.txt";
 
         try (InputStream is = getClass().getResourceAsStream(filePath)) {
             if (is == null) {
