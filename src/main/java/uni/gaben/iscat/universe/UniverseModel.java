@@ -72,14 +72,8 @@ public class UniverseModel extends World<Body> {
                 if (proj != null && target != null) {
                     Vector2 impactWorld = contact.getPoint();
                     Vector2 vel = proj.getLinearVelocity();
-
-                    // Create spark with 30 confetti and 15 sequins
-                    HitSpark spark = HitSpark.create(
-                            impactWorld,          // world metres
-                            camera,               // for zoom (if needed) – but we don't need zoom now
-                            vel,
-                            30, 15
-                    );
+                    // Create fireworks-style spark with default particle count (30)
+                    HitSpark spark = HitSpark.create(impactWorld, camera, vel);
                     addHitSpark(spark);
                 }
 

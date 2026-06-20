@@ -18,49 +18,72 @@ public class HitSpark implements Stateful, Updatable, Removable {
 
     private static final Random RANDOM = new Random();
 
-    // ===== Physics constants (tweak for desired feel) =====
-    private static final double GRAVITY = 0.15;          // pixels/sec²
-    private static final double DRAG = 0.5;              // per second
-    private static final double TERMINAL_VELOCITY = 3.0; // pixels/sec
-    private static final double MAX_LIFETIME = 1.5;      // seconds
-
     // ===== Particle burst parameters =====
-    private static final int CONF_COUNT = 30;
-    private static final int SEQUIN_COUNT = 15;
-    private static final double CONF_SPEED_MIN = 40;   // pixels/sec
-    private static final double CONF_SPEED_MAX = 90;
-    private static final double SEQUIN_SPEED_MIN = 30;
-    private static final double SEQUIN_SPEED_MAX = 60;
+    private static final int PARTICLE_COUNT = 15;
+    private static final double PARTICLE_RADIUS_MIN = 8;   // world pixels
+    private static final double PARTICLE_RADIUS_MAX = 16;
+    private static final double EXPLOSION_RADIUS_MIN = 25;  // world pixels
+    private static final double EXPLOSION_RADIUS_MAX = 90;
+    private static final double SHOCKWAVE_RADIUS_MIN = 40;
+    private static final double SHOCKWAVE_RADIUS_MAX = 80;
+    private static final double SHOCKWAVE_LINE_WIDTH = 3;
 
-    private final List<Particle> particles = new ArrayList<>();
+    // ===== Color palette =====
+    private static final Color[] PALETTE = {
+            ThemeManager.getInstance().getAccentPrimary(),
+            ThemeManager.getInstance().getAccentSecondary(),
+            ThemeManager.getInstance().getAccentTernary(),
+    };
+
+    // ===== Internal state =====
+    private final List<SparkParticle> particles = new ArrayList<>();
+    private final ShockwaveCircle shockwave;
     private boolean expired = false;
-    private double duration = 0.0;
+    private double elapsed = 0.0;
+    private double duration; // max duration among all particles & shockwave
 
     // ------------------------------------------------------------------------
     // Factory: create a hit spark at a world position (metres)
     // ------------------------------------------------------------------------
     public static HitSpark create(Vector2 worldPos, CameraModel camera,
-                                  Vector2 velocity, int countConfetti, int countSequins) {
+                                  Vector2 velocity, int particleCount) {
         // Convert world position to world pixels (for camera‑space rendering)
         double px = UU.mToPx(worldPos.x);
         double py = UU.mToPx(worldPos.y);
-        // Convert projectile velocity to pixels/sec (for bias)
-        double vxPx = UU.mToPx(velocity.x);
-        double vyPx = UU.mToPx(velocity.y);
 
-        return new HitSpark(px, py, vxPx, vyPx, countConfetti, countSequins);
+        // Optional velocity bias (ignored in this fireworks effect)
+        return new HitSpark(px, py, particleCount);
     }
 
-    private HitSpark(double worldX, double worldY, double biasVx, double biasVy,
-                     int confettiCount, int sequinCount) {
-        // Confetti
-        for (int i = 0; i < confettiCount; i++) {
-            particles.add(new ConfettiParticle(worldX, worldY, biasVx, biasVy));
+    // Overloaded create with default particle count
+    public static HitSpark create(Vector2 worldPos, CameraModel camera, Vector2 velocity) {
+        return create(worldPos, camera, velocity, PARTICLE_COUNT);
+    }
+
+    private HitSpark(double worldX, double worldY, int particleCount) {
+        // ---- Generate particles ----
+        for (int i = 0; i < particleCount; i++) {
+            double angle = RANDOM.nextDouble() * 2 * Math.PI;
+            double distance = RANDOM.nextDouble() * (EXPLOSION_RADIUS_MAX - EXPLOSION_RADIUS_MIN) + EXPLOSION_RADIUS_MIN;
+            double endX = worldX + Math.cos(angle) * distance;
+            double endY = worldY + Math.sin(angle) * distance;
+            double radius = RANDOM.nextDouble() * (PARTICLE_RADIUS_MAX - PARTICLE_RADIUS_MIN) + PARTICLE_RADIUS_MIN;
+            Color color = PALETTE[RANDOM.nextInt(PALETTE.length)];
+            double particleDuration = RANDOM.nextDouble() * 0.6 + 1.2; // 1.2–1.8 sec
+            particles.add(new SparkParticle(worldX, worldY, endX, endY, radius, color, particleDuration));
         }
-        // Sequins
-        for (int i = 0; i < sequinCount; i++) {
-            particles.add(new SequinParticle(worldX, worldY, biasVx, biasVy));
-        }
+
+        // ---- Shockwave circle ----
+        double shockwaveDuration = RANDOM.nextDouble() * 0.6 + 1.2;
+        double startRadius = 0.1;
+        double endRadius = RANDOM.nextDouble() * (SHOCKWAVE_RADIUS_MAX - SHOCKWAVE_RADIUS_MIN) + SHOCKWAVE_RADIUS_MIN;
+        double startAlpha = 0.5;
+        double endAlpha = 0.0;
+        shockwave = new ShockwaveCircle(worldX, worldY, startRadius, endRadius, startAlpha, endAlpha, shockwaveDuration);
+
+        // Determine overall duration (max of all)
+        duration = particles.stream().mapToDouble(p -> p.duration).max().orElse(1.5);
+        duration = Math.max(duration, shockwave.duration);
     }
 
     // ------------------------------------------------------------------------
@@ -68,175 +91,125 @@ public class HitSpark implements Stateful, Updatable, Removable {
     // ------------------------------------------------------------------------
     @Override
     public void update(double dt) {
-        duration += dt;
-        if (duration >= MAX_LIFETIME) {
+        elapsed += dt;
+        if (elapsed >= duration) {
             expired = true;
             return;
         }
         boolean anyAlive = false;
-        for (Particle p : particles) {
-            p.update(dt);
+        // Update particles
+        for (SparkParticle p : particles) {
+            p.update(elapsed);
             if (!p.isDead()) anyAlive = true;
         }
+        // Update shockwave
+        shockwave.update(elapsed);
+        if (!shockwave.isDead()) anyAlive = true;
+
         if (!anyAlive) expired = true;
     }
 
     @Override
     public boolean shouldRemove() { return expired; }
+
     @Override
     public boolean setShouldRemove(boolean remove) { this.expired = remove; return true; }
 
-    public List<Particle> getParticles() { return particles; }
+    public List<SparkParticle> getParticles() { return particles; }
+    public ShockwaveCircle getShockwave() { return shockwave; }
     public boolean isExpired() { return expired; }
 
     // ------------------------------------------------------------------------
-    // Particle hierarchy (world pixel coordinates)
+    // Inner classes
     // ------------------------------------------------------------------------
-    public abstract static class Particle {
-        double x, y;          // world pixel coordinates
-        double vx, vy;        // pixels/sec
-        double alpha = 1.0;
-        double decay;         // alpha decay per second
-        boolean dead = false;
 
-        // Trail positions (for drawing a faint line)
-        double[] trailX = new double[3];
-        double[] trailY = new double[3];
-        public int trailIdx = 0;
+    /**
+     * A single coloured particle that moves from start to end with easing,
+     * shrinking its radius over time.
+     */
+    public static class SparkParticle {
+        private final double startX, startY;
+        private final double endX, endY;
+        private final double startRadius;
+        private final double endRadius; // typically ~0.1
+        private final Color color;
+        private final double duration;
+        private boolean dead = false;
 
-        Particle(double x, double y) {
-            this.x = x;
-            this.y = y;
-            for (int i = 0; i < 3; i++) {
-                trailX[i] = x;
-                trailY[i] = y;
-            }
-            decay = randomRange(0.4, 1.2); // alpha loss per second
+        // Current interpolated values (computed each frame)
+        private double x, y, radius, alpha;
+
+        SparkParticle(double startX, double startY, double endX, double endY,
+                      double startRadius, Color color, double duration) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+            this.startRadius = startRadius;
+            this.endRadius = 0.1; // shrink to near zero
+            this.color = color;
+            this.duration = duration;
+            this.alpha = 1.0;
         }
 
-        abstract void update(double dt);
-        boolean isDead() { return dead; }
-
-        protected void applyPhysics(double dt, double drag) {
-            // Drag
-            vx -= vx * drag * dt;
-            // Gravity (positive = down)
-            vy += GRAVITY * dt;
-            if (vy > TERMINAL_VELOCITY) vy = TERMINAL_VELOCITY;
-            // Update position
-            x += vx * dt;
-            y += vy * dt;
-            // Fade
-            alpha -= decay * dt;
-            if (alpha <= 0.01) dead = true;
-            // Update trail
-            trailX[trailIdx] = x;
-            trailY[trailIdx] = y;
-            trailIdx = (trailIdx + 1) % 3;
+        void update(double elapsed) {
+            double progress = Math.min(elapsed / duration, 1.0);
+            // Ease out expo
+            double t = (progress == 1.0) ? 1.0 : 1.0 - Math.pow(2, -10 * progress);
+            x = startX + (endX - startX) * t;
+            y = startY + (endY - startY) * t;
+            radius = startRadius + (endRadius - startRadius) * t;
+            alpha = 1.0 - t; // fade out linearly
+            if (progress >= 1.0) dead = true;
         }
 
-        protected static double randomRange(double min, double max) {
-            return RANDOM.nextDouble() * (max - min) + min;
-        }
-
-        // Getters for renderer
+        public boolean isDead() { return dead; }
         public double getX() { return x; }
         public double getY() { return y; }
+        public double getRadius() { return radius; }
         public double getAlpha() { return alpha; }
-        public double[] getTrailX() { return trailX; }
-        public double[] getTrailY() { return trailY; }
-        public abstract Color getColor();
-        public abstract double getSize();
-        public abstract boolean hasTrail();
-    }
-
-    // ===== Confetti =====
-    public static class ConfettiParticle extends Particle {
-        private final Color frontColor, backColor;
-        private final double width, height;
-        private double rotation;
-        private double scaleY = 1.0;
-        private final double randomModifier;
-
-        ConfettiParticle(double x, double y, double biasVx, double biasVy) {
-            super(x, y);
-            // Add slight random offset for organic spread
-            this.x += randomRange(-2, 2);
-            this.y += randomRange(-2, 2);
-
-            Color base = pickRandomColor();
-            frontColor = base;
-            backColor = base.darker();
-            width = randomRange(5, 9);
-            height = randomRange(8, 15);
-            rotation = randomRange(0, 2 * Math.PI);
-            randomModifier = randomRange(0, 99);
-
-            // Isotropic burst with bias
-            double angle = randomRange(0, 2 * Math.PI);
-            double speed = randomRange(CONF_SPEED_MIN, CONF_SPEED_MAX);
-            vx = Math.cos(angle) * speed + biasVx * 0.15;
-            vy = Math.sin(angle) * speed + biasVy * 0.15;
-        }
-
-        @Override
-        void update(double dt) {
-            applyPhysics(dt, DRAG);
-            // Spin effect: scaleY oscillates with y
-            scaleY = Math.cos((y + randomModifier) * 0.09);
-        }
-
-        @Override
-        public Color getColor() { return scaleY > 0 ? frontColor : backColor; }
-        @Override
-        public double getSize() { return width; } // not used directly
-        @Override
-        public boolean hasTrail() { return false; } // confetti no trail
-
-        public double getWidth() { return width; }
-        public double getHeight() { return height * scaleY; }
-        public double getRotation() { return rotation; }
-    }
-
-    // ===== Sequin (simple circle) =====
-    public static class SequinParticle extends Particle {
-        public final Color color;
-        public final double radius;
-
-        SequinParticle(double x, double y, double biasVx, double biasVy) {
-            super(x, y);
-            this.x += randomRange(-1.5, 1.5);
-            this.y += randomRange(-1.5, 1.5);
-            color = pickRandomColor().darker();
-            radius = randomRange(1, 3);
-
-            double angle = randomRange(0, 2 * Math.PI);
-            double speed = randomRange(SEQUIN_SPEED_MIN, SEQUIN_SPEED_MAX);
-            vx = Math.cos(angle) * speed + biasVx * 0.1;
-            vy = Math.sin(angle) * speed + biasVy * 0.1;
-        }
-
-        @Override
-        void update(double dt) {
-            applyPhysics(dt, DRAG * 0.7); // sequins have slightly less drag
-        }
-
-        @Override
         public Color getColor() { return color; }
-        @Override
-        public double getSize() { return radius; }
-        @Override
-        public boolean hasTrail() { return true; } // sequins leave a faint trail
     }
 
-    // ===== Color palette =====
-    private static Color pickRandomColor() {
-        Color[] palette = {
-                ThemeManager.getInstance().getAccentPrimary(),
-                ThemeManager.getInstance().getAccentSecondary(),
-                ThemeManager.getInstance().getAccentTernary(),
-        };
-        return palette[RANDOM.nextInt(palette.length)];
+    /**
+     * A ring that expands and fades away.
+     */
+    public static class ShockwaveCircle {
+        private final double centerX, centerY;
+        private final double startRadius, endRadius;
+        private final double startAlpha, endAlpha;
+        private final double duration;
+        private double currentRadius, currentAlpha;
+        private boolean dead = false;
+
+        ShockwaveCircle(double cx, double cy,
+                        double startRadius, double endRadius,
+                        double startAlpha, double endAlpha,
+                        double duration) {
+            this.centerX = cx;
+            this.centerY = cy;
+            this.startRadius = startRadius;
+            this.endRadius = endRadius;
+            this.startAlpha = startAlpha;
+            this.endAlpha = endAlpha;
+            this.duration = duration;
+        }
+
+        void update(double elapsed) {
+            double progress = Math.min(elapsed / duration, 1.0);
+            // Ease out expo
+            double t = (progress == 1.0) ? 1.0 : 1.0 - Math.pow(2, -10 * progress);
+            currentRadius = startRadius + (endRadius - startRadius) * t;
+            currentAlpha = startAlpha + (endAlpha - startAlpha) * t;
+            if (progress >= 1.0) dead = true;
+        }
+
+        public boolean isDead() { return dead; }
+        public double getCenterX() { return centerX; }
+        public double getCenterY() { return centerY; }
+        public double getRadius() { return currentRadius; }
+        public double getAlpha() { return currentAlpha; }
+        public double getLineWidth() { return SHOCKWAVE_LINE_WIDTH; }
     }
 
     // ------------------------------------------------------------------------
@@ -244,7 +217,7 @@ public class HitSpark implements Stateful, Updatable, Removable {
     // ------------------------------------------------------------------------
     @Override public int getState() { return 0; }
     @Override public void setState(int state) {}
-    @Override public double getStateTime() { return duration; }
-    @Override public void setStateTime(double stateTime) { this.duration = stateTime; }
-    @Override public void updateStateTime(double dt) { duration += dt; }
+    @Override public double getStateTime() { return elapsed; }
+    @Override public void setStateTime(double stateTime) { this.elapsed = stateTime; }
+    @Override public void updateStateTime(double dt) { elapsed += dt; }
 }

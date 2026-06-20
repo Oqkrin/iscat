@@ -20,8 +20,7 @@ public class OptimizedLayeredRenderer {
 
     private record SpriteBatch(Image image, double x, double y, double w, double h, double angle, Color tint) {}
     private record LineBatch(double x1, double y1, double x2, double y2, double lineWidth, Color color, double alpha) {}
-    private record OvalBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill) {}
-    private record RectBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double angle) {}
+    private record OvalBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double lineWidth) {}    private record RectBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double angle) {}
     private record PolygonBatch(double[] xPoints, double[] yPoints, Color color, double alpha, boolean fill, double lineWidth) {}
     record HpBarBatch(double x, double y, double w, double h, double percent) {
         // === Visuals & Dimensions ===
@@ -161,13 +160,13 @@ public class OptimizedLayeredRenderer {
     }
 
     private void renderOvals() {
-        // Ovals
         for (OvalBatch o : ovals) {
             if (o.fill) {
                 gc.setFill(o.color);
                 gc.fillOval(o.x, o.y, o.w, o.h);
             } else {
                 gc.setStroke(o.color);
+                gc.setLineWidth(o.lineWidth);
                 gc.strokeOval(o.x, o.y, o.w, o.h);
             }
         }
@@ -244,7 +243,7 @@ public class OptimizedLayeredRenderer {
     }
 
     public void addFilledOval(double x, double y, double w, double h, Color color, double alpha) {
-        ovals.add(new OvalBatch(x, y, w, h, color, alpha, true));
+        ovals.add(new OvalBatch(x, y, w, h, color, alpha, true, 1.0));
     }
 
     public void addFilledRotatedRect(double x, double y, double w, double h, double angle, Color color, double alpha) {
@@ -252,9 +251,11 @@ public class OptimizedLayeredRenderer {
     }
 
     public void addStrokedOval(double x, double y, double w, double h, Color color) {
-        ovals.add(new OvalBatch(x, y, w, h, color, 1.0, false));
+        ovals.add(new OvalBatch(x, y, w, h, color, 1.0, false, 1.0));
     }
-
+    public void addStrokedOval(double x, double y, double w, double h, Color color, double lineWidth) {
+        ovals.add(new OvalBatch(x, y, w, h, color, 1.0, false, lineWidth));
+    }
     public void addStrokedRect(double x, double y, double w, double h, Color color, double angle) {
         rects.add(new RectBatch(x, y, w, h, color, 1.0, false, angle));
     }
