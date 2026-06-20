@@ -1,0 +1,30 @@
+.game-hud-container {
+    -fx-background-color: transparent;
+}
+
+/* Stile base condiviso da tutte le label della HUD */
+.hud-label {
+    -fx-font-family: "Miracode";
+    -fx-font-weight: bold;
+    -fx-text-fill: -accent-primary;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 6, 0, 0, 0);
+}
+
+/* Modificatori di dimensione e opacità */
+.hud-label.large {
+    -fx-font-size: 22px;
+}
+
+.hud-label.medium {
+    -fx-font-size: 15px;
+}
+
+.hud-label.small {
+    -fx-font-size: 12px;
+    -fx-opacity: 0.55;
+}
+
+.hud-label.threat {
+    -fx-font-size: 12px;
+    -fx-opacity: 0.7;
+}

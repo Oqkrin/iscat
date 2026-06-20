@@ -9,11 +9,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.spawn.UniverseWaveController;
 import uni.gaben.iscat.utils.theme.ThemeManager;
+
+import java.util.Objects;
 
 /**
  * Rappresenta la barra dell'interfaccia utente (HUD) di gioco superiore.
@@ -21,18 +21,6 @@ import uni.gaben.iscat.utils.theme.ThemeManager;
  * del livello di minaccia e del numero di nemici rimanenti.
  */
 public class GameHudBar extends StackPane {
-
-    /** Famiglia di font utilizzata per i testi dell'HUD. */
-    private static final String FONT_FAMILY  = "Miracode";
-
-    /** Dimensione del font per i componenti principali come timer e uccisioni. */
-    private static final double FONT_SIZE_LG = 22;
-
-    /** Dimensione del font per il contatore dei nemici rimanenti. */
-    private static final double FONT_SIZE_MD = 15;
-
-    /** Dimensione del font per i dettagli secondari come ondata e livello di minaccia. */
-    private static final double FONT_SIZE_SM = 12;
 
     /** Icona testuale utilizzata per identificare il timer di gioco. */
     private static final String ICON_TIMER   = "⏱";
@@ -60,6 +48,7 @@ public class GameHudBar extends StackPane {
     public GameHudBar(GameController controller) {
         buildNodes(controller.getUniverseWaveController());
         bindToWaveController(controller.getUniverseWaveController());
+        applyStyles();
 
         controller.getGameModel().timerProperty()
                 .addListener((obs, oldV, newV) -> updateTimer(newV.intValue()));
@@ -72,10 +61,10 @@ public class GameHudBar extends StackPane {
      * @param wave Il controller delle ondate per l'inizializzazione iniziale del testo.
      */
     private void buildNodes(UniverseWaveController wave) {
-        timerLabel = styledLabel(ICON_TIMER + "  00:00", FONT_SIZE_LG);
+        timerLabel = styledLabel(ICON_TIMER + "  00:00", "large");
         timerLabel.setMinWidth(170);
 
-        Label killsLabel = styledLabel(ICON_KILLS + "  0", FONT_SIZE_LG);
+        Label killsLabel = styledLabel(ICON_KILLS + "  0", "large");
         killsLabel.setMinWidth(170);
         killsLabel.setAlignment(Pos.CENTER_RIGHT);
 
@@ -89,17 +78,15 @@ public class GameHudBar extends StackPane {
         headerRow.setAlignment(Pos.CENTER_LEFT);
         headerRow.setPadding(new Insets(0, 4, 4, 4));
 
-        enemiesCounterLabel = styledLabel("Nemici rimanenti: 0 / 0", FONT_SIZE_MD);
+        enemiesCounterLabel = styledLabel("Nemici rimanenti: 0 / 0", "medium");
         enemiesCounterLabel.setMaxWidth(Double.MAX_VALUE);
         enemiesCounterLabel.setAlignment(Pos.CENTER);
 
-        waveLabel = styledLabel("Wave 1", FONT_SIZE_SM);
-        waveLabel.setOpacity(0.55);
+        waveLabel = styledLabel("Wave 1", "small");
         waveLabel.setMaxWidth(Double.MAX_VALUE);
         waveLabel.setAlignment(Pos.CENTER);
 
-        threatLabel = styledLabel("", FONT_SIZE_SM);
-        threatLabel.setOpacity(0.7);
+        threatLabel = styledLabel("", "threat");
         threatLabel.setMaxWidth(Double.MAX_VALUE);
         threatLabel.setAlignment(Pos.CENTER);
 
@@ -111,11 +98,23 @@ public class GameHudBar extends StackPane {
 
         getChildren().add(content);
 
-        setStyle("-fx-background-color: transparent;");
         setMaxHeight(USE_PREF_SIZE);
         setPickOnBounds(false);
         setFocusTraversable(false);
         setMouseTransparent(true);
+    }
+
+    /**
+     * Applica lo stile CSS caricando il file di risorsa dedicato.
+     */
+    private void applyStyles() {
+        getStyleClass().add("game-hud-container");
+        try {
+            String cssPath = Objects.requireNonNull(getClass().getResource("/uni/gaben/iscat/styles/screens/game/game-hud.css")).toExternalForm();
+            getStylesheets().add(cssPath);
+        } catch (Exception e) {
+            System.err.println("[GameHudBar] Impossibile caricare il foglio di stile: game-hud.css");
+        }
     }
 
     /**
@@ -183,7 +182,6 @@ public class GameHudBar extends StackPane {
             waveLabel.setText("Wave " + newV.intValue());
         });
 
-        //@see UniverseWaveController#currentThreatLevelProperty()
         threatLabel.textProperty().bind(
                 Bindings.concat("Minaccia: ", newWave.currentThreatLevelProperty())
         );
@@ -194,17 +192,16 @@ public class GameHudBar extends StackPane {
 
     /**
      * Fabbrica e restituisce una Label pre-configurata secondo i canoni grafici del gioco.
-     * Applica il font Miracode, i colori tematici del ThemeManager e un'ombra esterna (dropshadow).
+     * Mantiene l'iniezione dinamica del colore del testo da ThemeManager come fallback di sicurezza.
      *
-     * @param text  Il testo iniziale da assegnare all'etichetta.
-     * @param size  La dimensione del font da impostare.
-     * @return      Un oggetto {@link Label} configurato e pronto all'uso.
+     * @param text            Il testo iniziale da assegnare all'etichetta.
+     * @param sizeStyleClass  Il modificatore della dimensione della classe CSS ("large", "medium", "small", "threat").
+     * @return                Un oggetto {@link Label} configurato e pronto all'uso.
      */
-    private Label styledLabel(String text, double size) {
+    private Label styledLabel(String text, String sizeStyleClass) {
         Label lbl = new Label(text);
-        lbl.setFont(Font.font(FONT_FAMILY, FontWeight.BOLD, size));
-        lbl.setTextFill(ThemeManager.getInstance().getAccentPrimary());
-        lbl.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
+        lbl.getStyleClass().addAll("hud-label", sizeStyleClass);
+        lbl.setTextFill(ThemeManager.getInstance().getAccentPrimary()); // Fallback dinamico di sicurezza
         lbl.setFocusTraversable(false);
         lbl.setMouseTransparent(true);
         return lbl;
