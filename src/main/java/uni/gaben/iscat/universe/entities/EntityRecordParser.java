@@ -14,6 +14,7 @@ import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.shooters.*;
 
 import java.util.ArrayList;
@@ -366,8 +367,8 @@ public final class EntityRecordParser {
         if (mc.type() == null) return null;
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
-        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof ProjectileModel pm && pm.getType() != ProjectileType.PLAYER_BULLET));
-        Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof AbstractPhysicalProjectileModel));
+        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof PlayerModel || (entityModel instanceof ProjectileModel pm&&pm.getType()!=ProjectileType.PLAYER_BULLET)));
+        Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof PlayerModel || entityModel instanceof AbstractPhysicalProjectileModel));
         return switch (mc.type()) {
             case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
             case ALIGNMENT -> SteeringModifier.alignment(everythingButProjectiles, weight);

@@ -137,13 +137,24 @@ public interface SteeringModifier {
             }
 
             if (mostImminent != null) {
+                // Future positions at the predicted collision moment
                 threatFuture.set(mostImminent.getTransform().getTranslation());
-                threatFuture.add(mostImminent.getLinearVelocity().x * shortestTime, mostImminent.getLinearVelocity().y * shortestTime);
+                threatFuture.add(mostImminent.getLinearVelocity().x * shortestTime,
+                        mostImminent.getLinearVelocity().y * shortestTime);
 
                 myFuture.set(selfPos);
                 myFuture.add(selfVel.x * shortestTime, selfVel.y * shortestTime);
 
-                outForce.set(myFuture).subtract(threatFuture).multiply(weight.get());
+                // Direction away from threat
+                outForce.set(myFuture).subtract(threatFuture);
+
+                double urgency = 1.0 - (shortestTime / maxPredictionTime);  // 1 = immediate, 0 = far
+                urgency = Math.max(urgency, 0.1);                           // always some push
+
+                if (!outForce.isZero()) {
+                    outForce.normalize();
+                    outForce.multiply(maxForce * weight.get() * urgency);
+                }
             }
         };
     }
