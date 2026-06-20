@@ -13,7 +13,7 @@
   "LinearDamping": 0,
   "mass": 1,
   "MaxVelocity": 500,
-  "MaxForce": 10,
+  "MaxForce": 100,
   "MaxAngularVelocity": 500  ,
   "XPReward": 300,
   "DetectionRange": 20,
@@ -34,7 +34,7 @@
       },
       {
         "type": "plunge",
-        "plungeCooldownMS": 1500,
+        "plungeCooldownMS": 5000,
         "dashDurationMS": 300,
         "dashPrediction": 0,
         "dashAvoidRange": 30,
