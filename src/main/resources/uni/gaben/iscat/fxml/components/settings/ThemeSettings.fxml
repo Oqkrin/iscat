@@ -50,10 +50,10 @@
     <Label fx:id="paletteTip" styleClass="palette-hint" text="PALETTE GENERATA : SELEZIONA COLORE DA MODIFICARE MANUALMENTE!" />
 
     <!-- Extracted palette circles -->
-    <HBox fx:id="paletteHolder" alignment="CENTER" styleClass="palette-holder" VBox.vgrow="NEVER" />
-
-    <!-- Light / Rainbow mode checkboxes -->
-    <HBox alignment="CENTER" styleClass="theme-navigation-row" />
+    <HBox fx:id="paletteHolder" alignment="CENTER" spacing="4.0" styleClass="palette-holder" VBox.vgrow="NEVER">
+      <padding>
+         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+      </padding></HBox>
 
     <!-- Hidden real ColorPicker nodes (needed for custom picker widgets) -->
     <VBox fx:id="hiddenPickers" alignment="CENTER" managed="false" visible="false">

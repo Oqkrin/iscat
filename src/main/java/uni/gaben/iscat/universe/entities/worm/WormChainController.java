@@ -181,7 +181,7 @@ public class WormChainController implements IEntityController {
     }
 
     private void handleBackPart(UniverseModel universe, List<WormSegmentData> backPart) {
-        WormSegmentData firstSegment = backPart.get(0);
+        WormSegmentData firstSegment = backPart.getFirst();
         String firstKey = firstSegment.model.getEntityRecord().entityKey();
 
         if (firstKey.equals(bodyKey)) {
@@ -203,7 +203,7 @@ public class WormChainController implements IEntityController {
         // Passa le stesse chiavi al nuovo worm
         WormChainController newWormChain = new WormChainController(universeController, headKey, bodyKey, tailKey);
 
-        WormSegmentData firstSegment = newSegments.get(0);
+        WormSegmentData firstSegment = newSegments.getFirst();
         String firstKey = firstSegment.model.getEntityRecord().entityKey();
 
         if (firstKey.equals(bodyKey)) {

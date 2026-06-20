@@ -5,6 +5,10 @@
  * Import after iscat-color-theme.css.
  */
 
+. root {
+    --standard-unit: 16
+}
+
 /* ============================================
    DISPLAY  (hero / splash text)
    ============================================ */
@@ -80,7 +84,7 @@
    BORDER & SHAPE UTILITIES
    ============================================ */
 
-.rounded-sm { -fx-border-radius: 4px;  -fx-background-radius: 5px; }
+.rounded-sm { -fx-border-radius: 4px;  -fx-background-radius: 3px; }
 .rounded-md { -fx-border-radius: 12px; -fx-background-radius: 10px; }
 .rounded-lg { -fx-border-radius: 16px; -fx-background-radius: 15px; }
 

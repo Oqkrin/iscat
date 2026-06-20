@@ -1,29 +1,29 @@
 @import url("../components/iscat-color-picker.css");
 
 .custom-color-box {
-    -fx-border-color: transparent;   /* or simply remove this line entirely */
-    -fx-border-width: 0;             /* no border in resting state */
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
     -fx-cursor: hand;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
 }
 
 .custom-color-box:hover {
-    -fx-border-color: -accent-primary;
     -fx-effect: dropshadow(gaussian, -accent-primary, 6, 0.3, 0, 0);
 }
 
-/* Active picker glow */
 .custom-color-box.picker-active {
-    -fx-border-color: -accent-primary;
     -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.5, 0, 0);
-    -fx-border-width: 2px;
 }
 
 .arrow-button {
     -fx-background-color: transparent;
     -fx-text-fill: -text-primary;
-    -fx-padding: 0 5;
+    -fx-padding: 0 8;
     -fx-cursor: hand;
+    -fx-font-size: 12px;
 }
+
 .arrow-button:hover {
     -fx-text-fill: -accent-primary;
 }

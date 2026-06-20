@@ -34,3 +34,23 @@
     -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.4, 0, 0);
     -fx-border-width: 2px;
 }
+
+/* Popup container (the whole palette window) */
+.color-palette, .color-picker-popup {
+    -fx-background-color: -bg-primary;
+}
+
+/* The individual colour squares */
+.color-palette .color-rect {
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 1px;
+}
+.color-palette .color-rect:hover {
+    -fx-border-color: -accent-primary;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 6, 0.3, 0, 0);
+}
+
+/* The custom colour area (bottom part) */
+.color-palette .custom-color-dialog {
+    -fx-background-color: -bg-secondary;
+}

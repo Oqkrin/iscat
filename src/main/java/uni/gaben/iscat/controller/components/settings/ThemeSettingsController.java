@@ -5,6 +5,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -16,9 +17,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
+import javafx.stage.PopupWindow;
+import javafx.stage.Window;
 import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.model.settings.ThemeSettingsModel;
-import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.io.File;
@@ -51,7 +53,7 @@ public class ThemeSettingsController {
     private Pane paneMaster;
     private ThemeSettingsModel model;
 
-    private final Map<Object, StackPane> pickerBoxes = new HashMap<>();
+    private final Map<ColorPicker, Label> pickerBoxes = new HashMap<>();
     private final ObjectProperty<Object> activePicker = new SimpleObjectProperty<>(null);
 
     /**
@@ -171,47 +173,83 @@ public class ThemeSettingsController {
      * Costruisce un singolo widget: rettangolo colorato + etichetta + pulsante freccia.
      */
     private void buildCustomPicker(ColorPicker picker, String role, HBox row) {
-        // Il picker originale rimane visibile (per avere coordinate valide) ma invisibile all'utente
+        // The real picker is invisible (just used for coordinate reference)
         picker.setOpacity(0);
         picker.setMouseTransparent(true);
         picker.setManaged(false);
-        // Non chiamare picker.setVisible(false)!
+        picker.showingProperty().addListener((obs, wasShowing, isShowing) -> {
+            if (isShowing) {
+                PopupWindow popup = getPopup(picker);
+                if (popup != null && popup.getScene() != null) {
+                    // Add your main CSS (adjust path to your actual file)
+                    String css = getClass().getResource("/uni/gaben/iscat/styles/screens/settings-menu.css").toExternalForm();
+                    if (!popup.getScene().getStylesheets().contains(css)) {
+                        popup.getScene().getStylesheets().add(css);
+                    }
+                    // Optionally also add the specific color‑picker CSS if it’s separate
+                    String pickerCss = getClass().getResource("/uni/gaben/iscat/styles/components/iscat-color-picker.css").toExternalForm();
+                    if (!popup.getScene().getStylesheets().contains(pickerCss)) {
+                        popup.getScene().getStylesheets().add(pickerCss);
+                    }
+                }
+            }
+        });
 
-        // Rettangolo colorato
-        Rectangle rect = new Rectangle(60, 28);
-        rect.setArcWidth(8);
-        rect.setArcHeight(8);
-        rect.fillProperty().bind(picker.valueProperty());
+        // --- The colour swatch + role name ---
+        Label colorLabel = new Label(role);
+        colorLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
+        colorLabel.setAlignment(Pos.CENTER);
+        colorLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
 
-        // Etichetta ruolo
-        Label roleLabel = new Label(role);
-        roleLabel.setFont(Font.font("System", FontWeight.BOLD, 10));
-        roleLabel.textFillProperty().bind(Bindings.createObjectBinding(() ->
-                        picker.getValue().getBrightness() > 0.5 ? Color.BLACK : Color.WHITE,
-                picker.valueProperty()));
+        // Bind the background colour to the picker value
+        colorLabel.backgroundProperty().bind(
+                Bindings.createObjectBinding(
+                        () -> {
+                            Color c = picker.getValue();
+                            return new Background(new BackgroundFill(c, new CornerRadii(8), Insets.EMPTY));
+                        },
+                        picker.valueProperty()
+                )
+        );
 
-        // Box colorato con etichetta
-        StackPane colorBox = new StackPane(rect, roleLabel);
-        colorBox.getStyleClass().add("custom-color-box");
-        colorBox.setOnMouseClicked(e -> setActivePicker(picker));
+        // Auto‑adjust text colour for contrast
+        colorLabel.textFillProperty().bind(
+                Bindings.createObjectBinding(
+                        () -> picker.getValue().getBrightness() > 0.5 ? Color.BLACK : Color.WHITE,
+                        picker.valueProperty()
+                )
+        );
 
-        // Pulsante freccia (ora punta a picker.show())
-        Button arrowBtn = new Button("+");
+        // Size and style
+        double boxWidth = IscatSettings.STANDARD_UNIT * 5;
+        double boxHeight = IscatSettings.STANDARD_UNIT * 2;
+        colorLabel.setMinSize(boxWidth, boxHeight);
+        colorLabel.setPrefSize(boxWidth, boxHeight);
+        colorLabel.setMaxSize(boxWidth, boxHeight);
+        colorLabel.getStyleClass().add("custom-color-box");
+        colorLabel.setOnMouseClicked(e -> setActivePicker(picker));
+
+        // --- Arrow button ---
+        Button arrowBtn = new Button("▼");
         arrowBtn.getStyleClass().add("arrow-button");
         arrowBtn.setOnAction(e -> picker.show());
+        // Make the button a little larger to match the box
+        arrowBtn.setMinHeight(boxHeight);
+        arrowBtn.setPrefHeight(boxHeight);
+        arrowBtn.setMaxHeight(boxHeight);
 
-        // StackPane che contiene sia il colorBox sia il picker invisibile
-        StackPane overlay = new StackPane(colorBox, picker);
+        // --- Overlay for the invisible real picker (for correct popup position) ---
+        StackPane overlay = new StackPane(colorLabel, picker);
         overlay.setAlignment(Pos.CENTER);
-        // Fissa le dimensioni minime per evitare che collassi
-        overlay.setMinSize(IscatSettings.STANDARD_UNIT*7, IscatSettings.STANDARD_UNIT*3);
-        overlay.setPrefSize(IscatSettings.STANDARD_UNIT*7, IscatSettings.STANDARD_UNIT*3);
-        overlay.setMaxSize(IscatSettings.STANDARD_UNIT*7, IscatSettings.STANDARD_UNIT*3);
+        overlay.setMinSize(boxWidth, boxHeight);
+        overlay.setPrefSize(boxWidth, boxHeight);
+        overlay.setMaxSize(boxWidth, boxHeight);
 
-        HBox widget = new HBox(IscatSettings.STANDARD_UNIT/3, overlay, arrowBtn);
+        // --- Final widget ---
+        HBox widget = new HBox(4, overlay, arrowBtn);
         widget.setAlignment(Pos.CENTER_LEFT);
 
-        pickerBoxes.put(picker, colorBox);
+        pickerBoxes.put(picker, colorLabel);   // store the actual widget for active highlighting
         row.getChildren().add(widget);
     }
 
@@ -318,6 +356,40 @@ public class ThemeSettingsController {
         addImageBtn.setManaged(hasImages);
         pickImageBtn.setVisible(!hasImages);
         pickImageBtn.setManaged(!hasImages);
+    }
+
+    /**
+     * Helper to extract the PopupWindow from a ColorPicker (the popup with the colour grid).
+     * Works for JavaFX 8+.
+     */
+    private PopupWindow getPopup(ColorPicker picker) {
+        // The popup is hidden inside the skin; we can find it via lookup
+        // or by accessing the skin's popup. A reliable way:
+        if (picker.getSkin() != null) {
+            // The skin is usually a ColorPickerSkin, which has a method getPopupContent()
+            // but it's not public. Using reflection is overkill, so we can search the scene.
+            // Alternatively, listen to the popup's ownerWindow.
+            // Simplest: iterate over all open popups? Not ideal.
+            // Better: use the internal property "popup" via reflection or rely on the fact that
+            // the popup is a child of the picker's scene window? No, it's separate.
+        }
+        // For a simple solution, we can obtain the popup by checking the children of the
+        // ColorPicker's scene's window? Not reliable.
+        // Instead, we can use the fact that the popup is shown when isShowing is true,
+        // and we can access it via `picker.getScene().getWindow()`? No.
+
+        // A common workaround: after the popup is shown, we can find it by searching for
+        // a PopupWindow whose owner is the picker's scene's window.
+        // Let's use a straightforward, safe approach with Java 8+:
+        for (Window window : Window.getWindows()) {
+            if (window instanceof javafx.stage.PopupWindow popup && popup.isShowing()) {
+                // Check if the popup's owner scene is the same as the picker's scene
+                if (popup.getOwnerWindow() == picker.getScene().getWindow()) {
+                    return popup;
+                }
+            }
+        }
+        return null;
     }
 
     public void loadAndApplySavedTheme() {
