@@ -39,7 +39,6 @@ public class EntityJsonLoader {
 
             } catch (URISyntaxException | IOException ex) {
                 System.err.println("[EntityJsonLoader] Error scanning directory " + dirPath + ": " + ex.getMessage());
-                ex.printStackTrace();
                 return Collections.emptyList();
             }
         });

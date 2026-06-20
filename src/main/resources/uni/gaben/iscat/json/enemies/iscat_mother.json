@@ -16,7 +16,7 @@
   "maxforce": 10,
   "maxangularvelocity": 500,
   "xpreward": 15,
-  "detectionrange": 500,
+  "detectionrange": 50,
   "combatrange": 15,
   "preferredrange": 15,
   "actioncooldowns": 0,
@@ -32,9 +32,9 @@
   "ai": {
     "steering": {
       "type": "pursuitWithRange",
-      "maxpredictiontime": 10,
-      "mindistance": 15,
-      "maxdistance": 25
+      "maxpredictiontime": 1,
+      "mindistance": 5,
+      "maxdistance": 15
     },
     "rotation": { "type": "target", "target": "player" },
     "abilities": [
