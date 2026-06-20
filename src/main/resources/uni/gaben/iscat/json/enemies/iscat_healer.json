@@ -31,7 +31,7 @@
   "steering": {
     "type": "pursuitWithRange",
     "maxPredictionTime": 10,
-    "minDistance": 15,
+    "minDistance": 10,
     "maxDistance": 25
   },
   "rotation": { "type": "locked" },
@@ -44,6 +44,7 @@
     }
   ],
   "modifiers": [
+    { "type": "collisionAvoidance", "radius": 7.5, "weight": 0.1, "maxPredictionTime": 2, "avoidRadius": 0.5 },
     { "type": "separation", "radius": 3.75, "weight": 2 },
     { "type": "alignment", "radius": 7.5, "weight": 2 },
     { "type": "cohesion", "radius": 10.0, "weight": 3 }

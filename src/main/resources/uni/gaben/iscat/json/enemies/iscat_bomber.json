@@ -32,9 +32,15 @@
     "steering": {
       "type": "pursuitWithRange",
       "maxPredictionTime": 5,
-      "minDistance": 7,
+      "minDistance": 3,
       "maxDistance": 12
     },
+    "modifiers": [
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 0.1, "maxPredictionTime": 2, "avoidRadius": 0.5 },
+      { "type": "separation", "radius": 1, "weight": 3 },
+      { "type": "alignment", "radius": 7.5, "weight": 1 },
+      { "type": "cohesion", "radius": 7.5, "weight": 2 }
+    ],
     "rotation": { "type": "target", "target": "player" },
     "abilities": [
       {
@@ -51,11 +57,6 @@
           "pattern": { "type": "singleShot" }
         }
       }
-    ],
-    "modifiers": [
-      { "type": "separation", "radius": 1, "weight": 3 },
-      { "type": "alignment", "radius": 7.5, "weight": 1 },
-      { "type": "cohesion", "radius": 7.5, "weight": 2 }
     ]
   }
 }

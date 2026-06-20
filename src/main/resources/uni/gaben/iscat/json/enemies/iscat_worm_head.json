@@ -26,7 +26,9 @@
       "type": "pursuit",
       "maxPredictionTime": 1
     },
-    "rotation": { "type": "target", "target": "player" },
+    "rotation": {
+      "type": "movement"
+    },
     "abilities": [
       {
         "type": "kamikaze",
@@ -42,7 +44,10 @@
       }
     ],
     "modifiers": [
-      { "type": "separation", "radius": 5.0, "weight": 1 }
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 0.1, "maxPredictionTime": 2, "avoidRadius": 0.5 },
+      { "type": "separation", "radius": 3.75, "weight": 2 },
+      { "type": "alignment", "radius": 7.5, "weight": 1 },
+      { "type": "cohesion", "radius": 7.5, "weight": 1 }
     ]
   }
 }

@@ -29,14 +29,14 @@
   },"ai": {
   "steering": {
     "type": "pursuit",
-    "maxPredictionTime": 10
+    "maxPredictionTime": 5
   },
   "rotation": {
     "type": "movement"
   },
   "abilities": [
     {     "type": "dash",
-      "dashCooldownMS": 1000,
+      "dashCooldownMS": 2000,
       "dashDurationMS": 100,
       "dashPrediction": 3,
       "dashAvoidRange": 1,
@@ -44,19 +44,19 @@
     },
     {
       "type": "plunge",
-      "plungeCooldownMS": 3000,
-      "dashDurationMS": 200,
-      "dashPrediction": 2,
+      "plungeCooldownMS": 4000,
+      "dashDurationMS": 400,
+      "dashPrediction": 3,
       "dashAvoidRange": 50,
-      "dashImpulse": 150
+      "dashImpulse": 100
     },
     { "type": "melee", "meleeDamage": 3}
   ],
   "modifiers": [
-    { "type": "collisionAvoidance", "radius": 10.0, "weight": 20, "maxPredictionTime": 2.5, "avoidRadius": 7.0 },
-    { "type": "separation", "radius": 5.0, "weight": 5 },
-    { "type": "alignment", "radius": 7.5, "weight": 0.5 },
-    { "type": "cohesion", "radius": 7.5, "weight": 0.5 }
+    { "type": "collisionAvoidance", "radius": 10.0, "weight": 20, "maxPredictionTime": 2.5, "avoidRadius": 1.0 },
+    { "type": "separation", "radius": 5.0, "weight": 3 },
+    { "type": "alignment", "radius": 7.5, "weight": 0.7 },
+    { "type": "cohesion", "radius": 7.5, "weight": 0.7 }
   ]
 }
 }

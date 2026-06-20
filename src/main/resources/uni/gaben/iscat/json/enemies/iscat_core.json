@@ -55,7 +55,7 @@
       },
       {
         "type": "plunge",
-        "plungeCooldownMS": 2000,
+        "plungeCooldownMS": 10000,
         "dashDurationMS": 1000,
         "dashPrediction": 1,
         "dashAvoidRange": 50,
