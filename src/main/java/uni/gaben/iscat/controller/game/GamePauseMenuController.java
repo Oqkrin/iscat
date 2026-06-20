@@ -1,5 +1,6 @@
 package uni.gaben.iscat.controller.game;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
@@ -56,10 +57,14 @@ public class GamePauseMenuController implements IscatFxmlController {
                     gameController.setShowFps(newV));
 
             gameController.debugModeProperty().addListener((obs, oldV, newV) -> {
-                if (subDisplayController.getDebugModeCheck().isSelected() != newV) {
-                    subDisplayController.getDebugModeCheck().setSelected(newV);
-                }
+                Platform.runLater(() -> {
+                    if (subDisplayController.getDebugModeCheck().isSelected() != newV) {
+                        subDisplayController.getDebugModeCheck().setSelected(newV);
+                    }
+                });
             });
+
+            subDisplayController.setGameController(gameController);
         }
     }
 
