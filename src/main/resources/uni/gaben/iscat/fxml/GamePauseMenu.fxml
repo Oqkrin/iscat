@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/game/game.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.game.GamePauseMenuController">
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/game/game.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.game.GamePauseMenuController">
 
     <VBox alignment="CENTER" styleClass="game-pause-overlay" StackPane.alignment="CENTER">
         <padding>
@@ -54,7 +54,7 @@
             </padding>
 
             </VBox>
-            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+            <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
                 <fx:include fx:id="subAudio" rotate="2.0" source="components/settings/AudioSettings.fxml" />
             <padding>
                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />

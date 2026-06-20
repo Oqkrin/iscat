@@ -39,6 +39,7 @@
 .pulsante-menu.pericolo {
     -fx-border-color: -color-error;
     -fx-text-fill: -color-error;
+    -fx-icon-color: -color-error;
 }
 
 
