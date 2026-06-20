@@ -142,60 +142,38 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
     }
 
     /**
-     * Weighted Linear Summation Steering:
-     * Calculates all forces, scales them strictly by (maxForce * weight), and sums them directly.
+     * Weighted Linear Summation Steering corretta:
+     * Somma i vettori delle forze e limita il risultato finale alla forza massima dell'entità.
      */
     private void computeAndApplySteering(UniverseModel universe, double dt) {
         steerForce.set(0, 0);
         double maxForce = entity.getAcceleration();
-        double remainingBudget = maxForce;
 
-        // 1. Applicazione dei modificatori in ordine di priorità
+        // 1. Accumula le forze di tutti i modificatori
         for (int i = 0; i < modifiersOrder.size(); i++) {
-            if (remainingBudget <= 0.0) break; // budget esaurito
-
             modifierSteer.set(0, 0);
             modifiersOrder.get(i).computeSteer(entity, universe, maxForce, dt, modifierSteer);
 
-            double mag = modifierSteer.getMagnitude();
-            if (mag <= 0.0) continue;
-
-            // Se la forza richiesta supera il budget rimanente, la normalizzo
-            if (mag > remainingBudget) {
-                modifierSteer.normalize();
-                modifierSteer.multiply(remainingBudget);
-                mag = remainingBudget;
-            }
-
-            steerForce.add(modifierSteer);
-            remainingBudget -= mag;
-        }
-
-        // 2. Obiettivo primario (solo se c'è ancora budget)
-        if (remainingBudget > 0.0) {
-            Vector2 primaryForce = currentSteeringGoal.computeDesiredVelocity(entity, universe, dt);
-            if (primaryForce != null && !primaryForce.isZero()) {
-                // Applico il peso configurabile all'obiettivo primario
-                primaryForce.multiply(goalWeight.get());
-
-                double mag = primaryForce.getMagnitude();
-                if (mag > remainingBudget) {
-                    primaryForce.normalize();
-                    primaryForce.multiply(remainingBudget);
-                }
-                steerForce.add(primaryForce);
+            if (!modifierSteer.isZero()) {
+                steerForce.add(modifierSteer);
             }
         }
 
-        // 3. Applicazione della massa (se desiderato)
-        /*
-        double mass = entity.getMass().getMass();
-        if (mass > 0.0) {
-            steerForce.divide(mass);
+        // 2. Accumula l'obiettivo primario
+        Vector2 primaryForce = currentSteeringGoal.computeDesiredVelocity(entity, universe, dt);
+        if (primaryForce != null && !primaryForce.isZero()) {
+            primaryForce.multiply(goalWeight.get());
+            steerForce.add(primaryForce);
         }
-        */
 
-        // 4. Applicazione fisica
+        // 3. Applica il Clamping del budget sul vettore totale risultante
+        double totalMag = steerForce.getMagnitude();
+        if (totalMag > maxForce) {
+            steerForce.normalize();
+            steerForce.multiply(maxForce);
+        }
+
+        // 4. Applicazione fisica immediata
         entity.applyForce(steerForce);
     }
 
