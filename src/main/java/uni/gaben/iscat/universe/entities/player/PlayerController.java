@@ -92,7 +92,7 @@ public class PlayerController {
 
         // Dash & slow‑motion
         if (!player.isStunned()) {
-            handleDashAndSlowMotion(input, nextAngle, dx, dy);
+            handleDashAndSlowMotion(input, nextAngle, dx, dy, dt);
         }
 
         // Quick dash (double‑tap)
@@ -105,10 +105,17 @@ public class PlayerController {
         }
     }
 
-    private void handleDashAndSlowMotion(GameInputsHandler input, double aimAngle, double dx, double dy) {
+    private void handleDashAndSlowMotion(GameInputsHandler input, double aimAngle, double dx, double dy, double dt) {
         // --- Slow‑motion from mouse dodge button (hold) ---
         if (gameModel != null) {
-            gameModel.setTimeScale(input.slowMotionRequested ? 0.2 : 1.0);
+            if (input.slowMotionRequested && player.getTimeGauge() > 0) {
+                gameModel.setTimeScale(0.2);
+                player.decreaseTimeGauge(dt * 30.0); // Consume 30 gauge per second
+                player.setTemporaryTerminalVelocity(player.getTerminalVelocity() * 2.0);
+            } else {
+                gameModel.setTimeScale(1.0);
+                player.restoreTerminalVelocity();
+            }
         }
 
         // --- Keyboard dash (instant) – always in the movement direction ---

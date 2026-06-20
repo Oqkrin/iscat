@@ -113,9 +113,22 @@ public class UniverseRenderer {
 
         renderEnduranceAlterations(universe, camera, gameModel.getDt(), gc);
 
+        renderTimeStop(camera, gc);
         renderHurt(camera, gc);
 
         if (gameController.isFpsOn()) drawFps(gc, w);
+    }
+
+    private void renderTimeStop(CameraModel camera, GraphicsContext gc) {
+        if (gameModel.getTimeScale() < 1.0) {
+            gc.save();
+            // A subtle ternary color overlay
+            double intensity = 1.0 - gameModel.getTimeScale();
+            gc.setGlobalAlpha(intensity * 0.15); // max 15% opacity
+            gc.setFill(ThemeManager.getInstance().getAccentTernary());
+            gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+            gc.restore();
+        }
     }
 
     private void renderHitSparks(UniverseModel universe, OptimizedLayeredRenderer layers) {

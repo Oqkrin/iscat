@@ -166,12 +166,15 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
             steerForce.add(primaryForce);
         }
 
+
+        /*
         // 3. Applica il Clamping del budget sul vettore totale risultante
         double totalMag = steerForce.getMagnitude();
         if (totalMag > maxForce) {
             steerForce.normalize();
             steerForce.multiply(maxForce);
         }
+        */
 
         // 4. Applicazione fisica immediata
         entity.applyForce(steerForce);

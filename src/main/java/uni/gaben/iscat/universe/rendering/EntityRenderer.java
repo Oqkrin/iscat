@@ -111,6 +111,12 @@ public final class EntityRenderer {
             double barY = cy - h/2 - OptimizedLayeredRenderer.HpBarBatch.HP_BAR_OFFSET_Y;
             double percent = ld.getEndurance() / ld.getMaxEndurance();
             layers.addHpBar(barX, barY, w, OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT, percent);
+            
+            if (entity instanceof PlayerModel pm) {
+                double tgY = barY + OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT + OptimizedLayeredRenderer.TimeGaugeBarBatch.TIME_BAR_OFFSET_Y;
+                double tgPercent = pm.getTimeGauge() / pm.getMaxTimeGauge();
+                layers.addTimeGaugeBar(barX, tgY, w, OptimizedLayeredRenderer.TimeGaugeBarBatch.TIME_BAR_HEIGHT, tgPercent);
+            }
         }
     }
 

@@ -24,6 +24,11 @@ public class OptimizedLayeredRenderer {
         public static final double HP_BAR_OFFSET_Y = 10.0;
         public static final double HP_BAR_HEIGHT = 4.0;
     }
+    record TimeGaugeBarBatch(double x, double y, double w, double h, double percent) {
+        // === Visuals & Dimensions ===
+        public static final double TIME_BAR_OFFSET_Y = 6.0; // below HP bar
+        public static final double TIME_BAR_HEIGHT = 2.0;
+    }
     private record ThrustBatch(double cx, double cy, double angle, Thrust thrust) {}
     private record ShockwaveBatch(double cx, double cy, Shockwave shockwave, boolean isBlackHole) {}
     record ProjectileBatch(
@@ -42,6 +47,7 @@ public class OptimizedLayeredRenderer {
     private final List<RectBatch> rects = new ArrayList<>();
     private final List<PolygonBatch> polygons = new ArrayList<>();
     private final List<HpBarBatch> hpBars = new ArrayList<>();
+    private final List<TimeGaugeBarBatch> timeGaugeBars = new ArrayList<>();
     private final List<ThrustBatch> thrusts = new ArrayList<>();
     private final List<ShockwaveBatch> shockwaves = new ArrayList<>();
 
@@ -67,6 +73,7 @@ public class OptimizedLayeredRenderer {
         rects.clear();
         polygons.clear();
         hpBars.clear();
+        timeGaugeBars.clear();
         thrusts.clear();
         shockwaves.clear();
         projectiles.clear();
@@ -83,6 +90,7 @@ public class OptimizedLayeredRenderer {
         renderOvals();
         renderRect();
         renderHPbars();
+        renderTimeGaugeBars();
         renderShockwaves();
         renderThrusts();
         renderProjectiles();
@@ -121,6 +129,12 @@ public class OptimizedLayeredRenderer {
     private void renderHPbars() {
         for (HpBarBatch h : hpBars) {
             DrawVFX.drawHpBar(gc, h);
+        }
+    }
+
+    private void renderTimeGaugeBars() {
+        for (TimeGaugeBarBatch t : timeGaugeBars) {
+            DrawVFX.drawTimeGaugeBar(gc, t);
         }
     }
 
@@ -260,6 +274,10 @@ public class OptimizedLayeredRenderer {
 
     public void addHpBar(double x, double y, double w, double h, double percent) {
         hpBars.add(new HpBarBatch(x, y, w, h, percent));
+    }
+
+    public void addTimeGaugeBar(double x, double y, double w, double h, double percent) {
+        timeGaugeBars.add(new TimeGaugeBarBatch(x, y, w, h, percent));
     }
 
     public void addThrust(double cx, double cy, double angle, Thrust thrust) {

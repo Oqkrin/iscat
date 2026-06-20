@@ -108,4 +108,8 @@ public final class DrawVFX {
     static void drawHpBar(GraphicsContext gc, OptimizedLayeredRenderer.HpBarBatch h) {
         InterfaceVFX.drawHpBarRaw(gc, h.x(), h.y(), h.w(), h.h(), h.percent());
     }
+
+    static void drawTimeGaugeBar(GraphicsContext gc, OptimizedLayeredRenderer.TimeGaugeBarBatch t) {
+        InterfaceVFX.drawTimeGaugeBarRaw(gc, t.x(), t.y(), t.w(), t.h(), t.percent());
+    }
 }

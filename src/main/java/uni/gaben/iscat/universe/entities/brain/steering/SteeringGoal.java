@@ -121,6 +121,19 @@ public interface SteeringGoal {
             desiredVelocity.set(predictedPos).subtract(selfPos);
             double distance = desiredVelocity.getMagnitude();
             double idealDistance = (minDistance + maxDistance) * 0.5;
+
+            // Clamp ideal distance to camera view so they don't back away out of bounds
+            uni.gaben.iscat.universe.camera.CameraModel camera = universe.getCamera();
+            if (camera != null) {
+                double zoom = camera.getZoom();
+                double halfVW = UU.pxToM(camera.getScreenWidth() / 2.0) / zoom;
+                double halfVH = UU.pxToM(camera.getScreenHeight() / 2.0) / zoom;
+                double minScreenDim = Math.min(halfVW, halfVH) - UU.pxToM(50.0); // 50px margin
+                if (idealDistance > minScreenDim && minScreenDim > 0) {
+                    idealDistance = minScreenDim;
+                }
+            }
+
             double error = distance - idealDistance;
 
             // Desired speed: proportional to error, clamped between ±terminalVelocity

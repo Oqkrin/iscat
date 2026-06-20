@@ -40,6 +40,12 @@ public class PlayerModel extends AbstractLivingEntityModel
     private final Cooldown stunCooldown = new Cooldown();
     private final Cooldown meleeCooldown = new Cooldown();
     private final Cooldown quickDashCooldown = new Cooldown();
+    private final Cooldown postDashProtection = new Cooldown();
+
+    // ==================== TIME GAUGE ====================
+    private double timeGauge = 0.0;
+    private double maxTimeGauge = 100.0;
+    private boolean wasDashing = false;
 
     // ==================== THRUST E CALLBACK ====================
     private final Thrust thrust;
@@ -184,9 +190,17 @@ public class PlayerModel extends AbstractLivingEntityModel
         }
 
         // Gestisce lo smorzamento durante il dash
+        boolean currentlyDashing = isDashing();
         if (data.player() != null) {
-            setLinearDamping(isDashing() ? 0.0 : data.linearDamping());
+            setLinearDamping(currentlyDashing ? 0.0 : data.linearDamping());
         }
+
+        // Post-dash protection logic
+        if (wasDashing && !currentlyDashing) {
+            postDashProtection.start(2.0); // 2.0 seconds protection
+        }
+        wasDashing = currentlyDashing;
+        postDashProtection.update(dt);
     }
 
     // ==================== METODI DI PROGRESSIONE ====================
@@ -298,7 +312,38 @@ public class PlayerModel extends AbstractLivingEntityModel
         if (delta < 0) {
             SessionScoreTracker.getInstance()
                     .addDamageReceived((int) Math.abs(delta));
+            if (!postDashProtection.isCoolingDown()) {
+                resetTimeGauge();
+            }
         }
+    }
+
+    public boolean absorbProjectile(double damage) {
+        if (isDashing()) {
+            addTimeGauge(damage * 10.0); // Scale damage to gauge
+            return true;
+        }
+        return false;
+    }
+
+    public void addTimeGauge(double amount) {
+        timeGauge = Math.min(timeGauge + amount, maxTimeGauge);
+    }
+
+    public void decreaseTimeGauge(double amount) {
+        timeGauge = Math.max(timeGauge - amount, 0.0);
+    }
+
+    public void resetTimeGauge() {
+        timeGauge = 0.0;
+    }
+
+    public double getTimeGauge() {
+        return timeGauge;
+    }
+
+    public double getMaxTimeGauge() {
+        return maxTimeGauge;
     }
 
     @Override

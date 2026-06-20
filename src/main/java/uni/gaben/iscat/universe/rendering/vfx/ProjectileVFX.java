@@ -41,12 +41,25 @@ public final class ProjectileVFX {
      */
     public static void drawProjectileRaw(GraphicsContext gc, double cx, double cy, double w, double h, Color color,
                                          double trailX1, double trailY1, double trailX2, double trailY2, double trailWidth) {
-        gc.setStroke(color);
-        gc.setLineWidth(trailWidth);
-        gc.setGlobalAlpha(0.5);
-        gc.strokeLine(trailX1, trailY1, trailX2, trailY2);
-        gc.setGlobalAlpha(1.0);
+        
         gc.setFill(color);
+        
+        // Draw 3 trailing circles
+        int numTrails = 3;
+        for (int i = 1; i <= numTrails; i++) {
+            double progress = (double) i / numTrails;
+            double tx = trailX1 + (trailX2 - trailX1) * progress;
+            double ty = trailY1 + (trailY2 - trailY1) * progress;
+            
+            double tSize = w * (1.0 - progress * 0.5); // Shrink trail slightly
+            double alpha = 0.6 * (1.0 - progress);
+            
+            gc.setGlobalAlpha(alpha);
+            gc.fillOval(tx - tSize / 2, ty - tSize / 2, tSize, tSize);
+        }
+
+        // Draw main head with full alpha and a subtle glow effect
+        gc.setGlobalAlpha(1.0);
         gc.fillOval(cx - w / 2, cy - h / 2, w, h);
     }
 }

@@ -3,6 +3,7 @@ package uni.gaben.iscat.universe.entities.brain.abilities;
 import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
@@ -134,6 +135,31 @@ public class DodgeDashAbility extends Ability {
         // Add some randomness to avoid predictable patterns
         double randomAngle = (rand.nextDouble() - 0.5) * Math.toRadians(30);
         dashDirection.rotate(randomAngle);
+
+        // Keep dodge inside camera viewport if possible
+        CameraModel camera = world.getCamera();
+        if (camera != null) {
+            double zoom = camera.getZoom();
+            double halfVW = (camera.getScreenWidth() / 2.0) / zoom;
+            double halfVH = (camera.getScreenHeight() / 2.0) / zoom;
+            double margin = UU.pxToM(50); // margin to keep inside
+            
+            double minX = camera.getX() - halfVW + margin;
+            double maxX = camera.getX() + halfVW - margin;
+            double minY = camera.getY() - halfVH + margin;
+            double maxY = camera.getY() + halfVH - margin;
+            
+            // Expected future position
+            double futureX = selfPos.x + dashDirection.x * (dashImpulse / self.getTerminalVelocity()); // Approximation
+            double futureY = selfPos.y + dashDirection.y * (dashImpulse / self.getTerminalVelocity());
+            
+            if (futureX < minX && dashDirection.x < 0) dashDirection.x = -dashDirection.x;
+            if (futureX > maxX && dashDirection.x > 0) dashDirection.x = -dashDirection.x;
+            if (futureY < minY && dashDirection.y < 0) dashDirection.y = -dashDirection.y;
+            if (futureY > maxY && dashDirection.y > 0) dashDirection.y = -dashDirection.y;
+            
+            dashDirection.normalize();
+        }
 
         // Apply impulse
         double mass = self.getMass().getMass();

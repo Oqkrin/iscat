@@ -82,6 +82,12 @@ public class Shooter<T extends CollisionBody> {
                 if (otherEntity instanceof AbstractPhysicalProjectileModel) return;
 
                 if (otherEntity instanceof Alterable target) {
+                    if (target instanceof PlayerModel pm) {
+                        if (pm.absorbProjectile(p.getEndurance())) {
+                            p.extinguish(true);
+                            return; // Absorbed, no damage
+                        }
+                    }
                     if (target instanceof AbstractLivingEntityModel lem) {
                         lem.setKilledByProjectile(true);
                     }
