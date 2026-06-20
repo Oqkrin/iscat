@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
@@ -109,6 +110,8 @@ public class OptimizedLayeredRenderer {
         for (ThrustBatch t : thrusts) {
             DrawVFX.drawThrustRaw(gc, t.cx, t.cy, t.angle, t.thrust);
         }
+        gc.setEffect(null);                     // <<< CLEAR EFFECT
+        gc.setGlobalBlendMode(BlendMode.SRC_OVER); // <<< RESET BLEND MODE
     }
 
     private void renderShockwaves() {
@@ -116,6 +119,7 @@ public class OptimizedLayeredRenderer {
             if (sw.isBlackHole) DrawVFX.drawBlackHoleRaw(gc, sw.cx, sw.cy, sw.shockwave);
             else DrawVFX.drawShockwaveRaw(gc, sw.cx, sw.cy, sw.shockwave);
         }
+        gc.setGlobalAlpha(1.0);
     }
 
     private void renderHPbars() {
@@ -241,6 +245,10 @@ public class OptimizedLayeredRenderer {
 
     public void addFilledOval(double x, double y, double w, double h, Color color, double alpha) {
         ovals.add(new OvalBatch(x, y, w, h, color, alpha, true));
+    }
+
+    public void addFilledRotatedRect(double x, double y, double w, double h, double angle, Color color, double alpha) {
+        rects.add(new RectBatch(x, y, w, h, color, alpha, true, angle));
     }
 
     public void addStrokedOval(double x, double y, double w, double h, Color color) {

@@ -11,7 +11,9 @@ import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.effects.EnduranceIndicator;
+import uni.gaben.iscat.universe.effects.HitSpark;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
+import uni.gaben.iscat.universe.rendering.vfx.HitSparkVFX;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
@@ -103,13 +105,23 @@ public class UniverseRenderer {
             EntityRenderer.renderLayered(entity, layers, debug);
         }
 
+        renderHitSparks(universe, layers);
+
+
         layers.render();
+
 
         renderEnduranceAlterations(universe, camera, gameModel.getDt(), gc);
 
         renderHurt(camera, gc);
 
         if (gameController.isFpsOn()) drawFps(gc, w);
+    }
+
+    private void renderHitSparks(UniverseModel universe, OptimizedLayeredRenderer layers) {
+        for (HitSpark spark : universe.getHitSparks()) {
+            HitSparkVFX.renderHitSpark(spark, layers);
+        }
     }
 
     private void renderHurt(CameraModel camera, GraphicsContext gc) {
