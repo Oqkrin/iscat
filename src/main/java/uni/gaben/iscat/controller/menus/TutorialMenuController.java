@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -10,6 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;

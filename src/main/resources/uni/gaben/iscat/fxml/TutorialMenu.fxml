@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/leaderboard-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.TutorialMenuController">
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/leaderboard-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.menus.TutorialMenuController">
 
     <BorderPane fx:id="rootPane">
         <padding>

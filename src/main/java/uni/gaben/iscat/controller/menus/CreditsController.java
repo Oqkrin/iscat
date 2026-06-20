@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -18,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.model.IscatViews;
 
 import java.io.BufferedReader;

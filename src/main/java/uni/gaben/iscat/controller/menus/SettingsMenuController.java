@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.controller.components.settings.*;
+import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 

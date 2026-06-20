@@ -1,4 +1,4 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.view.components.AutoFittingInputBinder;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.ScoreDAO;

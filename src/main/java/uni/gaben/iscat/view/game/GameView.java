@@ -17,7 +17,7 @@ import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.controller.game.GameOverMenuController;
 import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.model.game.GameModel;
-import uni.gaben.iscat.controller.SettingsMenuController;
+import uni.gaben.iscat.controller.menus.SettingsMenuController;
 import uni.gaben.iscat.controller.game.GamePauseMenuController;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.camera.CameraModel;

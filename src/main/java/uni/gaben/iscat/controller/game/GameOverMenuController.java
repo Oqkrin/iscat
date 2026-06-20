@@ -1,12 +1,11 @@
 package uni.gaben.iscat.controller.game;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.IscatNavigator;
-import uni.gaben.iscat.controller.IscatFxmlController;
+import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.game.GameState;
 import uni.gaben.iscat.utils.ComponentsUtils;

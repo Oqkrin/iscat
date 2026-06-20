@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="paneMaster" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/main-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.MainMenuController">
+<StackPane fx:id="paneMaster" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/main-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.menus.MainMenuController">
    <VBox>
       <children>
          <Region minHeight="56.0" prefHeight="56.0" />

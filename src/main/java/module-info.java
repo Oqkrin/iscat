@@ -81,4 +81,8 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entities.json;
     opens uni.gaben.iscat.universe.entities.json to javafx.fxml, org.json;
     exports uni.gaben.iscat.view.game.debug;
+    exports uni.gaben.iscat.controller.interfaces;
+    opens uni.gaben.iscat.controller.interfaces to javafx.fxml;
+    exports uni.gaben.iscat.controller.menus;
+    opens uni.gaben.iscat.controller.menus to javafx.fxml;
 }

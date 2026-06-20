@@ -1,14 +1,13 @@
-package uni.gaben.iscat.controller;
+package uni.gaben.iscat.controller.menus;
 
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import uni.gaben.iscat.controller.components.InfoCardController;
+import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.model.SkinGridModel;
 import uni.gaben.iscat.model.user.SessionUser;
