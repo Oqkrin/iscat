@@ -3,7 +3,6 @@ package uni.gaben.iscat.controller.game;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import org.dyn4j.collision.CategoryFilter;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.game.GameModel;
@@ -14,7 +13,6 @@ import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
-import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
@@ -24,13 +22,14 @@ import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 
 /**
  * Controller principale del ciclo di vita della partita, addetto alla gestione
- * degli input fisici, dei trucchi di debug, del ticking del mondo e del recupero dati.
+ * degli input fisici, del ticking del mondo e del coordinamento dei moduli interni.
  */
 public class GameController {
 
     private final GameModel gameModel;
     private final GameInputsHandler inputs = new GameInputsHandler();
     private final GameStatsManager statsManager = new GameStatsManager();
+    private final DebugCheatManager cheatManager;
 
     private final GameLoopTimer gameLoop;
     private final GameLifecycleManager lifecycleManager;
@@ -42,7 +41,6 @@ public class GameController {
     private boolean showFps = false;
     private boolean debugUsedInThisSession = false;
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
-    private final BooleanProperty godMode = new SimpleBooleanProperty(false);
 
     /**
      * Inizializza il core del controller di gioco configurando i timer di loop e i listener di sessione.
@@ -52,6 +50,7 @@ public class GameController {
     public GameController(GameModel gameModel) {
         Platform.runLater(EntityFactory::ensureCacheLoaded);
         this.gameModel = gameModel;
+        this.cheatManager = new DebugCheatManager(this);
         this.gameLoop = new GameLoopTimer(gameModel, this::tick);
         this.lifecycleManager = new GameLifecycleManager(gameModel, inputs, gameLoop);
 
@@ -71,7 +70,7 @@ public class GameController {
 
     private void setupUniverse() {
         String currentSkinKey = SessionManager.getPlayerSkinKey();
-        this.godMode.set(false);
+        this.cheatManager.reset();
         this.debugUsedInThisSession = isDebugModeOn();
 
         var bundle = lifecycleManager.resetUniverse(this::onPlayerDeath, currentSkinKey);
@@ -99,7 +98,7 @@ public class GameController {
 
             PlayerModel player = gameModel.getUniverseModel() != null ? gameModel.getUniverseModel().getPlayer() : null;
 
-            if (godMode.get() && player != null) {
+            if (cheatManager.isGodModeOn() && player != null) {
                 player.setEndurance(player.getMaxEndurance());
             }
 
@@ -127,59 +126,14 @@ public class GameController {
         }
     }
 
-    public void debugHeal(double amount) {
-        PlayerModel player = getPlayer();
-        if (player != null) {
-            player.alter(amount);
-            System.out.println("[DEBUG CHEAT] Curato di: " + amount);
-        }
-    }
+    public void debugHeal(double amount) { cheatManager.debugHeal(amount); }
+    public void debugDamage(double amount) { cheatManager.debugDamage(amount); }
+    public void debugToggleGodMode() { cheatManager.debugToggleGodMode(); }
+    public void debugLevelUp() { cheatManager.debugLevelUp(); }
+    public void debugLevelDown() { cheatManager.debugLevelDown(); }
+    public void debugSpawn(String id) { cheatManager.debugSpawn(id); }
 
-    public void debugDamage(double amount) {
-        if (godMode.get()) return;
-        PlayerModel player = getPlayer();
-        if (player != null) {
-            player.alter(-amount);
-            System.out.println("[DEBUG CHEAT] Danno autoinflitto: " + amount);
-        }
-    }
-
-    /**
-     * Commuta lo stato della Godmode. Incorpora anche le vecchie proprietà di Ghost Mode,
-     * disabilitando completamente i layer di collisione del giocatore quando attiva.
-     */
-    public void debugToggleGodMode() {
-        this.godMode.set(!this.godMode.get());
-        System.out.println("[DEBUG CHEAT] Godmode impostato a: " + godMode.get());
-
-        PlayerModel player = getPlayer();
-        if (player != null) {
-            CategoryFilter filter = godMode.get()
-                    ? new CategoryFilter(UniverseCollisionLayers.PLAYER, 0)
-                    : UniverseCollisionLayers.PLAYER_FILTER;
-
-            player.getFixtures().forEach(fixture -> fixture.setFilter(filter));
-            System.out.println("[DEBUG CHEAT] Collisioni del giocatore aggiornate per rispecchiare lo stato Godmode.");
-        }
-    }
-
-    public void debugLevelUp() {
-        PlayerModel player = getPlayer();
-        if (player != null) {
-            player.levelUp();
-            System.out.println("[DEBUG CHEAT] Livello aumentato! Livello attuale: " + player.getLevel());
-        }
-    }
-
-    public void debugLevelDown() {
-        PlayerModel player = getPlayer();
-        if (player != null && player.getLevel() > 1) {
-            player.levelProperty().set(player.getLevel() - 1);
-            System.out.println("[DEBUG CHEAT] Livello diminuito! Livello attuale: " + player.getLevel());
-        }
-    }
-
-    private PlayerModel getPlayer() {
+    public PlayerModel getPlayer() {
         return gameModel.getUniverseModel() != null ? gameModel.getUniverseModel().getPlayer() : null;
     }
 
@@ -258,12 +212,6 @@ public class GameController {
         });
     }
 
-    public void debugSpawn(String id) {
-        double x = getCameraModel().getX() + (Math.random() - 0.5) * 400;
-        double y = getCameraModel().getY() + (Math.random() - 0.5) * 400;
-        UniverseSpawner.getInstance().spawn(id, x, y);
-    }
-
     public void setDrawCall(Runnable drawCall) { this.gameLoop.setDrawCall(drawCall); }
     public void setOnUniverseResetCallback(Runnable cb) { this.onUniverseResetCallback = cb; }
 
@@ -280,7 +228,7 @@ public class GameController {
     public boolean isDebugModeOn() { return showDebugMode.get(); }
     public void setShowDebugMode(boolean v) { showDebugMode.set(v); }
     public BooleanProperty debugModeProperty() { return showDebugMode; }
-    public BooleanProperty godModeProperty() { return godMode; }
+    public BooleanProperty godModeProperty() { return cheatManager.godModeProperty(); }
 
     public void stopGameLoop() { gameLoop.stop(); }
     public void startGameLoop() { gameLoop.start(); }
