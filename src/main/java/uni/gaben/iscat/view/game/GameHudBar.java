@@ -10,7 +10,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uni.gaben.iscat.controller.game.GameController;
-import uni.gaben.iscat.universe.spawn.UniverseWaveController;
+import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.Objects;
