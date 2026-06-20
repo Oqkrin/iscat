@@ -1,59 +1,60 @@
 {
-  "EntityKey": "iscat_mother",
-  "Name": "Iscat Mother",
-  "Description": "Una gigantesca creatura biologica\nresponsabile della nascita degli Iscat.\nMolti Space Explorer credono che\ngli Iscat Mother siano state create artificialmente.\nAltri sostengono che esistessero\nmolto prima dell'arrivo del Maestro.",
-  "SpriteName": "iscat_mother",
-  "BestiaryOrder": 9,
-  "ThreatLevel": "HIGH",
-  "FrameW": 128,
-  "FrameH": 128,
-  "ShapeType": "CIRCLE",
-  "Scale": 3,
-  "InitLife": 750,
-  "LinearDamping": 2,
+  "entitykey": "iscat_mother",
+  "name": "Iscat Mother",
+  "description": "Una gigantesca creatura biologica...",
+  "spritename": "iscat_mother",
+  "bestiaryorder": 9,
+  "threatlevel": "HIGH",
+  "framew": 128,
+  "frameh": 128,
+  "shapetype": "CIRCLE",
+  "scale": 3,
+  "initlife": 10000,
+  "lineardamping": 2,
   "mass": 1,
-  "MaxVelocity": 9,
-  "MaxForce": 15,
-  "MaxAngularVelocity": 5,
-  "XPReward": 15,
-  "DetectionRange": 30,
-  "CombatRange": 20,
-  "PreferredRange": 15,
-  "actionCooldownS": 1000,
+  "maxvelocity": 100,
+  "maxforce": 9000,
+  "maxangularvelocity": 5,
+  "xpreward": 15,
+  "detectionrange": 45,
+  "combatrange": 25,
+  "preferredrange": 20,
+  "actioncooldowns": 0,
+  "dannoproiettile": 50,
+  "isboss": true,
+  "hasentranceanimation": false,
   "audio": {
     "attack": [],
     "idle": ["iscat_mother_idle"],
     "hurt": [],
     "death": [],
     "spawn": []
-  },"ai": {
-  "rotation": { "type": "target", "target": "player" },
-  "steering": {
-    "type": "pursuitWithRange",
-    "maxPredictionTime": 3,
-    "minDistance": 10,
-    "maxDistance": 15
   },
-  "abilities": [
-    {
-      "type": "randomizedShoot",
-      "combatRange": 30,
-      "cooldownSec": 1.0,
-      "bulletType": "ENEMY_BULLET",
-      "aimAtTarget": true,
-      "nerfPrediction": 3,
-      "patterns": [
-        { "type": "summon", "count": 3, "summonedEntityKey": "iscat_mob", "summonRadiusPx": 100 },
-        { "type": "summon", "count": 1, "summonedEntityKey": "fake_iscat", "summonRadiusPx": 100 },
-        { "type": "summon", "count": 2, "summonedEntityKey": "iscat_healer", "summonRadiusPx": 100 },
-        { "type": "repeater", "repeats": 4, "intervalSec": 1, "pattern": { "type": "spread", "count": 5, "angleStepDeg": 30 } }
-      ]
-    }
-  ],
-  "modifiers": [
-    { "type": "collisionAvoidance", "radius": 7.5, "weight": 10, "maxPredictionTime": 10, "avoidRadius": 3.0 },
-    { "type": "alignment", "radius": 7.5, "weight": 1 },
-    { "type": "cohesion", "radius": 7.5, "weight": 1 },
-    { "type": "separation", "radius": 3.75, "weight": 3 }
-  ]    }
+  "ai": {
+    "steering": {
+      "type": "pursuitWithRange",
+      "maxpredictiontime": 10,
+      "mindistance": 15,
+      "maxdistance": 25
+    },
+    "rotation": { "type": "target", "target": "player" },
+    "abilities": [
+      {
+        "type": "shoot",
+        "combatrange": 25,
+        "cooldownsec": 0.8,
+        "attackstateindex": 0,
+        "bullettype": "ENEMY_BULLET",
+        "aimattarget": true,
+        "nerfprediction": 2.6,
+        "pattern": { "type": "singleShot" }
+      }
+    ],
+    "modifiers": [
+      { "type": "collisionavoidance", "radius": 45.0, "weight": 5, "maxpredictiontime": 10, "avoidradius": 35.0 },
+      { "type": "alignment", "radius": 45.0, "weight": 1 },
+      { "type": "cohesion", "radius": 45.0, "weight": 2 },
+      { "type": "separation", "radius": 30.0, "weight": 6 }
+    ]
+  }
 }
