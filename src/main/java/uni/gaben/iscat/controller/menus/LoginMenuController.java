@@ -202,11 +202,7 @@ public class LoginMenuController implements IscatFxmlController {
             } else {
                 handleError(result.message());
             }
-        })).exceptionally(ex -> {
-            ex.printStackTrace();
-            Platform.runLater(() -> handleError("Errore di connessione"));
-            return null;
-        });
+        }));
     }
 
     private void handleError(String message) {
@@ -335,35 +331,37 @@ public class LoginMenuController implements IscatFxmlController {
     private void applyLoadedSettings(UserSettings settings, Scene currentScene) {
         if (settings == null || currentScene == null) return;
 
+        // Gestione Audio
         AudioManager audio = AudioManager.getInstance();
         audio.setMasterVolume(settings.getVolumeMaster());
         audio.setBgmVolume(settings.getVolumeBgm());
         audio.setSfxVolume(settings.getVolumeSfx());
 
+        // Gestione Finestra/Fullscreen
         boolean goFullscreen = (settings.getFullscreen() == 1);
         IscatNavigator.getInstance().getModel().setFullscreen(goFullscreen);
 
+        // Gestione Temi e Stati Visivi
         ThemeManager themeEngine = ThemeManager.getInstance();
         SessionManager.getInstance().isLightModeSelected = (settings.getLightmode() == 1);
 
+        // Fermiamo la modalità arcobaleno precedente per evitare conflitti
+        themeEngine.stopRainbowMode();
+
+        // Prepariamo la palette recuperandola dalle impostazioni dell'utente
+        List<String> savedPalette = List.of(
+                settings.getPrimaryTheme() != null ? settings.getPrimaryTheme() : "#cbcbcb",
+                settings.getSecondaryTheme() != null ? settings.getSecondaryTheme() : "#a9a9a9",
+                settings.getTertiaryTheme() != null ? settings.getTertiaryTheme() : "#333333",
+                settings.getBackgroundTheme() != null ? settings.getBackgroundTheme() : "#010203"
+        );
+
+        // Applichiamo sempre i colori di base del nuovo utente (così resetta il vecchio tema)
+        themeEngine.applyHexColorsTheme(currentScene, savedPalette, 0.0);
+
+        // Se l'utente appena loggato ha la modalità arcobaleno attiva, la avviamo sopra i suoi colori
         if (settings.getRainbowMode() == 1) {
             themeEngine.startRainbowMode(currentScene);
-        } else {
-            themeEngine.stopRainbowMode();
-        }
-
-        if (settings.getRainbowMode() != 1) {
-            if (settings.getPrimaryTheme() != null && !settings.getPrimaryTheme().equalsIgnoreCase("#FFFFFF")) {
-                List<String> savedPalette = List.of(
-                        settings.getPrimaryTheme(),
-                        settings.getSecondaryTheme(),
-                        settings.getTertiaryTheme(),
-                        settings.getBackgroundTheme()
-                );
-                themeEngine.applyHexColorsTheme(currentScene, savedPalette, 0.0);
-            } else {
-                themeEngine.switchTheme(currentScene, "/uni/gaben/iscat/styles/iscat-color-theme.css", Color.WHITE, 0.0);
-            }
         }
     }
 }
