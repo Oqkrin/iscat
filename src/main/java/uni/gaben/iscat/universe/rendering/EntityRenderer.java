@@ -78,15 +78,38 @@ public final class EntityRenderer {
         );
         double finalAngle = baseAngle + sprite.getVisualAngularOffsetDeg();
 
-        // Retrieve or create the sprite sheet & animator
-        SpriteKey key = new SpriteKey(sprite.getSpritePath(), sprite.getSpriteFrameWidth(), sprite.getSpriteFrameHeight());
+        // Recupera lo sprite sheet globale
         SpriteSheetsParser sheet = SpritesLibrary.getInstance().getSprite(sprite.getSpritePath(), sprite.getSpriteFrameWidth(), sprite.getSpriteFrameHeight());
         if (sheet != null) {
-            SpriteSheetsAnimator animator = getAnimator(key, sprite, sheet);
-            animator.setState(entity.getState());
-            animator.setTime(entity.getStateTime());
+            int row = entity.getState();
+            int[] framesPerRow = sheet.getFramesPerRow();
+            int currentFrame = 0;
 
-            Image frame = sheet.getFrame(animator.getCurrentState(), animator.getCurrentFrame());
+            if (framesPerRow != null && row >= 0 && row < framesPerRow.length) {
+                int totalFrames = framesPerRow[row];
+                if (totalFrames > 0) {
+                    // Calcolo dinamico in base alla durata reale impostata nello stato corrente
+                    double frameDuration = sprite.getFrameDuration();
+                    int calculatedFrame = (int) (entity.getStateTime() / frameDuration);
+
+                    // Determina se l'animazione deve andare in loop o fermarsi all'ultimo frame
+                    boolean isIdle = (row == 0); // Di default consideriamo la riga 0 come IDLE per sicurezza
+                    if (entity instanceof EntityModel em) {
+                        isIdle = (em.getCurrentEntityState() == EntityState.IDLE);
+                    }
+
+                    if (isIdle) {
+                        // L'IDLE continua a ciclare all'infinito
+                        currentFrame = calculatedFrame % totalFrames;
+                    } else {
+                        // Tutte le altre animazioni (DEATH, ATTACK, ecc.) si fermano inchiodate sull'ultimo frame
+                        currentFrame = Math.min(calculatedFrame, totalFrames - 1);
+                    }
+                }
+            }
+
+            // Recupera il frame corretto calcolato dinamicamente
+            Image frame = sheet.getFrame(row, currentFrame);
             if (frame != null) {
                 Color tint = (entity instanceof PlayerModel)
                         ? ThemeManager.getInstance().getAccentPrimary()
@@ -111,7 +134,7 @@ public final class EntityRenderer {
             double barY = cy - h/2 - OptimizedLayeredRenderer.HpBarBatch.HP_BAR_OFFSET_Y;
             double percent = ld.getEndurance() / ld.getMaxEndurance();
             layers.addHpBar(barX, barY, w, OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT, percent);
-            
+
             if (entity instanceof PlayerModel pm) {
                 double tgY = barY + OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT + OptimizedLayeredRenderer.TimeGaugeBarBatch.TIME_BAR_OFFSET_Y;
                 double tgPercent = pm.getTimeGauge() / pm.getMaxTimeGauge();
@@ -130,12 +153,13 @@ public final class EntityRenderer {
         double w  = e.getWidthPx();
         double h  = e.getHeightPx();
 
+        @SuppressWarnings("unused")
         Vector2 vel = p.getLinearVelocity();
         double speed = vel.getMagnitude();
         double trailX2 = cx;
         double trailY2 = cy;
         double trailWidth = ScalareAureo.phiMinore(h);
-        
+
         if (speed > 0.1) {
             trailX2 = cx - ScalareAureo.phiMaggiore(vel.x);
             trailY2 = cy - ScalareAureo.phiMaggiore(vel.y);
@@ -244,13 +268,13 @@ public final class EntityRenderer {
         renderer.addLine(cx, cy, cx + w/2, cy, 1.5, Color.RED, 1.0);
     }
 
+    @Deprecated
     private static SpriteSheetsAnimator getAnimator(SpriteKey key, HasSprite sprite, SpriteSheetsParser sheet) {
         return ANIMATOR_CACHE.computeIfAbsent(key, k -> {
             double defDur = sprite.getFrameDuration();
             if (sheet != null) {
                 return new SpriteSheetsAnimator(defDur, sheet.getFramesPerRow());
             } else {
-                // Fallback: 1 state, 1 frame
                 return new SpriteSheetsAnimator(defDur, 1, 1);
             }
         });
