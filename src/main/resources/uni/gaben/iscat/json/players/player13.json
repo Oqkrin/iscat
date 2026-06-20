@@ -1,0 +1,51 @@
+{
+  "EntityKey": "player13",
+  "Name": "Ла́йка",
+  "Description": "Laika il primo animale ad orbitare il pianeta, i sovietici la diedero per morta, invero trovarono lo sputnik 2 vuoto all'atterraggio e tennerò il segreto",
+  "SpriteName": "player13",
+  "BestiaryOrder": 12,
+  "FrameW": 64,
+  "FrameH": 64,
+  "ShapeType": "CIRCLE",
+  "Scale": 2.0,
+  "InitLife": 30000,
+  "LinearDamping": 2.0,
+  "mass": 1.0,
+  "MaxVelocity": 8,
+  "MaxForce": 27,
+  "player": {
+    "dashImpulse": 15.0,
+    "dashDurationSec": 0.2,
+    "dashCooldownSec": 0.8,
+    "stunDurationSec": 1.0,
+    "baseCooldownSec": 0.3,
+    "dannoProiettile": 300,
+    "levelAbilities": [
+      {
+        "minLevel": 10,
+        "cooldownSec": 0.24,
+        "pattern": { "type": "figure", "figureType": "STAR", "count": 30 }
+      },
+      {
+        "minLevel": 7,
+        "cooldownSec": 0.255,
+        "pattern": { "type": "parallelLine", "count": 7, "angleStepDeg": 45.0 }
+      },
+      {
+        "minLevel": 4,
+        "cooldownSec": 0.27,
+        "pattern": { "type": "parallelLine", "count": 5, "angleStepDeg": 30.0 }
+      },
+      {
+        "minLevel": 2,
+        "cooldownSec": 0.285,
+        "pattern": { "type": "parallelLine", "count": 3, "angleStepDeg": 15.0 }
+      },
+      {
+        "minLevel": 1,
+        "cooldownSec": 0.3,
+        "pattern": { "type": "singleShot" }
+      }
+    ]
+  }
+}
