@@ -21,6 +21,10 @@
   "PreferredRange": 40,
   "actionCooldownS": 800,
   "AngularOffsetDeg": 90,
+  "Animations": [
+    { "type": "IDLE",        "row": 0, "frames": 19 },
+    { "type": "DEATH",       "row": 1, "frames": 3 }
+  ],
   "audio": {
     "attack": [
       "fake_iscat_attack"

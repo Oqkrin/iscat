@@ -21,6 +21,10 @@
   "PreferredRange": 30,
   "actionCooldownS": 0,
   "AngularOffsetDeg": 90,
+  "Animations": [
+    { "type": "IDLE",        "row": 0, "frames": 1 },
+    { "type": "DEATH",       "row": 1, "frames": 1 }
+  ],
   "audio": {
     "attack": [],
     "idle": [],
