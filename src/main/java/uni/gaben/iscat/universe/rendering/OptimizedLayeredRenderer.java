@@ -1,10 +1,7 @@
 package uni.gaben.iscat.universe.rendering;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.effect.Bloom;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.*;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
@@ -189,13 +186,12 @@ public class OptimizedLayeredRenderer {
                 gc.fillPolygon(p.xPoints, p.yPoints, p.xPoints.length);
             }
             if (p.lineWidth > 0) {
-                gc.setEffect(PROJECTILE_EFFECT);
                 gc.setStroke(p.color);
                 gc.setLineWidth(p.lineWidth);
                 gc.strokePolygon(p.xPoints, p.yPoints, p.xPoints.length);
-                gc.setEffect(null);
             }
         }
+
     }
 
     private void renderSprites() {
