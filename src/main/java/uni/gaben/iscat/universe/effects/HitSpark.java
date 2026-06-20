@@ -50,8 +50,6 @@ public class HitSpark implements Stateful, Updatable, Removable {
         // Convert world position to world pixels (for camera‑space rendering)
         double px = UU.mToPx(worldPos.x);
         double py = UU.mToPx(worldPos.y);
-
-        // Optional velocity bias (ignored in this fireworks effect)
         return new HitSpark(px, py, particleCount);
     }
 
@@ -61,7 +59,6 @@ public class HitSpark implements Stateful, Updatable, Removable {
     }
 
     private HitSpark(double worldX, double worldY, int particleCount) {
-        // ---- Generate particles ----
         for (int i = 0; i < particleCount; i++) {
             double angle = RANDOM.nextDouble() * 2 * Math.PI;
             double distance = RANDOM.nextDouble() * (EXPLOSION_RADIUS_MAX - EXPLOSION_RADIUS_MIN) + EXPLOSION_RADIUS_MIN;

@@ -23,16 +23,21 @@ public class BlackHoleModel extends AbstractPhysicalEntityModel implements Updat
     private final double maxRadiusM;
     private final double initialRadiusM;
 
-    // Growth limits
+    // ---- Absorption strength (increased) ----
     private static final double MAX_DENSITY = 40.0;          // soft cap for density
-    private static final double GROWTH_FACTOR = .1;         // density growth multiplier per kg absorbed
-    private static final double RADIUS_GROWTH_BASE = 0.002;   // radius growth per kg (before asymptotic damping)
+    private static final double GROWTH_FACTOR = 0.3;         // was 0.1 → 3x faster density gain per kg
+    private static final double RADIUS_GROWTH_BASE = 0.005;  // was 0.002 → 2.5x faster radius gain per kg
 
     // Hawking radiation parameters
-    private static final double RADIATION_RADIUS_DECAY = 0.02;   // fraction of current radius lost per second
-    private static final double RADIATION_DENSITY_DECAY = 0.01;  // density points lost per second
-    private static final double RADIATION_IDLE_TIME = 2.0;        // seconds without absorption before decay starts
+    private static final double RADIATION_RADIUS_DECAY = 0.02;
+    private static final double RADIATION_DENSITY_DECAY = 0.01;
+    private static final double RADIATION_IDLE_TIME = 2.0;
     private double timeSinceLastAbsorption = 0.0;
+
+    // ---- Deferred update flags ----
+    private boolean needsFixtureUpdate = false;
+    private double pendingRadiusM = -1;
+    private double pendingDensity = -1;
 
     public BlackHoleModel(double x, double y, double initialRadiusM) {
         super(x, y, new EntityRecordBuilder().build());
@@ -42,11 +47,11 @@ public class BlackHoleModel extends AbstractPhysicalEntityModel implements Updat
 
         createFixture();
         setMass(MassType.NORMAL);
-        addOnCollision("blackhole" ,this::absorbEntity);
+        addOnCollision("blackhole", this::absorbEntity);
     }
 
     public BlackHoleModel(double x, double y) {
-        this(x, y, Math.random() * 2.0 + 0.5); // random initial radius between 0.5 and 2.5 meters
+        this(x, y, Math.random() * 2.0 + 0.5);
     }
 
     private void createFixture() {
@@ -59,45 +64,44 @@ public class BlackHoleModel extends AbstractPhysicalEntityModel implements Updat
 
     private void absorbEntity(AbstractPhysicalEntityModel other) {
         if (other == null || other.shouldRemove()) return;
-        // Don't absorb other black holes or projectiles (projectiles just die)
-        if (other instanceof BlackHoleModel) return;
-        if (other instanceof AbstractPhysicalProjectileModel) {
-            other.setShouldRemove(true);
+        if (other instanceof AbstractPhysicalProjectileModel appm) {
+            appm.extinguish();
             return;
         }
 
-        // Player collision: violent repulsion instead of instant death
+        // Player: repulse instead of absorb
         if (other instanceof PlayerModel p) {
             Vector2 pushDir = p.getTransform().getTranslation().subtract(this.getTransform().getTranslation());
             double dist = pushDir.getMagnitude();
             if (dist > 0.01) {
                 pushDir.normalize();
-                // Impulse scales with current density (capped) and a fixed constant
+                // Impulse scales with current density (capped)
                 double impulseMag = 800.0 * Math.min(fixture.getDensity(), MAX_DENSITY);
-                p.applyImpulse(pushDir.multiply(impulseMag));
+                p.applyImpulse(pushDir.setMagnitude(impulseMag));
             }
             return;
         }
 
         double absorbedMass = other.getMass().getMass();
 
-        // 1. Radius growth (logarithmic, asymptotic toward maxRadiusM)
-        if (radius.m().get() < maxRadiusM) {
-            double progress = (radius.m().get() - initialRadiusM) / (maxRadiusM - initialRadiusM);
+        // 1. Compute new radius (logarithmic, asymptotic toward maxRadiusM)
+        double newRadius = radius.m().get();
+        if (newRadius < maxRadiusM) {
+            double progress = (newRadius - initialRadiusM) / (maxRadiusM - initialRadiusM);
             double growth = absorbedMass * RADIUS_GROWTH_BASE * (1.0 - progress);
-            this.radius = new UU(Math.min(radius.m().get() + growth, maxRadiusM), UU.units.METERS);
-            createFixture();
+            newRadius = Math.min(newRadius + growth, maxRadiusM);
         }
 
-        // 2. Density growth (capped)
+        // 2. Compute new density (capped)
         double currentDensity = fixture.getDensity();
         double newDensity = Math.min(currentDensity + absorbedMass * GROWTH_FACTOR, MAX_DENSITY);
-        fixture.setDensity(newDensity);
 
-        // Recalculate mass based on new density
-        this.setMass(MassType.NORMAL);
+        // 3. Defer application to avoid ConcurrentModificationException
+        pendingRadiusM = newRadius;
+        pendingDensity = newDensity;
+        needsFixtureUpdate = true;
 
-        // Kill the absorbed entity
+        // Kill the absorbed entity (safe, doesn't modify dyn4j structures)
         if (other instanceof AbstractLivingEntityModel l) l.extinguish();
         else other.setShouldRemove(true);
 
@@ -108,14 +112,30 @@ public class BlackHoleModel extends AbstractPhysicalEntityModel implements Updat
     @Override
     public void update(double dt) {
         super.update(dt);
-        timeSinceLastAbsorption += dt;
 
-        // Hawking radiation: slowly shrink if idle
+        // ---- Apply pending fixture changes (safe, outside collision loop) ----
+        if (needsFixtureUpdate) {
+            if (pendingRadiusM > 0) {
+                this.radius = new UU(pendingRadiusM, UU.units.METERS);
+                createFixture();                // removes old fixture, adds new one
+            }
+            if (pendingDensity > 0) {
+                fixture.setDensity(pendingDensity);
+                this.setMass(MassType.NORMAL); // recalc mass with new density
+            }
+            needsFixtureUpdate = false;
+            pendingRadiusM = -1;
+            pendingDensity = -1;
+        }
+
+        // ---- Hawking radiation (shrink when idle) ----
+        timeSinceLastAbsorption += dt;
         if (timeSinceLastAbsorption > RADIATION_IDLE_TIME) {
             // Decay radius toward initial
             if (radius.m().get() > initialRadiusM) {
                 double decay = RADIATION_RADIUS_DECAY * radius.m().get() * dt;
                 this.radius = new UU(Math.max(initialRadiusM, radius.m().get() - decay), UU.units.METERS);
+                // We can update fixture immediately because we are in a safe context
                 createFixture();
             }
             // Decay density toward a minimal value (1.0)
