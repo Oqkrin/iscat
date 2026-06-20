@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="16.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.DisplaySettingsController">
+<VBox alignment="CENTER" spacing="16.0" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.components.settings.DisplaySettingsController">
       <Label alignment="CENTER" styleClass="card-header" text="DISPLAY" textAlignment="CENTER">
       <padding>
          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
