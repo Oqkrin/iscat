@@ -1,42 +1,73 @@
 /* ============================================
-   TEXT STATES
+   TEXT STATES & TITLE
    ============================================ */
 
 .login-title {
     /* Allineato al Main Menu: testo e ombra seguono l'accento primario del gioco */
     -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;
+    -fx-font-size: 48px; /* Titolo principale imponente */
     -fx-effect: dropshadow(gaussian, -accent-primary, 15, 0, 0, 0);
 }
 
-.login-text         { -fx-text-fill: -text-secondary; }
-.login-text-status  { -fx-text-fill: -text-secondary; -fx-opacity: 0.55; }
-.login-text-empty   { -fx-text-fill: -text-primary; }
-.login-text-exists  { -fx-text-fill: -color-success; }
-.login-text-missing { -fx-text-fill: -color-warning; }
-.login-text-error   { -fx-text-fill: -color-error; }
-
-/* ============================================
-   PLACEHOLDER
-   ============================================ */
-
-.login-placeholder {
-    -fx-text-fill: -text-tertiary;
-    -fx-opacity: 0.5;
+.login-text-status {
+    -fx-text-fill: -text-secondary;
+    -fx-opacity: 0.55;
+    -fx-font-size: 18px; /* Messaggi di stato sotto i campi più leggibili */
 }
-
-/* ============================================
-   CURSOR
-   ============================================ */
-
-.login-cursor { -fx-text-fill: inherit; }
 
 /* ============================================
    ICONS
    ============================================ */
 
-.login-icon         { -icon-color: -text-secondary; }
+.login-icon {
+    -icon-color: -text-secondary;
+    -fx-icon-size: 24px; /* Forza la dimensione dell'icona a 24px per accoppiarsi al testo */
+}
 .login-icon-empty   { -icon-color: -text-primary; }
 .login-icon-exists  { -icon-color: -color-success; }
 .login-icon-missing { -icon-color: -color-warning; }
 .login-icon-error   { -icon-color: -color-error; }
+
+/* ============================================
+   INPUT FIELDS (TextField & PasswordField Nativi)
+   ============================================ */
+
+.login-input-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: -text-secondary;
+    -fx-alignment: center;
+
+    /* Rimuove l'evidenziazione blu e i bordi nativi al focus */
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+
+    /* NOTA: -fx-font-size e -fx-font-family sono stati rimossi da qui.
+       Vengono gestiti interamente dal codice Java (onShow e AutoFittingInputBinder)
+       per evitare che il motore CSS sovrascriva il rimpicciolimento dinamico. */
+}
+
+.login-input-field:focused {
+    -fx-text-fill: -text-primary;
+}
+
+/* Allineamento del testo interno generato dallo skin nativo */
+.login-input-field .text {
+    -fx-alignment: center;
+}
+
+/* Colore del prompt text nativo (placeholder quando il campo è vuoto) */
+.login-input-field:empty .text {
+    -fx-fill: -text-tertiary;
+    -fx-opacity: 0.5;
+}
+
+/* ============================================
+   DYNAMIC TEXT COLORS (Applicati via StyleClass)
+   ============================================ */
+
+.login-input-field.login-text-empty   { -fx-text-fill: -text-primary; }
+.login-input-field.login-text-exists  { -fx-text-fill: -color-success; }
+.login-input-field.login-text-missing { -fx-text-fill: -color-warning; }
+.login-input-field.login-text-error   { -fx-text-fill: -color-error; }
