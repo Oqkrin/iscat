@@ -20,6 +20,7 @@
   "CombatRange": 30,
   "PreferredRange": 20,
   "actionCooldownS": 800,
+  "AngularOffsetDeg": 90,
   "Animations": [
     { "type": "IDLE",        "row": 0, "frames": 5 },
     { "type": "DEATH",       "row": 1, "frames": 5 }
