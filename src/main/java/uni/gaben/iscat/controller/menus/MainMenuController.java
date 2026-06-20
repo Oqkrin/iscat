@@ -8,11 +8,11 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
-import uni.gaben.iscat.universe.rendering.EntityRenderer;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
@@ -30,6 +30,9 @@ public class MainMenuController implements IscatFxmlController {
     @FXML private Button quitButton;
     @FXML private Button leaderboardButton;
     @FXML private Button creditsButton;
+
+    @FXML private StackPane confirmOverlay;
+    @FXML private ConfirmationOverlayController confirmOverlayController;
 
     private final AnimatedCanvas skin = new AnimatedCanvas(128);
     private final AnimatedCanvas mobCanvas = new AnimatedCanvas(128);
@@ -59,7 +62,7 @@ public class MainMenuController implements IscatFxmlController {
 
         setIcon(playButton,        "fas-rocket");
         setIcon(tutorialButton,    "fas-graduation-cap");
-        setIcon(settingsButton,     "fas-cog");
+        setIcon(settingsButton,    "fas-cog");
         setIcon(scoreButton,       "fas-eye");
         setIcon(skinButton,        "fas-gift");
         setIcon(bestiaryButton,    "fas-bug");
@@ -70,21 +73,31 @@ public class MainMenuController implements IscatFxmlController {
     }
 
     private void updateMaxSide(double value) {
-        if (value > sideButtonsMaxSide.get()) {
-            sideButtonsMaxSide.set(value);
-        }
+        if (value > sideButtonsMaxSide.get()) sideButtonsMaxSide.set(value);
     }
 
     @FXML public void playGame()            { navigate(IscatViews.GAME);             }
     @FXML public void openTutorialMenu()    { navigate(IscatViews.TUTORIAL_MENU);    }
-    @FXML public void openSettingsMenu()    { navigate(IscatViews.SETTINGS_MENU);   }
+    @FXML public void openSettingsMenu()    { navigate(IscatViews.SETTINGS_MENU);    }
     @FXML public void openScoreMenu()       { navigate(IscatViews.SCORE_MENU);       }
     @FXML public void openSkinMenu()        { navigate(IscatViews.SKIN_MENU);        }
     @FXML public void openBestiaryMenu()    { navigate(IscatViews.BESTIARY_MENU);    }
     @FXML public void logout()              { navigate(IscatViews.LOGIN_MENU);       }
     @FXML public void openLeaderboardMenu() { navigate(IscatViews.LEADERBOARD_MENU); }
     @FXML public void openCreditsMenu()     { navigate(IscatViews.CREDITS);          }
-    @FXML public void quit()                { Platform.exit();                       }
+
+    @FXML
+    public void quit() {
+        if (confirmOverlayController != null) {
+            confirmOverlayController.ask(
+                    "Uscire dal gioco?",
+                    "Sei sicuro di voler chiudere ISCAT?",
+                    () -> Platform.exit()
+            );
+        } else {
+            Platform.exit();
+        }
+    }
 
     private void navigate(IscatViews scene) {
         IscatNavigator.getInstance().navigateWithFade(scene);
@@ -98,7 +111,7 @@ public class MainMenuController implements IscatFxmlController {
                 case "fas-gift" -> {
                     EntityRecord player = EntityFactory.getCache().get(SessionManager.getPlayerSkinKey());
                     SessionManager.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
-                        skin.loadSkin(newValue,player.frameW(), player.frameH());
+                        skin.loadSkin(newValue, player.frameW(), player.frameH());
                         skin.resize(128.0);
                     });
                     skin.loadSkin(SessionManager.getPlayerSkin(), player.frameW(), player.frameH());
