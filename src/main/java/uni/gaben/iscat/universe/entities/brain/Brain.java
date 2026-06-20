@@ -143,36 +143,56 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
      * Calculates all forces, scales them strictly by (maxForce * weight), and sums them directly.
      */
     private void computeAndApplySteering(UniverseModel universe, double dt) {
-        // 1. Get primary goal force (It returns a Force normalized to maxForce)
-        Vector2 primaryForce = currentSteeringGoal.computeDesiredVelocity(entity, universe, dt);
+        steerForce.set(0, 0);
+        double maxForce = entity.getAcceleration();
+        double remainingBudget = maxForce;
 
-        if (primaryForce == null || primaryForce.isZero()) {
-            steerForce.set(0, 0);
-        } else {
-            // Scale primary force by its configurable weight
-            steerForce.set(primaryForce).multiply(goalWeight.get());
+        // 1. Applicazione dei modificatori in ordine di priorità
+        for (int i = 0; i < modifiersOrder.size(); i++) {
+            if (remainingBudget <= 0.0) break; // budget esaurito
+
+            modifierSteer.set(0, 0);
+            modifiersOrder.get(i).computeSteer(entity, universe, maxForce, dt, modifierSteer);
+
+            double mag = modifierSteer.getMagnitude();
+            if (mag <= 0.0) continue;
+
+            // Se la forza richiesta supera il budget rimanente, la normalizzo
+            if (mag > remainingBudget) {
+                modifierSteer.normalize();
+                modifierSteer.multiply(remainingBudget);
+                mag = remainingBudget;
+            }
+
+            steerForce.add(modifierSteer);
+            remainingBudget -= mag;
         }
 
-        double maxForce = entity.getAcceleration();
+        // 2. Obiettivo primario (solo se c'è ancora budget)
+        if (remainingBudget > 0.0) {
+            Vector2 primaryForce = currentSteeringGoal.computeDesiredVelocity(entity, universe, dt);
+            if (primaryForce != null && !primaryForce.isZero()) {
+                // Applico il peso configurabile all'obiettivo primario
+                primaryForce.multiply(goalWeight.get());
 
-        // 2. Sum Modifiers directly (No averaging, no strict budget clamping)
-        if (!modifiersOrder.isEmpty()) {
-            for (int i = 0; i < modifiersOrder.size(); i++) {
-                modifierSteer.set(0, 0);
-                // Modifiers scale themselves by (maxForce * their own weight) internally
-                modifiersOrder.get(i).computeSteer(entity, universe, maxForce, dt, modifierSteer);
-                steerForce.add(modifierSteer);
+                double mag = primaryForce.getMagnitude();
+                if (mag > remainingBudget) {
+                    primaryForce.normalize();
+                    primaryForce.multiply(remainingBudget);
+                }
+                steerForce.add(primaryForce);
             }
         }
 
-        // 3. Apply physical mass
+        // 3. Applicazione della massa (se desiderato)
         /*
-        double currentMass = entity.getMass().getMass();
-        if (currentMass > 0.0 && currentMass != 1.0) {
-            steerForce.divide(currentMass);
+        double mass = entity.getMass().getMass();
+        if (mass > 0.0) {
+            steerForce.divide(mass);
         }
         */
-        // 4. Apply physical force (Velocity constraints handled by UniverseController)
+
+        // 4. Applicazione fisica
         entity.applyForce(steerForce);
     }
 
