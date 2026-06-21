@@ -12,11 +12,9 @@ public class DashTrail {
     /** Un singolo punto della scia con posizione e alpha residua. */
     public record TrailPoint(double x, double y, double alpha, double width) {}
 
-    // INCREASED: Da 48 a 150 per contenere una coda molto più lunga
-    private static final int MAX_POINTS = 373;
+    private static final int MAX_POINTS = 150;
 
-    // DECREASED: Da 1.8 a 0.4 per far svanire la scia molto più lentamente
-    private static final double FADE_RATE = 0.1;
+    private static final double FADE_RATE = 0.5;
 
     private final Deque<TrailPoint> points = new ArrayDeque<>(MAX_POINTS);
 

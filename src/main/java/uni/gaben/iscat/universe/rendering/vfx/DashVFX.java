@@ -18,8 +18,6 @@ import java.util.List;
 public final class DashVFX {
 
     private static final Glow GLOW = new Glow(0.6);
-    private static final double MAX_LENGTH = 80;
-    private static final double MIN_LENGTH = 15;
 
     private DashVFX() {}
 
@@ -31,10 +29,11 @@ public final class DashVFX {
         double dirX = vx / speed;
         double dirY = vy / speed;
 
+        double drawLength = speed * 6.0;
+
         double refSpeed = 80.0;
         double intensity = Math.min(speed / refSpeed, 1.0);
 
-        double length = MIN_LENGTH + (MAX_LENGTH - MIN_LENGTH) * intensity;
         Color accent = ThemeManager.getInstance().getAccentPrimary();
         double alpha = intensity * 0.9;
 
@@ -43,8 +42,9 @@ public final class DashVFX {
         gc.setGlobalBlendMode(BlendMode.ADD);
         gc.setEffect(GLOW);
 
-        double endX = -dirX * length * 2.5;
-        double endY = -dirY * length * 2.5;
+        // Calculate the vector pointing backwards to the dash origin
+        double endX = -dirX * drawLength;
+        double endY = -dirY * drawLength;
 
         Color startColor = Color.color(
                 Math.min(1, accent.getRed() + 0.3 * (1 - accent.getRed())),
@@ -61,10 +61,8 @@ public final class DashVFX {
                 new Stop(1.0, endColor)
         );
 
-        // CHANGED: Use the exact entity width
-        double lineWidth = width;
         gc.setStroke(gradient);
-        gc.setLineWidth(lineWidth);
+        gc.setLineWidth(width); // Strictly locked to entity width
         gc.setLineCap(StrokeLineCap.ROUND);
 
         double startOffsetX = -dirX * (width * 0.4);
@@ -119,10 +117,8 @@ public final class DashVFX {
                     new Stop(1.0, toColor)
             );
 
-            // CHANGED: Strict entity width (no alpha shrinking or hardcoded reduction)
-            double lineWidth = prev.width();
             gc.setStroke(segGradient);
-            gc.setLineWidth(lineWidth);
+            gc.setLineWidth(prev.width()); // Strictly locked to entity width
             gc.strokeLine(prev.x(), prev.y(), curr.x(), curr.y());
         }
 
