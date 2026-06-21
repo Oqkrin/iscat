@@ -53,8 +53,16 @@ public final class SpriteResolver {
         }
 
         // 3. Fallback definitivo sulle risorse grafiche predefinite del Classpath
+        String internalCustomPath = "/uni/gaben/iscat/sprites/custom/" + folder + "/" + fileName;
+        InputStream is = SpriteResolver.class.getResourceAsStream(internalCustomPath);
+        if (is != null) return is;
+
+        String internalCorePath = "/uni/gaben/iscat/sprites/core/" + folder + "/" + fileName;
+        is = SpriteResolver.class.getResourceAsStream(internalCorePath);
+        if (is != null) return is;
+
         String internalPath = "/uni/gaben/iscat/sprites/" + folder + "/" + fileName;
-        InputStream is = SpriteResolver.class.getResourceAsStream(internalPath);
+        is = SpriteResolver.class.getResourceAsStream(internalPath);
         if (is == null) {
             System.err.println("[SpriteResolver] Sprite not found in classpath: " + internalPath);
         }

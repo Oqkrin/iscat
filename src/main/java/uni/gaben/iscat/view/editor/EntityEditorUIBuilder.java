@@ -128,7 +128,7 @@ public class EntityEditorUIBuilder {
         final JSONObject finalSteering = steering;
         steerBox.getChildren().addAll(
                 FieldBuilder.createEnumComboField("Type", finalSteering, "type",
-                        SteeringGoalIndex.values(), e -> e.jsonKey),
+                        SteeringGoalIndex.values(), e -> e.jsonKey, rebuildCallback),
                 FieldBuilder.createDoubleField("Max Prediction", finalSteering, "maxpredictiontime", 2.5),
                 FieldBuilder.createDoubleField("Min Distance", finalSteering, "mindistance", 2.5),
                 FieldBuilder.createDoubleField("Max Distance", finalSteering, "maxdistance", 10.0)
@@ -145,7 +145,7 @@ public class EntityEditorUIBuilder {
         final JSONObject finalRotation = rotation;
         rotBox.getChildren().addAll(
                 FieldBuilder.createEnumComboField("Type", finalRotation, "type",
-                        RotationGoalIndex.values(), e -> e.jsonKey),
+                        RotationGoalIndex.values(), e -> e.jsonKey, rebuildCallback),
                 FieldBuilder.createDoubleField("Spin Speed (rad/s)", finalRotation, "spinspeedradpersec", 0.0),
                 FieldBuilder.createStringField("Target Name", finalRotation, "target")
         );
@@ -250,7 +250,7 @@ public class EntityEditorUIBuilder {
     private void buildSingleModifierUI(VBox box, JSONObject mod) {
         box.getChildren().addAll(
                 FieldBuilder.createEnumComboField("Type", mod, "type",
-                        ModifierIndex.values(), e -> e.jsonKey),
+                        ModifierIndex.values(), e -> e.jsonKey, rebuildCallback),
                 FieldBuilder.createDoubleField("Radius", mod, "radius", 5.0),
                 FieldBuilder.createDoubleField("Weight", mod, "weight", 1.0)
         );
@@ -260,7 +260,7 @@ public class EntityEditorUIBuilder {
     private void buildSingleAbilityUI(VBox box, JSONObject ability) {
         box.getChildren().addAll(
                 FieldBuilder.createEnumComboField("Type", ability, "type",
-                        AbilityIndex.values(), e -> e.jsonKey),
+                        AbilityIndex.values(), e -> e.jsonKey, rebuildCallback),
                 FieldBuilder.createDoubleField("Combat Range", ability, "combatrange", 10.0),
                 FieldBuilder.createDoubleField("Cooldown (s)", ability, "cooldownsec", 1.0)
         );
@@ -304,7 +304,7 @@ public class EntityEditorUIBuilder {
         // Selettore a tendina per il tipo di pattern
         box.getChildren().add(
                 FieldBuilder.createEnumComboField("Pattern Type", pattern, "type",
-                        PatternIndex.values(), e -> e.jsonKey)
+                        PatternIndex.values(), e -> e.jsonKey, rebuildCallback)
         );
 
         final String type = pattern.optString("type", "");

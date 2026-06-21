@@ -48,6 +48,7 @@ public class EntityEditorMenuController implements IscatMenuController {
     private AnimatedCanvas previewCanvas;
     private EntityEditorModel model;
     private EntityEditorUIBuilder uiBuilder;
+    private boolean isUpdatingCombos = false;
 
     public static String targetEntityKeyToLoad = null;
 
@@ -131,29 +132,51 @@ public class EntityEditorMenuController implements IscatMenuController {
     }
 
     private void selectEntityInCombo(String key) {
+        isUpdatingCombos = true;
+        comboCustom.getSelectionModel().clearSelection();
+        comboCore.getSelectionModel().clearSelection();
+        comboPlayers.getSelectionModel().clearSelection();
+
         if (comboCustom.getItems().contains(key)) comboCustom.getSelectionModel().select(key);
         else if (comboCore.getItems().contains(key)) comboCore.getSelectionModel().select(key);
         else if (comboPlayers.getItems().contains(key)) comboPlayers.getSelectionModel().select(key);
+        
+        isUpdatingCombos = false;
     }
 
     private void handleComboSelection(ComboBox<String> combo) {
+        if (isUpdatingCombos) return;
         String sel = combo.getSelectionModel().getSelectedItem();
         if (sel == null) return;
         if (model.isDirty() && confirmOverlayController != null) {
             confirmOverlayController.ask(
                     "Unsaved Changes",
                     "You have unsaved modifications. Discard them?",
-                    () -> loadEntity(sel)
+                    () -> applyComboSelection(combo, sel)
             );
         } else {
-            loadEntity(sel);
+            applyComboSelection(combo, sel);
         }
+    }
+
+    private void applyComboSelection(ComboBox<String> combo, String sel) {
+        isUpdatingCombos = true;
+        if (combo != comboCustom) comboCustom.getSelectionModel().clearSelection();
+        if (combo != comboCore) comboCore.getSelectionModel().clearSelection();
+        if (combo != comboPlayers) comboPlayers.getSelectionModel().clearSelection();
+        isUpdatingCombos = false;
+
+        loadEntity(sel);
     }
 
     private void loadEntity(String entityKey) {
         JSONObject raw = EntityFactory.getRawJson(entityKey);
         if (raw == null) {
-            model.setCurrentJson(new JSONObject().put("entitykey", "new_entity"));
+            JSONObject newJson = new JSONObject();
+            newJson.put("entitykey", "new_entity");
+            newJson.put("ai", new JSONObject());
+            newJson.put("audio", new JSONObject());
+            model.setCurrentJson(newJson);
             model.setOriginPath(null);
         } else {
             model.setCurrentJson(EntityRecordParser.convertKeysToLowerCase(new JSONObject(raw.toString())));
