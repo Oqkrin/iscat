@@ -12,7 +12,8 @@ public enum PatternIndex {
     REPEATER("repeater"),
     PARALLEL_LINE("parallelLine"),
     SUMMON("summon"),
-    FIGURE("figure");
+    FIGURE("figure"),
+    VARROW("varrow");
 
     public final String jsonKey;
 
