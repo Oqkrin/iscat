@@ -60,7 +60,7 @@ public class PlayerController {
                 }
             }
 
-            // Aiming (mouse)
+            // Aiming (mouse) – compute nextAngle for later use
             double screenCenterX = camera.getScreenWidth() / 2.0;
             double screenCenterY = camera.getScreenHeight() / 2.0;
             double zoom = camera.getZoom();
@@ -95,13 +95,31 @@ public class PlayerController {
             handleDashAndSlowMotion(input, nextAngle, dx, dy, dt);
         }
 
-        // Quick dash (double‑tap)
+        // Quick dash (double‑tap) – only trigger if not already dashing
         if (!player.isStunned() && !player.isDashing()) {
             javafx.geometry.Point2D quickDir = input.consumeQuickDash();
             if (quickDir != null) {
                 double angle = Math.atan2(quickDir.getY(), quickDir.getX());
                 player.quickDash(angle);
             }
+        }
+
+        // ---- Steering during quick dash ----
+        // If quick dash is active, we continuously set velocity to the current direction
+        if (player.isQuickDashActive()) {
+            double steerAngle;
+            if (dx != 0 || dy != 0) {
+                // Use movement direction if keys are pressed
+                steerAngle = Math.atan2(dy, dx);
+            } else {
+                // Otherwise use the mouse aim angle (which is already applied to rotation)
+                steerAngle = player.getTransform().getRotationAngle();
+            }
+            // Set velocity to the current direction at the quick dash speed
+            player.setLinearVelocity(
+                    new Vector2(Math.cos(steerAngle), Math.sin(steerAngle))
+                            .multiply(player.getQuickDashSpeed())
+            );
         }
     }
 

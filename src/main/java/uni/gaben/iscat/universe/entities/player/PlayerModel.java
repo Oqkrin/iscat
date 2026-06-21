@@ -15,6 +15,7 @@ import uni.gaben.iscat.universe.entities.projectiles.AbstractPhysicalProjectileM
 import uni.gaben.iscat.universe.entities.interfaces.*;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.universe.effects.Thrust;
+import uni.gaben.iscat.utils.EntityAudioManager;
 import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
@@ -61,9 +62,13 @@ public class PlayerModel extends AbstractLivingEntityModel
     private final EntityRecord data;
     private final Vector2 dashDir = UU.vector2zero();
     private final Vector2 quickDashDir = UU.vector2zero();
+    private double quickDashSpeed;
 
     // === IDLE ====
     private double idleAudioTimer = 8.0 + Math.random() * 10.0;
+
+    // Flag per distinguere il quick dash dal dash completo
+    private boolean quickDashActive = false;
 
     // ==================== COSTRUTTORE ====================
     public PlayerModel(double x, double y, EntityRecord data) {
@@ -76,6 +81,8 @@ public class PlayerModel extends AbstractLivingEntityModel
         this.meleeCooldownSec = data.player().meleeCooldownSec();
         this.currentWeaponCooldown = data.player().baseCooldownSec();
         this.dannoProiettile = data.player().dannoProiettile();
+        // Velocità quick dash: vogliamo un burst preciso, usiamo un multiplo dell'impulso
+        this.quickDashSpeed = data.player().dashImpulse() * 0.65;
 
         // Configurazione fisica del corpo
         double radiusInMeters = UU.pxToM(data.frameW() / 2.5);
@@ -93,30 +100,25 @@ public class PlayerModel extends AbstractLivingEntityModel
                 handleMeleeCollision(enemy);
             }
         });
-
     }
 
     // ==================== METODI DI MOVIMENTO ====================
 
     /**
-     * Esegue un dash rapido nella direzione specificata.
+     * Esegue un dash rapido (doppio tocco) – imposta la velocità direttamente.
      * @param angle Angolo in radianti della direzione del dash
      */
     public void quickDash(double angle) {
         if (!quickDashCooldown.isReady() || isStunned() || data.player() == null) {
             return;
         }
-
-        double impulse = data.player().dashImpulse() * 3;
+        quickDashActive = true;
         quickDashDir.set(Math.cos(angle), Math.sin(angle));
-
-        // Annulla la velocità se si sta muovendo in direzione opposta
-        if (getLinearVelocity().dot(quickDashDir) < 0) {
-            setLinearVelocity(0, 0);
-        }
-
-        applyImpulse(quickDashDir.setMagnitude(impulse * getMass().getMass()));
-        quickDashCooldown.start(0.2);
+        // Directly set velocity – precise and snappy
+        setLinearVelocity(quickDashDir.multiply(quickDashSpeed));
+        // Start a very short dash duration to temporarily disable damping
+        dashDuration.start(0.1);
+        quickDashCooldown.start(0.25);
     }
 
     @Override
@@ -124,11 +126,13 @@ public class PlayerModel extends AbstractLivingEntityModel
         if (data.player() == null) {
             return;
         }
+        // Se si attiva un dash completo, resettiamo il flag del quick dash
+        quickDashActive = false;
 
         dashDir.set(Math.cos(angle), Math.sin(angle));
 
         if (getLinearVelocity().dot(dashDir) < 0) {
-            setLinearVelocity(0, 0);
+            setLinearVelocity(0.0, 0.0);
         }
 
         applyImpulse(dashDir.setMagnitude(
@@ -183,8 +187,7 @@ public class PlayerModel extends AbstractLivingEntityModel
         if (!isStunned() && !isDashing()) {
             idleAudioTimer -= dt;
             if (idleAudioTimer <= 0) {
-                uni.gaben.iscat.utils.EntityAudioManager.playEventAudio(this, "idle");
-                // Imposta un intervallo casuale per il prossimo suono (es. tra 8 e 22 secondi)
+                EntityAudioManager.playEventAudio(this, "idle");
                 idleAudioTimer = 8.0 + Math.random() * 14.0;
             }
         }
@@ -195,9 +198,17 @@ public class PlayerModel extends AbstractLivingEntityModel
             setLinearDamping(currentlyDashing ? 0.0 : data.linearDamping());
         }
 
-        // Post-dash protection logic
+        // ---- Gestione fine dash ----
+        // Se prima eravamo in dash e ora non più, e il dash era un quick dash,
+        // azzeriamo la velocità per fermare il giocatore in modo preciso.
+        if (wasDashing && !currentlyDashing && quickDashActive) {
+            setLinearVelocity(getLinearVelocity().x / 7, getLinearVelocity().y / 7);
+            quickDashActive = false;
+        }
+
+        // Post-dash protection logic (solo per dash completi? Lo lasciamo invariato)
         if (wasDashing && !currentlyDashing) {
-            postDashProtection.start(2.0); // 2.0 seconds protection
+            postDashProtection.start(2.0);
         }
         wasDashing = currentlyDashing;
         postDashProtection.update(dt);
@@ -246,7 +257,6 @@ public class PlayerModel extends AbstractLivingEntityModel
                 Vector2 impulse = knockbackDir.product(knockbackMagnitude);
 
                 enemy.setLinearVelocity(0, 0);
-
                 enemy.applyImpulse(impulse);
             }
         }
@@ -268,10 +278,8 @@ public class PlayerModel extends AbstractLivingEntityModel
         startMeleeCooldown();
     }
 
-
     public void startCooldownFuoco() {
         weaponCooldown.start(currentWeaponCooldown);
-        // Resettiamo il timer quando spari
         this.idleAudioTimer = 8.0 + Math.random() * 14.0;
     }
 
@@ -319,8 +327,8 @@ public class PlayerModel extends AbstractLivingEntityModel
     }
 
     public boolean absorbProjectile(double damage) {
-        if (isDashing()) {
-            addTimeGauge(damage * 10.0); // Scale damage to gauge
+        if (isInalterable()) {
+            addTimeGauge(damage * 2);
             return true;
         }
         return false;
@@ -402,12 +410,22 @@ public class PlayerModel extends AbstractLivingEntityModel
 
     @Override
     public boolean isInalterable() {
-        return isDashing();
+        return isDashing() && !isQuickDashActive();
     }
 
     @Override
     public double getTerminalVelocity() {
         return data.maxVelocity() * (isDashing() ? 10 : 1);
+    }
+
+    // ==================== GETTER PER IL QUICK DASH ====================
+
+    public boolean isQuickDashActive() {
+        return quickDashActive;
+    }
+
+    public double getQuickDashSpeed() {
+        return quickDashSpeed;
     }
 
     // ==================== GETTER VISUALI ====================
@@ -431,7 +449,6 @@ public class PlayerModel extends AbstractLivingEntityModel
     public int getSpriteFrameHeight() {
         return data.frameH();
     }
-
 
     @Override
     public double getVisualAngularOffsetDeg() {
