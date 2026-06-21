@@ -12,7 +12,6 @@ package uni.gaben.iscat.model;
  * @param totalDamageDealt    La quantità totale di danni inflitti ai nemici durante le sessioni.
  * @param totalDamageReceived La quantità totale di danni subiti dalle entità ostili o trappole.
  * @param bestTime            Il miglior tempo di completamento (espresso in secondi) registrato.
- * @param boostCollected      Il numero totale di potenziamenti o collezionabili raccolti nel mondo di gioco.
  * @param longestTime         La sessione di gioco singola più lunga registrata (espressa in secondi).
  * @param timesPlayed         Il numero totale di partite/sessioni di gioco avviate.
  * @param timesLogged         Il numero complessivo di accessi (login) effettuati all'applicazione.
@@ -26,7 +25,6 @@ public record ScoreModel(
         int totalDamageDealt,
         int totalDamageReceived,
         int bestTime,
-        int boostCollected,
         int longestTime,
         int timesPlayed,
         int timesLogged,
@@ -40,7 +38,7 @@ public record ScoreModel(
      * @param userId L'identificativo univoco numerico del nuovo utente.
      */
     public ScoreModel(int userId) {
-        this(userId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis());
+        this(userId, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis());
     }
 
     /**
@@ -54,15 +52,14 @@ public record ScoreModel(
      * @param totalDamageDealt    I danni inflitti complessivi.
      * @param totalDamageReceived I danni subiti complessivi.
      * @param bestTime            Il record del miglior tempo di completamento.
-     * @param boostCollected      Il numero di potenziamenti raccolti.
      * @param longestTime         Il record della sessione più lunga.
      * @param timesPlayed         Il conteggio delle partite giocate.
      * @param timesLogged         Il conteggio dei login effettuati.
      */
     public ScoreModel(int userId, int score, int totalKills, int deaths,
                       int totalDamageDealt, int totalDamageReceived, int bestTime,
-                      int boostCollected, int longestTime, int timesPlayed, int timesLogged) {
+                      int longestTime, int timesPlayed, int timesLogged) {
         this(userId, score, totalKills, deaths, totalDamageDealt, totalDamageReceived,
-                bestTime, boostCollected, longestTime, timesPlayed, timesLogged, System.currentTimeMillis());
+                bestTime, longestTime, timesPlayed, timesLogged, System.currentTimeMillis());
     }
 }

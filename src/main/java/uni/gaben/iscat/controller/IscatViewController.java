@@ -13,8 +13,7 @@ import uni.gaben.iscat.view.components.AbstractIscatStackPane;
 import java.util.EnumMap;
 
 /**
- * Controller responsabile dello scambio dei nodi della UI, della gestione delle transizioni
- * visive (fade/istantanee) e del ciclo di vita delle schermate (view) all'interno dell'unico Stage.
+ * Controller centrale per la gestione, la transizione e lo scambio delle viste grafiche dell'applicazione.
  */
 public class IscatViewController {
 
@@ -22,21 +21,24 @@ public class IscatViewController {
     private final IscatModel model;
     private final EnumMap<IscatViews, AbstractIscatStackPane> viewRegistry = new EnumMap<>(IscatViews.class);
 
-    /** Insieme delle viste dinamiche che richiedono la rigenerazione del modulo MVC a ogni accesso. */
     private static final java.util.Set<IscatViews> DYNAMIC_VIEWS = java.util.EnumSet.of(IscatViews.GAME);
 
+    /**
+     * Inizializza il controller delle viste precaricando quelle statiche e registrando il listener di navigazione.
+     *
+     * @param model  Il modello di navigazione globale.
+     * @param window La finestra principale dell'applicazione.
+     */
     public IscatViewController(IscatModel model, IscatWindow window) {
         this.model = model;
         this.view = window.getView();
 
-        // Inizializza e registra preventivamente tutte le view statiche
         for (IscatViews scene : IscatViews.values()) {
             if (!DYNAMIC_VIEWS.contains(scene)) {
                 viewRegistry.put(scene, IscatMVCRegistry.getMVC(scene));
             }
         }
 
-        // Resta in ascolto dei cambiamenti della proprietà della scena corrente per gestire la navigazione
         model.currentSceneProperty().addListener((obs, oldScene, newScene) -> {
             if (oldScene != newScene) {
                 performTransition(oldScene, newScene, model.getPendingTransition());
@@ -45,7 +47,9 @@ public class IscatViewController {
     }
 
     /**
-     * Safely boots up the very first screen without requiring a property state-change trigger.
+     * Mostra la schermata iniziale impostando l'audio e l'interfaccia di partenza.
+     *
+     * @param initialView La vista iniziale da caricare.
      */
     public void showInitialView(IscatViews initialView) {
         model.navigate(initialView, IscatModel.TransitionType.INSTANT);
@@ -57,6 +61,13 @@ public class IscatViewController {
         }
     }
 
+    /**
+     * Smista ed esegue il tipo di transizione richiesto verso la nuova schermata.
+     *
+     * @param oldScene La schermata di provenienza.
+     * @param newScene La schermata di destinazione.
+     * @param type     Il tipo di transizione da applicare.
+     */
     private void performTransition(IscatViews oldScene, IscatViews newScene, IscatModel.TransitionType type) {
         if (DYNAMIC_VIEWS.contains(newScene)) {
             viewRegistry.put(newScene, IscatMVCRegistry.getMVC(newScene));
@@ -77,16 +88,27 @@ public class IscatViewController {
         }
     }
 
+    /**
+     * Esegue uno scambio immediato delle schermate senza transizioni visive.
+     *
+     * @param nextView La nuova vista da mostrare.
+     */
     private void executeInstantSwap(AbstractIscatStackPane nextView) {
         view.getChildren().setAll(nextView);
         nextView.setOpacity(1.0);
         nextView.setActive(true);
     }
 
+    /**
+     * Configura ed esegue lo scambio delle schermate tramite effetto dissolvenza.
+     *
+     * @param oldScene La schermata precedente da rimuovere.
+     * @param nextView La nuova vista da mostrare.
+     */
     private void executeFadeSwap(IscatViews oldScene, AbstractIscatStackPane nextView) {
         AbstractIscatStackPane oldView = viewRegistry.get(oldScene);
 
-        if (oldView != null) {
+        if (oldView != null && oldView.getParent() != null) {
             oldView.getParent().getScene().setFill(ThemeManager.getInstance().getBgPrimary());
             FadeTransition fadeOut = fade(nextView, oldView);
             fadeOut.play();
@@ -95,16 +117,22 @@ public class IscatViewController {
         }
     }
 
+    /**
+     * Crea l'animazione di FadeTransition per la vecchia vista gestendone la conclusione.
+     *
+     * @param nextView La nuova vista da mostrare al termine.
+     * @param oldView  La vecchia vista in dissolvenza.
+     * @return L'oggetto FadeTransition configurato.
+     */
     private FadeTransition fade(AbstractIscatStackPane nextView, AbstractIscatStackPane oldView) {
         FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.20), oldView);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
         fadeOut.setOnFinished(e -> {
             oldView.setActive(false);
-
             nextView.setOpacity(0.0);
             view.getChildren().setAll(nextView);
-            nextView.setActive(true); // Internally launches structural load and its own fadeIn animation
+            nextView.setActive(true);
         });
         return fadeOut;
     }

@@ -270,14 +270,19 @@ public class GameController {
                 String key = living.getEntityRecord() != null ? living.getEntityRecord().entityKey() : null;
                 String cleanKey = key != null ? key.toLowerCase().trim() : "";
                 boolean isSpecial = cleanKey.equals("iscat_healer") || cleanKey.equals("iscat_master");
+                System.out.println("[DEBUG] xpReward check: " + living.getXpReward() + " cleanKey=" + cleanKey);
 
                 if (killedByProjectile || isSpecial) {
                     PlayerModel player = getPlayer();
                     if (player != null) player.incrementExperience(living.getXpReward());
 
                     SessionScoreTracker tracker = SessionScoreTracker.getInstance();
+                    System.out.println("[DEBUG] buildScoreText instance=" + System.identityHashCode(tracker)
+                            + " score=" + tracker.getScore());
                     tracker.addKill();
                     tracker.addScore((int) living.getXpReward() + 100);
+                    System.out.println("[DEBUG] dopo addScore: " + tracker.getScore()
+                            + " instance=" + System.identityHashCode(tracker));
                     tracker.addEnemyKill(cleanKey);
                 }
             }

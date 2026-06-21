@@ -59,9 +59,6 @@
                         <Label fx:id="lblDamageCaused" styleClass="score-stat" text="Danni causati" GridPane.columnIndex="0" GridPane.rowIndex="5" />
                         <Label fx:id="valDamageCaused" styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
-                        <Label fx:id="lblBoosts" styleClass="score-stat" text="Boost raccolti" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                        <Label fx:id="valBoosts" styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-
                         <Label fx:id="lblTimesPlayed" styleClass="score-stat" text="Partite giocate" GridPane.columnIndex="0" GridPane.rowIndex="7" />
                         <Label fx:id="valTimesPlayed" styleClass="score-stat-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                     </children>
