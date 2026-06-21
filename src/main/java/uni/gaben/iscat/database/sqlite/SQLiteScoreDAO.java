@@ -170,35 +170,6 @@ public class SQLiteScoreDAO implements ScoreDAO {
         return scores;
     }
 
-    /** Recupera i migliori punteggi limitando i risultati al valore specificato. */
-    @Override
-    public List<UserScoreEntry> getTopScores(int limit) {
-        List<UserScoreEntry> scores = new ArrayList<>();
-        String sql = """
-            SELECT u.Username, s.Score, s.TotalKills, s.BestTime
-            FROM Utenti u
-            INNER JOIN UserScore s ON u.ID = s.UserID
-            ORDER BY s.Score DESC
-            LIMIT ?
-            """;
-
-        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
-            stmt.setInt(1, limit);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    String username = rs.getString("Username");
-                    int score = rs.getInt("Score");
-                    int totalKills = rs.getInt("TotalKills");
-                    int bestTime = rs.getInt("BestTime");
-                    scores.add(new UserScoreEntry(username, score, totalKills, bestTime));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore nel caricamento della top " + limit + " punteggi", e);
-        }
-        return scores;
-    }
-
     /** Controlla la validità dei nomi delle colonne tramite espressione regolare per evitare attacchi injection. */
     private boolean isValidColumn(String column) {
         return column != null && column.matches("(?i)Score|TotalKills|Deaths|TotalDamageDealt|TotalDamageReceived|BestTime|BoostCollected|LongestTime|TimesPlayed|TimesLogged");
