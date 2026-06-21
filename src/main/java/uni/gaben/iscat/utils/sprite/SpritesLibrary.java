@@ -16,6 +16,7 @@ public class SpritesLibrary {
      * Recupera uno SpriteAsset esistente o lo crea se è la prima volta.
      */
     public SpriteSheetsParser getSprite(String path, int spriteWidth, int spriteHeight) {
-        return assets.computeIfAbsent(path, p -> new SpriteSheetsParser(p, spriteWidth, spriteHeight));
+        String cacheKey = path + "_" + spriteWidth + "x" + spriteHeight;
+        return assets.computeIfAbsent(cacheKey, p -> new SpriteSheetsParser(path, spriteWidth, spriteHeight));
     }
 }

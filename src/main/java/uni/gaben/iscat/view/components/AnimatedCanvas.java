@@ -57,13 +57,6 @@ public class AnimatedCanvas extends Canvas {
     }
 
     /**
-     * Loads a sprite sheet with default frame size (32x32).
-     */
-    public void loadSkin(String path) {
-        loadSkin(path, 32, 32);
-    }
-
-    /**
      * Loads a sprite sheet with custom frame dimensions.
      */
     public void loadSkin(String path, int frameW, int frameH) {
