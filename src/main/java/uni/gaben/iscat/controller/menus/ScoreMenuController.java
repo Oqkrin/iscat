@@ -45,7 +45,6 @@ public class ScoreMenuController implements IscatMenuController {
     @FXML private Label valBestTime;
     @FXML private Label valDamageTaken;
     @FXML private Label valDamageCaused;
-    @FXML private Label valBoosts;
     @FXML private Label valTimesPlayed;
     @FXML private Label valLongestTime;
 
@@ -150,7 +149,6 @@ public class ScoreMenuController implements IscatMenuController {
         valBestTime.setText(formatTime(data.bestTime()));
         valDamageTaken.setText(formatNumber(data.totalDamageReceived()));
         valDamageCaused.setText(formatNumber(data.totalDamageDealt()));
-        valBoosts.setText(formatNumber(data.boostCollected()));
         valTimesPlayed.setText(formatNumber(data.timesPlayed()));
         valLongestTime.setText(formatTime(data.longestTime()));
         valTotalEnemies.setText(formatNumber(data.totalKills()));

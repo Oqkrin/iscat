@@ -50,7 +50,6 @@ public class SQLiteScoreDAO implements ScoreDAO {
                             rs.getInt("TotalDamageDealt"),
                             rs.getInt("TotalDamageReceived"),
                             rs.getInt("BestTime"),
-                            rs.getInt("BoostCollected"),
                             rs.getInt("LongestTime"),
                             rs.getInt("TimesPlayed"),
                             rs.getInt("TimesLogged")
@@ -109,7 +108,6 @@ public class SQLiteScoreDAO implements ScoreDAO {
             TotalDamageDealt = 0, 
             TotalDamageReceived = 0, 
             BestTime = 0,
-            BoostCollected = 0,
             LongestTime = 0,
             TimesPlayed = 0,
             TimesLogged = 0,
@@ -172,6 +170,6 @@ public class SQLiteScoreDAO implements ScoreDAO {
 
     /** Controlla la validità dei nomi delle colonne tramite espressione regolare per evitare attacchi injection. */
     private boolean isValidColumn(String column) {
-        return column != null && column.matches("(?i)Score|TotalKills|Deaths|TotalDamageDealt|TotalDamageReceived|BestTime|BoostCollected|LongestTime|TimesPlayed|TimesLogged");
+        return column != null && column.matches("(?i)Score|TotalKills|Deaths|TotalDamageDealt|TotalDamageReceived|BestTime|LongestTime|TimesPlayed|TimesLogged");
     }
 }

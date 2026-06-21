@@ -13,36 +13,20 @@ import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.view.game.GameView;
 
 /**
- * Controller FXML delegato alla gestione delle schermate di fine partita, operando sia come
- * menu di Game Over (sconfitta del giocatore) sia come schermata di Vittoria (Win).
- * Controlla in modo reattivo lo stato della sessione per rimodulare la visibilità dei componenti grafici,
- * formattare il punteggio finale tramite il {@link SessionScoreTracker} e coordinare i flussi di navigazione
- * (riprova, ritorno al menu o prosecuzione verso i titoli di coda).
+ * Controller per la gestione dei menu di fine partita (Vittoria o Sconfitta).
  */
 public class GameOverMenuController implements IscatFxmlController {
 
-    /** Etichetta di testo principale utilizzata per mostrare l'esito della partita (es. "YOU DIED" o "HAI VINTO"). */
     @FXML private Label titleLabel;
-
-    /** Etichetta di testo formattata per la visualizzazione del punteggio (Score) totalizzato nella sessione. */
     @FXML private Label sessionScoreLabel;
-
-    /** Pulsante interattivo visibile solo in caso di vittoria per proseguire nei flussi applicativi. */
     @FXML private Button continueBtn;
-
-    /** Pulsanti di controllo standard per il riavvio della partita, il rientro al menu principale o la chiusura del software. */
     @FXML private Button retryBtn, menuBtn, quitBtn;
 
-    /** Riferimento al controller principale del ciclo di gioco per l'invocazione dei comandi di reset o disallocazione. */
     private GameController gameController;
-
-    /** Riferimento alla vista di gioco principale per l'iniezione delle animazioni e delle transizioni di stato visive. */
     private GameView gameView;
 
     /**
-     * Inizializza i componenti grafici iniettati tramite FXML.
-     * Configura le icone grafiche vettoriali sui pulsanti e applica le interpolazioni di animazione (tweening)
-     * per gestire gli effetti visivi al passaggio del cursore del mouse (hover).
+     * Inizializza i componenti grafici applicando icone ed effetti visivi ai pulsanti.
      */
     @FXML
     public void initialize() {
@@ -58,12 +42,10 @@ public class GameOverMenuController implements IscatFxmlController {
     }
 
     /**
-     * Inietta i puntatori ai moduli core di gioco e registra un listener reattivo sulla proprietà
-     * dello stato della partita. Intercetta i passaggi a {@link GameState#GAME_OVER} o {@link GameState#WIN}
-     * per alterare dinamicamente i testi e la disposizione dei pulsanti a schermo.
+     * Collega il controller e la vista di gioco, registrando il listener sullo stato della partita.
      *
-     * @param controller Il controller logico della sessione di gioco.
-     * @param view       La vista grafica associata al gameplay.
+     * @param controller Il controller logico del gioco.
+     * @param view       La vista principale del gioco.
      */
     public void initData(GameController controller, GameView view) {
         this.gameController = controller;
@@ -71,24 +53,26 @@ public class GameOverMenuController implements IscatFxmlController {
 
         controller.getGameModel().gameStateProperty().addListener((obs, oldState, newState) -> {
             if (newState == GameState.GAME_OVER) {
+                int frozenScore = SessionScoreTracker.getInstance().getScore();
+                SessionScoreTracker.getInstance().resetScore();
                 titleLabel.setText("YOU DIED");
-                sessionScoreLabel.setText(buildScoreText());
+                sessionScoreLabel.setText(String.format("SCORE: %,d", frozenScore));
                 setWinMode(false);
             }
             if (newState == GameState.WIN) {
+                int frozenScore = SessionScoreTracker.getInstance().getScore();
+                SessionScoreTracker.getInstance().resetScore();
                 titleLabel.setText("HAI VINTO");
-                sessionScoreLabel.setText(buildScoreText());
+                sessionScoreLabel.setText(String.format("SCORE: %,d", frozenScore));
                 setWinMode(true);
             }
         });
     }
 
     /**
-     * Modula selettivamente la visibilità e la gestione del layout (managed property) dei pulsanti.
-     * Se la modalità vittoria è attiva mostra unicamente il controllo di continuazione, altrimenti
-     * abilita la tripletta standard di fallimento (Riprova, Menu, Esci).
+     * Modifica la visibilità e la disposizione dei pulsanti in base all'esito della partita.
      *
-     * @param win {@code true} per configurare l'interfaccia in assetto Vittoria, {@code false} per l'assetto Sconfitta.
+     * @param win Vero se la partita è stata vinta, falso se è terminata in game over.
      */
     private void setWinMode(boolean win) {
         continueBtn.setVisible(win);
@@ -103,9 +87,9 @@ public class GameOverMenuController implements IscatFxmlController {
     }
 
     /**
-     * Estrae il punteggio accumulato dal tracciatore di sessione singleton e lo formatta in una stringa localizzata.
+     * Genera la stringa testuale formattata associata al punteggio corrente.
      *
-     * @return Stringa testuale formattata nel pattern "SCORE: X,XXX".
+     * @return La stringa del punteggio formattata.
      */
     private String buildScoreText() {
         int score = SessionScoreTracker.getInstance().getScore();
@@ -113,18 +97,16 @@ public class GameOverMenuController implements IscatFxmlController {
     }
 
     /**
-     * Gestisce la transizione alla pressione del tasto continua. Disalloca la partita corrente
-     * e reindirizza l'utente verso la schermata dei riconoscimenti (Credits).
+     * Gestisce l'azione del pulsante di continuazione verso i titoli di coda.
      */
     @FXML
     private void handleContinue() {
-        if (gameController != null) gameController.quitToMainMenu();
+        if (gameController != null) gameController.stopGameLoop();
         IscatNavigator.getInstance().navigateWithFade(IscatViews.CREDITS);
     }
 
     /**
-     * Gestisce il comando di riavvio istantaneo della partita. Ripristina lo stato visivo
-     * su PLAYING e ordina al controller di azzerare e rigenerare l'universo fisico.
+     * Gestisce l'azione del pulsante per ricominciare una nuova partita.
      */
     @FXML
     private void handleRetry() {
@@ -133,7 +115,7 @@ public class GameOverMenuController implements IscatFxmlController {
     }
 
     /**
-     * Interrompe la sessione corrente ed effettua il rientro controllato verso il menu principale.
+     * Gestisce l'azione del pulsante per tornare al menu principale.
      */
     @FXML
     private void handleQuitToMenu() {
@@ -141,17 +123,13 @@ public class GameOverMenuController implements IscatFxmlController {
     }
 
     /**
-     * Forza la chiusura immediata dell'istanza dell'applicazione.
+     * Gestisce l'azione del pulsante per chiudere l'applicazione.
      */
     @FXML
     private void handleQuitGame() {
         if (gameController != null) gameController.quitGame();
     }
 
-    /**
-     * Metodo di interfaccia implementato da {@link IscatFxmlController}. In questo specifico
-     * sotto-componente di overlay non richiede l'ancoraggio di nodi radice esterni.
-     */
     @Override
     public void setPointerToView(StackPane pointer) {}
 }
