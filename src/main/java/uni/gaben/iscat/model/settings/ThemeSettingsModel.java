@@ -117,7 +117,7 @@ public class ThemeSettingsModel {
         isUpdatingProgrammatically = true;
         accentPrimary.set(tm.getAccentPrimary());
         accentSecondary.set(tm.getAccentSecondary());
-        accentTernary.set(tm.getAccentTernary());
+        accentTernary.set(tm.getAccentTertiary());
         bgPrimary.set(tm.getBgPrimary());
         isUpdatingProgrammatically = false;
     }
