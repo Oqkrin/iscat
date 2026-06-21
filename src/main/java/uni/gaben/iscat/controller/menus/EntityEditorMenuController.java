@@ -29,11 +29,14 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Controller per la gestione dell'editor dei parametri delle entità (giocatori, nemici, custom).
+ * Consente di modificare l'identità, la fisica, l'IA e gli asset audio/video tramite interfaccia reattiva.
+ */
 public class EntityEditorMenuController implements IscatMenuController {
 
-    // Old 3-combo fields removed; now using 2-combo approach
-    @FXML private ComboBox<String> comboCategory;   // Enemies / Players / Custom
-    @FXML private ComboBox<String> comboEntity;     // filtered list of entity keys
+    @FXML private ComboBox<String> comboCategory;
+    @FXML private ComboBox<String> comboEntity;
 
     @FXML private VBox paneIdentity, paneVisuals, panePhysics, paneBehavioural, paneAdvancedAI, paneAudio;
     @FXML private StackPane previewContainer;
@@ -55,8 +58,13 @@ public class EntityEditorMenuController implements IscatMenuController {
     private EntityEditorUIBuilder uiBuilder;
     private boolean isUpdatingCombos = false;
 
+    /** Identificativo dell'entità target da precaricare al momento dell'apertura dell'editor. */
     public static String targetEntityKeyToLoad = null;
 
+    /**
+     * Inizializza i componenti grafici dell'editor, configura i listener delle combobox,
+     * associa le icone vettoriali ai pulsanti e imposta lo stato di caricamento iniziale.
+     */
     @FXML
     public void initialize() {
         entitiesRoot = ExternalResourceResolver.getEntitiesRoot();
@@ -81,11 +89,9 @@ public class EntityEditorMenuController implements IscatMenuController {
         ComponentsUtils.applyIconButton(btnChooseSkin,   "fas-image");
         ComponentsUtils.applyIconButton(btnChooseSound,  "fas-volume-up");
 
-        // Populate category combo
         comboCategory.getItems().setAll(CAT_ENEMIES, CAT_PLAYERS, CAT_CUSTOM);
         comboCategory.setOnAction(e -> onCategoryChanged());
 
-        // Wire entity combo
         comboEntity.setOnAction(e -> {
             if (isUpdatingCombos) return;
             String sel = comboEntity.getSelectionModel().getSelectedItem();
@@ -101,13 +107,11 @@ public class EntityEditorMenuController implements IscatMenuController {
             }
         });
 
-        // Decide starting state
         if (targetEntityKeyToLoad != null) {
             String keyToLoad = targetEntityKeyToLoad;
             targetEntityKeyToLoad = null;
             selectAndLoadEntity(keyToLoad);
         } else {
-            // Default to enemies category
             comboCategory.getSelectionModel().select(CAT_ENEMIES);
             onCategoryChanged();
             if (!comboEntity.getItems().isEmpty()) {
@@ -118,7 +122,9 @@ public class EntityEditorMenuController implements IscatMenuController {
         registerEscHandler();
     }
 
-    /** Called when the category combo changes. Rebuilds the entity list. */
+    /**
+     * Intercetta il cambio di categoria per ripopolare la lista delle entità filtrate.
+     */
     private void onCategoryChanged() {
         String cat = comboCategory.getValue();
         if (cat == null) return;
@@ -134,13 +140,17 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
         isUpdatingCombos = false;
 
-        // Auto-load first entity in new category
         if (!keys.isEmpty()) {
             loadEntity(keys.getFirst());
         }
     }
 
-    /** Returns all entity keys belonging to a category. */
+    /**
+     * Restituisce i codici identificativi delle entità appartenenti alla categoria specificata.
+     *
+     * @param cat La stringa della categoria di filtraggio.
+     * @return Una lista di chiavi uniche delle entità trovate.
+     */
     private List<String> getEntityKeysForCategory(String cat) {
         return EntityFactory.getCache().entrySet().stream()
                 .filter(e -> e.getValue() != null)
@@ -159,12 +169,22 @@ public class EntityEditorMenuController implements IscatMenuController {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Verifica se un'entità appartiene ai file locali personalizzati (custom).
+     *
+     * @param key Codice identificativo del record.
+     * @return Vero se l'origine contiene la designazione custom.
+     */
     private boolean isCustom(String key) {
         String origin = EntityFactory.getOriginPath(key);
         return origin != null && origin.toLowerCase().contains("custom");
     }
 
-    /** Navigate to the right category and select the entity in the entity combo. */
+    /**
+     * Forza la selezione della categoria e della combobox in base ad una chiave specifica, caricandola.
+     *
+     * @param key Codice dell'entità da mettere in risalto.
+     */
     private void selectAndLoadEntity(String key) {
         String cat = categoryOf(key);
         isUpdatingCombos = true;
@@ -177,6 +197,12 @@ public class EntityEditorMenuController implements IscatMenuController {
         loadEntity(key);
     }
 
+    /**
+     * Individua la categoria nativa di un determinato record.
+     *
+     * @param key Codice dell'entità.
+     * @return Stringa corrispondente alla categoria logica.
+     */
     private String categoryOf(String key) {
         EntityRecord rec = EntityFactory.getCache().get(key);
         if (rec != null && rec.player() != null) return CAT_PLAYERS;
@@ -184,10 +210,14 @@ public class EntityEditorMenuController implements IscatMenuController {
         return CAT_ENEMIES;
     }
 
+    /**
+     * Carica i metadati JSON dell'entità nel modello e predispone la schermata per il refresh.
+     *
+     * @param entityKey Chiave dell'entità da interpretare.
+     */
     private void loadEntity(String entityKey) {
         JSONObject raw = EntityFactory.getRawJson(entityKey);
         if (raw == null) {
-            // New blank entity
             JSONObject newJson = new JSONObject();
             newJson.put("entitykey", "new_entity");
             newJson.put("ai", new JSONObject());
@@ -202,6 +232,9 @@ public class EntityEditorMenuController implements IscatMenuController {
         refreshUI();
     }
 
+    /**
+     * Sincronizza i testi descrittivi superiori e rigenera l'intera struttura di rendering dell'anteprima.
+     */
     private void refreshUI() {
         JSONObject json = model.getCurrentJson();
         lblOriginPath.setText("Origin: " + (model.getOriginPath() != null ? model.getOriginPath() : "Unsaved/New"));
@@ -210,11 +243,17 @@ public class EntityEditorMenuController implements IscatMenuController {
         updatePreview();
     }
 
+    /**
+     * Invoca il costruttore d'interfaccia per mappare i dati JSON sui rispettivi pannelli verticali.
+     */
     private void rebuildAllUI() {
         uiBuilder.buildUI(model.getCurrentJson(),
                 paneIdentity, paneVisuals, panePhysics, paneBehavioural, paneAdvancedAI, paneAudio);
     }
 
+    /**
+     * Estrae i parametri di visualizzazione della skin e aggiorna il canvas animato di anteprima.
+     */
     private void updatePreview() {
         JSONObject json = model.getCurrentJson();
         String spriteName = json.optString("spritename", "");
@@ -239,6 +278,9 @@ public class EntityEditorMenuController implements IscatMenuController {
         skinNameLabel.setText(json.optString("name", "UNKNOWN"));
     }
 
+    /**
+     * Converte la configurazione corrente in un record runtime valido, registrandolo nella memoria cache di gioco.
+     */
     @FXML
     private void handleApply() {
         try {
@@ -251,6 +293,10 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Sovrascrive il file d'origine dell'entità corrente. Se l'asset è di tipo nativo (internal),
+     * genera un file di override locale preservando la sorgente originale.
+     */
     @FXML
     private void handleSaveOverwrite() {
         String origin = model.getOriginPath();
@@ -269,7 +315,6 @@ public class EntityEditorMenuController implements IscatMenuController {
             return;
         }
 
-        // Origin is internal (classpath) – create an override in core folder
         String fileName = originPath.getFileName().toString();
         Path coreDir = entitiesRoot.resolve("json/core");
         try {
@@ -294,6 +339,9 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Esporta l'entità corrente salvandola come nuovo file strutturato nella directory custom.
+     */
     @FXML
     private void handleSaveNew() {
         String key = model.getCurrentJson().optString("entitykey", "new_entity");
@@ -315,19 +363,20 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Scrive i dati JSON sul file system e inserisce il record all'interno della categoria Custom.
+     *
+     * @param targetFile Percorso di destinazione finale del file JSON.
+     * @param key        Codice identificativo dell'entità custom.
+     */
     private void saveNewToFile(Path targetFile, String key) {
-        // 1. Write to disk
         EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), targetFile.toAbsolutePath().toString());
-        // 2. Update origin
         model.setOriginPath(targetFile.toAbsolutePath().toString());
-        // 3. Push into raw cache so the entity is immediately recognized as custom
         JSONObject savedJson = model.getCurrentJson();
         EntityFactory.registerRawJson(key, savedJson, targetFile.toAbsolutePath().toString());
-        // 4. Also apply runtime record
         handleApply();
         model.clearDirty();
         lblOriginPath.setText("Origin: " + model.getOriginPath());
-        // 5. Refresh UI – switch to Custom category and select the key
         isUpdatingCombos = true;
         comboCategory.getSelectionModel().select(CAT_CUSTOM);
         List<String> customKeys = getEntityKeysForCategory(CAT_CUSTOM);
@@ -337,7 +386,9 @@ public class EntityEditorMenuController implements IscatMenuController {
         isUpdatingCombos = false;
     }
 
-    /** Rebuilds the entity list for whichever category is currently selected. */
+    /**
+     * Sincronizza ed aggiorna la lista degli elementi associati alla categoria attiva.
+     */
     private void refreshEntityListInCurrentCategory() {
         String cat = comboCategory.getValue();
         if (cat == null) return;
@@ -348,6 +399,12 @@ public class EntityEditorMenuController implements IscatMenuController {
         isUpdatingCombos = false;
     }
 
+    /**
+     * Mostra un popup di avviso per prevenire la sovrascrittura accidentale di un file già esistente.
+     *
+     * @param filePath Il percorso del file system in conflitto.
+     * @param onYes    L'azione da eseguire in caso di conferma affermativa dell'utente.
+     */
     private void confirmOverwrite(Path filePath, Runnable onYes) {
         if (confirmOverlayController == null) { onYes.run(); return; }
         String fileName = filePath.getFileName().toString();
@@ -358,6 +415,10 @@ public class EntityEditorMenuController implements IscatMenuController {
         );
     }
 
+    /**
+     * Apre una finestra di dialogo nativa per selezionare un foglio sprite (.png) esterno,
+     * copiandolo all'interno della sottocartella dedicata e aggiornando il modello dati.
+     */
     @FXML
     private void handleChooseSkin() {
         Path customDir = entitiesRoot.resolve("sprites/custom");
@@ -391,6 +452,10 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Consente la selezione di un file audio sorgente (.wav) inserendolo nella directory custom
+     * e assegnandone il nome al parametro "stepsound" del file JSON corrente.
+     */
     @FXML
     private void handleChooseSound() {
         Path sfxCustomDir = entitiesRoot.resolve("audio/SFX/custom");
@@ -422,6 +487,10 @@ public class EntityEditorMenuController implements IscatMenuController {
 
     @FXML private void handleBack(ActionEvent event) { handleBack(); }
 
+    /**
+     * Effettua il ritorno all'interfaccia del Bestiario. Se sono presenti modifiche non salvate,
+     * richiede una conferma esplicita per evitare perdite di dati accidentali.
+     */
     public void handleBack() {
         if (model.isDirty() && confirmOverlayController != null) {
             confirmOverlayController.ask(
