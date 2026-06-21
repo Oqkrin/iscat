@@ -1,32 +1,28 @@
 package uni.gaben.iscat.universe.entities.shooters;
 
-import uni.gaben.iscat.universe.entities.brain.abilities.shoot.RandomizedShootAbility;
 import uni.gaben.iscat.universe.entities.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entities.projectiles.Shooter;
-
 import java.util.function.Consumer;
 
 /**
- * Fires the inner pattern {@code times} times, with {@code intervalSeconds} between each burst.
- * <p>
- * The first shot fires immediately. Remaining shots are tracked via game-loop delta time
- * through {@link uni.gaben.iscat.universe.UniverseController.(double)} so that all physics interactions stay on the main thread.
- * <p>
- * When used inside {@link RandomizedShootAbility},
- * the burst state is managed by the action itself — {@link #times ()} and {@link #inner ()} are
- * exposed for that purpose.
+ * Spara n volte un tipo di attacco a distanza di secondi
  */
-public record RepeaterPattern(int times, double intervalSeconds,
-                              Pattern inner) implements Pattern {
+public record RepeaterPattern(int times, double intervalSeconds, Pattern inner) implements Pattern {
 
     /**
-     * Executes the first burst immediately. Subsequent bursts are expected to be
-     * driven externally (e.g. by {@link RandomizedShootAbility}).
+     * Innesca la prima scarica dell'ondata immediatamente.
+     * <p>
+     * Le successive ripetizioni programmate verranno intercettate e processate dai sistemi di controllo
+     * esterni leggendo i componenti esposti del record ({@link #times()} e {@link #inner()}).
+     * </p>
      */
     @Override
     public void execute(Shooter<?> shooter, ProjectileType type, double angle, Consumer<ProjectileModel> customizer) {
+        // Guardia di corto circuito: interrompe l'esecuzione in caso di pattern nullo o contatore azzerato
         if (inner == null || times <= 0) return;
+
+        // Esegue istantaneamente la prima iterazione del pattern delegato
         inner.execute(shooter, type, angle, customizer);
     }
 }

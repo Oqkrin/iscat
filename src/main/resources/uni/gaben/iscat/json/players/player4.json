@@ -19,31 +19,32 @@
     "dashCooldownSec": 0.8,
     "stunDurationSec": 1.0,
     "baseCooldownSec": 0.3,
+    "DannoProiettile": 20,
     "levelAbilities": [
       {
-        "minLevel": 10,
+        "minLevel": 20,
+        "cooldownSec": 0.22,
+        "pattern": { "type": "varrow", "count": 11, "spacingPx": 1.0, "stepBackPx": 0.04 }
+      },
+      {
+        "minLevel": 15,
         "cooldownSec": 0.24,
-        "pattern": { "type": "figure", "figureType": "STAR", "count": 30 }
+        "pattern": { "type": "varrow", "count": 9, "spacingPx": 16.0, "stepBackPx": 0.04 }
       },
       {
-        "minLevel": 7,
-        "cooldownSec": 0.255,
-        "pattern": { "type": "spread", "count": 7, "angleStepDeg": 45.0 }
+        "minLevel": 10,
+        "cooldownSec": 0.25,
+        "pattern": { "type": "varrow", "count": 7, "spacingPx": 16.0, "stepBackPx": 0.04 }
       },
       {
-        "minLevel": 4,
+        "minLevel": 5,
         "cooldownSec": 0.27,
-        "pattern": { "type": "spread", "count": 5, "angleStepDeg": 30.0 }
-      },
-      {
-        "minLevel": 2,
-        "cooldownSec": 0.285,
-        "pattern": { "type": "spread", "count": 3, "angleStepDeg": 15.0 }
+        "pattern": { "type": "varrow", "count": 5, "spacingPx": 16.0, "stepBackPx": 0.04 }
       },
       {
         "minLevel": 1,
         "cooldownSec": 0.3,
-        "pattern": { "type": "singleShot" }
+        "pattern": { "type": "varrow", "count": 3, "spacingPx": 16.0, "stepBackPx": 0.04 }
       }
     ]
   }

@@ -314,11 +314,15 @@ public final class EntityRecordParser {
 
     private static EntityRecord.PatternRecord parsePattern(JSONObject obj) {
         if (obj == null) return null;
+
+        double angleOrSpacing = obj.has("spacingpx") ? obj.optDouble("spacingpx") : obj.optDouble("anglestepdeg", 30.0);
+        double intervalOrStepBack = obj.has("stepbackpx") ? obj.optDouble("stepbackpx") : obj.optDouble("intervalsec", 0.15);
+
         return new EntityRecord.PatternRecord(
                 PatternIndex.fromJson(obj.optString("type")),
                 obj.optInt("count", 1),
-                obj.optDouble("anglestepdeg", 30.0),
-                obj.optDouble("intervalsec", 0.15),
+                angleOrSpacing,
+                intervalOrStepBack,
                 obj.optInt("repeats", 1),
                 parsePattern(obj.optJSONObject("pattern")),
                 obj.optString("summonedentitykey"),
@@ -437,17 +441,15 @@ public final class EntityRecordParser {
     public static Pattern createPattern(EntityRecord.PatternRecord pc) {
         if (pc == null) return new SingleShotPattern();
         return switch (pc.type()) {
-            case SINGLE_SHOT -> new SingleShotPattern();
-            case SPREAD -> new SpreadPattern(pc.count(), pc.angleStepDeg());
-            case MULTI_DIRECTION ->
-                    new MultiDirectionPattern(pc.count(), Math.toRadians(pc.angleStepDeg()), createPattern(pc.innerPattern()));
-            case RING -> new RingPattern(pc.count());
-            case REPEATER ->
-                    new RepeaterPattern(pc.repeats(), pc.intervalSec(), createPattern(pc.innerPattern()));
-            case PARALLEL_LINE ->
-                    new ParallelLinePattern(pc.count(), pc.angleStepDeg());
-            case SUMMON -> new SummonPattern(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());
-            case FIGURE -> new FigurePattern(pc.count(), FigurePattern.FigureType.valueOf(pc.figureType()));
+            case SINGLE_SHOT ->     new SingleShotPattern();
+            case SPREAD ->          new SpreadPattern(pc.count(), pc.angleStepDeg());
+            case MULTI_DIRECTION -> new MultiDirectionPattern(pc.count(), Math.toRadians(pc.angleStepDeg()), createPattern(pc.innerPattern()));
+            case RING ->            new RingPattern(pc.count());
+            case REPEATER ->        new RepeaterPattern(pc.repeats(), pc.intervalSec(), createPattern(pc.innerPattern()));
+            case PARALLEL_LINE ->   new ParallelLinePattern(pc.count(), pc.angleStepDeg());
+            case SUMMON ->          new SummonPattern(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());
+            case FIGURE ->          new FigurePattern(pc.count(), FigurePattern.FigureType.valueOf(pc.figureType()));
+            case VARROW ->          new VArrowPattern(pc.count(), pc.angleStepDeg(), pc.intervalSec());
         };
     }
 }
