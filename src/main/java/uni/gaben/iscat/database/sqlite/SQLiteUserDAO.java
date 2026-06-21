@@ -10,15 +10,17 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
- * Implementazione SQLite del DAO per la gestione dell'anagrafica e dell'autenticazione utenti.
- * Gestisce l'hashing delle password in fase di creazione e il parsing sicuro delle date.
+ * Implementazione SQLite del DAO utenti.
+ * Gestisce persistenza, hashing delle password e parsing sicuro delle date.
  */
 public class SQLiteUserDAO implements UserDAO {
 
     public SQLiteUserDAO() {
     }
 
-    /** Cerca un utente tramite il suo username (case-sensitive). */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<User> findByUsername(String username) {
         String sql = """
@@ -42,7 +44,9 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
-    /** Verifica se l'username esiste già, ignorando la differenza tra maiuscole e minuscole. */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean exists(String username) {
         String sql = "SELECT 1 FROM Utenti WHERE LOWER(Username) = LOWER(?)";
@@ -58,7 +62,9 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
-    /** Cripta la password tramite {@link PasswordHasher} e registra il nuovo utente generando l'ID. */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User create(String username, String rawPassword) {
         String sql = """
@@ -90,7 +96,9 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
-    /** Aggiorna il timestamp relativo all'ultimo accesso effettuato dall'utente. */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updateLastLogin(int userId, LocalDateTime loginTime) {
         String sql = """
@@ -110,11 +118,14 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
-    /** Modifica l'username dell'utente nel database. */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updateUsername(int userId, String newUsername) {
         String sql = "UPDATE Utenti SET Username = ? WHERE ID = ?";
-        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
+        try (Connection conn = IscatDB.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, newUsername);
             stmt.setInt(2, userId);
             stmt.executeUpdate();
@@ -123,11 +134,14 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
-    /** Aggiorna la password dell'utente (riceve l'hash già calcolato). */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updatePassword(int userId, String newPasswordHash) {
         String sql = "UPDATE Utenti SET Password = ? WHERE ID = ?";
-        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
+        try (Connection conn = IscatDB.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, newPasswordHash);
             stmt.setInt(2, userId);
             stmt.executeUpdate();
@@ -136,7 +150,24 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
-    /** Mappa una riga del ResultSet in un oggetto di tipo User. */
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delete(int userId) {
+        String sql = "DELETE FROM Utenti WHERE ID = ?";
+        try (Connection conn = IscatDB.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante la rimozione dell'utente con ID: " + userId, e);
+        }
+    }
+
+    /**
+     * Mappa una riga del ResultSet in un oggetto User.
+     */
     private User mapRow(ResultSet rs) throws SQLException {
         return new User(
                 rs.getInt("ID"),
@@ -147,7 +178,9 @@ public class SQLiteUserDAO implements UserDAO {
         );
     }
 
-    /** Gestisce il parsing delle date sia in formato stringa standard ISO/SQLite sia in timestamp numerico (epoch millis). */
+    /**
+     * Converte i valori temporali di SQLite (testo ISO o epoch millis) in LocalDateTime.
+     */
     private LocalDateTime safeParseLocalDateTime(ResultSet rs, String columnName) throws SQLException {
         String value = rs.getString(columnName);
         if (value == null || value.isBlank()) {

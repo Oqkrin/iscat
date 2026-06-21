@@ -16,6 +16,14 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.PasswordHasher;
 import uni.gaben.iscat.utils.SessionManager;
 
+/**
+ * Controller per la gestione delle impostazioni dell'account utente.
+ * Gestisce operazioni critiche quali il cambio di credenziali (username e password),
+ * il reset dei progressi locali di gioco e l'eliminazione definitiva dell'account utente.
+ * <p>
+ * Tutte le interazioni con il database avvengono in modo asincrono per evitare
+ * di bloccare il thread principale della UI (JavaFX Application Thread).
+ */
 public class AccountSettingsController {
 
     private ConfirmationOverlayController confirmOverlayController;
@@ -23,16 +31,32 @@ public class AccountSettingsController {
     private final SettingsDAO settingsDAO;
     private final UserDAO userDAO;
 
+    /**
+     * Costruisce il controller inizializzando i Data Access Object (DAO) necessari
+     * al recupero e alla manipolazione dei dati persistenti.
+     */
     public AccountSettingsController() {
         this.scoreDAO = IscatDB.getInstance().getScoreDAO();
         this.settingsDAO = IscatDB.getInstance().getSettingsDAO();
         this.userDAO = IscatDB.getInstance().getUserDAO();
     }
 
+    /**
+     * Associa il controller dell'overlay di conferma a questa vista per gestire
+     * le finestre di dialogo interattive.
+     *
+     * @param controller Il controller dell'overlay di conferma.
+     */
     public void setConfirmOverlayController(ConfirmationOverlayController controller) {
         this.confirmOverlayController = controller;
     }
 
+    /**
+     * Avvia la procedura per resettare i progressi di gioco dell'account corrente.
+     * Richiede una conferma visiva all'utente prima di procedere in background.
+     *
+     * @param event L'evento di azione generato dalla UI.
+     */
     @FXML
     void resetAccount(ActionEvent event) {
         if (confirmOverlayController != null) {
@@ -57,6 +81,13 @@ public class AccountSettingsController {
         }
     }
 
+    /**
+     * Avvia la procedura di eliminazione permanente dell'account utente corrente.
+     * Rimuove a cascata impostazioni, punteggi e credenziali dal database, effettua
+     * il logout dalla sessione attiva e reindirizza l'utente alla schermata di Login.
+     *
+     * @param event L'evento di azione generato dalla UI.
+     */
     @FXML
     void deleteAccount(ActionEvent event) {
         if (confirmOverlayController != null) {
@@ -67,7 +98,10 @@ public class AccountSettingsController {
                 int userId = currentSettings.getUserId();
 
                 IscatDB.getInstance().executeAsync(() -> {
+                    // Pulizia a cascata dei dati sul DB per evitare record orfani
                     settingsDAO.delete(userId);
+                    scoreDAO.reset(userId);
+                    userDAO.delete(userId);
 
                     Platform.runLater(() -> {
                         SessionManager.getInstance().setCurrentUser(null);
@@ -81,6 +115,12 @@ public class AccountSettingsController {
         }
     }
 
+    /**
+     * Avvia il flusso interattivo per modificare l'username dell'account corrente.
+     * Include controlli di validazione asincroni sulla disponibilità del nuovo nome.
+     *
+     * @param event L'evento di azione generato dalla UI.
+     */
     @FXML
     void changeUsername(ActionEvent event) {
         if (confirmOverlayController == null) return;
@@ -128,6 +168,13 @@ public class AccountSettingsController {
         );
     }
 
+    /**
+     * Gestisce il flusso sequenziale per la modifica della password.
+     * Richiede prima la password attuale per effettuare la verifica di sicurezza hash,
+     * e successivamente richiede e aggiorna la nuova password nel database.
+     *
+     * @param event L'evento di azione generato dalla UI.
+     */
     @FXML
     void changePassword(ActionEvent event) {
         if (confirmOverlayController == null) return;
@@ -170,9 +217,6 @@ public class AccountSettingsController {
                                             IscatDB.getInstance().executeAsync(() -> {
                                                 String newHash = PasswordHasher.hash(newPass);
                                                 userDAO.updatePassword(currentUser.id(), newHash);
-
-                                                var check = userDAO.findByUsername(currentUser.username());
-                                                check.ifPresent(u -> System.out.println("[DEBUG] hash nel DB dopo update: " + u.passwordHash()));
 
                                                 Platform.runLater(() -> AudioManager.getInstance().playSFX("laugh"));
                                             });

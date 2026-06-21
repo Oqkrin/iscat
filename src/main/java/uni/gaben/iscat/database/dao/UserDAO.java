@@ -26,4 +26,7 @@ public interface UserDAO {
 
     /** Sovrascrive la password dell'utente salvando il nuovo hash di sicurezza. */
     void updatePassword(int userId, String newPasswordHash);
+
+    /** * Elimina definitivamente un utente dal database tramite il suo identificativo univoco. */
+    void delete(int userId);
 }
