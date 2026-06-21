@@ -19,7 +19,6 @@ import javafx.scene.Node;
  * 
  * @see ScalareAureo
  * @see TipografiaAurea
- * @see ColoreAureo
  * @see GeometriaAurea
  */
 public final class CssHelper {
