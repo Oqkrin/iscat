@@ -28,7 +28,7 @@
     -fx-font-weight: bold;
 }
 
-/* --- Active picker (glow when selected) --- */
+/* Active picker (glow when selected) */
 .color-picker.picker-active {
     -fx-border-color: -accent-primary;
     -fx-effect: dropshadow(gaussian, -accent-primary, 12, 0.4, 0, 0);

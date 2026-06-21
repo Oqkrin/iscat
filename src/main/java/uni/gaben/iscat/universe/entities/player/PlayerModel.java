@@ -190,7 +190,7 @@ public class PlayerModel extends AbstractLivingEntityModel
             setLinearDamping(currentlyDashing ? 0.0 : data.linearDamping());
         }
 
-        // ---- Gestione fine dash ----
+        // Gestione fine dash
         // Se prima eravamo in dash e ora non più, e il dash era un quick dash,
         // azzeriamo la velocità per fermare il giocatore in modo preciso.
         if (wasDashing && !currentlyDashing && quickDashActive) {

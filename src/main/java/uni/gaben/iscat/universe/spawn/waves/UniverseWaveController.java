@@ -37,7 +37,7 @@ public class UniverseWaveController {
 
     private Runnable onBossDeadCallback;
 
-    // --- Proprietà JavaFX e Getters Reattivi ---
+    // Proprietà JavaFX e Getters Reattivi
     public static IntegerProperty totalKillsProperty()     { return WaveState.totalKillsProperty(); }
     public IntegerProperty enemiesRemainingProperty()      { return state.enemiesRemainingProperty; }
     public IntegerProperty waveTotalProperty()             { return state.waveTotalProperty; }

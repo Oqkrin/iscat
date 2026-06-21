@@ -104,10 +104,6 @@ public class Shooter<T extends CollisionBody> {
         setupAndSpawn(bullet);
     }
 
-    // -------------------------------------------------------------------------
-    // Internal helpers
-    // -------------------------------------------------------------------------
-
     private void setupAndSpawn(AbstractPhysicalProjectileModel p) {
         p.addOnCollision("projectileDamage", otherEntity -> {
             if (p.shouldRemove()) return;

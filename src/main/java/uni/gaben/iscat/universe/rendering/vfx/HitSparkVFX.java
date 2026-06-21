@@ -21,7 +21,7 @@ public final class HitSparkVFX {
     public static void renderHitSpark(HitSpark model, OptimizedLayeredRenderer layers) {
         if (model == null || model.isExpired()) return;
 
-        // --- Rendering del Sistema Particellare ---
+        // Rendering del Sistema Particellare
         for (HitSpark.SparkParticle p : model.getParticles()) {
             if (p.isDead()) continue;
             double r = p.getRadius();
@@ -29,7 +29,7 @@ public final class HitSparkVFX {
             layers.addFilledOval(p.getX() - r, p.getY() - r, r * 2, r * 2, color, 1.0);
         }
 
-        // --- Rendering dell'Onda d'Urto Perimetrale ---
+        // Rendering dell'Onda d'Urto Perimetrale
         HitSpark.ShockwaveCircle sw = model.getShockwave();
         if (!sw.isDead() && sw.getAlpha() > 0.01) {
             double radius = sw.getRadius();

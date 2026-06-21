@@ -26,27 +26,18 @@ import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
  */
 public class SettingsMenuController implements IscatMenuController {
 
-    // ------------------------------------------------------------------------
-    // Elementi FXML - Layout & Contenitori Tab
-    // ------------------------------------------------------------------------
     @FXML private VBox paneMaster;
     @FXML private VBox tabMainSettings;
     @FXML private VBox tabControls;
     @FXML private VBox tabTheme;
     @FXML private VBox tabAccount;
 
-    // ------------------------------------------------------------------------
-    // Elementi FXML - Controlli & Pulsanti di Navigazione
-    // ------------------------------------------------------------------------
     @FXML private Button mainSettingsButton;
     @FXML private Button controlsButton;
     @FXML private Button themeButton;
     @FXML private Button accountButton;
     @FXML private Button exitBtn;
 
-    // ------------------------------------------------------------------------
-    // Elementi FXML - Sotto-Controller Iniettati (Nested Controllers)
-    // ------------------------------------------------------------------------
     @FXML private DisplaySettingsController subDisplayController;
     @FXML private AudioSettingsController subAudioController;
     @FXML private ThemeSettingsController subThemeController;

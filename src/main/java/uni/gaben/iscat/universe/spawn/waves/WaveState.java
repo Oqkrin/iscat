@@ -12,7 +12,7 @@ import uni.gaben.iscat.universe.entities.ThreatLevel;
  */
 public final class WaveState {
 
-    // --- Proprietà JavaFX per il Data-Binding ---
+    // Proprietà JavaFX per il Data-Binding
     private static final IntegerProperty totalKillsProperty = new SimpleIntegerProperty(0);
     public final IntegerProperty enemiesRemainingProperty = new SimpleIntegerProperty(0);
     public final IntegerProperty waveTotalProperty         = new SimpleIntegerProperty(0);
@@ -21,20 +21,20 @@ public final class WaveState {
 
     public static IntegerProperty totalKillsProperty() { return totalKillsProperty; }
 
-    // --- Stati Logici e Flag di Partita ---
+    // Stati Logici e Flag di Partita
     public boolean bossSpawned = false;
     public boolean bossDead    = false;
     public boolean gameWon     = false;
     public boolean victoryCallbackTriggered = false;
     public boolean inIntermission           = true;
 
-    // --- Primitive di Configurazione e Progressione ---
+    // Primitive di Configurazione e Progressione
     public int currentWave                  = 1;
     public ThreatLevel currentThreatLevel   = ThreatLevel.LOW;
     public int totalEnemiesToSpawnThisWave  = 0;
     public int enemiesSpawnedThisWave       = 0;
 
-    // --- Timer di Runtime (in secondi) ---
+    // Timer di Runtime (in secondi)
     public double victoryTimer              = 0.0;
     public double intermissionTimer         = 5.0;
     public double spawnTimer                = 0.0;

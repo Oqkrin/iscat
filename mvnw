@@ -1,5 +1,5 @@
 #!/bin/sh
-# ----------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,23 +16,23 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-# ----------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
-# ----------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Maven Start Up Batch script
 #
 # Required ENV vars:
-# ------------------
+#---------------
 #   JAVA_HOME - location of a JDK home dir
 #
 # Optional ENV vars
-# -----------------
+#--------------
 #   M2_HOME - location of maven2's installed home dir
 #   MAVEN_OPTS - parameters passed to the Java VM when running Maven
 #     e.g. to debug Maven itself, use
 #       set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
 #   MAVEN_SKIP_RC - flag to disable loading of mavenrc files
-# ----------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 if [ -z "$MAVEN_SKIP_RC" ] ; then
 

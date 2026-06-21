@@ -94,10 +94,6 @@ public class EnduranceIndicator implements Stateful, Updatable, Removable {
         return new EnduranceIndicator(screenX, screenY, value);
     }
 
-    // ------------------------------------------------------------------------
-    // Lifecycle methods
-    // ------------------------------------------------------------------------
-
     /**
      * Aggiorna la logica interna dell'indicatore per ogni fotogramma di gioco (frame tick).
      * Modifica la coordinata Y riducendola linearmente in base alla velocità di ascesa e ricalcola
@@ -128,10 +124,6 @@ public class EnduranceIndicator implements Stateful, Updatable, Removable {
         this.shouldRemove = remove;
         return true;
     }
-
-    // ------------------------------------------------------------------------
-    // Stateful interface
-    // ------------------------------------------------------------------------
 
     /** {@inheritDoc} */
     @Override

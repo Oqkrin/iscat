@@ -25,14 +25,14 @@ public class AsteroidModel extends AbstractPhysicalEntityModel {
     private final double size;
     private final Vector2[] displayVertices;
 
-    // --- Cache di Trasformazione Locale-Mondo-Pixel ---
+    // Cache di Trasformazione Locale-Mondo-Pixel
     private final double[] cachedXPoints;
     private final double[] cachedYPoints;
     private double lastCachedX = Double.NaN;
     private double lastCachedY = Double.NaN;
     private double lastCachedAngle = Double.NaN;
 
-    // --- Meccaniche di Durabilità e Frantumazione ---
+    // Meccaniche di Durabilità e Frantumazione
     private final double maxDurability;
     private double currentDurability;
     private final double splitAngle;

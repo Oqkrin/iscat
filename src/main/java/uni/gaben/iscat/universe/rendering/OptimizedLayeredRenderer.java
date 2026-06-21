@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class OptimizedLayeredRenderer {
 
-    // --- Record per l'accumulo dei Batch Grafici (Package-Private e Private) ---
+    // Record per l'accumulo dei Batch Grafici (Package-Private e Private)
 
     private record SpriteBatch(Image image, double x, double y, double w, double h, double angle, Color tint) {}
     private record LineBatch(double x1, double y1, double x2, double y2, double lineWidth, Color color, double alpha) {}
@@ -51,7 +51,7 @@ public class OptimizedLayeredRenderer {
     private static final Effect PROJECTILE_EFFECT = new GaussianBlur(3.0);
     private final Bloom spriteBloom = new Bloom(0.3);
 
-    // --- Pool di Accumulo delle Primitive ---
+    // Pool di Accumulo delle Primitive
     private final List<ProjectileBatch> projectiles     = new ArrayList<>();
     private final List<SpriteBatch> sprites             = new ArrayList<>();
     private final List<LineBatch> lines                 = new ArrayList<>();
@@ -118,7 +118,7 @@ public class OptimizedLayeredRenderer {
         gc.setGlobalBlendMode(BlendMode.SRC_OVER);
     }
 
-    // --- Routine di Rendering Interne dei Layer ---
+    // Routine di Rendering Interne dei Layer
 
     private void renderSprites() {
         if (sprites.isEmpty()) return;
@@ -263,7 +263,7 @@ public class OptimizedLayeredRenderer {
         }
     }
 
-    // --- Metodi di Accodamento Batch (API Pubbliche) ---
+    // Metodi di Accodamento Batch (API Pubbliche)
     public void addDash(double cx, double cy, double vx, double vy, double w, double h) {
         dashes.add(new DashBatch(cx, cy, vx, vy, w, h));
     }

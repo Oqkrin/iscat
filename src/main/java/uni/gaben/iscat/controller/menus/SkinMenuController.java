@@ -114,7 +114,6 @@ public class SkinMenuController implements IscatMenuController {
         }
     }
 
-    /* ---------- Info card ---------- */
     private void refreshInfoZone() {
         if (selectedSkinKey == null || infoCardController == null) return;
         EntityRecord selected = EntityFactory.getCache().get(selectedSkinKey);

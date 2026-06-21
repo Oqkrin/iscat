@@ -142,7 +142,7 @@ public class WormChainController implements IEntityController {
     private void handleChainBreak(UniverseModel universe, int deadIndex) {
         WormSegmentData deadSegment = segments.get(deadIndex);
 
-        // --- CASO 1: Morte del nodo di testa ---
+        // CASO 1: Morte del nodo di testa
         if (deadIndex == 0 && deadSegment.isHead) {
             segments.removeFirst();
 
@@ -160,7 +160,7 @@ public class WormChainController implements IEntityController {
             return;
         }
 
-        // --- CASO 2: Taglio a metà della catena ---
+        // CASO 2: Taglio a metà della catena
         if (deadIndex > 0 && deadIndex < segments.size() - 1) {
             List<WormSegmentData> backPart = new ArrayList<>(segments.subList(deadIndex, segments.size()));
 

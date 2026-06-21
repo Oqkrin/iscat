@@ -14,9 +14,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
- * Builds the dynamic UI for the Entity Editor.
- * All fields, section boxes, and array items are created here.
- * Uses FieldBuilder for consistent input controls.
+ * Costruisce l'interfaccia utente dinamica per l'Editor delle Entità.
+ * Tutti i campi, i riquadri di sezione e gli elementi degli array vengono creati qui.
+ * Utilizza FieldBuilder per garantire controlli di input uniformi.
  */
 public class EntityEditorUIBuilder {
 
@@ -47,7 +47,7 @@ public class EntityEditorUIBuilder {
         advancedAI.getChildren().clear();
         audio.getChildren().clear();
 
-        // ----- Identity -----
+        // Identità
         identity.getChildren().addAll(
                 FieldBuilder.createStringField("Entity Key", json, "entitykey"),
                 FieldBuilder.createStringField("Display Name", json, "name"),
@@ -57,7 +57,7 @@ public class EntityEditorUIBuilder {
                 FieldBuilder.createDoubleField("Bestiary Order", json, "bestiaryorder", 0)
         );
 
-        // ----- Visuals -----
+        // Componente Grafica
         visuals.getChildren().addAll(
                 FieldBuilder.createStringField("Sprite Name", json, "spritename"),
                 FieldBuilder.createDoubleField("Scale", json, "scale", 1.0),
@@ -69,7 +69,7 @@ public class EntityEditorUIBuilder {
                 FieldBuilder.createBooleanField("Has Entrance Anim", json, "hasentranceanimation")
         );
 
-        // ----- Physics -----
+        // Componente Fisica
         physics.getChildren().addAll(
                 FieldBuilder.createDoubleField("Initial Life", json, "initlife", 100),
                 FieldBuilder.createDoubleField("Mass", json, "mass", 1.0),
@@ -80,7 +80,7 @@ public class EntityEditorUIBuilder {
                 FieldBuilder.createDoubleField("XP Reward", json, "xpreward", 10)
         );
 
-        // ----- Behavioural -----
+        // Componente Comportamentale
         behavioural.getChildren().addAll(
                 FieldBuilder.createDoubleField("Detection Range", json, "detectionrange", 15.0),
                 FieldBuilder.createDoubleField("Combat Range", json, "combatrange", 10.0),
@@ -88,7 +88,7 @@ public class EntityEditorUIBuilder {
                 FieldBuilder.createDoubleField("Action Cooldown (s)", json, "actioncooldowns", 1.0)
         );
 
-        // ----- Audio -----
+        // Componente Audio
         JSONObject audioJson = json.optJSONObject("audio");
         if (audioJson == null) {
             audioJson = new JSONObject();
@@ -101,12 +101,12 @@ public class EntityEditorUIBuilder {
             );
         }
 
-        // ----- Advanced AI -----
+        // IA Avanzata
         buildAdvancedAI(json, advancedAI);
     }
 
     // ============================================================
-    //  ADVANCED AI BUILDERS
+    //  COSTRUTTORI PER IA AVANZATA
     // ============================================================
 
     /** Genera la sottosezione dell'interfaccia dedicata ai parametri di IA avanzata (Steering, Rotazione, Modificatori, Abilità). */
@@ -118,7 +118,7 @@ public class EntityEditorUIBuilder {
         }
         final JSONObject finalAi = ai;
 
-        // ---- Steering ----
+        // Steering 
         VBox steerBox = createSectionBox("Steering Goal");
         JSONObject steering = finalAi.optJSONObject("steering");
         if (steering == null) {
@@ -135,7 +135,7 @@ public class EntityEditorUIBuilder {
         );
         container.getChildren().add(steerBox);
 
-        // ---- Rotation ----
+        //  Rotazione 
         VBox rotBox = createSectionBox("Rotation Goal");
         JSONObject rotation = finalAi.optJSONObject("rotation");
         if (rotation == null) {
@@ -151,7 +151,7 @@ public class EntityEditorUIBuilder {
         );
         container.getChildren().add(rotBox);
 
-        // ---- Modifiers ----
+        // Modificatori
         VBox modBox = createSectionBox("Steering Modifiers");
         buildJsonArrayUI(modBox, finalAi, "modifiers",
                 this::buildSingleModifierUI,
@@ -165,7 +165,7 @@ public class EntityEditorUIBuilder {
         );
         container.getChildren().add(modBox);
 
-        // ---- Abilities ----
+        // Abilità
         VBox abBox = createSectionBox("Abilities");
         buildJsonArrayUI(abBox, finalAi, "abilities",
                 this::buildSingleAbilityUI,
@@ -179,10 +179,6 @@ public class EntityEditorUIBuilder {
         container.getChildren().add(abBox);
     }
 
-    // ============================================================
-    //  HELPER – SECTION BOX
-    // ============================================================
-
     /** Metodo di supporto per creare un contenitore VBox stilizzato munito di titolo della sezione. */
     private VBox createSectionBox(String title) {
         VBox box = new VBox(8);
@@ -192,11 +188,6 @@ public class EntityEditorUIBuilder {
         box.getChildren().add(label);
         return box;
     }
-
-    // ============================================================
-    //  GENERIC JSON ARRAY UI BUILDER
-    //  Uses standard BiConsumer instead of custom interface.
-    // ============================================================
 
     /** Genera ricorsivamente e dinamicamente l'interfaccia per la gestione degli array JSON, includendo i tasti di aggiunta e rimozione. */
     private void buildJsonArrayUI(VBox container,
@@ -210,24 +201,24 @@ public class EntityEditorUIBuilder {
             arr = new JSONArray();
             parent.put(arrayKey, arr);
         }
-        final JSONArray finalArr = arr;          // explicitly final for lambdas
+        final JSONArray finalArr = arr;
 
         container.getChildren().clear();
 
-        // Title
+        // Titolo della sezione
         Label titleLabel = new Label(arrayKey.substring(0, 1).toUpperCase() + arrayKey.substring(1));
         titleLabel.getStyleClass().add("editor-section-title");
         container.getChildren().add(titleLabel);
 
-        // Existing items
+        // Elementi già esistenti
         for (int i = 0; i < finalArr.length(); i++) {
             final JSONObject item = finalArr.getJSONObject(i);
-            final int index = i;                 // final for lambda
+            final int index = i;
 
             VBox itemBox = new VBox(5);
             itemBox.getStyleClass().add("editor-array-item");
 
-            // Header with delete button
+            // Intestazione con pulsante di eliminazione
             HBox header = new HBox(10);
             header.setAlignment(Pos.CENTER_LEFT);
             Label idxLabel = new Label("[" + index + "]");
@@ -236,17 +227,17 @@ public class EntityEditorUIBuilder {
             Button deleteBtn = new Button("Delete");
             deleteBtn.setOnAction(e -> {
                 finalArr.remove(index);
-                rebuildCallback.run();          // full rebuild
+                rebuildCallback.run();
             });
             header.getChildren().addAll(idxLabel, spacer, deleteBtn);
             itemBox.getChildren().add(header);
 
-            // Build the item's fields
+            // Genera i campi dell'elemento
             itemBuilder.accept(itemBox, item);
             container.getChildren().add(itemBox);
         }
 
-        // Add button
+        // Pulsante di aggiunta
         Button addBtn = new Button("+ Add " + arrayKey);
         addBtn.setOnAction(e -> {
             finalArr.put(defaultFactory.get());
@@ -254,10 +245,6 @@ public class EntityEditorUIBuilder {
         });
         container.getChildren().add(addBtn);
     }
-
-    // ============================================================
-    //  SPECIFIC ITEM BUILDERS
-    // ============================================================
 
     /** Costruisce i campi di input grafici associati a un singolo modificatore di movimento (Steering Modifier). */
     private void buildSingleModifierUI(VBox box, JSONObject mod) {
@@ -285,7 +272,7 @@ public class EntityEditorUIBuilder {
                     FieldBuilder.createBooleanField("Aim at Target", ability, "aimattarget")
             );
 
-            // Pattern sub‑section
+            // Sotto-sezione dei Pattern di attacco
             VBox patBox = createSectionBox("Pattern");
             JSONObject pat = ability.optJSONObject("pattern");
             if (pat == null) {
@@ -309,12 +296,12 @@ public class EntityEditorUIBuilder {
     private void buildPatternUI(VBox box, JSONObject pattern) {
         box.getChildren().clear();
 
-        // Title
+        // Titolo della sezione
         Label title = new Label("Pattern");
         title.getStyleClass().add("editor-section-title");
         box.getChildren().add(title);
 
-        // Pattern type combo
+        // Selettore a tendina per il tipo di pattern
         box.getChildren().add(
                 FieldBuilder.createEnumComboField("Pattern Type", pattern, "type",
                         PatternIndex.values(), e -> e.jsonKey)

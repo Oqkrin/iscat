@@ -142,7 +142,7 @@ public class DodgeDashAbility extends Ability {
 
         if (mostImminent == null) return;
 
-        // --- Proiezione Posizioni Future Cinematiche ---
+        // Proiezione Posizioni Future Cinematiche
         Vector2 threatFuture = UU.vector2zero();
         threatFuture.set(mostImminent.getTransform().getTranslation());
         threatFuture.add(mostImminent.getLinearVelocity().x * shortestTime, mostImminent.getLinearVelocity().y * shortestTime);
@@ -158,7 +158,7 @@ public class DodgeDashAbility extends Ability {
         double randomAngle = (rand.nextDouble() - 0.5) * Math.toRadians(30);
         dashDirection.rotate(randomAngle);
 
-        // --- Vincolo di Contenimento nella Viewport della Telecamera ---
+        // Vincolo di Contenimento nella Viewport della Telecamera
         CameraModel camera = world.getCamera();
         if (camera != null) {
             double zoom = camera.getZoom();

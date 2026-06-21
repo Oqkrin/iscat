@@ -42,18 +42,18 @@ public class BlackHoleModel extends AbstractPhysicalEntityModel implements Updat
     private final double maxRadiusM;
     private final double initialRadiusM;
 
-    // --- Parametri di Bilanciamento e Accrescimento ---
+    // Parametri di Bilanciamento e Accrescimento
     private static final double MAX_DENSITY = 40.0;
     private static final double GROWTH_FACTOR = 0.3;
     private static final double RADIUS_GROWTH_BASE = 0.005;
 
-    // --- Parametri della Radiazione di Hawking ---
+    // Parametri della Radiazione di Hawking
     private static final double RADIATION_RADIUS_DECAY = 0.02;
     private static final double RADIATION_DENSITY_DECAY = 0.01;
     private static final double RADIATION_IDLE_TIME = 2.0;
     private double timeSinceLastAbsorption = 0.0;
 
-    // --- Stati di Sincronizzazione Differita ---
+    // Stati di Sincronizzazione Differita
     private boolean needsFixtureUpdate = false;
     private double pendingRadiusM = -1;
     private double pendingDensity = -1;
@@ -159,7 +159,7 @@ public class BlackHoleModel extends AbstractPhysicalEntityModel implements Updat
     public void update(double dt) {
         super.update(dt);
 
-        // ---- Consumazione e applicazione delle modifiche differite (Safe Context) ----
+        // Consumazione e applicazione delle modifiche differite (Safe Context)
         if (needsFixtureUpdate) {
             if (pendingRadiusM > 0) {
                 this.radius = new UU(pendingRadiusM, UU.units.METERS);
@@ -174,7 +174,7 @@ public class BlackHoleModel extends AbstractPhysicalEntityModel implements Updat
             pendingDensity = -1;
         }
 
-        // ---- Simulazione dell'evaporazione (Radiazione di Hawking) ----
+        // Simulazione dell'evaporazione (Radiazione di Hawking)
         timeSinceLastAbsorption += dt;
         if (timeSinceLastAbsorption > RADIATION_IDLE_TIME) {
             if (radius.m().get() > initialRadiusM) {

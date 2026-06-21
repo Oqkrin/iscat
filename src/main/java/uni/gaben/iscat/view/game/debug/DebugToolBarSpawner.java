@@ -222,7 +222,7 @@ public class DebugToolBarSpawner extends VBox {
 
         String lowerKey = key.toLowerCase();
 
-        // --- 1) Gestione hardcoded (heart, blackhole, asteroid) con ImageView ---
+        // heart, blackhole, asteroid con ImageView
         String hardcodedPath = null;
         if (lowerKey.contains("heart")) {
             hardcodedPath = HEART_PNG;
@@ -260,7 +260,7 @@ public class DebugToolBarSpawner extends VBox {
                 btnSquare.setGraphic(textLabel);
             }
         } else {
-            // --- 2) Entità normali → AnimatedCanvas ---
+            // Entità normali → AnimatedCanvas
             AnimatedCanvas spriteCanvas = null;
             String spritePath = null;
             int frameW = 0, frameH = 0;

@@ -57,7 +57,7 @@ public class StarfieldRenderer implements Renderable<Starfield> {
         gc.restore();
     }
 
-    // --- Setters e Getters di Runtime per Frame ---
+    // Setters e Getters di Runtime per Frame
 
     public void setCameraX(double x) { this.cameraX = x; }
     public void setCameraY(double y) { this.cameraY = y; }

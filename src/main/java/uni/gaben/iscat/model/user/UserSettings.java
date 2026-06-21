@@ -10,7 +10,7 @@ public class UserSettings {
     /** L'identificativo univoco dell'utente associato a queste impostazioni. */
     private final int userId;
 
-    // --- CONTROLLI ---
+    // CONTROLLI
     /** Tasto associato al movimento verso l'alto. */
     private String walkUp;
     /** Tasto associato al movimento verso il basso. */
@@ -28,7 +28,7 @@ public class UserSettings {
     /** Tasto associato all'apertura del menu di pausa. */
     private String pauseGame;
 
-    // --- AUDIO ---
+    // AUDIO
     /** Livello del volume generale (Master), espresso come valore decimale. */
     private double volumeMaster;
     /** Livello del volume della musica di sottofondo (BGM), espresso come valore decimale. */
@@ -36,7 +36,7 @@ public class UserSettings {
     /** Livello del volume degli effetti sonori (SFX), espresso come valore decimale. */
     private double volumeSfx;
 
-    // --- DISPLAY ---
+    // DISPLAY
     /** Flag indicatore per la visualizzazione del contatore FPS (1 attivo, 0 disattivato). */
     private int showFps;
     /** Flag indicatore per l'attivazione della modalità schermo intero (1 attivo, 0 finestrato). */
@@ -44,13 +44,13 @@ public class UserSettings {
     /** Flag indicatore per l'attivazione della modalità di debug (1 attivo, 0 disattivato). */
     private int debugMode;
 
-    // --- TEMI SPECIALI ---
+    // TEMI SPECIALI
     /** Flag indicatore per l'attivazione della modalità chiara (1 Light Mode, 0 Dark Mode). */
     private int lightmode = 0;
     /** Flag indicatore per l'attivazione dell'effetto cromatico Rainbow (1 attivo, 0 disattivato). */
     private int rainbowMode = 0;
 
-    // --- TEMI CROMATICI (HEX) ---
+    // TEMI CROMATICI (HEX)
     /** Codice esadecimale stringa associato all'accento cromatico primario. */
     private String primaryTheme;
     /** Codice esadecimale stringa associato all'accento cromatico secondario. */
@@ -60,7 +60,7 @@ public class UserSettings {
     /** Codice esadecimale stringa associato allo sfondo dell'interfaccia. */
     private String backgroundTheme;
 
-    // --- SCALA ---
+    // SCALA
     /** Fattore di scala moltiplicativo per il ridimensionamento della UI. */
     private double scale;
 

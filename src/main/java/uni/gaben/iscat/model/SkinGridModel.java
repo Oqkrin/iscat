@@ -121,7 +121,7 @@ public class SkinGridModel {
 
         List<SkinPlacement> placementList = new ArrayList<>();
 
-        // --- 1. Place expanded (selected) item ---
+        // 1. Place expanded (selected) item
         if (selectedIndex >= 0) {
             int naturalRow = selectedIndex / cols;
             int naturalCol = selectedIndex % cols;
@@ -137,7 +137,7 @@ public class SkinGridModel {
                     naturalRow, naturalCol, SELECTED_SPAN, SELECTED_SPAN, true));
         }
 
-        // --- 2. Fill remaining skins ---
+        // Fill remaining skins
         for (int i = 0; i < n; i++) {
             if (i == selectedIndex) continue;
             boolean placed = false;
@@ -153,7 +153,7 @@ public class SkinGridModel {
             }
         }
 
-        // --- 3. Place the random cell in the first empty spot ---
+        // 3. Place the random cell in the first empty spot
         boolean randomPlaced = false;
         for (int r = 0; r < rows && !randomPlaced; r++) {
             for (int c = 0; c < cols; c++) {

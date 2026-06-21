@@ -167,10 +167,6 @@ public class HitSpark implements Stateful, Updatable, Removable {
     /** @return {@code true} se il sistema ha terminato la riproduzione, {@code false} altrimenti. */
     public boolean isExpired() { return expired; }
 
-    // ------------------------------------------------------------------------
-    // Inner classes
-    // ------------------------------------------------------------------------
-
     /**
      * Modello geometrico e logico di una singola particella cromatica elementare del burst.
      * Si sposta radialmente dal baricentro applicando un'attenuazione esponenziale delle coordinate
@@ -298,10 +294,6 @@ public class HitSpark implements Stateful, Updatable, Removable {
         /** @return Spessore fisso della linea di tracciamento dell'anello (Stroke Width). */
         public double getLineWidth() { return SHOCKWAVE_LINE_WIDTH; }
     }
-
-    // ------------------------------------------------------------------------
-    // Stateful Interface
-    // ------------------------------------------------------------------------
     /** {@inheritDoc} */
     @Override public int getState() { return 0; }
     /** {@inheritDoc} */

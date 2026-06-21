@@ -37,10 +37,6 @@ public class LoginModel {
      */
     public LoginModel() {}
 
-    // ------------------------------------------------------------------------
-    // Accessori JavaFX Property
-    // ------------------------------------------------------------------------
-
     /** @return La proprietà {@link StringProperty} legata al campo username. */
     public StringProperty  usernameProperty()     { return username; }
 
@@ -62,10 +58,6 @@ public class LoginModel {
     /** @return La proprietà {@link BooleanProperty} legata allo stato complessivo di avvenuto login. */
     public BooleanProperty isLoggedInProperty() { return isLoggedIn; }
 
-    // ------------------------------------------------------------------------
-    // Getters in stile JavaBeans
-    // ------------------------------------------------------------------------
-
     public String  getUsername()         { return username.get(); }
     public String  getPassword()         { return password.get(); }
     public String  getStatus()           { return status.get(); }
@@ -74,10 +66,6 @@ public class LoginModel {
     public boolean getWrongCredentials() { return wrongCredentials.get(); }
     public boolean isLoggedIn()          { return isLoggedIn.get(); }
 
-    // ------------------------------------------------------------------------
-    // Setters in stile JavaBeans
-    // ------------------------------------------------------------------------
-
     public void setUsername(String v)          { username.set(v); }
     public void setPassword(String v)          { password.set(v); }
     public void setStatus(String v)            { status.set(v); }
@@ -85,10 +73,6 @@ public class LoginModel {
     public void setUserExists(boolean v)       { userExists.set(v); }
     public void setWrongCredentials(boolean v) { wrongCredentials.set(v); }
     public void setLoggedIn(boolean v)         { isLoggedIn.set(v); }
-
-    // ------------------------------------------------------------------------
-    // Metodi di Utility e Controllo di Stato
-    // ------------------------------------------------------------------------
 
     /**
      * Innesca un evento "pulse" di errore per le credenziali errate.

@@ -11,14 +11,14 @@ public final class UniverseVelocitySettings {
 
     private UniverseVelocitySettings() {}
 
-    // --- Proiettili (Projectiles) ---
+    // Proiettili (Projectiles)
     /** Velocità lineare del proiettile standard generato dal giocatore ($11.0\ m/s$). */
     public static final double PLAYER_PROJECTILE_VELOCITY = 11.0;
 
     /** Velocità dei proiettili nemici (sincronizzata a quella del giocatore via hardware, $11.0\ m/s$). */
     public static final double ENEMY_PROJECTILE_VELOCITY = PLAYER_PROJECTILE_VELOCITY;
 
-    // --- Giocatore (Player) ---
+    // Giocatore (Player)
     /** Velocità massima raggiungibile dalla navicella sotto spinta dei propulsori ($8.8\ m/s$). */
     public static final double PLAYER_MAX_VELOCITY    = ENEMY_PROJECTILE_VELOCITY * 0.8;
 

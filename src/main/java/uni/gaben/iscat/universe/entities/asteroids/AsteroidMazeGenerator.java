@@ -111,7 +111,7 @@ public class AsteroidMazeGenerator {
             double distributionFactor = Math.sqrt(Math.random());
             double targetRadius = clumpRadius * distributionFactor;
 
-            // --- Calcolo della Correzione di Confine Esagonale ---
+            // Calcolo della Correzione di Confine Esagonale
             if (useHexagonalLayout) {
                 // Isola l'angolo del settore corrente (0-60 gradi) e calcola la deviazione dall'apotema (30 gradi)
                 double sectorAngle = angle % (Math.PI / 3.0);

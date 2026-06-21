@@ -70,14 +70,14 @@ public class GameHudBar extends StackPane {
         Region topSpacer = new Region();
         HBox.setHgrow(topSpacer, Priority.ALWAYS);
 
-        // ---- Header row (timer + kills) ----
+        // Header row (timer + kills)
         HBox headerRow = new HBox(timerLabel, topSpacer, killsLabel);
         headerRow.setAlignment(Pos.CENTER_LEFT);
         headerRow.setPadding(new Insets(4));
         headerRow.setMaxHeight(SU * 3.5);
         headerRow.setPrefHeight(SU * 3.5);
 
-        // ---- Label inferiori (nemici, ondata, minaccia) ----
+        // Label inferiori (nemici, ondata, minaccia)
         enemiesCounterLabel = styledLabel("Nemici rimanenti: 0 / 0", "medium");
         enemiesCounterLabel.setMaxWidth(Double.MAX_VALUE);
         enemiesCounterLabel.setAlignment(Pos.CENTER);
@@ -94,9 +94,9 @@ public class GameHudBar extends StackPane {
         labelsBox.setAlignment(Pos.CENTER);
         labelsBox.setFillWidth(true);
 
-        // ---- Contenitore principale ----
+        // Contenitore principale
         VBox content = new VBox(0, headerRow, labelsBox);
-        content.setPadding(new Insets(0, SU, SU, SU)); // top padding = 0
+        content.setPadding(new Insets(0, SU, SU, SU));
         content.setAlignment(Pos.TOP_CENTER);
         content.setFillWidth(true);
 

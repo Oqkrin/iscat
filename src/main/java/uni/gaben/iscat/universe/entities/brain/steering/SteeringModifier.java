@@ -179,7 +179,7 @@ public interface SteeringModifier {
             Vector2 selfPos = self.getTransform().getTranslation();
             Vector2 selfVel = self.getLinearVelocity();
 
-            // --- Analisi Predittiva del Tempo di Impatto Minimo (CPA) ---
+            // Analisi Predittiva del Tempo di Impatto Minimo (CPA)
             for (AbstractPhysicalEntityModel threat : entities) {
                 if (threat == self || threat.shouldRemove()) continue;
 
@@ -205,7 +205,7 @@ public interface SteeringModifier {
                 }
             }
 
-            // --- Calcolo del Vettore di Schivata Laterale Ortogonale ---
+            // Calcolo del Vettore di Schivata Laterale Ortogonale
             if (mostImminent != null) {
                 Vector2 threatVel = mostImminent.getLinearVelocity();
 

@@ -24,7 +24,7 @@ import org.dyn4j.geometry.Vector2;
  */
 public final class Interpolator {
 
-    // --- Costanti Matematiche per Easing ---
+    // Costanti Matematiche per Easing
 
     /**
      * Costante di Penner per l'overshoot (Back).
@@ -121,8 +121,6 @@ public final class Interpolator {
         }
     }
 
-    // ------------------------------------------------------------------ base
-
     /**
      * Calcola l'interpolazione lineare (Lerp) tra due valori.
      * <p>Formula: f(t) = a + t * (b - a)</p>
@@ -163,7 +161,7 @@ public final class Interpolator {
         return lerp(outMin, outMax, (value - inMin) / (inMax - inMin));
     }
 
-    // ------------------------------------------------------------------ ease in/out
+    //--------------------------------------------------------------- ease in/out
 
     /**
      * Calcola un'accelerazione quadratica (Ease-In).
@@ -213,7 +211,7 @@ public final class Interpolator {
         return lerp(a, b, t * t * t * (t * (t * 6.0 - 15.0) + 10.0));
     }
 
-    // ------------------------------------------------------------------ bounce
+    //--------------------------------------------------------------- bounce
 
     /**
      * Applica un effetto di rimbalzo fisico (Bounce).
@@ -237,7 +235,7 @@ public final class Interpolator {
         return lerp(a, b, f);
     }
 
-    // ------------------------------------------------------------------ elastic
+    //--------------------------------------------------------------- elastic
 
     /**
      * Simula il comportamento di un oscillatore armonico smorzato (Molla).
@@ -271,7 +269,7 @@ public final class Interpolator {
         return elasticOut(a, b, t, ELASTIC_AMPLITUDE, ELASTIC_PERIOD);
     }
 
-    // ------------------------------------------------------------------ back
+    //--------------------------------------------------------------- back
 
     /**
      * Esegue un effetto "Back", in cui l'animazione supera leggermente il bersaglio
@@ -295,7 +293,7 @@ public final class Interpolator {
         return backOut(a, b, t, BACK_S);
     }
 
-    // ------------------------------------------------------------------ utility
+    //--------------------------------------------------------------- utility
 
     /**
      * Vincola il parametro t nell'intervallo chiuso [0.0, 1.0].

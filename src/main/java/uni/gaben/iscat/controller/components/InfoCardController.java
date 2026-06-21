@@ -66,7 +66,7 @@ public class InfoCardController {
             return;
         }
 
-        // ---- Lore (Description) ----
+        // Lore (Description)
         String description = record.description() != null ? record.description() : "No description available.";
         ThreatLevel threat = record.threatLevel() != null ? record.threatLevel() : ThreatLevel.NONE;
         String threatDisplay = switch (threat) {
@@ -79,7 +79,7 @@ public class InfoCardController {
         };
         loreArea.setText("⚠️ Threat Level: " + threatDisplay + "\n\n" + description);
 
-        // ---- Stats ----
+        // Stats
         boolean isPlayer = record.player() != null || record.entityKey().toLowerCase().contains("player");
         String hpLabel = isPlayer ? "Hull Integrity" : "Health";
         String velLabel = isPlayer ? "Maneuver Speed" : "Max Speed";
@@ -109,7 +109,7 @@ public class InfoCardController {
         );
         statsArea.setText(statsText);
 
-        // ---- Extra ----
+        // Extra
         String extraText;
         if (isPlayer) {
             double cooldown = record.actionCooldownSec();

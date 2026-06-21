@@ -156,7 +156,7 @@ public class GameInputsHandler {
         KeyCode code = event.getCode();
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
-        // ---- 1. Gestione dei flag di movimento/fuoco (sempre eseguita) ----
+        // 1. Gestione dei flag di movimento/fuoco (sempre eseguita)
         if (settings != null) {
             if (matchKey(code, settings.getWalkUp()))    up = isPressed;
             if (matchKey(code, settings.getWalkDown()))  down = isPressed;
@@ -164,7 +164,7 @@ public class GameInputsHandler {
             if (matchKey(code, settings.getWalkRight())) right = isPressed;
             if (matchKey(code, settings.getAttack()))    shooting = isPressed;
 
-            // ---- 2. Gestione eventi di PRESS (solo se non è una ripetizione) ----
+            // 2. Gestione eventi di PRESS (solo se non è una ripetizione)
             if (isPressed) {
                 // Se il tasto NON era già premuto, è una nuova pressione (non repeat)
                 boolean isRepeat = !pressedKeys.add(code);
@@ -185,7 +185,7 @@ public class GameInputsHandler {
                 if (matchKey(code, settings.getDash2())) dashMousePressed = false;
             }
         } else {
-            // ----- Fallback (nessuna impostazione utente) -----
+            //- Fallback (nessuna impostazione utente)-
             switch (code) {
                 case W, UP    -> up = isPressed;
                 case S, DOWN  -> down = isPressed;

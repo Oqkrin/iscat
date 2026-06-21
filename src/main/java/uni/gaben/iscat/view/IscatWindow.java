@@ -89,10 +89,6 @@ public class IscatWindow extends StackPane {
         stage.setHeight(MIN_H);
     }
 
-    // ---------------------------------------------------------------------
-    // Eventi del mouse – trascinamento, ridimensionamento, barra schermo intero
-    // ---------------------------------------------------------------------
-
     /** Associa i listener di trascinamento alla barra del titolo e i filtri globali per il ridimensionamento sulla scena. */
     private void setOnInputs() {
         // Trascinamento della barra del titolo
@@ -209,10 +205,6 @@ public class IscatWindow extends StackPane {
             default -> Cursor.DEFAULT;
         };
     }
-
-    // ---------------------------------------------------------------------
-    // Animazioni della barra a schermo intero
-    // ---------------------------------------------------------------------
 
     /** Configura i listener di transizione per alterare lo stile e resettare la barra quando si entra/esce dal fullscreen. */
     private void setupFullscreenBar() {

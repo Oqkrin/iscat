@@ -25,7 +25,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     private final Random rand = new Random();
     private Consumer<ProjectileModel> customizer;
 
-    // --- Stato di gestione della Raffica (Burst State) ---
+    // Stato di gestione della Raffica (Burst State)
     private int burstLeft = 0;
     private Pattern burstPattern = null;
     private double burstInterval = 0.15;

@@ -61,7 +61,7 @@ public class ThemeSettingsModel {
         bgPrimary      .addListener((obs, old, val) -> { if (!isUpdatingProgrammatically) applyThemeToManager(); });
     }
 
-    // --- Proprietà ed Accessori JavaFX ---
+    // Proprietà ed Accessori JavaFX 
 
     /** @return La proprietà legata all'accento cromatico primario. */
     public ObjectProperty<Color> accentPrimaryProperty()   { return accentPrimary; }
@@ -106,7 +106,7 @@ public class ThemeSettingsModel {
         return (idx >= 0 && idx < carouselImages.size()) ? carouselImages.get(idx) : null;
     }
 
-    // --- Logica dello Stato e Sincronizzazione ---
+    // Logica dello Stato e Sincronizzazione
 
     /**
      * Sincronizza istantaneamente lo stato cromatico del modello estraendo i valori correnti
@@ -169,7 +169,7 @@ public class ThemeSettingsModel {
         }
     }
 
-    // --- Deleghe operative esterne ---
+    // Deleghe operative esterne
 
     /** Carica i dati cromatici e i flag utente dal DB delegando a {@link ThemePersistenceManager}. */
     public void loadFromDatabase() {
@@ -223,7 +223,7 @@ public class ThemeSettingsModel {
         ThemePersistenceManager.restoreDefaultTheme(this);
     }
 
-    // --- Metodi statici mantenuti per retrocompatibilità con il controller ---
+    // Metodi statici mantenuti per retrocompatibilità con il controller
 
     /**
      * Calcola la luminanza relativa standard di un colore. Mantenuto per retrocompatibilità.

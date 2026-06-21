@@ -69,7 +69,7 @@ public class HealAbility extends Ability {
     public void onActivate(Brain<?> brain, UniverseModel world) {
         AbstractPhysicalEntityModel entity = brain.getEntity();
 
-        // --- Applicazione del Ripristino dei Punti Vita (Endurance) ---
+        // Applicazione del Ripristino dei Punti Vita (Endurance)
         for (AbstractLivingEntityModel l : world.getEntitiesOfType(AbstractLivingEntityModel.class)) {
             if (l == entity || l instanceof PlayerModel) continue;
             if (entity.getTransform().getTranslation().distance(l.getTransform().getTranslation()) <= range) {

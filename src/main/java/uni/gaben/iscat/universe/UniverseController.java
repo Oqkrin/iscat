@@ -42,7 +42,7 @@ public class UniverseController {
 
     private EntityDeathListener entityDeathListener;
 
-    // --- Buffer pre-allocati contro la Garbage Collection nel Game Loop ---
+    // Buffer pre-allocati contro la Garbage Collection nel Game Loop
     private final List<AbstractPhysicalEntityModel> entitySnapshot    = new ArrayList<>(256);
     private final List<AbstractPhysicalEntityModel> toRemoveBuffer    = new ArrayList<>(64);
     private final Set<AbstractPhysicalEntityModel>  toRemoveSet       = new HashSet<>(64);

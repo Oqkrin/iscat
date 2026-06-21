@@ -1,4 +1,4 @@
-/* ---------- Info Card TabPane ---------- */
+/*------- Info Card TabPane------- */
 .tab-pane {
     -fx-background-color: transparent;
     -fx-tab-min-height: 32px;
@@ -45,7 +45,7 @@
     -fx-text-fill: -text-primary;
 }
 
-/* ---------- TextArea inside tabs ---------- */
+/*------- TextArea inside tabs------- */
 .tab-pane .text-area {
     -fx-background-color: -bg-secondary;
     -fx-text-fill: -accent-primary;

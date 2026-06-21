@@ -49,7 +49,7 @@ public final class ThrustVFX {
         gc.setGlobalBlendMode(BlendMode.ADD);
         gc.setEffect(thrustEffect);
 
-        // --- Generazione Stocastica del Flusso Particellare ---
+        // Generazione Stocastica del Flusso Particellare
         for (int i = 0; i < particleCount; i++) {
             double distRatio = RANDOM.nextDouble();
             double spreadX = w * (0.15 + Math.pow(distRatio, 1.5) * Thrust.THRUST_SPREAD_X_FACTOR);

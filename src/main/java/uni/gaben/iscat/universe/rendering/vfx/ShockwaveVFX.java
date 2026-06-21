@@ -41,7 +41,7 @@ public final class ShockwaveVFX {
         gc.setFill(Color.WHITE);
         gc.setStroke(Color.WHITE);
 
-        // --- Disegno a passaggi multipli (Multi-pass rendering) per l'effetto di alone sfumato ---
+        // Disegno a passaggi multipli (Multi-pass rendering) per l'effetto di alone sfumato
         gc.setGlobalAlpha(alpha * 0.15);
         gc.fillOval(cx - radius, cy - radius, d, d);
         gc.setGlobalAlpha(alpha * 0.3);
@@ -68,12 +68,12 @@ public final class ShockwaveVFX {
 
         gc.setGlobalBlendMode(BlendMode.SCREEN);
 
-        // --- 1. Alone Scuro Sfondo ---
+        // 1. Alone Scuro Sfondo
         gc.setGlobalAlpha(alpha * 0.45);
         gc.setFill(Color.rgb(20, 15, 30));
         gc.fillOval(cx - radius * 1.15, cy - radius * 1.15, radius * 2.3, radius * 2.3);
 
-        // --- 2. Onde Poligonali Esterne in Collasso (6 iterazioni con rumore armonico) ---
+        // 2. Onde Poligonali Esterne in Collasso (6 iterazioni con rumore armonico)
         gc.setStroke(Color.rgb(170, 110, 255));
         gc.setLineWidth(lineWidth * 1.1);
         for (int w = 0; w < 6; w++) {
@@ -91,7 +91,7 @@ public final class ShockwaveVFX {
             gc.strokePolygon(X_BUFFER, Y_BUFFER, MAX_SEGMENTS);
         }
 
-        // --- 3. Anello Principale Esterno Perturbato e Ruotato ---
+        // 3. Anello Principale Esterno Perturbato e Ruotato
         gc.setStroke(Color.rgb(160, 100, 255));
         gc.setLineWidth(lineWidth * 1.6);
         gc.setGlobalAlpha(alpha * 0.95);
@@ -106,14 +106,14 @@ public final class ShockwaveVFX {
         }
         gc.strokePolygon(X_BUFFER, Y_BUFFER, MAX_SEGMENTS);
 
-        // --- 4. Anello Interno Pulsante ---
+        // 4. Anello Interno Pulsante
         double innerRadius = radius * (0.72 + Math.sin(time * 3) * 0.02);
         gc.setStroke(Color.rgb(180, 110, 255));
         gc.setLineWidth(lineWidth * 1.2);
         gc.setGlobalAlpha(alpha * 0.75);
         gc.strokeOval(cx - innerRadius, cy - innerRadius, innerRadius * 2, innerRadius * 2);
 
-        // --- 5. Particelle ad Attrazione Centripeta ---
+        // 5. Particelle ad Attrazione Centripeta
         int particleCount = 28;
         double step = (Math.PI * 2) / particleCount;
         for (int i = 0; i < particleCount; i++) {
@@ -132,7 +132,7 @@ public final class ShockwaveVFX {
             gc.fillOval(px - size, py - size, size * 2, size * 2);
         }
 
-        // --- 6. Nucleo di Singolarità e Centro ad Alto Bagliore ---
+        // 6. Nucleo di Singolarità e Centro ad Alto Bagliore
         double coreRadius = radius * (0.16 + Math.sin(time * 5) * 0.01);
         gc.setGlobalAlpha(alpha * 0.95);
         gc.setFill(Color.rgb(45, 20, 70));

@@ -32,7 +32,7 @@ public final class ProjectileVFX {
 
         gc.setFill(color);
 
-        // --- Rendering dei nodi di scia (3 ovali con dissolvenza dimensionale e di opacità) ---
+        // Rendering dei nodi di scia (3 ovali con dissolvenza dimensionale e di opacità)
         int numTrails = 3;
         for (int i = 1; i <= numTrails; i++) {
             double progress = (double) i / numTrails;
@@ -46,7 +46,7 @@ public final class ProjectileVFX {
             gc.fillOval(tx - tSize / 2, ty - tSize / 2, tSize, tSize);
         }
 
-        // --- Rendering della testa principale del proiettile ---
+        // Rendering della testa principale del proiettile
         gc.setGlobalAlpha(1.0);
         gc.fillOval(cx - w / 2, cy - h / 2, w, h);
     }

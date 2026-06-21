@@ -92,9 +92,6 @@ public class EntityEditorMenuController implements IscatMenuController {
         registerEscHandler();
     }
 
-    // ------------------------------------------------------------------------
-    // Combo population & filtering
-    // ------------------------------------------------------------------------
     private void populateCombos() {
         List<String> customKeys = new ArrayList<>();
         List<String> coreKeys = new ArrayList<>();
@@ -153,9 +150,6 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
     }
 
-    // ------------------------------------------------------------------------
-    // Entity loading & UI refresh
-    // ------------------------------------------------------------------------
     private void loadEntity(String entityKey) {
         JSONObject raw = EntityFactory.getRawJson(entityKey);
         if (raw == null) {
@@ -206,9 +200,6 @@ public class EntityEditorMenuController implements IscatMenuController {
         skinNameLabel.setText(json.optString("name", "UNKNOWN"));
     }
 
-    // ------------------------------------------------------------------------
-    // Save & Apply logic
-    // ------------------------------------------------------------------------
     @FXML
     private void handleApply() {
         try {
@@ -314,9 +305,6 @@ public class EntityEditorMenuController implements IscatMenuController {
         );
     }
 
-    // ------------------------------------------------------------------------
-    // Asset pickers
-    // ------------------------------------------------------------------------
     @FXML
     private void handleChooseSkin() {
         Path customDir = entitiesRoot.resolve("sprites/custom");
@@ -375,9 +363,6 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
     }
 
-    // ------------------------------------------------------------------------
-    // Navigation & life‑cycle
-    // ------------------------------------------------------------------------
     @FXML private void handleBack(ActionEvent event) { handleBack(); }
 
     public void handleBack() {

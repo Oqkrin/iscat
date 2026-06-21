@@ -106,7 +106,7 @@ public class PlayerController {
             }
         }
 
-        // ---- Steering during quick dash ----
+        // Steering during quick dash
         // If quick dash is active, we continuously set velocity to the current direction
         if (player.isQuickDashActive()) {
             double steerAngle;

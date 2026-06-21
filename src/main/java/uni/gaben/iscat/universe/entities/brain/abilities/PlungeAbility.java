@@ -80,7 +80,7 @@ public class PlungeAbility extends Ability {
         Vector2 selfPos = self.getTransform().getTranslation();
         Vector2 targetPos = targetEntity.getTransform().getTranslation();
 
-        // --- Calcolo Matrimoniale/Cinematico del Tempo di Intercettazione (Pursuit Time) ---
+        // Calcolo Matrimoniale/Cinematico del Tempo di Intercettazione (Pursuit Time)
         double currentSpeed = self.getLinearVelocity().getMagnitude();
         double maxVel = self.getTerminalVelocity();
         double pursuitTime = Predictor.calculatePursuitTime(

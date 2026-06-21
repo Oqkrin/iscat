@@ -47,7 +47,7 @@ public class WormAssembler {
         WormChainController chain = new WormChainController(controller, headKey, bodyKey, tailKey);
         EntityModel previousModel = null;
 
-        // --- Fase 1: Spawn e configurazione della TESTA ---
+        // Fase 1: Spawn e configurazione della TESTA
         EntityModel head = spawnSegment(headKey, startX, startY, universe, controller, chain, true, false);
         if (head != null) {
             EntityBrain headBrain = chain.getLatestBrain();
@@ -58,7 +58,7 @@ public class WormAssembler {
             previousModel = head;
         }
 
-        // --- Fase 2: Spawn sequenziale dei segmenti del CORPO ---
+        // Fase 2: Spawn sequenziale dei segmenti del CORPO
         for (int i = 0; i < bodyCount; i++) {
             // Calcolo dell'offset progressivo lineare lungo l'asse Y per evitare la sovrapposizione iniziale dei corpi rigidi
             double offsetY = startY + ((i + 1) * 2.0);
@@ -75,7 +75,7 @@ public class WormAssembler {
             }
         }
 
-        // --- Fase 3: Spawn e configurazione della CODA ---
+        // Fase 3: Spawn e configurazione della CODA
         double tailOffsetY = startY + ((bodyCount + 1) * 2.0);
         EntityModel tail = spawnSegment(tailKey, startX, tailOffsetY, universe, controller, chain, false, true);
         if (tail != null && previousModel != null) {

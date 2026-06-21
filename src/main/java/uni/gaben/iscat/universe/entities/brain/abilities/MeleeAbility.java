@@ -37,7 +37,7 @@ public class MeleeAbility<T extends AbstractPhysicalEntityModel> extends Ability
         super(name, AbilityCategory.SPECIAL, Collections.emptySet());
         this.meleeCooldown.setDefaultDuration(cooldown);
 
-        // --- Registrazione del Callback d'Impatto sul Motore Fisico ---
+        // Registrazione del Callback d'Impatto sul Motore Fisico
         entity.addOnCollision(
                 "Melee",
                 other -> {

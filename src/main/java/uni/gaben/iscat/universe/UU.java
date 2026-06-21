@@ -11,7 +11,7 @@ import org.dyn4j.geometry.Vector2;
  */
 public class UU {
 
-    // --- Costanti e Proprietà Globali ---
+    // Costanti e Proprietà Globali
     public static final DoubleProperty UniversalGravitationalConstant = new SimpleDoubleProperty(UniverseVelocitySettings.PLAYER_DASH_IMPULSE / Math.PI);
     /** Scala di conversione reattiva (Default: 64 px = 1 m). */
     public static DoubleProperty UNIVERSE_SCALE = new SimpleDoubleProperty(UniverseSettings.DEFAULT_SCALE);
@@ -20,7 +20,7 @@ public class UU {
 
     public static double getUniverseScale() { return UNIVERSE_SCALE.get(); }
 
-    // --- Proprietà di Istanza (Data-Binding O(1)) ---
+    // Proprietà di Istanza (Data-Binding O(1))
     private DoubleProperty pixelValue = null;
     private DoubleProperty metersValue = null;
     private DoubleProperty secondsValue = null;
@@ -56,7 +56,7 @@ public class UU {
         }
     }
 
-    // --- DISTANCE & POSITION CONVERSIONS (Meters <-> Pixels) ---
+    // DISTANCE & POSITION CONVERSIONS (Meters <-> Pixels)
 
     public static double pxToM(double px) { return px / getUniverseScale(); }
     public static double mToPx(double m) { return m * getUniverseScale(); }
@@ -72,7 +72,7 @@ public class UU {
     }
 
 
-    // --- Getters Proprietà Reattive ---
+    // Getters Proprietà Reattive
     public DoubleProperty px() { return pixelValue; }
     public DoubleProperty m() { return metersValue; }
     public DoubleProperty s() { return secondsValue; }

@@ -15,19 +15,11 @@ import uni.gaben.iscat.universe.camera.CameraModel;
  */
 public class GameModel {
 
-    // ------------------------------------------------------------------------
-    // Costanti
-    // ------------------------------------------------------------------------
-
     /** Fattore di conversione per trasformare un valore espresso in nanosecondi nel corrispettivo in secondi. */
     public static final double ONE_SECOND_IN_NANOS = 1_000_000_000.0;
 
     /** Unità di campionamento massima ammessa per l'accumulatore del delta time per preservare la stabilità fisica. */
     public static final double ACCUMULATORUNIT     = 1d / 4d;
-
-    // ------------------------------------------------------------------------
-    // Proprietà temporali e ciclo di gioco (JavaFX Properties)
-    // ------------------------------------------------------------------------
 
     /** Proprietà calcolata che esprime il tempo delta (dt) trascorso tra gli ultimi due frame, in secondi. */
     private final DoubleProperty dt                  = new SimpleDoubleProperty(0);
@@ -47,26 +39,14 @@ public class GameModel {
     /** Moltiplicatore della velocità del tempo di gioco (es. per effetti di slow-motion o accelerazione). */
     private final DoubleProperty timeScale = new SimpleDoubleProperty(1.0);
 
-    // ------------------------------------------------------------------------
-    // Stato del Gioco
-    // ------------------------------------------------------------------------
-
     /** Flag reattivo che indica se un'ondata di nemici è attualmente attiva all'interno dell'arena. */
     private final BooleanProperty             waveActive = new SimpleBooleanProperty(true);
 
     /** Proprietà osservabile che definisce lo stato vitale e macroscopico corrente della sessione (es. PLAYING, PAUSE, WIN). */
     private final ObjectProperty<GameState>   gameState  = new SimpleObjectProperty<>(GameState.PLAYING);
 
-    // ------------------------------------------------------------------------
-    // Contatori Interfaccia Utente
-    // ------------------------------------------------------------------------
-
     /** Contatore intero codificato nel formato HHMMSS per facilitare il binding testuale del cronometro a schermo. */
     private final IntegerProperty timer = new SimpleIntegerProperty(0);
-
-    // ------------------------------------------------------------------------
-    // Modelli Core dell'Universo
-    // ------------------------------------------------------------------------
 
     /** Riferimento al modello logico e fisico dell'universo di gioco (mappa, entità, starfield). */
     private UniverseModel universeModel;
