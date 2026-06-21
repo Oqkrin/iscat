@@ -8,41 +8,21 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.StrokeLineCap;
+import uni.gaben.iscat.universe.effects.DashTrail;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-/**
- * Gestore grafico per l'effetto visivo del dash (scatto rapido).
- * <p>
- * Disegna due componenti sovrapposti:
- * <ol>
- *   <li>Un bagliore ad impulso nell'istante del dash (basato sulla velocità corrente).</li>
- *   <li>Una scia persistente basata sulla storia posizionale del {@link DashTrail},
- *       che decade gradualmente nel tempo anche dopo la fine del dash.</li>
- * </ol>
- */
 public final class DashVFX {
 
     private static final Glow GLOW = new Glow(0.6);
-    private static final double MAX_LENGTH = 80; // pixel
+    private static final double MAX_LENGTH = 80;
     private static final double MIN_LENGTH = 15;
 
     private DashVFX() {}
 
-    /**
-     * Renderizza il flash istantaneo del dash (visuale basata sulla velocità corrente).
-     *
-     * @param gc     Contesto grafico.
-     * @param cx     Centro X dell'entità (world-pixel).
-     * @param cy     Centro Y dell'entità.
-     * @param vx     Velocità X in m/s (convertita via scala visiva).
-     * @param vy     Velocità Y.
-     * @param width  Larghezza dell'entità in pixel.
-     * @param height Altezza dell'entità in pixel.
-     */
     public static void drawDashRaw(GraphicsContext gc, double cx, double cy, double vx, double vy,
                                    double width, double height) {
         double speed = Math.sqrt(vx * vx + vy * vy);
@@ -81,7 +61,8 @@ public final class DashVFX {
                 new Stop(1.0, endColor)
         );
 
-        double lineWidth = Math.max(width * 0.8 * intensity, 4.0);
+        // CHANGED: Use the exact entity width
+        double lineWidth = width;
         gc.setStroke(gradient);
         gc.setLineWidth(lineWidth);
         gc.setLineCap(StrokeLineCap.ROUND);
@@ -100,14 +81,6 @@ public final class DashVFX {
         gc.restore();
     }
 
-    /**
-     * Renderizza la scia storica persistente del dash dal {@link DashTrail}.
-     * Ogni segmento collegante due punti successivi viene disegnato con un gradiente
-     * che riflette il decadimento temporale (alpha) di ciascun punto.
-     *
-     * @param gc    Contesto grafico.
-     * @param trail La scia da renderizzare.
-     */
     public static void drawDashTrail(GraphicsContext gc, DashTrail trail) {
         if (trail == null || trail.isEmpty()) return;
 
@@ -136,7 +109,6 @@ public final class DashVFX {
             double avgAlpha = (prev.alpha() + curr.alpha()) / 2.0;
             if (avgAlpha <= 0.01) continue;
 
-            // Gradiente dal punto precedente (più vecchio, più trasparente) al corrente
             Color fromColor = Color.color(accent.getRed(), accent.getGreen(), accent.getBlue(), prev.alpha() * 0.8);
             Color toColor   = Color.color(brightAccent.getRed(), brightAccent.getGreen(), brightAccent.getBlue(), curr.alpha() * 0.9);
 
@@ -147,7 +119,8 @@ public final class DashVFX {
                     new Stop(1.0, toColor)
             );
 
-            double lineWidth = Math.max(prev.width() * 0.5 * avgAlpha, 2.0);
+            // CHANGED: Strict entity width (no alpha shrinking or hardcoded reduction)
+            double lineWidth = prev.width();
             gc.setStroke(segGradient);
             gc.setLineWidth(lineWidth);
             gc.strokeLine(prev.x(), prev.y(), curr.x(), curr.y());
