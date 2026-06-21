@@ -86,9 +86,7 @@ public class AnimatedCanvas extends Canvas {
 
     /** Inizializza l'animatore per la gestione del tempo e dei frame. */
     private void initAnimator() {
-        // For simplicity, assume a uniform number of frames per row (the same as the old code).
-        // This matches the legacy behaviour; if you later support variable rows you can
-        // initialise the animator with the full jagged array.
+
         int states = spriteSheet.getTotalStates();
         int framesPerState = spriteSheet.getFramesPerRow().length;   // number of states = row count
         animator = new SpriteSheetsAnimator(currentFrameDuration, framesPerState, states);

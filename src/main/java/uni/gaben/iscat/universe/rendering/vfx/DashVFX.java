@@ -42,7 +42,6 @@ public final class DashVFX {
         gc.setGlobalBlendMode(BlendMode.ADD);
         gc.setEffect(GLOW);
 
-        // Calculate the vector pointing backwards to the dash origin
         double endX = -dirX * drawLength;
         double endY = -dirY * drawLength;
 
@@ -62,7 +61,7 @@ public final class DashVFX {
         );
 
         gc.setStroke(gradient);
-        gc.setLineWidth(width); // Strictly locked to entity width
+        gc.setLineWidth(width);
         gc.setLineCap(StrokeLineCap.ROUND);
 
         double startOffsetX = -dirX * (width * 0.4);
@@ -118,7 +117,7 @@ public final class DashVFX {
             );
 
             gc.setStroke(segGradient);
-            gc.setLineWidth(prev.width()); // Strictly locked to entity width
+            gc.setLineWidth(prev.width());
             gc.strokeLine(prev.x(), prev.y(), curr.x(), curr.y());
         }
 
