@@ -4,6 +4,7 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import uni.gaben.iscat.database.IscatDB;
+import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.user.UserSettings;
 
 import java.net.URI;
@@ -20,6 +21,22 @@ public class AudioManager {
     // --- Singleton ---
 
     private AudioManager() {}
+
+    public static String getBgmPath(IscatViews scene) {
+        return switch (scene) {
+            case LOGIN_MENU    -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
+            case MAIN_MENU,
+                 SKIN_MENU,
+                 BESTIARY_MENU,
+                 LEADERBOARD_MENU,
+                 SCORE_MENU,
+                 CREDITS,
+                 TUTORIAL_MENU,
+                 ENTITY_EDITOR,
+                 SETTINGS_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
+            case GAME          -> "/uni/gaben/iscat/audio/BGM/SuperHero_original.wav";
+        };
+    }
 
     private static final class Holder {
         private static final AudioManager INSTANCE = new AudioManager();

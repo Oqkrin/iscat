@@ -30,23 +30,6 @@ public class IscatModel {
     }
 
     public ObjectProperty<IscatViews> currentSceneProperty() { return currentScene; }
-
-    public String getBgmPath(IscatViews scene) {
-        return switch (scene) {
-            case LOGIN_MENU    -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
-            case MAIN_MENU,
-                 SKIN_MENU,
-                 BESTIARY_MENU,
-                 LEADERBOARD_MENU,
-                 SCORE_MENU,
-                 CREDITS,
-                 TUTORIAL_MENU,
-                 ENTITY_EDITOR,
-                 SETTINGS_MENU -> "/uni/gaben/iscat/audio/BGM/TremLoadingloopl.wav";
-            case GAME          -> "/uni/gaben/iscat/audio/BGM/SuperHero_original.wav";
-        };
-    }
-
     public boolean isPinned() { return pinned.get(); }
     public void setPinned(boolean value) { pinned.set(value); }
     public BooleanProperty pinnedProperty() { return pinned; }

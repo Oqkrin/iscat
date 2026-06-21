@@ -7,6 +7,8 @@ import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.IscatMVCRegistry;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
+import uni.gaben.iscat.utils.theme.ThemeManager;
+import uni.gaben.iscat.view.IscatWindow;
 import uni.gaben.iscat.view.components.AbstractIscatStackPane;
 import java.util.EnumMap;
 
@@ -16,15 +18,15 @@ import java.util.EnumMap;
  */
 public class IscatViewController {
 
-    private final StackPane contentRoot;
+    private final StackPane view;
     private final IscatModel model;
     private final EnumMap<IscatViews, AbstractIscatStackPane> viewRegistry = new EnumMap<>(IscatViews.class);
 
     private static final java.util.Set<IscatViews> DYNAMIC_VIEWS = java.util.EnumSet.of(IscatViews.GAME);
 
-    public IscatViewController(IscatModel model, StackPane contentRoot) {
+    public IscatViewController(IscatModel model, IscatWindow window) {
         this.model = model;
-        this.contentRoot = contentRoot;
+        this.view = window.getView();
 
         // Inizializza le view non statiche
         for (IscatViews scene : IscatViews.values()) {
@@ -49,7 +51,7 @@ public class IscatViewController {
         AbstractIscatStackPane firstView = viewRegistry.get(initialView);
         if (firstView != null) {
             firstView.initialize();
-            AudioManager.getInstance().playBGM(model.getBgmPath(initialView), true);
+            AudioManager.getInstance().playBGM(AudioManager.getBgmPath(initialView), true);
             executeInstantSwap(firstView);
         }
     }
@@ -62,9 +64,9 @@ public class IscatViewController {
         if (nextView == null) return;
 
         nextView.initialize();
-        AudioManager.getInstance().playBGM(model.getBgmPath(newScene), true);
+        AudioManager.getInstance().playBGM(AudioManager.getBgmPath(newScene), true);
 
-        if (type == IscatModel.TransitionType.FADE && !contentRoot.getChildren().isEmpty()) {
+        if (type == IscatModel.TransitionType.FADE && !view.getChildren().isEmpty()) {
             executeFadeSwap(oldScene, nextView);
         } else {
             if (oldScene != null && viewRegistry.containsKey(oldScene)) {
@@ -75,7 +77,7 @@ public class IscatViewController {
     }
 
     private void executeInstantSwap(AbstractIscatStackPane nextView) {
-        contentRoot.getChildren().setAll(nextView);
+        view.getChildren().setAll(nextView);
         nextView.setOpacity(1.0);
         nextView.setActive(true);
     }
@@ -84,21 +86,26 @@ public class IscatViewController {
         AbstractIscatStackPane oldView = viewRegistry.get(oldScene);
 
         if (oldView != null) {
-            // Fade out the old view instance directly
-            FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.25), oldView);
-            fadeOut.setFromValue(1.0);
-            fadeOut.setToValue(0.0);
-            fadeOut.setOnFinished(e -> {
-                oldView.setActive(false);
-
-                // Set the incoming view completely transparent before attachment
-                nextView.setOpacity(0.0);
-                contentRoot.getChildren().setAll(nextView);
-                nextView.setActive(true); // Internally launches structural load and its own fadeIn animation
-            });
+            oldView.getParent().getScene().setFill(ThemeManager.getInstance().getBgPrimary());
+            FadeTransition fadeOut = fade(nextView, oldView);
             fadeOut.play();
         } else {
             executeInstantSwap(nextView);
         }
+    }
+
+    private FadeTransition fade(AbstractIscatStackPane nextView, AbstractIscatStackPane oldView) {
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.25), oldView);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> {
+            oldView.setActive(false);
+
+            // Set the incoming view completely transparent before attachment
+            nextView.setOpacity(0.0);
+            view.getChildren().setAll(nextView);
+            nextView.setActive(true); // Internally launches structural load and its own fadeIn animation
+        });
+        return fadeOut;
     }
 }

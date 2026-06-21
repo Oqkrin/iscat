@@ -12,12 +12,13 @@ import uni.gaben.iscat.utils.SessionManager;
 
 public class IscatTitleBar extends StackPane {
 
+    public static final int TITLE_BAR_HEIGHT = 56;
     // Ability elements
-    public final Button closeBtn      = titleBarButton("✕",  "title-bar-btn-close",      "Close");
-    public final Button maximizeBtn   = titleBarButton("⬜",  "title-bar-btn-maximize",   "Maximize");
-    public final Button fullscreenBtn = titleBarButton("⛶",  "title-bar-btn-fullscreen", "Fullscreen");
-    public final Button minimizeBtn   = titleBarButton("—",  "title-bar-btn-minimize",   "Minimize");
-    public final Button pinBtn        = titleBarButton("📌", "title-bar-btn-pin",        "Always on top");
+    public final Button closeButton = titleBarButton("✕",  "title-bar-btn-close",      "Close");
+    public final Button maximizeButton = titleBarButton("⬜",  "title-bar-btn-maximize",   "Maximize");
+    public final Button fullscreenButton = titleBarButton("⛶",  "title-bar-btn-fullscreen", "Fullscreen");
+    public final Button minimizeButton = titleBarButton("—",  "title-bar-btn-minimize",   "Minimize");
+    public final Button pinButton = titleBarButton("📌", "title-bar-btn-pin",        "Always on top");
 
     // Central Floating Title Label
     public final Label titleLabel     = new Label();
@@ -28,7 +29,7 @@ public class IscatTitleBar extends StackPane {
         setPickOnBounds(true);
 
         // LEFT FLOATING CAPSULE: Pin + Fullscreen
-        HBox leftCapsule = new HBox(6, pinBtn, fullscreenBtn);
+        HBox leftCapsule = new HBox(6, pinButton, fullscreenButton);
         leftCapsule.getStyleClass().add("floating-action-group");
         leftCapsule.setAlignment(Pos.CENTER_LEFT);
 
@@ -41,7 +42,7 @@ public class IscatTitleBar extends StackPane {
         centerCapsule.visibleProperty().bind(titleLabel.textProperty().isNotNull());
 
         // RIGHT FLOATING CAPSULE: Minimize + Maximize + Close
-        HBox rightCapsule = new HBox(6, minimizeBtn, maximizeBtn, closeBtn);
+        HBox rightCapsule = new HBox(6, minimizeButton, maximizeButton, closeButton);
         rightCapsule.getStyleClass().add("floating-action-group");
         rightCapsule.setAlignment(Pos.CENTER_RIGHT);
 

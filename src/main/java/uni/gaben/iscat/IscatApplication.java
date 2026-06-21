@@ -15,6 +15,7 @@ import uni.gaben.iscat.controller.IscatWindowController;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.view.IscatWindow;
 import uni.gaben.iscat.view.components.IscatTitleBar;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.IscatUtils;
@@ -37,6 +38,8 @@ public class IscatApplication extends Application {
 
     IscatViewController iscatViewController;
     IscatWindowController iscatWindowController;
+    private IscatWindowController windowController;
+    private IscatViewController viewController;
 
     @Override
     public void init() {
@@ -48,34 +51,23 @@ public class IscatApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-
-
         AudioManager.getInstance().loadAllSFX("/uni/gaben/iscat/audio/SFX/entitiesSFX");
         AudioManager.getInstance().loadDefaultAudio();
 
 
         iscatRootScene.setFill(ThemeManager.getInstance().getBgPrimary());
-        iscatTitleBar.setMaxHeight(56.0);
+        stage.initStyle(StageStyle.UNDECORATED);
+        stage.setScene(iscatRootScene);
 
-        //this might fix scalings
-        iscatPointerToContent.prefWidthProperty().bind(iscatRootPane.widthProperty());
-        iscatPointerToContent.prefHeightProperty().bind(iscatRootPane.heightProperty());
+        // Window component takes over the whole visual structure
+        windowController = new IscatWindowController(iscatModel, stage);
 
+        // View controller uses the window's content pane
+        viewController = new IscatViewController(iscatModel, windowController.getWindow());
+        viewController.showInitialView(IscatViews.LOGIN_MENU);
 
-        iscatWindowBorderOverlay.getStyleClass().add("window-border");
-        iscatWindowBorderOverlay.setMouseTransparent(true);
-        StackPane.setAlignment(iscatTitleBar, Pos.TOP_CENTER);
-
-        iscatRootPane.getChildren().addAll(iscatPointerToContent, iscatTitleBar, iscatWindowBorderOverlay);
-
-        IscatUtils.roundRectangle(iscatRootPane, IscatSettings.STANDARD_UNIT);
+        // Style the scene root (which is now the IscatWindow)
         addIscatStyles(iscatRootScene);
-
-        iscatWindowBorderOverlay.visibleProperty().bind(iscatModel.fullscreenProperty().not());
-
-        iscatWindowController = new IscatWindowController(iscatModel, stage, iscatRootScene, iscatTitleBar);
-        iscatViewController = new IscatViewController(iscatModel, iscatPointerToContent);
-        iscatViewController.showInitialView(IscatViews.LOGIN_MENU);
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(iscatRootScene);
