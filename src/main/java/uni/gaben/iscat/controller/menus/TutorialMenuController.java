@@ -45,7 +45,7 @@ public class TutorialMenuController implements IscatMenuController {
     private final List<OrbitNode> orbitingNodes = new ArrayList<>();
     private UserSettings userSettings;
 
-    private static final int NUMBER_OF_PLAYERS = 6;
+    private static final int NUMBER_OF_PLAYERS = 9;
     private static final double ORBIT_RADIUS = 310.0;
     private static final double BASE_SPEED = 0.012;
 
