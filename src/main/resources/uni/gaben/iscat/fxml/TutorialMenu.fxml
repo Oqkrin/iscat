@@ -17,14 +17,14 @@
         <left>
             <VBox alignment="CENTER" spacing="40.0" BorderPane.alignment="CENTER">
                 <children>
-                    <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
+                    <VBox alignment="CENTER" maxHeight="205.0" maxWidth="205.0" minHeight="205.0" minWidth="205.0" prefHeight="205.0" prefWidth="205.0" styleClass="glowing-border, main-card">
                         <padding>
                             <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
                         </padding>
                         <Label styleClass="score-stat" text="MOVIMENTO" />
                         <Label fx:id="moveLabel" styleClass="leaderboard-gold" text="WASD" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 20px;"/>
                     </VBox>
-                    <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
+                    <VBox alignment="CENTER" maxHeight="205.0" maxWidth="205.0" minHeight="205.0" minWidth="205.0" prefHeight="205.0" prefWidth="205.0" styleClass="glowing-border, main-card">
                         <padding>
                             <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
                         </padding>
@@ -38,7 +38,7 @@
         <center>
             <VBox alignment="CENTER" spacing="24.0" BorderPane.alignment="CENTER">
                 <children>
-                    <VBox alignment="CENTER" maxHeight="320.0" maxWidth="320.0" minHeight="320.0" minWidth="320.0" prefHeight="320.0" prefWidth="320.0" styleClass="glowing-border, main-card">
+                    <VBox alignment="CENTER" maxHeight="325.0" maxWidth="325.0" minHeight="325.0" minWidth="325.0" prefHeight="325.0" prefWidth="325.0" styleClass="glowing-border, main-card">
                         <padding>
                             <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                         </padding>
@@ -55,18 +55,27 @@
         </center>
 
         <right>
-            <VBox alignment="CENTER" spacing="40.0" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
                 <children>
-                    <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
+                    <VBox alignment="CENTER" maxHeight="165.0" maxWidth="205.0" minHeight="165.0" minWidth="205.0" prefHeight="165.0" prefWidth="205.0" styleClass="glowing-border, main-card">
                         <padding>
-                            <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+                            <Insets top="12.0" right="16.0" bottom="12.0" left="16.0"/>
                         </padding>
                         <Label styleClass="score-stat" text="DASH" />
                         <Label fx:id="dashLabel" styleClass="leaderboard-gold" text="Tasto Destro" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 18px;"/>
                     </VBox>
-                    <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" styleClass="glowing-border, main-card">
+
+                    <VBox alignment="CENTER" maxHeight="165.0" maxWidth="205.0" minHeight="165.0" minWidth="205.0" prefHeight="165.0" prefWidth="205.0" styleClass="glowing-border, main-card">
                         <padding>
-                            <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+                            <Insets top="12.0" right="16.0" bottom="12.0" left="16.0"/>
+                        </padding>
+                        <Label styleClass="score-stat" text="BULLET TIME" />
+                        <Label fx:id="bulletTimeLabel" styleClass="leaderboard-gold" text="Shift" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 18px;"/>
+                    </VBox>
+
+                    <VBox alignment="CENTER" maxHeight="165.0" maxWidth="205.0" minHeight="165.0" minWidth="205.0" prefHeight="165.0" prefWidth="205.0" styleClass="glowing-border, main-card">
+                        <padding>
+                            <Insets top="12.0" right="16.0" bottom="12.0" left="16.0"/>
                         </padding>
                         <Label styleClass="score-stat" text="ZOOM" />
                         <Label styleClass="leaderboard-gold" text="+ o -" textAlignment="CENTER" wrapText="true" style="-fx-font-size: 22px;"/>

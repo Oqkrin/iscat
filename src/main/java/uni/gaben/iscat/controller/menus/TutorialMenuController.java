@@ -38,6 +38,7 @@ public class TutorialMenuController implements IscatMenuController {
     @FXML private Label moveLabel;
     @FXML private Label attackLabel;
     @FXML private Label dashLabel;
+    @FXML private Label bulletTimeLabel;
 
     private StackPane contentRoot;
     private AnimationTimer orbitTimer;
@@ -226,12 +227,13 @@ public class TutorialMenuController implements IscatMenuController {
      * di movimento, attacco e dash salvati nelle impostazioni utente.
      */
     private void updateStaticLabels() {
-        if (userSettings == null || moveLabel == null || attackLabel == null || dashLabel == null) return;
+        if (userSettings == null || moveLabel == null || attackLabel == null || dashLabel == null || bulletTimeLabel == null) return;
 
         String keys = userSettings.getWalkUp() + userSettings.getWalkLeft() + userSettings.getWalkDown() + userSettings.getWalkRight();
         moveLabel.setText(keys.toUpperCase());
         attackLabel.setText(userSettings.getAttack());
         dashLabel.setText(userSettings.getDash());
+        bulletTimeLabel.setText(userSettings.getBulletTime());
     }
 
     /**
@@ -249,6 +251,7 @@ public class TutorialMenuController implements IscatMenuController {
             labels.add("DESTRA");
             labels.add("ATTACCO");
             labels.add("DASH");
+            labels.add("BULLET TIME");
             return labels;
         }
 
@@ -258,6 +261,7 @@ public class TutorialMenuController implements IscatMenuController {
         labels.add("Destra: " + userSettings.getWalkRight());
         labels.add("Attacco: " + userSettings.getAttack());
         labels.add("Dash: " + userSettings.getDash());
+        labels.add("Bullet Time: " + userSettings.getBulletTime());
         return labels;
     }
 
