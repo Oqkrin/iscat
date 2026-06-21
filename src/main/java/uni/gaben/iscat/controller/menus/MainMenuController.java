@@ -109,13 +109,18 @@ public class MainMenuController implements IscatFxmlController {
         try {
             switch (iconCode) {
                 case "fas-gift" -> {
-                    EntityRecord player = EntityFactory.getCache().get(SessionManager.getPlayerSkinKey());
+                    EntityRecord initialPlayer = EntityFactory.getCache().get(SessionManager.getPlayerSkinKey());
                     SessionManager.playerSkinProperty().addListener((observable, oldValue, newValue) -> {
-                        skin.loadSkin(newValue, player.frameW(), player.frameH());
-                        skin.resize(128.0);
+                        EntityRecord updatedPlayer = EntityFactory.getCache().get(SessionManager.getPlayerSkinKey());
+                        if (updatedPlayer != null) {
+                            skin.loadSkin(newValue, updatedPlayer.frameW(), updatedPlayer.frameH());
+                            skin.resize(128.0);
+                        }
                     });
-                    skin.loadSkin(SessionManager.getPlayerSkin(), player.frameW(), player.frameH());
-                    skin.resize(128.0);
+                    if (initialPlayer != null) {
+                        skin.loadSkin(SessionManager.getPlayerSkin(), initialPlayer.frameW(), initialPlayer.frameH());
+                        skin.resize(128.0);
+                    }
                     skin.setFrameDuration(0.20);
                     btn.setGraphic(skin);
                 }
