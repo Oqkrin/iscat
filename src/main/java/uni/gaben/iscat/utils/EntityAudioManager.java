@@ -72,9 +72,9 @@ public class EntityAudioManager {
      */
     private static String getDefaultSFXKey(String eventType) {
         return switch (eventType.toLowerCase().trim()) {
-            case "hurt"   -> "entitiesSFX/generic_hurt";
-            case "death"  -> "entitiesSFX/generic_death";
-            case "attack" -> "entitiesSFX/shoot";
+            case "hurt"   -> "generic_hurt";
+            case "death"  -> "generic_death";
+            case "attack" -> "shoot";
             default       -> null;
         };
     }
