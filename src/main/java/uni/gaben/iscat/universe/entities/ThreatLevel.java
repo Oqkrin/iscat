@@ -1,9 +1,8 @@
 package uni.gaben.iscat.universe.entities;
 
 /**
- * Classificazione dei livelli di minaccia ed allerta delle entità di gioco (Threat Levels).
- * Associa a ogni livello una stringa descrittiva localizzata e un codice colore esadecimale
- * per la categorizzazione grafica immediata nella UI/HUD.
+ * Classificazione dei livelli di minaccia ed allerta delle entità di gioco.
+ * Associa a ogni livello un nome visibile e un colore esadecimale per l'interfaccia.
  */
 public enum ThreatLevel {
 
@@ -23,14 +22,14 @@ public enum ThreatLevel {
     }
 
     /**
-     * @return Il nome leggibile del livello di minaccia localizzato in italiano.
+     * Ritorna il nome da visualizzare per il livello di minaccia.
      */
     public String getDisplayName() {
         return displayName;
     }
 
     /**
-     * @return Il codice colore esadecimale (Hex CSS/JavaFX) associato alla minaccia.
+     * Ritorna il codice colore esadecimale associato alla minaccia.
      */
     public String getColorHex() {
         return colorHex;

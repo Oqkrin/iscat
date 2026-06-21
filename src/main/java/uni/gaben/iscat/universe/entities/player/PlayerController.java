@@ -17,17 +17,18 @@ import uni.gaben.iscat.utils.Interpolator;
 
 import java.util.function.Consumer;
 
+/**
+ * Gestisce gli input della tastiera e del mouse per controllare il movimento,
+ * la rotazione, lo sparo e le abilità speciali del giocatore.
+ */
 public class PlayerController {
 
     private PlayerModel player;
     private Shooter<PlayerModel> shooter;
-    private GameModel gameModel;          // for time‑scale control
+    private GameModel gameModel;
 
     private final Cooldown dashBuffer = new Cooldown();
-    private boolean bufferedDashIsWASD = false;
     private Pattern currentAttack;
-
-    // Cache last level to avoid re‑assigning attack pattern every frame
     private int lastLevel = -1;
 
     public PlayerController(PlayerModel player) {
@@ -38,6 +39,10 @@ public class PlayerController {
         this.gameModel = gm;
     }
 
+    /**
+     * Elabora gli input correnti per muovere il personaggio, ruotarlo verso il mouse
+     * e gestire lo sparo o i dash fisici.
+     */
     public void processInput(GameInputsHandler input, CameraModel camera, double dt) {
         dashBuffer.update(dt);
 
@@ -51,7 +56,6 @@ public class PlayerController {
         double nextAngle = currentAngle;
 
         if (!player.isDashing()) {
-            // Movement force
             if (dx != 0 || dy != 0) {
                 Vector2 dir = new Vector2(dx, dy).getNormalized();
                 if (!player.isStunned()) {
@@ -84,13 +88,11 @@ public class PlayerController {
                 player.setAngularVelocity(Interpolator.lerp(player.getAngularVelocity(), 0, Math.min(20.0 * dt, 1.0)));
             }
 
-            // Shooting (handles cooldown and level‑up attack pattern)
             handleShooting(input);
         } else {
             player.setAngularVelocity(0);
         }
 
-        // Dash & slow‑motion
         if (!player.isStunned()) {
             handleDashAndSlowMotion(input, nextAngle, dx, dy, dt);
         }
@@ -123,12 +125,14 @@ public class PlayerController {
         }
     }
 
+    /**
+     * Gestisce l'attivazione dello scatto (Dash) e della modalità rallentatore (Slow-motion).
+     */
     private void handleDashAndSlowMotion(GameInputsHandler input, double aimAngle, double dx, double dy, double dt) {
-        // --- Slow‑motion from mouse dodge button (hold) ---
         if (gameModel != null) {
             if (input.slowMotionRequested && player.getTimeGauge() > 0) {
                 gameModel.setTimeScale(0.2);
-                player.decreaseTimeGauge(dt * 30.0); // Consume 30 gauge per second
+                player.decreaseTimeGauge(dt * 30.0);
                 player.setTemporaryTerminalVelocity(player.getTerminalVelocity() * 2.0);
             } else {
                 gameModel.setTimeScale(1.0);
@@ -136,26 +140,28 @@ public class PlayerController {
             }
         }
 
-        // --- Keyboard dash (instant) – always in the movement direction ---
         if (input.dashKeyPressed && player.canDash()) {
             double dashAngle;
             if (dx != 0 || dy != 0) {
-                dashAngle = Math.atan2(dy, dx);          // direction of movement
+                dashAngle = Math.atan2(dy, dx);
             } else {
-                dashAngle = aimAngle;                     // no movement → use mouse aim
+                dashAngle = aimAngle;
             }
             player.getTransform().setRotation(dashAngle);
             player.dashTowards(dashAngle);
-            input.dashKeyPressed = false; // consume
+            input.dashKeyPressed = false;
         }
     }
 
+    /**
+     * Associa il modello del giocatore al controller e registra il listener per l'audio dei danni.
+     */
     public void setPlayer(PlayerModel player) {
         this.player = player;
         if (player != null) {
             this.shooter = new Shooter<>(player);
-            updateAttackPatternByLevel();          // initial assignment
-            this.lastLevel = player.getLevel();    // cache
+            updateAttackPatternByLevel();
+            this.lastLevel = player.getLevel();
 
             this.player.enduranceProperty().addListener((obs, old, newVal) -> {
                 if (old.doubleValue() > newVal.doubleValue()) {
@@ -167,6 +173,9 @@ public class PlayerController {
         }
     }
 
+    /**
+     * Controlla i requisiti di sparo, aggiorna il pattern se il livello è cambiato ed esegue l'attacco.
+     */
     private void handleShooting(GameInputsHandler input) {
         if (player == null || shooter == null || currentAttack == null) return;
 
@@ -180,16 +189,9 @@ public class PlayerController {
             double angle = player.getTransform().getRotationAngle();
 
             Consumer<ProjectileModel> customizer = bullet -> {
-                // Applichiamo il tipo (che imposta la fisica base)
                 bullet.setType(ProjectileType.PLAYER_BULLET);
-
-                // Calcoliamo il danno dinamico basato sul livello
                 double dynamicDamage = player.getProjectileDamage();
-
-                // Forziamo l'energia calcolata sul proiettile
                 bullet.setEnergyDirect(dynamicDamage);
-
-                // Se la logica precedente modificava ulteriormente la durata/vita del proiettile:
                 double boostedLife = bullet.getEndurance() + player.getLevel();
                 bullet.setMaxEnduranceDirect(boostedLife);
             };
@@ -199,19 +201,20 @@ public class PlayerController {
         }
     }
 
+    /**
+     * Aggiorna il pattern d'attacco corrente e i tempi di ricarica in base al livello attuale del giocatore.
+     */
     private void updateAttackPatternByLevel() {
         int level = player.getLevel();
         EntityRecord data = player.getEntityRecord();
 
         if (data == null || data.player() == null) {
-            // Fallback di sicurezza se il JSON non è caricato
             this.currentAttack = new SingleShotPattern();
             return;
         }
 
         for (EntityRecord.LevelAbility ability : data.player().levelAbilities()) {
             if (level >= ability.minLevel()) {
-
                 this.currentAttack = EntityRecordParser.createPattern(ability.pattern());
                 player.setCooldownFuocoSec(ability.cooldownSec());
                 break;

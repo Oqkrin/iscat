@@ -25,22 +25,16 @@ import java.util.List;
 
 /**
  * Classe di utilità responsabile del parsing dei file di configurazione JSON
- * per la generazione di oggetti {@link EntityRecord}.
- * Centralizza la conversione dei parametri fisici, visivi, audio e delle logiche
- * di intelligenza artificiale (AI) di gioco.
- * * <p>Le chiavi del JSON vengono automaticamente normalizzate in lowercase per garantire
- * l'insensibilità al case-sensitive.</p>
+ * per la generazione di oggetti {@link EntityRecord} e dei componenti dell'IA.
  */
 public final class EntityRecordParser {
 
-    private EntityRecordParser() {
-    }
+    private EntityRecordParser() {}
 
     /**
      * Analizza un oggetto JSON completo, normalizza le chiavi in minuscolo e restituisce l'immutabile {@link EntityRecord}.
      */
     public static EntityRecord parse(JSONObject json) {
-        // Normalizzazione globale del JSON in lowercase
         JSONObject lowerJson = convertKeysToLowerCase(json);
 
         EntityRecordBuilder builder = new EntityRecordBuilder();
@@ -60,7 +54,7 @@ public final class EntityRecordParser {
     }
 
     /**
-     * Helper ricorsivo che trasforma tutte le chiavi di un JSONObject (e relativi sotto-oggetti/array) in lowercase.
+     * Trasforma ricorsivamente tutte le chiavi di un JSONObject in minuscolo per renderlo case-insensitive.
      */
     public static JSONObject convertKeysToLowerCase(JSONObject obj) {
         if (obj == null) return null;
@@ -81,6 +75,9 @@ public final class EntityRecordParser {
         return normalized;
     }
 
+    /**
+     * Trasforma ricorsivamente tutti i JSONObject all'interno di un JSONArray in lowercase.
+     */
     public static JSONArray convertKeysToLowerCase(JSONArray arr) {
         if (arr == null) return null;
         JSONArray normalized = new JSONArray();
@@ -112,8 +109,7 @@ public final class EntityRecordParser {
         try {
             builder.threatLevel(ThreatLevel.valueOf(threatStr));
         } catch (IllegalArgumentException e) {
-            System.err.println("[EntityRecordParser] ThreatLevel invalido '" + threatStr +
-                    "' per " + json.optString("entitykey") + ". Uso NONE.");
+            System.err.println("[EntityRecordParser] ThreatLevel invalido '" + threatStr + "' per " + json.optString("entitykey") + ". Uso NONE.");
             builder.threatLevel(ThreatLevel.NONE);
         }
     }
@@ -357,6 +353,9 @@ public final class EntityRecordParser {
         return list;
     }
 
+    /**
+     * Fabbrica per la creazione di istanze operative di {@link SteeringGoal}.
+     */
     public static SteeringGoal createSteeringGoal(EntityRecord.SteeringRecord steeringData) {
         Target target = Target.ofPlayer();
         return switch (steeringData.type()) {
@@ -369,11 +368,14 @@ public final class EntityRecordParser {
         };
     }
 
+    /**
+     * Fabbrica per la configurazione e la creazione di forze di separazione o allineamento ({@link SteeringModifier}).
+     */
     public static SteeringModifier createModifier(EntityRecord.ModifierRecord mc, EntityModel entity) {
         if (mc.type() == null) return null;
         DoubleProperty weight = new SimpleDoubleProperty(mc.weight());
         Target neighbors = Target.neighboursCached(entity, mc.radius(), EntityFilters.isNot(entity));
-        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof PlayerModel || (entityModel instanceof ProjectileModel pm&&pm.getType()!=ProjectileType.PLAYER_BULLET)));
+        Target everythingButEnemyProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof PlayerModel || (entityModel instanceof ProjectileModel pm && pm.getType() != ProjectileType.PLAYER_BULLET)));
         Target everythingButProjectiles = neighbors.filtered(entityModel -> !(entityModel instanceof PlayerModel || entityModel instanceof AbstractPhysicalProjectileModel));
         return switch (mc.type()) {
             case SEPARATION -> SteeringModifier.separation(everythingButEnemyProjectiles, mc.radius(), weight);
@@ -384,6 +386,9 @@ public final class EntityRecordParser {
         };
     }
 
+    /**
+     * Fabbrica per la creazione di istanze di puntamento e rotazione {@link RotationGoal}.
+     */
     public static RotationGoal createRotationGoal(EntityRecord.RotationRecord rotation) {
         if (rotation == null) return RotationGoal.idle();
         return switch (rotation.type()) {
@@ -397,6 +402,9 @@ public final class EntityRecordParser {
         };
     }
 
+    /**
+     * Istanzia un'azione comportamentale eseguibile dall'IA ({@link Ability}) partendo dai record configurati.
+     */
     public static Ability createAbility(EntityRecord.AbilityRecord ac, EntityModel entity) {
         if (ac.type() == null) return null;
         Target target = Target.ofPlayer();
@@ -438,6 +446,9 @@ public final class EntityRecordParser {
         };
     }
 
+    /**
+     * Mappa i dati strutturati dei nodi geometrici e balistici nelle rispettive istanze logiche di {@link Pattern}.
+     */
     public static Pattern createPattern(EntityRecord.PatternRecord pc) {
         if (pc == null) return new SingleShotPattern();
         return switch (pc.type()) {

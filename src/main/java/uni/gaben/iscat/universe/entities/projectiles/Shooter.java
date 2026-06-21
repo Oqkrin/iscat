@@ -38,10 +38,6 @@ public class Shooter<T extends CollisionBody> {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Public shoot API
-    // -------------------------------------------------------------------------
-
     public void shoot(ProjectileType type) {
         shoot(type, model.getTransform().getRotationAngle(), null);
     }

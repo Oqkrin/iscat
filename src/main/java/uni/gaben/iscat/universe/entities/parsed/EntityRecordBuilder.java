@@ -6,8 +6,11 @@ import uni.gaben.iscat.universe.entities.ThreatLevel;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Builder flessibile per la costruzione fluida e controllata di istanze di {@link EntityRecord}.
+ * Fornisce valori di default predefiniti per tutti i parametri fisici, grafici e comportamentali.
+ */
 public class EntityRecordBuilder {
-    // Identity
     private String entityKey = "";
     private String name = "";
     private String description = "";
@@ -15,16 +18,14 @@ public class EntityRecordBuilder {
     private ThreatLevel threatLevel = ThreatLevel.NORMAL;
     private EntityType type = null;
 
-    // Visual
     private String spritePath = "";
     private int frameW = 32;
     private int frameH = 32;
     private double scale = 1.0;
-    private List<EntityRecord.AnimationRecord> animations = new ArrayList<>(); // <-- CAMBIATO
+    private List<EntityRecord.AnimationRecord> animations = new ArrayList<>();
     private boolean isBoss = false;
     private boolean hasEntranceAnimation = false;
 
-    // Physical
     private double initLife = 100;
     private double linearDamping = 2.0;
     private double mass = 1.0;
@@ -35,22 +36,17 @@ public class EntityRecordBuilder {
     private int xpReward = 10;
     private EntityRecord.ShapeType shapeType = EntityRecord.ShapeType.CIRCLE;
 
-    // Behavioural
     private double detectionRange = 15.0;
     private double combatRange = 10.0;
     private double preferredRange = 7.0;
     private double actionCooldownSec = 0.8;
 
-    // Combat statistics
     private double dannoProiettile = 4.0;
 
-    // Audio
     private EntityRecord.AudioProfile audio = new EntityRecord.AudioProfile(List.of(), List.of(), List.of(), List.of(), List.of());
 
-    // AI
     private EntityRecord.BrainRecord brain = null;
 
-    // Player
     private EntityRecord.PlayerRecord player = null;
 
     public EntityRecordBuilder entityKey(String v) { entityKey = v; return this; }
@@ -63,7 +59,10 @@ public class EntityRecordBuilder {
     public EntityRecordBuilder frameH(int v) { frameH = v; return this; }
     public EntityRecordBuilder scale(double v) { scale = v; return this; }
 
-    public EntityRecordBuilder animations(List<EntityRecord.AnimationRecord> v) { // <-- CAMBIATO
+    /**
+     * Assegna la lista completa di record di animazione associati alle righe dello spritesheet.
+     */
+    public EntityRecordBuilder animations(List<EntityRecord.AnimationRecord> v) {
         this.animations = v;
         return this;
     }
@@ -88,6 +87,9 @@ public class EntityRecordBuilder {
     public EntityRecordBuilder player(EntityRecord.PlayerRecord v) { player = v; return this; }
     public EntityRecordBuilder visualAngularOffset(double deg) { this.visualAngularOffset = deg; return this; }
 
+    /**
+     * Compila e restituisce l'istanza immutabile di EntityRecord configurata.
+     */
     public EntityRecord build() {
         return new EntityRecord(
                 entityKey, name, type, description, bestiaryOrder, threatLevel,

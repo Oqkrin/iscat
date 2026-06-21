@@ -10,23 +10,25 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+/**
+ * Utilità per il caricamento asincrono e il salvataggio di file JSON relativi alle entità di gioco.
+ */
 public class EntityJsonLoader {
 
-    private EntityJsonLoader() {
-        /* This utility class should not be instantiated */
-    }
+    private EntityJsonLoader() {}
 
+    /**
+     * Contenitore per un oggetto JSON parsed e il suo percorso di origine.
+     */
     public record LoadedJson(JSONObject json, String originPath) {
     }
 
     /**
-     * Scans the given resource directory and returns a future that completes
-     * with a list of loaded JSON objects (containing the parsed object and its origin path).
+     * Scansiona una cartella di risorse in modo asincrono e carica tutti i file .json trovati.
      */
     public static CompletableFuture<List<LoadedJson>> loadAllFromDirectory(String dirPath) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                // Strip leading slash and use as relative path for resolver
                 String relativeDir = dirPath.startsWith("/") ? dirPath.substring(1) : dirPath;
                 List<Path> files = ExternalResourceResolver.listFiles(relativeDir, ".json");
                 return files.stream()
@@ -41,7 +43,7 @@ public class EntityJsonLoader {
     }
 
     /**
-     * Resolves the correct Path object, handling both standard file systems and JAR resources.
+     * Risolve il percorso del file gestendo sia il file system standard che le risorse dentro il file JAR.
      */
     private static Path resolvePath(String dirPath, URI uri) throws IOException {
         if ("jar".equals(uri.getScheme())) {
@@ -58,7 +60,7 @@ public class EntityJsonLoader {
     }
 
     /**
-     * Walks the directory surface level (depth 1) and parses all .json files.
+     * Legge la cartella a livello superficiale (profondità 1) e parsa i file .json.
      */
     private static List<LoadedJson> loadJsonFilesFromPath(Path directoryPath) throws IOException {
         try (Stream<Path> walk = Files.walk(directoryPath, 1)) {
@@ -66,13 +68,13 @@ public class EntityJsonLoader {
                     .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith(".json"))
                     .map(EntityJsonLoader::readJsonFile)
-                    .filter(Objects::nonNull) // Filters out any files that failed to read/parse
+                    .filter(Objects::nonNull)
                     .toList();
         }
     }
 
     /**
-     * Reads a file and converts it into a LoadedJson. Returns null if it fails.
+     * Legge un singolo file e lo converte in un oggetto LoadedJson (ritorna null se fallisce).
      */
     private static LoadedJson readJsonFile(Path filePath) {
         try {
@@ -85,7 +87,7 @@ public class EntityJsonLoader {
     }
 
     /**
-     * Saves a JSONObject to the specified path string.
+     * Salva un oggetto JSONObject su un file nel percorso assoluto specificato.
      */
     public static void saveJsonToFile(JSONObject json, String absolutePath) {
         try {

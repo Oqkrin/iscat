@@ -15,23 +15,20 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
- * Modello fisico di base dell'engine che estende direttamente il corpo rigido di dyn4j.
- * Ottimizzato per prevenire l'allocazione di oggetti di calcolo (come AABB e Transform) nel game loop.
+ * Modello fisico di base dell'engine basato sul corpo rigido di dyn4j.
+ * Evita l'allocazione di nuovi oggetti nel game loop per ottimizzare le performance.
  */
 public abstract class AbstractPhysicalEntityModel extends Body implements Dynamic, Updatable, Removable, Collidable, Stateful {
 
-    // Identità statica per le trasformazioni a costo zero
     private static final Transform IDENTITY_TRANSFORM = new Transform();
 
     protected final EntityRecord entity;
     protected int state = 0;
     protected boolean shouldRemove = false;
     protected double stateTime = 0.0;
-
-    // Mappa dei callback di collisione
     protected final HashMap<String, Consumer<AbstractPhysicalEntityModel>> collisionEffects = new HashMap<>();
 
-    private double tempTerminalVelocity = -1;   // -1 = usa il default
+    private double tempTerminalVelocity = -1;
     private double originalLinearDamping;
 
     protected AbstractPhysicalEntityModel(double x, double y, EntityRecord entity) {
@@ -53,15 +50,16 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
     @Override public void setStateTime(double stateTime) { this.stateTime = stateTime; }
     @Override public void updateStateTime(double dt) { this.stateTime += dt; }
 
-    // ---- Callback di Collisione Ottimizzati ----
+    /**
+     * Registra un callback da eseguire in caso di collisione.
+     */
     @Override
     public void addOnCollision(String id, Consumer<AbstractPhysicalEntityModel> onCollision) {
         this.collisionEffects.put(id, onCollision);
     }
 
     /**
-     * Esegue tutti gli effetti di collisione registrati.
-     * Ottimizzato sostituendo il forEach generico con un ciclo diretto sui valori della mappa.
+     * Esegue tutti gli effetti di collisione registrati con l'altra entità.
      */
     @Override
     public void triggerAllCollisions(AbstractPhysicalEntityModel other) {
@@ -74,14 +72,11 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
 
     @Override public void clearOnCollisions() { collisionEffects.clear(); }
 
-    // ---- Proprietà Fisiche Delegate ----
     @Override public double getAcceleration() { return entity.maxForce(); }
     @Override public double getMaxAngularVelocity() { return entity.maxAngularVelocity(); }
 
-    // ---- Geometria e Calcolo Dimensionale (Zero-Allocation) ----
-
     /**
-     * Calcola la larghezza in metri riutilizzando un'istanza di trasformazione statica per non allocare memoria.
+     * Calcola la larghezza dell'entità in metri senza allocare memoria.
      */
     public double getWidthMeters() {
         if (getFixtureCount() == 0) return 0.0;
@@ -90,7 +85,7 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
     }
 
     /**
-     * Calcola l'altezza in metri riutilizzando un'istanza di trasformazione statica per non allocare memoria.
+     * Calcola l'altezza dell'entità in metri senza allocare memoria.
      */
     public double getHeightMeters() {
         if (getFixtureCount() == 0) return 0.0;
@@ -102,7 +97,7 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
     public double getHeightPx() { return UU.mToPx(getHeightMeters()); }
 
     /**
-     * Determina se l'entità interseca un rettangolo di vincolo (es. Frustum culling o viewport).
+     * Controlla se l'entità si trova all'interno di un rettangolo di vincolo (es. la telecamera).
      */
     public boolean isInsideRect(double minX, double maxX, double minY, double maxY) {
         double cx = UU.mToPx(this.transform.getTranslationX());
@@ -117,25 +112,36 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
         this.stateTime += dt;
     }
 
-    // ---- Gestione dinamica dei limiti di velocità e Dash ----
     @Override
     public double getTerminalVelocity() {
         return tempTerminalVelocity >= 0 ? tempTerminalVelocity : entity.maxVelocity();
     }
 
+    /**
+     * Cambia temporaneamente il limite massimo di velocità dell'entità.
+     */
     public void setTemporaryTerminalVelocity(double tempTerminalVelocity) {
         this.tempTerminalVelocity = tempTerminalVelocity;
     }
 
+    /**
+     * Ripristina la velocità massima originale dell'entità.
+     */
     public void restoreTerminalVelocity() {
         this.tempTerminalVelocity = -1;
     }
 
+    /**
+     * Modifica il linear damping per gestire le decelerazioni speciali (es. durante un Dash).
+     */
     public void setDashLinearDamping(double damping) {
         this.originalLinearDamping = this.getLinearDamping();
         this.setLinearDamping(damping);
     }
 
+    /**
+     * Ripristina il valore di linear damping originale.
+     */
     public void restoreLinearDamping() {
         this.setLinearDamping(originalLinearDamping);
     }

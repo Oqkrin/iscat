@@ -8,14 +8,14 @@ import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.ExternalResourceResolver;
 import uni.gaben.iscat.utils.SessionManager;
-import uni.gaben.iscat.utils.audio.AudioResolver;   // adjust package if needed
 
 import java.net.URL;
 import java.util.*;
 
 /**
- * Centralised audio manager for BGM and SFX.
- * Uses external‑first resolution for BGM and SFX (custom → core → internal).
+ * Gestore centralizzato del comparto audio del gioco (BGM e SFX).
+ * Applica una strategia di risoluzione "external-first" dando priorità alle risorse
+ * esterne (custom/override) rispetto alle risorse interne integrate nel classpath.
  */
 public final class AudioManager {
 
@@ -37,7 +37,10 @@ public final class AudioManager {
 
     private static final long DEFAULT_COOLDOWN_MS = 30;
 
-    // ── BGM path mapping (unchanged) ─────────────────────────────────────────
+    /**
+     * Mappa ciascuna vista logica del gioco ({@link IscatViews}) al rispettivo percorso
+     * interno della traccia di background (BGM).
+     */
     public static String getBgmPath(IscatViews scene) {
         return switch (scene) {
             case LOGIN_MENU    -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
@@ -54,8 +57,11 @@ public final class AudioManager {
         };
     }
 
-    // ── Volume controls ─────────────────────────────────────────────────────
-    public void syncVolumes() { updateBgmPlayerVolume(); }
+    // ── Gestione e Sincronizzazione Volumi ──────────────────────────────────
+
+    public void syncVolumes() {
+        updateBgmPlayerVolume();
+    }
 
     public double getMasterVolume() {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
@@ -113,7 +119,12 @@ public final class AudioManager {
         }
     }
 
-    // ── BGM playback (external‑first) ───────────────────────────────────────
+    // ── Riproduzione BGM (Background Music) ─────────────────────────────────
+
+    /**
+     * Avvia la riproduzione di una traccia musicale di sottofondo.
+     * Se la traccia è già in esecuzione, la chiamata viene ignorata per evitare interruzioni.
+     */
     public void playBGM(String internalPath, boolean loop) {
         if (currentBgmPath != null && currentBgmPath.equals(internalPath) && bgmPlayer != null) {
             return;
@@ -140,6 +151,9 @@ public final class AudioManager {
         }
     }
 
+    /**
+     * Interrompe la riproduzione della BGM corrente e ne rilascia le risorse.
+     */
     public void stopBGM() {
         if (bgmPlayer != null) {
             bgmPlayer.stop();
@@ -149,10 +163,12 @@ public final class AudioManager {
         }
     }
 
-    // ── SFX (lazy load with AudioResolver – custom → core → internal) ─────
+    // ── Riproduzione SFX (Sound Effects) ────────────────────────────────────
+
     /**
-     * Loads a single SFX by name. Uses {@link AudioResolver} which checks
-     * entities/audio/SFX/custom, then core, then internal classpath.
+     * Carica un singolo effetto sonoro identificato per nome.
+     * Sfrutta {@link AudioResolver} per cercare prima nelle cartelle esterne (custom, core)
+     * e infine ripiegare sulle risorse interne nel classpath.
      */
     public void loadSFX(String name) {
         if (sfxMap.containsKey(name)) return;
@@ -166,7 +182,8 @@ public final class AudioManager {
     }
 
     /**
-     * Plays an SFX, loading it on demand if not already cached.
+     * Riproduce un effetto sonoro, caricandolo dinamicamente *on-demand* se non presente in cache.
+     * Include un controllo interno di cooldown temporale per evitare sovrapposizioni sgradevoli.
      */
     public void playSFX(String name) {
         AudioClip clip = sfxMap.get(name);
@@ -178,7 +195,9 @@ public final class AudioManager {
 
         long now = System.currentTimeMillis();
         long lastPlayed = lastPlayedMap.getOrDefault(name, 0L);
-        long requiredCooldown = name.equalsIgnoreCase("shoot") ? 90 : DEFAULT_COOLDOWN_MS;
+
+        // Calcola il cooldown richiesto (lo sparo ha un intervallo personalizzato a 90ms)
+        long requiredCooldown = "shoot".equalsIgnoreCase(name.trim()) ? 90 : DEFAULT_COOLDOWN_MS;
         if (now - lastPlayed < requiredCooldown) return;
 
         lastPlayedMap.put(name, now);
@@ -188,7 +207,7 @@ public final class AudioManager {
     }
 
     /**
-     * Returns a random SFX key from the currently loaded map.
+     * Restituisce una chiave SFX casuale tra quelle attualmente memorizzate in cache.
      */
     public String getRandomSfxKey() {
         if (sfxMap.isEmpty()) return null;
@@ -197,17 +216,15 @@ public final class AudioManager {
     }
 
     /**
-     * Preloads SFX from the internal classpath directory.
-     * External custom/core overrides are not loaded here; they will be
-     * resolved on first use by {@link AudioResolver} when a specific sound is requested.
+     * Esegue il pre-caricamento degli SFX di default presenti nel percorso interno.
      */
     public void loadDefaultAudio() {
         loadAllSFX("/uni/gaben/iscat/audio/SFX");
     }
 
     /**
-     * Scans the internal classpath directory for .wav files and loads them
-     * into the SFX map if not already present (external overrides are ignored here).
+     * Effettua la scansione di una directory interna del classpath per individuare e registrare
+     * tutti i file audio `.wav` di sistema (senza sovrascrivere eventuali override esterni già caricati).
      */
     public void loadAllSFX(String relativeDirectory) {
         try {
@@ -220,37 +237,41 @@ public final class AudioManager {
             java.nio.file.Path internalPath;
             if (dirUrl.getProtocol().equals("jar")) {
                 java.net.URI uri = dirUrl.toURI();
-                java.nio.file.FileSystem fs = java.nio.file.FileSystems.newFileSystem(uri, Collections.emptyMap());
-                internalPath = fs.getPath(relativeDirectory);
+                // Gestione robusta del FileSystem JAR tramite blocco try-with-resources
+                try (java.nio.file.FileSystem fs = java.nio.file.FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+                    internalPath = fs.getPath(relativeDirectory);
+                    scanAndMapFiles(internalPath, relativeDirectory);
+                }
             } else {
                 internalPath = java.nio.file.Paths.get(dirUrl.toURI());
+                scanAndMapFiles(internalPath, relativeDirectory);
             }
-
-            java.nio.file.Files.walk(internalPath, 1)
-                    .filter(java.nio.file.Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().endsWith(".wav"))
-                    .forEach(p -> {
-                        String fileName = p.getFileName().toString();
-                        String sfxName = fileName.substring(0, fileName.lastIndexOf('.'));
-                        if (!sfxMap.containsKey(sfxName)) {
-                            // Load from classpath (internal) only if not already overridden externally
-                            URL resource = getClass().getResource(relativeDirectory + "/" + fileName);
-                            if (resource != null) {
-                                sfxMap.put(sfxName, new AudioClip(resource.toExternalForm()));
-                            }
-                        }
-                    });
 
         } catch (Exception e) {
             System.err.println("[AudioManager] Error scanning internal SFX: " + e.getMessage());
         }
     }
 
-    // ── Resource resolution helpers ─────────────────────────────────────────
+    private void scanAndMapFiles(java.nio.file.Path rootPath, String relativeDirectory) throws java.io.IOException {
+        try (java.util.stream.Stream<java.nio.file.Path> walk = java.nio.file.Files.walk(rootPath, 1)) {
+            walk.filter(java.nio.file.Files::isRegularFile)
+                    .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".wav"))
+                    .forEach(p -> {
+                        String fileName = p.getFileName().toString();
+                        String sfxName = fileName.substring(0, fileName.lastIndexOf('.'));
+                        if (!sfxMap.containsKey(sfxName)) {
+                            URL resource = getClass().getResource(relativeDirectory + "/" + fileName);
+                            if (resource != null) {
+                                sfxMap.put(sfxName, new AudioClip(resource.toExternalForm()));
+                            }
+                        }
+                    });
+        }
+    }
 
     /**
-     * Resolves an audio resource (used by BGM) checking external root first,
-     * then falling back to classpath.
+     * Risolve l'URI di una risorsa audio (utilizzato principalmente dalle BGM)
+     * verificando preventivamente la presenza nel root esterno e ripiegando sul classpath in seconda istanza.
      */
     private static URL resolveAudioResource(String internalPath) {
         if (ExternalResourceResolver.getEntitiesRoot() != null) {

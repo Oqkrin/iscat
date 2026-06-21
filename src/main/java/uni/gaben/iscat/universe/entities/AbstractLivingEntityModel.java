@@ -8,13 +8,13 @@ import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 
 /**
- * Modello astratto per tutte le entità viventi o dotate di barra della vita (Endurance).
- * Ottimizzato tramite caching del valore primitivo per evitare l'overhead di JavaFX Property nel loop di gioco.
+ * Modello astratto per entità dotate di punti vita (Endurance).
+ * Usa una cache primitiva per evitare l'overhead di JavaFX nel loop di gioco.
  */
 public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityModel implements Alterable, hasXpReward {
 
     protected final DoubleProperty endurance = new SimpleDoubleProperty();
-    protected double enduranceValue; // Cache primitiva per letture ultra-rapide O(1) nel game loop
+    protected double enduranceValue;
     protected double maxEndurance;
     protected double xpReward;
     protected String entityKey;
@@ -32,41 +32,53 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
         this.entityKey = data.entityKey();
     }
 
+    /**
+     * Ritorna la proprietà JavaFX dell'endurance (utile per la UI).
+     */
     public DoubleProperty enduranceProperty() {
         return endurance;
     }
 
     /**
-     * Ritorna l'endurance corrente sfruttando la cache locale per saltare l'overhead di JavaFX.
+     * Ritorna i punti vita correnti usando il valore in cache.
      */
     @Override
     public double getEndurance() {
         return enduranceValue;
     }
 
+    /**
+     * Ritorna i punti vita massimi.
+     */
     @Override
     public double getMaxEndurance() {
         return maxEndurance;
     }
 
+    /**
+     * Imposta i punti vita massimi.
+     */
     public void setMaxEndurance(double maxEndurance) {
         this.maxEndurance = maxEndurance;
         setEndurance(this.enduranceValue);
     }
 
+    /**
+     * Memorizza il giocatore che ha eseguito l'attacco corpo a corpo.
+     */
     public void setMeleeAttacker(PlayerModel attacker) {
         this.meleeAttacker = attacker;
     }
 
     /**
-     * Aggiorna il valore di endurance. Sfrutta Math.clamp ed evita scritture sulla Property se non necessarie.
+     * Aggiorna i punti vita correnti e gestisce l'eventuale morte.
      */
     public void setEndurance(double endurance) {
         double clamped = Math.clamp(endurance, 0, maxEndurance);
 
         if (this.enduranceValue != clamped) {
             this.enduranceValue = clamped;
-            this.endurance.set(clamped); // Aggiorna JavaFX (UI) solo se c'è una reale variazione
+            this.endurance.set(clamped);
         }
 
         if (clamped <= 0.0 && !shouldRemove()) {
@@ -74,11 +86,17 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
         }
     }
 
+    /**
+     * Modifica i punti vita correnti sommandovi il valore specificato.
+     */
     @Override
     public void alter(double amount) {
         setEndurance(this.enduranceValue + amount);
     }
 
+    /**
+     * Imposta direttamente i punti vita massimi e correnti allo stesso valore.
+     */
     public void setMaxEnduranceDirect(double maxLife) {
         this.maxEndurance = maxLife;
         this.enduranceValue = maxLife;
@@ -97,16 +115,21 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
     public void setKilledByMeele(boolean value) { this.killedByMeele = value; }
     public boolean isKilledByMeele() { return killedByMeele; }
 
+    /**
+     * Registra un'azione da eseguire al momento della morte dell'entità.
+     */
     public void setOnDeath(Runnable callback) { this.onDeath = callback; }
 
+    /**
+     * Rimuove l'entità dal gioco (richiama extinguish in modalità non silenziosa).
+     */
     @Override
     public void extinguish() {
         extinguish(false);
     }
 
     /**
-     * Disattiva ed estingue l'entità rimuovendola dal loop.
-     * Ottimizzato per evitare chiamate ricorsive a setEndurance.
+     * Rimuove l'entità dal gioco, azzera la vita ed esegue i callback di morte.
      */
     public void extinguish(boolean silent) {
         if (shouldRemove()) return;
@@ -123,5 +146,8 @@ public abstract class AbstractLivingEntityModel extends AbstractPhysicalEntityMo
         onDeath();
     }
 
+    /**
+     * Metodo hook da sovrascrivere nelle sottoclassi per logiche di morte specifiche.
+     */
     public void onDeath() {}
 }

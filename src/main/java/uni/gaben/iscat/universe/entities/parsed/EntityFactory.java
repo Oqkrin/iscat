@@ -10,6 +10,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+/**
+ * Fabbrica globale per la gestione del ciclo di vita delle entità di gioco.
+ * Carica, memorizza in cache e istanzia i modelli e i cervelli (IA) partendo dai file JSON.
+ */
 public class EntityFactory {
     private EntityFactory() {}
 
@@ -23,9 +27,10 @@ public class EntityFactory {
     private static volatile CompletableFuture<Map<String, EntityRecord>> cacheReadyFuture;
     private static final Object futureLock = new Object();
 
-    // ------------------------------------------------------------
-    //  Spawn (blocks until cache is ready – lazy initialisation)
-    // ------------------------------------------------------------
+    /**
+     * Crea e posiziona nel mondo di gioco una nuova entità e il rispettivo controller IA.
+     * Attende in modo sincrono se la cache non è ancora stata inizializzata.
+     */
     public static EntityModel spawn(
             String entityKey,
             double x, double y,
@@ -52,9 +57,9 @@ public class EntityFactory {
         return model;
     }
 
-    // ------------------------------------------------------------
-    //  Cache future management
-    // ------------------------------------------------------------
+    /**
+     * Garantisce che il caricamento asincrono iniziale dei file JSON sia avviato.
+     */
     public static CompletableFuture<Map<String, EntityRecord>> ensureCacheLoaded() {
         if (cacheReadyFuture == null) {
             synchronized (futureLock) {
@@ -67,8 +72,7 @@ public class EntityFactory {
     }
 
     /**
-     * Internal load: combines enemy + player + custom JSON, parses them, and
-     * atomically replaces the cache content.
+     * Esegue internamente il caricamento asincrono parallelo di tutte le directory di configurazione.
      */
     private static CompletableFuture<Map<String, EntityRecord>> preloadAllAsyncInternal() {
         CompletableFuture<List<EntityJsonLoader.LoadedJson>> enemiesFuture = EntityJsonLoader.loadAllFromDirectory(ENEMIES_DIR);
@@ -103,24 +107,8 @@ public class EntityFactory {
         });
     }
 
-    // ------------------------------------------------------------
-    //  Runtime editing (file changes, unit creator)
-    // ------------------------------------------------------------
-
     /**
-     * Trigger a full reload from disk. The returned future completes when the
-     * new data is ready. Subsequent spawn() calls will wait for this refresh.
-     */
-    public static CompletableFuture<Void> refreshFromDiskAsync() {
-        CompletableFuture<Map<String, EntityRecord>> newLoad = preloadAllAsyncInternal();
-        cacheReadyFuture = newLoad;
-        return newLoad.thenApply(m -> null);
-    }
-
-    /**
-     * Add or update an entity record directly – useful for a built‑in unit
-     * creator. The record is placed in the live cache immediately.
-     * (To persist it, also write the JSON file and call refreshFromDiskAsync).
+     * Aggiunge o aggiorna manualmente un record all'interno della cache a runtime (es. per l'editor interno).
      */
     public static void addOrUpdateEntity(EntityRecord record) {
         if (record == null || record.entityKey() == null || record.entityKey().isEmpty()) return;
@@ -128,34 +116,24 @@ public class EntityFactory {
         cache.put(key, record);
     }
 
-    /**
-     * Remove an entity from the live cache.
-     */
-    public static void removeEntity(String entityKey) {
-        if (entityKey != null) {
-            cache.remove(entityKey.toLowerCase().trim());
-        }
-    }
-
-    // ------------------------------------------------------------
-    //  Cache access (read-only for UI, etc.)
-    // ------------------------------------------------------------
     public static Map<String, EntityRecord> getCache() {
         return cache;
     }
 
+    /**
+     * Recupera l'oggetto JSON grezzo associato a una chiave entità.
+     */
     public static JSONObject getRawJson(String entityKey) {
         if (entityKey == null) return null;
         return rawJsonCache.get(entityKey.toLowerCase().trim());
     }
 
+    /**
+     * Recupera il percorso file assoluto di origine da cui è stata caricata l'entità.
+     */
     public static String getOriginPath(String entityKey) {
         if (entityKey == null) return null;
         return originPathCache.get(entityKey.toLowerCase().trim());
     }
 
-    // Package-private for testing / advanced use
-    static void setCacheReadyFuture(CompletableFuture<Map<String, EntityRecord>> future) {
-        cacheReadyFuture = future;
-    }
 }
