@@ -26,32 +26,30 @@
     "hurt": [],
     "death": [],
     "spawn": []
-  },"ai": {
-  "rotation": { "type": "target", "target": "player" },
-  "abilities": [
-    {
-      "type": "randomizedShoot",
-      "combatRange": 15,
-      "cooldownSec": 3,
-      "bulletType": "ENEMY_BULLET",
-      "aimAtTarget": true,
-      "nerfPrediction": 3,
-      "patterns": [
-        {
-          "type": "repeater",
-          "repeats": 3,
-          "intervalSec": 0.3,
-          "pattern": { "type": "ring", "count": 8 }
-        },
-        { "type": "ring", "count": 8 },
-        { "type": "ring", "count": 24 }
-      ]
-    }
-  ],
-  "modifiers": [
-    { "type": "separation", "radius": 3.75, "weight": 1 },
-    { "type": "alignment", "radius": 7.5, "weight": 1 },
-    { "type": "cohesion", "radius": 7.5, "weight": 1 }
-  ]
-}
+  },
+  "ai": {
+    "rotation": { "type": "target", "target": "player" },
+    "abilities": [
+      {
+        "type": "randomizedShoot",
+        "combatRange": 15,
+        "cooldownSec": 0.5,
+        "bulletType": "ENEMY_BULLET",
+        "aimAtTarget": true,
+        "nerfPrediction": 3,
+        "patterns": [
+          {
+            "type": "spiral",
+            "count": 8,
+            "angleStepDeg": 22.5
+          }
+        ]
+      }
+    ],
+    "modifiers": [
+      { "type": "separation", "radius": 3.75, "weight": 1 },
+      { "type": "alignment", "radius": 7.5, "weight": 1 },
+      { "type": "cohesion", "radius": 7.5, "weight": 1 }
+    ]
+  }
 }

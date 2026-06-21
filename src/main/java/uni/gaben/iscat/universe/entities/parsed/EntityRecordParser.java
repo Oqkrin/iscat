@@ -450,6 +450,7 @@ public final class EntityRecordParser {
             case SUMMON ->          new SummonPattern(pc.count(), pc.summonedEntityKey(), pc.summonRadiusPx());
             case FIGURE ->          new FigurePattern(pc.count(), FigurePattern.FigureType.valueOf(pc.figureType()));
             case VARROW ->          new VArrowPattern(pc.count(), pc.angleStepDeg(), pc.intervalSec());
+            case SPIRAL ->          new SpiralPattern(pc.count(), pc.angleStepDeg());
         };
     }
 }
