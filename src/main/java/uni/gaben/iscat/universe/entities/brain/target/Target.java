@@ -56,8 +56,6 @@ public interface Target {
         return new Vector2(sumX / count, sumY / count);
     }
 
-    // ── Factories ────────────────────────────────────────────────────────
-
     static Target ofPoint(Vector2 point) {
         final Vector2 copiedPoint = point.copy();
         final List<Vector2> cachedList = Collections.singletonList(copiedPoint);

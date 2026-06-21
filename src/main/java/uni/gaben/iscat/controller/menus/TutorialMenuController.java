@@ -231,7 +231,7 @@ public class TutorialMenuController implements IscatMenuController {
         String keys = userSettings.getWalkUp() + userSettings.getWalkLeft() + userSettings.getWalkDown() + userSettings.getWalkRight();
         moveLabel.setText(keys.toUpperCase());
         attackLabel.setText(userSettings.getAttack());
-        dashLabel.setText(userSettings.getDash1());
+        dashLabel.setText(userSettings.getDash());
     }
 
     /**
@@ -257,7 +257,7 @@ public class TutorialMenuController implements IscatMenuController {
         labels.add("Sinistra: " + userSettings.getWalkLeft());
         labels.add("Destra: " + userSettings.getWalkRight());
         labels.add("Attacco: " + userSettings.getAttack());
-        labels.add("Dash: " + userSettings.getDash1());
+        labels.add("Dash: " + userSettings.getDash());
         return labels;
     }
 

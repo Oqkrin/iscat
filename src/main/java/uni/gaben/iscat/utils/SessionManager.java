@@ -61,8 +61,6 @@ public class SessionManager {
         return instance;
     }
 
-    // ── Property e Metodi Statici per il Sistema di Skin ────────────────────
-
     public static StringProperty playerSkinProperty() {
         return playerSkin;
     }
@@ -83,8 +81,6 @@ public class SessionManager {
         playerSkinKey.setValue(key);
     }
 
-    // ── Gestione dell'Utente Corrente (SessionUser) ──────────────────────────
-
     public SessionUser getCurrentUser() {
         return currentUser;
     }
@@ -101,8 +97,6 @@ public class SessionManager {
             username.set(""); // Pulisce la property in caso di disconnessione (logout)
         }
     }
-
-    // ── Impostazioni e Salvataggi (UserSettings & ScoreModel) ────────────────
 
     public UserSettings getCurrentSettings() {
         return currentSettings;

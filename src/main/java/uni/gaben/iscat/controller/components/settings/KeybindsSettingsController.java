@@ -24,7 +24,7 @@ public class KeybindsSettingsController {
     @FXML private VBox mainContainer;
 
     /** Pulsanti dell'interfaccia associati ai singoli comandi di gioco configurabili. */
-    @FXML private Button walkUp, walkDown, walkLeft, walkRight, dash1, dash2, attack, esc;
+    @FXML private Button walkUp, walkDown, walkLeft, walkRight, dash, bulletTime, attack, esc;
 
     /** Controller dell'overlay di interfaccia per la gestione delle conferme e dell'ascolto tasti. */
     private ConfirmationOverlayController confirmOverlayController;
@@ -92,8 +92,8 @@ public class KeybindsSettingsController {
         if (walkLeft != null) walkLeft.setText(settings.getWalkLeft());
         if (walkRight != null) walkRight.setText(settings.getWalkRight());
         if (attack != null) attack.setText(settings.getAttack());
-        if (dash1 != null) dash1.setText(settings.getDash1());
-        if (dash2 != null) dash2.setText(settings.getDash2());
+        if (dash != null) dash.setText(settings.getDash());
+        if (bulletTime != null) bulletTime.setText(settings.getBulletTime());
         if (esc != null) esc.setText(settings.getPauseGame());
     }
 
@@ -117,8 +117,8 @@ public class KeybindsSettingsController {
         else if (selectedButton == walkLeft) selectedColumn = "WalkLeft";
         else if (selectedButton == walkRight) selectedColumn = "WalkRight";
         else if (selectedButton == attack) selectedColumn = "Attack";
-        else if (selectedButton == dash1) selectedColumn = "Dash1";
-        else if (selectedButton == dash2) selectedColumn = "Dash2";
+        else if (selectedButton == dash) selectedColumn = "Dash";
+        else if (selectedButton == bulletTime) selectedColumn = "BulletTime";
         else if (selectedButton == esc) selectedColumn = "PauseGame";
 
         if (confirmOverlayController != null) {
@@ -210,8 +210,8 @@ public class KeybindsSettingsController {
                 case "WalkLeft"  -> settings.setWalkLeft(value);
                 case "WalkRight" -> settings.setWalkRight(value);
                 case "Attack"    -> settings.setAttack(value);
-                case "Dash1"     -> settings.setDash1(value);
-                case "Dash2"     -> settings.setDash2(value);
+                case "Dash"      -> settings.setDash(value);
+                case "BulletTime"     -> settings.setBulletTime(value);
                 case "PauseGame" -> settings.setPauseGame(value);
             }
 
@@ -248,8 +248,8 @@ public class KeybindsSettingsController {
         settings.setWalkLeft("A");
         settings.setWalkRight("D");
         settings.setAttack("MOUSEPRIMARY");
-        settings.setDash1("Q");
-        settings.setDash2("E");
+        settings.setDash("SPACE");
+        settings.setBulletTime("MOUSESECONDARY");
         settings.setPauseGame("P");
 
         refreshButtonLabels();
@@ -260,8 +260,8 @@ public class KeybindsSettingsController {
             settingsDAO.updateControl(uid, "WalkLeft", "A");
             settingsDAO.updateControl(uid, "WalkRight", "D");
             settingsDAO.updateControl(uid, "Attack", "MOUSEPRIMARY");
-            settingsDAO.updateControl(uid, "Dash1", "Q");
-            settingsDAO.updateControl(uid, "Dash2", "E");
+            settingsDAO.updateControl(uid, "Dash1", "SPACE");
+            settingsDAO.updateControl(uid, "BulletTime", "MOUSESECONDARY");
             settingsDAO.updateControl(uid, "PauseGame", "P");
         });
     }

@@ -50,8 +50,6 @@ public class ThemeManager {
         globalTint = new SimpleObjectProperty<>(getAccentPrimary());
     }
 
-    // ── Modalità Rainbow Dinamica ───────────────────────────────────────────
-
     /**
      * Attiva l'effetto Rainbow (arcobaleno continuo) sulla scena corrente.
      * Altera dinamicamente e a intervalli regolari sia le costanti CSS dell'interfaccia
@@ -127,8 +125,6 @@ public class ThemeManager {
         globalTint.set(getAccentPrimary());
     }
 
-    // ── Transizioni e Cambio Tema ───────────────────────────────────────────
-
     /**
      * Sostituisce il foglio di stile CSS corrente di una scena con uno nuovo,
      * avviando un'animazione di transizione fluida (interpolazione lineare) per la tinta degli sprite.
@@ -191,8 +187,6 @@ public class ThemeManager {
         currentPalette.clear();
         currentPalette.putAll(CssColorParser.parseColors(path));
     }
-
-    // ── Getters dei Colori della Palette ─────────────────────────────────────
 
     public Color getColor(String key) {
         Color color = currentPalette.get(key);

@@ -142,12 +142,12 @@ public class SQLiteSettingsDAO implements SettingsDAO {
         String sql = """
             INSERT OR IGNORE INTO ImpostazioniUtenti 
             (UserID, WalkUp, WalkDown, WalkLeft, WalkRight,
-             Attack, Dash1, Dash2, PauseGame,
+             Attack, Dash, BulletTime, PauseGame,
              MasterVolume, BGMVolume, SFXVolume,
              Scale, ShowFPS, Fullscreen,
              DebugMode, Lightmode, RainbowMode,
              PrimaryTheme, SecondaryTheme, TertiaryTheme, BackgroundTheme)
-            VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'Q', 'E', 'P',
+            VALUES (?, 'W', 'S', 'A', 'D', 'MOUSEPRIMARY', 'SPACE', 'MOUSESECONDARY', 'P',
                     50, 50, 30, 50, 0, 1, 0, 0, 0,
                     '#cbcbcb', '#a9a9a9', '#333333', '#010203')
             """;

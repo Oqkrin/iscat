@@ -57,8 +57,6 @@ public final class AudioManager {
         };
     }
 
-    // ── Gestione e Sincronizzazione Volumi ──────────────────────────────────
-
     public void syncVolumes() {
         updateBgmPlayerVolume();
     }
@@ -119,8 +117,6 @@ public final class AudioManager {
         }
     }
 
-    // ── Riproduzione BGM (Background Music) ─────────────────────────────────
-
     /**
      * Avvia la riproduzione di una traccia musicale di sottofondo.
      * Se la traccia è già in esecuzione, la chiamata viene ignorata per evitare interruzioni.
@@ -162,8 +158,6 @@ public final class AudioManager {
             currentBgmPath = "";
         }
     }
-
-    // ── Riproduzione SFX (Sound Effects) ────────────────────────────────────
 
     /**
      * Carica un singolo effetto sonoro identificato per nome.

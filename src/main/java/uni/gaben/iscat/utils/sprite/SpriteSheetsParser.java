@@ -72,7 +72,6 @@ public class SpriteSheetsParser {
         }
     }
 
-    // ── Public API ──────────────────────────────────────────────────────────
 
     public Image getSheet() { return sheet; }
     public int getTotalFrames() { return maxColumnsCount; }

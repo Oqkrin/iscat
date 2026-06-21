@@ -33,6 +33,6 @@ public class ControlSettingsHelper {
 
     /** Verifica la validità della colonna dei comandi tramite espressione regolare per prevenire SQL Injection. */
     private boolean isValidControlColumn(String column) {
-        return column != null && column.matches("(?i)WalkUp|WalkDown|WalkLeft|WalkRight|Dash1|Dash2|Attack|PauseGame");
+        return column != null && column.matches("(?i)WalkUp|WalkDown|WalkLeft|WalkRight|Dash|BulletTime|Attack|PauseGame");
     }
 }

@@ -34,8 +34,6 @@ public class SpriteSheetsAnimator {
         buildMatrix(defaultFrameDuration, uniform);
     }
 
-    // ── Inizializzazione Matrice ─────────────────────────────────────────────
-
     private void buildMatrix(double defaultDuration, int[] framesPerRow) {
         frameDurations = new DoubleProperty[framesPerRow.length][];
         for (int s = 0; s < framesPerRow.length; s++) {
@@ -58,8 +56,6 @@ public class SpriteSheetsAnimator {
         }
         buildMatrix(defaultFrameDuration, uniform);
     }
-
-    // ── Riproduzione e Aggiornamento ─────────────────────────────────────────
 
     /**
      * Avanza il timer interno dell'animazione in base al tempo trascorso dall'ultimo frame.
@@ -116,15 +112,11 @@ public class SpriteSheetsAnimator {
         }
     }
 
-    // ── Getters & Setters ────────────────────────────────────────────────────
-
     public int getCurrentState() { return currentState; }
     public double getTime()      { return internalTime; }
 
     public void setTime(double time) { this.internalTime = time; }
     public void reset()              { this.internalTime = 0; }
-
-    // ── Logica Interna ───────────────────────────────────────────────────────
 
     private boolean inBounds(int state, int frame) {
         if (state < 0 || state >= frameDurations.length) {

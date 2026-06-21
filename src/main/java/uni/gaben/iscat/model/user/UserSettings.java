@@ -21,10 +21,10 @@ public class UserSettings {
     private String walkRight;
     /** Tasto associato al comando di attacco. */
     private String attack;
-    /** Tasto associato al comando primario di scatto (Dash 1). */
-    private String dash1;
-    /** Tasto associato al comando secondario di scatto (Dash 2). */
-    private String dash2;
+    /** Tasto associato al comando di scatto. */
+    private String dash;
+    /** Tasto associato al comando rallenta il tempo */
+    private String bulletTime;
     /** Tasto associato all'apertura del menu di pausa. */
     private String pauseGame;
 
@@ -73,8 +73,8 @@ public class UserSettings {
      * @param walkLeft        Tasto per il movimento verso sinistra.
      * @param walkRight       Tasto per il movimento verso destra.
      * @param attack          Tasto per l'azione di attacco.
-     * @param dash1           Tasto primario per lo scatto.
-     * @param dash2           Tasto secondario per lo scatto.
+     * @param dash            Tasto primario per lo scatto.
+     * @param bulletTime      Tasto per rallentare il tempo
      * @param pauseGame       Tasto per mettere il gioco in pausa.
      * @param volumeMaster    Livello del volume generale.
      * @param volumeBgm       Livello del volume della musica.
@@ -91,7 +91,7 @@ public class UserSettings {
      * @param scale           Fattore di scala della UI.
      */
     public UserSettings(int userId, String walkUp, String walkDown, String walkLeft, String walkRight,
-                        String attack, String dash1, String dash2, String pauseGame,
+                        String attack, String dash, String bulletTime, String pauseGame,
                         double volumeMaster, double volumeBgm, double volumeSfx,
                         int showFps, int fullscreen, int debugMode, int lightmode, int rainbowMode,
                         String primaryTheme, String secondaryTheme, String tertiaryTheme, String backgroundTheme,
@@ -102,8 +102,8 @@ public class UserSettings {
         this.walkLeft = walkLeft;
         this.walkRight = walkRight;
         this.attack = attack;
-        this.dash1 = dash1;
-        this.dash2 = dash2;
+        this.dash = dash;
+        this.bulletTime = bulletTime;
         this.pauseGame = pauseGame;
         this.volumeMaster = volumeMaster;
         this.volumeBgm = volumeBgm;
@@ -149,14 +149,14 @@ public class UserSettings {
     public void setAttack(String attack) { this.attack = attack; }
 
     /** @return La stringa identificativa del tasto primario per lo scatto. */
-    public String getDash1() { return dash1; }
-    /** @param dash1 Il tasto primario da associare allo scatto. */
-    public void setDash1(String dash1) { this.dash1 = dash1; }
+    public String getDash() { return dash; }
+    /** @param dash Il tasto primario da associare allo scatto. */
+    public void setDash(String dash) { this.dash = dash; }
 
     /** @return La stringa identificativa del tasto secondario per lo scatto. */
-    public String getDash2() { return dash2; }
-    /** @param dash2 Il tasto secondario da associare allo scatto. */
-    public void setDash2(String dash2) { this.dash2 = dash2; }
+    public String getBulletTime() { return bulletTime; }
+    /** @param bulletTime Il tasto secondario da associare allo scatto. */
+    public void setBulletTime(String bulletTime) { this.bulletTime = bulletTime; }
 
     /** @return La stringa identificativa del tasto per mettere in pausa il gioco. */
     public String getPauseGame() { return pauseGame; }

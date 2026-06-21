@@ -170,8 +170,8 @@ public class GameInputsHandler {
                 boolean isRepeat = !pressedKeys.add(code);
                 if (!isRepeat) {
                     // Aggiorna gli attivatori one‑shot (dash, pausa)
-                    if (matchKey(code, settings.getDash1())) dashKeyPressed = true;
-                    if (matchKey(code, settings.getDash2())) dashMousePressed = true;
+                    if (matchKey(code, settings.getDash())) dashKeyPressed = true;
+                    if (matchKey(code, settings.getBulletTime())) dashMousePressed = true;
                     if (matchKey(code, settings.getPauseGame())) pauseRequested = true;
 
                     // Rileva doppio tocco solo sulla prima pressione (non repeat)
@@ -181,8 +181,8 @@ public class GameInputsHandler {
             } else {
                 // Rilascio: rimuoviamo il tasto dall'insieme e resettiamo i trigger one‑shot
                 pressedKeys.remove(code);
-                if (matchKey(code, settings.getDash1())) dashKeyPressed = false;
-                if (matchKey(code, settings.getDash2())) dashMousePressed = false;
+                if (matchKey(code, settings.getDash())) dashKeyPressed = false;
+                if (matchKey(code, settings.getBulletTime())) dashMousePressed = false;
             }
         } else {
             //- Fallback (nessuna impostazione utente)-
@@ -228,14 +228,14 @@ public class GameInputsHandler {
             if (matchMouse(button, settings.getAttack()))    shooting = isPressed;
 
             if (isPressed) {
-                if (matchMouse(button, settings.getDash1())) dashKeyPressed = true;
-                if (matchMouse(button, settings.getDash2())) {
+                if (matchMouse(button, settings.getDash())) dashKeyPressed = true;
+                if (matchMouse(button, settings.getBulletTime())) {
                     slowMotionRequested = true;
                 }
                 if (matchMouse(button, settings.getPauseGame())) pauseRequested = true;
             } else {
-                if (matchMouse(button, settings.getDash1())) dashKeyPressed = false;
-                if (matchMouse(button, settings.getDash2())) {
+                if (matchMouse(button, settings.getDash())) dashKeyPressed = false;
+                if (matchMouse(button, settings.getBulletTime())) {
                     slowMotionRequested = false;
                 }
             }
