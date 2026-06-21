@@ -4,8 +4,8 @@ import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.universe.entities.shooters.Pattern;
 import uni.gaben.iscat.universe.entities.brain.*;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entities.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entities.projectiles.ProjectileModel;
 import java.util.function.Consumer;
 
 /**

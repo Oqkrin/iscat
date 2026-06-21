@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities.hardcoded.asteroid;
+package uni.gaben.iscat.universe.entities.asteroids;
 
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.MassType;
@@ -6,7 +6,7 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.geometry.Polygon;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.parsed.EntityRecordBuilder;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
+import uni.gaben.iscat.universe.entities.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;

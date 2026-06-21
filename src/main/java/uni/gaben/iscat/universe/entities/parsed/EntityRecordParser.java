@@ -13,9 +13,9 @@ import uni.gaben.iscat.universe.entities.brain.rotation.RotationGoal;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringGoal;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringModifier;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entities.projectiles.AbstractPhysicalProjectileModel;
+import uni.gaben.iscat.universe.entities.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entities.projectiles.ProjectileType;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.shooters.*;
 

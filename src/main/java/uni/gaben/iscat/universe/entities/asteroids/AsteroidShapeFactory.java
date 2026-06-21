@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities.hardcoded.asteroid;
+package uni.gaben.iscat.universe.entities.asteroids;
 
 import org.dyn4j.geometry.Polygon;
 import org.dyn4j.geometry.Vector2;

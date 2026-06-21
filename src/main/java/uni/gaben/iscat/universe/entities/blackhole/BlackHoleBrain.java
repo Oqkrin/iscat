@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities.hardcoded.blackhole;
+package uni.gaben.iscat.universe.entities.blackhole;
 
 import org.dyn4j.world.DetectFilter;
 import uni.gaben.iscat.universe.entities.brain.Brain;

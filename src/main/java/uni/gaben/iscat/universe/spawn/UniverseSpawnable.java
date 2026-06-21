@@ -1,12 +1,12 @@
 package uni.gaben.iscat.universe.spawn;
 
 import uni.gaben.iscat.universe.entities.parsed.EntityModel;
-import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
-import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleModel;
+import uni.gaben.iscat.universe.entities.boosts.heart.HeartModel;
+import uni.gaben.iscat.universe.entities.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
-import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
+import uni.gaben.iscat.universe.entities.asteroids.AsteroidModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
+import uni.gaben.iscat.universe.entities.projectiles.ProjectileModel;
 
 /**
  * Mappatura forte tra costanti di spawn e metadati di riflessione delle classi fisiche.

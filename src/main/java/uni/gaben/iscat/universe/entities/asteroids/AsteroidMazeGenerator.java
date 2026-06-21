@@ -1,7 +1,6 @@
-package uni.gaben.iscat.universe.entities.hardcoded.asteroid;
+package uni.gaben.iscat.universe.entities.asteroids;
 
 import org.dyn4j.geometry.Vector2;
-import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;

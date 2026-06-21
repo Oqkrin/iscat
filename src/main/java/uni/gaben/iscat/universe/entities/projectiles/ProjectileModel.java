@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities.hardcoded.projectiles;
+package uni.gaben.iscat.universe.entities.projectiles;
 
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
