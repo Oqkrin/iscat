@@ -18,10 +18,14 @@ import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalP
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.EntityAudioManager;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Modello principale dell'universo di gioco (estende il {@link World} di dyn4j).
+ * Gestisce l'anagrafica delle entità, le query tipizzate, i vincoli dell'arena circolare,
+ * i flussi di particelle d'impatto e il tracciamento delle variazioni di endurance (danni/cure).
+ */
 public class UniverseModel extends World<Body> {
 
     private PlayerModel player;
@@ -30,25 +34,21 @@ public class UniverseModel extends World<Body> {
     private final List<AbstractPhysicalEntityModel> entities = new ArrayList<>();
     private final List<AbstractPhysicalProjectileModel> projectiles = new ArrayList<>();
     private final Starfield starfield = new Starfield(0, 0);
+    private final List<HitSpark> hitSparks = new ArrayList<>();
+
+    // Indici e cache ottimizzati per evitare allocazioni a runtime
     private final Map<Class<?>, List<AbstractPhysicalEntityModel>> entitiesByCategory = new HashMap<>();
     private final Map<Class<?>, List<Class<?>>> classHierarchyCache = new ConcurrentHashMap<>();
-
-    public static final double DEFAULT_SPAWN_WIDTHCENTER = UniverseSettings.DEFAULT_WIDTH / 2.0;
-    public static final double DEFAULT_SPAWN_HEIGHTCENTER = UniverseSettings.DEFAULT_HEIGHT / 2.0;
 
     private double width = UniverseSettings.DEFAULT_WIDTH;
     private double height = UniverseSettings.DEFAULT_HEIGHT;
     private double physicsLifetime;
     private final Map<Vector2, Double> alteredEndurance = new ConcurrentHashMap<>();
 
-    // In UniverseModel.java
-
-    private final List<HitSpark> hitSparks = new ArrayList<>();
-
-    // -------------------------------------------------------------------------
-    // Construction
-    // -------------------------------------------------------------------------
-
+    /**
+     * Inizializza il mondo a gravità zero e configura i listener nativi dyn4j
+     * per gestire impatti balistici e variazioni di endurance.
+     */
     public UniverseModel() {
         setGravity(PhysicsWorld.ZERO_GRAVITY);
         addContactListener(new ContactListenerAdapter<Body>() {
@@ -58,36 +58,28 @@ public class UniverseModel extends World<Body> {
                 AbstractPhysicalEntityModel b = extractEntity(collision.getBody2());
                 if (a == null || b == null) return;
 
-                // If one of them is a projectile, spawn a hit spark
+                // Gestione e instanziazione particellare dei proiettili (HitSpark)
                 AbstractPhysicalProjectileModel proj = null;
                 AbstractPhysicalEntityModel target = null;
                 if (a instanceof AbstractPhysicalProjectileModel app) {
-                    proj = app;
-                    target = b;
+                    proj = app; target = b;
                 } else if (b instanceof AbstractPhysicalProjectileModel bpp) {
-                    proj = bpp;
-                    target = a;
+                    proj = bpp; target = a;
                 }
 
                 if (proj != null && target != null) {
                     Vector2 impactWorld = contact.getPoint();
                     Vector2 vel = proj.getLinearVelocity();
-                    // Create fireworks-style spark with default particle count (30)
-                    HitSpark spark = HitSpark.create(impactWorld, camera, vel);
-                    addHitSpark(spark);
+                    addHitSpark(HitSpark.create(impactWorld, camera, vel));
                 }
 
-
-
-                // 1. Record endurance before collision callbacks
+                // Tracciamento delta endurance pre/post collisione
                 double aBefore = getAbstractPhysicalEntityEndurance(a);
                 double bBefore = getAbstractPhysicalEntityEndurance(b);
 
-                // 2. Trigger all collision callbacks (includes player melee)
                 a.triggerAllCollisions(b);
                 b.triggerAllCollisions(a);
 
-                // 3. Record endurance after and track changes
                 double aAfter = getAbstractPhysicalEntityEndurance(a);
                 double bAfter = getAbstractPhysicalEntityEndurance(b);
 
@@ -97,44 +89,40 @@ public class UniverseModel extends World<Body> {
         });
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     private AbstractPhysicalEntityModel extractEntity(Body body) {
         if (body instanceof AbstractPhysicalEntityModel m) return m;
         if (body.getUserData() instanceof AbstractPhysicalEntityModel m) return m;
         return null;
     }
 
-    // -------------------------------------------------------------------------
-    // Physics step con controllo confini circolari
-    // -------------------------------------------------------------------------
-
+    /**
+     * Avanza la simulazione fisica dell'universo e applica i confini geometrici.
+     *
+     * @param dt Passo temporale (Delta Time).
+     */
     public void stepPhysics(double dt) {
         super.updatev(dt);
         enforceCircularBoundaries();
         physicsLifetime += dt;
     }
 
+    /**
+     * Forza il confinamento radiale delle entità dinamiche entro il perimetro dell'arena,
+     * annullando i vettori di velocità diretti verso l'esterno.
+     */
     private void enforceCircularBoundaries() {
         double radius = getUniverseRadius();
 
         for (Body body : this.getBodies()) {
-            // Applichiamo il vincolo solo alle entità dinamiche che possono muoversi
             if (body instanceof uni.gaben.iscat.universe.entities.interfaces.Dynamic) {
                 Vector2 pos = body.getTransform().getTranslation();
                 double distanceFromCenter = pos.getMagnitude();
 
-                // Se l'entità supera il raggio dell'arena circolare
                 if (distanceFromCenter > radius) {
                     Vector2 normal = pos.getNormalized();
-
-                    // Riposiziona l'entità esattamente lungo il perimetro interno
                     pos.x = normal.x * radius;
                     pos.y = normal.y * radius;
 
-                    // Annulla la velocità residua diretta verso l'esterno per evitare rimbalzi innaturali
                     Vector2 vel = body.getLinearVelocity();
                     double dotProduct = vel.dot(normal);
                     if (dotProduct > 0) {
@@ -145,30 +133,15 @@ public class UniverseModel extends World<Body> {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Dimensions & Geometry
-    // -------------------------------------------------------------------------
-
     public void setDimensions(double w, double h) {
         if (w > 0 && h > 0) {
-            this.width = w;
-            this.height = h;
+            this.width = w; this.height = h;
         }
     }
 
     public double getWidth() { return width; }
     public double getHeight() { return height; }
-
-    /**
-     * Calcola il raggio dell'universo circolare in metri basandosi sulla dimensione della mappa.
-     */
-    public double getUniverseRadius() {
-        return width / 2.0;
-    }
-
-    // -------------------------------------------------------------------------
-    // Player
-    // -------------------------------------------------------------------------
+    public double getUniverseRadius() { return width / 2.0; }
 
     public void setPlayer(PlayerModel player) {
         this.player = player;
@@ -179,10 +152,9 @@ public class UniverseModel extends World<Body> {
         return (player != null && player.shouldRemove()) ? null : player;
     }
 
-    // -------------------------------------------------------------------------
-    // Entity registry
-    // -------------------------------------------------------------------------
-
+    /**
+     * Registra un'entità all'interno del mondo fisico e delle strutture dati categorizzate.
+     */
     public void addEntity(AbstractPhysicalEntityModel entity) {
         entities.add(entity);
         addBody(entity);
@@ -190,6 +162,9 @@ public class UniverseModel extends World<Body> {
         registerEntityCategories(entity);
     }
 
+    /**
+     * Rimuove in modo sicuro un'entità disattivando i corpi rigidi (fixtures) e i vettori di movimento.
+     */
     public void removeEntity(AbstractPhysicalEntityModel entity) {
         if (entity == null) return;
 
@@ -205,23 +180,14 @@ public class UniverseModel extends World<Body> {
         removeBody(entity);
     }
 
-    /** Returns an unmodifiable view of the master entity list. */
-    public List<AbstractPhysicalEntityModel> getEntities() {
-        return Collections.unmodifiableList(entities);
-    }
-
-    /** Returns an unmodifiable list of projectiles. */
-    public List<AbstractPhysicalProjectileModel> getProjectiles() {
-        return Collections.unmodifiableList(projectiles);
-    }
-
+    public List<AbstractPhysicalEntityModel> getEntities() { return Collections.unmodifiableList(entities); }
+    public List<AbstractPhysicalProjectileModel> getProjectiles() { return Collections.unmodifiableList(projectiles); }
     public Starfield getStarfieldModel() { return starfield; }
     public double getPhysicsLifetime() { return physicsLifetime; }
 
-    // -------------------------------------------------------------------------
-    // Optimised category queries
-    // -------------------------------------------------------------------------
-
+    /**
+     * Restituisce la lista di entità filtrate per classe/interfaccia tramite cache $O(1)$.
+     */
     @SuppressWarnings("unchecked")
     public <T extends AbstractPhysicalEntityModel> List<T> getEntitiesOfType(Class<T> type) {
         List<AbstractPhysicalEntityModel> list = entitiesByCategory.get(type);
@@ -229,10 +195,9 @@ public class UniverseModel extends World<Body> {
         return (List<T>) Collections.unmodifiableList(list);
     }
 
-    // -------------------------------------------------------------------------
-    // Internal hierarchy cache helpers
-    // -------------------------------------------------------------------------
-
+    /**
+     * Genera e memorizza la gerarchia completa di classi e interfacce di un'entità per l'indicizzazione.
+     */
     private List<Class<?>> getClassHierarchy(Class<?> clazz) {
         return classHierarchyCache.computeIfAbsent(clazz, c -> {
             List<Class<?>> hierarchy = new ArrayList<>();
@@ -261,44 +226,35 @@ public class UniverseModel extends World<Body> {
         }
     }
 
-    public Map<Vector2, Double> getAlteredEndurances() {
-        return alteredEndurance;
-    }
+    public Map<Vector2, Double> getAlteredEndurances() { return alteredEndurance; }
 
     private double getAbstractPhysicalEntityEndurance(AbstractPhysicalEntityModel entity) {
         return (entity instanceof Alterable alterable) ? alterable.getEndurance() : 0;
     }
 
+    /**
+     * Sincronizza i cambiamenti di salute e riproduce gli effetti audio associati (hurt/heal).
+     */
     private void handleEnduranceAlteration(AbstractPhysicalEntityModel entity, double before, double after) {
-        if (before == after) return;
-        if (entity instanceof AbstractPhysicalProjectileModel) return;
+        if (before == after || entity instanceof AbstractPhysicalProjectileModel) return;
 
         double delta = after - before;
         alteredEndurance.put(entity.getTransform().getTranslation(), delta);
 
         if (entity instanceof EntityModel entityModel) {
-            if(delta < 0) EntityAudioManager.playEventAudio(entityModel, "hurt");
-            else if(delta > 0) AudioManager.getInstance().playSFX("heal");
+            if (delta < 0) EntityAudioManager.playEventAudio(entityModel, "hurt");
+            else AudioManager.getInstance().playSFX("heal");
         }
     }
 
-    public void setCamera(CameraModel camera) {
-        this.camera = camera;
-    }
+    public void setCamera(CameraModel camera) { this.camera = camera; }
+    public CameraModel getCamera() { return camera; }
+    public void addHitSpark(HitSpark spark) { hitSparks.add(spark); }
+    public List<HitSpark> getHitSparks() { return Collections.unmodifiableList(hitSparks); }
 
-    public CameraModel getCamera() {
-        return camera;
-    }
-
-    public void addHitSpark(HitSpark spark) {
-        hitSparks.add(spark);
-    }
-
-    public List<HitSpark> getHitSparks() {
-        return Collections.unmodifiableList(hitSparks);
-    }
-
-    // In your update loop (e.g., stepPhysics or a separate update method)
+    /**
+     * Aggiorna lo stato temporale delle scintille d'impatto (HitSparks) rimuovendo quelle scadute.
+     */
     public void updateSparks(double dt) {
         Iterator<HitSpark> it = hitSparks.iterator();
         while (it.hasNext()) {
@@ -307,5 +263,4 @@ public class UniverseModel extends World<Body> {
             if (spark.shouldRemove()) it.remove();
         }
     }
-
 }

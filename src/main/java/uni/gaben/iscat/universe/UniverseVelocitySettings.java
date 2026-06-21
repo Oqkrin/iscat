@@ -1,43 +1,39 @@
 package uni.gaben.iscat.universe;
 
 /**
- * Single source of truth for all entity velocities in the game.
- *
- * <p>Tuning guide: these are the values to touch when the overall
- * feel of the game needs to be faster or slower. Individual
- * Settings files simply reference the constants here rather than
- * declaring their own magic numbers.
- *
- * <p>All values are in <b>meters per second</b> (physics world
- * coordinates), unless a "PX" suffix indicates pixel-based input.
+ * Registro centralizzato e sorgente di verità per tutte le velocità cinematiche del gioco.
+ * <p>
+ * Tutte le costanti sono espresse in <b>metri al secondo</b> ($m/s$) nel sistema di coordinate del mondo fisico,
+ * a meno che il suffisso {@code PX} non indichi esplicitamente un'unità basata sui pixel.
+ * </p>
  */
 public final class UniverseVelocitySettings {
 
     private UniverseVelocitySettings() {}
 
-    // ─── PROJECTILES ──────────────────────────────────────────────────────────
-
-    /** Velocity of a player bullet (m/s). */
+    // --- Proiettili (Projectiles) ---
+    /** Velocità lineare del proiettile standard generato dal giocatore ($11.0\ m/s$). */
     public static final double PLAYER_PROJECTILE_VELOCITY = 11.0;
 
-    /** Velocity of a generic enemy bullet (m/s). */
+    /** Velocità dei proiettili nemici (sincronizzata a quella del giocatore via hardware, $11.0\ m/s$). */
     public static final double ENEMY_PROJECTILE_VELOCITY = PLAYER_PROJECTILE_VELOCITY;
 
-    // ─── PLAYER ───────────────────────────────────────────────────────────────
+    // --- Giocatore (Player) ---
+    /** Velocità massima raggiungibile dalla navicella sotto spinta dei propulsori ($8.8\ m/s$). */
+    public static final double PLAYER_MAX_VELOCITY    = ENEMY_PROJECTILE_VELOCITY * 0.8;
 
-    /** Top speed the player ship can reach under thrust (m/s). */
-    public static final double PLAYER_MAX_VELOCITY    = ENEMY_PROJECTILE_VELOCITY *.8;
-
-    /** Impulse magnitude of the player dash (m/s added instantly). */
+    /** Magnitudo dell'impulso istantaneo applicato durante la manovra di dash ($11.0\ m/s$). */
     public static final double PLAYER_DASH_IMPULSE    = ENEMY_PROJECTILE_VELOCITY;
 
-
     /**
-     * Computes the terminal velocity for an asteroid of given pixel size.
-     * Larger asteroids are capped at lower speeds.
+     * Calcola la velocità terminale di un asteroide in base al suo diametro in pixel.
+     * <p>
+     * Applica una penalità di velocità lineare inversamente proporzionale alla massa visiva:
+     * $$v_{term} = \max\left(2.0, 14.0 - \frac{\text{sizePx}}{8.0}\right)$$
+     * </p>
      *
-     * @param sizePx diameter in pixels
-     * @return terminal velocity in m/s
+     * @param sizePx Diametro del corpo celeste espresso in pixel.
+     * @return La velocità terminale massima consentita in metri al secondo ($m/s$).
      */
     public static double asteroidTerminalVelocity(double sizePx) {
         return Math.max(2.0, 14.0 - (sizePx / 8.0));

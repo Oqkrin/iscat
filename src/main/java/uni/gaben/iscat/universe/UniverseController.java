@@ -2,7 +2,6 @@ package uni.gaben.iscat.universe;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
-
 import uni.gaben.iscat.controller.game.GameInputsHandler;
 import uni.gaben.iscat.universe.camera.CameraController;
 import uni.gaben.iscat.universe.camera.CameraSettings;
@@ -26,7 +25,6 @@ import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.utils.EntityAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.utils.Updatable;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,9 +32,7 @@ import java.util.Set;
 
 /**
  * Controller principale dell'universo di gioco.
- * Gestisce il loop di aggiornamento di fisica, intelligenza artificiale, proiettili,
- * pulizia delle entità morte e aggiornamento della telecamera.
- * Ottimizzato per performance estreme tramite assenza di allocazioni dinamiche nel tick.
+ * Gestisce l'aggiornamento di fisica, IA, proiettili, culling e camera in modalità zero-allocation.
  */
 public class UniverseController {
 
@@ -47,7 +43,7 @@ public class UniverseController {
 
     private EntityDeathListener entityDeathListener;
 
-    // ── Buffer pre-allocati per eliminare la Garbage Collection nel Game Loop ──
+    // --- Buffer pre-allocati contro la Garbage Collection nel Game Loop ---
     private final List<AbstractPhysicalEntityModel> entitySnapshot    = new ArrayList<>(256);
     private final List<AbstractPhysicalEntityModel> toRemoveBuffer    = new ArrayList<>(64);
     private final Set<AbstractPhysicalEntityModel>  toRemoveSet       = new HashSet<>(64);
@@ -56,11 +52,6 @@ public class UniverseController {
 
     private double lastPlayerHealth = -1.0;
 
-    /**
-     * Inizializza il controller dell'universo associandovi il relativo modello.
-     *
-     * @param universeModel Il modello dell'universo.
-     */
     public UniverseController(UniverseModel universeModel) {
         this.universeModel    = universeModel;
         this.playerController = new PlayerController(universeModel.getPlayer());
@@ -72,10 +63,6 @@ public class UniverseController {
 
     /**
      * Esegue il tick di aggiornamento principale del mondo di gioco.
-     *
-     * @param dt     Tempo trascorso dall'ultimo frame (Delta Time).
-     * @param inputs Gestore degli input di gioco.
-     * @param camera Il modello della telecamera.
      */
     public void updatev(double dt, GameInputsHandler inputs, CameraModel camera) {
         PlayerModel player = universeModel.getPlayer();
@@ -83,10 +70,7 @@ public class UniverseController {
 
         syncPlayerController(player);
         processPlayerInputs(player, inputs, camera, dt);
-
-        // Loop unico ottimizzato per la fisica e la logica dei corpi
         processPhysicalBodies(dt);
-
         updateAI(dt);
 
         universeModel.stepPhysics(dt);
@@ -108,20 +92,18 @@ public class UniverseController {
     }
 
     /**
-     * Processa tutti i corpi fisici in un unico ciclo lineare combinato.
-     * Esegue l'update, i limiti di velocità terminale e i confini dell'universo circolare.
+     * Processa i corpi fisici: aggiornamento, velocità terminale e confinamento radiale dell'universo.
      */
     private void processPhysicalBodies(double dt) {
         double radius = universeModel.getUniverseRadius();
         double radiusSq = radius * radius;
 
         for (Body body : universeModel.getBodies()) {
-            // 1. Logica interna dell'entità
             if (body instanceof Updatable u) {
                 u.update(dt);
             }
 
-            // 2. Limite velocità terminale (Usa magnitudo al quadrato per evitare Math.sqrt)
+            // Limite velocità terminale ottimizzato senza Math.sqrt()
             if (body instanceof Dynamic entity) {
                 double maxSpeed = entity.getTerminalVelocity();
                 Vector2 vel = body.getLinearVelocity();
@@ -129,28 +111,25 @@ public class UniverseController {
                 double maxSq   = maxSpeed * maxSpeed;
                 if (speedSq > maxSq) {
                     double scale = maxSpeed / Math.sqrt(speedSq);
-                    vel.x *= scale;
-                    vel.y *= scale;
+                    vel.x *= scale; vel.y *= scale;
                 }
             }
 
-            // 3. Confini dell'universo circolare (Salto proiettili ed asteroidi)
+            // Vincolo confini dell'universo circolare (esclusi proiettili ed asteroidi)
             if (radius > 0 && !(body instanceof AbstractPhysicalProjectileModel) && !(body instanceof AsteroidModel)) {
                 Vector2 pos = body.getTransform().getTranslation();
                 double distSq = pos.x * pos.x + pos.y * pos.y;
 
                 if (distSq > radiusSq) {
                     double dist = Math.sqrt(distSq);
-                    double nx = pos.x / dist;
-                    double ny = pos.y / dist;
+                    double nx = pos.x / dist; double ny = pos.y / dist;
 
                     body.getTransform().setTranslation(nx * radius, ny * radius);
 
                     Vector2 vel = body.getLinearVelocity();
                     double dot = vel.x * nx + vel.y * ny;
                     if (dot > 0) {
-                        vel.x -= nx * dot;
-                        vel.y -= ny * dot;
+                        vel.x -= nx * dot; vel.y -= ny * dot;
                     }
                 }
             }
@@ -166,6 +145,9 @@ public class UniverseController {
         }
     }
 
+    /**
+     * Esegue il culling dei proiettili fuori dal raggio della telecamera (Viewport).
+     */
     private void updateProjectiles(CameraModel camera) {
         double zoom   = camera.getZoom();
         double left   = camera.getViewportLeftX()  - 200.0;
@@ -186,8 +168,7 @@ public class UniverseController {
     }
 
     /**
-     * Esegue la pulizia delle entità spente o distrutte e dei relativi controller associati.
-     * Sfrutta un Set asincrono per garantire un filtraggio dei controller in complessità O(N).
+     * Pulisce le entità rimosse e i rispettivi controller in un'unica passata $O(N)$.
      */
     private void processEntityCleanup(PlayerModel player) {
         entitySnapshot.clear();
@@ -208,7 +189,7 @@ public class UniverseController {
 
             if (remove) {
                 toRemoveBuffer.add(entity);
-                toRemoveSet.add(entity); // Inserito nel Set O(1) per ottimizzare la rimozione dei controller
+                toRemoveSet.add(entity);
                 if (entity instanceof AbstractLivingEntityModel living && living != player) {
                     if (entityDeathListener != null) {
                         entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
@@ -225,23 +206,26 @@ public class UniverseController {
                     ProjectilePool.release(p);
                 }
             }
-            // Rimozione dei controller ottimizzata in un'unica passata O(N) complessiva invece che O(N^2)
             entityControllers.removeIf(ctrl -> ctrl instanceof Brain<?> b && toRemoveSet.contains(b.getEntity()));
         }
     }
 
+    /**
+     * Gestisce gli effetti sonori e i drop (es. BlackHole o Cuori) alla morte delle entità.
+     */
     private void handleEntityDeathEffects(AbstractLivingEntityModel entity) {
         if (entity instanceof EntityModel enemy) {
             EntityAudioManager.playEventAudio(enemy, "death");
         }
 
-        // Ottimizzazione macro: verifica diretta della stringa interna (interned)
+        // Spawn stocastico BlackHole alla distruzione del sole
         if ("iscat_sun".equals(entity.getEntityRecord().entityKey()) && Math.random() < 0.5) {
             UniverseSpawner.getInstance().spawn(UniverseSpawnable.BLACKHOLE,
                     entity.getTransform().getTranslationX(),
                     entity.getTransform().getTranslationY());
         }
 
+        // Calcolo e spawn stocastico del drop dei cuori (25% di probabilità)
         if (!(entity instanceof PlayerModel)
                 && !(entity instanceof HeartModel)
                 && !(entity instanceof ProjectileModel)
@@ -256,6 +240,9 @@ public class UniverseController {
         }
     }
 
+    /**
+     * Aggiorna lo stato, gli shock visivi e il tracking della telecamera sul giocatore.
+     */
     private void updateCamera(PlayerModel player, CameraModel camera, GameInputsHandler inputs, double dt) {
         if (player != null) {
             double currentHealth = player.getEndurance();
@@ -289,17 +276,6 @@ public class UniverseController {
             camera.getSpringY().update(dt);
             camera.updateEffects(dt);
         }
-    }
-
-    @SuppressWarnings("unused")
-    private static double getDynamicZoom(PlayerModel player, CameraModel camera, double dt) {
-        double speed      = player.getLinearVelocity().getMagnitude();
-        double maxVel     = UniverseVelocitySettings.PLAYER_MAX_VELOCITY * 2;
-        double speedRatio = Math.clamp(speed / maxVel, 0.0, 1.0);
-        double dynamicMod = speedRatio * CameraSettings.MAX_ZOOM_OUT_MODIFIER;
-        double targetZoom = camera.getBaseZoom() - dynamicMod;
-        double currentZoom = camera.getZoom();
-        return currentZoom + (targetZoom - currentZoom) * (1.0 - Math.exp(-CameraSettings.ZOOM_SMOOTHING_SPEED * dt));
     }
 
     public void addEntityController(IEntityController controller) { entityControllers.add(controller); }

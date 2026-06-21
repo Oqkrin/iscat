@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe;
 import org.dyn4j.collision.CategoryFilter;
 
 /**
- * Centralized collision filtering for the Gamenex universe.
+ * Registro statico dei filtri e dei layer di collisione (Bitmask 64-bit) per dyn4j.
  */
 public final class UniverseCollisionLayers {
     private UniverseCollisionLayers() {}

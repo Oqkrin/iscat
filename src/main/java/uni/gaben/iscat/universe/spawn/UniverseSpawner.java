@@ -15,15 +15,20 @@ import uni.gaben.iscat.universe.entities.worm.WormAssembler;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.SessionManager;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * Singleton centrale per lo spawning di entità statiche, controllate da IA o caricate da JSON.
+ * Applica un confinamento geometrico radiale per impedire lo spawn fuori dai confini del mondo.
+ */
 public class UniverseSpawner {
+
     private static UniverseSpawner instance;
     private UniverseModel model;
     private UniverseController controller;
     private UniverseWaveController waveController;
+
     private UniverseSpawner() {}
 
     public static synchronized UniverseSpawner getInstance() {
@@ -32,17 +37,15 @@ public class UniverseSpawner {
     }
 
     public void init(UniverseModel model, UniverseController controller, UniverseWaveController waveController) {
-        this.model = model;
-        this.controller = controller;
-        this.waveController = waveController;
+        this.model = model; this.controller = controller; this.waveController = waveController;
     }
 
+    /**
+     * Esegue lo spawn forzando trigonometricamente la posizione entro il raggio limite dell'universo.
+     */
     public Object spawn(String id, double x, double y) {
         if (model != null) {
-            double radiusPx = UU.mToPx(model.getUniverseRadius());
-            double margin = UU.mToPx(2.0);
-            double maxAllowedRadiusPx = radiusPx - margin;
-
+            double maxAllowedRadiusPx = UU.mToPx(model.getUniverseRadius()) - UU.mToPx(2.0);
             double distance = Math.sqrt(x * x + y * y);
 
             if (distance > maxAllowedRadiusPx) {
@@ -53,10 +56,12 @@ public class UniverseSpawner {
         }
 
         UniverseSpawnable type = UniverseSpawnable.fromString(id);
-        if (type != null) return spawn(type, x, y);
-        return spawnCustomRuntimeEntity(id, x, y);
+        return (type != null) ? spawn(type, x, y) : spawnCustomRuntimeEntity(id, x, y);
     }
 
+    /**
+     * Smista l'istanza in base alle costanti fisse dell'enum {@link UniverseSpawnable}.
+     */
     public Object spawn(UniverseSpawnable type, double x, double y) {
         return switch (type) {
             case PLAYER            -> spawnPlayer(x, y, SessionManager.getPlayerSkinKey());
@@ -68,21 +73,15 @@ public class UniverseSpawner {
         };
     }
 
+    /**
+     * Inizializza il giocatore applicando la skin o un fallback predefinito ("player1").
+     */
     public PlayerModel spawnPlayer(double x, double y, String skinKey) {
         String key = (skinKey == null || skinKey.isBlank()) ? "player1" : skinKey.toLowerCase().trim();
-
-        System.out.println("key: " + key);
-
         EntityRecord playerRecord = EntityFactory.getCache().get(key);
 
-        if (playerRecord == null) {
-            System.err.println("[UniverseSpawner] Skin '" + key + "' non trovata nella cache della Factory! Uso 'player1' come fallback.");
-            playerRecord = EntityFactory.getCache().get("player1");
-        }
-
-        if (playerRecord == null) {
-            throw new RuntimeException("[UniverseSpawner] ERRORE CRITICO: Nemmeno la skin di fallback 'player1' è stata caricata!");
-        }
+        if (playerRecord == null) playerRecord = EntityFactory.getCache().get("player1");
+        if (playerRecord == null) throw new RuntimeException("Errore critico: risorsa player1 mancante!");
 
         PlayerModel player = new PlayerModel(x, y, playerRecord);
         model.setPlayer(player);
@@ -90,33 +89,22 @@ public class UniverseSpawner {
     }
 
     public EntityModel spawnWorm(double x, double y) {
-        return WormAssembler.assemble(
-                "iscat_worm_head",
-                "iscat_worm_body_part",
-                "iscat_worm_tail",
-                10,
-                x, y,
-                model,
-                controller
-        );
+        return WormAssembler.assemble("iscat_worm_head", "iscat_worm_body_part", "iscat_worm_tail", 10, x, y, model, controller);
     }
 
+    /**
+     * Metodo funzionale per istanziare e accoppiare simultaneamente un'entità al suo controller logico.
+     */
     public <M extends AbstractPhysicalEntityModel> M spawnWithController(
-            BiFunction<Double, Double, M> modelFactory,
-            Function<M, IEntityController> controllerFactory,
-            double x, double y) {
+            BiFunction<Double, Double, M> modelFactory, Function<M, IEntityController> controllerFactory, double x, double y) {
 
-        if (model == null || controller == null) {
-            System.err.println("UniverseSpawner non inizializzato!");
-            return null;
-        }
+        if (model == null || controller == null) return null;
 
         M entityModel = modelFactory.apply(x, y);
-        spawnEntity(entityModel); // Usiamo spawnEntity internamente per uniformare i controlli
+        spawnEntity(entityModel);
 
         if (controllerFactory != null) {
-            IEntityController ctrl = controllerFactory.apply(entityModel);
-            controller.addEntityController(ctrl);
+            controller.addEntityController(controllerFactory.apply(entityModel));
         }
         return entityModel;
     }
@@ -125,19 +113,14 @@ public class UniverseSpawner {
         if (entity instanceof ProjectileModel projectile) {
             projectile.setUniverseModel(this.model);
         }
-
         model.addEntity(entity);
         return entity;
     }
 
     private Object spawnCustomRuntimeEntity(String id, double x, double y) {
-        EntityModel jsonEntity = EntityFactory
-                .spawn(id, x, y, model, controller);
-
-        if (jsonEntity != null) {
-            if (jsonEntity.getEntityRecord().isBoss()) {
-                jsonEntity.setWaveController(this.waveController);
-            }
+        EntityModel jsonEntity = EntityFactory.spawn(id, x, y, model, controller);
+        if (jsonEntity != null && jsonEntity.getEntityRecord().isBoss()) {
+            jsonEntity.setWaveController(this.waveController);
         }
         return jsonEntity;
     }

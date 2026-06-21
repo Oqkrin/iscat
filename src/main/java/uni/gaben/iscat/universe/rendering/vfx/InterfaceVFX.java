@@ -7,36 +7,22 @@ import uni.gaben.iscat.universe.effects.EnduranceIndicator;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 /**
- * Utility class responsabile del rendering degli elementi di interfaccia
- * grafica (UI/HUD)
- * posizionati direttamente all'interno del mondo di gioco.
+ * Gestore grafico dedicato agli elementi di interfaccia (UI/HUD) nel mondo di gioco (World Space UI).
+ * Renderizza indicatori di danno fluttuanti e barre di stato (HP/Time Gauge) applicando filtri di illuminazione (DropShadow glow).
  */
 public final class InterfaceVFX {
 
-    /**
-     * Costruttore privato per prevenire l'istanziamento della classe utility.
-     */
-    private InterfaceVFX() {
-    }
+    private InterfaceVFX() {}
 
     /**
-     * Disegna un indicatore di variazione dell'endurance (testo fluttuante dei
-     * danni o delle cure).
-     * Il colore del testo viene determinato dinamicamente dal segno del valore:
-     * rosso per i danni (valori negativi) e verde per la rigenerazione (valori
-     * positivi),
-     * attingendo direttamente dai colori definiti nel {@link ThemeManager}.
-     * 
-     * @param enduranceIndicator l'oggetto contenente i dati, la posizione e
-     *                           l'opacità dell'indicatore fluttuante
-     * @param gc                 il {@link GraphicsContext} del canvas su cui
-     *                           effettuare il disegno
+     * Disegna un testo fluttuante indicante variazioni di endurance (danni o cure).
+     * Applica automaticamente una codifica a colori basata sul segno del valore (Errore/Danno vs Successo/Cura).
      */
     public static void drawEnduranceIndicator(EnduranceIndicator enduranceIndicator, GraphicsContext gc) {
-        Color color = (enduranceIndicator.value < 0) ? ThemeManager.getInstance().getColorError()
-                : ThemeManager.getInstance().getColorSuccess();
+        Color color = (enduranceIndicator.value < 0) ? ThemeManager.getInstance().getColorError() : ThemeManager.getInstance().getColorSuccess();
         gc.setFill(color);
         gc.setGlobalAlpha(enduranceIndicator.alpha);
+
         String text = String.format("%+.0f", enduranceIndicator.value);
         double textWidth = gc.getFont().getSize() * text.length() * 0.6;
         gc.fillText(text, enduranceIndicator.x - textWidth / 2.0, enduranceIndicator.y);
@@ -44,24 +30,10 @@ public final class InterfaceVFX {
     }
 
     /**
-     * Disegna una barra degli HP bidimensionale composta da uno sfondo di danno
-     * (rosso)
-     * e un riempimento proporzionale alla vita rimasta (verde).
-     * <p>
-     * Questo metodo accetta parametri primitivi disaccoppiati per consentire il
-     * disegno
-     * diretto sia da entità standard che da strutture dati di batch protette o
-     * locali.
-     * </p>
+     * Renderizza una barra della salute bidimensionale (sfondo rosso di danno, riempimento verde).
+     * Applica un effetto shader di luminescenza perimetrale (DropShadow) basato sui colori del tema.
      *
-     * @param gc      il {@link GraphicsContext} del canvas su cui effettuare il
-     *                disegno
-     * @param x       la coordinata X dell'angolo in alto a sinistra della barra
-     * @param y       la coordinata Y dell'angolo in alto a sinistra della barra
-     * @param w       la larghezza totale della barra in pixel
-     * @param h       l'altezza totale della barra in pixel
-     * @param percent la percentuale di salute attuale, espressa come valore
-     *                compreso tra {@code 0.0} e {@code 1.0}
+     * @param percent La percentuale di salute attuale normalizzata tra {@code 0.0} e {@code 1.0}.
      */
     public static void drawHpBarRaw(GraphicsContext gc, double x, double y, double w, double h, double percent) {
         gc.save();
@@ -79,14 +51,19 @@ public final class InterfaceVFX {
         gc.restore();
     }
 
+    /**
+     * Disegna la barra temporale delle abilità (Time Gauge) utilizzando parametri primitivi disaccoppiati.
+     * Isola l'effetto glow sul colore d'accento primario per differenziarla visivamente dalle barre HP.
+     */
     public static void drawTimeGaugeBarRaw(GraphicsContext gc, double x, double y, double w, double h, double percent) {
         gc.save();
-        javafx.scene.effect.DropShadow glow = new javafx.scene.effect.DropShadow();
+
+        DropShadow glow = new DropShadow();
         glow.setColor(ThemeManager.getInstance().getAccentPrimary().deriveColor(0, 1, 1, 0.8));
         glow.setRadius(8);
         glow.setSpread(0.4);
         gc.setEffect(glow);
-        
+
         gc.setFill(ThemeManager.getInstance().getBgSecondary());
         gc.fillRect(x, y, w, h);
         gc.setFill(ThemeManager.getInstance().getAccentPrimary());

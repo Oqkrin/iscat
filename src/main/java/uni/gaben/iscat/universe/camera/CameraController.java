@@ -1,33 +1,37 @@
 package uni.gaben.iscat.universe.camera;
 
 /**
- * Controller that updates the {@link CameraModel} to follow a target position.
- *
- * <p>This class is responsible for:
- * <ul>
- *   <li>Converting the target world position to a camera centre target.</li>
- *   <li>Applying an initial snap to avoid a "flying‑in" artefact.</li>
- *   <li>Updating both camera springs with the given timestep.</li>
- * </ul>
+ * Controller logico responsabile dell'aggiornamento cinematico del {@link CameraModel}.
+ * <p>
+ * Coordina l'allineamento della telecamera calcolando la posizione ideale del mirino basandosi
+ * sull'interpolazione tra l'entità target (giocatore) e il cursore del mouse (Look-Ahead/Mouse Influence).
+ * Gestisce lo snap iniziale per eliminare artefatti visivi di traslazione all'avvio e integra
+ * le equazioni fisiche delle molle orizzontali e verticali basandosi sul Delta Time corrente.
  * </p>
  */
 public class CameraController {
 
     /**
-     * Updates the camera model to chase the given target position.
+     * Aggiorna lo stato fisico e la posizione della telecamera per inseguire il target configurato.
+     * <p>
+     * L'algoritmo esegue i seguenti passaggi strutturali:
+     * <ol>
+     * <li>Normalizza il fattore di zoom corrente forzandolo a un valore minimo di sicurezza pari a 0.1.</li>
+     * <li>Calcola un vettore di offset direzionale (Look-Ahead) pesato al 15% della distanza tra il giocatore e il cursore del mouse.</li>
+     * <li>Applica un vincolo geometrico di clamping dinamico sull'offset basato sul livello di zoom attuale ($\frac{150}{\text{zoom}}$).</li>
+     * <li>Imposta le nuove coordinate di destinazione sulle molle ed esegue, se richiesto (primo frame valido), lo snap istantaneo della posizione.</li>
+     * <li>Invia il comando di integrazione temporale alle rispettive componenti fisiche {@link uni.gaben.iscat.utils.Spring}.</li>
+     * </ol>
+     * </p>
      *
-     * <p>The method computes the desired camera centre as
-     * {@code (targetWorldX - viewW/2, targetWorldY - viewH/2)}. This target is
-     * fed into the X and Y springs of the camera model. On the very first frame
-     * where the view dimensions are valid, the camera is snapped directly to the
-     * target to prevent a visual jump from (0,0).</p>
-     *
-     * @param model        the camera model to update (must not be {@code null})
-     * @param targetWorldX target X coordinate in world pixels (e.g. player centre)
-     * @param targetWorldY target Y coordinate in world pixels
-     * @param viewW        current canvas width (screen pixels, must be > 0 for snapping)
-     * @param viewH        current canvas height (screen pixels, must be > 0 for snapping)
-     * @param dt           timestep in seconds (used for spring integration)
+     * @param model        Il modello della telecamera da aggiornare (non deve essere {@code null}).
+     * @param targetWorldX La coordinata X d'origine dell'entità target (es. il centro del giocatore) in pixel mondo.
+     * @param targetWorldY La coordinata Y d'origine dell'entità target in pixel mondo.
+     * @param viewW        La larghezza corrente del canvas espressa in pixel schermo (deve essere maggiore di 0 per lo snap).
+     * @param viewH        L'altezza corrente del canvas espressa in pixel schermo (deve essere maggiore di 0 per lo snap).
+     * @param mouseWorldX  La coordinata X attuale del puntatore del mouse convertita in coordinate mondo.
+     * @param mouseWorldY  La coordinata Y attuale del puntatore del mouse convertita in coordinate mondo.
+     * @param dt           Il passo temporale (Delta Time) espresso in frazioni di secondo, utilizzato per l'integrazione delle molle.
      */
     public void update(CameraModel model, double targetWorldX, double targetWorldY,
                        double viewW, double viewH, double mouseWorldX, double mouseWorldY, double dt) {

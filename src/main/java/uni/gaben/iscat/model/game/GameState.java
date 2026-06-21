@@ -1,7 +1,7 @@
 package uni.gaben.iscat.model.game;
 
 /**
- * Enumerazione rappresentante gli stati macroscopici del ciclo di vita di una partita (FSM - Finite State Machine).
+ * Enum rappresentante gli stati macroscopici del ciclo di vita di una partita (FSM - Finite State Machine).
  * Regola il comportamento del loop di gioco, determina l'interruzione o la progressione del ticking della fisica
  * e definisce le regole di transizione dei menu al premere del tasto di annullamento (Escape).
  */

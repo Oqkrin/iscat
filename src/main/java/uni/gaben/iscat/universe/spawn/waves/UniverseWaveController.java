@@ -10,15 +10,15 @@ import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.model.BestiaryModel;
 import uni.gaben.iscat.utils.SessionManager;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 /**
- * Gestore orchestratore delle ondate del gioco. Coordina la logica temporale
- * e i vettori di posizionamento spaziale off-screen delle entità nemiche.
+ * Controller orchestratore delle ondate (Wave System).
+ * Gestisce i timer di intermissione, calcola i punti di spawn stocastici off-screen
+ * e adatta i moltiplicatori di endurance dei nemici in base al livello di minaccia attuale.
  */
 public class UniverseWaveController {
 
@@ -32,17 +32,23 @@ public class UniverseWaveController {
     private final List<ActiveEnemy> activeEnemies = new ArrayList<>();
     private final Random random                   = new Random();
     private final BestiaryModel bestiaryModel     = new BestiaryModel();
+
     private Runnable onBossDeadCallback;
 
+    // --- Proprietà JavaFX e Getters Reattivi ---
     public static IntegerProperty totalKillsProperty()     { return WaveState.totalKillsProperty(); }
     public IntegerProperty enemiesRemainingProperty()      { return state.enemiesRemainingProperty; }
     public IntegerProperty waveTotalProperty()             { return state.waveTotalProperty; }
     public IntegerProperty currentWaveProperty()           { return state.currentWaveProperty; }
     public StringProperty currentThreatLevelProperty()     { return state.currentThreatLevelProperty; }
+
     public int getEnemiesRemaining()                       { return state.enemiesRemainingProperty.get(); }
     public int getWaveTotal()                              { return state.waveTotalProperty.get(); }
     public int getCurrentWave()                            { return state.currentWave; }
 
+    /**
+     * Carica i descrittori delle ondate da file e imposta la minaccia di partenza.
+     */
     public void loadWavesFromResource(String resourcePath) {
         configManager.loadWavesFromResource(resourcePath);
         if (!configManager.getLoadedWaves().isEmpty() && state.currentWave == 1) {
@@ -51,6 +57,9 @@ public class UniverseWaveController {
         }
     }
 
+    /**
+     * Incrementa il registro globale dei kill se l'entità possiede un livello di minaccia valido.
+     */
     public static void incrementKills(AbstractPhysicalEntityModel entity) {
         if (entity == null) return;
         EntityRecord record = entity.getEntityRecord();
@@ -58,6 +67,9 @@ public class UniverseWaveController {
         totalKillsProperty().set(totalKillsProperty().get() + 1);
     }
 
+    /**
+     * Aggiorna la pipeline di spawn, i timer di round/intervallo e pulisce i puntatori ai nemici rimossi.
+     */
     public void update(double dt, CameraModel camera, GameModel gameModel) {
         if (gameModel == null || gameModel.getUniverseModel().getPlayer() == null) return;
 
@@ -93,6 +105,9 @@ public class UniverseWaveController {
         }
     }
 
+    /**
+     * Configura i parametri ed avvia la nuova ondata (procedurale o da file).
+     */
     private void startNewWave() {
         state.enemiesSpawnedThisWave = 0;
         state.spawnTimer             = 0.0;
@@ -104,7 +119,6 @@ public class UniverseWaveController {
             state.currentThreatLevel       = config.threatLevel();
             state.totalEnemiesToSpawnThisWave = config.totalEnemies();
         } else {
-            // Algoritmo procedurale puro di fallback
             if (state.currentWave <= 2) state.currentThreatLevel = ThreatLevel.LOW;
             else if (state.currentWave <= 4) state.currentThreatLevel = ThreatLevel.NORMAL;
             else if (state.currentWave <= 6) state.currentThreatLevel = ThreatLevel.HIGH;
@@ -121,10 +135,6 @@ public class UniverseWaveController {
         }
 
         state.currentThreatLevelProperty.set(state.currentThreatLevel.name());
-        if (state.currentThreatLevel == ThreatLevel.APOCALYPSE) {
-            System.out.println("[WAVE CONTROLLER] !!! APOCALYPSE DETECTED: IMMINENT BOSS SPAWN !!!");
-        }
-
         AudioManager.getInstance().playSFX("alarm");
         state.waveTotalProperty.set(state.totalEnemiesToSpawnThisWave);
         state.enemiesRemainingProperty.set(state.totalEnemiesToSpawnThisWave);
@@ -151,6 +161,9 @@ public class UniverseWaveController {
         }
     }
 
+    /**
+     * Istanzia un nemico fuori dallo schermo applicandogli il moltiplicatore di endurance legato alla minaccia.
+     */
     private void spawnSingleEnemyOffScreen(CameraModel camera, GameModel gameModel) {
         if (camera == null) return;
         String enemyIdToSpawn = selectEligibleEnemyId();
@@ -197,6 +210,9 @@ public class UniverseWaveController {
         }
     }
 
+    /**
+     * Seleziona un ID nemico dal pool compatibile con l'attuale livello di minaccia ed il bestiario sbloccato.
+     */
     private String selectEligibleEnemyId() {
         if (state.currentThreatLevel == ThreatLevel.APOCALYPSE) return "ISCAT_MASTER";
 

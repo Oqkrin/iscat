@@ -3,7 +3,6 @@ package uni.gaben.iscat.universe.spawn.waves;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uni.gaben.iscat.universe.entities.ThreatLevel;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,21 +13,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Gestore dedicato al caricamento, alla lettura e al parsing dei dati delle ondate da file JSON.
+ * Gestore del parsing e del caricamento I/O delle ondate (Wave Config Manager).
+ * Deserializza sincronicamente i file descrittori JSON traducendoli in record immutabili.
  */
 public final class WaveConfigManager {
 
-    /** Mappa la configurazione di una singola ondata caricata. */
+    /**
+     * Configurazione immutabile di un singolo round di gioco.
+     *
+     * @param threatLevel  Il livello di minaccia nominale dell'ondata.
+     * @param totalEnemies Il numero complessivo di nemici da instanziare nel round.
+     */
     public record WaveConfig(ThreatLevel threatLevel, int totalEnemies) { }
 
     private final List<WaveConfig> loadedWaves = new ArrayList<>();
 
-    public List<WaveConfig> getLoadedWaves() {
-        return loadedWaves;
-    }
+    public List<WaveConfig> getLoadedWaves() { return loadedWaves; }
 
     /**
-     * Esegue il parsing manuale sequenziale del file risorsa JSON.
+     * Carica ed esegue il parsing sequenziale di un file JSON strutturato ad array.
+     * In caso di errore di I/O o formato non valido, intercetta l'eccezione consentendo il fallback procedurale.
+     *
+     * @param resourcePath Percorso relativo della risorsa all'interno del pacchetto.
      */
     public void loadWavesFromResource(String resourcePath) {
         loadedWaves.clear();

@@ -5,44 +5,52 @@ import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.utils.Spring;
 
 /**
- * Pure model of the camera.
- *
- * <p>Stores the camera's current view centre in world coordinates and the viewport
- * dimensions. The centre position is driven by two critically damped springs
- * (one for X, one for Y) that smoothly chase the desired target position.</p>
- *
- * <p>The model also provides helper methods to convert the centre position into
- * viewport top‑left coordinates, which are essential for rendering.</p>
+ * Memorizza il centro della visuale corrente in coordinate mondo e le dimensioni del viewport.
+ * Il posizionamento centrale è guidato da due molle fisiche a smorzamento critico (una per l'asse X
+ * e una per l'asse Y) che inseguono fluidamente la posizione del target impostato.
+ * <p>
+ * Integra inoltre algoritmi per la generazione di perturbazioni ad alta frequenza (Screen Shake)
+ * e overlay cromatici (Hurt Flash) in risposta ai danni subiti dal giocatore, calcolando
+ * le equazioni di conversione per il rendering della vista.
+ * </p>
  */
 public class CameraModel {
+
+    /** Molla fisica a smorzamento critico per l'asse orizzontale X. */
     private final Spring springX;
+
+    /** Molla fisica a smorzamento critico per l'asse verticale Y. */
     private final Spring springY;
+
+    /** Flag di controllo per determinare se la telecamera ha effettuato il posizionamento iniziale (snap). */
     private boolean snapped = false;
 
-    // Viewport dimensions (the visible area in screen pixels)
+    /** Proprietà JavaFX per la larghezza del viewport (area visibile dello schermo in pixel). */
     private final DoubleProperty screenWidth  = new SimpleDoubleProperty(1280);
+
+    /** Proprietà JavaFX per l'altezza del viewport (area visibile dello schermo in pixel). */
     private final DoubleProperty screenHeight = new SimpleDoubleProperty(720);
+
+    /** Proprietà JavaFX per il livello di zoom di base configurato manualmente. */
     private final DoubleProperty baseZoom = new SimpleDoubleProperty(1.25);
-    // This represents the actual interpolated zoom used by the renderer
+
+    /** Proprietà JavaFX per il livello di zoom reale interpolato utilizzato correntemente dal renderer. */
     private final DoubleProperty actualZoom = new SimpleDoubleProperty(1.25);
 
-    public double getZoom() { return actualZoom.get(); }
-    public void setActualZoom(double v) { this.actualZoom.set(v); }
+    // Variabili di stato per gli effetti visivi d'impatto
+    private double shakeIntensity = 0.0;
+    private double shakeTimeLeft = 0.0;
+    private double shakeX = 0.0;
+    private double shakeY = 0.0;
+    private double hurtFlashIntensity = 0.0; // Da 0.0 (normale) a 1.0 (flash rosso totale)
 
-    public double getBaseZoom() { return baseZoom.get(); }
-    public void setBaseZoom(double v) {
-        this.baseZoom.set(Math.clamp(v, CameraSettings.MIN_MANUAL_ZOOM, CameraSettings.MAX_MANUAL_ZOOM));
-    }
-
-    public void addZoom(double delta) {
-        setBaseZoom(getBaseZoom() + delta);
-    }
     /**
-     * Constructs a new camera model with default spring configurations.
-     *
-     * <p>X‑axis spring uses the base stiffness from {@link CameraSettings}.
-     * Y‑axis spring uses an increased stiffness (multiplied by
-     * {@link CameraSettings#Y_STIFFNESS_MULTIPLIER}) to reduce vertical lag.</p>
+     * Costruisce un nuovo modello di telecamera preimpostando le configurazioni delle molle.
+     * <p>
+     * La molla dell'asse X utilizza la rigidità di base, mentre l'asse Y applica un moltiplicatore
+     * incrementale (definito in {@link CameraSettings#Y_STIFFNESS_MULTIPLIER}) per ridurre
+     * il ritardo (lag) verticale durante i salti o le cadute.
+     * </p>
      */
     public CameraModel() {
         this.springX = Spring.critico(0,
@@ -54,57 +62,63 @@ public class CameraModel {
                 CameraSettings.SPRING_MASS);
     }
 
-    // ------------------------------------------------------------------------
-    // Spring accessors (used by CameraController to update targets)
-    // ------------------------------------------------------------------------
+    /** @return Il fattore di zoom reale interpolato ed effettivo. */
+    public double getZoom() { return actualZoom.get(); }
 
-    /**
-     * Returns the spring that controls the camera's X coordinate.
-     *
-     * @return the X‑axis spring (never {@code null})
+    /** @param v Il nuovo valore di zoom reale da impostare nel renderer. */
+    public void setActualZoom(double v) { this.actualZoom.set(v); }
+
+    /** @return Il livello di zoom base o nominale memorizzato. */
+    public double getBaseZoom() { return baseZoom.get(); }
+
+    /** * Imposta il livello di zoom base forzando il valore all'interno del range di sicurezza.
+     * @param v Il valore di zoom desiderato.
      */
-    public Spring getSpringX() {
-        return springX;
+    public void setBaseZoom(double v) {
+        this.baseZoom.set(Math.clamp(v, CameraSettings.MIN_MANUAL_ZOOM, CameraSettings.MAX_MANUAL_ZOOM));
     }
 
-    /**
-     * Returns the spring that controls the camera's Y coordinate.
-     *
-     * @return the Y‑axis spring (never {@code null})
+    /** * Incrementa o decrementa il livello di zoom base tramite un delta lineare.
+     * @param delta Il coefficiente di variazione dello zoom.
      */
-    public Spring getSpringY() {
-        return springY;
+    public void addZoom(double delta) {
+        setBaseZoom(getBaseZoom() + delta);
     }
 
-    // ------------------------------------------------------------------------
-    // Smoothed camera centre (world coordinates)
-    // ------------------------------------------------------------------------
+    /** @return La molla fisica associata alla coordinata orizzontale X. */
+    public Spring getSpringX() { return springX; }
 
-    // Add these fields to the top of CameraModel.java
-    private double shakeIntensity = 0.0;
-    private double shakeTimeLeft = 0.0;
-    private double shakeX = 0.0;
-    private double shakeY = 0.0;
-    private double hurtFlashIntensity = 0.0; // 0.0 (normal) to 1.0 (full red flash)
+    /** @return La molla fisica associata alla coordinata verticale Y. */
+    public Spring getSpringY() { return springY; }
 
-    // Call this whenever the player takes damage to instantly activate camera effects
+    /**
+     * Attiva istantaneamente gli effetti visivi d'impatto (schermata rossa e tremolio).
+     * Calcola la magnitudo dello scuotimento in pixel mondo basandosi sulla severità del danno.
+     *
+     * @param damageSeverity Coefficiente d'intensità del danno subito dal personaggio.
+     */
     public void triggerHurtEffects(double damageSeverity) {
-        this.shakeIntensity = damageSeverity * 25.0; // Translation power in world pixels
-        this.shakeTimeLeft = 0.35;                   // Shake duration in seconds (350ms)
-        this.hurtFlashIntensity = 1.0;               // Instant full opacity overlay flash
+        this.shakeIntensity = damageSeverity * 25.0; // Potenza di traslazione in pixel mondo
+        this.shakeTimeLeft = 0.35;                   // Durata dello shake in secondi (350ms)
+        this.hurtFlashIntensity = 1.0;               // Opacità iniziale massima dell'overlay rosso
     }
 
-    // Tick method to decay screenshake and red flashes every frame
+    /**
+     * Esegue il decremento e il decadimento temporale degli effetti di scuotimento e flash rosso.
+     * Deve essere invocato ad ogni ciclo di aggiornamento logico (frame tick).
+     *
+     * @param dt Il tempo trascorso dall'ultimo frame espresso in frazioni di secondo (Delta Time).
+     */
     public void updateEffects(double dt) {
-        // 1. Smoothly fade out the visual red overlay
+        // 1. Dissolvenza lineare dell'overlay rosso di danno
         if (hurtFlashIntensity > 0) {
-            hurtFlashIntensity = Math.max(0, hurtFlashIntensity - dt * 4.5); // Fades completely over ~220ms
+            hurtFlashIntensity = Math.max(0, hurtFlashIntensity - dt * 4.5); // Esaurimento in circa 220ms
         }
 
-        // 2. Compute high-frequency screen displacement
+        // 2. Calcolo del disturbo stocastico ad alta frequenza per lo scuotimento
         if (shakeTimeLeft > 0) {
             shakeTimeLeft -= dt;
-            // High frequency random noise scaled by remaining life percentage
+            // Rumore casuale normalizzato scalato per la percentuale di vita residua dell'effetto
             double activePower = shakeIntensity * (shakeTimeLeft / 0.35);
             this.shakeX = (Math.random() * 2.0 - 1.0) * activePower;
             this.shakeY = (Math.random() * 2.0 - 1.0) * activePower;
@@ -114,143 +128,72 @@ public class CameraModel {
         }
     }
 
+    /** @return L'intensità corrente dell'overlay di danno (valore compreso tra 0.0 e 1.0). */
     public double getHurtFlashIntensity() {
         return this.hurtFlashIntensity;
     }
 
-    // ========================================================================
-// INTEGRATE WITH YOUR GOLDEN EQUATIONS: Incorporate screen shake offsets!
-// ========================================================================
+    /** * @return La coordinata X del centro telecamera, comprensiva dell'offset stocastico dello shake.
+     */
     public double getX() {
         return springX.getPosition() + shakeX;
     }
 
+    /** * @return La coordinata Y del centro telecamera, comprensiva dell'offset stocastico dello shake.
+     */
     public double getY() {
         return springY.getPosition() + shakeY;
     }
 
-    // ------------------------------------------------------------------------
-    // Snapping flag (avoids initial lerp glitch)
-    // ------------------------------------------------------------------------
+    /** @return {@code true} se la telecamera ha già eseguito il primo snap iniziale, {@code false} altrimenti. */
+    public boolean isSnapped() { return snapped; }
+
+    /** @param snapped Il nuovo stato di ancoraggio (snap) da assegnare. */
+    public void setSnapped(boolean snapped) { this.snapped = snapped; }
+
+    /** @return La larghezza del viewport dello schermo in pixel. */
+    public double getScreenWidth() { return screenWidth.get(); }
+
+    /** @return La proprietà JavaFX associata alla larghezza dello schermo. */
+    public DoubleProperty screenWidthProperty() { return screenWidth; }
+
+    /** @param width La nuova larghezza in pixel dell'area dello schermo. */
+    public void setScreenWidth(double width) { this.screenWidth.set(width); }
+
+    /** @return L'altezza del viewport dello schermo in pixel. */
+    public double getScreenHeight() { return screenHeight.get(); }
+
+    /** @return La proprietà JavaFX associata all'altezza dello schermo. */
+    public DoubleProperty screenHeightProperty() { return screenHeight; }
+
+    /** @param height La nuova altezza in pixel dell'area dello schermo. */
+    public void setScreenHeight(double height) { this.screenHeight.set(height); }
+
+    /** @return La coordinata X del punto centrale dello schermo (metà della larghezza). */
+    public double getScreenCenterX() { return getScreenWidth() / 2.0; }
+
+    /** @return La coordinata Y del punto centrale dello schermo (metà della altezza). */
+    public double getScreenCenterY() { return getScreenHeight() / 2.0; }
 
     /**
-     * Returns whether the camera has been snapped to its initial position.
+     * Calcola la coordinata X assoluta nel mondo corrispondente al margine sinistro del viewport.
+     * <p>
+     * Questo valore definisce il punto di traslazione per il contesto grafico affinché il centro
+     * geometrico calcolato coincida con la mezzeria del display.
+     * </p>
      *
-     * @return {@code true} if the camera has already performed its first snap
-     */
-    public boolean isSnapped() {
-        return snapped;
-    }
-
-    /**
-     * Sets the snapped flag.
-     *
-     * @param snapped new snapped state
-     */
-    public void setSnapped(boolean snapped) {
-        this.snapped = snapped;
-    }
-
-    // ------------------------------------------------------------------------
-    // Viewport dimensions (screen pixels)
-    // ------------------------------------------------------------------------
-
-    /**
-     * Returns the current screen (viewport) width in pixels.
-     *
-     * @return viewport width
-     */
-    public double getScreenWidth() {
-        return screenWidth.get();
-    }
-
-    /**
-     * JavaFX property for the screen width.
-     *
-     * @return the width property
-     */
-    public DoubleProperty screenWidthProperty() {
-        return screenWidth;
-    }
-
-    /**
-     * Sets the screen (viewport) width.
-     *
-     * @param width new width in pixels
-     */
-    public void setScreenWidth(double width) {
-        this.screenWidth.set(width);
-    }
-
-    /**
-     * Returns the current screen (viewport) height in pixels.
-     *
-     * @return viewport height
-     */
-    public double getScreenHeight() {
-        return screenHeight.get();
-    }
-
-    /**
-     * JavaFX property for the screen height.
-     *
-     * @return the height property
-     */
-    public DoubleProperty screenHeightProperty() {
-        return screenHeight;
-    }
-
-    /**
-     * Sets the screen (viewport) height.
-     *
-     * @param height new height in pixels
-     */
-    public void setScreenHeight(double height) {
-        this.screenHeight.set(height);
-    }
-
-    /**
-     * Returns half of the screen width.
-     * <p>Equivalent to {@code getScreenWidth() / 2.0}.</p>
-     *
-     * @return screen centre X offset
-     */
-    public double getScreenCenterX() {
-        return getScreenWidth() / 2.0;
-    }
-
-    /**
-     * Returns half of the screen height.
-     * <p>Equivalent to {@code getScreenHeight() / 2.0}.</p>
-     *
-     * @return screen centre Y offset
-     */
-    public double getScreenCenterY() {
-        return getScreenHeight() / 2.0;
-    }
-
-    // ------------------------------------------------------------------------
-    // Rendering helpers – the "golden equations"
-    // ------------------------------------------------------------------------
-
-    /**
-     * Computes the world X coordinate of the viewport's left edge.
-     * <p>Use this value to translate the graphics context so that the camera's
-     * centre appears in the middle of the screen.</p>
-     *
-     * @return left edge world X (pixels)
+     * @return La coordinata X d'origine dell'estremità sinistra in pixel mondo.
      */
     public double getViewportLeftX() {
         return getX() - (getScreenWidth() / getZoom()) / 2.0;
     }
+
     /**
-     * Computes the world Y coordinate of the viewport's top edge.
+     * Calcola la coordinata Y assoluta nel mondo corrispondente al margine superiore del viewport.
      *
-     * @return top edge world Y (pixels)
+     * @return La coordinata Y d'origine dell'estremità superiore in pixel mondo.
      */
     public double getViewportTopY() {
         return getY() - (getScreenHeight() / getZoom()) / 2.0;
     }
-
-
 }

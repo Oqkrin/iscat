@@ -8,152 +8,64 @@ import javafx.scene.shape.StrokeLineCap;
 import uni.gaben.iscat.universe.effects.Shockwave;
 import uni.gaben.iscat.universe.effects.Thrust;
 import uni.gaben.iscat.universe.camera.CameraModel;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Pipeline di rendering stratificata e ottimizzata tramite meccanismi di batching (Deferred Rendering).
+ * Centralizza le primitive geometriche e gli sprite accumulandoli durante il ciclo di aggiornamento delle entità,
+ * ordinandoli e applicando filtri/effetti di post-processing (Bloom, Blur) prima del disegno finale sul Canvas.
+ */
 public class OptimizedLayeredRenderer {
 
-    /**
-     * Dati per il rendering di uno sprite strutturato in un colpo solo (Batch).
-     *
-     * @param image L'immagine della texture da disegnare
-     * @param x     Coordinata X centrale nel mondo di gioco
-     * @param y     Coordinata Y centrale nel mondo di gioco
-     * @param w     Larghezza dello sprite sul Canvas
-     * @param h     Altezza dello sprite sul Canvas
-     * @param angle Angolo di rotazione espresso in gradi
-     * @param tint  Colore di overlay da moltiplicare alla texture (opzionale)
-     */
-    private record SpriteBatch(
-            Image image,
-            double x, double y,
-            double w, double h,
-            double angle,
-            Color tint
-    ) {}
+    // --- Record per l'accumulo dei Batch Grafici (Package-Private e Private) ---
 
-    /**
-     * Dati per il rendering ottimizzato di linee geometriche.
-     */
-    private record LineBatch(
-            double x1, double y1,
-            double x2, double y2,
-            double lineWidth,
-            Color color,
-            double alpha
-    ) {}
+    private record SpriteBatch(Image image, double x, double y, double w, double h, double angle, Color tint) {}
+    private record LineBatch(double x1, double y1, double x2, double y2, double lineWidth, Color color, double alpha) {}
+    private record OvalBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double lineWidth) {}
+    private record RectBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double angle) {}
+    private record PolygonBatch(double[] xPoints, double[] yPoints, Color color, double alpha, boolean fill, double lineWidth) {}
+    private record ThrustBatch(double cx, double cy, double angle, Thrust thrust) {}
+    private record ShockwaveBatch(double cx, double cy, Shockwave shockwave, boolean isBlackHole) {}
 
-    /**
-     * Dati per il rendering ottimizzato di ovali e cerchi.
-     */
-    private record OvalBatch(
-            double x, double y,
-            double w, double h,
-            Color color,
-            double alpha,
-            boolean fill,
-            double lineWidth
-    ) {}
-
-    /**
-     * Dati per il rendering ottimizzato di rettangoli o quadrati (anche ruotati).
-     */
-    private record RectBatch(
-            double x, double y,
-            double w, double h,
-            Color color,
-            double alpha,
-            boolean fill,
-            double angle
-    ) {}
-
-    /**
-     * Dati per il rendering strutturato di vettori poligonali complessi.
-     */
-    private record PolygonBatch(
-            double[] xPoints,
-            double[] yPoints,
-            Color color,
-            double alpha,
-            boolean fill,
-            double lineWidth
-    ) {}
-
-    /**
-     * Rappresentazione grafica della barra della salute sopra le entità.
-     */
-    record HpBarBatch(
-            double x, double y,
-            double w, double h,
-            double percent
-    ) {
+    record HpBarBatch(double x, double y, double w, double h, double percent) {
         public static final double HP_BAR_OFFSET_Y = 10.0;
         public static final double HP_BAR_HEIGHT = 4.0;
     }
 
-    /**
-     * Rappresentazione grafica della barra del tempo per abilità o alterazioni.
-     */
-    record TimeGaugeBarBatch(
-            double x, double y,
-            double w, double h,
-            double percent
-    ) {
+    record TimeGaugeBarBatch(double x, double y, double w, double h, double percent) {
         public static final double TIME_BAR_OFFSET_Y = 6.0;
         public static final double TIME_BAR_HEIGHT = 2.0;
     }
 
-    /**
-     * Configurazione della scia dei motori di spinta (Thrust VFX).
-     */
-    private record ThrustBatch(
-            double cx, double cy,
-            double angle,
-            Thrust thrust
-    ) {}
-
-    /**
-     * Configurazione delle onde d'urto o degli effetti di distorsione gravitazionale.
-     */
-    private record ShockwaveBatch(
-            double cx, double cy,
-            Shockwave shockwave,
-            boolean isBlackHole
-    ) {}
-
-    /**
-     * Dati aggregati per la scia e la testa dei proiettili luminosi a schermo.
-     */
     record ProjectileBatch(
-            double cx, double cy,
-            double w, double h,
-            Color color,
-            double trailX1, double trailY1,
-            double trailX2, double trailY2,
-            double trailWidth
+            double cx, double cy, double w, double h, Color color,
+            double trailX1, double trailY1, double trailX2, double trailY2, double trailWidth
     ) {}
 
     private static final Effect PROJECTILE_EFFECT = new GaussianBlur(3.0);
+    private final Bloom spriteBloom = new Bloom(0.3);
 
-    private final List<ProjectileBatch> projectiles = new ArrayList<>();
-    private final List<SpriteBatch> sprites = new ArrayList<>();
-    private final List<LineBatch> lines = new ArrayList<>();
-    private final List<OvalBatch> ovals = new ArrayList<>();
-    private final List<RectBatch> rects = new ArrayList<>();
-    private final List<PolygonBatch> polygons = new ArrayList<>();
-    private final List<HpBarBatch> hpBars = new ArrayList<>();
+    // --- Pool di Accumulo delle Primitive ---
+    private final List<ProjectileBatch> projectiles     = new ArrayList<>();
+    private final List<SpriteBatch> sprites             = new ArrayList<>();
+    private final List<LineBatch> lines                 = new ArrayList<>();
+    private final List<OvalBatch> ovals                 = new ArrayList<>();
+    private final List<RectBatch> rects                 = new ArrayList<>();
+    private final List<PolygonBatch> polygons           = new ArrayList<>();
+    private final List<HpBarBatch> hpBars               = new ArrayList<>();
     private final List<TimeGaugeBarBatch> timeGaugeBars = new ArrayList<>();
-    private final List<ThrustBatch> thrusts = new ArrayList<>();
-    private final List<ShockwaveBatch> shockwaves = new ArrayList<>();
+    private final List<ThrustBatch> thrusts             = new ArrayList<>();
+    private final List<ShockwaveBatch> shockwaves       = new ArrayList<>();
 
     private GraphicsContext gc;
     private double screenWidth, screenHeight;
     private double zoom, camX, camY;
 
-    private final Bloom spriteBloom = new Bloom(0.3);
-
+    /**
+     * Inizializza il frame corrente memorizzando lo stato della telecamera e azzerando le liste di batch.
+     */
     public void begin(GraphicsContext gc, CameraModel camera, double screenWidth, double screenHeight) {
         this.gc = gc;
         this.screenWidth = screenWidth;
@@ -174,6 +86,9 @@ public class OptimizedLayeredRenderer {
         projectiles.clear();
     }
 
+    /**
+     * Applica le trasformazioni della telecamera nel Viewport spaziale ed esegue il flush sequenziale dei layer.
+     */
     public void render() {
         gc.save();
         gc.translate(screenWidth / 2 - camX * zoom, screenHeight / 2 - camY * zoom);
@@ -187,7 +102,6 @@ public class OptimizedLayeredRenderer {
         renderThrusts();
         renderProjectiles();
         renderShockwaves();
-
         renderHPbars();
         renderTimeGaugeBars();
 
@@ -196,6 +110,8 @@ public class OptimizedLayeredRenderer {
         gc.setEffect(null);
         gc.setGlobalBlendMode(BlendMode.SRC_OVER);
     }
+
+    // --- Routine di Rendering Interne dei Layer ---
 
     private void renderSprites() {
         if (sprites.isEmpty()) return;
@@ -209,7 +125,6 @@ public class OptimizedLayeredRenderer {
 
     private void renderProjectiles() {
         if (projectiles.isEmpty()) return;
-        if (zoom > 0.4) gc.setEffect(PROJECTILE_EFFECT);
         gc.setEffect(PROJECTILE_EFFECT);
         gc.setLineCap(StrokeLineCap.ROUND);
         for (ProjectileBatch p : projectiles) {
@@ -335,6 +250,8 @@ public class OptimizedLayeredRenderer {
         gc.restore();
     }
 
+    // --- Metodi di Accodamento Batch (API Pubbliche) ---
+
     public void addSprite(Image image, double x, double y, double w, double h, double angle, Color tint) {
         sprites.add(new SpriteBatch(image, x, y, w, h, angle, tint));
     }
@@ -388,9 +305,7 @@ public class OptimizedLayeredRenderer {
     }
 
     public void addProjectile(double cx, double cy, double w, double h, Color color,
-                              double trailX1, double trailY1, double trailX2, double trailY2,
-                              double trailWidth) {
-        projectiles.add(new ProjectileBatch(cx, cy, w, h, color,
-                trailX1, trailY1, trailX2, trailY2, trailWidth));
+                              double trailX1, double trailY1, double trailX2, double trailY2, double trailWidth) {
+        projectiles.add(new ProjectileBatch(cx, cy, w, h, color, trailX1, trailY1, trailX2, trailY2, trailWidth));
     }
 }

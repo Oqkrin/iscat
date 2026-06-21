@@ -8,12 +8,27 @@ import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 
+/**
+ * Mappatura forte tra costanti di spawn e metadati di riflessione delle classi fisiche.
+ */
 public enum UniverseSpawnable {
+
+    /** Entità della navicella del giocatore. */
     PLAYER(PlayerModel.class),
+
+    /** Corpi celesti rigidi/asteroidi. */
     ASTEROID(AsteroidModel.class),
+
+    /** Singolarità e buchi neri gravitazionali. */
     BLACKHOLE(BlackHoleModel.class),
+
+    /** Consumabile per il ripristino dell'endurance. */
     HEART(HeartModel.class),
+
+    /** Entità biologica articolata (Worm). */
     WORM(EntityModel.class),
+
+    /** Elementi balistici e proiettili. */
     PROJECTILE(ProjectileModel.class);
 
     private final Class<? extends AbstractPhysicalEntityModel> modelClass;
@@ -22,20 +37,15 @@ public enum UniverseSpawnable {
         this.modelClass = modelClass;
     }
 
-    public Class<? extends AbstractPhysicalEntityModel> getModelClass() {
-        return modelClass;
-    }
+    public Class<? extends AbstractPhysicalEntityModel> getModelClass() { return modelClass; }
 
-    /**
-     * Tenta di mappare una stringa a un'entità fissa dell'enum.
-     * @return L'enum corrispondente, o null se si tratta di un'entità custom/dinamica.
+    /** * Mappa una stringa all'enum corrispondente; ritorna null se l'entità è dinamica/custom JSON.
      */
     public static UniverseSpawnable fromString(String value) {
         if (value == null) return null;
         try {
             return UniverseSpawnable.valueOf(value.toUpperCase().trim());
         } catch (IllegalArgumentException e) {
-            // Non fa parte dell'enum rigido: è un'entità custom a runtime!
             return null;
         }
     }

@@ -16,14 +16,20 @@ import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.rendering.vfx.HitSparkVFX;
 import uni.gaben.iscat.utils.design.TipografiaAurea;
 import uni.gaben.iscat.utils.theme.ThemeManager;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Motore di rendering e coordinatore principale della pipeline grafica (Universe Renderer).
+ * Gestisce l'intero loop visivo dello spazio di gioco: applica tecniche di Frustum Culling,
+ * coordina il batching differito, elabora gli overlay dell'interfaccia (indicatori di danno)
+ * e applica filtri grafici di post-processing a pieno schermo (Time Stop, Hurt Flash).
+ */
 public class UniverseRenderer {
 
+    /** Effetto sfocatura applicato globalmente agli indicatori numerici di endurance. */
     public static final GaussianBlur ENDURANCE_INDICATOR_EFFECT = new GaussianBlur(2);
 
     private final Canvas mainCanvas;
@@ -32,12 +38,17 @@ public class UniverseRenderer {
     private final StarfieldRenderer starfieldRenderer;
     private final OptimizedLayeredRenderer layers = new OptimizedLayeredRenderer();
 
+    /** Buffer snapshot per isolare l'elenco delle entità ed evitare eccezioni di modifica concorrente. */
     private final List<AbstractPhysicalEntityModel> entitySnapshotBuffer = new ArrayList<>();
     private final List<EnduranceIndicator> enduranceIndicators = new ArrayList<>();
+
     private final double[] fpsHistory = new double[30];
     private int fpsIdx = 0;
     private boolean bordersVisible = false;
 
+    /**
+     * Inizializza il renderer ancorandolo al Canvas principale e al controller del gioco.
+     */
     public UniverseRenderer(Canvas mainCanvas, GameController gameController) {
         this.mainCanvas = mainCanvas;
         this.gameController = gameController;
@@ -45,6 +56,9 @@ public class UniverseRenderer {
         this.starfieldRenderer = new StarfieldRenderer();
     }
 
+    /**
+     * Ridimensiona la viewport grafica aggiornando le dimensioni di rigenerazione del campo stellato.
+     */
     public void updateViewport(double width, double height) {
         if (width <= 0 || height <= 0) return;
         UniverseModel universe = gameController.getUniverseController().getUniverseModel();
@@ -53,6 +67,13 @@ public class UniverseRenderer {
         }
     }
 
+    /**
+     * Esegue il rendering completo del frame di gioco corrente.
+     * Segue una pipeline atomica sequenziale: pulizia background, culling e accodamento batch,
+     * flush della geometria e dei layer grafici, applicazione filtri ambientali e UI fissa.
+     *
+     * @param debugPanelVisible Flag per determinare se includere la geometria di debug delle collisioni.
+     */
     public void renderFrame(boolean debugPanelVisible) {
         GraphicsContext gc = mainCanvas.getGraphicsContext2D();
         gc.setImageSmoothing(false);
@@ -60,20 +81,16 @@ public class UniverseRenderer {
         double w = mainCanvas.getWidth();
         double h = mainCanvas.getHeight();
 
-        // Sfondo ed Effetti Ambientali di Base
         clearAndDrawBackground(gc, w, h);
 
         UniverseModel universe = gameController.getUniverseController().getUniverseModel();
         if (universe == null) return;
 
         CameraModel camera = gameController.getCameraModel();
-
-        // Disegno dello sfondo stellato e dei confini dell'arena
         renderSfondoEConfini(gc, universe, camera, w, h);
 
-        // Fase di Batching (Raccolta elementi geometrici e sprite)
+        // Fase di accumulo ed estrazione dei batch geometrici
         layers.begin(gc, camera, w, h);
-
         EntityRenderer.beginFrame(camera.getZoom());
 
         entitySnapshotBuffer.clear();
@@ -81,6 +98,7 @@ public class UniverseRenderer {
 
         boolean debug = debugPanelVisible && gameController.isDebugModeOn();
 
+        // Frustum Culling: elabora e inserisce nei layer solo le entità visibili a schermo
         for (AbstractPhysicalEntityModel entity : entitySnapshotBuffer) {
             if (isEntityVisible(entity, camera, w, h)) {
                 EntityRenderer.renderLayered(entity, layers, debug);
@@ -89,10 +107,10 @@ public class UniverseRenderer {
 
         renderHitSparks(universe, layers);
 
-        // Esecuzione del disegno stratificato e ottimizzato
+        // Disegno effettivo e flush sequenziale dei layer geometrici e particellari
         layers.render();
 
-        // Overlay Post-Rendering (Interfaccia di gioco e filtri grafici fissi)
+        // Overlay Post-Rendering: Rendering della UI e dei filtri di stato a schermo intero
         renderEnduranceAlterations(universe, camera, gameModel.getDt(), gc);
         renderTimeStop(camera, gc);
         renderHurt(camera, gc);
@@ -101,7 +119,6 @@ public class UniverseRenderer {
             drawFps(gc, w);
         }
     }
-
 
     private void clearAndDrawBackground(GraphicsContext gc, double w, double h) {
         gc.clearRect(0, 0, w, h);
@@ -116,12 +133,13 @@ public class UniverseRenderer {
         starfieldRenderer.setCameraY(camera.getY());
         starfieldRenderer.render(universe.getStarfieldModel(), gc);
 
-        if(bordersVisible)
+        if (bordersVisible) {
             drawUniverseBoundaries(gc, universe, camera);
+        }
     }
 
     /**
-     * Verifica se un'entità fisica si trova all'interno del cono visivo attuale (Frustum Culling).
+     * Algoritmo di Frustum Culling basato sulla proiezione dell'area visibile (AABB) della telecamera.
      */
     private boolean isEntityVisible(AbstractPhysicalEntityModel entity, CameraModel camera, double width, double height) {
         double zoom = camera.getZoom();
@@ -142,6 +160,7 @@ public class UniverseRenderer {
         }
     }
 
+    /** Applica una sovrapposizione cromatica semitrasparente per l'effetto rallentamento temporale. */
     private void renderTimeStop(CameraModel camera, GraphicsContext gc) {
         if (gameModel.getTimeScale() < 1.0) {
             gc.save();
@@ -153,6 +172,7 @@ public class UniverseRenderer {
         }
     }
 
+    /** Renderizza il flash rosso perimetrale/globale di danneggiamento subito dal giocatore. */
     private void renderHurt(CameraModel camera, GraphicsContext gc) {
         if (camera.getHurtFlashIntensity() > 0.01) {
             gc.save();
@@ -163,6 +183,7 @@ public class UniverseRenderer {
         }
     }
 
+    /** Elabora, aggiorna e renderizza in sovrimpressione i testi fluttuanti dei danni (Endurance Indicators). */
     private void renderEnduranceAlterations(UniverseModel universe, CameraModel camera, double dt, GraphicsContext gc) {
         Map<Vector2, Double> altered = universe.getAlteredEndurances();
         if (!altered.isEmpty()) {
@@ -194,6 +215,7 @@ public class UniverseRenderer {
         gc.restore();
     }
 
+    /** Traccia graficamente la circonferenza limite del mondo fisico di gioco. */
     private void drawUniverseBoundaries(GraphicsContext gc, UniverseModel universe, CameraModel camera) {
         double radiusPx = UU.mToPx(universe.getUniverseRadius());
         double zoom = camera.getZoom();
@@ -211,6 +233,7 @@ public class UniverseRenderer {
         gc.restore();
     }
 
+    /** Calcola la media mobile dei frame al secondo (FPS) e stampa il contatore a schermo con codice colore dinamico. */
     private void drawFps(GraphicsContext gc, double canvasWidth) {
         double dt = gameModel.getDt();
         fpsHistory[fpsIdx] = dt > 0 ? 1.0 / dt : 0;
