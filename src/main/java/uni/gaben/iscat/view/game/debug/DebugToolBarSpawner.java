@@ -21,6 +21,10 @@ import uni.gaben.iscat.view.components.AnimatedCanvas;
 import java.io.InputStream;
 import java.util.*;
 
+/**
+ * Interfaccia per la generazione forzata delle entità a schermo (Spawner) in modalità debug.
+ * Suddivide e organizza le entità disponibili in categorie logiche (Speciali, Nemici, Giocatori, Personalizzati).
+ */
 public class DebugToolBarSpawner extends VBox {
 
     private static final Set<UniverseSpawnable> HIDDEN_SPAWNABLES = Set.of(
@@ -35,6 +39,12 @@ public class DebugToolBarSpawner extends VBox {
     // Cache per le immagini singole (hardcoded)
     private final Map<String, Image> imageCache = new HashMap<>();
 
+    /**
+     * Costruisce il pannello dello spawner raccogliendo le entità registrate e distribuendole nelle rispettive macro-sezioni.
+     *
+     * @param controller Il controller logico del gioco.
+     * @param onBack     Callback per gestire il ritorno al menu precedente.
+     */
     public DebugToolBarSpawner(GameController controller, Runnable onBack) {
         final double SU = IscatSettings.STANDARD_UNIT;
 
@@ -93,6 +103,7 @@ public class DebugToolBarSpawner extends VBox {
             }
         }
 
+        @SuppressWarnings("SortedCollectionWithNonComparableElements")
         Comparator<Map.Entry<String, EntityRecord>> comp = (e1, e2) -> {
             Integer o1 = (e1.getValue() != null) ? e1.getValue().bestiaryOrder() : null;
             Integer o2 = (e2.getValue() != null) ? e2.getValue().bestiaryOrder() : null;
@@ -118,6 +129,7 @@ public class DebugToolBarSpawner extends VBox {
         getChildren().addAll(topBar, scroll);
     }
 
+    /** Recupera e unisce in una mappa ordinata tutte le entità univoche estratte dai file di configurazione e dall'enum di spawn. */
     private static Map<String, EntityRecord> getAllUniqueEntities() {
         Map<String, EntityRecord> cacheMap = EntityFactory.getCache();
         Map<String, EntityRecord> all = new LinkedHashMap<>();
@@ -136,11 +148,13 @@ public class DebugToolBarSpawner extends VBox {
         return all;
     }
 
+    /** Determina se la chiave passata fa riferimento a un'entità definita all'interno del percorso dei contenuti personalizzati. */
     private boolean isCustom(String key) {
         String origin = EntityFactory.getOriginPath(key);
         return origin != null && origin.toLowerCase().contains("custom");
     }
 
+    /** Genera graficamente una macro-categoria con una griglia a 8 colonne per ospitare le schede di spawn. */
     private void creaSezioneCategoria(VBox parent, String titolo, List<Map.Entry<String, EntityRecord>> elementi) {
         if (elementi.isEmpty()) return;
         final double SU = IscatSettings.STANDARD_UNIT;
@@ -186,6 +200,7 @@ public class DebugToolBarSpawner extends VBox {
         parent.getChildren().add(sectionBox);
     }
 
+    /** Instanzia una scheda quadrata per il singolo elemento, configurando l'anteprima dello sprite (statico o animato) e il tooltip informativo. */
     private VBox createSquareSpawnCard(String key, EntityRecord entity, GridPane parentGrid) {
         final double SU = IscatSettings.STANDARD_UNIT;
 
@@ -289,7 +304,7 @@ public class DebugToolBarSpawner extends VBox {
                 AnimatedCanvas finalSpriteCanvas = spriteCanvas;
                 card.widthProperty().addListener((observable, oldValue, newValue) ->
                         finalSpriteCanvas.resize(ScalareAureo.phiMinore(newValue.doubleValue()))
-                        );
+                );
             } else {
                 // Fallback a testo
                 Label textLabel = new Label("[+]");

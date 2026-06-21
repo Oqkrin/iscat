@@ -4,17 +4,23 @@ import javafx.scene.control.Button;
 import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
+/**
+ * Pulsante personalizzato che visualizza l'anteprima animata di una skin di gioco.
+ * Gestisce il ridimensionamento dinamico del canvas interno in base alle dimensioni del pulsante stesso.
+ */
 public class SkinButton extends Button {
 
-    // Same ratio that was in the controller
+    // Stesso rapporto utilizzato nel controller
     public static final double SKIN_TO_BUTTON_RATIO = 0.9;
 
     private final AnimatedCanvas canvas;
 
     /**
-     * @param skin   the entity record (holds sprite path and frame size)
-     * @param width  initial width of the button
-     * @param height initial height of the button
+     * Costruisce un pulsante SkinButton inizializzando il canvas animato con i dati della skin passata.
+     *
+     * @param skin   Il record dell'entità (contiene il percorso dello sprite e la dimensione del frame)
+     * @param width  Larghezza iniziale del pulsante
+     * @param height Altezza iniziale del pulsante
      */
     public SkinButton(EntityRecord skin, double width, double height) {
         getStyleClass().add("skin-button");
@@ -30,13 +36,14 @@ public class SkinButton extends Button {
         setPrefSize(width, height);
         setMaxSize(width, height);
 
-        // Bind canvas size to button size changes
+        // Associa la dimensione del canvas ai cambiamenti di dimensione del pulsante
         widthProperty().addListener((obs, old, newVal) -> updateCanvasSize());
         heightProperty().addListener((obs, old, newVal) -> updateCanvasSize());
 
-        updateCanvasSize(); // initial adjustment
+        updateCanvasSize(); // Regolazione iniziale
     }
 
+    /** Aggiorna proporzionalmente le dimensioni geometriche del canvas di anteprima applicando il fattore di scala. */
     private void updateCanvasSize() {
         double size = Math.min(getWidth(), getHeight()) * SKIN_TO_BUTTON_RATIO;
         if (size > 0) {

@@ -8,6 +8,10 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+/**
+ * Gestore per il ridimensionamento automatico del testo e del layout dei campi di input.
+ * Adatta dinamicamente la dimensione del font e la larghezza del componente in base al testo inserito.
+ */
 public class AutoFittingInputBinder {
 
     private final TextInputControl inputField;
@@ -20,6 +24,7 @@ public class AutoFittingInputBinder {
     private static final int SHRINK_THRESHOLD = 15;
     private final Text measurementHelper = new Text();
 
+    /** Inizializza il binder configurando i vincoli, i filtri di lunghezza e i trigger di ricalcolo. */
     public AutoFittingInputBinder(TextInputControl inputField, String fontFamily, double baseFontSize, double minFontSize, int maxInputLength) {
         this.inputField = inputField;
         this.fontFamily = fontFamily;
@@ -32,11 +37,13 @@ public class AutoFittingInputBinder {
         setupTriggers();
     }
 
+    /** Configura le proprietà di larghezza minima e massima del campo di input. */
     private void setupConstraints() {
         inputField.setMinWidth(TextInputControl.USE_COMPUTED_SIZE);
         inputField.setMaxWidth(Double.MAX_VALUE);
     }
 
+    /** Applica il filtro per impedire l'inserimento di caratteri oltre il limite massimo stabilito. */
     private void setupLengthFilter() {
         inputField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && newVal.length() > maxInputLength) {
@@ -45,11 +52,13 @@ public class AutoFittingInputBinder {
         });
     }
 
+    /** Attiva i listener sul testo e sui limiti personalizzati per avviare il ricalcolo grafico. */
     private void setupTriggers() {
         inputField.textProperty().addListener((obs, old, val) -> recalc());
         customLimit.addListener((obs, old, val) -> recalc());
     }
 
+    /** Ricalcola dinamicamente la larghezza del campo e la dimensione del font sul thread JavaFX. */
     private void recalc() {
         Platform.runLater(() -> {
             String text = inputField.getText();
@@ -109,6 +118,7 @@ public class AutoFittingInputBinder {
         });
     }
 
+    /** Applica la nuova dimensione del font calcolata al campo di input. */
     private void applyFont(double size) {
         if (size > 0) {
             inputField.setFont(Font.font(fontFamily, size));
@@ -116,6 +126,7 @@ public class AutoFittingInputBinder {
         }
     }
 
+    /** Esegue il binding unidirezionale del limite di larghezza massima a una sorgente osservabile. */
     public void bindLimit(javafx.beans.value.ObservableNumberValue limitSource) {
         customLimit.bind(limitSource);
     }

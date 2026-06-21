@@ -14,6 +14,11 @@ import uni.gaben.iscat.model.Dir;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 import uni.gaben.iscat.view.components.IscatTitleBar;
 
+/**
+ * Finestra principale dell'applicazione (custom window decorata).
+ * Gestisce il drag della finestra, il ridimensionamento manuale tramite i bordi,
+ * e l'animazione a scomparsa della barra del titolo in modalità a schermo intero.
+ */
 public class IscatWindow extends StackPane {
 
     private static final int    RESIZE_MARGIN = 3;
@@ -22,21 +27,28 @@ public class IscatWindow extends StackPane {
     private final Stage stage;
     private final Scene scene;
     private final IscatTitleBar titleBar;
-    private final StackPane viewPane;     // where IscatViewController swaps views
+    private final StackPane viewPane;     // Area in cui IscatViewController scambia le viste
     private final Region borderOverlay;
 
-    // Drag/resize state
+    // Stato di trascinamento e ridimensionamento
     private double dragOffsetX, dragOffsetY;
     private Dir dir = Dir.NONE;
     private double resizeStartX, resizeStartY;
     private double resizeStartW, resizeStartH;
     private double resizeStartStageX, resizeStartStageY;
 
-    // Full‑screen bar animation
+    // Animazione della barra in modalità a schermo intero
     private boolean barVisible = true;
     private TranslateTransition translateTransition;
     private FadeTransition fadeTransition;
 
+    /**
+     * Costruisce la finestra principale inizializzando la barra del titolo personalizzata,
+     * il contenitore delle viste e i filtri di input per il ridimensionamento.
+     *
+     * @param stage Lo stage nativo di JavaFX da controllare
+     * @param scene La scena in cui questa finestra funge da nodo radice
+     */
     public IscatWindow(Stage stage, Scene scene) {
         this.stage = stage;
         this.scene = scene;
@@ -48,14 +60,17 @@ public class IscatWindow extends StackPane {
         bindStageLimits();
         setupFullscreenBar();
 
-        // The window itself is the root of the Scene
+        // La finestra stessa diventa il nodo radice della Scena
         scene.setRoot(this);
     }
 
-    /** Exposes the content area where views are swapped. */
+    /** Espone l'area di contenuto in cui vengono scambiate le schermate. */
     public StackPane getView() { return viewPane; }
+
+    /** Restituisce l'istanza della barra del titolo personalizzata. */
     public IscatTitleBar getTitleBar() { return titleBar; }
 
+    /** Dispone graficamente la barra del titolo e la sovrapposizione del bordo sopra il pannello delle viste. */
     private void buildLayout() {
         titleBar.setMaxHeight(IscatTitleBar.TITLE_BAR_HEIGHT);
         borderOverlay.getStyleClass().add("window-border");
@@ -66,6 +81,7 @@ public class IscatWindow extends StackPane {
         StackPane.setAlignment(titleBar, Pos.TOP_CENTER);
     }
 
+    /** Imposta i limiti minimi geometrici e le dimensioni di partenza dello stage. */
     private void bindStageLimits() {
         stage.setMinWidth(MIN_W);
         stage.setMinHeight(MIN_H);
@@ -74,11 +90,12 @@ public class IscatWindow extends StackPane {
     }
 
     // ---------------------------------------------------------------------
-    // Mouse events – drag, resize, full‑screen bar
+    // Eventi del mouse – trascinamento, ridimensionamento, barra schermo intero
     // ---------------------------------------------------------------------
 
+    /** Associa i listener di trascinamento alla barra del titolo e i filtri globali per il ridimensionamento sulla scena. */
     private void setOnInputs() {
-        // Title bar drag
+        // Trascinamento della barra del titolo
         titleBar.setOnMousePressed(e -> {
             if (stage.isFullScreen()) return;
             if (e.getClickCount() == 2) {
@@ -100,13 +117,14 @@ public class IscatWindow extends StackPane {
             stage.setY(e.getScreenY() - dragOffsetY);
         });
 
-        // Resize & full‑screen bar – add filters on the scene
+        // Ridimensionamento e barra schermo intero – aggiunge i filtri sulla scena
         scene.addEventFilter(MouseEvent.MOUSE_MOVED, this::onMouseMoved);
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED, this::onMousePressed);
         scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::onMouseDragged);
         scene.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> dir = Dir.NONE);
     }
 
+    /** Gestisce il movimento del mouse per aggiornare il cursore sui bordi o mostrare/nascondere la barra in fullscreen. */
     private void onMouseMoved(MouseEvent e) {
         if (stage.isFullScreen()) {
             scene.setCursor(Cursor.DEFAULT);
@@ -120,6 +138,7 @@ public class IscatWindow extends StackPane {
         }
     }
 
+    /** Intercetta la pressione del mouse sui margini per avviare la modalità di ridimensionamento della finestra. */
     private void onMousePressed(MouseEvent e) {
         if (stage.isFullScreen() || stage.isMaximized()) return;
         Dir cirrentDir = getResizeDir(e.getSceneX(), e.getSceneY());
@@ -135,6 +154,7 @@ public class IscatWindow extends StackPane {
         }
     }
 
+    /** Ricalcola le coordinate dello stage e le sue dimensioni in base alla direzione di ridimensionamento attiva. */
     private void onMouseDragged(MouseEvent e) {
         if (stage.isFullScreen() || stage.isMaximized() || dir == Dir.NONE) return;
         double dx = e.getScreenX() - resizeStartX;
@@ -159,6 +179,7 @@ public class IscatWindow extends StackPane {
         e.consume();
     }
 
+    /** Calcola la direzione del ridimensionamento (Nord, Sud, Ovest, Est o diagonali) in base ai margini della coordinata di input. */
     private Dir getResizeDir(double x, double y) {
         double w = stage.getWidth();
         double h = stage.getHeight();
@@ -178,6 +199,7 @@ public class IscatWindow extends StackPane {
         return Dir.NONE;
     }
 
+    /** Associa la direzione calcolata al rispettivo cursore nativo di ridimensionamento di JavaFX. */
     private static Cursor resizeCursor(Dir dir) {
         return switch (dir) {
             case N -> Cursor.N_RESIZE; case S -> Cursor.S_RESIZE;
@@ -189,9 +211,10 @@ public class IscatWindow extends StackPane {
     }
 
     // ---------------------------------------------------------------------
-    // Full‑screen bar animations
+    // Animazioni della barra a schermo intero
     // ---------------------------------------------------------------------
 
+    /** Configura i listener di transizione per alterare lo stile e resettare la barra quando si entra/esce dal fullscreen. */
     private void setupFullscreenBar() {
         stage.fullScreenProperty().addListener((obs, wasFs, isFs) -> {
             if (isFs) {
@@ -208,17 +231,20 @@ public class IscatWindow extends StackPane {
         });
     }
 
+    /** Attiva l'animazione di scivolamento verso il basso per mostrare la barra del titolo. */
     private void slideIn() {
         barVisible = true;
         runAnimation(0, 1.0, 150);
     }
 
+    /** Attiva l'animazione di scivolamento verso l'alto per nascondere la barra del titolo oltre il bordo dello schermo. */
     private void slideOut() {
         barVisible = false;
         double h = titleBar.getHeight() > 0 ? titleBar.getHeight() : IscatTitleBar.TITLE_BAR_HEIGHT;
         runAnimation(-h - 4, 0.0, 200);
     }
 
+    /** Configura ed esegue in parallelo le transizioni di spostamento verticale (Translate) e opacità (Fade). */
     private void runAnimation(double toY, double toOpacity, int durationMs) {
         stopAnimations();
         translateTransition = new TranslateTransition(Duration.millis(durationMs), titleBar);
@@ -229,6 +255,7 @@ public class IscatWindow extends StackPane {
         fadeTransition.play();
     }
 
+    /** Interrompe forzatamente tutte le animazioni attive sulla barra del titolo. */
     private void stopAnimations() {
         if (translateTransition != null) translateTransition.stop();
         if (fadeTransition != null) fadeTransition.stop();

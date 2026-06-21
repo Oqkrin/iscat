@@ -10,19 +10,39 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import uni.gaben.iscat.utils.SessionManager;
 
+/**
+ * Barra del titolo personalizzata per le finestre dell'applicazione ISCAT.
+ * Gestisce i pulsanti di controllo della finestra (chiusura, ridimensionamento, pinning)
+ * e mostra dinamicamente il nome dell'utente in sessione al centro della barra.
+ */
 public class IscatTitleBar extends StackPane {
 
+    /** Altezza predefinita in pixel della barra del titolo. */
     public static final int TITLE_BAR_HEIGHT = 56;
-    // Ability elements
+
+    /** Pulsante per la chiusura della finestra. */
     public final Button closeButton = titleBarButton("✕",  "title-bar-btn-close",      "Close");
+
+    /** Pulsante per massimizzare la finestra. */
     public final Button maximizeButton = titleBarButton("⬜",  "title-bar-btn-maximize",   "Maximize");
+
+    /** Pulsante per attivare la modalità a schermo intero. */
     public final Button fullscreenButton = titleBarButton("⛶",  "title-bar-btn-fullscreen", "Fullscreen");
+
+    /** Pulsante per minimizzare la finestra nel vassoio di sistema. */
     public final Button minimizeButton = titleBarButton("—",  "title-bar-btn-minimize",   "Minimize");
+
+    /** Pulsante per mantenere la finestra sempre in primo piano (pinning). */
     public final Button pinButton = titleBarButton("📌", "title-bar-btn-pin",        "Always on top");
 
-    // Central Floating Title Label
+    /** Etichetta testuale centrale legata al nome utente della sessione corrente. */
     public final Label titleLabel     = new Label();
 
+    /**
+     * Costruisce e inizializza la barra del titolo.
+     * Configura i raggruppamenti di pulsanti laterali, la capsula centrale per il titolo
+     * e applica i vincoli geometrici di allineamento e binding dei dati.
+     */
     public IscatTitleBar() {
         getStyleClass().add("title-bar");
 
@@ -66,6 +86,9 @@ public class IscatTitleBar extends StackPane {
         titleLabel.textProperty().bind(SessionManager.getInstance().usernameProperty());
     }
 
+    /**
+     * Helper statico per la creazione e la formattazione uniforme dei pulsanti della barra del titolo.
+     */
     private static Button titleBarButton(String text, String styleClass, String tooltip) {
         Button btn = new Button(text);
         btn.getStyleClass().setAll("button", "title-bar-btn", styleClass);

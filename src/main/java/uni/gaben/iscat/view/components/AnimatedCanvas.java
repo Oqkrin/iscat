@@ -36,17 +36,17 @@ public class AnimatedCanvas extends Canvas {
     private int lastRow = -1;
     private int lastCol = -1;
 
+    /** Canvas vuoto con dimensioni iniziali a zero. */
     public AnimatedCanvas() {
         super(0, 0);
     }
 
+    /** Canvas quadrato con dimensione personalizzata. */
     public AnimatedCanvas(double size) {
         super(size, size);
     }
 
-    /**
-     * Sets the duration of each frame in seconds.
-     */
+    /** Imposta la durata di ogni frame in secondi. */
     public void setFrameDuration(double duration) {
         this.currentFrameDuration = duration;
         if (animator != null) {
@@ -58,11 +58,7 @@ public class AnimatedCanvas extends Canvas {
         }
     }
 
-    /**
-     * Loads a sprite sheet from a path string (e.g. "/uni/gaben/iscat/sprites/enemies/slime.png").
-     * Uses the central {@link SpritesLibrary}, which now resolves external sprites
-     * (custom → core → internal) automatically.
-     */
+    /** Carica uno sprite dal percorso specificato tramite SpritesLibrary. */
     public void loadSkin(String path, int frameW, int frameH) {
         stop();
 
@@ -75,11 +71,7 @@ public class AnimatedCanvas extends Canvas {
         initAnimator();
     }
 
-    /**
-     * Loads a sprite sheet directly from an {@link InputStream}.
-     * Useful when the sprite has been obtained via {@link SpriteResolver} or similar
-     * external‑first mechanisms.
-     */
+    /** Carica uno sprite direttamente da un InputStream. */
     public void loadSkin(InputStream imageStream, int frameW, int frameH) {
         stop();
 
@@ -92,6 +84,7 @@ public class AnimatedCanvas extends Canvas {
         initAnimator();
     }
 
+    /** Inizializza l'animatore per la gestione del tempo e dei frame. */
     private void initAnimator() {
         // For simplicity, assume a uniform number of frames per row (the same as the old code).
         // This matches the legacy behaviour; if you later support variable rows you can
@@ -109,6 +102,7 @@ public class AnimatedCanvas extends Canvas {
         startTimer();
     }
 
+    /** Avvia l'AnimationTimer principale del ciclo di gioco. */
     private void startTimer() {
         lastTime = 0;
         timer = new AnimationTimer() {
@@ -130,14 +124,13 @@ public class AnimatedCanvas extends Canvas {
         timer.start();
     }
 
-    /**
-     * Resizes the canvas to a square of the given size.
-     */
+    /** Ridimensiona il canvas mantenendo la geometria quadrata. */
     public void resize(double size) {
         setWidth(size);
         setHeight(size);
     }
 
+    /** Esegue il rendering effettivo e la ricolorazione software del frame corrente. */
     private void render() {
         if (spriteSheet == null || animator == null) {
             return;
@@ -174,9 +167,7 @@ public class AnimatedCanvas extends Canvas {
         }
     }
 
-    /**
-     * Forces the cache to be rebuilt on next render.
-     */
+    /** Invalida la cache grafica forzando la ricolorazione al frame successivo. */
     public void invalidateCache() {
         this.cachedTintedFrame = null;
         this.lastAppliedTint = null;
@@ -184,9 +175,7 @@ public class AnimatedCanvas extends Canvas {
         this.lastCol = -1;
     }
 
-    /**
-     * Stops the animation timer.
-     */
+    /** Ferma l'AnimationTimer azzerando i parametri temporali. */
     public void stop() {
         if (timer != null) {
             timer.stop();

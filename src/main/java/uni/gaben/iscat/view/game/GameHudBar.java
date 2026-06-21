@@ -56,11 +56,7 @@ public class GameHudBar extends StackPane {
         updateTimer(controller.getGameModel().getTimer());
     }
 
-    /**
-     * Inizializza e dispone graficamente tutti i nodi e le etichette all'interno dell'HUD.
-     *
-     * @param wave Il controller delle ondate per l'inizializzazione iniziale del testo.
-     */
+    /** Dispone geometricamente i componenti dell'HUD (allineamento righe e box verticali). */
     private void buildNodes(UniverseWaveController wave) {
         final double SU = IscatSettings.STANDARD_UNIT;
 
@@ -112,9 +108,7 @@ public class GameHudBar extends StackPane {
         setMouseTransparent(true);
     }
 
-    /**
-     * Applica lo stile CSS caricando il file di risorsa dedicato.
-     */
+    /** Carica il foglio di stile CSS esterno dedicato all'HUD di gioco. */
     private void applyStyles() {
         getStyleClass().add("game-hud-container");
         try {
@@ -198,14 +192,7 @@ public class GameHudBar extends StackPane {
         waveLabel.setText("Wave " + newWave.getCurrentWave());
     }
 
-    /**
-     * Fabbrica e restituisce una Label pre-configurata secondo i canoni grafici del gioco.
-     * Mantiene l'iniezione dinamica del colore del testo da ThemeManager come fallback di sicurezza.
-     *
-     * @param text            Il testo iniziale da assegnare all'etichetta.
-     * @param sizeStyleClass  Il modificatore della dimensione della classe CSS ("large", "medium", "small", "threat").
-     * @return                Un oggetto {@link Label} configurato e pronto all'uso.
-     */
+    /** Instanzia una Label disabilitando il focus e applicando le classi di stile e i colori del tema. */
     private Label styledLabel(String text, String sizeStyleClass) {
         Label lbl = new Label(text);
         lbl.getStyleClass().addAll("hud-label", sizeStyleClass);

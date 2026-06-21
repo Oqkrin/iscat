@@ -20,16 +20,17 @@ import java.util.function.Supplier;
  */
 public class EntityEditorUIBuilder {
 
-    // Callback to trigger a full UI rebuild after array modifications
+    /** Callback per forzare il ridisegno completo della UI in seguito a modifiche strutturali degli array. */
     private final Runnable rebuildCallback;
 
+    /** Inizializza il builder della UI impostando il callback di ricostruzione. */
     public EntityEditorUIBuilder(Runnable rebuildCallback) {
         this.rebuildCallback = rebuildCallback;
     }
 
     /**
-     * Rebuilds the entire form from the given JSON object.
-     * Clears and repopulates all provided VBox containers.
+     * Svuota e ripopola interamente i contenitori grafici forniti basandosi sui dati del modello JSON.
+     * Raggruppa i campi in sezioni logiche: identità, grafica, fisica, comportamento, IA avanzata e audio.
      */
     public void buildUI(JSONObject json,
                         VBox identity,
@@ -108,6 +109,7 @@ public class EntityEditorUIBuilder {
     //  ADVANCED AI BUILDERS
     // ============================================================
 
+    /** Genera la sottosezione dell'interfaccia dedicata ai parametri di IA avanzata (Steering, Rotazione, Modificatori, Abilità). */
     private void buildAdvancedAI(JSONObject json, VBox container) {
         JSONObject ai = json.optJSONObject("ai");
         if (ai == null) {
@@ -181,6 +183,7 @@ public class EntityEditorUIBuilder {
     //  HELPER – SECTION BOX
     // ============================================================
 
+    /** Metodo di supporto per creare un contenitore VBox stilizzato munito di titolo della sezione. */
     private VBox createSectionBox(String title) {
         VBox box = new VBox(8);
         box.getStyleClass().add("editor-section-box");
@@ -195,6 +198,7 @@ public class EntityEditorUIBuilder {
     //  Uses standard BiConsumer instead of custom interface.
     // ============================================================
 
+    /** Genera ricorsivamente e dinamicamente l'interfaccia per la gestione degli array JSON, includendo i tasti di aggiunta e rimozione. */
     private void buildJsonArrayUI(VBox container,
                                   JSONObject parent,
                                   String arrayKey,
@@ -255,6 +259,7 @@ public class EntityEditorUIBuilder {
     //  SPECIFIC ITEM BUILDERS
     // ============================================================
 
+    /** Costruisce i campi di input grafici associati a un singolo modificatore di movimento (Steering Modifier). */
     private void buildSingleModifierUI(VBox box, JSONObject mod) {
         box.getChildren().addAll(
                 FieldBuilder.createEnumComboField("Type", mod, "type",
@@ -264,6 +269,7 @@ public class EntityEditorUIBuilder {
         );
     }
 
+    /** Costruisce i campi specifici e i sotto-pattern condizionali per una singola abilità dell'entità. */
     private void buildSingleAbilityUI(VBox box, JSONObject ability) {
         box.getChildren().addAll(
                 FieldBuilder.createEnumComboField("Type", ability, "type",
@@ -299,6 +305,7 @@ public class EntityEditorUIBuilder {
         }
     }
 
+    /** Costruisce ricorsivamente e dinamicamente i parametri geometrici e numerici associati a un pattern di fuoco/attacco. */
     private void buildPatternUI(VBox box, JSONObject pattern) {
         box.getChildren().clear();
 

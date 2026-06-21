@@ -21,31 +21,26 @@ public class StarryBackgroundCanvas extends Canvas {
     private final StarfieldRenderer spaceView = new SkinnyStarfieldVFX(); // Mantiene compatibilità strutturale
     private final AnimationTimer animationLoop;
 
-    // Configurazione stelle
     private static final int STAR_COUNT = 1000;
 
-    // Coordinate target (dove la telecamera vuole andare) e correnti (dove si trova fluidamente)
     private double targetCameraX = 0;
     private double targetCameraY = 0;
     private double currentCameraX = 0;
     private double currentCameraY = 0;
 
-    // Gestione del tempo per fluidità indipendente dal framerate
     private long lastTime = 0;
 
-    // Mouse tracking
     private boolean followMouse = false;
     private double mouseX = 0;
     private double mouseY = 0;
     private double prevMouseX = 0;
     private double prevMouseY = 0;
 
-    // Sensibilità del parallasse del mouse
     private static final double MOUSE_PARALLAX_FACTOR = 0.65;
 
-    // Coefficiente di reattività dello smorzamento (più è alto, più segue i movimenti rapidamente)
     private static final double DAMPING_SPEED = 8.0;
 
+    /** Inizializza il canvas dello sfondo stellato e configura i listener di ridimensionamento e l'AnimationTimer. */
     public StarryBackgroundCanvas() {
         this.space = new Starfield(0, 0);
 
@@ -83,10 +78,7 @@ public class StarryBackgroundCanvas extends Canvas {
         };
     }
 
-    /**
-     * Popola lo Starfield usando una distribuzione a campana asimmetrica.
-     * Genera molte più stelle microscopiche di sfondo che giganti in primo piano.
-     */
+    /** Popola lo Starfield generando casualmente le stelle sul canvas applicando un filtro di parallasse sulla dimensione. */
     private void populateStarfield() {
         double w = getWidth();
         double h = getHeight();
@@ -110,6 +102,7 @@ public class StarryBackgroundCanvas extends Canvas {
         }
     }
 
+    /** Attiva o disattiva l'inseguimento del movimento del mouse per l'effetto parallasse. */
     public void setFollowMouse(boolean followMouse) {
         this.followMouse = followMouse;
         if (followMouse) {
@@ -118,31 +111,26 @@ public class StarryBackgroundCanvas extends Canvas {
         }
     }
 
+    /** Aggiorna le coordinate correnti del cursore del mouse all'interno del canvas. */
     public void updateMousePosition(double x, double y) {
         this.mouseX = x;
         this.mouseY = y;
     }
 
-    /**
-     * Incrementa il target della telecamera in base alla velocità vettoriale del giocatore.
-     */
+    /** Incrementa il target della telecamera in base alla velocità vettoriale fornita. */
     public void updateWithVelocity(double vx, double vy) {
         followMouse = false;
         targetCameraX += vx;
         targetCameraY += vy;
     }
 
-    /**
-     * Registra un impulso cinematico immediato modificando il target di destinazione.
-     */
+    /** Applica un impulso cinematico immediato modificando le coordinate di destinazione della telecamera. */
     public void applyImpulse(double dvx, double dvy) {
         targetCameraX += dvx;
         targetCameraY += dvy;
     }
 
-    /**
-     * Calcola lo scostamento e applica l'interpolazione lineare (Lerp) tarata sul delta time.
-     */
+    /** Aggiorna lo stato logico della telecamera, calcolando gli scostamenti del mouse e applicando lo smorzamento. */
     private void update(double dt) {
         if (followMouse) {
             double dx = mouseX - prevMouseX;
@@ -168,6 +156,7 @@ public class StarryBackgroundCanvas extends Canvas {
         spaceView.setCameraY(currentCameraY);
     }
 
+    /** Disegna il colore di sfondo e delega allo StarfieldRenderer il rendering delle stelle sul contesto grafico. */
     private void render() {
         double w = getWidth();
         double h = getHeight();
@@ -184,11 +173,13 @@ public class StarryBackgroundCanvas extends Canvas {
         spaceView.render(space, gc);
     }
 
+    /** Avvia il ciclo di animazione dello sfondo stellato resettando il cronometro interno. */
     public void start() {
         lastTime = 0; // Resetta il cronometro interno per evitare balzi temporali all'avvio
         if (animationLoop != null) animationLoop.start();
     }
 
+    /** Arresta l'AnimationTimer interrompendo l'aggiornamento e il disegno dello sfondo. */
     public void stop() {
         if (animationLoop != null) animationLoop.stop();
     }
@@ -196,6 +187,6 @@ public class StarryBackgroundCanvas extends Canvas {
     public Starfield getSpace() { return space; }
     public StarfieldRenderer getSpaceView() { return spaceView; }
 
-    // Sotto-classe interna d'appoggio per raggirare in sicurezza l'estensione originaria se necessario
+    /** Sotto-classe interna d'appoggio per estendere strutturalmente StarfieldRenderer. */
     private static class SkinnyStarfieldVFX extends StarfieldRenderer {}
 }

@@ -23,8 +23,8 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * Application root — pure bootstrap, no business logic.
- * Constructs and wires all MVC triads, then hands off to IscatNavigator.
+ * Radice dell'applicazione — puro bootstrap, nessuna logica di business.
+ * Costruisce e collega tutte le triadi MVC, per poi passare il controllo a IscatNavigator.
  */
 public class IscatApplication extends Application {
 
@@ -40,6 +40,10 @@ public class IscatApplication extends Application {
     private IscatWindowController windowController;
     private IscatViewController viewController;
 
+    /**
+     * Inizializza le risorse globali dell'applicazione prima dell'avvio dell'interfaccia grafica.
+     * Carica i font personalizzati, avvia il database, precarica la cache delle entità e configura il navigatore.
+     */
     @Override
     public void init() {
         Font.loadFont(getClass().getResourceAsStream("/uni/gaben/iscat/fonts/Miracode.ttf"), 10);
@@ -49,6 +53,13 @@ public class IscatApplication extends Application {
         ExternalResourceResolver.init(Path.of("entities"));
     }
 
+    /**
+     * Avvia l'interfaccia grafica principale dell'applicazione.
+     * Configura lo stage in modalità non decorata, istanzia i controller della finestra e delle viste,
+     * applica gli stili globali e mostra la schermata iniziale.
+     *
+     * @param stage Lo stage primario fornito dalla piattaforma JavaFX
+     */
     @Override
     public void start(Stage stage) {
         AudioManager.getInstance().loadDefaultAudio();
@@ -58,14 +69,14 @@ public class IscatApplication extends Application {
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(iscatRootScene);
 
-        // Window component takes over the whole visual structure
+        // Il componente finestra prende il controllo dell'intera struttura visiva
         windowController = new IscatWindowController(iscatModel, stage);
 
-        // View controller uses the window's content pane
+        // Il controller delle viste utilizza il pannello del contenuto della finestra
         viewController = new IscatViewController(iscatModel, windowController.getWindow());
         viewController.showInitialView(IscatViews.LOGIN_MENU);
 
-        // Style the scene root (which is now the IscatWindow)
+        // Applica gli stili alla radice della scena (che ora è la classe IscatWindow)
         addIscatStyles(iscatRootScene);
 
         stage.initStyle(StageStyle.UNDECORATED);
@@ -74,6 +85,9 @@ public class IscatApplication extends Application {
         stage.centerOnScreen();
     }
 
+    /**
+     * Carica e associa i fogli di stile CSS globali (colori, tipografia e componenti condivisi) alla scena specificata.
+     */
     private void addIscatStyles(Scene scene) {
         String colorTheme = Objects.requireNonNull(
                 IscatApplication.class.getResource("/uni/gaben/iscat/styles/iscat-color-theme.css")).toExternalForm();
@@ -84,6 +98,9 @@ public class IscatApplication extends Application {
         scene.getStylesheets().addAll(colorTheme, typography, components);
     }
 
+    /**
+     * Gestisce la chiusura in sicurezza dell'applicazione, disconnettendo le istanze attive del database.
+     */
     @Override
     public void stop() throws Exception {
         IscatDB.getInstance().shutdown();

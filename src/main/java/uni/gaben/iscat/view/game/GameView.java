@@ -60,6 +60,7 @@ public class GameView extends AbstractIscatStackPane {
         initialize();
     }
 
+    /** Inizializza i nodi grafici principali inclusi il canvas, l'HUD, i menu sovrapposti e l'overlay di debug. */
     @Override
     protected void initNodes() {
         canvas = new Canvas();
@@ -76,6 +77,7 @@ public class GameView extends AbstractIscatStackPane {
         debugOverlay = new GameDebugOverlay(gameController, isVisible -> canvas.requestFocus());
     }
 
+    /** Applica i fogli di stile CSS e la formattazione tipografica per le etichette di testo. */
     @Override
     protected void initStyles() {
         getViewRootPointer().getStyleClass().add("game-view-container");
@@ -88,6 +90,7 @@ public class GameView extends AbstractIscatStackPane {
         levelLabel.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 0);");
     }
 
+    /** Organizza la gerarchia del layout posizionando gli elementi grafici e configurando i margini. */
     @Override
     protected void initLayout() {
         getViewRootPointer().getChildren().addAll(
@@ -106,6 +109,7 @@ public class GameView extends AbstractIscatStackPane {
         StackPane.setMargin(levelLabel, new Insets(0, 50, 50, 0));
     }
 
+    /** Configura i binding delle proprietà per ridimensionamento dinamico, sincronizzazione dello stato di gioco e del timer. */
     @Override
     protected void initBindings() {
         canvas.widthProperty().bind(getViewRootPointer().widthProperty());
@@ -144,6 +148,7 @@ public class GameView extends AbstractIscatStackPane {
         runLater(() -> hudBar.updateTimer(gameModel.getTimer()));
     }
 
+    /** Associa i gestori degli eventi di input da tastiera, inclusi i controlli di pausa ed escalation dello zoom. */
     @Override
     protected void initEventHandlers() {
         gameController.getInputManager().attachToCanvas(canvas);
@@ -169,6 +174,7 @@ public class GameView extends AbstractIscatStackPane {
         });
     }
 
+    /** Handler di attivazione della schermata: inizializza il loop grafico, configura le opzioni utente e aggancia l'universo corrente. */
     @Override
     public void onShow() {
         super.onShow();
@@ -196,6 +202,7 @@ public class GameView extends AbstractIscatStackPane {
         });
     }
 
+    /** Disperde il focus o forza lo stato di pausa all'occultamento della vista. */
     @Override
     public void onHide() {
         super.onHide();
@@ -203,17 +210,20 @@ public class GameView extends AbstractIscatStackPane {
             transitionTo(GameState.IN_PAUSE);
     }
 
+    /** Interrompe definitivamente il loop di gioco al momento dello scaricamento della vista. */
     @Override
     public void onUnload() {
         super.onUnload();
         gameController.stopGameLoop();
     }
 
+    /** Esegue una transizione di stato della macchina a stati del gioco se differisce dallo stato attuale. */
     public void transitionTo(GameState next) {
         if (gameModel.gameStateProperty().get() != next)
             gameModel.setGameState(next);
     }
 
+    /** Aggiorna il viewport della telecamera in risposta alla variazione geometrica del canvas. */
     private void onCanvasSizeChanged() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
@@ -221,6 +231,7 @@ public class GameView extends AbstractIscatStackPane {
         universeRenderer.updateViewport(w, h);
     }
 
+    /** Collega dinamicamente le informazioni del livello utente e dei controller delle ondate all'universo attivo. */
     private void bindToCurrentUniverse() {
         levelLabel.textProperty().unbind();
         UniverseModel universe = gameController.getUniverseModel();
@@ -237,6 +248,7 @@ public class GameView extends AbstractIscatStackPane {
         }
     }
 
+    /** Carica in overlay l'interfaccia FXML relativa al menu delle impostazioni di gioco. */
     public void openSettings() {
         transitionTo(GameState.IN_SETTINGS);
         final StackPane[] wrapper = new StackPane[1];
@@ -250,11 +262,13 @@ public class GameView extends AbstractIscatStackPane {
         getViewRootPointer().getChildren().add(wrapper[0]);
     }
 
+    /** Rimuove la vista delle impostazioni dall'albero grafico e ripristina lo stato di pausa. */
     private void closeSettings(StackPane settingsView) {
         getViewRootPointer().getChildren().remove(settingsView);
         transitionTo(GameState.IN_PAUSE);
     }
 
+    /** Istanzia e carica il layout grafico associato al menu di pausa. */
     private StackPane loadPauseMenu() {
         return loadFxml("/uni/gaben/iscat/fxml/GamePauseMenu.fxml",
                 (GamePauseMenuController c) -> {
@@ -263,6 +277,7 @@ public class GameView extends AbstractIscatStackPane {
                 });
     }
 
+    /** Istanzia e carica il layout grafico associato alla schermata di game over. */
     private StackPane loadGameOverMenu() {
         return loadFxml("/uni/gaben/iscat/fxml/GameOverMenu.fxml",
                 (GameOverMenuController c) -> c.initData(gameController, this));

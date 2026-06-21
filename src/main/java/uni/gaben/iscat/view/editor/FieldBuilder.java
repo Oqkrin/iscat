@@ -10,8 +10,13 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Utility factory per la creazione di componenti di input grafici allineati in riga (HBox).
+ * Sincronizza automaticamente le modifiche effettuate sulla UI con un oggetto modello JSON di destinazione.
+ */
 public class FieldBuilder {
 
+    /** Crea una riga di layout contenente un'etichetta descrittiva e il rispettivo controllo JavaFX. */
     public static HBox createRow(String labelText, Control control) {
         HBox row = new HBox(8);
         row.getStyleClass().add("editor-field-row");
@@ -29,13 +34,14 @@ public class FieldBuilder {
         return row;
     }
 
-    // Convenience methods for common controls
+    /** Genera una riga con un campo di testo (TextField) collegato a una proprietà String del JSON. */
     public static HBox createStringField(String label, JSONObject json, String key) {
         TextField field = new TextField(json.optString(key, ""));
         field.textProperty().addListener((obs, old, val) -> json.put(key, val));
         return createRow(label, field);
     }
 
+    /** Genera una riga con uno Spinner numerico decimale collegato a una proprietà numerica del JSON. */
     public static HBox createDoubleField(String label, JSONObject json, String key, double def) {
         Spinner<Double> spinner = new Spinner<>(-9999.0, 9999.0, json.optDouble(key, def), 0.5);
         spinner.setEditable(true);
@@ -43,6 +49,7 @@ public class FieldBuilder {
         return createRow(label, spinner);
     }
 
+    /** Genera una riga con una ComboBox di stringhe predefinite collegata a una proprietà di testo del JSON. */
     public static HBox createComboField(String label, JSONObject json, String key, String[] options) {
         ComboBox<String> combo = new ComboBox<>();
         combo.getItems().addAll(options);
@@ -52,6 +59,7 @@ public class FieldBuilder {
         return createRow(label, combo);
     }
 
+    /** Genera una riga con una ComboBox tipizzata su un Enum, sincronizzando la chiave estratta nel JSON. */
     public static <E extends Enum<E>> HBox createEnumComboField(String label, JSONObject json, String key, E[] values, java.util.function.Function<E, String> keyExtractor) {
         String[] jsonKeys = Arrays.stream(values).map(keyExtractor).toArray(String[]::new);
         ComboBox<String> combo = new ComboBox<>();
@@ -65,6 +73,7 @@ public class FieldBuilder {
         return createRow(label, combo);
     }
 
+    /** Genera una riga con una CheckBox booleana collegata a un flag del JSON. */
     public static HBox createBooleanField(String label, JSONObject json, String key) {
         CheckBox check = new CheckBox();
         check.setSelected(json.optBoolean(key, false));
@@ -72,7 +81,7 @@ public class FieldBuilder {
         return createRow(label, check);
     }
 
-    // For audio string arrays – uses a TextField that parses comma-separated values
+    /** Genera un campo per array di stringhe (es. tracce audio) tokenizzando il testo inserito separato da virgole. */
     public static HBox createStringArrayField(String label, JSONObject json, String key) {
         TextField field = new TextField();
         HBox.setHgrow(field, Priority.ALWAYS);

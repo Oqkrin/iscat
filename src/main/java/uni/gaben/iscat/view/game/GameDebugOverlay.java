@@ -55,6 +55,7 @@ public class GameDebugOverlay extends StackPane {
         initEventHandlers(onToggleDebugPanel);
     }
 
+    /** Instanzia i nodi dell'interfaccia di debug, inclusi la toolbar, i pulsanti e i contenitori delle etichette. */
     private void initNodes() {
         debugToolBar = new DebugToolBar(gameController);
         debugToolBar.setPickOnBounds(false);
@@ -83,6 +84,7 @@ public class GameDebugOverlay extends StackPane {
         debugButtonsContainer.setPickOnBounds(false);
     }
 
+    /** Applica la formattazione CSS e gli stili grafici personalizzati ai testi e ai pulsanti di debug. */
     private void initStyles() {
         CssHelper.stilePulsanteMenu(debugButton);
         CssHelper.testoPrimario(debugButton);
@@ -96,6 +98,7 @@ public class GameDebugOverlay extends StackPane {
         debugWarningLabel.setStyle("-fx-text-fill: #e74c3c; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
     }
 
+    /** Configura le posizioni geometriche, gli allineamenti e i margini dei vari moduli all'interno dello StackPane. */
     private void initLayout() {
         getChildren().addAll(cheatLabelsContainer, debugToolBar, debugButtonsContainer);
 
@@ -111,6 +114,7 @@ public class GameDebugOverlay extends StackPane {
         StackPane.setMargin(cheatLabelsContainer, new Insets(0, 0, IscatSettings.STANDARD_UNIT, IscatSettings.STANDARD_UNIT));
     }
 
+    /** Stabilisce i binding reattivi per il ridimensionamento della barra e controlla la visibilità condizionale dei cheat. */
     private void initBindings(Consumer<Boolean> onToggleDebugPanel) {
 
         debugToolBar.maxHeightProperty().bind(heightProperty().multiply(Math.pow(ScalareAureo.IPHI_D, 3)));
@@ -145,6 +149,7 @@ public class GameDebugOverlay extends StackPane {
         debugToolBar.setManaged(false);
     }
 
+    /** Associa le azioni ai pulsanti per mostrare/nascondere la toolbar di debug e congelare/avviare le ondate di gioco. */
     private void initEventHandlers(Consumer<Boolean> onToggleDebugPanel) {
         debugButton.setOnAction(ev -> {
             if (gameController.isDebugModeOn()) {

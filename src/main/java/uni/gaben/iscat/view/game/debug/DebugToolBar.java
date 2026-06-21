@@ -22,6 +22,12 @@ public class DebugToolBar extends StackPane {
     private final DebugToolBarCheats cheatsView;
     private final DebugToolBarSpawner spawnerView;
 
+    /**
+     * Costruisce la barra degli strumenti di debug.
+     * Inizializza le viste secondarie per trucchi e spawner, crea il menu principale e applica gli stili.
+     *
+     * @param controller Il controller logico del gioco.
+     */
     public DebugToolBar(GameController controller) {
         final double SU = IscatSettings.STANDARD_UNIT;
 
@@ -36,18 +42,22 @@ public class DebugToolBar extends StackPane {
         showMainMenu();
     }
 
+    /** Mostra all'interno del pannello la vista del menu principale di debug. */
     public void showMainMenu() {
         getChildren().setAll(mainMenuView);
     }
 
+    /** Mostra all'interno del pannello l'interfaccia dedicata all'attivazione dei trucchi (Cheats). */
     public void showCheatsMenu() {
         getChildren().setAll(cheatsView);
     }
 
+    /** Mostra all'interno del pannello l'interfaccia dedicata alla generazione forzata delle entità (Spawner). */
     public void showSpawnerMenu() {
         getChildren().setAll(spawnerView);
     }
 
+    /** Costruisce graficamente la struttura del menu principale, configurandone pulsanti, spaziature ed eventi. */
     private void buildMainMenu() {
         final double SU = IscatSettings.STANDARD_UNIT;
 
@@ -88,6 +98,7 @@ public class DebugToolBar extends StackPane {
         mainMenuView.getChildren().addAll(titleLabel, optionsContainer);
     }
 
+    /** Assegna le classi CSS alla barra di debug e carica il rispettivo foglio di stile esterno. */
     private void applyStyles() {
         getStyleClass().addAll("debug-tool-bar", "glowing-border");
         String cssPath = getClass().getResource("/uni/gaben/iscat/styles/screens/game/debug-tool-bar.css").toExternalForm();

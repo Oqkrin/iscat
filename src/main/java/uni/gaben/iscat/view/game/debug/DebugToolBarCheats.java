@@ -16,6 +16,12 @@ import uni.gaben.iscat.utils.design.CssHelper;
  */
 public class DebugToolBarCheats extends VBox {
 
+    /**
+     * Costruisce il pannello dei trucchi inizializzando i pulsanti per la gestione di vita, modalità speciali e progressione.
+     *
+     * @param controller Il controller logico del gioco.
+     * @param onBack     Callback per gestire il ritorno al menu precedente.
+     */
     public DebugToolBarCheats(GameController controller, Runnable onBack) {
         final double SU = IscatSettings.STANDARD_UNIT;
 
@@ -75,6 +81,7 @@ public class DebugToolBarCheats extends VBox {
         getChildren().addAll(topBar, mainTitle, lblHealth, healthFlow, lblStates, statesFlow, lblLevels, levelsBox);
     }
 
+    /** Instanzia e configura un pulsante di cheat associandolo a una specifica azione e classe di stile. */
     private Button createCheatButton(String text, String colorStyleClass, Runnable action) {
         final double SU = IscatSettings.STANDARD_UNIT;
         Button btn = new Button(text);
@@ -87,6 +94,7 @@ public class DebugToolBarCheats extends VBox {
         return btn;
     }
 
+    /** Genera un'etichetta di testo stilizzata per identificare le macro-sezioni della console trucchi. */
     private Label createSectionLabel(String text) {
         Label lbl = new Label(text);
         CssHelper.testoSecondario(lbl);
