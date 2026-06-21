@@ -32,6 +32,8 @@ public class BestiaryMenuController implements IscatMenuController {
         ENEMIES, PLAYERS
     }
 
+    private final boolean allUnlocked = true;
+
     private final BestiaryModel bestiaryModel = new BestiaryModel();
     private Map<String, EntityRecord> rawEnemiesMap = new LinkedHashMap<>();
     private final Map<String, EntityRecord> filteredEnemies = new LinkedHashMap<>();
@@ -117,7 +119,6 @@ public class BestiaryMenuController implements IscatMenuController {
     private void applyFilterAndRebuildUI() {
         filteredEnemies.clear();
 
-        // Estrarre i record che corrispondono ai filtri di categoria correnti
         List<EntityRecord> tempList = new ArrayList<>();
         for (Map.Entry<String, EntityRecord> entry : rawEnemiesMap.entrySet()) {
             boolean isPlayerEntity = isPlayer(entry.getKey(), entry.getValue());
@@ -129,19 +130,16 @@ public class BestiaryMenuController implements IscatMenuController {
             }
         }
 
-        // Ordinamento effettivo tramite bestiaryOrder
         tempList.sort((a, b) -> {
             int orderA = (a.bestiaryOrder() != null) ? a.bestiaryOrder() : 0;
             int orderB = (b.bestiaryOrder() != null) ? b.bestiaryOrder() : 0;
             return Integer.compare(orderA, orderB);
         });
 
-        // Ripopolare la LinkedHashMap (che preserva l'ordine di inserimento)
         for (EntityRecord record : tempList) {
             filteredEnemies.put(record.entityKey().toLowerCase().trim(), record);
         }
 
-        // Aggiornamento etichette UI
         if (currentCategory == CategoryMode.ENEMIES) {
             listHeaderLabel.setText("ENEMIES");
             btnToggleCategory.setText("CHANGE TO PLAYERS");
@@ -175,8 +173,7 @@ public class BestiaryMenuController implements IscatMenuController {
         for (EntityRecord enemy : filteredEnemies.values()) {
             String safeId = enemy.entityKey().toLowerCase().trim();
 
-            // Se è un player, ignoriamo il database dei salvataggi: è sempre sbloccato.
-            boolean unlocked = isPlayer(safeId, enemy) || bestiaryModel.isUnlocked(safeId);
+            boolean unlocked = allUnlocked || isPlayer(safeId, enemy) || bestiaryModel.isUnlocked(safeId);
 
             String buttonText = unlocked ? enemy.name() : "???";
 
@@ -216,7 +213,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
         currentEnemyId = cleanId;
 
-        boolean unlocked = isPlayer(cleanId, enemy) || bestiaryModel.isUnlocked(cleanId);
+        boolean unlocked = allUnlocked || isPlayer(cleanId, enemy) || bestiaryModel.isUnlocked(cleanId);
         String nameToShow = unlocked ? enemy.name().toUpperCase() : "??? UNKNOWN ENTITY ???";
         skinNameLabel.setText(nameToShow);
 
@@ -238,7 +235,7 @@ public class BestiaryMenuController implements IscatMenuController {
         EntityRecord enemy = filteredEnemies.get(currentEnemyId);
         if (enemy == null) return;
 
-        boolean unlocked = isPlayer(currentEnemyId, enemy) || bestiaryModel.isUnlocked(currentEnemyId);
+        boolean unlocked = allUnlocked || isPlayer(currentEnemyId, enemy) || bestiaryModel.isUnlocked(currentEnemyId);
 
         if (!unlocked) {
             infoCardController.updateInfo("LOCKED", "[ INFO NASCOSTE ]\n\nSconfiggi o sblocca questa entità per visualizzarla.");
