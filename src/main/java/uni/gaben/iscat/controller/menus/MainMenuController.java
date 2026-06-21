@@ -155,7 +155,7 @@ public class MainMenuController implements IscatFxmlController {
                 }
                 case "fas-edit" -> {
                     AnimatedCanvas canvas = new AnimatedCanvas(128);
-                    loadAndResizeSkin(canvas, "/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
+                    loadAndResizeSkin(canvas, "/uni/gaben/iscat/sprites/other/editor.png", 32, 32);
                     canvas.setFrameDuration(0.20);
                     btn.setGraphic(canvas);
                 }
