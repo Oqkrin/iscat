@@ -61,6 +61,10 @@ public class FieldBuilder {
 
     /** Genera una riga con una ComboBox tipizzata su un Enum, sincronizzando la chiave estratta nel JSON. */
     public static <E extends Enum<E>> HBox createEnumComboField(String label, JSONObject json, String key, E[] values, java.util.function.Function<E, String> keyExtractor) {
+        return createEnumComboField(label, json, key, values, keyExtractor, null);
+    }
+
+    public static <E extends Enum<E>> HBox createEnumComboField(String label, JSONObject json, String key, E[] values, java.util.function.Function<E, String> keyExtractor, Runnable onChange) {
         String[] jsonKeys = Arrays.stream(values).map(keyExtractor).toArray(String[]::new);
         ComboBox<String> combo = new ComboBox<>();
         combo.getItems().addAll(jsonKeys);
@@ -69,7 +73,10 @@ public class FieldBuilder {
                 .filter(k -> k.equalsIgnoreCase(current))
                 .findFirst().orElse(jsonKeys[0]);
         combo.getSelectionModel().select(matched);
-        combo.setOnAction(e -> json.put(key, combo.getSelectionModel().getSelectedItem()));
+        combo.setOnAction(e -> {
+            json.put(key, combo.getSelectionModel().getSelectedItem());
+            if (onChange != null) onChange.run();
+        });
         return createRow(label, combo);
     }
 

@@ -52,8 +52,17 @@ public final class AudioResolver {
         }
 
         // 3. Fallback definitivo sulle risorse interne predefinite del Classpath
+        // Aggiungiamo anche qui la ricerca gerarchica: custom -> core -> base
+        String internalCustomPath = "/uni/gaben/iscat/audio/SFX/custom/" + fileName;
+        URL url = AudioResolver.class.getResource(internalCustomPath);
+        if (url != null) return url;
+
+        String internalCorePath = "/uni/gaben/iscat/audio/SFX/core/" + fileName;
+        url = AudioResolver.class.getResource(internalCorePath);
+        if (url != null) return url;
+
         String internalPath = "/uni/gaben/iscat/audio/SFX/" + fileName;
-        URL url = AudioResolver.class.getResource(internalPath);
+        url = AudioResolver.class.getResource(internalPath);
         if (url == null) {
             System.err.println("[AudioResolver] SFX not found in classpath: " + internalPath);
         }

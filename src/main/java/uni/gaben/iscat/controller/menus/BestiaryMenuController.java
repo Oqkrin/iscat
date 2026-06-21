@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class BestiaryMenuController implements IscatMenuController {
 
     private enum CategoryMode {
-        ENEMIES, PLAYERS
+        ENEMIES, PLAYERS, CUSTOM
     }
 
     private final boolean allUnlocked = true;
@@ -121,10 +121,13 @@ public class BestiaryMenuController implements IscatMenuController {
         List<EntityRecord> tempList = new ArrayList<>();
         for (Map.Entry<String, EntityRecord> entry : rawEnemiesMap.entrySet()) {
             boolean isPlayerEntity = isPlayer(entry.getKey(), entry.getValue());
+            boolean isCustomEntity = isCustom(entry.getKey());
 
-            if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity) {
+            if (currentCategory == CategoryMode.CUSTOM && isCustomEntity) {
                 tempList.add(entry.getValue());
-            } else if (currentCategory == CategoryMode.ENEMIES && !isPlayerEntity) {
+            } else if (currentCategory == CategoryMode.PLAYERS && isPlayerEntity && !isCustomEntity) {
+                tempList.add(entry.getValue());
+            } else if (currentCategory == CategoryMode.ENEMIES && !isPlayerEntity && !isCustomEntity) {
                 tempList.add(entry.getValue());
             }
         }
@@ -140,17 +143,28 @@ public class BestiaryMenuController implements IscatMenuController {
         }
 
         if (currentCategory == CategoryMode.ENEMIES) {
-            btnToggleCategory.setText("SHOW PLAYABLE");
+            btnToggleCategory.setText("SHOW: PLAYABLE");
+        } else if (currentCategory == CategoryMode.PLAYERS) {
+            btnToggleCategory.setText("SHOW: CUSTOM");
         } else {
-            btnToggleCategory.setText("SHOW ENEMIES");
+            btnToggleCategory.setText("SHOW: ENEMIES");
         }
 
         createEnemyButtons();
     }
 
+    private boolean isCustom(String key) {
+        String origin = EntityFactory.getOriginPath(key);
+        return origin != null && origin.toLowerCase().contains("custom");
+    }
+
     @FXML
     private void toggleCategory() {
-        currentCategory = (currentCategory == CategoryMode.ENEMIES) ? CategoryMode.PLAYERS : CategoryMode.ENEMIES;
+        currentCategory = switch (currentCategory) {
+            case ENEMIES -> CategoryMode.PLAYERS;
+            case PLAYERS -> CategoryMode.CUSTOM;
+            case CUSTOM -> CategoryMode.ENEMIES;
+        };
         applyFilterAndRebuildUI();
 
         if (!filteredEnemies.isEmpty()) {

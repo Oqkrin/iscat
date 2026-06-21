@@ -167,6 +167,16 @@
                         </styleClass>
                      </Button>
                      <Region VBox.vgrow="ALWAYS" />
+                     
+                     <Button fx:id="entityEditorButton" contentDisplay="TOP" onAction="#openEntityEditor" rotate="2.0" text="ENTITY EDITOR" VBox.vgrow="ALWAYS">
+                        <padding>
+                           <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                        </padding>
+                        <styleClass>
+                           <String fx:value="menu-button" />
+                           <String fx:value="title-large" />
+                        </styleClass>
+                     </Button>
                      <Region VBox.vgrow="ALWAYS" />
                      <Button fx:id="skinButton" alignment="CENTER" contentDisplay="TOP" onAction="#openSkinMenu" rotate="4.0" text="CHANGE SKIN" textAlignment="CENTER" VBox.vgrow="ALWAYS">
                         <padding>

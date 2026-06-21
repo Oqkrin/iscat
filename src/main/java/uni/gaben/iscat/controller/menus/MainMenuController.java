@@ -26,6 +26,7 @@ public class MainMenuController implements IscatFxmlController {
     @FXML private Button scoreButton;
     @FXML private Button skinButton;
     @FXML private Button bestiaryButton;
+    @FXML private Button entityEditorButton;
     @FXML private Button logoutButton;
     @FXML private Button quitButton;
     @FXML private Button leaderboardButton;
@@ -43,7 +44,7 @@ public class MainMenuController implements IscatFxmlController {
 
     @FXML
     public void initialize() {
-        List<Button> sideButtons = List.of(leaderboardButton, scoreButton, bestiaryButton, skinButton);
+        List<Button> sideButtons = List.of(leaderboardButton, scoreButton, bestiaryButton, entityEditorButton, skinButton);
 
         for (Button btn : sideButtons) {
             btn.widthProperty().addListener((obs, oldVal, newVal) -> updateMaxSide(newVal.doubleValue()));
@@ -66,6 +67,7 @@ public class MainMenuController implements IscatFxmlController {
         setIcon(scoreButton,       "fas-eye");
         setIcon(skinButton,        "fas-gift");
         setIcon(bestiaryButton,    "fas-bug");
+        setIcon(entityEditorButton,"fas-edit");
         setIcon(logoutButton,      "fas-sign-out-alt");
         setIcon(quitButton,        "fas-door-open");
         setIcon(leaderboardButton, "fas-list-ol");
@@ -82,6 +84,10 @@ public class MainMenuController implements IscatFxmlController {
     @FXML public void openScoreMenu()       { navigate(IscatViews.SCORE_MENU);       }
     @FXML public void openSkinMenu()        { navigate(IscatViews.SKIN_MENU);        }
     @FXML public void openBestiaryMenu()    { navigate(IscatViews.BESTIARY_MENU);    }
+    @FXML public void openEntityEditor()    { 
+        EntityEditorMenuController.targetEntityKeyToLoad = null;
+        navigate(IscatViews.ENTITY_EDITOR);
+    }
     @FXML public void logout()              { navigate(IscatViews.LOGIN_MENU);       }
     @FXML public void openLeaderboardMenu() { navigate(IscatViews.LEADERBOARD_MENU); }
     @FXML public void openCreditsMenu()     { navigate(IscatViews.CREDITS);          }
@@ -129,6 +135,13 @@ public class MainMenuController implements IscatFxmlController {
                     mobCanvas.resize(128.0);
                     mobCanvas.setFrameDuration(0.20);
                     btn.setGraphic(mobCanvas);
+                }
+                case "fas-edit" -> {
+                    AnimatedCanvas editCanvas = new AnimatedCanvas(128);
+                    editCanvas.loadSkin("/uni/gaben/iscat/sprites/enemies/unknown_enemy.png", 32, 32);
+                    editCanvas.resize(128.0);
+                    editCanvas.setFrameDuration(0.20);
+                    btn.setGraphic(editCanvas);
                 }
                 case "fas-eye", "fas-list-ol" -> {
                     FontIcon icon = new FontIcon(iconCode);
