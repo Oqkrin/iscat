@@ -6,8 +6,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Classe di supporto per l'aggiornamento dei temi grafici e delle impostazioni estetiche sul database SQLite.
+ */
 public class ThemeSettingsHelper {
 
+    /** * Aggiorna una specifica preferenza cromatica o di stile visivo (es. PrimaryTheme, BackgroundTheme) per l'utente.
+     * @throws IllegalArgumentException se il nome della colonna non supera la whitelist di sicurezza.
+     */
     public void updateThemeSetting(int userId, String columnName, String value) {
         if (columnName == null || !columnName.matches("(?i)PrimaryTheme|SecondaryTheme|TertiaryTheme|BackgroundTheme|RainbowMode|Lightmode")) {
             throw new IllegalArgumentException("Colonna tema non valida: " + columnName);

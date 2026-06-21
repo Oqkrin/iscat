@@ -8,6 +8,10 @@ import uni.gaben.iscat.model.user.UserSettings;
 import java.sql.*;
 import java.util.Optional;
 
+/**
+ * Implementazione SQLite del DAO per la gestione delle impostazioni di gioco.
+ * Delega le operazioni specifiche a degli helper interni per mantenere la classe snella.
+ */
 public class SQLiteSettingsDAO implements SettingsDAO {
 
     private final AudioSettingsHelper audioHelper;
@@ -24,6 +28,7 @@ public class SQLiteSettingsDAO implements SettingsDAO {
         this.settingsMapper = new UserSettingsMapper();
     }
 
+    /** Carica le impostazioni dell'utente mappandole dal database tramite il mapper interno. */
     @Override
     public Optional<UserSettings> loadSettings(int userId) {
         String sql = "SELECT * FROM ImpostazioniUtenti WHERE UserID = ?";
@@ -41,6 +46,7 @@ public class SQLiteSettingsDAO implements SettingsDAO {
         return Optional.empty();
     }
 
+    /** Salva la chiave identificativa della skin selezionata per il giocatore. */
     @Override
     public void updatePlayerSkin(int userId, String skinKey) {
         String sql = "UPDATE ImpostazioniUtenti SET PlayerSkinKey = ? WHERE UserID = ?";
@@ -54,6 +60,7 @@ public class SQLiteSettingsDAO implements SettingsDAO {
         }
     }
 
+    /** Recupera la skin attuale o restituisce il valore di default 'player1' in caso di errore o valore nullo. */
     @Override
     public String loadPlayerSkin(int userId) {
         String sql = "SELECT PlayerSkinKey FROM ImpostazioniUtenti WHERE UserID = ?";
@@ -72,26 +79,31 @@ public class SQLiteSettingsDAO implements SettingsDAO {
         return "player1";
     }
 
+    /** Delega l'aggiornamento dei livelli del volume ad {@link AudioSettingsHelper}. */
     @Override
     public void updateVolume(int userId, String columnName, double volumeValue) {
         audioHelper.updateVolume(userId, columnName, volumeValue);
     }
 
+    /** Delega la modifica delle opzioni video a {@link DisplaySettingsHelper}. */
     @Override
     public void updateDisplaySetting(int userId, String columnName, int value) {
         displayHelper.updateDisplaySetting(userId, columnName, value);
     }
 
+    /** Delega il cambio della mappatura dei comandi a {@link ControlSettingsHelper}. */
     @Override
     public void updateControl(int userId, String columnName, String newKey) {
         controlHelper.updateControl(userId, columnName, newKey);
     }
 
+    /** Delega la configurazione dei colori dei temi a {@link ThemeSettingsHelper}. */
     @Override
     public void updateThemeSetting(int userId, String choosenTheme, String hexvalue) {
         themeHelper.updateThemeSetting(userId, choosenTheme, hexvalue);
     }
 
+    /** Rimuove l'utente, le sue impostazioni, i punteggi e il bestiario in una singola transazione atomica. */
     @Override
     public void delete(int userId) {
         String deleteSettingsSql = "DELETE FROM ImpostazioniUtenti WHERE UserID = ?";
@@ -124,6 +136,7 @@ public class SQLiteSettingsDAO implements SettingsDAO {
         }
     }
 
+    /** Inizializza la tabella inserendo la configurazione standard di tasti, volumi e temi per i nuovi utenti. */
     @Override
     public void createDefault(int userId) {
         String sql = """

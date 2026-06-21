@@ -9,12 +9,16 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+/**
+ * Implementazione SQLite del DAO per la gestione dell'anagrafica e dell'autenticazione utenti.
+ * Gestisce l'hashing delle password in fase di creazione e il parsing sicuro delle date.
+ */
 public class SQLiteUserDAO implements UserDAO {
 
     public SQLiteUserDAO() {
-        // Nessuna memorizzazione di connessioni a lungo termine per evitare handle obsoleti
     }
 
+    /** Cerca un utente tramite il suo username (case-sensitive). */
     @Override
     public Optional<User> findByUsername(String username) {
         String sql = """
@@ -38,29 +42,7 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
-    @Override
-    public Optional<User> findById(int id) {
-        String sql = """
-                SELECT ID, Username, Password, DateOfCreation, LastLogin
-                FROM Utenti
-                WHERE ID = ?
-                """;
-
-        try (Connection connection = IscatDB.getInstance().getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (!rs.next()) {
-                    return Optional.empty();
-                }
-                return Optional.of(mapRow(rs));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore durante findById: " + id, e);
-        }
-    }
-
+    /** Verifica se l'username esiste già, ignorando la differenza tra maiuscole e minuscole. */
     @Override
     public boolean exists(String username) {
         String sql = "SELECT 1 FROM Utenti WHERE LOWER(Username) = LOWER(?)";
@@ -76,6 +58,7 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
+    /** Cripta la password tramite {@link PasswordHasher} e registra il nuovo utente generando l'ID. */
     @Override
     public User create(String username, String rawPassword) {
         String sql = """
@@ -107,6 +90,7 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
+    /** Aggiorna il timestamp relativo all'ultimo accesso effettuato dall'utente. */
     @Override
     public void updateLastLogin(int userId, LocalDateTime loginTime) {
         String sql = """
@@ -126,6 +110,33 @@ public class SQLiteUserDAO implements UserDAO {
         }
     }
 
+    /** Modifica l'username dell'utente nel database. */
+    @Override
+    public void updateUsername(int userId, String newUsername) {
+        String sql = "UPDATE Utenti SET Username = ? WHERE ID = ?";
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
+            stmt.setString(1, newUsername);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiornamento username per userId: " + userId, e);
+        }
+    }
+
+    /** Aggiorna la password dell'utente (riceve l'hash già calcolato). */
+    @Override
+    public void updatePassword(int userId, String newPasswordHash) {
+        String sql = "UPDATE Utenti SET Password = ? WHERE ID = ?";
+        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
+            stmt.setString(1, newPasswordHash);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiornamento password per userId: " + userId, e);
+        }
+    }
+
+    /** Mappa una riga del ResultSet in un oggetto di tipo User. */
     private User mapRow(ResultSet rs) throws SQLException {
         return new User(
                 rs.getInt("ID"),
@@ -136,6 +147,7 @@ public class SQLiteUserDAO implements UserDAO {
         );
     }
 
+    /** Gestisce il parsing delle date sia in formato stringa standard ISO/SQLite sia in timestamp numerico (epoch millis). */
     private LocalDateTime safeParseLocalDateTime(ResultSet rs, String columnName) throws SQLException {
         String value = rs.getString(columnName);
         if (value == null || value.isBlank()) {
@@ -149,29 +161,5 @@ public class SQLiteUserDAO implements UserDAO {
 
         Timestamp ts = rs.getTimestamp(columnName);
         return ts != null ? ts.toLocalDateTime() : null;
-    }
-
-    @Override
-    public void updateUsername(int userId, String newUsername) {
-        String sql = "UPDATE Utenti SET Username = ? WHERE ID = ?";
-        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
-            stmt.setString(1, newUsername);
-            stmt.setInt(2, userId);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore aggiornamento username per userId: " + userId, e);
-        }
-    }
-
-    @Override
-    public void updatePassword(int userId, String newPasswordHash) {
-        String sql = "UPDATE Utenti SET Password = ? WHERE ID = ?";
-        try (PreparedStatement stmt = IscatDB.getInstance().getConnection().prepareStatement(sql)) {
-            stmt.setString(1, newPasswordHash);
-            stmt.setInt(2, userId);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore aggiornamento password per userId: " + userId, e);
-        }
     }
 }

@@ -6,8 +6,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Classe di supporto per l'aggiornamento delle impostazioni audio sul database SQLite.
+ * Converte i valori decimali del volume in valori interi gestibili dal database.
+ */
 public class AudioSettingsHelper {
 
+    /** * Converte il volume (da 0.0 a 1.0) in percentuale intera (0-100) e lo salva nella colonna specificata.
+     * @throws IllegalArgumentException se il nome della colonna non supera la whitelist di sicurezza.
+     */
     public void updateVolume(int userId, String columnName, double volumeValue) {
         if (!isValidVolumeColumn(columnName)) {
             throw new IllegalArgumentException("Nome colonna audio non valido: " + columnName);
@@ -27,6 +34,7 @@ public class AudioSettingsHelper {
         }
     }
 
+    /** Verifica la validità della colonna audio tramite espressione regolare per prevenire SQL Injection. */
     private boolean isValidVolumeColumn(String column) {
         return column != null && column.matches("(?i)MasterVolume|BGMVolume|SFXVolume");
     }

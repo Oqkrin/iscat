@@ -1,32 +1,32 @@
 package uni.gaben.iscat.database.dao;
 
 import uni.gaben.iscat.model.ScoreModel;
-
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * DAO per la gestione e la persistenza dei punteggi e dello score utente.
+ */
 public interface ScoreDAO {
 
-    /** Crea un record in UserScore se non esiste già per questo utente */
+    /** Crea un record iniziale per le statistiche dell'utente se non esiste. */
     void createIfNotExists(int userId);
 
-    /** Carica i dati statistiche dell'utente */
+    /** Carica le statistiche e i punteggi completi di un utente. */
     Optional<ScoreModel> load(int userId);
 
-    /** Aggiorna un singolo campo numerico */
+    /** Sovrascrive il valore di una colonna specifica. */
     void update(int userId, String column, int value);
 
-    /** Incrementa un campo numerico del valore dato */
+    /** Incrementa una colonna specifica del valore indicato. */
     void increment(int userId, String column, int amount);
 
-    /** Azzera tutte le statistiche per l'utente specificato */
+    /** Ripristina ai valori di default tutte le statistiche di un utente. */
     void reset(int userId);
 
-    /** Ottiene tutti gli score di tutti gli utenti per la leaderboard */
+    /** Recupera i punteggi globali di tutti gli utenti ordinati per la classifica. */
     List<UserScoreEntry> getAllScores();
 
-    /** Ottiene i top N punteggi */
-    List<UserScoreEntry> getTopScores(int limit);
-
+    /** record immutabile per rappresentare una riga della classifica. */
     record UserScoreEntry(String username, int score, int totalKills, int bestTime) {}
 }

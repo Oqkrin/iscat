@@ -10,8 +10,16 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Implementazione SQLite del DAO per la gestione del Bestiario.
+ * Gestisce il salvataggio e il recupero del numero di uccisioni dei nemici su database SQLite.
+ */
 public class SQLiteBestiaryDAO implements BestiaryDAO {
 
+    /**
+     * Incrementa il numero di uccisioni di un nemico per un utente specifico.
+     * Utilizza una query di "UPSERT" (INSERT ON CONFLICT) per aggiornare il record se esiste già.
+     */
     @Override
     public void incrementKill(int userId, String enemyKey, int count) {
         if (enemyKey == null || count <= 0) return;
@@ -37,6 +45,10 @@ public class SQLiteBestiaryDAO implements BestiaryDAO {
         }
     }
 
+    /**
+     * Recupera la mappa di tutte le uccisioni registrate dall'utente.
+     * Mantiene l'ordine di inserimento del database grazie a {@link LinkedHashMap}.
+     */
     @Override
     public Map<String, Integer> getKillsForUser(int userId) {
         Map<String, Integer> killsMap = new LinkedHashMap<>();
