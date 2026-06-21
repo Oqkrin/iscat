@@ -30,17 +30,12 @@ public final class EntityRenderer {
     public record SpriteKey(String path, int width, int height) {}
 
     private static final Map<Class<?>, BiConsumer<AbstractPhysicalEntityModel, OptimizedLayeredRenderer>> LAYERED_RENDERERS = new HashMap<>();
-    private static final Map<SpriteKey, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
 
-    // Cache dei colori del ThemeManager — aggiornata una volta per frame
     private static Color cachedAccentPrimary   = Color.WHITE;
     private static Color cachedAccentSecondary = Color.WHITE;
     private static Color cachedAccentTernary   = Color.GRAY;
 
-    // Zoom corrente — usato per LOD
     private static double currentZoom = 1.0;
-
-    // Aggiornamento lazy: si rinnova una volta per frame tramite il nano-timestamp
     private static long lastFrameNano = -1;
 
     static {
@@ -52,23 +47,13 @@ public final class EntityRenderer {
 
     private EntityRenderer() {}
 
-    /**
-     * Può essere chiamato da UniverseRenderer per aggiornare zoom e colori.
-     * Se non viene chiamato, la cache si aggiorna automaticamente alla prima
-     * renderLayered() del frame tramite refreshFrameCache().
-     */
     public static void beginFrame(double zoom) {
         currentZoom = zoom;
         refreshFrameCache();
     }
 
-    /**
-     * Aggiorna la cache dei colori una volta per frame usando il nano-timestamp.
-     * Chiamato automaticamente da renderLayered() se beginFrame() non è disponibile.
-     */
     private static void refreshFrameCache() {
         long now = System.nanoTime();
-        // Soglia: almeno 1ms tra un refresh e l'altro (un frame dura ~16ms a 60fps)
         if (now - lastFrameNano < 1_000_000L) return;
         lastFrameNano = now;
         ThemeManager tm = ThemeManager.getInstance();
@@ -79,7 +64,7 @@ public final class EntityRenderer {
 
     public static void renderLayered(AbstractPhysicalEntityModel entity, OptimizedLayeredRenderer layers, boolean debug) {
         if (entity == null || entity.shouldRemove()) return;
-        refreshFrameCache(); // aggiorna colori e zoom una volta per frame se beginFrame() non è stato chiamato
+        refreshFrameCache();
 
         BiConsumer<AbstractPhysicalEntityModel, OptimizedLayeredRenderer> custom = LAYERED_RENDERERS.get(entity.getClass());
 
@@ -98,9 +83,6 @@ public final class EntityRenderer {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Batched Sprite pipeline
-    // ------------------------------------------------------------------
     private static void renderSpriteEntityBatched(AbstractPhysicalEntityModel entity, HasSprite sprite, OptimizedLayeredRenderer layers) {
         double cx = UU.mToPx(entity.getTransform().getTranslationX());
         double cy = UU.mToPx(entity.getTransform().getTranslationY());
@@ -120,22 +102,35 @@ public final class EntityRenderer {
             int[] framesPerRow = sheet.getFramesPerRow();
             int currentFrame = 0;
 
-            if (framesPerRow != null && row >= 0 && row < framesPerRow.length) {
+            // facciamo il fallback immediato alla riga IDLE (0) per evitare frame invisibili.
+            if (framesPerRow == null || row < 0 || row >= framesPerRow.length || framesPerRow[row] <= 0) {
+                row = 0;
+            }
+
+            if (framesPerRow != null && row < framesPerRow.length) {
                 int totalFrames = framesPerRow[row];
                 if (totalFrames > 0) {
                     double frameDuration = sprite.getFrameDuration();
                     int calculatedFrame = (int) (entity.getStateTime() / frameDuration);
+
                     boolean isIdle = (row == 0);
                     if (entity instanceof EntityModel em) {
                         isIdle = (em.getCurrentEntityState() == EntityState.IDLE);
                     }
+
+                    // Se siamo in IDLE cicliamo, altrimenti blocchiamo all'ultimo frame valido della riga corrente
                     currentFrame = isIdle
                             ? calculatedFrame % totalFrames
-                            : Math.min(calculatedFrame, totalFrames - 1);
+                            : Math.clamp(calculatedFrame, 0, totalFrames - 1);
                 }
             }
 
             Image frame = sheet.getFrame(row, currentFrame);
+
+            if (frame == null) {
+                frame = sheet.getFrame(0, 0);
+            }
+
             if (frame != null) {
                 Color tint = (entity instanceof PlayerModel)
                         ? cachedAccentPrimary
@@ -153,7 +148,6 @@ public final class EntityRenderer {
         }
 
         if (entity instanceof Alterable ld) {
-            // Skip HP bar se troppo piccola a schermo
             double screenW = w * currentZoom;
             if (screenW >= 6.0) {
                 double barX = cx - w / 2;
@@ -170,9 +164,6 @@ public final class EntityRenderer {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Custom batched handlers
-    // ------------------------------------------------------------------
     private static void renderProjectileBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer layers) {
         ProjectileModel p = (ProjectileModel) e;
         double cx = UU.mToPx(e.getTransform().getTranslationX());
@@ -180,12 +171,10 @@ public final class EntityRenderer {
         double w  = e.getWidthPx();
         double h  = e.getHeightPx();
 
-        // Skip proiettili invisibili a schermo (troppo piccoli con zoom out)
         double screenSize = w * currentZoom;
         if (screenSize < 1.5) return;
 
         Vector2 vel = p.getLinearVelocity();
-        // getMagnitudeSquared evita sqrt — confronto con 0.01 = 0.1^2
         double speedSq = vel.getMagnitudeSquared();
         double trailX2 = cx;
         double trailY2 = cy;
@@ -198,23 +187,17 @@ public final class EntityRenderer {
 
         Color baseColor = p.getType().color;
 
-        // Sotto una certa dimensione a schermo, skip del doppio batch (stroke+fill):
-        // un solo layer è sufficiente e invisibile la differenza
         if (screenSize < 4.0) {
-            layers.addProjectile(cx, cy, w, h, baseColor,
-                    cx, cy, trailX2, trailY2, trailWidth);
+            layers.addProjectile(cx, cy, w, h, baseColor, cx, cy, trailX2, trailY2, trailWidth);
         } else {
             Color strokeColor = baseColor.darker();
-            layers.addProjectile(cx, cy, ScalareAureo.phiMaggiore(w), ScalareAureo.phiMaggiore(h), strokeColor,
-                    cx, cy, trailX2, trailY2, ScalareAureo.phiMaggiore(trailWidth));
-            layers.addProjectile(cx, cy, w, h, baseColor,
-                    cx, cy, trailX2, trailY2, trailWidth);
+            layers.addProjectile(cx, cy, ScalareAureo.phiMaggiore(w), ScalareAureo.phiMaggiore(h), strokeColor, cx, cy, trailX2, trailY2, ScalareAureo.phiMaggiore(trailWidth));
+            layers.addProjectile(cx, cy, w, h, baseColor, cx, cy, trailX2, trailY2, trailWidth);
         }
     }
 
     private static void renderAsteroidBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer batcher) {
         AsteroidModel asteroid = (AsteroidModel) e;
-
         double screenSize = asteroid.getWidthPx() * currentZoom;
         if (screenSize < 8.0) return;
 
@@ -227,7 +210,6 @@ public final class EntityRenderer {
             return;
         }
 
-        // Usa vertici cached — nessun getTransformed() per frame
         double[] xPoints = asteroid.getCachedXPoints();
         double[] yPoints = asteroid.getCachedYPoints();
         int len = xPoints.length;
@@ -286,8 +268,6 @@ public final class EntityRenderer {
 
     private static void renderBlackHoleBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer batcher) {
         BlackHoleModel bh = (BlackHoleModel) e;
-
-        // Skip blackhole se troppo piccola a schermo
         double screenSize = bh.getWidthPx() * currentZoom;
         if (screenSize < 8.0) return;
 
