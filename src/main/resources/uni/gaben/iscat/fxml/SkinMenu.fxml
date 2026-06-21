@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="skinStackPane" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/skin-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.menus.SkinMenuController">
+<StackPane fx:id="skinStackPane" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/skin-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.menus.SkinMenuController">
     <VBox>
         <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="NEVER" />
         <GridPane hgap="16.0" vgap="16.0" VBox.vgrow="ALWAYS">
@@ -26,41 +26,42 @@
                 <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
             </padding>
 
+            <!-- VBox that will hold the dynamic SkinGrid + buttons -->
             <VBox fx:id="skinsVbox" alignment="CENTER" spacing="16.0" GridPane.vgrow="NEVER">
                 <padding>
                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                 </padding>
-                <GridPane fx:id="skinGrid" alignment="CENTER" hgap="16.0" vgap="16.0" VBox.vgrow="ALWAYS" />
+
+                <!-- The SkinGrid is added here programmatically (no fx:id here) -->
+
                 <HBox alignment="CENTER" spacing="16.0" VBox.vgrow="NEVER">
-                    <children>
-                 <Button fx:id="confirmBtn" onAction="#handleConfirm" styleClass="menu-button, play-button" text="CONFERMA">
-                     <padding>
-                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                     </padding>
-                 </Button>
-                 <Button fx:id="cancelBtn" onAction="#handleBack" styleClass="menu-button, back-button" text="ANNULLA">
-                     <padding>
-                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                     </padding>
-                 </Button>
-                    </children>
                     <padding>
                         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                     </padding>
+                    <Button fx:id="confirm" onAction="#handleConfirm" styleClass="menu-button, play-button" text="CONFERMA">
+                        <padding>
+                            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                        </padding>
+                    </Button>
+                    <Button fx:id="cancel" onAction="#handleBack" styleClass="menu-button, back-button" text="ANNULLA">
+                        <padding>
+                            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                        </padding>
+                    </Button>
                 </HBox>
-            <styleClass>
-               <String fx:value="secondary-card" />
-               <String fx:value="glowing-border" />
-            </styleClass>
-            <GridPane.margin>
-               <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-            </GridPane.margin>
+
+                <styleClass>
+                    <String fx:value="secondary-card" />
+                    <String fx:value="glowing-border" />
+                </styleClass>
+                <GridPane.margin>
+                    <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                </GridPane.margin>
             </VBox>
 
-            <!-- Right panel: info card only (no preview) -->
+            <!-- Right panel: info card -->
             <fx:include fx:id="infoCard" rotate="0.5" source="components/EntityInfoCard.fxml" GridPane.columnIndex="1" GridPane.vgrow="NEVER" HBox.hgrow="ALWAYS" />
         </GridPane>
-
         <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="NEVER" />
     </VBox>
 </StackPane>

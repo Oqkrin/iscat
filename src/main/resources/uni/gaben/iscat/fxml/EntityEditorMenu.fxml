@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane minHeight="720.0" minWidth="1020.0" stylesheets="@../styles/screens/entity-editor-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.menus.EntityEditorMenuController">
+<StackPane minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/entity-editor-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.menus.EntityEditorMenuController">
     <VBox alignment="CENTER" styleClass="menu-background" VBox.vgrow="ALWAYS">
         <children>
             <!-- Top spacer -->
@@ -35,12 +35,15 @@
                     </HBox>
 
                     <!-- Scrollable form -->
-                    <ScrollPane fitToWidth="true" styleClass="editor-scroll" VBox.vgrow="ALWAYS">
+                    <ScrollPane fitToWidth="true" rotate="-0.5" styleClass="editor-scroll" VBox.vgrow="ALWAYS">
                         <content>
                             <Accordion fx:id="categoryAccordion">
                                 <panes>
                                     <TitledPane expanded="true" text="Identity">
-                                        <VBox fx:id="paneIdentity" spacing="8.0" />
+                                        <VBox fx:id="paneIdentity" spacing="16.0">
+                                 <padding>
+                                    <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                 </padding></VBox>
                                     </TitledPane>
                                     <TitledPane text="Visuals">
                                         <VBox fx:id="paneVisuals" spacing="8.0" />
@@ -58,16 +61,28 @@
                                         <VBox fx:id="paneAudio" spacing="8.0" />
                                     </TitledPane>
                                 </panes>
+                        <padding>
+                           <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                        </padding>
                             </Accordion>
                         </content>
+                  <padding>
+                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                  </padding>
+                  <VBox.margin>
+                     <Insets />
+                  </VBox.margin>
                     </ScrollPane>
                <padding>
                   <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                </padding>
+               <HBox.margin>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+               </HBox.margin>
                 </VBox>
 
                 <!-- ========== Right Panel: Preview + Actions ========== -->
-                <VBox alignment="CENTER" spacing="16.0" styleClass="glowing-border, editor-panel" HBox.hgrow="NEVER">
+                <VBox alignment="CENTER" rotate="1.0" spacing="16.0" styleClass="glowing-border, editor-panel" HBox.hgrow="NEVER">
 
                     <Label styleClass="card-header" text="PREVIEW">
                   <padding>
@@ -114,12 +129,15 @@
                      <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                   </padding></Button>
                <HBox.margin>
-                  <Insets />
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                </HBox.margin>
                <padding>
                   <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                </padding>
                 </VBox>
+            <VBox.margin>
+               <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </VBox.margin>
 
             </HBox>
 

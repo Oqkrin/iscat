@@ -47,7 +47,6 @@ public class BestiaryMenuController implements IscatMenuController {
     @FXML private StackPane previewContainer;
     @FXML private Label skinNameLabel;
     @FXML private VBox enemyButtonsBox;
-    @FXML private Label listHeaderLabel;
 
     @FXML private Button btnToggleCategory;
     @FXML private Button btnRandom;
@@ -141,11 +140,9 @@ public class BestiaryMenuController implements IscatMenuController {
         }
 
         if (currentCategory == CategoryMode.ENEMIES) {
-            listHeaderLabel.setText("ENEMIES");
-            btnToggleCategory.setText("CHANGE TO PLAYERS");
+            btnToggleCategory.setText("SHOW PLAYABLE");
         } else {
-            listHeaderLabel.setText("PLAYERS");
-            btnToggleCategory.setText("CHANGE TO ENEMIES");
+            btnToggleCategory.setText("SHOW ENEMIES");
         }
 
         createEnemyButtons();
