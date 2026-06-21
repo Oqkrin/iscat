@@ -32,7 +32,7 @@ public class BestiaryMenuController implements IscatMenuController {
         ENEMIES, PLAYERS, CUSTOM
     }
 
-    private final boolean allUnlocked = true;
+    private final boolean allUnlocked = false;
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
     private Map<String, EntityRecord> rawEnemiesMap = new LinkedHashMap<>();
