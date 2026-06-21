@@ -28,12 +28,10 @@ import uni.gaben.iscat.utils.SessionScoreTracker;
 public class PlayerModel extends AbstractLivingEntityModel
         implements HasSprite, HasThrust, HasDash, Stunnable, Progression {
 
-    // ==================== PROPRIETÀ DI PROGRESSIONE ====================
     private final IntegerProperty level = new SimpleIntegerProperty(1);
     private final DoubleProperty xp = new SimpleDoubleProperty(0);
     private double xpNeeded;
 
-    // ==================== COOLDOWN SYSTEMS ====================
     private final Cooldown dashCooldown = new Cooldown();
     private final Cooldown dashDuration = new Cooldown();
     private final Cooldown weaponCooldown = new Cooldown();
@@ -42,42 +40,37 @@ public class PlayerModel extends AbstractLivingEntityModel
     private final Cooldown quickDashCooldown = new Cooldown();
     private final Cooldown postDashProtection = new Cooldown();
 
-    // ==================== TIME GAUGE ====================
     private double timeGauge = 0.0;
     private double maxTimeGauge = 100.0;
     private boolean wasDashing = false;
 
-    // ==================== THRUST E CALLBACK ====================
     private final Thrust thrust;
     private Runnable onDeathCallback;
 
-    // ==================== STATISTICHE DI COMBATTIMENTO ====================
     private double meleeDamage;
     private double meleeCooldownSec;
     private double currentWeaponCooldown;
     private double dannoProiettile;
 
-    // ==================== DATI E VETTORI DI MOVIMENTO ====================
     private final EntityRecord data;
     private final Vector2 dashDir = UU.vector2zero();
     private final Vector2 quickDashDir = UU.vector2zero();
 
-    // === IDLE ====
     private double idleAudioTimer = 8.0 + Math.random() * 10.0;
 
-    // ==================== COSTRUTTORE ====================
+    /**
+     * Inizializza il giocatore impostando le statistiche di base e la fixture fisica circolare.
+     */
     public PlayerModel(double x, double y, EntityRecord data) {
         super(x, y, data);
         this.data = data;
 
-        // Inizializzazione dai dati del record
         this.xpNeeded = data.player().baseXPNeeded();
         this.meleeDamage = data.player().meleeDamage();
         this.meleeCooldownSec = data.player().meleeCooldownSec();
         this.currentWeaponCooldown = data.player().baseCooldownSec();
         this.dannoProiettile = data.player().dannoProiettile();
 
-        // Configurazione fisica del corpo
         double radiusInMeters = UU.pxToM(data.frameW() / 2.5);
         BodyFixture fixture = addFixture(
                 Geometry.createCircle(radiusInMeters * data.scale())
@@ -93,14 +86,10 @@ public class PlayerModel extends AbstractLivingEntityModel
                 handleMeleeCollision(enemy);
             }
         });
-
     }
 
-    // ==================== METODI DI MOVIMENTO ====================
-
     /**
-     * Esegue un dash rapido nella direzione specificata.
-     * @param angle Angolo in radianti della direzione del dash
+     * Esegue uno scatto rapido e immediato nella direzione dell'angolo specificato.
      */
     public void quickDash(double angle) {
         if (!quickDashCooldown.isReady() || isStunned() || data.player() == null) {
@@ -110,7 +99,6 @@ public class PlayerModel extends AbstractLivingEntityModel
         double impulse = data.player().dashImpulse() * 3;
         quickDashDir.set(Math.cos(angle), Math.sin(angle));
 
-        // Annulla la velocità se si sta muovendo in direzione opposta
         if (getLinearVelocity().dot(quickDashDir) < 0) {
             setLinearVelocity(0, 0);
         }
@@ -119,6 +107,9 @@ public class PlayerModel extends AbstractLivingEntityModel
         quickDashCooldown.start(0.2);
     }
 
+    /**
+     * Esegue il dash standard attivando l'invulnerabilità e i relativi cooldown.
+     */
     @Override
     public void dashTowards(double angle) {
         if (data.player() == null) {
@@ -140,7 +131,7 @@ public class PlayerModel extends AbstractLivingEntityModel
     }
 
     /**
-     * Aggiorna lo stato del thrust in base alla velocità attuale.
+     * Aggiorna l'intensità e l'effetto visivo del motore di spinta (Thrust).
      */
     public void updateThrust() {
         Vector2 worldVel = getLinearVelocity();
@@ -164,11 +155,11 @@ public class PlayerModel extends AbstractLivingEntityModel
                 getHeightPx());
     }
 
-    // ==================== METODI DI AGGIORNAMENTO ====================
-
+    /**
+     * Aggiorna lo stato temporale, i cooldown dei sistemi, l'audio e le logiche di protezione post-dash.
+     */
     @Override
     public void update(double dt) {
-        // Aggiorna tutti i cooldown
         dashCooldown.update(dt);
         dashDuration.update(dt);
         stunCooldown.update(dt);
@@ -179,32 +170,29 @@ public class PlayerModel extends AbstractLivingEntityModel
         updateThrust();
         updateStateTime(dt);
 
-        // LOGICA AUDIO IDLE
         if (!isStunned() && !isDashing()) {
             idleAudioTimer -= dt;
             if (idleAudioTimer <= 0) {
                 uni.gaben.iscat.utils.EntityAudioManager.playEventAudio(this, "idle");
-                // Imposta un intervallo casuale per il prossimo suono (es. tra 8 e 22 secondi)
                 idleAudioTimer = 8.0 + Math.random() * 14.0;
             }
         }
 
-        // Gestisce lo smorzamento durante il dash
         boolean currentlyDashing = isDashing();
         if (data.player() != null) {
             setLinearDamping(currentlyDashing ? 0.0 : data.linearDamping());
         }
 
-        // Post-dash protection logic
         if (wasDashing && !currentlyDashing) {
-            postDashProtection.start(2.0); // 2.0 seconds protection
+            postDashProtection.start(2.0);
         }
         wasDashing = currentlyDashing;
         postDashProtection.update(dt);
     }
 
-    // ==================== METODI DI PROGRESSIONE ====================
-
+    /**
+     * Avanza il livello del giocatore, incrementa i punti vita massimi e resetta la vita attuale.
+     */
     @Override
     public void levelUp() {
         this.xp.set(this.xp.get() - xpNeeded);
@@ -217,6 +205,9 @@ public class PlayerModel extends AbstractLivingEntityModel
         applyImpulse(new Vector2(0, 0));
     }
 
+    /**
+     * Aggiunge punti esperienza al giocatore e gestisce i passaggi di livello multipli.
+     */
     @Override
     public void incrementExperience(double amount) {
         if (amount <= 0) return;
@@ -228,6 +219,9 @@ public class PlayerModel extends AbstractLivingEntityModel
         }
     }
 
+    /**
+     * Gestisce il danno corpo a corpo e applica un forte contraccolpo (knockback) se il giocatore sta dashando.
+     */
     public void handleMeleeCollision(AbstractLivingEntityModel enemy) {
         if (!canDealMeleeDamage() || enemy == null) return;
 
@@ -246,7 +240,6 @@ public class PlayerModel extends AbstractLivingEntityModel
                 Vector2 impulse = knockbackDir.product(knockbackMagnitude);
 
                 enemy.setLinearVelocity(0, 0);
-
                 enemy.applyImpulse(impulse);
             }
         }
@@ -268,37 +261,51 @@ public class PlayerModel extends AbstractLivingEntityModel
         startMeleeCooldown();
     }
 
-
+    /**
+     * Attiva il cooldown dell'arma principale dopo uno sparo e resetta l'audio di idle.
+     */
     public void startCooldownFuoco() {
         weaponCooldown.start(currentWeaponCooldown);
-        // Resettiamo il timer quando spari
         this.idleAudioTimer = 8.0 + Math.random() * 14.0;
     }
 
+    /**
+     * Imposta il tempo di ricarica in secondi dell'arma principale.
+     */
     public void setCooldownFuocoSec(double cooldown) {
         this.currentWeaponCooldown = cooldown;
     }
 
+    /**
+     * Verifica se il giocatore è pronto a infliggere danni corpo a corpo.
+     */
     public boolean canDealMeleeDamage() {
         return meleeDamage > 0 && meleeCooldown.isReady();
     }
 
+    /**
+     * Calcola il danno corpo a corpo scalato in base al livello attuale.
+     */
     public double getMeleeDamage() {
         return meleeDamage * getLevel();
     }
 
+    /**
+     * Avvia il timer di ricarica per l'attacco corpo a corpo.
+     */
     public void startMeleeCooldown() {
         if (meleeDamage > 0) {
             meleeCooldown.start(meleeCooldownSec);
         }
     }
 
-    // ==================== GETTER E SETTER ====================
-
     public void setOnDeathCallback(Runnable callback) {
         this.onDeathCallback = callback;
     }
 
+    /**
+     * Callback eseguito alla morte del giocatore per notificare i sistemi esterni.
+     */
     @Override
     public void onDeath() {
         if (onDeathCallback != null) {
@@ -306,6 +313,9 @@ public class PlayerModel extends AbstractLivingEntityModel
         }
     }
 
+    /**
+     * Modifica l'endurance ed azzera la barra dell'indicatore temporale se si subisce danno fuori dalla protezione.
+     */
     @Override
     public void alter(double delta) {
         super.alter(delta);
@@ -318,9 +328,12 @@ public class PlayerModel extends AbstractLivingEntityModel
         }
     }
 
+    /**
+     * Assorbe il proiettile nemico convertendo il danno in energia per l'indicatore solo se eseguito durante un dash.
+     */
     public boolean absorbProjectile(double damage) {
         if (isDashing()) {
-            addTimeGauge(damage * 10.0); // Scale damage to gauge
+            addTimeGauge(damage * 10.0);
             return true;
         }
         return false;
@@ -353,13 +366,14 @@ public class PlayerModel extends AbstractLivingEntityModel
         }
     }
 
+    /**
+     * Calcola il danno dei proiettili del giocatore scalato in base al livello attuale.
+     */
     public double getProjectileDamage() {
         if (getLevel() > 1)
             return dannoProiettile + ((getLevel() - 1) * 25.0);
         return dannoProiettile;
     }
-
-    // ==================== PROPERTIES JAVAFX ====================
 
     public IntegerProperty levelProperty() {
         return level;
@@ -368,8 +382,6 @@ public class PlayerModel extends AbstractLivingEntityModel
     public DoubleProperty xpProperty() {
         return xp;
     }
-
-    // ==================== GETTER DI STATO ====================
 
     @Override
     public int getLevel() {
@@ -391,6 +403,9 @@ public class PlayerModel extends AbstractLivingEntityModel
         return dashDuration.isCoolingDown();
     }
 
+    /**
+     * Verifica se l'arma principale è pronta per fare fuoco.
+     */
     public boolean isSparoDisponibile() {
         return weaponCooldown.isReady();
     }
@@ -400,17 +415,21 @@ public class PlayerModel extends AbstractLivingEntityModel
         return stunCooldown.isCoolingDown();
     }
 
+    /**
+     * Rende il giocatore immune alle alterazioni di stato/salute durante il dash.
+     */
     @Override
     public boolean isInalterable() {
         return isDashing();
     }
 
+    /**
+     * Calcola il limite di velocità massima incrementandolo drasticamente se l'entità è in fase di dash.
+     */
     @Override
     public double getTerminalVelocity() {
         return data.maxVelocity() * (isDashing() ? 10 : 1);
     }
-
-    // ==================== GETTER VISUALI ====================
 
     @Override
     public Thrust thrust() {
@@ -432,7 +451,6 @@ public class PlayerModel extends AbstractLivingEntityModel
         return data.frameH();
     }
 
-
     @Override
     public double getVisualAngularOffsetDeg() {
         return 180;
@@ -443,6 +461,9 @@ public class PlayerModel extends AbstractLivingEntityModel
         return UU.UNIVERSE_TICK * 6;
     }
 
+    /**
+     * Applica uno stordimento al giocatore bloccando le azioni per la durata in secondi specificata.
+     */
     @Override
     public void stun(double ms) {
         stunCooldown.start(ms);

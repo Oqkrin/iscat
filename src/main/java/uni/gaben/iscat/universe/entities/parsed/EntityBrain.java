@@ -6,6 +6,10 @@ import uni.gaben.iscat.universe.entities.brain.*;
 import uni.gaben.iscat.universe.entities.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringModifier;
 
+/**
+ * Gestisce l'intelligenza artificiale (IA) e il comportamento delle entità nemiche.
+ * Controlla l'attivazione di abilità, modificatori di movimento e obiettivi di rotazione.
+ */
 public class EntityBrain extends Brain<EntityModel> {
 
     public EntityBrain(EntityModel entity) {
@@ -13,8 +17,8 @@ public class EntityBrain extends Brain<EntityModel> {
     }
 
     /**
-     * Override del ciclo di aggiornamento del cervello.
-     * Controlla se l'entità sta eseguendo l'animazione d'ingresso prima di procedere.
+     * Aggiorna la logica del cervello.
+     * Blocca le decisioni dell'IA se l'entità è in stato di ingresso, evocazione o morte.
      */
     @Override
     public void update(UniverseModel universe, double dt) {
@@ -30,6 +34,9 @@ public class EntityBrain extends Brain<EntityModel> {
         super.update(universe, dt);
     }
 
+    /**
+     * Genera e configura un nuovo cervello partendo dai dati statici salvati nel relativo EntityRecord.
+     */
     public static EntityBrain fromRecord(EntityModel entity) {
         EntityBrain brain = new EntityBrain(entity);
         EntityRecord entityRecord = entity.getEntityRecord();
@@ -52,8 +59,6 @@ public class EntityBrain extends Brain<EntityModel> {
             SteeringModifier mod = EntityRecordParser.createModifier(mc, entity);
             if (mod != null) brain.addModifier(mod);
         }
-
-
 
         return brain;
     }

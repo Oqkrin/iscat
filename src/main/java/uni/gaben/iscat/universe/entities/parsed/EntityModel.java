@@ -19,6 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Rappresenta un'istanza concreta di un'entità di gioco (nemico o boss) nel mondo fisico.
+ * Gestisce la sincronizzazione tra gli stati logici, le collisioni dyn4j e i set di animazioni del foglio sprite.
+ */
 public class EntityModel extends AbstractLivingEntityModel implements HasSprite, HasShockwave {
     private final Shockwave shockwave = new Shockwave();
     private static final Random RNG = new Random();
@@ -29,6 +33,10 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     private double idleAudioTimer = 5.0 + Math.random() * 10.0;
     private int currentAnimationRow;
 
+    /**
+     * Costruisce il modello dell'entità impostando la geometria di collisione, i filtri di livello,
+     * la tipologia di massa e l'eventuale stato di animazione d'ingresso.
+     */
     public EntityModel(double x, double y, EntityRecord entity) {
         super(x, y, entity);
         setXpReward(entity.xpReward());
@@ -57,7 +65,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         setMass(entity.maxAngularVelocity() > 0 ? MassType.NORMAL : MassType.FIXED_LINEAR_VELOCITY);
         setLinearDamping(entity.linearDamping());
 
-
         if (!entity.hasEntranceAnimation()) {
             EntityAudioManager.playEventAudio(this, "spawn");
         }
@@ -72,17 +79,25 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         return currentAnimationRow;
     }
 
+    /**
+     * Modifica lo stato logico dell'entità calcolando automaticamente la riga di animazione corretta.
+     */
     public void setEntityState(EntityState state) {
-        // Fallback sul vecchio sistema se chiamato senza riga esplicita (usa la row associata al tipo)
         setEntityState(state, findRowByType(state.name(), state.ordinal()));
     }
 
+    /**
+     * Aggiorna i filtri di categoria su tutte le fixture fisiche collegate all'entità.
+     */
     public void setCollisionFilter(org.dyn4j.collision.CategoryFilter filter) {
         for (int i = 0; i < getFixtureCount(); i++) {
             getFixture(i).setFilter(filter);
         }
     }
 
+    /**
+     * Forza lo stato logico dell'entità e imposta una riga di animazione esplicita resettandone il timer.
+     */
     public void setEntityState(EntityState state, int animationRow) {
         if (this.currentEntityState != state || this.currentAnimationRow != animationRow) {
             this.currentEntityState = state;
@@ -93,7 +108,7 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     /**
-     * Recupera l'oggetto di configurazione dell'animazione analizzando la riga fisica corrente
+     * Analizza la configurazione per estrarre i dati di riproduzione della riga d'animazione corrente.
      */
     private EntityRecord.AnimationRecord getCurrentAnimationRecord() {
         if (entity.animations() == null) return null;
@@ -106,16 +121,11 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     }
 
     /**
-     * Cerca nel JSON tutte le righe fisiche associate a un tipo (es. "ATTACK").
-     * Se ne trova più di una le pesca a caso, così un nemico con 3 righe ATTACK
-     * le ruota in modo casuale. Se non ne trova nessuna usa fallbackRow.
+     * Cerca le righe d'animazione corrispondenti a una categoria. Se multipli, estrae un indice casuale.
      */
     private int findRowByType(String typeName, int fallbackRow) {
         if (entity.animations() == null || entity.animations().isEmpty()) {
-            if (typeName.equalsIgnoreCase("IDLE")) {
-                return 0;
-            }
-            return fallbackRow;
+            return typeName.equalsIgnoreCase("IDLE") ? 0 : fallbackRow;
         }
 
         List<Integer> candidates = new ArrayList<>();
@@ -126,14 +136,14 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         }
 
         if (candidates.isEmpty()) {
-            if (typeName.equalsIgnoreCase("IDLE")) {
-                return 0;
-            }
-            return fallbackRow;
+            return typeName.equalsIgnoreCase("IDLE") ? 0 : fallbackRow;
         }
         return candidates.get(RNG.nextInt(candidates.size()));
     }
 
+    /**
+     * Ritorna il numero totale di frame presenti nella riga specificata dell'animazione.
+     */
     public int getFramesForState(int rowIndex) {
         if (entity.animations() == null || entity.animations().isEmpty()) {
             return 1;
@@ -144,6 +154,9 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         return 1;
     }
 
+    /**
+     * Aggiorna lo stato temporale, gli effetti d'onda d'urto, gli audio di idle e la transizione tra gli stati.
+     */
     @Override
     public void update(double dt) {
         updateStateTime(dt);
@@ -157,7 +170,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
             }
         }
 
-        // Calcola la durata totale leggendo la configurazione della riga corrente
         double duration = 0;
         EntityRecord.AnimationRecord anim = getCurrentAnimationRecord();
         if (anim != null) {
@@ -186,6 +198,9 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         }
     }
 
+    /**
+     * Avvia la sequenza di rimozione. Se presente un'animazione di morte la riproduce prima di eliminare il corpo.
+     */
     @Override
     public void extinguish(boolean silent) {
         boolean hasDeathAnimation = false;
@@ -213,6 +228,9 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         return super.shouldRemove();
     }
 
+    /**
+     * Esegue la rimozione definitiva dell'entità dal loop logico e notifica l'eventuale morte del boss al wave controller.
+     */
     public void completeKill() {
         if (completeKillCalled) return;
         completeKillCalled = true;
@@ -230,6 +248,9 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     @Override public int getSpriteFrameHeight() { return entity.frameH(); }
     @Override public double getVisualAngularOffsetDeg() { return entity.angularOffsetDeg(); }
 
+    /**
+     * Restituisce la durata temporale di un singolo fotogramma dell'animazione corrente.
+     */
     @Override
     public double getFrameDuration() {
         EntityRecord.AnimationRecord anim = getCurrentAnimationRecord();

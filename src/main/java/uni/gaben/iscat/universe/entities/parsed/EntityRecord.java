@@ -6,11 +6,10 @@ import uni.gaben.iscat.universe.entities.ThreatLevel;
 import java.util.List;
 
 /**
- * Immutable definition of an entity type.
- * Contains all static data: identity, visual, physics, AI, audio.
+ * Definizione immutabile di un tipo di entità.
+ * Contiene tutti i dati statici: identità, grafica, fisica, IA e profili audio.
  */
 public record EntityRecord(
-        // Identity can still be monolithic
         String entityKey,
         String name,
         EntityType type,
@@ -18,7 +17,6 @@ public record EntityRecord(
         Integer bestiaryOrder,
         ThreatLevel threatLevel,
 
-        // Visual / Animation
         String spritePath,
         int frameW,
         int frameH,
@@ -27,7 +25,6 @@ public record EntityRecord(
         boolean isBoss,
         boolean hasEntranceAnimation,
 
-        // Physical properties
         double initLife,
         double linearDamping,
         double mass,
@@ -38,26 +35,25 @@ public record EntityRecord(
         int xpReward,
         ShapeType shapeType,
 
-        // Behavioral ranges (still relevant for AI)
         double detectionRange,
         double combatRange,
         double preferredRange,
-        double actionCooldownSec,   // seconds, not ms
+        double actionCooldownSec,
 
-        // bullet damage
         double dannoProiettile,
 
-        // Audio
         AudioProfile audio,
 
-        // AI configuration
         BrainRecord brain,
 
-        // Player‑only fields (could be null for enemies)
         PlayerRecord player
 ) {
+    /** Tipologia di primitiva geometrica usata per la fixture fisica. */
     public enum ShapeType { CIRCLE, SQUARE, POLYGON }
 
+    /**
+     * Configurazione di una riga d'animazione all'interno dello spritesheet.
+     */
     public record AnimationRecord(
             String type,
             int row,
@@ -65,6 +61,9 @@ public record EntityRecord(
             double durationSec
     ) {}
 
+    /**
+     * Mappatura degli ID degli eventi audio alle rispettive liste di file riproducibili.
+     */
     public record AudioProfile(
             List<String> attack,
             List<String> idle,
@@ -73,6 +72,9 @@ public record EntityRecord(
             List<String> spawn
     ) {}
 
+    /**
+     * Configurazione dell'albero decisionale, dello steering e delle abilità dell'IA.
+     */
     public record BrainRecord(
             SteeringRecord steering,
             RotationRecord rotation,
@@ -80,6 +82,9 @@ public record EntityRecord(
             List<ModifierRecord> modifiers
     ) {}
 
+    /**
+     * Parametri di movimento e distanze di ingaggio dell'algoritmo di Steering.
+     */
     public record SteeringRecord(
             SteeringGoalIndex type,
             double maxPredictionTime,
@@ -88,6 +93,9 @@ public record EntityRecord(
             double safetyDistance
     ) {}
 
+    /**
+     * Logica e velocità di rotazione del corpo verso i target o in modalità spin.
+     */
     public record RotationRecord(
             RotationGoalIndex type,
             double spinSpeedRadPerSec,
@@ -96,6 +104,9 @@ public record EntityRecord(
             String target
     ) {}
 
+    /**
+     * Configurazione dei requisiti fisici e dei parametri di esecuzione di una specifica abilità.
+     */
     public record AbilityRecord(
             AbilityIndex type,
             double combatRange,
@@ -119,6 +130,9 @@ public record EntityRecord(
             double plungeCooldownMS
     ) {}
 
+    /**
+     * Struttura geometrica, ripetizioni ed entità spawnate da un pattern di proiettili o evocazioni.
+     */
     public record PatternRecord(
             PatternIndex type,
             int count,
@@ -131,6 +145,9 @@ public record EntityRecord(
             String figureType
     ) {}
 
+    /**
+     * Pesi e parametri di comportamento per i modificatori di movimento secondari (es. Ostacoli).
+     */
     public record ModifierRecord(
             ModifierIndex type,
             double radius,
@@ -139,6 +156,9 @@ public record EntityRecord(
             double avoidRadius
     ) {}
 
+    /**
+     * Statistiche base, costanti fisiche e abilità sbloccabili esclusive del giocatore.
+     */
     public record PlayerRecord(
             double dashImpulse,
             double dashDurationSec,
@@ -154,6 +174,9 @@ public record EntityRecord(
             List<LevelAbility> levelAbilities
     ) {}
 
+    /**
+     * Associazione tra un livello minimo richiesto e il pattern di attacco sbloccato dal giocatore.
+     */
     public record LevelAbility(
             int minLevel,
             PatternRecord pattern,
