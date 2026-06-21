@@ -13,7 +13,8 @@ import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
 public abstract class AbstractPhysicalProjectileModel extends AbstractLivingEntityModel {
 
     protected double terminalVelocity;
-    protected double baseAccelerationPerTick = 20.0;
+
+    private double dannoDinamico = 0.0;
 
     /**
      * Costruttore rapido che inizializza il proiettile con una vita massima definita.
@@ -27,7 +28,7 @@ public abstract class AbstractPhysicalProjectileModel extends AbstractLivingEnti
      */
     protected AbstractPhysicalProjectileModel(double x, double y, EntityRecord projectileRecord) {
         super(x, y, projectileRecord);
-        setBullet(true); // Attiva il Continuous Collision Detection (CCD) di dyn4j per evitare il tunneling
+        setBullet(true);
         setMass(MassType.NORMAL);
     }
 
@@ -38,6 +39,14 @@ public abstract class AbstractPhysicalProjectileModel extends AbstractLivingEnti
 
     public void setTerminalVelocity(double v) {
         this.terminalVelocity = v;
+    }
+
+    public double getDannoDinamico() {
+        return dannoDinamico;
+    }
+
+    public void setDannoDinamico(double dannoDinamico) {
+        this.dannoDinamico = dannoDinamico;
     }
 
     /**

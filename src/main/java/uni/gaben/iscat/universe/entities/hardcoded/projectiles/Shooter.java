@@ -62,13 +62,17 @@ public class Shooter<T extends CollisionBody> {
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
 
-        // Posiziona e orienta il proiettile modificando i campi primitivi inline (Zero Allocations)
         bullet.getTransform().setTranslation(origin.x + (distance * cos), origin.y + (distance * sin));
         bullet.getTransform().setRotation(angle);
 
-        // Configura la velocità terminale scalata sul vettore di direzione
         double speed = bullet.getTerminalVelocity();
         bullet.setLinearVelocity(speed * cos, speed * sin);
+
+        if (model instanceof PlayerModel pm) {
+            bullet.setDannoDinamico(pm.getProjectileDamage());
+        } else if (model instanceof AbstractLivingEntityModel lem && lem.getEntityRecord() != null) {
+            bullet.setDannoDinamico(lem.getEntityRecord().dannoProiettile());
+        }
 
         if (customizer != null) customizer.accept(bullet);
         setupAndSpawn(bullet);
@@ -88,12 +92,17 @@ public class Shooter<T extends CollisionBody> {
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
 
-        // Assegna le coordinate atomiche saltando il metodo .copy() del vettore
         bullet.getTransform().setTranslation(position.x, position.y);
         bullet.getTransform().setRotation(angle);
 
         double speed = bullet.getTerminalVelocity();
         bullet.setLinearVelocity(speed * cos, speed * sin);
+
+        if (model instanceof PlayerModel pm) {
+            bullet.setDannoDinamico(pm.getProjectileDamage());
+        } else if (model instanceof AbstractLivingEntityModel lem && lem.getEntityRecord() != null) {
+            bullet.setDannoDinamico(lem.getEntityRecord().dannoProiettile());
+        }
 
         if (customizer != null) customizer.accept(bullet);
         setupAndSpawn(bullet);
@@ -103,13 +112,13 @@ public class Shooter<T extends CollisionBody> {
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    private void setupAndSpawn(ProjectileModel p) {
+    private void setupAndSpawn(AbstractPhysicalProjectileModel p) {
         p.addOnCollision("projectileDamage", otherEntity -> {
             if (p.shouldRemove()) return;
             if (otherEntity instanceof AbstractPhysicalProjectileModel) return;
 
             if (otherEntity instanceof Alterable target) {
-                double damageValue = p.getEndurance();
+                double damageValue = p.getDannoDinamico();
 
                 if (target instanceof PlayerModel pm) {
                     if (pm.absorbProjectile(damageValue)) {
@@ -117,6 +126,9 @@ public class Shooter<T extends CollisionBody> {
                         return;
                     }
                 }
+
+                p.extinguish(true);
+
                 if (target instanceof AbstractLivingEntityModel lem) {
                     lem.setKilledByProjectile(true);
                 }
@@ -125,8 +137,9 @@ public class Shooter<T extends CollisionBody> {
                 if (!(target instanceof PlayerModel)) {
                     SessionScoreTracker.getInstance().addDamageDealt((int) damageValue);
                 }
+            } else {
+                p.extinguish(true);
             }
-            p.extinguish(true);
         });
 
         UniverseSpawner.getInstance().spawnEntity(p);

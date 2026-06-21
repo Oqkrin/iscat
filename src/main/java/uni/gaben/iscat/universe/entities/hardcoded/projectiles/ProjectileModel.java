@@ -49,6 +49,7 @@ public class ProjectileModel extends AbstractPhysicalProjectileModel {
         this.setAngularVelocity(0);
         this.clearAccumulatedForce();
         this.clearAccumulatedTorque();
+        this.setDannoDinamico(0.0);
         this.setType(type);
     }
 
@@ -103,7 +104,6 @@ public class ProjectileModel extends AbstractPhysicalProjectileModel {
         }
         if (universeModel != null) {
             Vector2 pos = this.getTransform().getTranslation();
-            // Calcolo manuale inline al posto di getMagnitudeSquared() per saltare overhead interni
             double distanceSquared = pos.x * pos.x + pos.y * pos.y;
             double radius = universeModel.getUniverseRadius();
             return distanceSquared > radius * radius;
