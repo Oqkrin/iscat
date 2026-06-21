@@ -20,13 +20,7 @@ public class EntityJsonLoader {
         /* This utility class should not be instantiated */
     }
 
-    public static class LoadedJson {
-        public final JSONObject json;
-        public final String originPath;
-        public LoadedJson(JSONObject json, String originPath) {
-            this.json = json;
-            this.originPath = originPath;
-        }
+    public record LoadedJson(JSONObject json, String originPath) {
     }
 
     /**

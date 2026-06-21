@@ -174,7 +174,7 @@ public class EntityEditorMenuController implements IscatMenuController {
 
         File customDir = new File("src/main/resources/uni/gaben/iscat/json/custom");
         if (!customDir.exists()) {
-            customDir.mkdirs();
+            System.out.println("custom directory creation result : " + customDir.mkdirs());
         }
 
         File targetFile = new File(customDir, safeName);
@@ -198,21 +198,6 @@ public class EntityEditorMenuController implements IscatMenuController {
 
     public void handleBack() {
         IscatNavigator.getInstance().navigateWithFade(IscatViews.BESTIARY_MENU);
-    }
-
-    // ============================================================
-    //  ESCAPE HANDLER (optional)
-    // ============================================================
-
-    public void registerEscHandler() {
-        Pane root = getRootPane();
-        if (root != null) {
-            root.setOnKeyPressed(event -> {
-                if (event.getCode() == KeyCode.ESCAPE) {
-                    handleBack();
-                }
-            });
-        }
     }
 
     // ============================================================

@@ -84,12 +84,12 @@ public class EntityFactory {
             Stream.of(enemiesFuture.join(), playersFuture.join(), customFuture.join())
                     .flatMap(List::stream)
                     .forEach(loaded -> {
-                        EntityRecord r = EntityRecordParser.parse(loaded.json);
+                        EntityRecord r = EntityRecordParser.parse(loaded.json());
                         if (r.entityKey() != null && !r.entityKey().isEmpty()) {
                             String key = r.entityKey().toLowerCase().trim();
                             fresh.put(key, r);
-                            freshRaw.put(key, loaded.json);
-                            freshPaths.put(key, loaded.originPath);
+                            freshRaw.put(key, loaded.json());
+                            freshPaths.put(key, loaded.originPath());
                         }
                     });
 
