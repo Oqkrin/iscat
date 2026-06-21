@@ -4,54 +4,72 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Registro centralizzato e cache per il caricamento degli sprite sheet.
+ * Evita di caricare e processare più volte lo stesso file sul file system,
+ * memorizzando in memoria le istanze di {@link SpriteSheetsParser} associate alle entità.
+ */
 public class SpritesLibrary {
 
-    private static final SpritesLibrary instance = new SpritesLibrary();
-    public static SpritesLibrary getInstance() { return instance; }
+    private static final SpritesLibrary INSTANCE = new SpritesLibrary();
+
+    public static SpritesLibrary getInstance() {
+        return INSTANCE;
+    }
 
     private final Map<String, SpriteSheetsParser> assets = new HashMap<>();
 
-    // ── New explicit method (folder + sprite name) ──────────────────────────
     /**
-     * Returns a SpriteSheetsParser for the given logical sprite.
-     * The sprite is resolved using the SpriteResolver (custom → core → internal).
+     * Recupera (o crea e memorizza in cache se assente) un parser per lo sprite sheet richiesto.
+     * La risorsa viene individuata tramite la catena di priorità del {@link SpriteResolver}.
      *
-     * @param folder      "players" or "enemies"
-     * @param spriteName  the sprite name without extension (e.g. "slime")
-     * @param frameWidth  frame width in pixels
-     * @param frameHeight frame height in pixels
+     * @param folder      La sotto-cartella di destinazione degli asset (es. "players" o "enemies").
+     * @param spriteName  Il nome dello sprite senza estensione (es. "slime").
+     * @param frameWidth  Larghezza in pixel di un singolo frame.
+     * @param frameHeight Altezza in pixel di un singolo frame.
+     * @return L'istanza di {@link SpriteSheetsParser} pronta per lo slicing e l'animazione.
+     * @throws RuntimeException Se la risorsa grafica non viene localizzata in nessun percorso valido.
      */
     public SpriteSheetsParser getSprite(String folder, String spriteName,
                                         int frameWidth, int frameHeight) {
         String cacheKey = folder + "/" + spriteName + "_" + frameWidth + "x" + frameHeight;
+
         return assets.computeIfAbsent(cacheKey, k -> {
             InputStream is = SpriteResolver.resolve(folder, spriteName);
             if (is == null) {
-                throw new RuntimeException("Sprite not found: " + folder + "/" + spriteName);
+                throw new RuntimeException("Sprite asset non trovato nei percorsi validi: " + folder + "/" + spriteName);
             }
             return new SpriteSheetsParser(is, frameWidth, frameHeight);
         });
     }
 
-    // ── Legacy method (full path like "/uni/.../sprites/enemies/slime.png") ─
     /**
-     * Parses a full sprite path into folder + sprite name and delegates to the
-     * folder‑based method.  This keeps existing callers (EntityRenderer,
-     * AnimatedCanvas) working without changes.
+     * Scompone un percorso assoluto interno nel rispettivo formato (cartella + nome_file)
+     * delegando la logica al metodo di caricamento esplicito.
+     * Mantiene la retrocompatibilità con i vecchi componenti del motore grafico (es. EntityRenderer).
+     *
+     * @param path        Il percorso completo (es. "/uni/gaben/iscat/sprites/enemies/slime.png").
+     * @param frameWidth  Larghezza in pixel di un singolo frame.
+     * @param frameHeight Altezza in pixel di un singolo frame.
+     * @return L'istanza di {@link SpriteSheetsParser} corrispondente.
+     * @throws RuntimeException Se il formato del percorso non è compatibile con i pattern supportati.
      */
     public SpriteSheetsParser getSprite(String path, int frameWidth, int frameHeight) {
-        // Normalise to forward slashes
         String normalised = path.replace('\\', '/');
         String[] parts = normalised.split("/");
+
         if (parts.length >= 3) {
-            String folder = parts[parts.length - 2];                     // "players" or "enemies"
+            String folder = parts[parts.length - 2];
             String fileName = parts[parts.length - 1];
-            String spriteName = fileName.endsWith(".png")
+
+            // Rimuove l'estensione finale se presente
+            String spriteName = fileName.toLowerCase().endsWith(".png")
                     ? fileName.substring(0, fileName.length() - 4)
                     : fileName;
+
             return getSprite(folder, spriteName, frameWidth, frameHeight);
         }
-        // If the path format is unexpected, try a direct classpath load (shouldn't happen)
-        throw new RuntimeException("Cannot parse sprite path: " + path);
+
+        throw new RuntimeException("Impossibile analizzare e convertire il formato del percorso sprite fornito: " + path);
     }
 }

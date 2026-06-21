@@ -4,21 +4,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
 /**
- * Drives a spritesheet animation by tracking elapsed time and mapping it to
- * the correct frame index for the active state row.
- *
- * <p>Supports <em>variable-length states</em>: each row (state) can have a
- * different number of frames, as detected by {@link SpriteSheetsParser}.</p>
- *
- * <h3>Constructors</h3>
- * <ul>
- *   <li>{@link #SpriteSheetsAnimator(double, int[])} – preferred; accepts the
- *       per-row frame count array directly from
- *       {@code SpriteSheetsParser.getFramesPerRow()}.</li>
- *   <li>{@link #SpriteSheetsAnimator(double, int, int)} – legacy convenience
- *       constructor; creates a uniform grid (all rows have the same frame
- *       count). Existing callers are not broken.</li>
- * </ul>
+ * Gestore dell'animazione di uno sprite sheet. Traccia il tempo trascorso
+ * e mappa i millisecondi correnti all'indice del frame corretto per la riga di stato attiva.
  */
 public class SpriteSheetsAnimator {
 
@@ -26,40 +13,28 @@ public class SpriteSheetsAnimator {
     private int currentState   = 0;
 
     /**
-     * Jagged duration matrix: {@code frameDurations[state][frame]}.
-     * Each inner array has length == framesPerRow[state].
+     * Matrice frastagliata (jagged) delle durate: {@code frameDurations[stato][frame]}.
+     * Ogni array interno ha una lunghezza pari a {@code framesPerRow[stato]}.
      */
     private DoubleProperty[][] frameDurations;
 
-    // ── Constructors ─────────────────────────────────────────────────────────
-
     /**
-     * Variable-length constructor.
+     * Costruttore legacy per griglie uniformi (ogni riga ha lo stesso numero di frame).
+     * Mantenuto per compatibilità con i vecchi componenti del framework.
      *
-     * @param defaultFrameDuration Seconds each frame is displayed (uniform default).
-     * @param framesPerRow         Per-row frame counts from
-     *                             {@link SpriteSheetsParser#getFramesPerRow()}.
-     */
-    public SpriteSheetsAnimator(double defaultFrameDuration, int[] framesPerRow) {
-        buildMatrix(defaultFrameDuration, framesPerRow);
-    }
-
-    /**
-     * Legacy uniform-grid constructor – all rows have the same frame count.
-     * Kept for backward compatibility with {@code AnimatedCanvas} and
-     * {@code PlayerView}.
-     *
-     * @param defaultFrameDuration Seconds each frame is displayed.
-     * @param framesCount          Frames per row.
-     * @param statesCount          Number of rows (animation states).
+     * @param defaultFrameDuration Durata di default di ciascun frame (in secondi).
+     * @param framesCount          Numero di frame presenti in ogni riga.
+     * @param statesCount          Numero totale di righe (stati di animazione).
      */
     public SpriteSheetsAnimator(double defaultFrameDuration, int framesCount, int statesCount) {
         int[] uniform = new int[statesCount];
-        for (int i = 0; i < statesCount; i++) uniform[i] = framesCount;
+        for (int i = 0; i < statesCount; i++) {
+            uniform[i] = framesCount;
+        }
         buildMatrix(defaultFrameDuration, uniform);
     }
 
-    // ── Matrix initialisation ────────────────────────────────────────────────
+    // ── Inizializzazione Matrice ─────────────────────────────────────────────
 
     private void buildMatrix(double defaultDuration, int[] framesPerRow) {
         frameDurations = new DoubleProperty[framesPerRow.length][];
@@ -73,81 +48,75 @@ public class SpriteSheetsAnimator {
     }
 
     /**
-     * Re-initialises the matrix with a uniform duration. Retained for
-     * compatibility; prefer the constructor overloads instead.
+     * Re-inizializza la matrice impostando una durata uniforme.
+     * Trattenuto esclusivamente per retrocompatibilità.
      */
     public void constantDurationFiller(double defaultFrameDuration, int framesCount, int statesCount) {
         int[] uniform = new int[statesCount];
-        for (int i = 0; i < statesCount; i++) uniform[i] = framesCount;
+        for (int i = 0; i < statesCount; i++) {
+            uniform[i] = framesCount;
+        }
         buildMatrix(defaultFrameDuration, uniform);
     }
 
-    // ── Frame duration control ───────────────────────────────────────────────
+    // ── Riproduzione e Aggiornamento ─────────────────────────────────────────
 
     /**
-     * Returns the bindable {@link DoubleProperty} for a specific (state, frame)
-     * pair so external systems can drive playback speed reactively.
+     * Avanza il timer interno dell'animazione in base al tempo trascorso dall'ultimo frame.
+     *
+     * @param deltaTime Tempo trascorso in secondi (tipicamente ricavato dal Game Loop).
      */
-    public DoubleProperty durationProperty(int state, int frame) {
-        if (!inBounds(state, frame)) return new SimpleDoubleProperty(0);
-        return frameDurations[state][frame];
-    }
-
-    /** Sets a frame duration directly, without a JavaFX binding. */
-    public void setFrameDuration(int state, int frame, double duration) {
-        if (frameDurations == null || !inBounds(state, frame)) return;
-        frameDurations[state][frame].set(duration);
-    }
-
-    // ── Playback ─────────────────────────────────────────────────────────────
-
     public void update(double deltaTime) {
         internalTime += deltaTime;
     }
 
     /**
-     * Returns the current frame index within the active state, looping
-     * correctly over the (potentially variable-length) frame list.
+     * Calcola e restituisce l'indice del frame corretto all'interno dello stato attivo,
+     * gestendo il ciclo continuo (looping) sulla base delle durate specifiche dei singoli frame.
      */
     public int getCurrentFrame() {
-        if (frameDurations == null || frameDurations.length == 0) return 0;
+        if (frameDurations == null || frameDurations.length == 0) {
+            return 0;
+        }
 
         DoubleProperty[] durations = frameDurations[currentState];
         int len = durations.length;
 
         double totalDuration = 0;
-        for (DoubleProperty p : durations) totalDuration += p.get();
-        if (totalDuration <= 0) return 0;
+        for (DoubleProperty p : durations) {
+            totalDuration += p.get();
+        }
+        if (totalDuration <= 0) {
+            return 0;
+        }
 
         double timeInCycle = internalTime % totalDuration;
         double accumulated = 0;
 
         for (int i = 0; i < len; i++) {
             accumulated += durations[i].get();
-            if (timeInCycle < accumulated) return i;
+            if (timeInCycle < accumulated) {
+                return i;
+            }
         }
         return len - 1;
     }
 
+    /**
+     * Cambia lo stato di animazione corrente (la riga dello sprite sheet).
+     * Se lo stato è differente da quello attuale, resetta il timer dell'animazione a 0.
+     */
     public void setState(int newState) {
-        if (frameDurations == null) return;
+        if (frameDurations == null) {
+            return;
+        }
         if (newState >= 0 && newState < frameDurations.length && newState != currentState) {
             currentState = newState;
             reset();
         }
     }
 
-    /** @return {@code true} once {@code internalTime} has covered the full cycle duration. */
-    public boolean hasCompletedCycle() {
-        if (frameDurations == null || frameDurations.length == 0) return true;
-
-        DoubleProperty[] durations = frameDurations[currentState];
-        double total = 0;
-        for (DoubleProperty p : durations) total += p.get();
-        return internalTime >= total;
-    }
-
-    // ── Accessors ────────────────────────────────────────────────────────────
+    // ── Getters & Setters ────────────────────────────────────────────────────
 
     public int getCurrentState() { return currentState; }
     public double getTime()      { return internalTime; }
@@ -155,11 +124,12 @@ public class SpriteSheetsAnimator {
     public void setTime(double time) { this.internalTime = time; }
     public void reset()              { this.internalTime = 0; }
 
-    // ── Internals ────────────────────────────────────────────────────────────
+    // ── Logica Interna ───────────────────────────────────────────────────────
 
     private boolean inBounds(int state, int frame) {
-        if (state  < 0 || state  >= frameDurations.length)         return false;
-        if (frame  < 0 || frame  >= frameDurations[state].length)  return false;
-        return true;
+        if (state < 0 || state >= frameDurations.length) {
+            return false;
+        }
+        return frame >= 0 && frame < frameDurations[state].length;
     }
 }

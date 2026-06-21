@@ -7,35 +7,56 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Resolves sprite sheets using the order:
- * 1. entities/sprites/custom/{folder}/{name}.png
- * 2. entities/sprites/core/{folder}/{name}.png
- * 3. internal classpath /uni/gaben/iscat/sprites/{folder}/{name}.png
+ * Risolutore di risorse grafiche per gli sprite (sprite sheet).
+ * Gestisce la ricerca e il caricamento dei file `.png` applicando la precedenza rigorosa:
+ * <ol>
+ * <li>Esterna (Custom): {@code entities/sprites/custom/{cartella}/{nome}.png}</li>
+ * <li>Esterna (Core): {@code entities/sprites/core/{cartella}/{nome}.png}</li>
+ * <li>Interna (Classpath): {@code /uni/gaben/iscat/sprites/{cartella}/{nome}.png}</li>
+ * </ol>
  */
 public final class SpriteResolver {
 
+    private SpriteResolver() {
+        /* Questa classe di utilità non deve essere istanziata */
+    }
+
+    /**
+     * Risolve il percorso di uno sprite e restituisce il relativo {@link InputStream} operativo,
+     * effettuando i controlli a cascata sui percorsi esterni prima di ripiegare sul classpath.
+     *
+     * @param folder     La sotto-cartella di destinazione (es. "players", "enemies").
+     * @param spriteName Il nome del file d'immagine (con o senza estensione .png).
+     * @return L'{@link InputStream} della risorsa localizzata, o {@code null} se l'immagine non è stata trovata.
+     */
     public static InputStream resolve(String folder, String spriteName) {
-        String fileName = spriteName.endsWith(".png") ? spriteName : spriteName + ".png";
+        // Normalizza il nome del file assicurando la presenza dell'estensione .png
+        String fileName = spriteName.toLowerCase().endsWith(".png") ? spriteName : spriteName + ".png";
 
         Path root = ExternalResourceResolver.getEntitiesRoot();
         if (root != null) {
-            // 1. External custom
+            // 1. Controllo nel percorso Custom (Modding/Texture pack utente)
             Path customPath = root.resolve("sprites/custom/" + folder + "/" + fileName);
             if (Files.isRegularFile(customPath)) {
-                try { return Files.newInputStream(customPath); } catch (Exception ignored) {}
+                try {
+                    return Files.newInputStream(customPath);
+                } catch (Exception ignored) {}
             }
-            // 2. External core
+
+            // 2. Controllo nel percorso Core esterno (Asset base aggiornabili esternamente)
             Path corePath = root.resolve("sprites/core/" + folder + "/" + fileName);
             if (Files.isRegularFile(corePath)) {
-                try { return Files.newInputStream(corePath); } catch (Exception ignored) {}
+                try {
+                    return Files.newInputStream(corePath);
+                } catch (Exception ignored) {}
             }
         }
 
-        // 3. Internal classpath
+        // 3. Fallback definitivo sulle risorse grafiche predefinite del Classpath
         String internalPath = "/uni/gaben/iscat/sprites/" + folder + "/" + fileName;
         InputStream is = SpriteResolver.class.getResourceAsStream(internalPath);
         if (is == null) {
-            System.err.println("[SpriteResolver] Sprite not found: " + internalPath);
+            System.err.println("[SpriteResolver] Sprite not found in classpath: " + internalPath);
         }
         return is;
     }

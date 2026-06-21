@@ -19,10 +19,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Manager di sessione globale e centralizzato per il ciclo di vita dell'applicazione.
+ * Gestisce lo stato dell'utente autenticato, le preferenze di configurazione, i dati di salvataggio (punteggi)
+ * e le proprietà reattive della skin del giocatore attualmente equipaggiata.
+ */
 public class SessionManager {
+
     // === Sistema di Skin (Centralizzato & Data-Driven) ===
     private static final StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/players/player1.png");
     private static final StringProperty playerSkinKey = new SimpleStringProperty("player1");
+
     private static SessionManager instance;
 
     private SessionUser currentUser;
@@ -30,6 +37,7 @@ public class SessionManager {
     private final ObjectProperty<ScoreModel> currentSaveData = new SimpleObjectProperty<>();
     private final StringProperty username = new SimpleStringProperty();
 
+    // === Stati Temporanei della UI e della Configurazione dei Temi ===
     public final List<File> carouselImages = new ArrayList<>();
     public int currentIndex = -1;
     public AnimationTimer uiRainbowSyncTimer;
@@ -38,40 +46,89 @@ public class SessionManager {
     public final List<Color> currentPalette = new ArrayList<>();
     public final Map<ColorPicker, StackPane> pickerBoxes = new HashMap<>();
 
+    private SessionManager() {
+        /* Costruttore privato per garantire il pattern Singleton */
+    }
 
-    private SessionManager() {}
-
+    /**
+     * Restituisce l'istanza unica del SessionManager.
+     * Implementa l'inizializzazione pigra (Lazy Initialization).
+     */
     public static SessionManager getInstance() {
-        if (instance == null) instance = new SessionManager();
+        if (instance == null) {
+            instance = new SessionManager();
+        }
         return instance;
     }
 
-    public static StringProperty playerSkinProperty() { return playerSkin; }
+    // ── Property e Metodi Statici per il Sistema di Skin ────────────────────
 
-    public static String getPlayerSkin() { return playerSkin.getValue(); }
+    public static StringProperty playerSkinProperty() {
+        return playerSkin;
+    }
 
-    public static void setPlayerSkin(String skin) { playerSkin.setValue(skin); }
+    public static String getPlayerSkin() {
+        return playerSkin.getValue();
+    }
 
-    public static String getPlayerSkinKey() { return playerSkinKey.getValue(); }
+    public static void setPlayerSkin(String skin) {
+        playerSkin.setValue(skin);
+    }
 
-    public static void setPlayerSkinKey(String key) { playerSkinKey.setValue(key); }
+    public static String getPlayerSkinKey() {
+        return playerSkinKey.getValue();
+    }
 
-    public SessionUser getCurrentUser()        { return currentUser; }
+    public static void setPlayerSkinKey(String key) {
+        playerSkinKey.setValue(key);
+    }
+
+    // ── Gestione dell'Utente Corrente (SessionUser) ──────────────────────────
+
+    public SessionUser getCurrentUser() {
+        return currentUser;
+    }
+
+    /**
+     * Aggiorna l'utente della sessione corrente.
+     * Sincronizza automaticamente la proprietà osservabile del nome utente.
+     */
     public void setCurrentUser(SessionUser user) {
         this.currentUser = user;
         if (user != null) {
             username.set(user.username());
         } else {
-            username.set(""); // Pulisce la property se l'utente viene disconnesso
+            username.set(""); // Pulisce la property in caso di disconnessione (logout)
         }
     }
 
-    public UserSettings getCurrentSettings()   { return currentSettings; }
-    public void setCurrentSettings(UserSettings s) { this.currentSettings = s; }
+    // ── Impostazioni e Salvataggi (UserSettings & ScoreModel) ────────────────
 
-    public ScoreModel getCurrentSaveData()               { return currentSaveData.get(); }
-    public void setCurrentSaveData(ScoreModel data)      { currentSaveData.set(data); }
-    public ObjectProperty<ScoreModel> saveDataProperty() { return currentSaveData; }
+    public UserSettings getCurrentSettings() {
+        return currentSettings;
+    }
 
-    public ObservableValue<String> usernameProperty()  { return username; }
+    public void setCurrentSettings(UserSettings s) {
+        this.currentSettings = s;
+    }
+
+    public ScoreModel getCurrentSaveData() {
+        return currentSaveData.get();
+    }
+
+    public void setCurrentSaveData(ScoreModel data) {
+        currentSaveData.set(data);
+    }
+
+    public ObjectProperty<ScoreModel> saveDataProperty() {
+        return currentSaveData;
+    }
+
+    /**
+     * Restituisce il valore osservabile del nome utente, utile per effettuare
+     * il binding diretto sui nodi testuali dell'interfaccia grafica (es. Label di benvenuto).
+     */
+    public ObservableValue<String> usernameProperty() {
+        return username;
+    }
 }
