@@ -1,4 +1,3 @@
-/* Outer framework boundary line */
 .window-border {
     -fx-background-color: transparent;
     -fx-border-color: -bg-elevated;
@@ -6,25 +5,18 @@
     -fx-border-radius: 16px;
     -fx-border-insets: 0;
 }
-/* ============================================
-   CENTRAL IDENTITY STRUCTURE (BUTTON MIRROR)
-   ============================================ */
 
 .floating-title-capsule {
-    /* Inherits standard button color gradients & bounds */
     -fx-background-color: -color-transparent;
     -fx-border-color: -bg-tertiary;
     -fx-border-width: 1px;
 
-    /* Rounded corners matched directly to standard button rules */
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
 
-    /* Horizontal breathing padding equivalent to button structures */
     -fx-padding: 8px 18px;
     -fx-alignment: CENTER;
 
-    /* Base depth dropping shadow */
     -fx-effect: dropshadow(
             gaussian,
             rgba(0,0,0,0.35),
@@ -34,17 +26,14 @@
             4
     );
 
-    /* Baseline transformation scale */
     -fx-scale-x: 1.0;
     -fx-scale-y: 1.0;
 }
 
-/* Central identity hover - perfectly replicates the button's neon transformation flare */
 .floating-title-capsule:hover {
     -fx-background-color: -color-transparent;
     -fx-border-color: -accent-primary;
 
-    /* Kinematic scaling animation steps matching buttons */
     -fx-scale-x: 1.03;
     -fx-scale-y: 1.03;
 
@@ -58,7 +47,6 @@
     );
 }
 
-/* Descendant selector fixing child text color constraints inside the container capsule */
 .floating-title-capsule .label {
     -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;

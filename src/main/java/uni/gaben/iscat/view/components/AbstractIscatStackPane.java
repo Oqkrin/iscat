@@ -66,10 +66,6 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
         }
     }
 
-    // =========================================================================
-    // Pattern di Inizializzazione e Ciclo di Vita
-    // =========================================================================
-
     /**
      * Inizializza la vista eseguendo la pipeline sequenziale dei metodi protetti.
      * Garantisce l'esecuzione atomica e singola tramite flag di controllo.
@@ -143,10 +139,6 @@ public abstract class AbstractIscatStackPane extends StackPane implements IscatV
             starryBackground.setFollowMouse(false);
         }
     }
-
-    // =========================================================================
-    // API Protette ed Helper di Caricamento
-    // =========================================================================
 
     /**
      * Restituisce il puntatore al contenitore radice di questa vista.

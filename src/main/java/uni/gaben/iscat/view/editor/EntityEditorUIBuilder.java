@@ -105,10 +105,6 @@ public class EntityEditorUIBuilder {
         buildAdvancedAI(json, advancedAI);
     }
 
-    // ============================================================
-    //  COSTRUTTORI PER IA AVANZATA
-    // ============================================================
-
     /** Genera la sottosezione dell'interfaccia dedicata ai parametri di IA avanzata (Steering, Rotazione, Modificatori, Abilità). */
     private void buildAdvancedAI(JSONObject json, VBox container) {
         JSONObject ai = json.optJSONObject("ai");

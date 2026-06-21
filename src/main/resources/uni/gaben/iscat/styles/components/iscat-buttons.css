@@ -1,7 +1,3 @@
-/* ============================================
-   BOTTONI GENERICI (STRUTTURA BASE CONDIVISA)
-   ============================================ */
-
 .button {
     -fx-text-fill: -accent-primary;
     -fx-font-weight: bold;
@@ -32,7 +28,6 @@
     -fx-scale-y: 1.0;
 }
 
-/* Hover globale */
 .button:hover {
     -fx-background-color: linear-gradient(
         from 0% 0% to 100% 100%,
@@ -56,7 +51,6 @@
     );
 }
 
-/* Click globale */
 .button:pressed {
     -fx-background-color: linear-gradient(
         from 0% 0% to 100% 100%,
@@ -79,10 +73,6 @@
         3
     );
 }
-
-/* ============================================
-   TITLE BAR BUTTONS
-   ============================================ */
 
 .title-bar-btn {
     -fx-background-color: transparent;
@@ -135,22 +125,14 @@
     );
 }
 
-
-/* Struttura del bottone principale */
 .menu-button {
     -fx-text-fill: -accent-primary;
-
 }
-/* ============================================
-   ICONS (IMAGE VIEW / IKONLI)
-   ============================================ */
 
-/* Gestione icone standard */
 .menu-button .image-view {
     -fx-text-fill: -accent-primary;
 }
 
-/* Gestione icone vettoriali Ikonli */
 .menu-button .ikonli-font-icon {
     -fx-icon-color: -accent-primary;
 }

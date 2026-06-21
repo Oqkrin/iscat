@@ -15,7 +15,7 @@ import org.dyn4j.geometry.Vector2;
  */
 public class Thrust {
 
-    // === Costanti di configurazione per gli effetti particellari del motore ===
+    // Costanti di configurazione per gli effetti particellari del motore
     /** Quantità minima garantita di particelle da generare per fotogramma. */
     public static final int THRUST_MIN_PARTICLES = 12;
     /** Coefficiente moltiplicativo aggiuntivo per il calcolo del numero di particelle in massima spinta. */

@@ -1,26 +1,19 @@
-/* ============================================
-   GLOBAL CHECKBOXES
-   ============================================ */
-
 .check-box {
     -fx-text-fill: -accent-primary;
 }
 
-/* Base box */
 .check-box .box {
-    -fx-background-color: -bg-primary; /* Changed from black */
-    -fx-border-color: -accent-primary;   /* Changed from white */
+    -fx-background-color: -bg-primary;
+    -fx-border-color: -accent-primary;
     -fx-border-width: 1px;
     -fx-border-radius: 3px;
     -fx-background-radius: 3px;
 }
 
-/* Hidden mark */
 .check-box .mark {
     -fx-background-color: transparent;
 }
 
-/* Selected state */
 .check-box:selected .box {
     -fx-background-color: -bg-primary;
     -fx-border-color: -accent-primary;
@@ -31,7 +24,6 @@
     -fx-shape: "M0,5 L2,7 L7,2 L6,1 L2,5 L1,4 Z";
 }
 
-/* Hover */
 .check-box:hover .box {
     -fx-border-color: -accent-primary;
     -fx-effect:

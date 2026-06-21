@@ -30,7 +30,6 @@ public class HitSpark implements Stateful, Updatable, Removable {
     /** Istanza condivisa del generatore di numeri pseudo-casuali per la dispersione vettoriale. */
     private static final Random RANDOM = new Random();
 
-    // ===== Configurazione parametri particellari (Pixel Mondo) =====
     private static final int PARTICLE_COUNT = 15;
     private static final double PARTICLE_RADIUS_MIN = 8;
     private static final double PARTICLE_RADIUS_MAX = 16;

@@ -1,58 +1,26 @@
-/**
- * ISCAT - Typography System
- *
- * Font size scale and text utility classes.
- * Import after iscat-color-theme.css.
- */
-
-. root {
+.root {
     --standard-unit: 16
 }
-
-/* ============================================
-   DISPLAY  (hero / splash text)
-   ============================================ */
 
 .display-large  { -fx-font-size: 94px; -fx-font-weight: bold; }
 .display-medium { -fx-font-size: 58px; -fx-font-weight: bold; }
 .display-small  { -fx-font-size: 36px; -fx-font-weight: bold; }
 
-/* ============================================
-   HEADLINE  (scene titles)
-   ============================================ */
+.headline-large  { -fx-font-size: 50px; -fx-font-weight: bold; }
+.headline-medium { -fx-font-size: 40px; -fx-font-weight: bold; }
+.headline-small  { -fx-font-size: 28px; }
 
-.headline-large  { -fx-font-size: 50px; -fx-font-weight: bold; }  /* menu title */
-.headline-medium { -fx-font-size: 40px; -fx-font-weight: bold; }  /* pause title */
-.headline-small  { -fx-font-size: 28px; }                         /* options title */
-
-/* ============================================
-   TITLE  (section headings, button labels)
-   ============================================ */
-
-.title-large  { -fx-font-size: 20px; -fx-font-weight: bold; }  /* button text */
+.title-large  { -fx-font-size: 20px; -fx-font-weight: bold; }
 .title-medium { -fx-font-size: 14px; }
-.title-small  { -fx-font-size: 12px; }                         /* slider labels */
-
-/* ============================================
-   BODY
-   ============================================ */
+.title-small  { -fx-font-size: 12px; }
 
 .body-large  { -fx-font-size: 16px; }
 .body-medium { -fx-font-size: 14px; }
 .body-small  { -fx-font-size: 12px; }
 
-/* ============================================
-   LABEL
-   ============================================ */
-
 .label-large  { -fx-font-size: 14px; }
 .label-medium { -fx-font-size: 12px; }
 .label-small  { -fx-font-size: 10px; }
-
-/* ============================================
-   COLOR UTILITY CLASSES
-   (require iscat-color-theme.css on an ancestor)
-   ============================================ */
 
 .text-primary   { -fx-text-fill: -text-primary; }
 .text-secondary { -fx-text-fill: -text-secondary; }
@@ -63,10 +31,6 @@
 .text-warning   { -fx-text-fill: -color-warning; }
 .text-error     { -fx-text-fill: -color-error; }
 .text-info      { -fx-text-fill: -color-info; }
-
-/* ============================================
-   SPACING UTILITY CLASSES
-   ============================================ */
 
 .padding-xs { -fx-padding: 10px; }
 .padding-sm { -fx-padding: 15px; }
@@ -80,17 +44,9 @@
 .spacing-lg { -fx-spacing: 30px; }
 .spacing-xl { -fx-spacing: 40px; }
 
-/* ============================================
-   BORDER & SHAPE UTILITIES
-   ============================================ */
-
 .rounded-sm { -fx-border-radius: 4px;  -fx-background-radius: 3px; }
 .rounded-md { -fx-border-radius: 12px; -fx-background-radius: 10px; }
 .rounded-lg { -fx-border-radius: 16px; -fx-background-radius: 15px; }
-
-/* ============================================
-   SHADOW / GLOW UTILITIES
-   ============================================ */
 
 .shadow-sm { -fx-effect: dropshadow(gaussian, black, 5,  0.5, 0, 1); }
 .shadow-md { -fx-effect: dropshadow(gaussian, black, 10, 0.5, 0, 2); }

@@ -28,7 +28,6 @@
     -fx-text-fill: -accent-primary;
 }
 
-/* Placeholder Pick Image button */
 #pickImageBtn {
     -fx-background-color: -bg-secondary;
     -fx-border-color: -bg-tertiary;
@@ -37,7 +36,6 @@
     -fx-border-color: -accent-primary;
 }
 
-/* Palette swatch squares */
 .palette-swatch {
     -fx-border-color: -bg-tertiary;
     -fx-border-width: 1px;

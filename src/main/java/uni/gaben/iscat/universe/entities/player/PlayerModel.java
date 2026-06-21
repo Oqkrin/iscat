@@ -447,8 +447,6 @@ public class PlayerModel extends AbstractLivingEntityModel
         return data.maxVelocity() * (isDashing() ? 10 : 1);
     }
 
-    // ==================== GETTER PER IL QUICK DASH ====================
-
     public boolean isQuickDashActive() {
         return quickDashActive;
     }
@@ -456,8 +454,6 @@ public class PlayerModel extends AbstractLivingEntityModel
     public double getQuickDashSpeed() {
         return quickDashSpeed;
     }
-
-    // ==================== GETTER VISUALI ====================
 
     @Override
     public Thrust thrust() {

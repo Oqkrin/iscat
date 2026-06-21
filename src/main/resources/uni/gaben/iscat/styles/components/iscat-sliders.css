@@ -1,11 +1,6 @@
-/* ============================================
-   GLOBAL SLIDERS
-   ============================================ */
-
 .slider {
 }
 
-/* Track */
 .slider .track {
     -fx-background-color: -bg-secondary;
     -fx-border-color: -bg-tertiary;
@@ -14,7 +9,6 @@
     -fx-background-radius: 4px;
 }
 
-/* Progress */
 .slider .progress {
     -fx-background-radius: 4px;
 }
@@ -37,7 +31,6 @@
         );
 }
 
-/* Thumb */
 .slider .thumb {
     -fx-background-color: -bg-primary;
     -fx-border-color: -bg-elevated;
@@ -59,7 +52,6 @@
         );
 }
 
-/* Hover */
 .slider:hover .thumb,
 .slider .thumb:hover {
     -fx-border-color: -accent-primary;
@@ -79,7 +71,6 @@
     -fx-scale-y: 1.15;
 }
 
-/* Pressed */
 .slider:pressed .thumb {
     -fx-background-color: -accent-primary;
     -fx-border-color: white;

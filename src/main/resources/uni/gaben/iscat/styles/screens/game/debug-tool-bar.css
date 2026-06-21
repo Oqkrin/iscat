@@ -9,7 +9,6 @@
     -fx-font-size: 16px;
 }
 
-/* Modificatori sotto-menu Cheats */
 .debug-main-title {
     -fx-font-weight: bold;
     -fx-font-size: 14px;
@@ -26,14 +25,12 @@
     -fx-text-fill: -accent-primary;
 }
 
-/* Cheat Buttons Standard */
 .cheat-button {
     -fx-font-size: 11px;
     -fx-font-weight: bold;
     -fx-padding: 0 12;
 }
 
-/* Varianti di colore dinamiche */
 .cheat-button.color-heal { -fx-border-color: -color-success; -fx-text-fill: -color-success; }
 .cheat-button.color-damage { -fx-border-color: -color-error; -fx-text-fill: -color-error; }
 .cheat-button.color-special { -fx-border-color: -accent-primary; -fx-text-fill: -accent-primary; }
@@ -47,19 +44,16 @@
     -fx-padding: 0;
 }
 
-/* Pulsante quadrato all'interno della tessera */
 .debug-spawn-btn-square {
     -fx-background-radius: 8;
     -fx-border-radius: 8;
 }
 
-/* Testo di fallback [+] */
 .debug-spawn-fallback-text {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
 
-/* Nome dell'entità sotto il pulsante */
 .debug-spawn-card-label {
     -fx-font-size: 10px;
     -fx-text-alignment: center;

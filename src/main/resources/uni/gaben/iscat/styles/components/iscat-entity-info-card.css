@@ -1,4 +1,3 @@
-/*------- Info Card TabPane------- */
 .tab-pane {
     -fx-background-color: transparent;
     -fx-tab-min-height: 32px;
@@ -8,7 +7,7 @@
 
 .tab-pane .tab-header-area {
     -fx-background-color: transparent;
-    -fx-padding: 0 0 12px 0;            /* 12px gap below tabs */
+    -fx-padding: 0 0 12px 0;
 }
 
 .tab-pane .tab-header-background {
@@ -24,7 +23,7 @@
 }
 
 .tab-pane .tab-header-area .headers-region {
-    -fx-spacing: 16px;                  /* gap between tabs */
+    -fx-spacing: 16px;
 }
 
 .tab-pane .tab:selected {
@@ -45,27 +44,24 @@
     -fx-text-fill: -text-primary;
 }
 
-/*------- TextArea inside tabs------- */
 .tab-pane .text-area {
     -fx-background-color: -bg-secondary;
     -fx-text-fill: -accent-primary;
     -fx-control-inner-background: -bg-secondary;
     -fx-background-radius: 8px;
-    -fx-border-width: 0 !important;     /* kill global border */
+    -fx-border-width: 0 !important;
     -fx-border-color: transparent;
-    -fx-padding: 0;                     /* outer padding removed */
+    -fx-padding: 0;
 }
 
-/* The inner content region – this is where the text lives */
 .tab-pane .text-area .content {
     -fx-background-color: -bg-secondary;
     -fx-text-fill: -accent-primary;
     -fx-border-width: 0 !important;
     -fx-border-color: transparent;
-    -fx-padding: 16px;                  /* ← inner text spacing */
+    -fx-padding: 16px;
 }
 
-/* Optional subtle scroll bars */
 .tab-pane .text-area .scroll-bar {
     -fx-opacity: 0.3;
 }

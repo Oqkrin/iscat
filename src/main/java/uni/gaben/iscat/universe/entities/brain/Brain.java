@@ -88,10 +88,6 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
         processRotation(universe, dt);
     }
 
-    // ========================================================================
-    // UPDATE LOOP HELPERS (Private Lifecycle Pipeline)
-    // ========================================================================
-
     /**
      * Risolve ed esegue la timeline e i vincoli delle abilità.
      * Incrementa i timer interni di tutte le abilità, analizza le esclusioni correnti, rimuove le azioni completate
@@ -215,10 +211,6 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
         entity.applyTorque(kp * diff - kd * angVel);
     }
 
-    // ========================================================================
-    // ACTION API
-    // ========================================================================
-
     /** Registers a new capability mapping into the internal indexing database. */
     public void addAction(String id, Ability ability) {
         if (actionsMap.containsKey(id)) {
@@ -256,10 +248,6 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
 
     public Ability getAction(String id) { return actionsMap.get(id); }
 
-    // ========================================================================
-    // MODIFIER API
-    // ========================================================================
-
     /** Aggrega un modificatore di sterzata associandolo a una chiave identificativa univoca. */
     public void addModifier(String id, SteeringModifier modifier) {
         if (modifiersMap.containsKey(id)) {
@@ -276,11 +264,6 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
         String id = UUID.randomUUID().toString();
         addModifier(id, modifier);
     }
-
-
-    // ========================================================================
-    // UTILITY & MATHEMATICAL HELPERS
-    // ========================================================================
 
     /**
      * Ottimizzato per allocare esclusivamente primitive sullo stack, eludendo la generazione di oggetti garbage di dyn4j.
@@ -299,10 +282,6 @@ public class Brain<T extends AbstractPhysicalEntityModel> implements IEntityCont
         if (player == null) return 0;
         return angleToTarget(player.getTransform().getTranslation());
     }
-
-    // ========================================================================
-    // GETTERS & SETTERS
-    // ========================================================================
 
     public void setSteeringGoal(SteeringGoal goal) { this.currentSteeringGoal = goal; }
     public SteeringGoal getSteeringGoal() { return this.currentSteeringGoal; }

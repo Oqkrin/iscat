@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class SessionManager {
 
-    // === Sistema di Skin (Centralizzato & Data-Driven) ===
+    // Sistema di Skin (Centralizzato & Data-Driven)
     private static final StringProperty playerSkin = new SimpleStringProperty("/uni/gaben/iscat/sprites/players/player1.png");
     private static final StringProperty playerSkinKey = new SimpleStringProperty("player1");
 
@@ -37,7 +37,7 @@ public class SessionManager {
     private final ObjectProperty<ScoreModel> currentSaveData = new SimpleObjectProperty<>();
     private final StringProperty username = new SimpleStringProperty();
 
-    // === Stati Temporanei della UI e della Configurazione dei Temi ===
+    // Stati Temporanei della UI e della Configurazione dei Temi
     public final List<File> carouselImages = new ArrayList<>();
     public int currentIndex = -1;
     public AnimationTimer uiRainbowSyncTimer;
