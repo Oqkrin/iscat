@@ -32,6 +32,7 @@ public class BestiaryMenuController implements IscatMenuController {
         ENEMIES, PLAYERS, CUSTOM
     }
 
+    // SE QUESTA VAR E' TRUE, TUTTO IL BESTIARIO E' VISIBILE
     private final boolean allUnlocked = false;
 
     private final BestiaryModel bestiaryModel = new BestiaryModel();
