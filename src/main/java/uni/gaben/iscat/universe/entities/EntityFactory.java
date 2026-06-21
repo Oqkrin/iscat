@@ -16,8 +16,11 @@ public class EntityFactory {
 
     static final String ENEMIES_DIR = "/uni/gaben/iscat/json/enemies/";
     static final String PLAYERS_DIR = "/uni/gaben/iscat/json/players/";
+    static final String CUSTOM_DIR  = "/uni/gaben/iscat/json/custom/";
 
     private static final Map<String, EntityRecord> cache = new ConcurrentHashMap<>();
+    private static final Map<String, JSONObject> rawJsonCache = new ConcurrentHashMap<>();
+    private static final Map<String, String> originPathCache = new ConcurrentHashMap<>();
     private static volatile CompletableFuture<Map<String, EntityRecord>> cacheReadyFuture;
     private static final Object futureLock = new Object();
 
@@ -65,23 +68,38 @@ public class EntityFactory {
     }
 
     /**
-     * Internal load: combines enemy + player JSON, parses them, and
+     * Internal load: combines enemy + player + custom JSON, parses them, and
      * atomically replaces the cache content.
      */
     private static CompletableFuture<Map<String, EntityRecord>> preloadAllAsyncInternal() {
-        CompletableFuture<List<JSONObject>> enemiesFuture = EntityJsonLoader.loadAllFromDirectory(ENEMIES_DIR);
-        CompletableFuture<List<JSONObject>> playersFuture = EntityJsonLoader.loadAllFromDirectory(PLAYERS_DIR);
+        CompletableFuture<List<EntityJsonLoader.LoadedJson>> enemiesFuture = EntityJsonLoader.loadAllFromDirectory(ENEMIES_DIR);
+        CompletableFuture<List<EntityJsonLoader.LoadedJson>> playersFuture = EntityJsonLoader.loadAllFromDirectory(PLAYERS_DIR);
+        CompletableFuture<List<EntityJsonLoader.LoadedJson>> customFuture  = EntityJsonLoader.loadAllFromDirectory(CUSTOM_DIR);
 
-        return enemiesFuture.thenCombine(playersFuture, (enemies, players) -> {
+        return CompletableFuture.allOf(enemiesFuture, playersFuture, customFuture).thenApply(v -> {
             Map<String, EntityRecord> fresh = new ConcurrentHashMap<>();
-            Stream.concat(enemies.stream(), players.stream())
-                    .map(EntityRecordParser::parse)
-                    .filter(r -> r.entityKey() != null && !r.entityKey().isEmpty())
-                    .forEach(r -> fresh.put(r.entityKey().toLowerCase().trim(), r));
+            Map<String, JSONObject> freshRaw = new ConcurrentHashMap<>();
+            Map<String, String> freshPaths = new ConcurrentHashMap<>();
+
+            Stream.of(enemiesFuture.join(), playersFuture.join(), customFuture.join())
+                    .flatMap(List::stream)
+                    .forEach(loaded -> {
+                        EntityRecord r = EntityRecordParser.parse(loaded.json);
+                        if (r.entityKey() != null && !r.entityKey().isEmpty()) {
+                            String key = r.entityKey().toLowerCase().trim();
+                            fresh.put(key, r);
+                            freshRaw.put(key, loaded.json);
+                            freshPaths.put(key, loaded.originPath);
+                        }
+                    });
 
             cache.clear();
             cache.putAll(fresh);
-            System.out.println("[EntityFactory] Cache aggiornata. Totale: " + cache.size());
+            rawJsonCache.clear();
+            rawJsonCache.putAll(freshRaw);
+            originPathCache.clear();
+            originPathCache.putAll(freshPaths);
+            System.out.println("[EntityFactory] Cache updated. Total: " + cache.size());
             return cache;
         });
     }
@@ -125,6 +143,16 @@ public class EntityFactory {
     // ------------------------------------------------------------
     public static Map<String, EntityRecord> getCache() {
         return cache;
+    }
+
+    public static JSONObject getRawJson(String entityKey) {
+        if (entityKey == null) return null;
+        return rawJsonCache.get(entityKey.toLowerCase().trim());
+    }
+
+    public static String getOriginPath(String entityKey) {
+        if (entityKey == null) return null;
+        return originPathCache.get(entityKey.toLowerCase().trim());
     }
 
     // Package-private for testing / advanced use

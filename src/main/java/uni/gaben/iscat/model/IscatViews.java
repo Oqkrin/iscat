@@ -11,5 +11,6 @@ public enum IscatViews {
     SETTINGS_MENU,
     CREDITS,
     LEADERBOARD_MENU,
-    TUTORIAL_MENU
+    TUTORIAL_MENU,
+    ENTITY_EDITOR
 }

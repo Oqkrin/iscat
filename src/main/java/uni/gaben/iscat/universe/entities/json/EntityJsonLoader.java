@@ -20,11 +20,20 @@ public class EntityJsonLoader {
         /* This utility class should not be instantiated */
     }
 
+    public static class LoadedJson {
+        public final JSONObject json;
+        public final String originPath;
+        public LoadedJson(JSONObject json, String originPath) {
+            this.json = json;
+            this.originPath = originPath;
+        }
+    }
+
     /**
      * Scans the given resource directory and returns a future that completes
-     * with a list of raw JSON objects (one per .json file found).
+     * with a list of loaded JSON objects (containing the parsed object and its origin path).
      */
-    public static CompletableFuture<List<JSONObject>> loadAllFromDirectory(String dirPath) {
+    public static CompletableFuture<List<LoadedJson>> loadAllFromDirectory(String dirPath) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 URL dirUrl = EntityFactory.class.getResource(dirPath);
@@ -64,7 +73,7 @@ public class EntityJsonLoader {
     /**
      * Walks the directory surface level (depth 1) and parses all .json files.
      */
-    private static List<JSONObject> loadJsonFilesFromPath(Path directoryPath) throws IOException {
+    private static List<LoadedJson> loadJsonFilesFromPath(Path directoryPath) throws IOException {
         try (Stream<Path> walk = Files.walk(directoryPath, 1)) {
             return walk
                     .filter(Files::isRegularFile)
@@ -76,15 +85,27 @@ public class EntityJsonLoader {
     }
 
     /**
-     * Reads a file and converts it into a JSONObject. Returns null if it fails.
+     * Reads a file and converts it into a LoadedJson. Returns null if it fails.
      */
-    private static JSONObject readJsonFile(Path filePath) {
+    private static LoadedJson readJsonFile(Path filePath) {
         try {
             String jsonText = Files.readString(filePath);
-            return new JSONObject(jsonText);
+            return new LoadedJson(new JSONObject(jsonText), filePath.toAbsolutePath().toString());
         } catch (Exception ex) {
             System.err.println("[EntityJsonLoader] Failed to read or parse JSON file at " + filePath + ": " + ex.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Saves a JSONObject to the specified path string.
+     */
+    public static void saveJsonToFile(JSONObject json, String absolutePath) {
+        try {
+            Files.writeString(Path.of(absolutePath), json.toString(4), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            System.out.println("[EntityJsonLoader] Saved JSON to: " + absolutePath);
+        } catch (IOException e) {
+            System.err.println("[EntityJsonLoader] Failed to save JSON to " + absolutePath + ": " + e.getMessage());
         }
     }
 }

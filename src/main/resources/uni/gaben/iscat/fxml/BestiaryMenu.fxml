@@ -40,6 +40,7 @@
                     <VBox alignment="CENTER" spacing="8.0" maxWidth="Infinity">
                         <Button fx:id="btnToggleCategory" maxWidth="Infinity" onAction="#toggleCategory" style="-fx-text-fill: #ffaa00;" styleClass="menu-button" text="SHOW: ENEMIES" />
                         <Button fx:id="btnRandom" maxWidth="Infinity" onAction="#selectRandom" styleClass="menu-button" text="RANDOM" />
+                        <Button fx:id="btnEditEntity" maxWidth="Infinity" onAction="#openEntityEditor" style="-fx-text-fill: #00eeff;" styleClass="menu-button" text="EDIT / CREATE ENTITY" />
                     </VBox>
 
                     <Region prefHeight="10.0" VBox.vgrow="ALWAYS" />

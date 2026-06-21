@@ -1,0 +1,262 @@
+/* ============================================
+   ENTITY EDITOR MENU – refined
+   ============================================ */
+
+@import url("../components/iscat-text-inputs.css");
+@import url("../components/iscat-entity-info-card.css");
+@import url("../components/iscat-buttons.css");
+@import url("../components/iscat-checkboxes.css");
+@import url("../components/iscat-scrollbars.css");
+@import url("../components/iscat-glowing-border-container.css");
+
+/* ============================================
+   ICON BUTTONS
+   ============================================ */
+.button-icon {
+    -fx-icon-color: -accent-primary;
+}
+
+/* ============================================
+   PANEL CARDS (left/right)
+   ============================================ */
+.editor-panel {
+    -fx-background-color: linear-gradient(
+            from 0% 0% to 100% 100%,
+            -bg-secondary,
+            -bg-primary
+    );
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 1px;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0.2, 0, 4);
+    -fx-padding: 20px 18px 18px 18px;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+.card-header {
+    -fx-text-fill: -accent-primary;
+    -fx-font-weight: bold;
+    -fx-font-size: 22px;
+    -fx-effect: dropshadow(gaussian, -accent-primary, 10, 0.25, 0, 0);
+}
+.card-subheader {
+    -fx-text-fill: -text-secondary;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-opacity: 0.9;
+}
+#lblOriginPath {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 10px;
+    -fx-opacity: 0.6;
+}
+
+/* ============================================
+   SCROLL PANE
+   ============================================ */
+.editor-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+/* ============================================
+   ACCORDION / TITLED PANE – now matches button style
+   ============================================ */
+.accordion {
+    -fx-padding: 4px 0;
+}
+
+.accordion > .titled-pane > .title {
+    /* Same gradient base as .button (but without the button’s inner shadow) */
+    -fx-background-color: linear-gradient(
+            from 0% 0% to 100% 100%,
+            -bg-elevated,
+            -bg-secondary
+    );
+    -fx-text-fill: -accent-primary;
+    -fx-font-weight: bold;
+    -fx-border-color: -bg-tertiary;          /* full border, not just bottom */
+    -fx-border-width: 1px;                   /* was 0 0 1px 0 */
+    -fx-border-radius: 8px;                  /* match button radius */
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(
+            gaussian,
+            rgba(0,0,0,0.35),
+            8,
+            0.15,
+            0,
+            2
+    );  /* subtle shadow like buttons */
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+    -fx-transition: all 0.15s ease;          /* not standard in JavaFX, but kept for readability */
+}
+
+/* Hover – exactly mimics .button:hover */
+.accordion > .titled-pane > .title:hover {
+    -fx-background-color: linear-gradient(
+            from 0% 0% to 100% 100%,
+            derive(-bg-elevated, 10%),
+            -bg-tertiary
+    );
+    -fx-border-color: -accent-primary;
+    -fx-effect: dropshadow(
+            gaussian,
+            -accent-primary,
+            10,
+            0.25,
+            0,
+            2
+    );
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+/* Pressed – mimics .button:pressed */
+.accordion > .titled-pane > .title:pressed {
+    -fx-background-color: linear-gradient(
+            from 0% 0% to 100% 100%,
+            -bg-primary,
+            -accent-primary
+    );
+    -fx-text-fill: white;                    /* matches button pressed */
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+    -fx-translate-y: 2px;
+    -fx-effect: dropshadow(
+            gaussian,
+            rgba(0,0,0,0.3),
+            8,
+            0.2,
+            0,
+            3
+    );
+}
+
+/* The label inside the title (already using -fx-text-fill from parent) */
+.accordion > .titled-pane > .title .text {
+    -fx-fill: -accent-primary;               /* ensure text colour */
+    -fx-font-weight: bold;
+}
+
+/* Arrow button (expand/collapse) */
+.accordion > .titled-pane > .title .arrow-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+.accordion > .titled-pane > .title .arrow {
+    -fx-background-color: -accent-primary;   /* arrow colour */
+    -fx-effect: dropshadow(gaussian, -accent-primary, 3, 0.2, 0, 0);
+}
+.accordion > .titled-pane > .title:hover .arrow {
+    -fx-background-color: -accent-primary;   /* stay bright on hover */
+}
+.accordion > .titled-pane > .title:pressed .arrow {
+    -fx-background-color: white;             /* pressed state contrasts */
+}
+
+/* Content area – keep as before */
+.accordion > .titled-pane > .content {
+    -fx-background-color: -bg-primary;
+    -fx-border-color: transparent;
+    -fx-padding: 12px 10px;
+}
+
+/* ============================================
+   SECTION BOXES (Steering, Rotation, Modifiers, etc.)
+   ============================================ */
+.editor-section-box {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -bg-secondary, -bg-primary);
+    -fx-border-color: -bg-elevated;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0.1, 0, 2);
+}
+.editor-section-title {
+    -fx-text-fill: -color-warning;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-padding: 0 0 4px 0;
+    -fx-opacity: 0.9;
+}
+
+/* ============================================
+   ARRAY ITEMS (modifiers, abilities)
+   ============================================ */
+.editor-array-item {
+    -fx-background-color: -bg-secondary;
+    -fx-border-color: -bg-tertiary;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px;
+}
+
+/* ============================================
+   FIELD ROWS (label + control)
+   ============================================ */
+.editor-field-row {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 10px;
+}
+.editor-field-row > .label {
+    -fx-pref-width: 120px;
+    -fx-text-fill: -text-secondary;
+    -fx-font-weight: bold;
+}
+.editor-field-row > .text-field,
+.editor-field-row > .combo-box,
+.editor-field-row > .spinner {
+    -fx-max-width: Infinity;
+    -fx-pref-width: 200px;
+}
+.editor-field-row > .check-box {
+    -fx-padding: 0 0 0 0;
+}
+
+/* ============================================
+   ACTION BUTTONS (semantic colours)
+   ============================================ */
+.btn-apply {
+    -fx-text-fill: -color-warning;
+    -fx-border-color: derive(-color-warning, -30%);
+}
+.btn-apply:hover {
+    -fx-border-color: -color-warning;
+    -fx-effect: dropshadow(gaussian, -color-warning, 10, 0.25, 0, 2);
+}
+
+.btn-save-overwrite {
+    -fx-text-fill: -color-error;
+    -fx-border-color: derive(-color-error, -30%);
+}
+.btn-save-overwrite:hover {
+    -fx-border-color: -color-error;
+    -fx-effect: dropshadow(gaussian, -color-error, 10, 0.25, 0, 2);
+}
+
+.btn-save-new {
+    -fx-text-fill: -color-success;
+    -fx-border-color: derive(-color-success, -40%);
+}
+.btn-save-new:hover {
+    -fx-border-color: -color-success;
+    -fx-effect: dropshadow(gaussian, -color-success, 10, 0.25, 0, 2);
+}
+
+/* Back button – uses standard menu-button style from iscat-buttons.css */
+.back-button {
+    -fx-text-fill: -text-tertiary;
+}
+.back-button:hover {
+    -fx-text-fill: -accent-primary;
+    -fx-border-color: -accent-primary;
+}

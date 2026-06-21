@@ -8,9 +8,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.controller.components.InfoCardController;
 import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.model.BestiaryModel;
+import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.utils.ComponentsUtils;
@@ -47,6 +49,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
     @FXML private Button btnToggleCategory;
     @FXML private Button btnRandom;
+    @FXML private Button btnEditEntity;
     @FXML private Button btnBack;
 
     @FXML private InfoCardController infoCardController;
@@ -63,6 +66,7 @@ public class BestiaryMenuController implements IscatMenuController {
 
         ComponentsUtils.applyIconButton(btnToggleCategory, "fas-exchange-alt");
         ComponentsUtils.applyIconButton(btnRandom,         "fas-dice");
+        ComponentsUtils.applyIconButton(btnEditEntity,     "fas-edit");
         ComponentsUtils.applyIconButton(btnBack,           "fas-arrow-left");
 
         SessionManager.getInstance().saveDataProperty().addListener((obs, old, data) -> {
@@ -254,6 +258,14 @@ public class BestiaryMenuController implements IscatMenuController {
 
         String randomId = validIds.get(ThreadLocalRandom.current().nextInt(validIds.size()));
         showEnemyById(randomId);
+    }
+
+    @FXML
+    private void openEntityEditor() {
+        if (currentEnemyId != null) {
+            EntityEditorMenuController.targetEntityKeyToLoad = currentEnemyId;
+        }
+        IscatNavigator.getInstance().navigateWithFade(IscatViews.ENTITY_EDITOR);
     }
 
     @Override public void setPointerToView(StackPane pointer) { this.viewRoot = pointer; }
