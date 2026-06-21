@@ -65,6 +65,7 @@ public class SettingsMenuController implements IscatMenuController {
         if (exitBtn != null) {
             FontIcon backIcon = new FontIcon("fas-arrow-left");
             backIcon.setIconSize((int) IscatSettings.STANDARD_UNIT);
+            backIcon.getStyleClass().add("button-icon");
             exitBtn.setGraphic(backIcon);
             exitBtn.setText("MAIN MENU");
             exitBtn.setContentDisplay(ContentDisplay.LEFT);
