@@ -105,7 +105,7 @@ public class UniverseRenderer {
             }
         }
 
-        renderHitSparks(universe, layers);
+        renderHitSparks(universe, layers, camera, w, h);
 
         // Disegno effettivo e flush sequenziale dei layer geometrici e particellari
         layers.render();
@@ -154,9 +154,23 @@ public class UniverseRenderer {
         return entity.isInsideRect(minX, maxX, minY, maxY);
     }
 
-    private void renderHitSparks(UniverseModel universe, OptimizedLayeredRenderer layers) {
+    private void renderHitSparks(UniverseModel universe, OptimizedLayeredRenderer layers, CameraModel camera, double width, double height) {
+        double zoom = camera.getZoom();
+        double halfViewW = (width / 2.0) / zoom;
+        double halfViewH = (height / 2.0) / zoom;
+
+        double minX = camera.getX() - halfViewW;
+        double maxX = camera.getX() + halfViewW;
+        double minY = camera.getY() - halfViewH;
+        double maxY = camera.getY() + halfViewH;
+        double padding = 200.0; // padding to ensure the shockwave doesn't pop in/out
+
         for (HitSpark spark : universe.getHitSparks()) {
-            HitSparkVFX.renderHitSpark(spark, layers);
+            double cx = spark.getShockwave().getCenterX();
+            double cy = spark.getShockwave().getCenterY();
+            if (cx + padding >= minX && cx - padding <= maxX && cy + padding >= minY && cy - padding <= maxY) {
+                HitSparkVFX.renderHitSpark(spark, layers);
+            }
         }
     }
 

@@ -228,7 +228,7 @@
 .editor-field-row > .text-field,
 .editor-field-row > .combo-box,
 .editor-field-row > .spinner {
-    -fx-pref-width: USE_COMPUTED_SIZE;
+    -fx-pref-width: -1;
     -fx-max-width: Infinity;
     -fx-min-width: 80px;
 }

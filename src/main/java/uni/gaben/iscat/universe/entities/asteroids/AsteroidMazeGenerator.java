@@ -46,15 +46,16 @@ public class AsteroidMazeGenerator {
                 ? universe.getUniverseRadius() * 12
                 : UniverseSettings.DEFAULT_WIDTH / 2.0 * 0.9;
 
-        double wallThickness = 1000.0;
+        double wallThickness = 1500.0;
         double circumference = 2 * Math.PI * boundaryRadius;
-        double angularStepSize = 250.0;
+        double angularStepSize = 125.0; // was 250
         int totalSteps = (int) (circumference / angularStepSize);
 
+        // Genera la barriera perimetrale
         for (int step = 0; step < totalSteps; step++) {
             // Distribuzione della frazione angolare sull'intero arco di 360 gradi
             double angle = (step / (double) totalSteps) * Math.PI * 2.0;
-            int density = random.nextInt(5, 12);
+            int density = random.nextInt(8, 16); // increased from 5..12
 
             for (int i = 0; i < density; i++) {
                 // Applicazione del Jitter per creare imperfezioni naturali lungo la faglia del perimetro
@@ -68,6 +69,19 @@ public class AsteroidMazeGenerator {
 
                 spawnAsteroidAt(finalX, finalY);
             }
+        }
+
+        // Genera asteroidi sparsi anche all'interno (non solo al bordo)
+        int interiorAsteroidsCount = (int)(boundaryRadius * boundaryRadius * Math.PI / 800000.0); // Calcolato sull'area
+        for (int i = 0; i < interiorAsteroidsCount; i++) {
+            double angle = random.nextDouble() * Math.PI * 2.0;
+            // Usa Math.sqrt per distribuzione radiale uniforme
+            double radius = Math.sqrt(random.nextDouble()) * (boundaryRadius - wallThickness / 2.0);
+
+            double finalX = centerX + Math.cos(angle) * radius;
+            double finalY = centerY + Math.sin(angle) * radius;
+
+            spawnAsteroidAt(finalX, finalY);
         }
     }
 
@@ -102,7 +116,7 @@ public class AsteroidMazeGenerator {
      * @param useHexagonalLayout Se {@code true}, forza il perimetro esterno a collassare in un esagono regolare.
      */
     public void spawnClump(double cx, double cy, double clumpRadius, boolean useHexagonalLayout) {
-        int rockCount = random.nextInt(6, 15);
+        int rockCount = random.nextInt(12, 28);
 
         for (int i = 0; i < rockCount; i++) {
             double angle = Math.random() * Math.PI * 2.0;

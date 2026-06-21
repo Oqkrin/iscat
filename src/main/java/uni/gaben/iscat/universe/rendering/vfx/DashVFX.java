@@ -59,10 +59,10 @@ public final class DashVFX {
         gc.setEffect(GLOW);
 
         // Numero di scie – più scie ad alta velocità
-        int numLines = (int) (STREAKS * (0.5 + intensity * 0.5));
+        int numLines = (int) (STREAKS * (1.0 + intensity));
 
-        // Angolo di diffusione: più stretto ad alta velocità, più ampio a bassa velocità
-        double spread = Math.PI / 6 + (1 - intensity) * Math.PI / 4; // 30° .. 75°
+        // Angolo di diffusione: più ampio per rendere l'effetto più evidente
+        double spread = Math.PI / 4 + (1 - intensity) * Math.PI / 3; // 45° .. 105°
 
         for (int i = 0; i < numLines; i++) {
             double t = (double) i / (numLines - 1) - 0.5; // -0.5 .. 0.5
@@ -90,13 +90,13 @@ public final class DashVFX {
 
             // L'offset iniziale è lungo la direzione opposta al movimento, per far sì che la scia inizi
             // già un po' dietro il centro, dando l'effetto di "hugging".
-            double startOffset = width * 0.4;
+            double startOffset = width * 0.6;
             double endX = startX + rotatedX * (lineLen + startOffset);
             double endY = startY + rotatedY * (lineLen + startOffset);
 
             // Larghezza della linea: maggiore al centro, minore ai bordi
-            double lineWidth = 1.5 + 3.0 * (1 - Math.abs(t) * 0.7) * intensity;
-            lineWidth = Math.max(0.5, lineWidth);
+            double lineWidth = 2.5 + 4.0 * (1 - Math.abs(t) * 0.5) * intensity;
+            lineWidth = Math.max(1.0, lineWidth);
 
             // Colore: accento con aggiunta di bianco e opacità decrescente verso la fine della scia
             Color color = Color.color(
@@ -111,11 +111,11 @@ public final class DashVFX {
             gc.strokeLine(startX, startY, endX, endY);
         }
 
-        // Aggiungi un piccolo bagliore centrale per enfatizzare
-        if (intensity > 0.3) {
-            double glowSize = 4 + 8 * intensity;
+        // Aggiungi un bagliore centrale per enfatizzare, più pronunciato
+        if (intensity > 0.1) {
+            double glowSize = 8 + 16 * intensity;
             gc.setFill(Color.WHITE);
-            gc.setGlobalAlpha(intensity * 0.3);
+            gc.setGlobalAlpha(intensity * 0.5);
             gc.fillOval(-glowSize/2, -glowSize/2, glowSize, glowSize);
         }
 
