@@ -2,7 +2,7 @@ package uni.gaben.iscat.controller.components.settings;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Slider;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 
 /**
  * Controller per la gestione della schermata delle impostazioni audio.

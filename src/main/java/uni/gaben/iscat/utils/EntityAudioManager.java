@@ -1,6 +1,8 @@
 package uni.gaben.iscat.utils;
 
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
+import uni.gaben.iscat.utils.audio.AudioManager;
+
 import java.util.List;
 import java.util.Random;
 

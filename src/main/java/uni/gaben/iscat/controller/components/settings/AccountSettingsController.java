@@ -12,7 +12,7 @@ import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.model.user.UserSettings;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.utils.PasswordHasher;
 import uni.gaben.iscat.utils.SessionManager;
 

@@ -5,6 +5,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+
+import java.io.InputStream;
+
 import uni.gaben.iscat.utils.sprite.SpriteSheetsAnimator;
 import uni.gaben.iscat.utils.sprite.SpriteSheetsParser;
 import uni.gaben.iscat.utils.sprite.SpritesLibrary;
@@ -47,7 +50,6 @@ public class AnimatedCanvas extends Canvas {
     public void setFrameDuration(double duration) {
         this.currentFrameDuration = duration;
         if (animator != null) {
-            // Recalculate durations for all frames/states
             animator.constantDurationFiller(
                     duration,
                     spriteSheet.getTotalFrames(),
@@ -57,21 +59,45 @@ public class AnimatedCanvas extends Canvas {
     }
 
     /**
-     * Loads a sprite sheet with custom frame dimensions.
+     * Loads a sprite sheet from a path string (e.g. "/uni/gaben/iscat/sprites/enemies/slime.png").
+     * Uses the central {@link SpritesLibrary}, which now resolves external sprites
+     * (custom → core → internal) automatically.
      */
     public void loadSkin(String path, int frameW, int frameH) {
-        stop(); // stop any running animation
+        stop();
 
-        // Use the central sprite library – same as EntityRenderer
         spriteSheet = SpritesLibrary.getInstance().getSprite(path, frameW, frameH);
         if (spriteSheet == null || spriteSheet.getSheet() == null) {
             System.err.println("[AnimatedCanvas] Failed to load sprite: " + path);
             return;
         }
 
-        // Create animator with the same logic as EntityRenderer
+        initAnimator();
+    }
+
+    /**
+     * Loads a sprite sheet directly from an {@link InputStream}.
+     * Useful when the sprite has been obtained via {@link SpriteResolver} or similar
+     * external‑first mechanisms.
+     */
+    public void loadSkin(InputStream imageStream, int frameW, int frameH) {
+        stop();
+
+        spriteSheet = new SpriteSheetsParser(imageStream, frameW, frameH);
+        if (spriteSheet == null || spriteSheet.getSheet() == null) {
+            System.err.println("[AnimatedCanvas] Failed to load sprite from stream");
+            return;
+        }
+
+        initAnimator();
+    }
+
+    private void initAnimator() {
+        // For simplicity, assume a uniform number of frames per row (the same as the old code).
+        // This matches the legacy behaviour; if you later support variable rows you can
+        // initialise the animator with the full jagged array.
         int states = spriteSheet.getTotalStates();
-        int framesPerState = spriteSheet.getFramesPerRow().length; // assuming uniform rows
+        int framesPerState = spriteSheet.getFramesPerRow().length;   // number of states = row count
         animator = new SpriteSheetsAnimator(currentFrameDuration, framesPerState, states);
         animator.constantDurationFiller(
                 currentFrameDuration,
@@ -79,7 +105,6 @@ public class AnimatedCanvas extends Canvas {
                 states
         );
 
-        // Reset cache
         invalidateCache();
         startTimer();
     }
@@ -125,10 +150,8 @@ public class AnimatedCanvas extends Canvas {
         int state = Math.clamp(animator.getCurrentState(), 0, spriteSheet.getTotalStates() - 1);
         int frame = Math.clamp(animator.getCurrentFrame(), 0, spriteSheet.getTotalFrames() - 1);
 
-        // Use the same tint as EntityRenderer (accent secondary for UI)
         Color tint = ThemeManager.getInstance().getAccentSecondary();
 
-        // Only regenerate the tinted frame if something changed
         if (cachedTintedFrame == null
                 || !tint.equals(lastAppliedTint)
                 || state != lastRow
@@ -136,7 +159,6 @@ public class AnimatedCanvas extends Canvas {
 
             Image rawFrame = spriteSheet.getFrame(state, frame);
             if (rawFrame != null) {
-                // Apply tint using the same utility as EntityRenderer
                 cachedTintedFrame = SpriteUtils.tinted(rawFrame, tint);
             } else {
                 cachedTintedFrame = null;

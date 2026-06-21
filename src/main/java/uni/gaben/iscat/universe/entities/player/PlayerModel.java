@@ -15,7 +15,7 @@ import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalP
 import uni.gaben.iscat.universe.entities.interfaces.*;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.universe.effects.Thrust;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.utils.Cooldown;

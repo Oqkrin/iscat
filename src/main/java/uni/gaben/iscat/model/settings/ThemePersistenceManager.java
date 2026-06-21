@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 import uni.gaben.iscat.database.IscatDB;
 import uni.gaben.iscat.database.dao.SettingsDAO;
 import uni.gaben.iscat.model.user.UserSettings;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 

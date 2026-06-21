@@ -26,7 +26,7 @@ import uni.gaben.iscat.model.user.SessionUser;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.design.ScalareAureo;
 import uni.gaben.iscat.utils.theme.ThemeManager;

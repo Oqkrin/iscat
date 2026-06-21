@@ -14,7 +14,7 @@ import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;

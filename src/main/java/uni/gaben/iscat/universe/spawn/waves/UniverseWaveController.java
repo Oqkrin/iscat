@@ -5,7 +5,7 @@ import javafx.beans.property.StringProperty;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entities.*;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.model.BestiaryModel;

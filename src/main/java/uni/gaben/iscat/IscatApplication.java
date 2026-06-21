@@ -2,7 +2,6 @@ package uni.gaben.iscat;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -16,10 +15,8 @@ import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.utils.ExternalResourceResolver;
-import uni.gaben.iscat.view.IscatWindow;
 import uni.gaben.iscat.view.components.IscatTitleBar;
-import uni.gaben.iscat.utils.AudioManager;
-import uni.gaben.iscat.utils.IscatUtils;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.nio.file.Path;
@@ -54,7 +51,6 @@ public class IscatApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-        AudioManager.getInstance().loadAllSFX("/uni/gaben/iscat/audio/SFX/entitiesSFX");
         AudioManager.getInstance().loadDefaultAudio();
 
 

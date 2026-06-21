@@ -16,7 +16,7 @@ import uni.gaben.iscat.universe.entities.EntityModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.utils.EntityAudioManager;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

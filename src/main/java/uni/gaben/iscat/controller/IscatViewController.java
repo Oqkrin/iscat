@@ -3,7 +3,7 @@ package uni.gaben.iscat.controller;
 import javafx.animation.FadeTransition;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import uni.gaben.iscat.utils.AudioManager;
+import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.IscatMVCRegistry;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;

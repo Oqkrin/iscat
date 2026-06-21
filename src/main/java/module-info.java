@@ -83,4 +83,6 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.view.components;
     exports uni.gaben.iscat.view.game;
     exports uni.gaben.iscat.view.game.debug;
+    exports uni.gaben.iscat.utils.audio;
+    opens uni.gaben.iscat.utils.audio to javafx.fxml;
 }
