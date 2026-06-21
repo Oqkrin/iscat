@@ -29,10 +29,8 @@ public class EntityJsonLoader {
     public static CompletableFuture<List<LoadedJson>> loadAllFromDirectory(String dirPath) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                System.out.println("[EntityJsonLoader] loadAllFromDirectory called for: " + dirPath);
                 String relativeDir = dirPath.startsWith("/") ? dirPath.substring(1) : dirPath;
                 List<Path> files = ExternalResourceResolver.listFiles(relativeDir, ".json");
-                System.out.println("[EntityJsonLoader] found " + files.size() + " files in " + relativeDir);
                 return files.stream()
                         .map(EntityJsonLoader::readJsonFile)
                         .filter(Objects::nonNull)
@@ -80,7 +78,6 @@ public class EntityJsonLoader {
      */
     private static LoadedJson readJsonFile(Path filePath) {
         try {
-            System.out.println("[EntityJsonLoader] reading JSON file: " + filePath);
             String jsonText = Files.readString(filePath);
             return new LoadedJson(new JSONObject(jsonText), filePath.toAbsolutePath().toString());
         } catch (Exception ex) {
@@ -95,7 +92,6 @@ public class EntityJsonLoader {
     public static void saveJsonToFile(JSONObject json, String absolutePath) {
         try {
             Files.writeString(Path.of(absolutePath), json.toString(4), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            System.out.println("[EntityJsonLoader] Saved JSON to: " + absolutePath);
         } catch (IOException e) {
             System.err.println("[EntityJsonLoader] Failed to save JSON to " + absolutePath + ": " + e.getMessage());
         }

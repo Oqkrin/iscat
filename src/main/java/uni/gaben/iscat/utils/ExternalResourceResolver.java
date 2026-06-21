@@ -117,8 +117,6 @@ public final class ExternalResourceResolver {
                 extPathStr = extPathStr.substring("uni/gaben/iscat/".length());
             }
             Path extDir = entitiesRoot.resolve(extPathStr);
-            System.out.println("[Resolver] extPathStr for external scan: " + extPathStr);
-            System.out.println("[Resolver] extDir for external scan: " + extDir + ", exists: " + Files.isDirectory(extDir));
             if (Files.isDirectory(extDir)) {
                 scanDirectory(extDir, extension, resultMap, true);
             }
