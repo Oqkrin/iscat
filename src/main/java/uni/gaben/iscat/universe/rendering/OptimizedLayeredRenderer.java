@@ -199,10 +199,8 @@ public class OptimizedLayeredRenderer {
 
     private void renderSprites() {
         if (sprites.isEmpty()) return;
-
         sprites.sort(Comparator.comparingInt(a -> a.image().hashCode()));
-
-        gc.setEffect(spriteBloom);
+        if (zoom > 0.5) gc.setEffect(spriteBloom);
         for (SpriteBatch s : sprites) {
             drawTransformedImage(s.image, s.x, s.y, s.w, s.h, s.angle, s.tint);
         }
@@ -211,7 +209,7 @@ public class OptimizedLayeredRenderer {
 
     private void renderProjectiles() {
         if (projectiles.isEmpty()) return;
-
+        if (zoom > 0.4) gc.setEffect(PROJECTILE_EFFECT);
         gc.setEffect(PROJECTILE_EFFECT);
         gc.setLineCap(StrokeLineCap.ROUND);
         for (ProjectileBatch p : projectiles) {
@@ -237,6 +235,7 @@ public class OptimizedLayeredRenderer {
 
     private void renderHPbars() {
         for (HpBarBatch h : hpBars) {
+            if (h.w() * zoom < 8.0) continue;
             DrawVFX.drawHpBar(gc, h);
         }
     }

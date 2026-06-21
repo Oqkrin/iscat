@@ -32,18 +32,54 @@ public final class EntityRenderer {
     private static final Map<Class<?>, BiConsumer<AbstractPhysicalEntityModel, OptimizedLayeredRenderer>> LAYERED_RENDERERS = new HashMap<>();
     private static final Map<SpriteKey, SpriteSheetsAnimator> ANIMATOR_CACHE = new HashMap<>();
 
+    // Cache dei colori del ThemeManager — aggiornata una volta per frame
+    private static Color cachedAccentPrimary   = Color.WHITE;
+    private static Color cachedAccentSecondary = Color.WHITE;
+    private static Color cachedAccentTernary   = Color.GRAY;
+
+    // Zoom corrente — usato per LOD
+    private static double currentZoom = 1.0;
+
+    // Aggiornamento lazy: si rinnova una volta per frame tramite il nano-timestamp
+    private static long lastFrameNano = -1;
+
     static {
-        LAYERED_RENDERERS.put(AsteroidModel.class, EntityRenderer::renderAsteroidBatched);
-        LAYERED_RENDERERS.put(ProjectileModel.class,   EntityRenderer::renderProjectileBatched);
-        LAYERED_RENDERERS.put(PlayerModel.class,  EntityRenderer::renderPlayerBatched);
-        LAYERED_RENDERERS.put(BlackHoleModel.class, EntityRenderer::renderBlackHoleBatched);
+        LAYERED_RENDERERS.put(AsteroidModel.class,  EntityRenderer::renderAsteroidBatched);
+        LAYERED_RENDERERS.put(ProjectileModel.class, EntityRenderer::renderProjectileBatched);
+        LAYERED_RENDERERS.put(PlayerModel.class,     EntityRenderer::renderPlayerBatched);
+        LAYERED_RENDERERS.put(BlackHoleModel.class,  EntityRenderer::renderBlackHoleBatched);
     }
 
     private EntityRenderer() {}
 
-    // Main entry point for batched rendering
+    /**
+     * Può essere chiamato da UniverseRenderer per aggiornare zoom e colori.
+     * Se non viene chiamato, la cache si aggiorna automaticamente alla prima
+     * renderLayered() del frame tramite refreshFrameCache().
+     */
+    public static void beginFrame(double zoom) {
+        currentZoom = zoom;
+        refreshFrameCache();
+    }
+
+    /**
+     * Aggiorna la cache dei colori una volta per frame usando il nano-timestamp.
+     * Chiamato automaticamente da renderLayered() se beginFrame() non è disponibile.
+     */
+    private static void refreshFrameCache() {
+        long now = System.nanoTime();
+        // Soglia: almeno 1ms tra un refresh e l'altro (un frame dura ~16ms a 60fps)
+        if (now - lastFrameNano < 1_000_000L) return;
+        lastFrameNano = now;
+        ThemeManager tm = ThemeManager.getInstance();
+        cachedAccentPrimary   = tm.getAccentPrimary();
+        cachedAccentSecondary = tm.getAccentSecondary();
+        cachedAccentTernary   = tm.getAccentTernary();
+    }
+
     public static void renderLayered(AbstractPhysicalEntityModel entity, OptimizedLayeredRenderer layers, boolean debug) {
         if (entity == null || entity.shouldRemove()) return;
+        refreshFrameCache(); // aggiorna colori e zoom una volta per frame se beginFrame() non è stato chiamato
 
         BiConsumer<AbstractPhysicalEntityModel, OptimizedLayeredRenderer> custom = LAYERED_RENDERERS.get(entity.getClass());
 
@@ -63,7 +99,7 @@ public final class EntityRenderer {
     }
 
     // ------------------------------------------------------------------
-    // Batched Sprite pipeline – collects transform + image + color tint
+    // Batched Sprite pipeline
     // ------------------------------------------------------------------
     private static void renderSpriteEntityBatched(AbstractPhysicalEntityModel entity, HasSprite sprite, OptimizedLayeredRenderer layers) {
         double cx = UU.mToPx(entity.getTransform().getTranslationX());
@@ -78,7 +114,6 @@ public final class EntityRenderer {
         );
         double finalAngle = baseAngle + sprite.getVisualAngularOffsetDeg();
 
-        // Recupera lo sprite sheet globale
         SpriteSheetsParser sheet = SpritesLibrary.getInstance().getSprite(sprite.getSpritePath(), sprite.getSpriteFrameWidth(), sprite.getSpriteFrameHeight());
         if (sheet != null) {
             int row = entity.getState();
@@ -88,38 +123,27 @@ public final class EntityRenderer {
             if (framesPerRow != null && row >= 0 && row < framesPerRow.length) {
                 int totalFrames = framesPerRow[row];
                 if (totalFrames > 0) {
-                    // Calcolo dinamico in base alla durata reale impostata nello stato corrente
                     double frameDuration = sprite.getFrameDuration();
                     int calculatedFrame = (int) (entity.getStateTime() / frameDuration);
-
-                    // Determina se l'animazione deve andare in loop o fermarsi all'ultimo frame
-                    boolean isIdle = (row == 0); // Di default consideriamo la riga 0 come IDLE per sicurezza
+                    boolean isIdle = (row == 0);
                     if (entity instanceof EntityModel em) {
                         isIdle = (em.getCurrentEntityState() == EntityState.IDLE);
                     }
-
-                    if (isIdle) {
-                        // L'IDLE continua a ciclare all'infinito
-                        currentFrame = calculatedFrame % totalFrames;
-                    } else {
-                        // Tutte le altre animazioni (DEATH, ATTACK, ecc.) si fermano inchiodate sull'ultimo frame
-                        currentFrame = Math.min(calculatedFrame, totalFrames - 1);
-                    }
+                    currentFrame = isIdle
+                            ? calculatedFrame % totalFrames
+                            : Math.min(calculatedFrame, totalFrames - 1);
                 }
             }
 
-            // Recupera il frame corretto calcolato dinamicamente
             Image frame = sheet.getFrame(row, currentFrame);
             if (frame != null) {
                 Color tint = (entity instanceof PlayerModel)
-                        ? ThemeManager.getInstance().getAccentPrimary()
-                        : ThemeManager.getInstance().getAccentSecondary();
-
+                        ? cachedAccentPrimary
+                        : cachedAccentSecondary;
                 layers.addSprite(SpriteUtils.tinted(frame, tint), cx, cy, w, h, finalAngle, null);
             }
         }
 
-        // Shockwave (if present) – also batched as a special effect
         if (entity instanceof HasShockwave sw && sw.shockwave().isActive()) {
             if ("iscat-master".equals(entity.getEntityRecord().entityKey())) {
                 layers.addBlackHoleShockwave(cx, cy, sw.shockwave());
@@ -128,17 +152,20 @@ public final class EntityRenderer {
             }
         }
 
-        // HP bar – queued as a rectangle pair (background + fill)
         if (entity instanceof Alterable ld) {
-            double barX = cx - w/2;
-            double barY = cy - h/2 - OptimizedLayeredRenderer.HpBarBatch.HP_BAR_OFFSET_Y;
-            double percent = ld.getEndurance() / ld.getMaxEndurance();
-            layers.addHpBar(barX, barY, w, OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT, percent);
+            // Skip HP bar se troppo piccola a schermo
+            double screenW = w * currentZoom;
+            if (screenW >= 6.0) {
+                double barX = cx - w / 2;
+                double barY = cy - h / 2 - OptimizedLayeredRenderer.HpBarBatch.HP_BAR_OFFSET_Y;
+                double percent = ld.getEndurance() / ld.getMaxEndurance();
+                layers.addHpBar(barX, barY, w, OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT, percent);
 
-            if (entity instanceof PlayerModel pm) {
-                double tgY = barY + OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT + OptimizedLayeredRenderer.TimeGaugeBarBatch.TIME_BAR_OFFSET_Y;
-                double tgPercent = pm.getTimeGauge() / pm.getMaxTimeGauge();
-                layers.addTimeGaugeBar(barX, tgY, w, OptimizedLayeredRenderer.TimeGaugeBarBatch.TIME_BAR_HEIGHT, tgPercent);
+                if (entity instanceof PlayerModel pm) {
+                    double tgY = barY + OptimizedLayeredRenderer.HpBarBatch.HP_BAR_HEIGHT + OptimizedLayeredRenderer.TimeGaugeBarBatch.TIME_BAR_OFFSET_Y;
+                    double tgPercent = pm.getTimeGauge() / pm.getMaxTimeGauge();
+                    layers.addTimeGaugeBar(barX, tgY, w, OptimizedLayeredRenderer.TimeGaugeBarBatch.TIME_BAR_HEIGHT, tgPercent);
+                }
             }
         }
     }
@@ -153,87 +180,100 @@ public final class EntityRenderer {
         double w  = e.getWidthPx();
         double h  = e.getHeightPx();
 
-        @SuppressWarnings("unused")
+        // Skip proiettili invisibili a schermo (troppo piccoli con zoom out)
+        double screenSize = w * currentZoom;
+        if (screenSize < 1.5) return;
+
         Vector2 vel = p.getLinearVelocity();
-        double speed = vel.getMagnitude();
+        // getMagnitudeSquared evita sqrt — confronto con 0.01 = 0.1^2
+        double speedSq = vel.getMagnitudeSquared();
         double trailX2 = cx;
         double trailY2 = cy;
         double trailWidth = ScalareAureo.phiMinore(h);
 
-        if (speed > 0.1) {
+        if (speedSq > 0.01) {
             trailX2 = cx - ScalareAureo.phiMaggiore(vel.x);
             trailY2 = cy - ScalareAureo.phiMaggiore(vel.y);
         }
 
         Color baseColor = p.getType().color;
-        Color strokeColor = baseColor.darker();
 
-        layers.addProjectile(cx, cy, ScalareAureo.phiMaggiore(w), ScalareAureo.phiMaggiore(h), strokeColor,
-                cx, cy, trailX2, trailY2, ScalareAureo.phiMaggiore(trailWidth));
-        layers.addProjectile(cx, cy, w, h, baseColor,
-                cx, cy, trailX2, trailY2, trailWidth);
+        // Sotto una certa dimensione a schermo, skip del doppio batch (stroke+fill):
+        // un solo layer è sufficiente e invisibile la differenza
+        if (screenSize < 4.0) {
+            layers.addProjectile(cx, cy, w, h, baseColor,
+                    cx, cy, trailX2, trailY2, trailWidth);
+        } else {
+            Color strokeColor = baseColor.darker();
+            layers.addProjectile(cx, cy, ScalareAureo.phiMaggiore(w), ScalareAureo.phiMaggiore(h), strokeColor,
+                    cx, cy, trailX2, trailY2, ScalareAureo.phiMaggiore(trailWidth));
+            layers.addProjectile(cx, cy, w, h, baseColor,
+                    cx, cy, trailX2, trailY2, trailWidth);
+        }
     }
 
     private static void renderAsteroidBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer batcher) {
         AsteroidModel asteroid = (AsteroidModel) e;
-        Vector2[] vertices = asteroid.getDisplayVertices();
-        if (vertices == null || vertices.length == 0) return;
 
-        int len = vertices.length;
-        double[] xPoints = new double[len];
-        double[] yPoints = new double[len];
-        for (int i = 0; i < len; i++) {
-            Vector2 worldPoint = asteroid.getTransform().getTransformed(vertices[i]);
-            xPoints[i] = UU.mToPx(worldPoint.x);
-            yPoints[i] = UU.mToPx(worldPoint.y);
+        double screenSize = asteroid.getWidthPx() * currentZoom;
+        if (screenSize < 8.0) return;
+
+        double cx = UU.mToPx(asteroid.getTransform().getTranslationX());
+        double cy = UU.mToPx(asteroid.getTransform().getTranslationY());
+
+        if (screenSize < 20.0) {
+            double r = asteroid.getWidthPx() / 2.0;
+            batcher.addFilledOval(cx - r, cy - r, asteroid.getWidthPx(), asteroid.getHeightPx(), cachedAccentTernary, 1.0);
+            return;
         }
 
-        // Asteroid body (filled polygon + stroke)
-        batcher.addFilledPolygon(xPoints, yPoints, ThemeManager.getInstance().getAccentTernary());
-        batcher.addStrokedPolygon(xPoints, yPoints, ThemeManager.getInstance().getAccentPrimary(), 2.0);
+        // Usa vertici cached — nessun getTransformed() per frame
+        double[] xPoints = asteroid.getCachedXPoints();
+        double[] yPoints = asteroid.getCachedYPoints();
+        int len = xPoints.length;
 
-        // Cracks (only when health low) – simple lines batched
+        batcher.addFilledPolygon(xPoints, yPoints, cachedAccentTernary);
+        batcher.addStrokedPolygon(xPoints, yPoints, cachedAccentPrimary, 2.0);
+
         double healthRatio = asteroid.getDurabilityHealthRatio();
-        if (healthRatio < 0.85) {
+        if (healthRatio < 0.85 && screenSize >= 30.0) {
             double crackWidth = Math.max(2, (1.0 - healthRatio) * 4.0);
-            int startIndex = getStartIndex(asteroid, vertices);
+            int startIndex = getStartIndex(asteroid, asteroid.getDisplayVertices());
             int endIndex = (startIndex + len / 2) % len;
             double startX = xPoints[startIndex];
             double startY = yPoints[startIndex];
-            double endX = xPoints[endIndex];
-            double endY = yPoints[endIndex];
+            double endX   = xPoints[endIndex];
+            double endY   = yPoints[endIndex];
             double jitterMag = (1.0 - healthRatio) * (asteroid.getSize() / 7.0);
             double staticSeed = asteroid.hashCode();
             double midX = (startX + endX) / 2.0 + Math.sin(staticSeed) * jitterMag;
             double midY = (startY + endY) / 2.0 + Math.cos(staticSeed) * jitterMag;
 
-            batcher.addLine(startX, startY, midX, midY, crackWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
-            batcher.addLine(midX, midY, endX, endY, crackWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+            batcher.addLine(startX, startY, midX, midY, crackWidth, cachedAccentPrimary, 1.0);
+            batcher.addLine(midX, midY, endX, endY, crackWidth, cachedAccentPrimary, 1.0);
 
-            if (healthRatio < 0.5) {
+            if (healthRatio < 0.5 && screenSize >= 50.0) {
                 double subWidth = crackWidth * 0.65;
                 int branchIndex1 = (startIndex + len / 4) % len;
                 double bMidX1 = (midX + xPoints[branchIndex1]) / 2.0 + Math.sin(staticSeed + 1) * (jitterMag * 0.4);
                 double bMidY1 = (midY + yPoints[branchIndex1]) / 2.0 + Math.cos(staticSeed + 1) * (jitterMag * 0.4);
-                batcher.addLine(midX, midY, bMidX1, bMidY1, subWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
-                batcher.addLine(bMidX1, bMidY1, xPoints[branchIndex1], yPoints[branchIndex1], subWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+                batcher.addLine(midX, midY, bMidX1, bMidY1, subWidth, cachedAccentPrimary, 1.0);
+                batcher.addLine(bMidX1, bMidY1, xPoints[branchIndex1], yPoints[branchIndex1], subWidth, cachedAccentPrimary, 1.0);
 
                 int branchIndex2 = (startIndex + (3 * len) / 4) % len;
                 double bMidX2 = (midX + xPoints[branchIndex2]) / 2.0 + Math.sin(staticSeed + 2) * (jitterMag * 0.4);
                 double bMidY2 = (midY + yPoints[branchIndex2]) / 2.0 + Math.cos(staticSeed + 2) * (jitterMag * 0.4);
-                batcher.addLine(midX, midY, bMidX2, bMidY2, subWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
-                batcher.addLine(bMidX2, bMidY2, xPoints[branchIndex2], yPoints[branchIndex2], subWidth, ThemeManager.getInstance().getAccentPrimary(), 1.0);
+                batcher.addLine(midX, midY, bMidX2, bMidY2, subWidth, cachedAccentPrimary, 1.0);
+                batcher.addLine(bMidX2, bMidY2, xPoints[branchIndex2], yPoints[branchIndex2], subWidth, cachedAccentPrimary, 1.0);
             }
         }
     }
 
     private static void renderPlayerBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer batcher) {
         PlayerModel player = (PlayerModel) e;
-        // Draw the player sprite (if any)
         if (player instanceof HasSprite sprite) {
             renderSpriteEntityBatched(player, sprite, batcher);
         }
-        // Thrust effect – batched as a group of particles (handled inside batcher)
         if (player instanceof HasThrust thrustProvider && thrustProvider.thrust().isActive()) {
             double cx = UU.mToPx(player.getTransform().getTranslationX());
             double cy = UU.mToPx(player.getTransform().getTranslationY());
@@ -246,8 +286,14 @@ public final class EntityRenderer {
 
     private static void renderBlackHoleBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer batcher) {
         BlackHoleModel bh = (BlackHoleModel) e;
+
+        // Skip blackhole se troppo piccola a schermo
+        double screenSize = bh.getWidthPx() * currentZoom;
+        if (screenSize < 8.0) return;
+
         double cx = UU.mToPx(bh.getTransform().getTranslationX());
         double cy = UU.mToPx(bh.getTransform().getTranslationY());
+
         if (bh.shockwave().isActive()) {
             batcher.addBlackHoleShockwave(cx, cy, bh.shockwave());
         }
@@ -256,28 +302,16 @@ public final class EntityRenderer {
     private static void renderDebugCollisionBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer renderer) {
         double cx = UU.mToPx(e.getTransform().getTranslationX());
         double cy = UU.mToPx(e.getTransform().getTranslationY());
-        double w = e.getWidthPx();
-        double h = e.getHeightPx();
+        double w  = e.getWidthPx();
+        double h  = e.getHeightPx();
         double angle = Math.toDegrees(e.getTransform().getRotationAngle() + RenderingSettings.BASE_ROTRAD_OFFSET);
 
         if (e.getFixtureCount() > 0 && e.getFixture(0).getShape() instanceof Circle) {
-            renderer.addStrokedOval(cx - (w/2), cy - (w/2), w, h, Color.LIME);
+            renderer.addStrokedOval(cx - (w / 2), cy - (w / 2), w, h, Color.LIME);
         } else {
-            renderer.addStrokedRect(cx - w/2, cy - h/2, w, h, Color.LIME, angle);
+            renderer.addStrokedRect(cx - w / 2, cy - h / 2, w, h, Color.LIME, angle);
         }
-        renderer.addLine(cx, cy, cx + w/2, cy, 1.5, Color.RED, 1.0);
-    }
-
-    @Deprecated
-    private static SpriteSheetsAnimator getAnimator(SpriteKey key, HasSprite sprite, SpriteSheetsParser sheet) {
-        return ANIMATOR_CACHE.computeIfAbsent(key, k -> {
-            double defDur = sprite.getFrameDuration();
-            if (sheet != null) {
-                return new SpriteSheetsAnimator(defDur, sheet.getFramesPerRow());
-            } else {
-                return new SpriteSheetsAnimator(defDur, 1, 1);
-            }
-        });
+        renderer.addLine(cx, cy, cx + w / 2, cy, 1.5, Color.RED, 1.0);
     }
 
     private static int getStartIndex(AsteroidModel asteroid, Vector2[] vertices) {

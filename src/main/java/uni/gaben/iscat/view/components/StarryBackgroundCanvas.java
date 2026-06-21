@@ -155,7 +155,6 @@ public class StarryBackgroundCanvas extends Canvas {
             prevMouseY = mouseY;
         }
 
-        // AGGIUNTA ESTETICA: Un micro-drift costante automatico (0.8 px/sec) per non far mai apparire lo spazio statico
         targetCameraX += 0.8 * dt;
 
         // Formula di smorzamento asintotico stabile e indipendente dal framerate: 1 - e^(-k * dt)

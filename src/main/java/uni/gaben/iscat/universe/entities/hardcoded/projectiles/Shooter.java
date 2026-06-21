@@ -12,6 +12,10 @@ import uni.gaben.iscat.utils.SessionScoreTracker;
 
 import java.util.function.Consumer;
 
+/**
+ * Componente generico per la gestione del sistema di sparo e lancio proiettili dalle entità.
+ * Ottimizzato matematicamente per azzerare le allocazioni di vettori temporanei (Garbage Collection Free).
+ */
 public class Shooter<T extends CollisionBody> {
 
     protected final T model;
@@ -24,7 +28,9 @@ public class Shooter<T extends CollisionBody> {
                 : 0.1;
     }
 
-    public T getModel() { return model; }
+    public T getModel() {
+        return model;
+    }
 
     private void triggerAttackAudio() {
         if (model instanceof AbstractLivingEntityModel entity) {
@@ -44,13 +50,25 @@ public class Shooter<T extends CollisionBody> {
         shoot(type, angle, null);
     }
 
+    /**
+     * Spara un proiettile calcolando la traiettoria e la posizione iniziale inline.
+     * Ottimizzato per non allocare vettori temporanei tramite funzioni trigonometriche dirette.
+     */
     public void shoot(ProjectileType type, double angle, Consumer<ProjectileModel> customizer) {
         triggerAttackAudio();
         ProjectileModel bullet = ProjectilePool.acquire(type);
-        bullet.getTransform().setTranslation(model.getTransform().getTranslation().copy());
+
+        Vector2 origin = model.getTransform().getTranslation();
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+
+        // Posiziona e orienta il proiettile modificando i campi primitivi inline (Zero Allocations)
+        bullet.getTransform().setTranslation(origin.x + (distance * cos), origin.y + (distance * sin));
         bullet.getTransform().setRotation(angle);
-        bullet.translate(Vector2.create(distance, angle));
-        bullet.setLinearVelocity(Vector2.create(bullet.getTerminalVelocity(), angle));
+
+        // Configura la velocità terminale scalata sul vettore di direzione
+        double speed = bullet.getTerminalVelocity();
+        bullet.setLinearVelocity(speed * cos, speed * sin);
 
         if (customizer != null) customizer.accept(bullet);
         setupAndSpawn(bullet);
@@ -60,12 +78,22 @@ public class Shooter<T extends CollisionBody> {
         shoot(type, position, angle, null);
     }
 
+    /**
+     * Spara un proiettile partendo da una posizione vettoriale personalizzata senza duplicare l'oggetto in memoria.
+     */
     public void shoot(ProjectileType type, Vector2 position, double angle, Consumer<ProjectileModel> customizer) {
         triggerAttackAudio();
         ProjectileModel bullet = ProjectilePool.acquire(type);
-        bullet.getTransform().setTranslation(position.copy());
+
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+
+        // Assegna le coordinate atomiche saltando il metodo .copy() del vettore
+        bullet.getTransform().setTranslation(position.x, position.y);
         bullet.getTransform().setRotation(angle);
-        bullet.setLinearVelocity(Vector2.create(bullet.getTerminalVelocity(), angle));
+
+        double speed = bullet.getTerminalVelocity();
+        bullet.setLinearVelocity(speed * cos, speed * sin);
 
         if (customizer != null) customizer.accept(bullet);
         setupAndSpawn(bullet);
@@ -75,29 +103,31 @@ public class Shooter<T extends CollisionBody> {
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    private void setupAndSpawn(AbstractPhysicalProjectileModel p) {
+    private void setupAndSpawn(ProjectileModel p) {
+        p.addOnCollision("projectileDamage", otherEntity -> {
+            if (p.shouldRemove()) return;
+            if (otherEntity instanceof AbstractPhysicalProjectileModel) return;
 
-            p.addOnCollision("projectileDamage", otherEntity -> {
-                if (p.shouldRemove()) return;
-                if (otherEntity instanceof AbstractPhysicalProjectileModel) return;
+            if (otherEntity instanceof Alterable target) {
+                double damageValue = p.getEndurance();
 
-                if (otherEntity instanceof Alterable target) {
-                    if (target instanceof PlayerModel pm) {
-                        if (pm.absorbProjectile(p.getEndurance())) {
-                            p.extinguish(true);
-                            return; // Absorbed, no damage
-                        }
-                    }
-                    if (target instanceof AbstractLivingEntityModel lem) {
-                        lem.setKilledByProjectile(true);
-                    }
-                    target.damage(p.getEndurance());
-                    if (!(target instanceof PlayerModel)) {
-                        SessionScoreTracker.getInstance().addDamageDealt((int) p.getEndurance());
+                if (target instanceof PlayerModel pm) {
+                    if (pm.absorbProjectile(damageValue)) {
+                        p.extinguish(true);
+                        return;
                     }
                 }
-                p.extinguish(true);
-            });
+                if (target instanceof AbstractLivingEntityModel lem) {
+                    lem.setKilledByProjectile(true);
+                }
+
+                target.damage(damageValue);
+                if (!(target instanceof PlayerModel)) {
+                    SessionScoreTracker.getInstance().addDamageDealt((int) damageValue);
+                }
+            }
+            p.extinguish(true);
+        });
 
         UniverseSpawner.getInstance().spawnEntity(p);
     }
