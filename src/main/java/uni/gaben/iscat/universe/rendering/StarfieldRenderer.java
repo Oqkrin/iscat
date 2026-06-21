@@ -39,7 +39,7 @@ public class StarfieldRenderer implements Renderable<Starfield> {
             // Calcolo del fattore di parallasse accoppiato alla profondità visiva della stella
             double depth = UniverseSettings.PARALLAX_BASE + (s / UniverseSettings.PARALLAX_SIZE_DIVISOR) * UniverseSettings.PARALLAX_FACTOR;
 
-            if      (s < 1.5) gc.setFill(theme.getAccentTernary());
+            if      (s < 1.5) gc.setFill(theme.getAccentTertiary());
             else if (s < 2.8) gc.setFill(theme.getAccentSecondary());
             else              gc.setFill(theme.getAccentPrimary());
 

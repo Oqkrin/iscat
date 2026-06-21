@@ -145,4 +145,8 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
     public void restoreLinearDamping() {
         this.setLinearDamping(originalLinearDamping);
     }
+
+    public int getTemporaryVelocity() {
+        return (int) tempTerminalVelocity;
+    }
 }

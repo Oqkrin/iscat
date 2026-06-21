@@ -166,7 +166,7 @@ public class UniverseRenderer {
             gc.save();
             double intensity = 1.0 - gameModel.getTimeScale();
             gc.setGlobalAlpha(intensity * 0.15);
-            gc.setFill(ThemeManager.getInstance().getAccentTernary());
+            gc.setFill(ThemeManager.getInstance().getAccentTertiary());
             gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
             gc.restore();
         }

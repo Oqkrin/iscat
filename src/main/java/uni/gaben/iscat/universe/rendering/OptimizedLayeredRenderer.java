@@ -8,6 +8,8 @@ import javafx.scene.shape.StrokeLineCap;
 import uni.gaben.iscat.universe.effects.Shockwave;
 import uni.gaben.iscat.universe.effects.Thrust;
 import uni.gaben.iscat.universe.camera.CameraModel;
+import uni.gaben.iscat.universe.rendering.vfx.DashVFX;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +31,8 @@ public class OptimizedLayeredRenderer {
     private record ThrustBatch(double cx, double cy, double angle, Thrust thrust) {}
     private record ShockwaveBatch(double cx, double cy, Shockwave shockwave, boolean isBlackHole) {}
 
+    // At the top of the class, add the record and list
+    private record DashBatch(double cx, double cy, double vx, double vy, double w, double h) {}
     record HpBarBatch(double x, double y, double w, double h, double percent) {
         public static final double HP_BAR_OFFSET_Y = 10.0;
         public static final double HP_BAR_HEIGHT = 4.0;
@@ -58,6 +62,7 @@ public class OptimizedLayeredRenderer {
     private final List<TimeGaugeBarBatch> timeGaugeBars = new ArrayList<>();
     private final List<ThrustBatch> thrusts             = new ArrayList<>();
     private final List<ShockwaveBatch> shockwaves       = new ArrayList<>();
+    private final List<DashBatch> dashes                = new ArrayList<>();
 
     private GraphicsContext gc;
     private double screenWidth, screenHeight;
@@ -74,6 +79,7 @@ public class OptimizedLayeredRenderer {
         this.camX = camera.getX();
         this.camY = camera.getY();
 
+        dashes.clear();
         sprites.clear();
         lines.clear();
         ovals.clear();
@@ -102,6 +108,7 @@ public class OptimizedLayeredRenderer {
         renderThrusts();
         renderProjectiles();
         renderShockwaves();
+        renderDashes();
         renderHPbars();
         renderTimeGaugeBars();
 
@@ -250,7 +257,16 @@ public class OptimizedLayeredRenderer {
         gc.restore();
     }
 
+    private void renderDashes() {
+        for (DashBatch d : dashes) {
+            DashVFX.drawDashRaw(gc, d.cx, d.cy, d.vx, d.vy, d.w, d.h);
+        }
+    }
+
     // --- Metodi di Accodamento Batch (API Pubbliche) ---
+    public void addDash(double cx, double cy, double vx, double vy, double w, double h) {
+        dashes.add(new DashBatch(cx, cy, vx, vy, w, h));
+    }
 
     public void addSprite(Image image, double x, double y, double w, double h, double angle, Color tint) {
         sprites.add(new SpriteBatch(image, x, y, w, h, angle, tint));

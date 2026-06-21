@@ -44,7 +44,7 @@ public class HitSpark implements Stateful, Updatable, Removable {
     private static final Color[] PALETTE = {
             ThemeManager.getInstance().getAccentPrimary(),
             ThemeManager.getInstance().getAccentSecondary(),
-            ThemeManager.getInstance().getAccentTernary(),
+            ThemeManager.getInstance().getAccentTertiary(),
     };
 
     /** Lista interna contenente le singole istanze geometriche delle particelle generate. */

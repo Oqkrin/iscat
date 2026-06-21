@@ -63,7 +63,7 @@ public final class EntityRenderer {
         ThemeManager tm = ThemeManager.getInstance();
         cachedAccentPrimary   = tm.getAccentPrimary();
         cachedAccentSecondary = tm.getAccentSecondary();
-        cachedAccentTernary   = tm.getAccentTernary();
+        cachedAccentTernary   = tm.getAccentTertiary();
     }
 
     /**
@@ -147,6 +147,16 @@ public final class EntityRenderer {
                 }
             }
         }
+
+        if (entity.getTemporaryVelocity() != -1 || entity instanceof PlayerModel pm && pm.isDashing()) {
+            double dcx = UU.mToPx(entity.getTransform().getTranslationX());
+            double dcy = UU.mToPx(entity.getTransform().getTranslationY());
+            Vector2 dVel = entity.getLinearVelocity();
+            double dw = entity.getWidthPx();
+            double dh = entity.getHeightPx();
+            layers.addDash(dcx, dcy, dVel.x, dVel.y, dw, dh);
+        }
+
     }
 
     private static void renderProjectileBatched(AbstractPhysicalEntityModel e, OptimizedLayeredRenderer layers) {
