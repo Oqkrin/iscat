@@ -116,6 +116,17 @@ public class EntityFactory {
         cache.put(key, record);
     }
 
+    /**
+     * Registra manualmente un JSON grezzo e il suo percorso nella cache in-memory.
+     * Usato dall'editor per rendere disponibili le entità custom subito dopo il salvataggio.
+     */
+    public static void registerRawJson(String entityKey, JSONObject json, String originPath) {
+        if (entityKey == null || entityKey.isEmpty()) return;
+        String key = entityKey.toLowerCase().trim();
+        rawJsonCache.put(key, json);
+        originPathCache.put(key, originPath);
+    }
+
     public static Map<String, EntityRecord> getCache() {
         return cache;
     }

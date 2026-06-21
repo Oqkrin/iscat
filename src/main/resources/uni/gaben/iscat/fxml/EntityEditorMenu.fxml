@@ -24,108 +24,107 @@
                 </padding>
 
                 <!-- Left Panel: Editor -->
-                <VBox alignment="TOP_CENTER" spacing="16.0" styleClass="glowing-border, editor-panel" HBox.hgrow="ALWAYS">
-                    <!-- Left Panel: Editor -->
-                    <VBox alignment="TOP_CENTER" spacing="16.0" styleClass="glowing-border, editor-panel" HBox.hgrow="ALWAYS">
+                <VBox alignment="TOP_CENTER" spacing="12.0" styleClass="editor-panel" HBox.hgrow="ALWAYS">
 
-                        <!-- Header row: title + entity selector -->
-                        <!-- Header row: title + three entity selectors -->
-                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                            <Label fx:id="lblEditorTitle" styleClass="card-header" text="ENTITY EDITOR" HBox.hgrow="NEVER" />
-                            <Region HBox.hgrow="ALWAYS" />
+                    <!-- Header row: title + two combo selectors -->
+                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="editor-header-row">
+                        <Label fx:id="lblEditorTitle" styleClass="card-header" text="ENTITY EDITOR" HBox.hgrow="NEVER" />
+                        <Region HBox.hgrow="ALWAYS" />
 
-                            <Label text="Custom:" styleClass="label-small" />
-                            <ComboBox fx:id="comboCustom" promptText="Custom" />
+                        <!-- Category selector -->
+                        <Label text="Category:" styleClass="label-small" />
+                        <ComboBox fx:id="comboCategory" promptText="Type" prefWidth="120.0" />
 
-                            <Label text="Core:" styleClass="label-small" />
-                            <ComboBox fx:id="comboCore" promptText="Core" />
+                        <!-- Entity list filtered by category -->
+                        <Label text="Entity:" styleClass="label-small" />
+                        <ComboBox fx:id="comboEntity" promptText="Select entity..." prefWidth="200.0" HBox.hgrow="NEVER" />
+                    </HBox>
 
-                            <Label text="Players:" styleClass="label-small" />
-                            <ComboBox fx:id="comboPlayers" promptText="Players" />
-                        </HBox>
-
-                        <!-- Scrollable form (unchanged) -->
-                        <ScrollPane fitToWidth="true" rotate="-0.5" styleClass="editor-scroll" VBox.vgrow="ALWAYS">
-                            <content>
-                                <Accordion fx:id="categoryAccordion">
-                                    <panes>
-                                        <TitledPane expanded="true" text="Identity">
-                                            <VBox fx:id="paneIdentity" spacing="16.0">
-                                                <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
-                                            </VBox>
-                                        </TitledPane>
-                                        <TitledPane text="Visuals">
-                                            <VBox fx:id="paneVisuals" spacing="8.0" />
-                                        </TitledPane>
-                                        <TitledPane text="Physics &amp; Combat">
-                                            <VBox fx:id="panePhysics" spacing="8.0" />
-                                        </TitledPane>
-                                        <TitledPane text="Behavioural">
-                                            <VBox fx:id="paneBehavioural" spacing="8.0" />
-                                        </TitledPane>
-                                        <TitledPane fx:id="tpAdvancedAI" text="Brain">
-                                            <VBox fx:id="paneAdvancedAI" spacing="14.0" />
-                                        </TitledPane>
-                                        <TitledPane text="Audio">
-                                            <VBox fx:id="paneAudio" spacing="8.0" />
-                                        </TitledPane>
-                                    </panes>
-                                    <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
-                                </Accordion>
-                            </content>
-                            <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
-                        </ScrollPane>
-                        <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
-                        <HBox.margin><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></HBox.margin>
-                    </VBox>
+                    <!-- Scrollable form -->
+                    <ScrollPane fitToWidth="true" styleClass="editor-scroll" VBox.vgrow="ALWAYS">
+                        <content>
+                            <Accordion fx:id="categoryAccordion">
+                                <panes>
+                                    <TitledPane expanded="true" text="Identity">
+                                        <VBox fx:id="paneIdentity" spacing="10.0">
+                                            <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                                        </VBox>
+                                    </TitledPane>
+                                    <TitledPane text="Visuals">
+                                        <VBox fx:id="paneVisuals" spacing="10.0">
+                                            <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                                        </VBox>
+                                    </TitledPane>
+                                    <TitledPane text="Physics &amp; Combat">
+                                        <VBox fx:id="panePhysics" spacing="10.0">
+                                            <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                                        </VBox>
+                                    </TitledPane>
+                                    <TitledPane text="Behavioural">
+                                        <VBox fx:id="paneBehavioural" spacing="10.0">
+                                            <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                                        </VBox>
+                                    </TitledPane>
+                                    <TitledPane fx:id="tpAdvancedAI" text="Brain">
+                                        <VBox fx:id="paneAdvancedAI" spacing="10.0">
+                                            <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                                        </VBox>
+                                    </TitledPane>
+                                    <TitledPane text="Audio">
+                                        <VBox fx:id="paneAudio" spacing="10.0">
+                                            <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                                        </VBox>
+                                    </TitledPane>
+                                </panes>
+                                <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                            </Accordion>
+                        </content>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
+                    </ScrollPane>
+                    <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
                 </VBox>
 
                 <!-- Right Panel: Preview + Actions -->
-                <VBox alignment="CENTER" rotate="1.0" spacing="16.0" styleClass="glowing-border, editor-panel" HBox.hgrow="NEVER">
+                <VBox alignment="CENTER" spacing="12.0" styleClass="editor-panel" prefWidth="240.0" HBox.hgrow="NEVER">
                     <Label styleClass="card-header" text="PREVIEW">
-                        <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Label>
                     <StackPane fx:id="previewContainer" />
                     <Label fx:id="skinNameLabel" styleClass="card-subheader" text="ENTITY PREVIEW" wrapText="true">
-                        <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Label>
                     <Label fx:id="lblOriginPath" text="Origin: N/A" wrapText="true">
-                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
+                        <padding><Insets bottom="6.0" left="6.0" right="6.0" top="6.0" /></padding>
                     </Label>
 
                     <Region VBox.vgrow="ALWAYS" />
 
-                    <!-- Action Buttons -->
-                    <VBox alignment="CENTER" spacing="8.0" VBox.vgrow="ALWAYS">
-                        <Button fx:id="btnApply" onAction="#handleApply" styleClass="menu-button, btn-apply" text="APPLY RUNTIME">
-                            <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
-                        </Button>
-                        <Button fx:id="btnSaveOverwrite" onAction="#handleSaveOverwrite" styleClass="menu-button, btn-save-overwrite" text="SAVE (OVERWRITE)">
-                            <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
-                        </Button>
-                        <Button fx:id="btnSaveNew" onAction="#handleSaveNew" styleClass="menu-button, btn-save-new" text="SAVE AS NEW CUSTOM">
-                            <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
-                        </Button>
-
-                        <!-- NEW BUTTONS -->
-                        <Button fx:id="btnChooseSkin" onAction="#handleChooseSkin" styleClass="menu-button, btn-skin" text="CHOOSE SKIN...">
-                            <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
-                        </Button>
-                        <Button fx:id="btnChooseSound" onAction="#handleChooseSound" styleClass="menu-button, btn-sound" text="CHOOSE SOUND...">
-                            <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
-                        </Button>
+                    <!-- Asset Buttons -->
+                    <Button fx:id="btnChooseSkin" onAction="#handleChooseSkin" styleClass="menu-button, btn-skin" text="CHOOSE SKIN...">
                         <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
-                    </VBox>
+                    </Button>
+                    <Button fx:id="btnChooseSound" onAction="#handleChooseSound" styleClass="menu-button, btn-sound" text="CHOOSE SOUND...">
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
+                    </Button>
+
+                    <!-- Action Buttons -->
+                    <Button fx:id="btnApply" onAction="#handleApply" styleClass="menu-button, btn-apply" text="APPLY RUNTIME">
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
+                    </Button>
+                    <Button fx:id="btnSaveOverwrite" onAction="#handleSaveOverwrite" styleClass="menu-button, btn-save-overwrite" text="SAVE (OVERWRITE)">
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
+                    </Button>
+                    <Button fx:id="btnSaveNew" onAction="#handleSaveNew" styleClass="menu-button, btn-save-new" text="SAVE AS NEW CUSTOM">
+                        <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
+                    </Button>
 
                     <Region VBox.vgrow="ALWAYS" />
 
                     <Button fx:id="btnBack" onAction="#handleBack" styleClass="menu-button, back-button" text="BACK TO BESTIARY">
                         <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
                     </Button>
-                    <HBox.margin><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></HBox.margin>
-                    <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
+                    <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
                 </VBox>
-                <VBox.margin><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></VBox.margin>
             </HBox>
             <Region minHeight="56.0" VBox.vgrow="NEVER" />
         </children>

@@ -49,7 +49,11 @@ public final class ExternalResourceResolver {
      */
     public static InputStream resolve(String relativePath) {
         if (entitiesRoot != null) {
-            Path externalFile = entitiesRoot.resolve(relativePath);
+            String extPathStr = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
+            if (extPathStr.startsWith("uni/gaben/iscat/")) {
+                extPathStr = extPathStr.substring("uni/gaben/iscat/".length());
+            }
+            Path externalFile = entitiesRoot.resolve(extPathStr);
             if (Files.isRegularFile(externalFile)) {
                 try {
                     return Files.newInputStream(externalFile);
@@ -99,13 +103,22 @@ public final class ExternalResourceResolver {
                 Path internalDir = Paths.get(uri);
                 scanDirectory(internalDir, extension, resultMap, false);
             }
+        } catch (NullPointerException npe) {
+            // Expected: internal classpath directory doesn't exist (e.g. json/custom/).
+            // Will be populated from external folder only.
         } catch (Exception e) {
             System.err.println("[Resolver] Errore durante la lettura della directory interna '" + relativeDir + "': " + e.getMessage());
         }
 
         // 2. Scansione dei file esterni (sovrascrivono le chiavi omonime inserite dallo step 1)
         if (entitiesRoot != null) {
-            Path extDir = entitiesRoot.resolve(relativeDir);
+            String extPathStr = relativeDir.startsWith("/") ? relativeDir.substring(1) : relativeDir;
+            if (extPathStr.startsWith("uni/gaben/iscat/")) {
+                extPathStr = extPathStr.substring("uni/gaben/iscat/".length());
+            }
+            Path extDir = entitiesRoot.resolve(extPathStr);
+            System.out.println("[Resolver] extPathStr for external scan: " + extPathStr);
+            System.out.println("[Resolver] extDir for external scan: " + extDir + ", exists: " + Files.isDirectory(extDir));
             if (Files.isDirectory(extDir)) {
                 scanDirectory(extDir, extension, resultMap, true);
             }

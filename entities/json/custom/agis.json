@@ -3,8 +3,8 @@
     "shapetype": "CIRCLE",
     "lineardamping": 2,
     "mass": 1,
-    "spritename": "agis",
-    "initlife": 35000,
+    "spritename": "Agis",
+    "initlife": 9999,
     "description": "agis",
     "scale": 3,
     "combatrange": 100,
@@ -47,7 +47,7 @@
             "durationsec": 2
         }
     ],
-    "detectionrange": 10000,
+    "detectionrange": 9999,
     "frameh": 240,
     "audio": {
         "spawn": ["master_spawn"],
@@ -135,7 +135,7 @@
     "xpreward": 10000,
     "maxforce": 250,
     "actioncooldowns": 60,
-    "name": "Agis",
+    "name": "agis",
     "isboss": true,
     "hasentranceanimation": true,
     "threatlevel": "APOCALYPSE",

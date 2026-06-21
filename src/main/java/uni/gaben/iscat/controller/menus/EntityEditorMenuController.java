@@ -27,12 +27,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EntityEditorMenuController implements IscatMenuController {
 
-    @FXML private ComboBox<String> comboCustom;
-    @FXML private ComboBox<String> comboCore;
-    @FXML private ComboBox<String> comboPlayers;
+    // Old 3-combo fields removed; now using 2-combo approach
+    @FXML private ComboBox<String> comboCategory;   // Enemies / Players / Custom
+    @FXML private ComboBox<String> comboEntity;     // filtered list of entity keys
 
     @FXML private VBox paneIdentity, paneVisuals, panePhysics, paneBehavioural, paneAdvancedAI, paneAudio;
     @FXML private StackPane previewContainer;
@@ -42,6 +43,10 @@ public class EntityEditorMenuController implements IscatMenuController {
 
     @FXML private StackPane confirmOverlay;
     @FXML private ConfirmationOverlayController confirmOverlayController;
+
+    private static final String CAT_ENEMIES = "Enemies";
+    private static final String CAT_PLAYERS = "Players";
+    private static final String CAT_CUSTOM  = "Custom";
 
     private Path entitiesRoot;
     private StackPane viewRoot;
@@ -69,49 +74,89 @@ public class EntityEditorMenuController implements IscatMenuController {
             rebuildAllUI();
         });
 
-        ComponentsUtils.applyIconButton(btnBack, "fas-arrow-left");
-        ComponentsUtils.applyIconButton(btnApply, "fas-play");
-        ComponentsUtils.applyIconButton(btnSaveOverwrite, "fas-save");
-        ComponentsUtils.applyIconButton(btnSaveNew, "fas-plus-circle");
-        ComponentsUtils.applyIconButton(btnChooseSkin, "fas-image");
-        ComponentsUtils.applyIconButton(btnChooseSound, "fas-volume-up");
+        ComponentsUtils.applyIconButton(btnBack,         "fas-arrow-left");
+        ComponentsUtils.applyIconButton(btnApply,        "fas-play");
+        ComponentsUtils.applyIconButton(btnSaveOverwrite,"fas-save");
+        ComponentsUtils.applyIconButton(btnSaveNew,      "fas-plus-circle");
+        ComponentsUtils.applyIconButton(btnChooseSkin,   "fas-image");
+        ComponentsUtils.applyIconButton(btnChooseSound,  "fas-volume-up");
 
-        populateCombos();
+        // Populate category combo
+        comboCategory.getItems().setAll(CAT_ENEMIES, CAT_PLAYERS, CAT_CUSTOM);
+        comboCategory.setOnAction(e -> onCategoryChanged());
 
+        // Wire entity combo
+        comboEntity.setOnAction(e -> {
+            if (isUpdatingCombos) return;
+            String sel = comboEntity.getSelectionModel().getSelectedItem();
+            if (sel == null) return;
+            if (model.isDirty() && confirmOverlayController != null) {
+                confirmOverlayController.ask(
+                        "Unsaved Changes",
+                        "You have unsaved modifications. Discard them?",
+                        () -> loadEntity(sel)
+                );
+            } else {
+                loadEntity(sel);
+            }
+        });
+
+        // Decide starting state
         if (targetEntityKeyToLoad != null) {
-            selectEntityInCombo(targetEntityKeyToLoad);
-            loadEntity(targetEntityKeyToLoad);
+            String keyToLoad = targetEntityKeyToLoad;
             targetEntityKeyToLoad = null;
+            selectAndLoadEntity(keyToLoad);
         } else {
-            loadFirstAvailable();
+            // Default to enemies category
+            comboCategory.getSelectionModel().select(CAT_ENEMIES);
+            onCategoryChanged();
+            if (!comboEntity.getItems().isEmpty()) {
+                loadEntity(comboEntity.getItems().getFirst());
+            }
         }
-
-        comboCustom.setOnAction(e -> handleComboSelection(comboCustom));
-        comboCore.setOnAction(e -> handleComboSelection(comboCore));
-        comboPlayers.setOnAction(e -> handleComboSelection(comboPlayers));
 
         registerEscHandler();
     }
 
-    private void populateCombos() {
-        List<String> customKeys = new ArrayList<>();
-        List<String> coreKeys = new ArrayList<>();
-        List<String> playerKeys = new ArrayList<>();
+    /** Called when the category combo changes. Rebuilds the entity list. */
+    private void onCategoryChanged() {
+        String cat = comboCategory.getValue();
+        if (cat == null) return;
 
-        for (Map.Entry<String, EntityRecord> entry : EntityFactory.getCache().entrySet()) {
-            String key = entry.getKey();
-            EntityRecord rec = entry.getValue();
-            boolean isPlayer = rec != null && rec.player() != null;
-            boolean isCustom = isCustom(key);
-
-            if (isPlayer) playerKeys.add(key);
-            else if (isCustom) customKeys.add(key);
-            else coreKeys.add(key);
+        isUpdatingCombos = true;
+        List<String> keys = getEntityKeysForCategory(cat);
+        keys.sort(String::compareToIgnoreCase);
+        comboEntity.getItems().setAll(keys);
+        if (!keys.isEmpty()) {
+            comboEntity.getSelectionModel().selectFirst();
+        } else {
+            comboEntity.getSelectionModel().clearSelection();
         }
+        isUpdatingCombos = false;
 
-        sortAndSet(comboCustom, customKeys);
-        sortAndSet(comboCore, coreKeys);
-        sortAndSet(comboPlayers, playerKeys);
+        // Auto-load first entity in new category
+        if (!keys.isEmpty()) {
+            loadEntity(keys.getFirst());
+        }
+    }
+
+    /** Returns all entity keys belonging to a category. */
+    private List<String> getEntityKeysForCategory(String cat) {
+        return EntityFactory.getCache().entrySet().stream()
+                .filter(e -> e.getValue() != null)
+                .filter(e -> {
+                    EntityRecord rec = e.getValue();
+                    boolean isPlayer = rec.player() != null;
+                    boolean isCustom  = isCustom(e.getKey());
+                    return switch (cat) {
+                        case CAT_PLAYERS -> isPlayer;
+                        case CAT_CUSTOM  -> isCustom && !isPlayer;
+                        case CAT_ENEMIES -> !isPlayer && !isCustom;
+                        default          -> false;
+                    };
+                })
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     private boolean isCustom(String key) {
@@ -119,59 +164,30 @@ public class EntityEditorMenuController implements IscatMenuController {
         return origin != null && origin.toLowerCase().contains("custom");
     }
 
-    private void sortAndSet(ComboBox<String> combo, List<String> list) {
-        list.sort(String::compareToIgnoreCase);
-        combo.getItems().setAll(list);
-        if (!list.isEmpty()) combo.getSelectionModel().selectFirst();
-    }
-
-    private void loadFirstAvailable() {
-        if (!comboCustom.getItems().isEmpty()) loadEntity(comboCustom.getValue());
-        else if (!comboCore.getItems().isEmpty()) loadEntity(comboCore.getValue());
-        else if (!comboPlayers.getItems().isEmpty()) loadEntity(comboPlayers.getValue());
-    }
-
-    private void selectEntityInCombo(String key) {
+    /** Navigate to the right category and select the entity in the entity combo. */
+    private void selectAndLoadEntity(String key) {
+        String cat = categoryOf(key);
         isUpdatingCombos = true;
-        comboCustom.getSelectionModel().clearSelection();
-        comboCore.getSelectionModel().clearSelection();
-        comboPlayers.getSelectionModel().clearSelection();
-
-        if (comboCustom.getItems().contains(key)) comboCustom.getSelectionModel().select(key);
-        else if (comboCore.getItems().contains(key)) comboCore.getSelectionModel().select(key);
-        else if (comboPlayers.getItems().contains(key)) comboPlayers.getSelectionModel().select(key);
-        
+        comboCategory.getSelectionModel().select(cat);
+        List<String> keys = getEntityKeysForCategory(cat);
+        keys.sort(String::compareToIgnoreCase);
+        comboEntity.getItems().setAll(keys);
+        comboEntity.getSelectionModel().select(key);
         isUpdatingCombos = false;
+        loadEntity(key);
     }
 
-    private void handleComboSelection(ComboBox<String> combo) {
-        if (isUpdatingCombos) return;
-        String sel = combo.getSelectionModel().getSelectedItem();
-        if (sel == null) return;
-        if (model.isDirty() && confirmOverlayController != null) {
-            confirmOverlayController.ask(
-                    "Unsaved Changes",
-                    "You have unsaved modifications. Discard them?",
-                    () -> applyComboSelection(combo, sel)
-            );
-        } else {
-            applyComboSelection(combo, sel);
-        }
-    }
-
-    private void applyComboSelection(ComboBox<String> combo, String sel) {
-        isUpdatingCombos = true;
-        if (combo != comboCustom) comboCustom.getSelectionModel().clearSelection();
-        if (combo != comboCore) comboCore.getSelectionModel().clearSelection();
-        if (combo != comboPlayers) comboPlayers.getSelectionModel().clearSelection();
-        isUpdatingCombos = false;
-
-        loadEntity(sel);
+    private String categoryOf(String key) {
+        EntityRecord rec = EntityFactory.getCache().get(key);
+        if (rec != null && rec.player() != null) return CAT_PLAYERS;
+        if (isCustom(key)) return CAT_CUSTOM;
+        return CAT_ENEMIES;
     }
 
     private void loadEntity(String entityKey) {
         JSONObject raw = EntityFactory.getRawJson(entityKey);
         if (raw == null) {
+            // New blank entity
             JSONObject newJson = new JSONObject();
             newJson.put("entitykey", "new_entity");
             newJson.put("ai", new JSONObject());
@@ -188,7 +204,7 @@ public class EntityEditorMenuController implements IscatMenuController {
 
     private void refreshUI() {
         JSONObject json = model.getCurrentJson();
-        lblOriginPath.setText("Origin: " + (model.getOriginPath() != null ? model.getOriginPath() : "Unsaved/Custom"));
+        lblOriginPath.setText("Origin: " + (model.getOriginPath() != null ? model.getOriginPath() : "Unsaved/New"));
         skinNameLabel.setText(json.optString("name", "UNKNOWN"));
         rebuildAllUI();
         updatePreview();
@@ -248,7 +264,7 @@ public class EntityEditorMenuController implements IscatMenuController {
                 handleApply();
                 EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), origin);
                 model.clearDirty();
-                repopulateCombosIfNeeded();
+                refreshEntityListInCurrentCategory();
             });
             return;
         }
@@ -263,28 +279,23 @@ public class EntityEditorMenuController implements IscatMenuController {
             return;
         }
         Path overrideFile = coreDir.resolve(fileName);
-        if (Files.exists(overrideFile)) {
-            confirmOverwrite(overrideFile, () -> {
-                handleApply();
-                EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), overrideFile.toAbsolutePath().toString());
-                model.setOriginPath(overrideFile.toAbsolutePath().toString());
-                lblOriginPath.setText("Origin: " + model.getOriginPath());
-                model.clearDirty();
-                repopulateCombosIfNeeded();
-            });
-        } else {
+        Runnable doSave = () -> {
             handleApply();
             EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), overrideFile.toAbsolutePath().toString());
             model.setOriginPath(overrideFile.toAbsolutePath().toString());
             lblOriginPath.setText("Origin: " + model.getOriginPath());
             model.clearDirty();
-            repopulateCombosIfNeeded();
+            refreshEntityListInCurrentCategory();
+        };
+        if (Files.exists(overrideFile)) {
+            confirmOverwrite(overrideFile, doSave);
+        } else {
+            doSave.run();
         }
     }
 
     @FXML
     private void handleSaveNew() {
-        handleApply();
         String key = model.getCurrentJson().optString("entitykey", "new_entity");
         String safeName = key.replaceAll("[^a-zA-Z0-9_\\-]", "_") + ".json";
 
@@ -305,21 +316,40 @@ public class EntityEditorMenuController implements IscatMenuController {
     }
 
     private void saveNewToFile(Path targetFile, String key) {
+        // 1. Write to disk
         EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), targetFile.toAbsolutePath().toString());
+        // 2. Update origin
         model.setOriginPath(targetFile.toAbsolutePath().toString());
-        lblOriginPath.setText("Origin: " + model.getOriginPath());
+        // 3. Push into raw cache so the entity is immediately recognized as custom
+        JSONObject savedJson = model.getCurrentJson();
+        EntityFactory.registerRawJson(key, savedJson, targetFile.toAbsolutePath().toString());
+        // 4. Also apply runtime record
+        handleApply();
         model.clearDirty();
-        populateCombos();
-        selectEntityInCombo(key);
+        lblOriginPath.setText("Origin: " + model.getOriginPath());
+        // 5. Refresh UI – switch to Custom category and select the key
+        isUpdatingCombos = true;
+        comboCategory.getSelectionModel().select(CAT_CUSTOM);
+        List<String> customKeys = getEntityKeysForCategory(CAT_CUSTOM);
+        customKeys.sort(String::compareToIgnoreCase);
+        comboEntity.getItems().setAll(customKeys);
+        comboEntity.getSelectionModel().select(key);
+        isUpdatingCombos = false;
     }
 
-    private void repopulateCombosIfNeeded() { populateCombos(); }
+    /** Rebuilds the entity list for whichever category is currently selected. */
+    private void refreshEntityListInCurrentCategory() {
+        String cat = comboCategory.getValue();
+        if (cat == null) return;
+        isUpdatingCombos = true;
+        List<String> keys = getEntityKeysForCategory(cat);
+        keys.sort(String::compareToIgnoreCase);
+        comboEntity.getItems().setAll(keys);
+        isUpdatingCombos = false;
+    }
 
     private void confirmOverwrite(Path filePath, Runnable onYes) {
-        if (confirmOverlayController == null) {
-            onYes.run();
-            return;
-        }
+        if (confirmOverlayController == null) { onYes.run(); return; }
         String fileName = filePath.getFileName().toString();
         confirmOverlayController.ask(
                 "Overwrite?",
@@ -331,12 +361,13 @@ public class EntityEditorMenuController implements IscatMenuController {
     @FXML
     private void handleChooseSkin() {
         Path customDir = entitiesRoot.resolve("sprites/custom");
-        try { Files.createDirectories(customDir); } catch (IOException e) { /*...*/ }
+        try { Files.createDirectories(customDir); } catch (IOException e) { /* ok */ }
 
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Sprite Sheet");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Images", "*.png"));
-        chooser.setInitialDirectory(customDir.toFile());
+        File initialDir = customDir.toFile();
+        if (initialDir.exists()) chooser.setInitialDirectory(initialDir);
 
         File selected = chooser.showOpenDialog(getRootPane().getScene().getWindow());
         if (selected != null) {
@@ -352,6 +383,7 @@ public class EntityEditorMenuController implements IscatMenuController {
                     spriteName = spriteName.substring(0, spriteName.length() - 4);
                 }
                 model.getCurrentJson().put("spritename", spriteName);
+                model.markDirty();
                 refreshUI();
             } catch (IOException e) {
                 System.err.println("Failed to copy sprite: " + e.getMessage());
@@ -362,12 +394,13 @@ public class EntityEditorMenuController implements IscatMenuController {
     @FXML
     private void handleChooseSound() {
         Path sfxCustomDir = entitiesRoot.resolve("audio/SFX/custom");
-        try { Files.createDirectories(sfxCustomDir); } catch (IOException e) { /*...*/ }
+        try { Files.createDirectories(sfxCustomDir); } catch (IOException e) { /* ok */ }
 
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Sound Effect");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("WAV Files", "*.wav"));
-        chooser.setInitialDirectory(sfxCustomDir.toFile());
+        File initialDir = sfxCustomDir.toFile();
+        if (initialDir.exists()) chooser.setInitialDirectory(initialDir);
 
         File selected = chooser.showOpenDialog(getRootPane().getScene().getWindow());
         if (selected != null) {
@@ -379,6 +412,7 @@ public class EntityEditorMenuController implements IscatMenuController {
                     soundName = soundName.substring(0, soundName.length() - 4);
                 }
                 model.getCurrentJson().put("stepsound", soundName);
+                model.markDirty();
                 refreshUI();
             } catch (IOException e) {
                 System.err.println("Failed to copy sound: " + e.getMessage());

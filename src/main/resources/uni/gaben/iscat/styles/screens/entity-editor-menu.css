@@ -53,6 +53,10 @@
     -fx-font-size: 10px;
     -fx-opacity: 0.6;
 }
+.label-small {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 11px;
+}
 
 /* ============================================
    SCROLL PANE
@@ -207,9 +211,16 @@
     -fx-alignment: CENTER_LEFT;
     -fx-spacing: 10px;
 }
+/* Header row holding the combos – let it wrap gracefully */
+.editor-header-row {
+    -fx-padding: 0 0 4px 0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 8px;
+}
 .editor-field-row > .label {
+    -fx-min-width: 140px;
     -fx-pref-width: 160px;
-    -fx-min-width: 160px;
+    -fx-max-width: 200px;
     -fx-wrap-text: true;
     -fx-text-fill: -text-secondary;
     -fx-font-weight: bold;
@@ -217,8 +228,9 @@
 .editor-field-row > .text-field,
 .editor-field-row > .combo-box,
 .editor-field-row > .spinner {
+    -fx-pref-width: USE_COMPUTED_SIZE;
     -fx-max-width: Infinity;
-    -fx-pref-width: 200px;
+    -fx-min-width: 80px;
 }
 .editor-field-row > .check-box {
     -fx-padding: 0 0 0 0;
