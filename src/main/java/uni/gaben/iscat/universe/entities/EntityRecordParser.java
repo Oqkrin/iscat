@@ -60,7 +60,7 @@ public final class EntityRecordParser {
     /**
      * Helper ricorsivo che trasforma tutte le chiavi di un JSONObject (e relativi sotto-oggetti/array) in lowercase.
      */
-    private static JSONObject convertKeysToLowerCase(JSONObject obj) {
+    public static JSONObject convertKeysToLowerCase(JSONObject obj) {
         if (obj == null) return null;
         JSONObject normalized = new JSONObject();
         Iterator<String> keys = obj.keys();
@@ -79,7 +79,7 @@ public final class EntityRecordParser {
         return normalized;
     }
 
-    private static JSONArray convertKeysToLowerCase(JSONArray arr) {
+    public static JSONArray convertKeysToLowerCase(JSONArray arr) {
         if (arr == null) return null;
         JSONArray normalized = new JSONArray();
         for (int i = 0; i < arr.length(); i++) {
