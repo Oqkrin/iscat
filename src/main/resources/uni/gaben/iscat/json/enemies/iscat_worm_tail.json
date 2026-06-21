@@ -1,7 +1,7 @@
 {
   "EntityKey": "iscat_worm_tail",
   "Name": "Iscat Worm Tail",
-  "Description": "Iscat Worm Tail NON È UNA TAIL.\nQuando Iscat Worm Body Part vede un ##@€#\nlibero e felice,\nlo cattura e lo trasforma\nnella tail del sistema.\nUna volta intrappolato,\n##@€# spara in tutte le direzioni.\nQuesti non sono normali proiettili.\nSono le sue agonie,\nle sue lacrime,\ni suoi dolori.\nÈ l'ultimo membro del sistema\na ricevere il cibo.\nE il cibo non basta mai.",
+  "Description": "Iscat Worm Tail NON È UNA TAIL.\nQuando Iscat Worm Body Part vede un ##@€# libero e felice,\nlo cattura e lo trasforma nella tail del sistema.\nUna volta intrappolato, ##@€# spara in tutte le direzioni.\nQuesti non sono normali proiettili.Sono le sue agonie,le sue lacrime,i suoi dolori.\nÈ l'ultimo membro del sistema a ricevere il cibo. E il cibo non basta mai.",
   "SpriteName": "iscat_worm_tail",
   "BestiaryOrder": 12,
   "ThreatLevel": "EXTREME",
