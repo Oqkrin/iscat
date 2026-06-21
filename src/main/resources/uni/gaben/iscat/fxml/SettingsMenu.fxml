@@ -25,25 +25,25 @@
                 <children>
                     <VBox alignment="CENTER" spacing="32.0" VBox.vgrow="ALWAYS">
                         <children>
-                            <Button fx:id="btnMainSettings" onAction="#showMainSettings" rotate="1.5" styleClass="square-menu-button, glowing-border">
+                            <Button fx:id="mainSettingsButton" onAction="#showMainSettings" rotate="1.5" styleClass="square-menu-button, glowing-border">
                                 <padding>
                                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                 </padding>
                             </Button>
 
-                            <Button fx:id="btnControls" onAction="#showControls" rotate="-2.0" styleClass="square-menu-button, glowing-border">
+                            <Button fx:id="controlsButton" onAction="#showControls" rotate="-2.0" styleClass="square-menu-button, glowing-border">
                                 <padding>
                                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                 </padding>
                             </Button>
 
-                            <Button fx:id="btnTheme" onAction="#showTheme" rotate="1.0" styleClass="square-menu-button, glowing-border">
+                            <Button fx:id="themeButton" onAction="#showTheme" rotate="1.0" styleClass="square-menu-button, glowing-border">
                                 <padding>
                                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                 </padding>
                             </Button>
 
-                            <Button fx:id="btnAccount" onAction="#showAccount" rotate="-1.5" styleClass="square-menu-button, glowing-border">
+                            <Button fx:id="accountButton" onAction="#showAccount" rotate="-1.5" styleClass="square-menu-button, glowing-border">
                                 <padding>
                                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                 </padding>
@@ -55,7 +55,7 @@
                     </VBox>
                     <VBox alignment="BOTTOM_CENTER" VBox.vgrow="NEVER">
                         <children>
-                            <Button fx:id="ExitBtn" alignment="BASELINE_CENTER" onAction="#handleBack" styleClass="back-button, glowing-border" text="MAIN MENU">
+                            <Button fx:id="exitBtn" alignment="BASELINE_CENTER" onAction="#handleBack" styleClass="back-button, glowing-border" text="MAIN MENU">
                                 <padding>
                                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                 </padding>

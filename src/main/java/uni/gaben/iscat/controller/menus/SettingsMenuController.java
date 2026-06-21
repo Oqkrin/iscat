@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 import uni.gaben.iscat.IscatNavigator;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.controller.components.settings.*;
 import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.model.IscatViews;
@@ -26,11 +27,11 @@ public class SettingsMenuController implements IscatMenuController {
     @FXML private VBox tabTheme;
     @FXML private VBox tabAccount;
 
-    @FXML private Button btnMainSettings;
-    @FXML private Button btnControls;
-    @FXML private Button btnTheme;
-    @FXML private Button btnAccount;
-    @FXML private Button ExitBtn;
+    @FXML private Button mainSettingsButton;
+    @FXML private Button controlsButton;
+    @FXML private Button themeButton;
+    @FXML private Button accountButton;
+    @FXML private Button exitBtn;
 
     @FXML private DisplaySettingsController subDisplayController;
     @FXML private AudioSettingsController subAudioController;
@@ -45,18 +46,15 @@ public class SettingsMenuController implements IscatMenuController {
 
     @FXML
     public void initialize() {
-        setSquareButton(btnMainSettings, "fas-sliders-h", "SETTINGS");
-        setSquareButton(btnControls,     "fas-keyboard",  "CONTROLS");
-        setSquareButton(btnTheme,        "fas-palette",   "THEME");
-        setSquareButton(btnAccount,      "fas-user-cog",  "ACCOUNT");
+        setupButtons();
 
-        if (ExitBtn != null) {
+        if (exitBtn != null) {
             FontIcon backIcon = new FontIcon("fas-arrow-left");
-            backIcon.setIconSize(18);
-            ExitBtn.setGraphic(backIcon);
-            ExitBtn.setText("MAIN MENU");
-            ExitBtn.setContentDisplay(ContentDisplay.LEFT);
-            ExitBtn.setGraphicTextGap(14.0);
+            backIcon.setIconSize((int) IscatSettings.STANDARD_UNIT);
+            exitBtn.setGraphic(backIcon);
+            exitBtn.setText("MAIN MENU");
+            exitBtn.setContentDisplay(ContentDisplay.LEFT);
+            exitBtn.setGraphicTextGap(IscatSettings.STANDARD_UNIT);
         }
 
         if (subDisplayController != null) subDisplayController.setConfirmOverlayController(confirmOverlayController);
@@ -90,18 +88,25 @@ public class SettingsMenuController implements IscatMenuController {
         });
     }
 
+    private void setupButtons() {
+        setSquareButton(mainSettingsButton, "fas-sliders-h", "SETTINGS");
+        setSquareButton(controlsButton,     "fas-keyboard",  "CONTROLS");
+        setSquareButton(themeButton,        "fas-palette",   "THEME");
+        setSquareButton(accountButton,      "fas-user-cog",  "ACCOUNT");
+    }
+
     private void setSquareButton(Button btn, String iconCode, String labelText) {
         if (btn == null) return;
 
         FontIcon icon = new FontIcon(iconCode);
-        icon.setIconSize(28);
+        icon.setIconSize((int) (IscatSettings.STANDARD_UNIT*2));
         icon.getStyleClass().add("button-icon");
 
         btn.setText(labelText);
         btn.setGraphic(icon);
 
         btn.setContentDisplay(ContentDisplay.TOP);
-        btn.setGraphicTextGap(10.0);
+        btn.setGraphicTextGap(IscatSettings.STANDARD_UNIT);
     }
 
     @FXML private void showMainSettings() { switchTab(tabMainSettings); }

@@ -45,7 +45,7 @@ public class IscatViewController {
     }
 
     /**
-     * Carica e mostra la prima schermata dell'applicazione all'avvio, forzando un cambio istantaneo.
+     * Safely boots up the very first screen without requiring a property state-change trigger.
      */
     public void showInitialView(IscatViews initialView) {
         model.navigate(initialView, IscatModel.TransitionType.INSTANT);
@@ -57,9 +57,6 @@ public class IscatViewController {
         }
     }
 
-    /**
-     * Coordina il cambio scena determinando se rigenerare la vista (se dinamica) e quale transizione applicare.
-     */
     private void performTransition(IscatViews oldScene, IscatViews newScene, IscatModel.TransitionType type) {
         if (DYNAMIC_VIEWS.contains(newScene)) {
             viewRegistry.put(newScene, IscatMVCRegistry.getMVC(newScene));
@@ -80,14 +77,12 @@ public class IscatViewController {
         }
     }
 
-    /** Sostituisce immediatamente il contenuto del contenitore principale con la nuova vista. */
     private void executeInstantSwap(AbstractIscatStackPane nextView) {
         view.getChildren().setAll(nextView);
         nextView.setOpacity(1.0);
         nextView.setActive(true);
     }
 
-    /** Gestisce lo scambio visivo tra le due schermate tramite dissolvenza. */
     private void executeFadeSwap(IscatViews oldScene, AbstractIscatStackPane nextView) {
         AbstractIscatStackPane oldView = viewRegistry.get(oldScene);
 
@@ -100,18 +95,16 @@ public class IscatViewController {
         }
     }
 
-    /** Configura ed esegue l'animazione di FadeOut per la vecchia schermata prima di attaccare la nuova. */
     private FadeTransition fade(AbstractIscatStackPane nextView, AbstractIscatStackPane oldView) {
-        FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.25), oldView);
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.20), oldView);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
         fadeOut.setOnFinished(e -> {
             oldView.setActive(false);
 
-            // Rende la nuova vista trasparente prima di aggiungerla al grafo dei nodi
             nextView.setOpacity(0.0);
             view.getChildren().setAll(nextView);
-            nextView.setActive(true); // Avvia il caricamento strutturale e l'animazione interna di fadeIn
+            nextView.setActive(true); // Internally launches structural load and its own fadeIn animation
         });
         return fadeOut;
     }
