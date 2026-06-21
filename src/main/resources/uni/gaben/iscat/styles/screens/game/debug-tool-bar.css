@@ -1,5 +1,6 @@
 .debug-tool-bar {
     -fx-background-color: -bg-primary;
+    -fx-padding: 8px 8px;
 }
 
 .debug-title {

@@ -23,9 +23,11 @@ public class DebugToolBarCheats extends VBox {
      * @param onBack     Azione per tornare alla schermata precedente della toolbar
      */
     public DebugToolBarCheats(GameController controller, Runnable onBack) {
-        super(12);
-        setPadding(new Insets(12, 20, 20, 20));
+        super(8);
+        setPadding(new Insets(8, 8, 8, 8));
         setAlignment(Pos.TOP_CENTER);
+        setPickOnBounds(false);
+        setFocusTraversable(false);
 
         Button btnBack = new Button("← INDIETRO");
         btnBack.setFocusTraversable(false);

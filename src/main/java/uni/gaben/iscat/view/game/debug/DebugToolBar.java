@@ -34,6 +34,8 @@ public class DebugToolBar extends StackPane {
      * @param controller Il controller logico del gioco.
      */
     public DebugToolBar(GameController controller) {
+        setPickOnBounds(false);
+        setFocusTraversable(false);
 
         this.cheatsView = new DebugToolBarCheats(controller, this::showMainMenu);
         this.spawnerView = new DebugToolBarSpawner(controller, this::showMainMenu);
@@ -68,27 +70,34 @@ public class DebugToolBar extends StackPane {
      * Costruisce il layout e i nodi del menu principale della console.
      */
     private void buildMainMenu() {
-        mainMenuView = new VBox(20);
+        mainMenuView = new VBox(8);
         mainMenuView.setAlignment(Pos.CENTER);
-        mainMenuView.setPadding(new Insets(25));
+        mainMenuView.setPadding(new Insets(8, 8, 8, 8));
+        mainMenuView.setPickOnBounds(false);
+        mainMenuView.setFocusTraversable(false);
 
         Label titleLabel = new Label("DEBUG CONSOLE");
+        titleLabel.setFocusTraversable(false);
+        titleLabel.setMouseTransparent(true);
         CssHelper.testoPrimario(titleLabel);
         CssHelper.labelLarge(titleLabel);
-        // Rimosso l'hardcoded setStyle, ora gestito dalla classe CSS
         titleLabel.getStyleClass().add("debug-title");
 
-        HBox optionsContainer = new HBox(15);
+        HBox optionsContainer = new HBox(8);
         optionsContainer.setAlignment(Pos.CENTER);
+        optionsContainer.setPickOnBounds(false);
+        optionsContainer.setFocusTraversable(false);
 
         Button btnCheats = new Button("CHEATS");
-        btnCheats.setPrefSize(130, 45);
+        btnCheats.setPrefSize(64, 32);
+        btnCheats.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(btnCheats);
         CssHelper.testoPrimario(btnCheats);
         btnCheats.setOnAction(e -> showCheatsMenu());
 
         Button btnSpawn = new Button("SPAWN");
-        btnSpawn.setPrefSize(130, 45);
+        btnSpawn.setPrefSize(64, 32);
+        btnSpawn.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(btnSpawn);
         CssHelper.testoPrimario(btnSpawn);
         btnSpawn.setOnAction(e -> showSpawnerMenu());
