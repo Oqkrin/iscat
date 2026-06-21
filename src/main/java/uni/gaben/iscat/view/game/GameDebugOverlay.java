@@ -9,6 +9,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.utils.design.CssHelper;
@@ -57,6 +58,7 @@ public class GameDebugOverlay extends StackPane {
     private void initNodes() {
         debugToolBar = new DebugToolBar(gameController);
         debugToolBar.setPickOnBounds(false);
+        // Opacità rimossa (valore di default 1.0)
 
         godModeLabel = new Label("GOD MODE ACTIVE");
         godModeLabel.setFocusTraversable(false);
@@ -76,7 +78,7 @@ public class GameDebugOverlay extends StackPane {
         toggleWave = new Button("pause wave");
         toggleWave.setFocusTraversable(false);
 
-        debugButtonsContainer = new HBox(10, debugButton, toggleWave);
+        debugButtonsContainer = new HBox(IscatSettings.STANDARD_UNIT, debugButton, toggleWave);
         debugButtonsContainer.setFocusTraversable(false);
         debugButtonsContainer.setPickOnBounds(false);
     }
@@ -87,10 +89,10 @@ public class GameDebugOverlay extends StackPane {
         CssHelper.stilePulsanteMenu(toggleWave);
         CssHelper.testoPrimario(toggleWave);
 
-        godModeLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 20));
+        godModeLabel.setFont(Font.font("Miracode", FontWeight.BOLD, IscatSettings.STANDARD_UNIT));
         godModeLabel.setStyle("-fx-text-fill: #f1c40f; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
 
-        debugWarningLabel.setFont(Font.font("Miracode", FontWeight.BOLD, 18));
+        debugWarningLabel.setFont(Font.font("Miracode", FontWeight.BOLD, IscatSettings.STANDARD_UNIT));
         debugWarningLabel.setStyle("-fx-text-fill: #e74c3c; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 6, 0, 0, 0);");
     }
 
@@ -98,18 +100,20 @@ public class GameDebugOverlay extends StackPane {
         getChildren().addAll(cheatLabelsContainer, debugToolBar, debugButtonsContainer);
 
         StackPane.setAlignment(debugToolBar, Pos.BOTTOM_CENTER);
-        StackPane.setAlignment(debugButtonsContainer, Pos.TOP_LEFT);
+        StackPane.setMargin(debugToolBar, new Insets(0, 0, 50, 0)); // raise from bottom
 
+        StackPane.setAlignment(debugButtonsContainer, Pos.TOP_LEFT);
         cheatLabelsContainer.setAlignment(Pos.BOTTOM_LEFT);
         StackPane.setAlignment(cheatLabelsContainer, Pos.BOTTOM_LEFT);
         cheatLabelsContainer.setMaxSize(VBox.USE_PREF_SIZE, VBox.USE_PREF_SIZE);
 
-        StackPane.setMargin(debugButtonsContainer, new Insets(50, 0, 0, 50));
-        StackPane.setMargin(cheatLabelsContainer, new Insets(0, 0, 50, 50));
+        StackPane.setMargin(debugButtonsContainer, new Insets(IscatSettings.STANDARD_UNIT*3.5, 0, 0, IscatSettings.STANDARD_UNIT*3.5));
+        StackPane.setMargin(cheatLabelsContainer, new Insets(0, 0, IscatSettings.STANDARD_UNIT, IscatSettings.STANDARD_UNIT));
     }
 
     private void initBindings(Consumer<Boolean> onToggleDebugPanel) {
-        debugToolBar.maxHeightProperty().bind(heightProperty().multiply(0.35));
+
+        debugToolBar.maxHeightProperty().bind(heightProperty().multiply(Math.pow(ScalareAureo.IPHI_D, 3)));
         debugToolBar.maxWidthProperty().bind(widthProperty().multiply(ScalareAureo.IPHI_D));
 
         godModeLabel.visibleProperty().bind(gameController.godModeProperty());

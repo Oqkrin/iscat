@@ -9,10 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.spawn.UniverseSpawnable;
@@ -39,15 +36,15 @@ public class DebugToolBarSpawner extends VBox {
     public DebugToolBarSpawner(GameController controller, Runnable onBack) {
         final double SU = IscatSettings.STANDARD_UNIT;
 
-        setSpacing(SU);
-        setPadding(new Insets(SU, SU, SU, SU));
+        setSpacing(SU / 2);
+        setPadding(new Insets(SU / 2));
         setAlignment(Pos.TOP_CENTER);
         getStyleClass().add("debug-tool-bar");
 
         this.controller = controller;
 
-        VBox mainCategoriesLayout = new VBox(SU);
-        mainCategoriesLayout.setPadding(new Insets(SU /2, 0, SU /2, 0));
+        VBox mainCategoriesLayout = new VBox(SU / 2);
+        mainCategoriesLayout.setPadding(new Insets(SU / 4, 0, SU / 4, 0));
 
         ScrollPane scroll = new ScrollPane();
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -61,7 +58,7 @@ public class DebugToolBarSpawner extends VBox {
         CssHelper.stilePulsanteMenu(btnBack);
         CssHelper.testoSecondario(btnBack);
         btnBack.getStyleClass().add("debug-btn-back");
-        btnBack.setPadding(new Insets(SU /4, SU /2, SU /4, SU /2));
+        btnBack.setPadding(new Insets(SU / 4, SU / 2, SU / 4, SU / 2));
         btnBack.setOnAction(e -> onBack.run());
 
         HBox topBar = new HBox(btnBack);
@@ -70,14 +67,14 @@ public class DebugToolBarSpawner extends VBox {
         Label mainTitle = new Label("SPAWNABLE LIST (CLICK TO GENERATE)");
         CssHelper.testoPrimario(mainTitle);
         mainTitle.getStyleClass().add("debug-main-title");
-        mainTitle.setPadding(new Insets(SU /2, 0, SU /4, 0));
+        mainTitle.setPadding(new Insets(SU / 2, 0, SU / 4, 0));
 
         // Gather entities
         Map<String, EntityRecord> allUniqueEntities = getAllUniqueEntities();
         List<Map.Entry<String, EntityRecord>> specialList = new ArrayList<>();
         List<Map.Entry<String, EntityRecord>> enemiesList = new ArrayList<>();
         List<Map.Entry<String, EntityRecord>> playersList = new ArrayList<>();
-        List<Map.Entry<String, EntityRecord>> customList  = new ArrayList<>();
+        List<Map.Entry<String, EntityRecord>> customList = new ArrayList<>();
 
         for (Map.Entry<String, EntityRecord> entry : allUniqueEntities.entrySet()) {
             String lowerKey = entry.getKey().toLowerCase();
@@ -88,7 +85,7 @@ public class DebugToolBarSpawner extends VBox {
 
             if (isCustom) {
                 customList.add(entry);
-                continue; // separate category
+                continue;
             }
             if (isPlayer) {
                 playersList.add(entry);
@@ -152,37 +149,51 @@ public class DebugToolBarSpawner extends VBox {
         if (elementi.isEmpty()) return;
         final double SU = IscatSettings.STANDARD_UNIT;
 
-        VBox sectionBox = new VBox(SU/3); // 6
+        VBox sectionBox = new VBox(SU / 4);
         Label sectionTitle = new Label(titolo);
         CssHelper.testoPrimario(sectionTitle);
         sectionTitle.getStyleClass().add("debug-title");
-        sectionTitle.setPadding(new Insets(SU /2, 0, SU /8, 0)); // 10,0,2,0
+        sectionTitle.setPadding(new Insets(SU / 2, 0, SU / 8, 0));
 
-        FlowPane flowPane = new FlowPane(SU, SU); // 15
-        flowPane.setAlignment(Pos.TOP_LEFT);
+        // Use TilePane with dynamic sizing
+        TilePane tilePane = new TilePane();
+        tilePane.setHgap(SU / 3);
+        tilePane.setVgap(SU / 3);
+        tilePane.setPrefColumns(4);
+        tilePane.setAlignment(Pos.TOP_LEFT);
+
+        // Bind tile size to available width (computed)
+        tilePane.widthProperty().addListener((obs, old, newWidth) -> {
+            if (newWidth.doubleValue() > 0) {
+                int cols = tilePane.getPrefColumns();
+                double gap = tilePane.getHgap();
+                double tileWidth = (newWidth.doubleValue() - (cols - 1) * gap) / cols;
+                tilePane.setPrefTileWidth(tileWidth);
+                tilePane.setPrefTileHeight(tileWidth); // square tiles
+            }
+        });
 
         for (Map.Entry<String, EntityRecord> entry : elementi) {
-            flowPane.getChildren().add(createSquareSpawnCard(entry.getKey(), entry.getValue()));
+            tilePane.getChildren().add(createSquareSpawnCard(entry.getKey(), entry.getValue(), tilePane));
         }
 
-        sectionBox.getChildren().addAll(sectionTitle, flowPane);
+        sectionBox.getChildren().addAll(sectionTitle, tilePane);
         parent.getChildren().add(sectionBox);
     }
 
-    private VBox createSquareSpawnCard(String key, EntityRecord entity) {
+    private VBox createSquareSpawnCard(String key, EntityRecord entity, TilePane parentTile) {
         final double SU = IscatSettings.STANDARD_UNIT;
-        final double IMG_SIZE = SU * 2; // 32
-
-        VBox card = new VBox(SU /2); // 8
+        // Icon size is computed as 70% of the tile width (ensures scaling)
+        VBox card = new VBox(SU / 4);
         card.setAlignment(Pos.TOP_CENTER);
-        card.setPadding(new Insets(SU /2)); // 8
+        card.setPadding(new Insets(SU / 4));
         card.setId(key);
 
         Button btnSquare = new Button();
         btnSquare.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(btnSquare);
         btnSquare.getStyleClass().add("debug-spawn-btn-square");
-        btnSquare.setPadding(new Insets(SU /4)); // 4
+        btnSquare.setPadding(new Insets(SU / 4));
         btnSquare.setOnAction(e -> controller.debugSpawn(key));
 
         // Determine sprite path & fallback logic
@@ -204,6 +215,7 @@ public class DebugToolBarSpawner extends VBox {
             targetSpritePath = ASTEROID_PNG;
         }
 
+        ImageView view = null;
         if (targetSpritePath != null && !targetSpritePath.isBlank()) {
             try {
                 String path = targetSpritePath.startsWith("/") ? targetSpritePath : "/" + targetSpritePath;
@@ -217,7 +229,7 @@ public class DebugToolBarSpawner extends VBox {
                 });
 
                 if (spriteImg != null && !spriteImg.isError()) {
-                    ImageView view = new ImageView(spriteImg);
+                    view = new ImageView(spriteImg);
                     boolean isHardcoded = lowerKey.contains("heart") || lowerKey.contains("blackhole") || lowerKey.contains("asteroid");
                     if (entity != null && entity.frameW() > 0 && entity.frameH() > 0 && !isHardcoded) {
                         if (lowerKey.contains("master")) {
@@ -226,11 +238,8 @@ public class DebugToolBarSpawner extends VBox {
                             view.setViewport(new Rectangle2D(0, 0, entity.frameW(), entity.frameH()));
                         }
                     }
-                    view.setFitWidth(IMG_SIZE);
-                    view.setFitHeight(IMG_SIZE);
                     view.setPreserveRatio(true);
                     view.setSmooth(true);
-                    btnSquare.setGraphic(view);
                 } else {
                     isTextFallback = true;
                 }
@@ -241,12 +250,29 @@ public class DebugToolBarSpawner extends VBox {
             isTextFallback = true;
         }
 
-        if (isTextFallback) {
+        if (isTextFallback || view == null) {
             Label textLabel = new Label("[+]");
             CssHelper.testoPrimario(textLabel);
             textLabel.getStyleClass().add("debug-spawn-fallback-text");
             textLabel.setAlignment(Pos.CENTER);
             btnSquare.setGraphic(textLabel);
+        } else {
+            btnSquare.setGraphic(view);
+            // Bind icon size to the tile's computed width (70% of tile)
+            ImageView finalView = view;
+            parentTile.prefTileWidthProperty().addListener((obs, old, newVal) -> {
+                double size = newVal.doubleValue() * 0.7;
+                if (size > 0) {
+                    finalView.setFitWidth(size);
+                    finalView.setFitHeight(size);
+                }
+            });
+            // Initial sizing
+            double initialSize = parentTile.getPrefTileWidth() * 0.7;
+            if (initialSize > 0) {
+                view.setFitWidth(initialSize);
+                view.setFitHeight(initialSize);
+            }
         }
 
         if (entity != null && entity.name() != null) {
@@ -260,7 +286,7 @@ public class DebugToolBarSpawner extends VBox {
         CssHelper.testoPrimario(nameLabel);
         nameLabel.getStyleClass().add("debug-spawn-card-label");
         nameLabel.setMaxWidth(Double.MAX_VALUE);
-        nameLabel.setPadding(new Insets(SU /8, 0, 0, 0)); // 2
+        nameLabel.setPadding(new Insets(SU / 8, 0, 0, 0));
 
         card.getChildren().addAll(btnSquare, nameLabel);
         return card;

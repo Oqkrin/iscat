@@ -4,9 +4,13 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Gestore dell'input fisico (tastiera e mouse) grezzo per il loop di gioco.
@@ -56,14 +60,17 @@ public class GameInputsHandler {
     /** Flag di richiesta della pausa di gioco, consumato con pattern cooperativo one-shot. */
     private boolean pauseRequested = false;
 
+    /** Insieme dei tasti attualmente premuti – usato per rilevare eventi di ripetizione (repeat). */
+    private final Set<KeyCode> pressedKeys = new HashSet<>();
+
     /**
      * Registra i listener per la cattura degli eventi di pressione e rilascio tasti/mouse sulla {@link Scene} attiva.
      *
      * @param scene La scena dell'applicazione a cui agganciare l'ascolto degli input.
      */
     public void attachToScene(Scene scene) {
-        scene.setOnKeyPressed(e -> handleKey(e.getCode(), true));
-        scene.setOnKeyReleased(e -> handleKey(e.getCode(), false));
+        scene.setOnKeyPressed(this::handleKeyEvent);
+        scene.setOnKeyReleased(e -> handleKeyEvent(e, false));
         scene.setOnMousePressed(e -> handleMouse(e.getButton(), true));
         scene.setOnMouseReleased(e -> handleMouse(e.getButton(), false));
     }
@@ -95,6 +102,7 @@ public class GameInputsHandler {
         dashMousePressed = false;
         slowMotionRequested = false;
         pauseRequested = false;
+        pressedKeys.clear();
     }
 
     /**
@@ -102,7 +110,7 @@ public class GameInputsHandler {
      * Calcola e restituisce un vettore di direzione bidimensionale normalizzato.
      *
      * @return Un oggetto {@link Point2D} rappresentante la direzione dello scatto,
-     * oppure {@code null} se nessun comando è stato impartito o se è già stato consumato.
+     *         oppure {@code null} se nessun comando è stato impartito o se è già stato consumato.
      */
     public Point2D consumeQuickDash() {
         if (quickDashConsumed || (quickDashX == 0 && quickDashY == 0)) {
@@ -131,16 +139,24 @@ public class GameInputsHandler {
     }
 
     /**
-     * Intercetta gli eventi della tastiera mappandoli sulle variabili di stato in base al profilo
-     * delle impostazioni utente ({@link UserSettings}) correnti. Se non vi sono configurazioni personalizzate,
-     * applica un fallback sui controlli standard (WASD / Frecce direzionali).
-     *
-     * @param code      Il codice {@link KeyCode} del tasto premuto o rilasciato.
-     * @param isPressed {@code true} se l'evento descrive la pressione del tasto, {@code false} se descrive il rilascio.
+     * Gestisce gli eventi di pressione tasto, distinguendo tra pressione e rilascio.
+     * Usa l'evento intero per controllare il flag di ripetizione.
      */
-    private void handleKey(KeyCode code, boolean isPressed) {
+    private void handleKeyEvent(KeyEvent event) {
+        handleKeyEvent(event, true);
+    }
+
+    /**
+     * Gestisce sia la pressione che il rilascio di un tasto.
+     *
+     * @param event     L'evento tastiera.
+     * @param isPressed {@code true} se è un evento di pressione, {@code false} per rilascio.
+     */
+    private void handleKeyEvent(KeyEvent event, boolean isPressed) {
+        KeyCode code = event.getCode();
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
+        // ---- 1. Gestione dei flag di movimento/fuoco (sempre eseguita) ----
         if (settings != null) {
             if (matchKey(code, settings.getWalkUp()))    up = isPressed;
             if (matchKey(code, settings.getWalkDown()))  down = isPressed;
@@ -148,30 +164,48 @@ public class GameInputsHandler {
             if (matchKey(code, settings.getWalkRight())) right = isPressed;
             if (matchKey(code, settings.getAttack()))    shooting = isPressed;
 
+            // ---- 2. Gestione eventi di PRESS (solo se non è una ripetizione) ----
             if (isPressed) {
-                if (matchKey(code, settings.getDash1())) dashKeyPressed = true;
-                if (matchKey(code, settings.getDash2())) dashMousePressed = true;
-                if (matchKey(code, settings.getPauseGame())) pauseRequested = true;
+                // Se il tasto NON era già premuto, è una nuova pressione (non repeat)
+                boolean isRepeat = !pressedKeys.add(code);
+                if (!isRepeat) {
+                    // Aggiorna gli attivatori one‑shot (dash, pausa)
+                    if (matchKey(code, settings.getDash1())) dashKeyPressed = true;
+                    if (matchKey(code, settings.getDash2())) dashMousePressed = true;
+                    if (matchKey(code, settings.getPauseGame())) pauseRequested = true;
 
-                detectQuickDash(code);
+                    // Rileva doppio tocco solo sulla prima pressione (non repeat)
+                    detectQuickDash(code);
+                }
+                // Se è repeat, non facciamo nulla di speciale (movimento già aggiornato sopra)
             } else {
+                // Rilascio: rimuoviamo il tasto dall'insieme e resettiamo i trigger one‑shot
+                pressedKeys.remove(code);
                 if (matchKey(code, settings.getDash1())) dashKeyPressed = false;
                 if (matchKey(code, settings.getDash2())) dashMousePressed = false;
             }
         } else {
+            // ----- Fallback (nessuna impostazione utente) -----
             switch (code) {
                 case W, UP    -> up = isPressed;
                 case S, DOWN  -> down = isPressed;
                 case A, LEFT  -> left = isPressed;
                 case D, RIGHT -> right = isPressed;
                 case Z        -> shooting = isPressed;
-                case SPACE    -> { if (isPressed) dashKeyPressed = true; }
+                case SPACE    -> { if (isPressed) dashKeyPressed = true; else dashKeyPressed = false; }
                 case ESCAPE, P -> { if (isPressed) pauseRequested = true; }
                 default -> {}
             }
 
             if (isPressed) {
-                detectQuickDash(code);
+                boolean isRepeat = !pressedKeys.add(code);
+                if (!isRepeat) {
+                    // Solo se non è repeat, rileviamo il doppio tocco
+                    detectQuickDash(code);
+                }
+            } else {
+                pressedKeys.remove(code);
+                if (code == KeyCode.SPACE) dashKeyPressed = false;
             }
         }
     }
@@ -201,9 +235,12 @@ public class GameInputsHandler {
                 if (matchMouse(button, settings.getPauseGame())) pauseRequested = true;
             } else {
                 if (matchMouse(button, settings.getDash1())) dashKeyPressed = false;
-                if (matchMouse(button, settings.getDash2())) slowMotionRequested = false;
+                if (matchMouse(button, settings.getDash2())) {
+                    slowMotionRequested = false;
+                }
             }
         } else {
+            // Fallback
             if (button == MouseButton.PRIMARY) shooting = isPressed;
             if (button == MouseButton.MIDDLE) {
                 slowMotionRequested = isPressed;

@@ -9,6 +9,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.theme.ThemeManager;
@@ -61,23 +62,26 @@ public class GameHudBar extends StackPane {
      * @param wave Il controller delle ondate per l'inizializzazione iniziale del testo.
      */
     private void buildNodes(UniverseWaveController wave) {
+        final double SU = IscatSettings.STANDARD_UNIT;
+
         timerLabel = styledLabel(ICON_TIMER + "  00:00", "large");
-        timerLabel.setMinWidth(170);
 
         Label killsLabel = styledLabel(ICON_KILLS + "  0", "large");
-        killsLabel.setMinWidth(170);
         killsLabel.setAlignment(Pos.CENTER_RIGHT);
-
         killsLabel.textProperty().bind(
                 UniverseWaveController.totalKillsProperty().asString(ICON_KILLS + "  %d"));
 
         Region topSpacer = new Region();
         HBox.setHgrow(topSpacer, Priority.ALWAYS);
 
+        // ---- Header row (timer + kills) ----
         HBox headerRow = new HBox(timerLabel, topSpacer, killsLabel);
         headerRow.setAlignment(Pos.CENTER_LEFT);
-        headerRow.setPadding(new Insets(0, 4, 4, 4));
+        headerRow.setPadding(new Insets(4));
+        headerRow.setMaxHeight(SU * 3.5);
+        headerRow.setPrefHeight(SU * 3.5);
 
+        // ---- Label inferiori (nemici, ondata, minaccia) ----
         enemiesCounterLabel = styledLabel("Nemici rimanenti: 0 / 0", "medium");
         enemiesCounterLabel.setMaxWidth(Double.MAX_VALUE);
         enemiesCounterLabel.setAlignment(Pos.CENTER);
@@ -90,10 +94,14 @@ public class GameHudBar extends StackPane {
         threatLabel.setMaxWidth(Double.MAX_VALUE);
         threatLabel.setAlignment(Pos.CENTER);
 
-        VBox content = new VBox(6, headerRow, enemiesCounterLabel, waveLabel, threatLabel);
-        content.setPadding(new Insets(12, 20, 10, 20));
-        content.setAlignment(Pos.CENTER);
-        content.setMaxHeight(VBox.USE_PREF_SIZE);
+        VBox labelsBox = new VBox(SU / 2, enemiesCounterLabel, waveLabel, threatLabel);
+        labelsBox.setAlignment(Pos.CENTER);
+        labelsBox.setFillWidth(true);
+
+        // ---- Contenitore principale ----
+        VBox content = new VBox(0, headerRow, labelsBox);
+        content.setPadding(new Insets(0, SU, SU, SU)); // top padding = 0
+        content.setAlignment(Pos.TOP_CENTER);
         content.setFillWidth(true);
 
         getChildren().add(content);
@@ -201,7 +209,7 @@ public class GameHudBar extends StackPane {
     private Label styledLabel(String text, String sizeStyleClass) {
         Label lbl = new Label(text);
         lbl.getStyleClass().addAll("hud-label", sizeStyleClass);
-        lbl.setTextFill(ThemeManager.getInstance().getAccentPrimary()); // Fallback dinamico di sicurezza
+        lbl.setTextFill(ThemeManager.getInstance().getAccentPrimary());
         lbl.setFocusTraversable(false);
         lbl.setMouseTransparent(true);
         return lbl;
