@@ -17,20 +17,34 @@ import java.util.List;
 
 /**
  * Controller per la schermata della classifica (Leaderboard).
- * Mostra i migliori punteggi di tutti gli utenti ordinati in modo decrescente.
+ * Gestisce il caricamento asincrono e la visualizzazione dei migliori punteggi
+ * globali di tutti gli utenti registrati, ordinati in modo decrescente.
+ * <p>
+ * Include logiche di aggiornamento automatico della UI guidate dalla visibilità della scena
+ * e gestisce stili grafici differenziati per i podi (top 3) della classifica.
  */
 public class LeaderBoardMenuController implements IscatMenuController {
 
+    /** Pannello contenitore principale della vista basato su VBox. */
     @FXML private VBox rootPane;
+    /** Contenitore verticale in cui vengono iniettate dinamicamente le righe dei punteggi degli utenti. */
     @FXML private VBox leaderboardContainer;
+    /** Pulsante per l'uscita dalla schermata della classifica e il ritorno al menu precedente. */
     @FXML private Button exitBtn;
 
+    /** Riferimento al contenitore a nodi sovrapposti della vista. */
     private StackPane contentRoot;
+    /** Oggetto di accesso ai dati (DAO) dedicato alle operazioni di query sui punteggi degli utenti. */
     private ScoreDAO scoreDAO;
 
+    /**
+     * Inizializza i componenti grafici della vista FXML.
+     * Recupera l'istanza del DAO dal database, applica i glifi grafici al pulsante di uscita
+     * e registra i listener reattivi per attivare il ricaricamento dei record ogni volta
+     * che la vista torna ad essere visibile o associata a una scena attiva.
+     */
     @FXML
     public void initialize() {
-        //registerEscHandler();
 
         scoreDAO = IscatDB.getInstance().getScoreDAO();
 
@@ -54,7 +68,12 @@ public class LeaderBoardMenuController implements IscatMenuController {
     }
 
     /**
-     * Carica i dati della classifica dal database in modo asincrono.
+     * Interroga in via asincrona il database SQLITE tramite un thread dedicato (Worker Thread)
+     * per estrarre la lista di tutti i record di punteggio.
+     * <p>
+     * Inietta una label di caricamento temporanea nella UI e ne gestisce asincronamente sia il successo
+     * di popolamento (re-instradando l'esecuzione sul thread JavaFX primario tramite {@link Platform#runLater}),
+     * sia l'eventuale fallimento o eccezione del canale di IO.
      */
     private void loadLeaderboard() {
         leaderboardContainer.getChildren().clear();
@@ -78,8 +97,10 @@ public class LeaderBoardMenuController implements IscatMenuController {
     }
 
     /**
-     * Popola il container con le righe della classifica.
-     * @param scores Lista di punteggi da visualizzare
+     * Svuota il contenitore e popola la lista delle righe grafiche della classifica basandosi sui record estratti.
+     * Applica un vincolo algoritmico di interruzione (cap a 100 iterazioni) per limitare il rendering alla sola Top 100.
+     *
+     * @param scores Lista ordinata di oggetti {@link uni.gaben.iscat.database.dao.ScoreDAO.UserScoreEntry} da visualizzare.
      */
     private void populateRows(List<ScoreDAO.UserScoreEntry> scores) {
         leaderboardContainer.getChildren().clear();
@@ -99,10 +120,13 @@ public class LeaderBoardMenuController implements IscatMenuController {
     }
 
     /**
-     * Costruisce una singola riga della classifica.
-     * @param rank Posizione in classifica
-     * @param entry Dati dell'utente (username e punteggio)
-     * @return Griglia contenente la riga formattata
+     * Fabbrica e struttura un nodo {@link GridPane} pre-configurato per ospitare le informazioni di un utente a tabellone.
+     * Calcola i vincoli di colonna ed allineamento orizzontale e assegna classi CSS speciali
+     * (es. {@code leaderboard-gold}) se la posizione analizzata corrisponde al gradino più alto del podio.
+     *
+     * @param rank  Posizione numerica ordinale occupata dall'utente all'interno della classifica.
+     * @param entry Il record dati contenente il nome utente e il punteggio associato.
+     * @return Un'istanza preconfigurata di {@link GridPane} rappresentante la riga formattata.
      */
     private GridPane buildRow(int rank, ScoreDAO.UserScoreEntry entry) {
         GridPane row = new GridPane();
@@ -145,9 +169,11 @@ public class LeaderBoardMenuController implements IscatMenuController {
     }
 
     /**
-     * Restituisce il badge testuale per la posizione in classifica.
-     * @param rank Posizione (1 = oro, 2 = argento, 3 = bronzo)
-     * @return Stringa formattata con emoji e numero
+     * Mappa ed associa un costrutto testuale contenente un badge emoji specifico alle prime tre posizioni
+     * di testa della classifica, applicando una formattazione testuale standard per le restanti.
+     *
+     * @param rank La posizione ordinale intera da analizzare.
+     * @return Una stringa formattata (es: "🥇 1°" oppure "4°").
      */
     private String rankBadge(int rank) {
         return switch (rank) {
@@ -158,16 +184,31 @@ public class LeaderBoardMenuController implements IscatMenuController {
         };
     }
 
+    /**
+     * Gestisce l'evento di azione scatenato dal click sul pulsante di uscita.
+     *
+     * @param event L'evento di tipo {@link ActionEvent} catturato dalla UI.
+     */
     @FXML
     private void handleBackAction(ActionEvent event) {
         handleBack();
     }
 
+    /**
+     * Interfaccia di aggancio del navigatore e del controller.
+     *
+     * @param pointer Il pannello contenitore di destinazione passato dal sistema di navigazione.
+     */
     @Override
     public void setPointerToView(StackPane pointer) {
         this.contentRoot = pointer;
     }
 
+    /**
+     * Ritorna il pannello radice associato a questo specifico controller grafico.
+     *
+     * @return L'istanza di tipo {@link Pane} del pannello radice.
+     */
     @Override
     public Pane getRootPane() {
         return rootPane;

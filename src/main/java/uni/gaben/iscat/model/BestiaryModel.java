@@ -10,6 +10,9 @@ import java.util.Map;
 /**
  * Gestisce l'estrazione dei dati del Bestiario unendo le definizioni statiche del file JSON
  * al registro delle uccisioni dell'utente memorizzato nella tabella "Bestiario" su SQLite.
+ * <p>
+ * Questa classe funge da modello per la tracciabilità dei progressi di sblocco delle entità
+ * e dei contatori cumulativi delle uccisioni per ciascun nemico.
  */
 public class BestiaryModel {
 
@@ -61,7 +64,7 @@ public class BestiaryModel {
      * estratto dal DB è strettamente maggiore di zero.
      *
      * @param entityKey La stringa identificativa del nemico da ispezionare.
-     * @return true se il giocatore ha sconfitto l'entità almeno una volta, false altrimenti.
+     * @return {@code true} se il giocatore ha sconfitto l'entità almeno una volta, {@code false} altrimenti.
      */
     public boolean isUnlocked(String entityKey) {
         if (entityKey == null) return false;
@@ -70,7 +73,12 @@ public class BestiaryModel {
     }
 
     /**
-     * Ottiene il numero di uccisioni per un nemico specifico.
+     * Ottiene il numero cumulativo di uccisioni registrate per un nemico specifico.
+     * Il parametro viene normalizzato internamente in minuscolo e rimosso degli spazi di testa e coda.
+     *
+     * @param entityKey La stringa identificativa del nemico da verificare.
+     * @return Il numero totale di uccisioni registrate a sistema, oppure {@code 0} se il nemico
+     * non è presente nel registro o la chiave è {@code null}.
      */
     public int getKillCount(String entityKey) {
         if (entityKey == null) return 0;
@@ -80,6 +88,9 @@ public class BestiaryModel {
     /**
      * Ritorna la mappa contenente il numero cumulativo di uccisioni
      * registrate per ciascuna chiave nemico.
+     *
+     * @return Mappa di corrispondenza che associa la chiave normalizzata del nemico
+     * al numero totale di uccisioni effettuate.
      */
     public Map<String, Integer> getKillCounts() {
         return killCounts;

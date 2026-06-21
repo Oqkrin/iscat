@@ -10,18 +10,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+/**
+ * Modello matematico e reattivo per la disposizione a griglia delle skin dei personaggi.
+ * Gestisce l'algoritmo di riposizionamento dinamico degli elementi (Layout Computing)
+ * all'interno di una matrice bidimensionale, supportando l'espansione di un elemento selezionato
+ * in formato 2x2 e l'inserimento di una cella speciale per la selezione casuale (Random).
+ */
 public class SkinGridModel {
 
-    public static final int SELECTED_SPAN = 2;   // 2×2 expanded item
-    public static final int RANDOM_INDEX = -2;        // sentinel for the random cell
+    /** Dimensione (sia in righe che in colonne) dell'elemento selezionato ed espanso. */
+    public static final int SELECTED_SPAN = 2;
+
+    /** Indice sentinella utilizzato per identificare la cella speciale di selezione casuale. */
+    public static final int RANDOM_INDEX = -2;
+
+    /** Numero predefinito di colonne della griglia (valore di default). */
     public static final int NCOL = 5;
 
+    /** Lista osservabile contenente i record delle skin caricate nel modello. */
     private final ObservableList<EntityRecord> skins = FXCollections.observableArrayList();
+
+    /** Proprietà intera che traccia il numero corrente di colonne della griglia. */
     private final IntegerProperty columns = new SimpleIntegerProperty(NCOL);
+
+    /** Proprietà stringa contenente la chiave identificativa dell'entità attualmente selezionata ed espansa. */
     private final StringProperty selectedKey = new SimpleStringProperty(null);
+
+    /** Wrapper in sola lettura per la lista osservabile dei posizionamenti calcolati. */
     private final ReadOnlyListWrapper<SkinPlacement> placements =
             new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
 
+    /**
+     * Costruttore del modello. Configura i listener reattivi sulle modifiche della lista di skin,
+     * sul mutamento del numero di colonne e sul cambio di selezione, in modo da ricalcolare
+     * automaticamente la disposizione geometrica della griglia a ogni variazione.
+     */
     public SkinGridModel() {
         skins.addListener((ListChangeListener<EntityRecord>) c -> recomputeLayout());
         columns.addListener((obs, old, val) -> recomputeLayout());
@@ -29,19 +52,48 @@ public class SkinGridModel {
         recomputeLayout();
     }
 
+    /** @return La lista osservabile delle skin (entità) registrate nel modello. */
     public ObservableList<EntityRecord> getSkins() { return skins; }
+
+    /** @return La proprietà JavaFX legata al numero di colonne della griglia. */
     public IntegerProperty columnsProperty() { return columns; }
+
+    /** @return Il numero corrente di colonne impostato per il layout. */
     public int getColumns() { return columns.get(); }
+
+    /** * Imposta il numero di colonne della griglia. Il valore viene normalizzato affinché
+     * non sia mai inferiore allo spazio minimo richiesto dall'elemento espanso.
+     * * @param cols Il numero desiderato di colonne.
+     */
     public void setColumns(int cols) { columns.set(Math.max(cols, SELECTED_SPAN)); }
+
+    /** @return La proprietà JavaFX associata alla chiave dell'elemento selezionato. */
     public StringProperty selectedKeyProperty() { return selectedKey; }
+
+    /** @return La chiave stringa dell'entità correntemente selezionata, o {@code null}. */
     public String getSelectedKey() { return selectedKey.get(); }
+
+    /** @param key La chiave stringa dell'entità da selezionare ed espandere. */
     public void setSelectedKey(String key) { selectedKey.set(key); }
 
+    /** @return La proprietà in sola lettura della lista dei posizionamenti calcolati per il binding della View. */
     public ReadOnlyListProperty<SkinPlacement> placementsProperty() {
         return placements.getReadOnlyProperty();
     }
+
+    /** @return La lista osservabile contenente le direttive strutturali di posizionamento delle celle. */
     public ObservableList<SkinPlacement> getPlacements() { return placements.get(); }
 
+    /**
+     * Esegue l'algoritmo di calcolo e disposizione geometrica della griglia (Backtracking/Greedy Fill).
+     * <p>
+     * L'algoritmo mappa i posizionamenti in tre fasi sequenziali:
+     * <ol>
+     * <li>Posiziona l'elemento selezionato espandendolo in un blocco 2x2 basato sul suo indice naturale.</li>
+     * <li>Distribuisce le restanti skin in formato standard 1x1 riempiendo i vuoti da sinistra a destra, dall'alto in basso.</li>
+     * <li>Alloca la cella speciale "Random" nel primo slot rimasto disponibile all'interno della matrice di occupazione.</li>
+     * </ol>
+     */
     private void recomputeLayout() {
         List<EntityRecord> skinList = new ArrayList<>(skins);
         int n = skinList.size();
@@ -116,6 +168,18 @@ public class SkinGridModel {
         placements.set(FXCollections.observableArrayList(placementList));
     }
 
+    /**
+     * Record immutabile che definisce le coordinate e i parametri geometrici di piazzamento
+     * di una singola cella all'interno del contenitore grafico a griglia.
+     *
+     * @param index    L'indice numerico d'ordine dell'elemento nella lista globale originale.
+     * @param record   Il riferimento al rispettivo {@link EntityRecord} (nullo per la cella casuale).
+     * @param row      La coordinata della riga d'origine (Y) nella matrice.
+     * @param col      La coordinata della colonna d'origine (X) nella matrice.
+     * @param rowSpan  Il numero di righe occupate verticalmente dalla cella.
+     * @param colSpan  Il numero di colonne occupate orizzontalmente dalla cella.
+     * @param selected {@code true} se la cella rappresenta l'elemento attualmente espanso e selezionato.
+     */
     public record SkinPlacement(int index, EntityRecord record, int row, int col,
                                 int rowSpan, int colSpan, boolean selected) {}
 }

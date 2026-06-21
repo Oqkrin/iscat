@@ -28,26 +28,38 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Controller per la gestione della schermata dei Crediti di gioco.
- * Gestisce lo scorrimento, il reset completo ad ogni ingresso/uscita e l'accelerazione con tasto premuto.
+ * Gestisce l'animazione di scorrimento verticale (rolling credits), il reset completo
+ * dello stato grafico ad ogni ingresso/uscita della vista e l'accelerazione temporanea
+ * dell'animazione tramite la pressione prolungata della tastiera.
  */
 public class CreditsController implements IscatFxmlController {
 
-    // REGOLAZIONE VELOCITÀ: 1.0 = Default, 2.0 = Doppia velocità, 0.5 = Metà velocità
+    /** Fattore moltiplicativo lineare applicato alla velocità di base dello scorrimento (1.0 = default, 2.0 = doppia velocità). */
     private static final double SPEED_FACTOR = 2.0;
 
-    // Moltiplicatore di accelerazione quando si tiene premuto il tasto (5.0 = 5 volte più veloce)
+    /** Moltiplicatore di accelerazione (Fast Forward) applicato all'animazione quando viene premuto il tasto Spazio. */
     private static final double FAST_FORWARD_MULTIPLIER = 5.0;
 
-    // Pixel al secondo di base (moltiplicati poi per lo SPEED_FACTOR)
+    /** Numero di pixel al secondo calcolati come base per lo scorrimento prima dell'applicazione dei fattori di scala. */
     private static final double BASE_PIXELS_PER_SECOND = 35.0;
 
+    /** Pannello contenitore principale della vista. */
     @FXML private StackPane rootPane;
+    /** Pannello di mascheramento geometrico utilizzato per ritagliare i testi fuori dall'area visibile. */
     @FXML private Pane clippingPane;
+    /** Contenitore verticale in cui vengono iniettate dinamicamente le righe di testo dei crediti. */
     @FXML private VBox creditsContainer;
+    /** Pulsante per l'interruzione anticipata dei crediti e il ritorno al menu principale. */
     @FXML private Button backButton;
 
+    /** Transizione JavaFX dedicata allo scorrimento verticale traslatorio dell'interfaccia dei crediti. */
     private TranslateTransition scrollAnimation;
 
+    /**
+     * Inizializza i componenti grafici della vista FXML.
+     * Configura la maschera rettangolare di clipping legandola reattivamente alle dimensioni del pannello,
+     * registra i listener per l'avvio sicuro dell'animazione e delega il setup degli eventi da tastiera.
+     */
     @FXML
     public void initialize() {
         Rectangle clip = new Rectangle();
@@ -64,7 +76,9 @@ public class CreditsController implements IscatFxmlController {
     }
 
     /**
-     * Configura l'ascolto dei tasti per gestire l'effetto "Fast Forward"
+     * Configura i gestori degli eventi (EventHandler) della tastiera sul pannello principale.
+     * Intercetta la pressione del tasto {@link KeyCode#SPACE} per attivare l'accelerazione
+     * temporanea dei crediti e il suo rilascio per ripristinare il flusso a velocità normale.
      */
     private void setupKeyListeners() {
         // Permette al rootPane di intercettare gli eventi della tastiera
@@ -84,7 +98,8 @@ public class CreditsController implements IscatFxmlController {
     }
 
     /**
-     * Quando si entra nella vista per resettare lo stato e ricaricare i testi da zero.
+     * Predispone l'architettura grafica della vista azzerando lo stato delle animazioni attive,
+     * svuotando il contenitore dei testi e richiedendo il focus asincrono per l'intercettazione dei comandi.
      */
     public void prepareView() {
         // Ferma l'animazione precedente se ancora attiva
@@ -104,6 +119,11 @@ public class CreditsController implements IscatFxmlController {
         Platform.runLater(() -> rootPane.requestFocus());
     }
 
+    /**
+     * Effettua la lettura e il parsing sequenziale del file di testo dei crediti memorizzato nelle risorse del pacchetto.
+     * Riconosce i tag strutturali (come i titoli o i marcatori di immagini) applicando dinamicamente
+     * gli stili CSS e le spaziature corrette all'interno del contenitore.
+     */
     private void loadCreditsFromFile() {
         String filePath = "/uni/gaben/iscat/credits/credits.txt";
 
@@ -155,6 +175,12 @@ public class CreditsController implements IscatFxmlController {
         }
     }
 
+    /**
+     * Genera un contenitore orizzontale {@link HBox} per ospitare i file sprite promozionali o grafici
+     * specificati all'interno della sequenza dei crediti.
+     *
+     * @return Un'istanza preconfigurata di {@link HBox} popolata con le relative immagini caricate in memoria.
+     */
     private HBox createCreditsImagesBox() {
         HBox hbox = new HBox(24);
         hbox.setAlignment(Pos.CENTER);
@@ -187,12 +213,23 @@ public class CreditsController implements IscatFxmlController {
         return hbox;
     }
 
+    /**
+     * Verifica le condizioni geometriche minime necessarie all'avvio dell'animazione.
+     * Se i calcoli di layout sui pannelli sono pronti, delega l'avvio effettivo sul thread JavaFX.
+     */
     private void tryStartAnimation() {
         if (scrollAnimation == null && clippingPane.getHeight() > 0 && creditsContainer.getHeight() > 0) {
             Platform.runLater(this::startCreditsAnimation);
         }
     }
 
+    /**
+     * Formula l'animazione cinematografica di scorrimento applicando i princìpi fisici dello spazio e del tempo.
+     * <p>
+     * Calcola la durata esatta in secondi dividendo la distanza totale geometrica per la velocità
+     * normalizzata (moltiplicata per il rispettivo parametro lineare {@link #SPEED_FACTOR}). Al termine,
+     * programma il reindirizzamento automatico verso il menu di gioco principale.
+     */
     private void startCreditsAnimation() {
         creditsContainer.setOpacity(1);
 
@@ -217,6 +254,11 @@ public class CreditsController implements IscatFxmlController {
         scrollAnimation.play();
     }
 
+    /**
+     * Gestisce l'evento di interruzione dello scorrimento o di ritorno indietro.
+     * Arresta in modo sicuro la transizione di traslazione, azzera i listener di fine ciclo
+     * e richiama il navigatore dell'applicazione per caricare la scena del menu principale tramite dissolvenza.
+     */
     @FXML
     public void handleBack() {
         if (scrollAnimation != null) {
@@ -233,6 +275,11 @@ public class CreditsController implements IscatFxmlController {
         IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
+    /**
+     * Interfaccia di aggancio del navigatore e del controller.
+     *
+     * @param pointer Il pannello contenitore di destinazione passato dal sistema di navigazione.
+     */
     @Override
     public void setPointerToView(StackPane pointer) {
         prepareView();
