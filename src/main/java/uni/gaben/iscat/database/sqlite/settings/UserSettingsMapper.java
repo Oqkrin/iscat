@@ -5,8 +5,15 @@ import uni.gaben.iscat.model.user.UserSettings;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Mapper per convertire i record del database SQLite in oggetti di business {@link UserSettings}.
+ * Si occupa anche della normalizzazione dei valori (es. conversione dei volumi e della scala da interi a decimali).
+ */
 public class UserSettingsMapper {
 
+    /** * Mappa la riga corrente del ResultSet in un oggetto UserSettings popolato.
+     * I valori percentuali memorizzati come interi nel database vengono convertiti in decimali (0.0 - 1.0).
+     */
     public UserSettings mapResultSetToUserSettings(ResultSet rs) throws SQLException {
         double master = rs.getInt("MasterVolume") / 100.0;
         double bgm = rs.getInt("BGMVolume") / 100.0;

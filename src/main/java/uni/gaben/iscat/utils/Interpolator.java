@@ -21,8 +21,6 @@ import org.dyn4j.geometry.Vector2;
  * La classe è <b>stateless</b> e <b>thread-safe</b>, ideale per essere utilizzata all'interno
  * di game loop ad alte prestazioni.
  * </p>
- *
- * @author Gemini 3 Flash
  */
 public final class Interpolator {
 

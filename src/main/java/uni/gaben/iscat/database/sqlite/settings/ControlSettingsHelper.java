@@ -6,8 +6,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Classe di supporto per l'aggiornamento dei comandi e delle mappature dei tasti sul database SQLite.
+ */
 public class ControlSettingsHelper {
 
+    /** * Aggiorna il tasto associato a un'azione di gioco specifica per l'utente indicato.
+     * @throws IllegalArgumentException se il nome della colonna non supera la whitelist di sicurezza.
+     */
     public void updateControl(int userId, String columnName, String newKey) {
         if (!isValidControlColumn(columnName)) {
             throw new IllegalArgumentException("Nome colonna non valido o non autorizzato: " + columnName);
@@ -25,6 +31,7 @@ public class ControlSettingsHelper {
         }
     }
 
+    /** Verifica la validità della colonna dei comandi tramite espressione regolare per prevenire SQL Injection. */
     private boolean isValidControlColumn(String column) {
         return column != null && column.matches("(?i)WalkUp|WalkDown|WalkLeft|WalkRight|Dash1|Dash2|Attack|PauseGame");
     }

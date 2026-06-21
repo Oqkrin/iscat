@@ -12,11 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementazione SQLite del DAO per la gestione dello score.
+ * Salva i record dei giocatori sulla tabella 'UserScore' e gestisce le transazioni di reset.
+ */
 public class SQLiteScoreDAO implements ScoreDAO {
 
     public SQLiteScoreDAO() {
     }
 
+    /** Inserisce un record vuoto per l'utente se non è già presente nella tabella. */
     @Override
     public void createIfNotExists(int userId) {
         String sql = "INSERT OR IGNORE INTO UserScore (UserID) VALUES (?)";
@@ -28,6 +33,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
         }
     }
 
+    /** Carica tutte le statistiche di un utente mappandole nel rispettivo modello. */
     @Override
     public Optional<ScoreModel> load(int userId) {
         String sql = "SELECT * FROM UserScore WHERE UserID = ?";
@@ -57,6 +63,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
         return Optional.empty();
     }
 
+    /** Aggiorna il valore di una colonna specifica previa validazione tramite whitelist. */
     @Override
     public void update(int userId, String column, int value) {
         if (!isValidColumn(column)) {
@@ -73,6 +80,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
         }
     }
 
+    /** Incrementa il valore di una colonna specifica salvaguardando la query da SQL Injection. */
     @Override
     public void increment(int userId, String column, int amount) {
         if (!isValidColumn(column)) {
@@ -89,6 +97,8 @@ public class SQLiteScoreDAO implements ScoreDAO {
         }
     }
 
+    /** * Ripristina a zero le statistiche e svuota il bestiario dell'utente in una singola transazione ACID.
+     */
     @Override
     public void reset(int userId) {
         String updateScoreSql = """
@@ -133,6 +143,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
         }
     }
 
+    /** Recupera l'elenco completo di tutti i punteggi combinando i dati con la tabella utenti. */
     @Override
     public List<UserScoreEntry> getAllScores() {
         List<UserScoreEntry> scores = new ArrayList<>();
@@ -159,6 +170,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
         return scores;
     }
 
+    /** Recupera i migliori punteggi limitando i risultati al valore specificato. */
     @Override
     public List<UserScoreEntry> getTopScores(int limit) {
         List<UserScoreEntry> scores = new ArrayList<>();
@@ -187,6 +199,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
         return scores;
     }
 
+    /** Controlla la validità dei nomi delle colonne tramite espressione regolare per evitare attacchi injection. */
     private boolean isValidColumn(String column) {
         return column != null && column.matches("(?i)Score|TotalKills|Deaths|TotalDamageDealt|TotalDamageReceived|BestTime|BoostCollected|LongestTime|TimesPlayed|TimesLogged");
     }
