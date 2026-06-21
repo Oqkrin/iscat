@@ -60,7 +60,7 @@
             </VBox>
 
             <!-- Right panel: info card -->
-            <fx:include fx:id="infoCard" rotate="0.5" source="components/EntityInfoCard.fxml" GridPane.columnIndex="1" GridPane.vgrow="NEVER" HBox.hgrow="ALWAYS" />
+            <fx:include fx:id="infoCard" rotate="0.5" source="components/InfoCard.fxml" GridPane.columnIndex="1" GridPane.vgrow="NEVER" HBox.hgrow="ALWAYS" />
         </GridPane>
         <Region minHeight="56.0" prefHeight="56.0" VBox.vgrow="NEVER" />
     </VBox>

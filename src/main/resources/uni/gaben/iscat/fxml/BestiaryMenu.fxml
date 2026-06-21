@@ -48,7 +48,7 @@
                   </padding>
                </Button>
    
-                   <fx:include fx:id="infoCard" source="components/EntityInfoCard.fxml" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+                   <fx:include fx:id="infoCard" source="components/InfoCard.fxml" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
 
                     <Region VBox.vgrow="ALWAYS" />
                 </VBox>
