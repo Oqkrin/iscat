@@ -14,7 +14,7 @@ import uni.gaben.iscat.universe.effects.Starfield;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.parsed.EntityModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
+import uni.gaben.iscat.universe.entities.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
 import uni.gaben.iscat.utils.audio.AudioManager;
 import uni.gaben.iscat.utils.EntityAudioManager;

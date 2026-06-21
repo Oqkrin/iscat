@@ -7,19 +7,44 @@ import uni.gaben.iscat.universe.camera.CameraModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.target.Predictor;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
-
 import java.util.List;
 
+/**
+ * Interfaccia funzionale per la definizione e il calcolo dei vettori di guida IA (Steering Goals).
+ * <p>
+ * Implementa i comportamenti di guida di Craig Reynolds (Pursuit, Evade, Range Keeping). I metodi generano
+ * un vettore di accelerazione (forza di sterzata) risolvendo l'equazione fondamentale:
+ * </p>
+ * $$\text{SteeringForce} = \text{DesiredVelocity} - \text{CurrentVelocity}$$
+ */
 @FunctionalInterface
 public interface SteeringGoal {
 
+    /**
+     * Calcola la forza o la velocità desiderata per guidare cinematicamente l'entità nel frame corrente.
+     *
+     * @param self     L'entità fisica che deve applicare la forza di steering.
+     * @param universe Il modello dell'universo per tracciare le coordinate e le telecamere.
+     * @param dt       Il delta time del frame corrente.
+     * @return Il vettore di forza/accelerazione di sterzata risultante.
+     */
     Vector2 computeDesiredVelocity(AbstractPhysicalEntityModel self, UniverseModel universe, double dt);
 
+    /**
+     * @return Un comportamento di quiete che restituisce un vettore nullo (nessuna forza applicata).
+     */
     static SteeringGoal idle() {
         Vector2 idleVelocity = UU.vector2zero();
         return (_, _, _) -> idleVelocity;
     }
 
+    /**
+     * Inseguimento predittivo (Pursuit). Intercetta un bersaglio mobile calcolando la sua posizione
+     * futura stimata (look-ahead) basandosi sulle velocità correnti delle due entità.
+     *
+     * @param target            Il fornitore del bersaglio da inseguire.
+     * @param maxPredictionTime Limite superiore in secondi per l'estrapolazione della traiettoria futuribile.
+     */
     static SteeringGoal pursuit(Target target, double maxPredictionTime) {
         Vector2 pursuitVelocity = UU.vector2zero();
         Vector2 pursuitPos = UU.vector2zero();
@@ -46,8 +71,8 @@ public interface SteeringGoal {
             pursuitVelocity.set(pursuitPos).subtract(selfPos);
 
             if (!pursuitVelocity.isZero()) {
-                pursuitVelocity.setMagnitude(self.getTerminalVelocity()); // Desired Velocity
-                pursuitVelocity.subtract(self.getLinearVelocity());  // Convert to Force
+                pursuitVelocity.setMagnitude(self.getTerminalVelocity());
+                pursuitVelocity.subtract(self.getLinearVelocity());
 
                 if (!pursuitVelocity.isZero()) {
                     pursuitVelocity.setMagnitude(self.getAcceleration());
@@ -58,6 +83,13 @@ public interface SteeringGoal {
         };
     }
 
+    /**
+     * Evasione predittiva (Evade). Si allontana in modo proattivo da un bersaglio mobile proiettando
+     * la traiettoria di fuga in base al punto di intercettazione stimato.
+     *
+     * @param target            La minaccia da cui fuggire.
+     * @param maxPredictionTime Limite superiore in secondi per l'estrapolazione della traiettoria.
+     */
     static SteeringGoal evade(Target target, double maxPredictionTime) {
         Vector2 evadeVelocity = UU.vector2zero();
         Vector2 predictedPos = UU.vector2zero();
@@ -94,6 +126,12 @@ public interface SteeringGoal {
         };
     }
 
+    /**
+     * Inseguimento proporzionale con mantenimento della distanza (Pursuit with Range).
+     * Mantiene l'entità all'interno di un intervallo di ingaggio ideale (min/max). Integra un sistema di controllo
+     * proporzionale (gain) e un vincolo di clipping per evitare che l'entità indietreggi fuori dalla viewport della telecamera.
+     * Inoltre, effettua il "velocity matching" quando si trova alla distanza corretta per scortare fluidamente il bersaglio.
+     */
     static SteeringGoal pursuitWithRange(Target target, double maxPredictionTime,
                                          double minDistance, double maxDistance) {
         Vector2 desiredVelocity = UU.vector2zero();
@@ -118,18 +156,17 @@ public interface SteeringGoal {
 
             Predictor.extrapolate(target, universe, lookAheadTime, predictedPos);
 
-            // Vector from self to predicted target
             desiredVelocity.set(predictedPos).subtract(selfPos);
             double distance = desiredVelocity.getMagnitude();
             double idealDistance = (minDistance + maxDistance) * 0.5;
 
-            // Clamp ideal distance to camera view so they don't back away out of bounds
+            // Vincolo restrittivo dello spazio di manovra basato sui confini reali della telecamera (Viewport Bounding)
             CameraModel camera = universe.getCamera();
             if (camera != null) {
                 double zoom = camera.getZoom();
                 double halfVW = UU.pxToM((camera.getScreenWidth() / 2.0) / zoom);
                 double halfVH = UU.pxToM((camera.getScreenHeight() / 2.0) / zoom);
-                double minScreenDim = Math.min(halfVW, halfVH) - UU.pxToM(50.0); // 50px margin
+                double minScreenDim = Math.min(halfVW, halfVH) - UU.pxToM(50.0);
                 if (idealDistance > minScreenDim && minScreenDim > 0) {
                     idealDistance = minScreenDim;
                 }
@@ -137,49 +174,51 @@ public interface SteeringGoal {
 
             double error = distance - idealDistance;
 
-            // Desired speed: proportional to error, clamped between ±terminalVelocity
-            double gain = 3.0;   // stiffness – higher = tighter
-            double rawSpeed = gain * error;
+            double gain = 3.0;
             double desiredSpeed;
             if (error > 0) {
-                // moving towards – keep full authority
                 desiredSpeed = Math.clamp(gain * error, 0, self.getTerminalVelocity());
             } else {
-                // moving away – damp heavily
-                double backSpeed = 0.4 * self.getTerminalVelocity();
+                double backSpeed = 0.4 * self.getTerminalVelocity(); // Smorzamento pesante in retromarcia
                 desiredSpeed = Math.clamp(gain * error, -backSpeed, 0);
             }
-            // Direction: towards/away from predicted target
+
             if (distance > 0.0001) {
                 desiredVelocity.normalize();
             } else {
-                // If right on top, pick a safe direction (e.g., target's velocity or a random)
                 desiredVelocity.set(entity.getLinearVelocity());
                 if (desiredVelocity.isZero()) desiredVelocity.set(1, 0);
             }
-            double deadZone = 0.5; // meters
+
+            // Attivazione della dead-zone metrica per prevenire oscillazioni o vibrazioni microscopiche
+            double deadZone = 0.5;
             if (Math.abs(error) < deadZone) {
                 return desiredVelocity.set(0, 0);
             }
             desiredVelocity.multiply(desiredSpeed);
 
-            // Add the target's velocity to seamlessly follow when distance is ideal
-            // (scale it so that when error=0 we fully match the target's movement)
+            // Sincronizzazione vettoriale (Velocity Matching) basata sul coefficiente d'errore residuo
             double followFactor = 1.0 - Math.abs(error) / (maxDistance - minDistance + 0.0001);
             followFactor = Math.clamp(followFactor, 0.0, 1.0);
             desiredVelocity.add(entity.getLinearVelocity().copy().multiply(followFactor));
 
-            // Steering = desired velocity – current velocity
             desiredVelocity.subtract(self.getLinearVelocity());
 
             if (!desiredVelocity.isZero()) {
-                desiredVelocity.setMagnitude(self.getAcceleration()); // Clamp acceleration
+                desiredVelocity.setMagnitude(self.getAcceleration());
             }
 
             return desiredVelocity;
         };
     }
 
+    /**
+     * Evasione limitata da una soglia di guardia (Evade with Range).
+     * Applica la fuga predittiva standard solo se il bersaglio scende al di sotto della distanza di sicurezza configurata.
+     * Se l'entità è in zona sicura, neutralizza le forze di sterzata allineandosi alla velocità del target.
+     *
+     * @param safetyDistance Raggio limite della bolla di sicurezza entro cui si innesca la fuga accelerata.
+     */
     static SteeringGoal evadeWithRange(Target target, double maxPredictionTime, double safetyDistance) {
         Vector2 desiredVelocity = UU.vector2zero();
         Vector2 predictedPos = UU.vector2zero();
@@ -211,7 +250,7 @@ public interface SteeringGoal {
                     desiredVelocity.set(1, 0).setMagnitude(self.getTerminalVelocity());
                 }
             } else {
-                desiredVelocity.set(entity.getLinearVelocity()); // Neutralize force
+                desiredVelocity.set(entity.getLinearVelocity()); // Zona sicura: neutralizza le forze esterne
             }
 
             desiredVelocity.subtract(self.getLinearVelocity());

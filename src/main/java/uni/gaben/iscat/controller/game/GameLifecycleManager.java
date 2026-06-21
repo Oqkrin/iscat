@@ -3,7 +3,7 @@ package uni.gaben.iscat.controller.game;
 import uni.gaben.iscat.model.game.GameModel;
 import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.camera.CameraModel;
-import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidMazeGenerator;
+import uni.gaben.iscat.universe.entities.asteroids.AsteroidMazeGenerator;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
 import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.SessionScoreTracker;

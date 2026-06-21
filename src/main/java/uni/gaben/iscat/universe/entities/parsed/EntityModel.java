@@ -10,7 +10,7 @@ import uni.gaben.iscat.universe.UniverseCollisionLayers;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.EntityState;
 import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
-import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidShapeFactory;
+import uni.gaben.iscat.universe.entities.asteroids.AsteroidShapeFactory;
 import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entities.interfaces.HasSprite;
 import uni.gaben.iscat.utils.EntityAudioManager;
@@ -228,7 +228,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
     @Override public String getSpritePath() { return entity.spritePath(); }
     @Override public int getSpriteFrameWidth() { return entity.frameW(); }
     @Override public int getSpriteFrameHeight() { return entity.frameH(); }
-    @Override public double getVisualScale() { return entity.scale(); }
     @Override public double getVisualAngularOffsetDeg() { return entity.angularOffsetDeg(); }
 
     @Override
@@ -239,8 +238,6 @@ public class EntityModel extends AbstractLivingEntityModel implements HasSprite,
         }
         return UU.UNIVERSE_TICK * 6;
     }
-
-    @Override public double getFrameDuration(int state, int frame) { return getFrameDuration(); }
 
     @Override
     public boolean isInalterable() {

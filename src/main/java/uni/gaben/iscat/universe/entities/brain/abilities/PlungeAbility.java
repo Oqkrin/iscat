@@ -8,10 +8,18 @@ import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.brain.target.Predictor;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.utils.Cooldown;
-
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Abilità di IA per l'affondo cinematico e lo scatto predittivo verso un bersaglio (Plunge Ability).
+ * <p>
+ * Interroga il sistema di tracciamento per calcolare il tempo ottimale di inseguimento (Pursuit Time)
+ * attraverso i metodi matriciali della classe {@link Predictor}. Estrapola la posizione futura stimata
+ * del target entro una finestra temporale massima, calcola il vettore direzionale d'intercettazione e applica
+ * un forte impulso fisico lineare azzerando temporaneamente l'attrito (damping) del corpo rigido.
+ * </p>
+ */
 public class PlungeAbility extends Ability {
 
     private final Cooldown plungeCooldown;
@@ -20,14 +28,16 @@ public class PlungeAbility extends Ability {
     private final double maxPredictionTime;
     private final double plungeImpulse;
 
-    private Vector2 plungeDirection = new Vector2();
+    private final Vector2 plungeDirection = new Vector2();
 
     /**
-     * @param cooldownSec        seconds before plunge can be used again
-     * @param durationSec        seconds the plunge movement lasts
-     * @param maxPredictionTime  seconds to look ahead for target prediction (used by Predictor)
-     * @param impulse            impulse strength applied to the entity
-     * @param target             target to plunge toward (usually the player)
+     * Inizializza l'abilità di affondo direzionale configurando le metriche di calcolo predittivo.
+     *
+     * @param cooldownSec       Secondi di attesa richiesti prima che l'affondo possa essere riutilizzato.
+     * @param durationSec       Durata temporale espressa in secondi dell'effetto di accelerazione dello scatto.
+     * @param maxPredictionTime Orizzonte temporale massimo in secondi per la proiezione della traiettoria del target.
+     * @param impulse           Magnitudo dell'impulso di spinta applicato istantaneamente al corpo rigido.
+     * @param target            Il fornitore del bersaglio verso cui indirizzare l'attacco (solitamente il giocatore).
      */
     public PlungeAbility(AbstractPhysicalEntityModel entity,
                          double cooldownSec,
@@ -44,18 +54,23 @@ public class PlungeAbility extends Ability {
         plungeCooldown.start();
     }
 
+    /**
+     * Verifica la disponibilità dell'azione convalidando lo stato dei timer di ricarica e di esecuzione corrente.
+     */
     @Override
     public boolean canActivate(AbstractPhysicalEntityModel self, UniverseModel world, double dt) {
         if (plungeCooldown.isCoolingDown()) return false;
-        if (plungeDuration.isCoolingDown()) return false;
-        return true;
+        return !plungeDuration.isCoolingDown();
     }
 
+    /**
+     * Attiva l'azione di affondo. Incrementa la velocità limite dell'entità, calcola il tempo di intercettazione
+     * tramite matrici cinematiche, estrapola le coordinate future del bersaglio ed immette l'impulso fisico nel motore.
+     */
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
-
         AbstractPhysicalEntityModel self = brain.getEntity();
-        self.setTemporaryTerminalVelocity(self.getTerminalVelocity()*3);
+        self.setTemporaryTerminalVelocity(self.getTerminalVelocity() * 3);
         self.setDashLinearDamping(0);
 
         List<? extends AbstractPhysicalEntityModel> targets = plungeTarget.getEntities(world);
@@ -65,7 +80,7 @@ public class PlungeAbility extends Ability {
         Vector2 selfPos = self.getTransform().getTranslation();
         Vector2 targetPos = targetEntity.getTransform().getTranslation();
 
-        // Calculate pursuit time using Predictor's matrix method
+        // --- Calcolo Matrimoniale/Cinematico del Tempo di Intercettazione (Pursuit Time) ---
         double currentSpeed = self.getLinearVelocity().getMagnitude();
         double maxVel = self.getTerminalVelocity();
         double pursuitTime = Predictor.calculatePursuitTime(
@@ -76,25 +91,29 @@ public class PlungeAbility extends Ability {
                 currentSpeed,
                 maxVel
         );
-        // Clamp to max prediction time
+
+        // Troncamento del tempo calcolato entro la soglia di stabilità dell'orizzonte predittivo
         double lookAhead = Math.min(pursuitTime, maxPredictionTime);
 
-        // Predict target position at lookAhead time
+        // Estrapolazione lineare della posizione del target al tempo normalizzato (t = lookAhead)
         Vector2 predictedPos = UU.vector2zero();
         Predictor.extrapolate(plungeTarget, world, lookAhead, predictedPos);
 
-        // Compute direction and apply impulse
+        // Elaborazione del vettore d'attacco ed applicazione dell'impulso sul baricentro
         plungeDirection.set(predictedPos).subtract(selfPos).normalize();
         self.applyImpulse(plungeDirection.multiply(plungeImpulse));
 
-        // Start cooldowns
         plungeDuration.start();
         plungeCooldown.start();
     }
 
+    /**
+     * Monitora la progressione dello scatto. All'esaurimento della finestra di attività dell'abilità,
+     * ripristina i parametri standard di attrito dinamico (linear damping) e velocità massima (terminal velocity).
+     * * @return {@code true} se la fase di affondo è tuttora in corso, altrimenti {@code false}.
+     */
     @Override
     public boolean progressActivation(Brain<?> brain, UniverseModel world, double dt) {
-
         if (plungeDuration.isReady()) {
             brain.getEntity().restoreLinearDamping();
             brain.getEntity().restoreTerminalVelocity();
@@ -102,12 +121,15 @@ public class PlungeAbility extends Ability {
         return plungeDuration.isCoolingDown();
     }
 
+    /**
+     * Routine di update dedicata al decremento e all'avanzamento dei clock temporali di cooldown e durata dello scatto.
+     */
     @Override
     public void update(Brain<?> brain, UniverseModel world, double dt) {
-        if(plungeCooldown.isCoolingDown()) {
+        if (plungeCooldown.isCoolingDown()) {
             plungeCooldown.update(dt);
         }
-        if(plungeDuration.isCoolingDown()) {
+        if (plungeDuration.isCoolingDown()) {
             plungeDuration.update(dt);
         }
     }

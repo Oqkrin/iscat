@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities.hardcoded.projectiles;
+package uni.gaben.iscat.universe.entities.projectiles;
 
 import java.util.ArrayDeque;
 

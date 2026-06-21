@@ -11,7 +11,7 @@ import org.dyn4j.geometry.Vector2;
 
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
-import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
+import uni.gaben.iscat.universe.entities.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.*;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;
 import uni.gaben.iscat.universe.effects.Thrust;
@@ -377,18 +377,8 @@ public class PlayerModel extends AbstractLivingEntityModel
     }
 
     @Override
-    public double getExperience() {
-        return xp.get();
-    }
-
-    @Override
     public void setExperience(double experience) {
         xp.set(experience);
-    }
-
-    @Override
-    public double getNeededXpFor(int level) {
-        return xpNeeded;
     }
 
     @Override
@@ -442,10 +432,6 @@ public class PlayerModel extends AbstractLivingEntityModel
         return data.frameH();
     }
 
-    @Override
-    public double getVisualScale() {
-        return data.scale();
-    }
 
     @Override
     public double getVisualAngularOffsetDeg() {
@@ -454,11 +440,6 @@ public class PlayerModel extends AbstractLivingEntityModel
 
     @Override
     public double getFrameDuration() {
-        return UU.UNIVERSE_TICK * 6;
-    }
-
-    @Override
-    public double getFrameDuration(int state, int frame) {
         return UU.UNIVERSE_TICK * 6;
     }
 

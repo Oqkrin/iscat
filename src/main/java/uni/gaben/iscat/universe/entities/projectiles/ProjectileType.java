@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities.hardcoded.projectiles;
+package uni.gaben.iscat.universe.entities.projectiles;
 
 import javafx.scene.paint.Color;
 import org.dyn4j.collision.CategoryFilter;
