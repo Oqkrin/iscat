@@ -18,21 +18,35 @@ import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 
+/**
+ * Controller principale per il menu delle impostazioni globali (Settings) di ISCAT.
+ * Gestisce l'interfaccia a schede (tab) per la configurazione di audio, video, controlli, temi e account.
+ * coordina i relativi sotto-controller iniettati da FXML e intercetta in modo centralizzato gli eventi
+ * di input (tastiera/mouse) per la riassegnazione dinamica dei tasti di gioco (keybinding).
+ */
 public class SettingsMenuController implements IscatMenuController {
 
+    // ------------------------------------------------------------------------
+    // Elementi FXML - Layout & Contenitori Tab
+    // ------------------------------------------------------------------------
     @FXML private VBox paneMaster;
-
     @FXML private VBox tabMainSettings;
     @FXML private VBox tabControls;
     @FXML private VBox tabTheme;
     @FXML private VBox tabAccount;
 
+    // ------------------------------------------------------------------------
+    // Elementi FXML - Controlli & Pulsanti di Navigazione
+    // ------------------------------------------------------------------------
     @FXML private Button mainSettingsButton;
     @FXML private Button controlsButton;
     @FXML private Button themeButton;
     @FXML private Button accountButton;
     @FXML private Button exitBtn;
 
+    // ------------------------------------------------------------------------
+    // Elementi FXML - Sotto-Controller Iniettati (Nested Controllers)
+    // ------------------------------------------------------------------------
     @FXML private DisplaySettingsController subDisplayController;
     @FXML private AudioSettingsController subAudioController;
     @FXML private ThemeSettingsController subThemeController;
@@ -41,9 +55,18 @@ public class SettingsMenuController implements IscatMenuController {
     @FXML private StackPane confirmOverlay;
     @FXML private ConfirmationOverlayController confirmOverlayController;
 
+    /** Callback per sovrascrivere l'azione di ritorno standard (es. per riprendere la partita se aperto in-game). */
     private Runnable customBackAction = null;
+
+    /** Riferimento al contenitore radice dello stack di visualizzazione corrente. */
     private StackPane contentRoot;
 
+    /**
+     * Inizializza il ciclo di vita del controller grafico.
+     * Configura la veste grafica dei pulsanti, inietta il controller di overlay per i pop-up di conferma
+     * all'interno dei moduli secondari, registra gli event filter globali per la cattura a basso livello
+     * degli input (necessari alla riconfigurazione dei controlli) e sincronizza le proprietà audio/video.
+     */
     @FXML
     public void initialize() {
         setupButtons();
@@ -57,6 +80,7 @@ public class SettingsMenuController implements IscatMenuController {
             exitBtn.setGraphicTextGap(IscatSettings.STANDARD_UNIT);
         }
 
+        // Iniezione e concatenazione dei controller di overlay e layout padre
         if (subDisplayController != null) subDisplayController.setConfirmOverlayController(confirmOverlayController);
         if (subThemeController != null) subThemeController.injectParentPane(paneMaster);
         if (subAccountController != null) subAccountController.setConfirmOverlayController(confirmOverlayController);
@@ -65,8 +89,10 @@ public class SettingsMenuController implements IscatMenuController {
         registerEscHandler();
         syncAllProperties();
 
+        // Visualizza la tab principale come predefinita all'avvio
         switchTab(tabMainSettings);
 
+        // Configura i filtri degli eventi della scena per intercettare gli input durante la riassegnazione tasti
         getRootPane().sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -88,6 +114,7 @@ public class SettingsMenuController implements IscatMenuController {
         });
     }
 
+    /** Popola e formatta i pulsanti di macro-categoria con le rispettive icone della libreria Ikonli. */
     private void setupButtons() {
         setSquareButton(mainSettingsButton, "fas-sliders-h", "SETTINGS");
         setSquareButton(controlsButton,     "fas-keyboard",  "CONTROLS");
@@ -95,16 +122,16 @@ public class SettingsMenuController implements IscatMenuController {
         setSquareButton(accountButton,      "fas-user-cog",  "ACCOUNT");
     }
 
+    /** Configura un pulsante in formato griglia quadrata posizionando l'icona sopra al testo. */
     private void setSquareButton(Button btn, String iconCode, String labelText) {
         if (btn == null) return;
 
         FontIcon icon = new FontIcon(iconCode);
-        icon.setIconSize((int) (IscatSettings.STANDARD_UNIT*2));
+        icon.setIconSize((int) (IscatSettings.STANDARD_UNIT * 2));
         icon.getStyleClass().add("button-icon");
 
         btn.setText(labelText);
         btn.setGraphic(icon);
-
         btn.setContentDisplay(ContentDisplay.TOP);
         btn.setGraphicTextGap(IscatSettings.STANDARD_UNIT);
     }
@@ -114,6 +141,10 @@ public class SettingsMenuController implements IscatMenuController {
     @FXML private void showTheme()        { switchTab(tabTheme);        }
     @FXML private void showAccount()      { switchTab(tabAccount);      }
 
+    /**
+     * Alterna la visibilità dei pannelli VBox simulando il comportamento di navigazione a schede.
+     * Pulisce inoltre gli stati pendenti di selezione del keybinding qualora si esca dalla scheda controlli.
+     */
     private void switchTab(VBox activeTab) {
         tabMainSettings.setVisible(tabMainSettings == activeTab);
         tabControls.setVisible(tabControls == activeTab);
@@ -125,6 +156,10 @@ public class SettingsMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Sincronizza i componenti grafici del menu con lo stato corrente delle preferenze utente,
+     * rilegando i volumi audio ed estraendo le proprietà geometriche della finestra dello {@link Stage}.
+     */
     public void syncAllProperties() {
         if (subAudioController != null) subAudioController.bindAudioProperties();
         if (subDisplayController != null && getRootPane().getScene() != null) {
@@ -138,6 +173,11 @@ public class SettingsMenuController implements IscatMenuController {
 
     @Override public Pane getRootPane() { return paneMaster; }
 
+    /**
+     * Gestisce la logica di annullamento e chiusura del menu dei settaggi.
+     * Valuta gerarchicamente se chiudere un overlay di conferma attivo, se deselezionare
+     * un tasto in fase di riassegnazione o se avviare la transizione di navigazione verso il menu principale.
+     */
     @Override
     public void handleBack() {
         if (confirmOverlay != null && confirmOverlay.isVisible()) {
@@ -156,7 +196,10 @@ public class SettingsMenuController implements IscatMenuController {
     }
 
     /**
-     * Inizializza il contesto quando i settaggi vengono aperti a partita in corso.
+     * Inizializza il contesto interattivo qualora la schermata delle impostazioni venga invocata
+     * in modalità overlay a partita in corso, sincronizzando i flag di debug e FPS con il loop attivo.
+     *
+     * @param gameController Il controller del modulo di gioco principale.
      */
     public void initGameContext(uni.gaben.iscat.controller.game.GameController gameController) {
         if (gameController == null || subDisplayController == null) return;
@@ -175,6 +218,9 @@ public class SettingsMenuController implements IscatMenuController {
     }
 
     @FXML void handleBackAction(ActionEvent event) { handleBack(); }
+
+    /** @param customBackAction La routine personalizzata da avviare alla pressione del tasto di uscita. */
     public void setCustomBackAction(Runnable customBackAction) { this.customBackAction = customBackAction; }
+
     @Override public void setPointerToView(StackPane pointer) { this.contentRoot = pointer; }
 }

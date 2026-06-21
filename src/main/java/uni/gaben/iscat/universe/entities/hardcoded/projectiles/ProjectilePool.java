@@ -1,66 +1,70 @@
 package uni.gaben.iscat.universe.entities.hardcoded.projectiles;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayDeque;
 
-public class ProjectilePool {
-    private static final ConcurrentLinkedQueue<ProjectileModel> pool = new ConcurrentLinkedQueue<>();
-    private static final AtomicInteger poolSize = new AtomicInteger(0);
+/**
+ * Pool statica di proiettili ottimizzata per il thread singolo di JavaFX.
+ * Riduce a zero le allocazioni di memoria riutilizzando le istanze dei proiettili dismessi.
+ */
+public final class ProjectilePool {
 
-    private static final ConcurrentLinkedQueue<StunThreadProjectileModel> stunPool = new ConcurrentLinkedQueue<>();
-    private static final AtomicInteger stunPoolSize = new AtomicInteger(0);
+    private static final ArrayDeque<ProjectileModel> pool         = new ArrayDeque<>(256);
+    private static final ArrayDeque<StunThreadProjectileModel> stunPool = new ArrayDeque<>(64);
+
+    private static final int MAX_POOL_SIZE      = 5000;
     private static final int MAX_STUN_POOL_SIZE = 500;
 
+    private ProjectilePool() {}
+
+    /**
+     * Recupera un proiettile pronto dall'apposita pool in base al tipo richiesto.
+     */
     public static ProjectileModel acquire(ProjectileType type) {
         if (type == ProjectileType.STUN_BULLET) {
-            return acquireStun(type);
+            StunThreadProjectileModel p = stunPool.pollLast();
+            if (p == null) {
+                p = new StunThreadProjectileModel();
+            } else {
+                p.reset(type);
+            }
+            return p;
         }
-        return acquireGeneric(type);
-    }
 
-    private static ProjectileModel acquireGeneric(ProjectileType type) {
-        ProjectileModel p = pool.poll();
+        ProjectileModel p = pool.pollLast();
         if (p == null) {
             p = new ProjectileModel(type);
         } else {
-            poolSize.decrementAndGet();
             p.reset(type);
         }
         return p;
     }
 
-    private static StunThreadProjectileModel acquireStun(ProjectileType type) {
-        StunThreadProjectileModel p = stunPool.poll();
-        if (p == null) {
-            p = new StunThreadProjectileModel();
-        } else {
-            stunPoolSize.decrementAndGet();
-            p.reset(type);
-        }
-        return p;
-    }
-
+    /**
+     * Rilascia un proiettile generico nella pool.
+     * Sfrutta l'overloading per evitare controlli di tipo (instanceof) a runtime.
+     */
     public static void release(ProjectileModel p) {
+        // Se a runtime viene passato l'esatto sottotipo Stun, la JVM userà l'overload specifico.
+        // Questo controllo fa da salvagente se viene passato come tipo base.
         if (p instanceof StunThreadProjectileModel stun) {
-            releaseStun(stun);
-        } else {
-            releaseGeneric(p);
+            release(stun);
+            return;
+        }
+
+        if (!p.isInPool() && pool.size() < MAX_POOL_SIZE) {
+            p.setInPool(true);
+            pool.addLast(p);
         }
     }
 
-    private static void releaseGeneric(ProjectileModel p) {
-        if (!p.isInPool() && poolSize.get() < 5000) {
+    /**
+     * Rilascia un proiettile di tipo Stun nella rispettiva pool dedicata.
+     * Risolto a tempo di compilazione tramite Overloading per le massime prestazioni.
+     */
+    public static void release(StunThreadProjectileModel p) {
+        if (!p.isInPool() && stunPool.size() < MAX_STUN_POOL_SIZE) {
             p.setInPool(true);
-            pool.offer(p);
-            poolSize.incrementAndGet();
-        }
-    }
-
-    private static void releaseStun(StunThreadProjectileModel p) {
-        if (!p.isInPool() && stunPoolSize.get() < MAX_STUN_POOL_SIZE) {
-            p.setInPool(true);
-            stunPool.offer(p);
-            stunPoolSize.incrementAndGet();
+            stunPool.addLast(p);
         }
     }
 }

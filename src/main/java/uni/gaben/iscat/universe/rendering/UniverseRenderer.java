@@ -74,6 +74,8 @@ public class UniverseRenderer {
         // Fase di Batching (Raccolta elementi geometrici e sprite)
         layers.begin(gc, camera, w, h);
 
+        EntityRenderer.beginFrame(camera.getZoom());
+
         entitySnapshotBuffer.clear();
         entitySnapshotBuffer.addAll(universe.getEntities());
 

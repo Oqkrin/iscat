@@ -23,17 +23,20 @@ import uni.gaben.iscat.universe.entities.player.PlayerController;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.spawn.UniverseSpawnable;
 import uni.gaben.iscat.universe.spawn.UniverseSpawner;
-import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.utils.EntityAudioManager;
 import uni.gaben.iscat.utils.SessionScoreTracker;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 
 /**
- * Master controller for the game universe.
+ * Controller principale dell'universo di gioco.
+ * Gestisce il loop di aggiornamento di fisica, intelligenza artificiale, proiettili,
+ * pulizia delle entità morte e aggiornamento della telecamera.
+ * Ottimizzato per performance estreme tramite assenza di allocazioni dinamiche nel tick.
  */
 public class UniverseController {
 
@@ -44,6 +47,20 @@ public class UniverseController {
 
     private EntityDeathListener entityDeathListener;
 
+    // ── Buffer pre-allocati per eliminare la Garbage Collection nel Game Loop ──
+    private final List<AbstractPhysicalEntityModel> entitySnapshot    = new ArrayList<>(256);
+    private final List<AbstractPhysicalEntityModel> toRemoveBuffer    = new ArrayList<>(64);
+    private final Set<AbstractPhysicalEntityModel>  toRemoveSet       = new HashSet<>(64);
+    private final List<IEntityController>           aiSnapshot        = new ArrayList<>(64);
+    private final List<AbstractPhysicalProjectileModel> projSnapshot  = new ArrayList<>(512);
+
+    private double lastPlayerHealth = -1.0;
+
+    /**
+     * Inizializza il controller dell'universo associandovi il relativo modello.
+     *
+     * @param universeModel Il modello dell'universo.
+     */
     public UniverseController(UniverseModel universeModel) {
         this.universeModel    = universeModel;
         this.playerController = new PlayerController(universeModel.getPlayer());
@@ -53,124 +70,132 @@ public class UniverseController {
         this.entityDeathListener = listener;
     }
 
-    // -------------------------------------------------------------------------
-    // Main tick
-    // -------------------------------------------------------------------------
-
+    /**
+     * Esegue il tick di aggiornamento principale del mondo di gioco.
+     *
+     * @param dt     Tempo trascorso dall'ultimo frame (Delta Time).
+     * @param inputs Gestore degli input di gioco.
+     * @param camera Il modello della telecamera.
+     */
     public void updatev(double dt, GameInputsHandler inputs, CameraModel camera) {
         PlayerModel player = universeModel.getPlayer();
         if (player == null || player.shouldRemove()) return;
 
         syncPlayerController(player);
         processPlayerInputs(player, inputs, camera, dt);
-        updateEntities(dt);
-        updateAI(dt);
 
-        // Applica i limiti fisici prima di avanzare con lo step del motore di dyn4j
-        applyTerminalVelocityLimits();
-        applyCircularBoundaries();
+        // Loop unico ottimizzato per la fisica e la logica dei corpi
+        processPhysicalBodies(dt);
+
+        updateAI(dt);
 
         universeModel.stepPhysics(dt);
         universeModel.updateSparks(dt);
-        updateProjectiles(camera, dt);
-        processEntityCleanup(player, dt);
+        updateProjectiles(camera);
+        processEntityCleanup(player);
         updateCamera(player, camera, inputs, dt);
     }
 
-    // -------------------------------------------------------------------------
-    // Private update steps
-    // -------------------------------------------------------------------------
-
     private void syncPlayerController(PlayerModel player) {
-        if (playerController.getPlayer() != player) playerController.setPlayer(player);
+        if (playerController.getPlayer() != player) {
+            playerController.setPlayer(player);
+        }
     }
 
-    private void processPlayerInputs(PlayerModel player, GameInputsHandler inputs,
-                                     CameraModel camera, double dt) {
+    private void processPlayerInputs(PlayerModel player, GameInputsHandler inputs, CameraModel camera, double dt) {
         if (player == null) return;
         playerController.processInput(inputs, camera, dt);
     }
 
-    private void updateEntities(double dt) {
-        for (Body body : universeModel.getBodies()) {
-            if (body instanceof Updatable u) u.update(dt);
-        }
-    }
+    /**
+     * Processa tutti i corpi fisici in un unico ciclo lineare combinato.
+     * Esegue l'update, i limiti di velocità terminale e i confini dell'universo circolare.
+     */
+    private void processPhysicalBodies(double dt) {
+        double radius = universeModel.getUniverseRadius();
+        double radiusSq = radius * radius;
 
-    private void updateAI(double dt) {
-        List<IEntityController> copy = new ArrayList<>(entityControllers);
-        for (IEntityController ctrl : copy) {
-            if (ctrl instanceof Brain<?> b && b.getEntity().shouldRemove()) continue;
-            ctrl.update(universeModel, dt);
-        }
-    }
-
-    private void applyTerminalVelocityLimits() {
         for (Body body : universeModel.getBodies()) {
+            // 1. Logica interna dell'entità
+            if (body instanceof Updatable u) {
+                u.update(dt);
+            }
+
+            // 2. Limite velocità terminale (Usa magnitudo al quadrato per evitare Math.sqrt)
             if (body instanceof Dynamic entity) {
                 double maxSpeed = entity.getTerminalVelocity();
                 Vector2 vel = body.getLinearVelocity();
-                if (vel.getMagnitude() > maxSpeed) body.getLinearVelocity().setMagnitude(maxSpeed);
-            }
-        }
-    }
-
-    private void applyCircularBoundaries() {
-        double radius = universeModel.getUniverseRadius();
-        if (radius <= 0) return;
-
-        for (Body body : universeModel.getBodies()) {
-            if (body instanceof AbstractPhysicalProjectileModel || body instanceof AsteroidModel) {
-                continue;
+                double speedSq = vel.x * vel.x + vel.y * vel.y;
+                double maxSq   = maxSpeed * maxSpeed;
+                if (speedSq > maxSq) {
+                    double scale = maxSpeed / Math.sqrt(speedSq);
+                    vel.x *= scale;
+                    vel.y *= scale;
+                }
             }
 
-            Vector2 pos = body.getTransform().getTranslation();
-            double distance = pos.getMagnitude();
+            // 3. Confini dell'universo circolare (Salto proiettili ed asteroidi)
+            if (radius > 0 && !(body instanceof AbstractPhysicalProjectileModel) && !(body instanceof AsteroidModel)) {
+                Vector2 pos = body.getTransform().getTranslation();
+                double distSq = pos.x * pos.x + pos.y * pos.y;
 
-            if (distance > radius) {
-                // Calcoliamo la normale di rimbalzo/congelamento verso il centro
-                Vector2 normal = pos.getNormalized();
+                if (distSq > radiusSq) {
+                    double dist = Math.sqrt(distSq);
+                    double nx = pos.x / dist;
+                    double ny = pos.y / dist;
 
-                // Forza la posizione sul perimetro esatto del cerchio
-                body.getTransform().setTranslation(normal.x * radius, normal.y * radius);
+                    body.getTransform().setTranslation(nx * radius, ny * radius);
 
-                // Annulla o devia il vettore velocità proiettato al di fuori del bordo
-                Vector2 vel = body.getLinearVelocity();
-                double dotProduct = vel.dot(normal);
-                if (dotProduct > 0) {
-                    vel.subtract(normal.product(dotProduct));
+                    Vector2 vel = body.getLinearVelocity();
+                    double dot = vel.x * nx + vel.y * ny;
+                    if (dot > 0) {
+                        vel.x -= nx * dot;
+                        vel.y -= ny * dot;
+                    }
                 }
             }
         }
     }
 
-    private void updateProjectiles(CameraModel camera, double dt) {
+    private void updateAI(double dt) {
+        aiSnapshot.clear();
+        aiSnapshot.addAll(entityControllers);
+        for (IEntityController ctrl : aiSnapshot) {
+            if (ctrl instanceof Brain<?> b && b.getEntity().shouldRemove()) continue;
+            ctrl.update(universeModel, dt);
+        }
+    }
+
+    private void updateProjectiles(CameraModel camera) {
         double zoom   = camera.getZoom();
         double left   = camera.getViewportLeftX()  - 200.0;
         double right  = left + (camera.getScreenWidth()  / zoom) + 400.0;
         double top    = camera.getViewportTopY()   - 200.0;
         double bottom = top  + (camera.getScreenHeight() / zoom) + 400.0;
 
-        List<AbstractPhysicalProjectileModel> snapshot = new ArrayList<>(universeModel.getProjectiles());
-        for (AbstractPhysicalProjectileModel p : snapshot) {
+        projSnapshot.clear();
+        projSnapshot.addAll(universeModel.getProjectiles());
+        for (AbstractPhysicalProjectileModel p : projSnapshot) {
             if (p.shouldRemove()) continue;
             double px = UU.mToPx(p.getTransform().getTranslationX());
             double py = UU.mToPx(p.getTransform().getTranslationY());
-            if (px < left || px > right || py < top || py > bottom) p.extinguish(true);
+            if (px < left || px > right || py < top || py > bottom) {
+                p.extinguish(true);
+            }
         }
     }
 
     /**
-     * Identifica le entità morte, notifica il listener, incrementa le kill
-     * solo per nemici reali (filtraggio in {@link UniverseWaveController#incrementKills}),
-     * poi rimuove i corpi dal mondo fisico.
+     * Esegue la pulizia delle entità spente o distrutte e dei relativi controller associati.
+     * Sfrutta un Set asincrono per garantire un filtraggio dei controller in complessità O(N).
      */
-    private void processEntityCleanup(PlayerModel player, double dt) {
-        List<AbstractPhysicalEntityModel> toRemove = new ArrayList<>();
+    private void processEntityCleanup(PlayerModel player) {
+        entitySnapshot.clear();
+        entitySnapshot.addAll(universeModel.getEntities());
+        toRemoveBuffer.clear();
+        toRemoveSet.clear();
 
-        // Snapshot to avoid ConcurrentModificationException
-        List<AbstractPhysicalEntityModel> snapshot = new ArrayList<>(universeModel.getEntities());
-        for (AbstractPhysicalEntityModel entity : snapshot) {
+        for (AbstractPhysicalEntityModel entity : entitySnapshot) {
             if (entity == null) continue;
 
             boolean remove = entity.shouldRemove();
@@ -182,41 +207,46 @@ public class UniverseController {
             }
 
             if (remove) {
-                toRemove.add(entity);
+                toRemoveBuffer.add(entity);
+                toRemoveSet.add(entity); // Inserito nel Set O(1) per ottimizzare la rimozione dei controller
                 if (entity instanceof AbstractLivingEntityModel living && living != player) {
-                    // Notify external listener (e.g., for wave controller)
                     if (entityDeathListener != null) {
                         entityDeathListener.onEntityDied(entity, living.isKilledByProjectile());
                     }
-
-                    // Apply death side effects (audio, heart spawn, etc.)
                     handleEntityDeathEffects(living);
                 }
             }
         }
 
-        // Now safely remove all entities in toRemove
-        for (AbstractPhysicalEntityModel entity : toRemove) {
-            universeModel.removeEntity(entity);
-            entityControllers.removeIf(ctrl -> ctrl instanceof Brain<?> b && b.getEntity() == entity);
-            if (entity instanceof ProjectileModel p) ProjectilePool.release(p);
+        if (!toRemoveBuffer.isEmpty()) {
+            for (AbstractPhysicalEntityModel entity : toRemoveBuffer) {
+                universeModel.removeEntity(entity);
+                if (entity instanceof ProjectileModel p) {
+                    ProjectilePool.release(p);
+                }
+            }
+            // Rimozione dei controller ottimizzata in un'unica passata O(N) complessiva invece che O(N^2)
+            entityControllers.removeIf(ctrl -> ctrl instanceof Brain<?> b && toRemoveSet.contains(b.getEntity()));
         }
     }
 
-    /**
-     * Handles all side effects when a living entity dies.
-     * This includes audio, heart drops, and score/kill tracking.
-     */
     private void handleEntityDeathEffects(AbstractLivingEntityModel entity) {
         if (entity instanceof EntityModel enemy) {
             EntityAudioManager.playEventAudio(enemy, "death");
         }
-        if(entity.getEntityRecord().entityKey().equals("iscat_sun") && Math.random() < 0.5) {
-                UniverseSpawner.getInstance().spawn(UniverseSpawnable.BLACKHOLE, entity.getTransform().getTranslationX(), entity.getTransform().getTranslationY());
+
+        // Ottimizzazione macro: verifica diretta della stringa interna (interned)
+        if ("iscat_sun".equals(entity.getEntityRecord().entityKey()) && Math.random() < 0.5) {
+            UniverseSpawner.getInstance().spawn(UniverseSpawnable.BLACKHOLE,
+                    entity.getTransform().getTranslationX(),
+                    entity.getTransform().getTranslationY());
         }
 
+        if (!(entity instanceof PlayerModel)
+                && !(entity instanceof HeartModel)
+                && !(entity instanceof ProjectileModel)
+                && (entity.isKilledByProjectile() || entity.isKilledByMeele())) {
 
-        if (!(entity instanceof PlayerModel) && !(entity instanceof HeartModel) && !(entity instanceof ProjectileModel) && (entity.isKilledByProjectile() || entity.isKilledByMeele())) {
             SessionScoreTracker.getInstance().addDeaths(1);
             if (Math.random() < 0.25) {
                 double px = UU.mToPx(entity.getTransform().getTranslationX());
@@ -225,10 +255,6 @@ public class UniverseController {
             }
         }
     }
-
-    // ── Camera ────────────────────────────────────────────────────────────────
-
-    private double lastPlayerHealth = -1.0;
 
     private void updateCamera(PlayerModel player, CameraModel camera, GameInputsHandler inputs, double dt) {
         if (player != null) {
@@ -265,19 +291,16 @@ public class UniverseController {
         }
     }
 
+    @SuppressWarnings("unused")
     private static double getDynamicZoom(PlayerModel player, CameraModel camera, double dt) {
-        double speed        = player.getLinearVelocity().getMagnitude();
-        double maxVel       = UniverseVelocitySettings.PLAYER_MAX_VELOCITY * 2;
-        double speedRatio   = Math.clamp(speed / maxVel, 0.0, 1.0);
-        double dynamicMod   = speedRatio * CameraSettings.MAX_ZOOM_OUT_MODIFIER;
-        double targetZoom   = camera.getBaseZoom() - dynamicMod;
-        double currentZoom  = camera.getZoom();
+        double speed      = player.getLinearVelocity().getMagnitude();
+        double maxVel     = UniverseVelocitySettings.PLAYER_MAX_VELOCITY * 2;
+        double speedRatio = Math.clamp(speed / maxVel, 0.0, 1.0);
+        double dynamicMod = speedRatio * CameraSettings.MAX_ZOOM_OUT_MODIFIER;
+        double targetZoom = camera.getBaseZoom() - dynamicMod;
+        double currentZoom = camera.getZoom();
         return currentZoom + (targetZoom - currentZoom) * (1.0 - Math.exp(-CameraSettings.ZOOM_SMOOTHING_SPEED * dt));
     }
-
-    // -------------------------------------------------------------------------
-    // Public API
-    // -------------------------------------------------------------------------
 
     public void addEntityController(IEntityController controller) { entityControllers.add(controller); }
     public UniverseModel    getUniverseModel()    { return universeModel; }

@@ -15,15 +15,24 @@ import java.util.List;
 
 /**
  * Controller per il componente della classifica (Leaderboard).
- * Può essere iniettato in qualsiasi altra schermata o layout flessibile.
+ * Gestisce il caricamento asincrono e la visualizzazione fluida dei punteggi
+ * degli utenti salvati nel database, limitando la vista alla Top 100.
  */
 public class LeaderboardComponentController {
 
+    /** Contenitore principale del componente. */
     @FXML private VBox rootPane;
+
+    /** Contenitore verticale in cui vengono iniettate dinamicamente le righe dei punteggi. */
     @FXML private VBox leaderboardContainer;
 
+    /** Data Access Object per la gestione delle query sui punteggi. */
     private ScoreDAO scoreDAO;
 
+    /**
+     * Inizializza il componente recuperando l'istanza del DAO dei punteggi
+     * e avviando il caricamento iniziale della classifica.
+     */
     @FXML
     public void initialize() {
         scoreDAO = IscatDB.getInstance().getScoreDAO();
@@ -32,6 +41,8 @@ public class LeaderboardComponentController {
 
     /**
      * Carica i dati della classifica dal database in modo asincrono.
+     * Mostra un indicatore di caricamento e aggiorna l'interfaccia sul thread
+     * JavaFX (Platform.runLater) in caso di successo o di errore.
      */
     public void loadLeaderboard() {
         leaderboardContainer.getChildren().clear();
@@ -55,7 +66,11 @@ public class LeaderboardComponentController {
     }
 
     /**
-     * Popola il container con le righe della classifica.
+     * Popola il container verticale generando le righe della classifica.
+     * Se la lista è vuota mostra un messaggio di notifica, altrimenti mostra i record
+     * interrompendo il ciclo se si supera la centesima posizione.
+     *
+     * @param scores La lista contenente le voci di punteggio degli utenti recuperate dal DB.
      */
     private void populateRows(List<ScoreDAO.UserScoreEntry> scores) {
         leaderboardContainer.getChildren().clear();
@@ -75,7 +90,13 @@ public class LeaderboardComponentController {
     }
 
     /**
-     * Costruisce una singola riga della classifica fluida.
+     * Costruisce e configura un nodo {@link GridPane} flessibile per rappresentare
+     * visivamente una singola riga della classifica (posizione, nome e punteggio).
+     * Applica uno stile speciale (leaderboard-gold) se l'utente occupa la prima posizione.
+     *
+     * @param rank  La posizione in classifica della riga corrente.
+     * @param entry Il record contenente i dati di punteggio dell'utente.
+     * @return Un'istanza di {@link GridPane} formattata per la classifica.
      */
     private GridPane buildRow(int rank, ScoreDAO.UserScoreEntry entry) {
         GridPane row = new GridPane();
@@ -117,6 +138,13 @@ public class LeaderboardComponentController {
         return row;
     }
 
+    /**
+     * Converte la posizione numerica in una stringa testuale formattata,
+     * sostituendo i primi tre posizionamenti con i rispettivi emoji delle medaglie.
+     *
+     * @param rank La posizione numerica in classifica.
+     * @return Una stringa rappresentativa del posizionamento (es. "🥇 1°" o "4°").
+     */
     private String rankBadge(int rank) {
         return switch (rank) {
             case 1 -> "🥇 1°";
