@@ -5,12 +5,27 @@ import javafx.scene.control.TextArea;
 import uni.gaben.iscat.universe.entities.EntityRecord;
 import uni.gaben.iscat.universe.entities.ThreatLevel;
 
+/**
+ * Controller per la gestione della scheda informativa dell'interfaccia utente (InfoCard).
+ * Si occupa di visualizzare la lore, le statistiche e i dettagli extra di entità,
+ * navi o nemici all'interno di diverse aree di testo non modificabili.
+ */
 public class InfoCardController {
 
+    /** Area di testo dedicata alla descrizione e al livello di minaccia dell'entità. */
     @FXML private TextArea loreArea;
+
+    /** Area di testo dedicata alle statistiche fisiche e vitali dell'entità. */
     @FXML private TextArea statsArea;
+
+    /** Area di testo dedicata alle specifiche di sistema (Player) o ai parametri IA (Enemy). */
     @FXML private TextArea extraArea;
 
+    /**
+     * Inizializza il componente configurando le aree di testo.
+     * Imposta le aree come non modificabili, attiva il wrapping del testo, disabilita
+     * il focus automatico e impedisce la selezione visiva del testo.
+     */
     @FXML
     public void initialize() {
         for (TextArea area : new TextArea[]{loreArea, statsArea, extraArea}) {
@@ -23,15 +38,25 @@ public class InfoCardController {
         }
     }
 
+    /**
+     * Aggiorna la scheda informativa con testo generico strutturato in intestazione e contenuto.
+     * Utilizzato come fallback per mantenere la compatibilità con stringhe grezze.
+     *
+     * @param header  L'intestazione o titolo da mostrare.
+     * @param content Il testo principale da visualizzare nell'area lore.
+     */
     public void updateInfo(String header, String content) {
-        // Fallback for compatibility; we can populate all tabs with the same content or ignore.
         loreArea.setText(header + "\n\n" + content);
         statsArea.setText("N/A");
         extraArea.setText("N/A");
     }
 
     /**
-     * Populates all three tabs from a single EntityRecord.
+     * Popola e aggiorna simultaneamente le tre sezioni informative (Lore, Stats, Extra)
+     * estraendo e formattando i dati statici e dinamici da un singolo record di entità.
+     *
+     * @param record Il record immutabile contenente i dati dell'entità da mostrare,
+     * può essere {@code null}.
      */
     public void updateEntityInfo(EntityRecord record) {
         if (record == null) {

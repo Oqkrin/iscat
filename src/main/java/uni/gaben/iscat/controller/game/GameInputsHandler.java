@@ -9,46 +9,58 @@ import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.utils.SessionManager;
 
 /**
- * Handles raw keyboard/mouse input for the game.
- * State is read directly every frame – no buffered consumption for movement or dash.
- * Pause uses a one‑shot consumption pattern to avoid multiple toggles.
- * Quick‑dash (double‑tap) is detected and exposed as a consumable direction.
+ * Gestore dell'input fisico (tastiera e mouse) grezzo per il loop di gioco.
+ * Lo stato dei tasti di movimento e di fuoco viene letto in modo asincrono e continuo ad ogni frame (polling).
+ * Gestisce l'attivazione della modalità rallentatore (Slow-motion), il tracciamento delle coordinate del mouse,
+ * il campionamento "one-shot" del comando di pausa e implementa un sistema di tracciamento basato su timing
+ * per l'attivazione dello scatto rapido tramite doppio tocco (Quick-dash).
  */
 public class GameInputsHandler {
 
-    // --- Movement and shooting (read each frame) ---
+    /** Flag di stato letti ad ogni frame per determinare la direzione del movimento continuo. */
     public boolean up, down, left, right;
+
+    /** Flag di stato per determinare se il giocatore sta attivamente sparando. */
     public boolean shooting;
 
-    // --- Dash triggers (read and then consumed) ---
+    /** Trigger di attivazione dello scatto (dash) tramite pressione del relativo tasto configurato. */
     public boolean dashKeyPressed;
-    public boolean dashMousePressed;   // triggers keyboard dash? Actually we use for slow-motion
 
-    // --- Slow‑motion (mouse dodge button held) ---
+    /** Trigger di attivazione secondario (es. per abilità di schivata o alterazione temporale). */
+    public boolean dashMousePressed;
+
+    /** Flag che indica se l'utente sta richiedendo l'attivazione del rallentatore (Dodge/Slow-motion). */
     public boolean slowMotionRequested;
 
-    // --- Mouse position ---
+    /** Coordinate bidimensionali correnti del cursore del mouse all'interno dell'area di gioco. */
     public double mouseX, mouseY;
 
-    // --- Quick‑dash (double‑tap) state ---
-    private int quickDashX = 0;              // -1, 0, 1
-    private int quickDashY = 0;              // -1, 0, 1
+    /** Componente X della direzione dello scatto rapido generato da doppio tocco (-1, 0, 1). */
+    private int quickDashX = 0;
+
+    /** Componente Y della direzione dello scatto rapido generato da doppio tocco (-1, 0, 1). */
+    private int quickDashY = 0;
+
+    /** Flag per impedire la consumazione multipla del medesimo comando di scatto rapido nello stesso frame. */
     private boolean quickDashConsumed = false;
 
-    // --- Double‑tap timing ---
+    /** Timestamp in millisecondi dell'ultima pressione per asse, impiegati per il calcolo del doppio tocco. */
     private long lastUpPress = 0;
     private long lastDownPress = 0;
     private long lastLeftPress = 0;
     private long lastRightPress = 0;
-    private static final long DOUBLE_TAP_THRESHOLD_MS = 200; // 0.2 seconds
 
-    // --- Pause (consumed) ---
+    /** Soglia temporale massima (espressa in millisecondi) entro cui registrare due tocchi consecutivi come scatto. */
+    private static final long DOUBLE_TAP_THRESHOLD_MS = 200;
+
+    /** Flag di richiesta della pausa di gioco, consumato con pattern cooperativo one-shot. */
     private boolean pauseRequested = false;
 
-    // -------------------------------------------------------------------------
-    // Public API
-    // -------------------------------------------------------------------------
-
+    /**
+     * Registra i listener per la cattura degli eventi di pressione e rilascio tasti/mouse sulla {@link Scene} attiva.
+     *
+     * @param scene La scena dell'applicazione a cui agganciare l'ascolto degli input.
+     */
     public void attachToScene(Scene scene) {
         scene.setOnKeyPressed(e -> handleKey(e.getCode(), true));
         scene.setOnKeyReleased(e -> handleKey(e.getCode(), false));
@@ -56,6 +68,11 @@ public class GameInputsHandler {
         scene.setOnMouseReleased(e -> handleMouse(e.getButton(), false));
     }
 
+    /**
+     * Registra i listener per il tracciamento del movimento e del trascinamento del cursore del mouse sul canvas.
+     *
+     * @param canvas Il nodo grafico (es. Canvas o Pane) che cattura i movimenti del mouse nell'area di gioco.
+     */
     public void attachToCanvas(Node canvas) {
         canvas.setOnMouseMoved(e -> {
             mouseX = e.getX();
@@ -68,8 +85,8 @@ public class GameInputsHandler {
     }
 
     /**
-     * Resets all input states. Called when the game loses focus or at the start of a frame
-     * if you want to avoid stuck keys (optional).
+     * Ripristina istantaneamente lo stato di tutti i flag di input principali ai valori di default (falso).
+     * Viene invocato tipicamente in caso di perdita di focus della finestra per prevenire il blocco logico dei tasti.
      */
     public void resetInputs() {
         up = down = left = right = false;
@@ -78,31 +95,34 @@ public class GameInputsHandler {
         dashMousePressed = false;
         slowMotionRequested = false;
         pauseRequested = false;
-        // Quick dash state is not reset here; it's cleared after consumption.
-        // Timestamps are left as-is to maintain detection between frames.
     }
 
     /**
-     * Consumes the quick‑dash direction if one was detected this frame.
-     * Returns a normalized direction vector, or null if none.
-     * After calling this, the quick‑dash flag is cleared.
+     * Verifica e consuma la richiesta di scatto rapido (Quick-dash) rilevata nel frame corrente.
+     * Calcola e restituisce un vettore di direzione bidimensionale normalizzato.
+     *
+     * @return Un oggetto {@link Point2D} rappresentante la direzione dello scatto,
+     * oppure {@code null} se nessun comando è stato impartito o se è già stato consumato.
      */
     public Point2D consumeQuickDash() {
         if (quickDashConsumed || (quickDashX == 0 && quickDashY == 0)) {
             return null;
         }
-        quickDashConsumed = true; // mark as consumed
+        quickDashConsumed = true;
         double len = Math.sqrt(quickDashX * quickDashX + quickDashY * quickDashY);
         double normX = quickDashX / len;
         double normY = quickDashY / len;
-        // Clear the flags
+
         quickDashX = 0;
         quickDashY = 0;
         return new Point2D(normX, normY);
     }
 
     /**
-     * Consumes the pause request (one‑shot).
+     * Consuma in modalità "one-shot" la richiesta di pausa del gioco.
+     * Resetta immediatamente il flag interno per evitare letture duplicate nei frame successivi.
+     *
+     * @return {@code true} se la pausa è stata richiesta ed è attualmente da gestire, {@code false} altrimenti.
      */
     public boolean consumePause() {
         boolean p = pauseRequested;
@@ -110,10 +130,14 @@ public class GameInputsHandler {
         return p;
     }
 
-    // -------------------------------------------------------------------------
-    // Internal input handling
-    // -------------------------------------------------------------------------
-
+    /**
+     * Intercetta gli eventi della tastiera mappandoli sulle variabili di stato in base al profilo
+     * delle impostazioni utente ({@link UserSettings}) correnti. Se non vi sono configurazioni personalizzate,
+     * applica un fallback sui controlli standard (WASD / Frecce direzionali).
+     *
+     * @param code      Il codice {@link KeyCode} del tasto premuto o rilasciato.
+     * @param isPressed {@code true} se l'evento descrive la pressione del tasto, {@code false} se descrive il rilascio.
+     */
     private void handleKey(KeyCode code, boolean isPressed) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
@@ -129,14 +153,12 @@ public class GameInputsHandler {
                 if (matchKey(code, settings.getDash2())) dashMousePressed = true;
                 if (matchKey(code, settings.getPauseGame())) pauseRequested = true;
 
-                // ----- Quick‑dash detection -----
                 detectQuickDash(code);
             } else {
                 if (matchKey(code, settings.getDash1())) dashKeyPressed = false;
                 if (matchKey(code, settings.getDash2())) dashMousePressed = false;
             }
         } else {
-            // Default fallback
             switch (code) {
                 case W, UP    -> up = isPressed;
                 case S, DOWN  -> down = isPressed;
@@ -148,13 +170,19 @@ public class GameInputsHandler {
                 default -> {}
             }
 
-            // Quick‑dash detection also for default bindings
             if (isPressed) {
                 detectQuickDash(code);
             }
         }
     }
 
+    /**
+     * Intercetta i click del mouse associandoli alle azioni di gioco (fuoco, rallentatore, pausa)
+     * effettuando la conversione in base alle preferenze di assegnazione comandi salvate.
+     *
+     * @param button    Il pulsante {@link MouseButton} che ha generato l'evento.
+     * @param isPressed {@code true} se il pulsante risulta premuto, {@code false} se rilasciato.
+     */
     private void handleMouse(MouseButton button, boolean isPressed) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
 
@@ -183,10 +211,14 @@ public class GameInputsHandler {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Quick‑dash detection helper
-    // -------------------------------------------------------------------------
-
+    /**
+     * Algoritmo di analisi temporale per l'individuazione del doppio tocco sulle direzioni.
+     * Se l'intervallo di tempo tra due pressioni della stessa direzione è inferiore alla soglia
+     * definita, viene inizializzato un vettore direzionale pronto per la consumazione del Quick-dash.
+     * Supporta la composizione simultanea di due assi per generare vettori diagonali.
+     *
+     * @param code Il codice del tasto di movimento registrato.
+     */
     private void detectQuickDash(KeyCode code) {
         long now = System.currentTimeMillis();
 
@@ -215,14 +247,15 @@ public class GameInputsHandler {
             }
             lastRightPress = now;
         }
-        // Note: if two directions are double‑tapped quickly, both axes will be set,
-        // and consumeQuickDash() will return a normalized diagonal vector.
     }
 
-    // -------------------------------------------------------------------------
-    // Matching helpers
-    // -------------------------------------------------------------------------
-
+    /**
+     * Verifica la corrispondenza tra un codice tasto e la stringa identificativa memorizzata nel database.
+     *
+     * @param code         Il {@link KeyCode} nativo da verificare.
+     * @param settingValue La stringa di configurazione registrata nelle preferenze.
+     * @return {@code true} se il tasto corrisponde all'azione impostata, {@code false} altrimenti.
+     */
     private boolean matchKey(KeyCode code, String settingValue) {
         if (settingValue == null) return false;
         String dbKey = settingValue.trim().toUpperCase();
@@ -238,6 +271,13 @@ public class GameInputsHandler {
         };
     }
 
+    /**
+     * Verifica la corrispondenza tra il pulsante del mouse cliccato e il valore testuale salvato.
+     *
+     * @param button       Il tipo di pulsante {@link MouseButton} premuto.
+     * @param settingValue La stringa di configurazione memorizzata nel database delle impostazioni.
+     * @return {@code true} se il pulsante coincide con la mappatura, {@code false} altrimenti.
+     */
     private boolean matchMouse(MouseButton button, String settingValue) {
         if (settingValue == null) return false;
         String val = settingValue.trim().toUpperCase();

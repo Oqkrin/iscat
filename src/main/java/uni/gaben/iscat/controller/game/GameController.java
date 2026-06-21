@@ -21,31 +21,55 @@ import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 
 /**
- * Controller principale del ciclo di vita della partita, addetto alla gestione
- * degli input fisici, del ticking del mondo e del coordinamento dei moduli interni.
+ * Controller principale del ciclo di vita della partita (Gameplay Core).
+ * Coordina il ticking fisico del mondo di gioco, l'elaborazione degli input utente ({@link GameInputsHandler}),
+ * la progressione delle ondate di nemici ({@link UniverseWaveController}), l'applicazione dei cheat diagnostici
+ * ({@link DebugCheatManager}) e il salvataggio delle statistiche di sessione ({@link GameStatsManager}).
  */
 public class GameController {
 
+    /** Il modello dati globale contenente lo stato corrente della sessione e dell'universo di gioco. */
     private final GameModel gameModel;
+
+    /** Gestore dedicato alla cattura e al consumo degli input fisici ed eventi di controllo. */
     private final GameInputsHandler inputs = new GameInputsHandler();
+
+    /** Manager addetto al tracciamento, formattazione e salvataggio persistente delle statistiche a fine partita. */
     private final GameStatsManager statsManager = new GameStatsManager();
+
+    /** Sotto-componente diagnostico per l'applicazione di trucchi ed alterazioni di stato in modalità debug. */
     private final DebugCheatManager cheatManager;
 
+    /** Timer ad alta precisione che scandisce la frequenza di aggiornamento logico (tick) del loop principale. */
     private final GameLoopTimer gameLoop;
+
+    /** Manager deputato all'orchestrazione delle fasi di setup, allocazione e reset fisico del mondo di gioco. */
     private final GameLifecycleManager lifecycleManager;
 
+    /** Sotto-controller delegato alla gestione dei movimenti fisici e delle interazioni tra entità. */
     private UniverseController universeController;
+
+    /** Sotto-controller delegato al calcolo dei tempi, dei pattern di spawn e delle ondate di nemici. */
     private UniverseWaveController waveController;
+
+    /** Callback di notifica eseguita non appena si conclude un ripristino completo dell'universo. */
     private Runnable onUniverseResetCallback;
 
+    /** Flag per l'abilitazione e visualizzazione a schermo del contatore dei fotogrammi (FPS). */
     private boolean showFps = false;
+
+    /** Flag di sicurezza che traccia se la console di debug o i cheat sono stati attivati almeno una volta nella sessione. */
     private boolean debugUsedInThisSession = false;
+
+    /** Proprietà osservabile che determina se l'interfaccia o la modalità sviluppatore sono attive. */
     private final BooleanProperty showDebugMode = new SimpleBooleanProperty(false);
 
     /**
-     * Inizializza il core del controller di gioco configurando i timer di loop e i listener di sessione.
+     * Inizializza il core del controller di gioco configurando il timer del loop, allocando
+     * i sotto-moduli e registrando un listener di sicurezza per invalidare i salvataggi in caso di debug.
+     * Garantisce inoltre il pre-caricamento asincrono della cache delle entità.
      *
-     * @param gameModel Il modello dati contenente lo stato del gioco attuale
+     * @param gameModel Il modello dati contenente lo stato del gioco attuale.
      */
     public GameController(GameModel gameModel) {
         Platform.runLater(EntityFactory::ensureCacheLoaded);
@@ -64,10 +88,19 @@ public class GameController {
         setupUniverse();
     }
 
+    /**
+     * Verifica se i comandi di debug o i cheat sono stati compromessi o utilizzati durante la partita corrente.
+     *
+     * @return {@code true} se la modalità debug è stata attivata, {@code false} altrimenti.
+     */
     public boolean isDebugUsedInThisSession() {
         return debugUsedInThisSession;
     }
 
+    /**
+     * Configura da zero le istanze del mondo di gioco applicando la skin selezionata del giocatore,
+     * caricando la struttura delle ondate da file JSON e impostando i confini dell'arena fisica.
+     */
     private void setupUniverse() {
         String currentSkinKey = SessionManager.getPlayerSkinKey();
         this.cheatManager.reset();
@@ -92,6 +125,13 @@ public class GameController {
         universeController.getUniverseModel().setCamera(getCameraModel());
     }
 
+    /**
+     * Esegue un singolo passo logico di aggiornamento (tick).
+     * Gestisce la pausa, l'immunità del God Mode, l'aggiornamento posizionale della simulazione fisica
+     * e applica una forza di contenimento elastica se il giocatore supera i confini dell'arena circolare.
+     *
+     * @param dt Il tempo delta trascorso dall'ultimo frame espresso in secondi.
+     */
     private void tick(double dt) {
         if (inputs.consumePause()) togglePause();
         if (!gameModel.getGameState().isPaused()) {
@@ -126,17 +166,31 @@ public class GameController {
         }
     }
 
+    /** @see DebugCheatManager#debugHeal(double) */
     public void debugHeal(double amount) { cheatManager.debugHeal(amount); }
+    /** @see DebugCheatManager#debugDamage(double) */
     public void debugDamage(double amount) { cheatManager.debugDamage(amount); }
+    /** @see DebugCheatManager#debugToggleGodMode() */
     public void debugToggleGodMode() { cheatManager.debugToggleGodMode(); }
+    /** @see DebugCheatManager#debugLevelUp() */
     public void debugLevelUp() { cheatManager.debugLevelUp(); }
+    /** @see DebugCheatManager#debugLevelDown() */
     public void debugLevelDown() { cheatManager.debugLevelDown(); }
+    /** @see DebugCheatManager#debugSpawn(String) */
     public void debugSpawn(String id) { cheatManager.debugSpawn(id); }
 
+    /**
+     * Recupera il modello logico associato alla navicella del giocatore.
+     *
+     * @return L'istanza corrente di {@link PlayerModel}, oppure {@code null} se non allocata.
+     */
     public PlayerModel getPlayer() {
         return gameModel.getUniverseModel() != null ? gameModel.getUniverseModel().getPlayer() : null;
     }
 
+    /**
+     * Alterna lo stato corrente di gioco passando dalla modalità attiva (PLAYING) alla pausa (IN_PAUSE) e viceversa.
+     */
     public void togglePause() {
         if (gameModel.getGameState() == GameState.PLAYING) {
             gameModel.setGameState(GameState.IN_PAUSE);
@@ -145,12 +199,19 @@ public class GameController {
         }
     }
 
+    /**
+     * Interrompe la simulazione in esecuzione, azzera l'intero progresso della mappa e riavvia il loop.
+     */
     public void retryGame() {
         gameLoop.stop();
         resetGame();
         gameLoop.start();
     }
 
+    /**
+     * Ripristina la traccia audio di sottofondo principale, reimposta lo stato di gioco su PLAYING
+     * e rigenera l'universo attivando l'eventuale callback registrata.
+     */
     private void resetGame() {
         AudioManager.getInstance().playBGM("/uni/gaben/iscat/audio/BGM/SuperHero_original.wav", true);
         gameModel.setGameState(GameState.PLAYING);
@@ -158,6 +219,10 @@ public class GameController {
         if (onUniverseResetCallback != null) onUniverseResetCallback.run();
     }
 
+    /**
+     * Interrompe l'esecuzione della partita, effettua il salvataggio finale parziale delle statistiche,
+     * azzera il tracciamento e reindirizza la navigazione verso il menu principale dell'applicazione.
+     */
     public void quitToMainMenu() {
         gameLoop.stop();
         statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), false, isDebugUsedInThisSession());
@@ -167,8 +232,15 @@ public class GameController {
         IscatNavigator.getInstance().navigateWithFade(IscatViews.MAIN_MENU);
     }
 
+    /**
+     * Arresta forzatamente l'applicazione e termina l'esecuzione di tutti i thread JavaFX.
+     */
     public void quitGame() { Platform.exit(); }
 
+    /**
+     * Intercetta la morte del giocatore sul thread dell'interfaccia grafica.
+     * Riproduce il brano di game over, imposta lo stato globale e persiste i risultati ottenuti.
+     */
     private void onPlayerDeath() {
         Platform.runLater(() -> {
             AudioManager.getInstance().stopBGM();
@@ -178,6 +250,14 @@ public class GameController {
         });
     }
 
+    /**
+     * Listener d'ascolto scatenato alla rimozione di una entità fisica dal mondo.
+     * Incrementa il contatore delle uccisioni dell'ondata ed assegna l'esperienza e i punti score
+     * al giocatore se l'entità abbattuta possiede un quantitativo valido di XP premio.
+     *
+     * @param entity             L'entità fisica rimossa o deceduta.
+     * @param killedByProjectile Indica se il colpo di grazia è stato inferto da un proiettile alleato.
+     */
     private void onEntityDied(AbstractPhysicalEntityModel entity, boolean killedByProjectile) {
         if (entity instanceof ProjectileModel || entity instanceof HeartModel) {
             return;
@@ -204,6 +284,10 @@ public class GameController {
         }
     }
 
+    /**
+     * Notifica la sconfitta del Boss finale della sessione.
+     * Salva i dati di gioco impostando il flag di vittoria e varia lo stato della partita su WIN.
+     */
     public void notifyBossDead() {
         statsManager.saveStats((int) gameModel.getTotalElapsedSeconds(), true, isDebugUsedInThisSession());
         Platform.runLater(() -> {
@@ -212,7 +296,10 @@ public class GameController {
         });
     }
 
+    /** @param drawCall Interfaccia funzionale contenente le istruzioni di rendering grafico. */
     public void setDrawCall(Runnable drawCall) { this.gameLoop.setDrawCall(drawCall); }
+
+    /** @param cb Callback da lanciare al termine del reset dell'universo. */
     public void setOnUniverseResetCallback(Runnable cb) { this.onUniverseResetCallback = cb; }
 
     public GameModel getGameModel() { return gameModel; }
@@ -227,9 +314,16 @@ public class GameController {
 
     public boolean isDebugModeOn() { return showDebugMode.get(); }
     public void setShowDebugMode(boolean v) { showDebugMode.set(v); }
+
+    /** @return La {@link BooleanProperty} relativa alla visualizzazione dello stato di debug. */
     public BooleanProperty debugModeProperty() { return showDebugMode; }
+
+    /** @return La {@link BooleanProperty} legata all'attivazione dell'invulnerabilità (God Mode). */
     public BooleanProperty godModeProperty() { return cheatManager.godModeProperty(); }
 
+    /** Interrompe l'esecuzione del timer del loop grafico. */
     public void stopGameLoop() { gameLoop.stop(); }
+
+    /** Avvia o riprende l'esecuzione del timer del loop grafico. */
     public void startGameLoop() { gameLoop.start(); }
 }
