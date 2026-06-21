@@ -13,8 +13,8 @@ import uni.gaben.iscat.view.components.AbstractIscatStackPane;
 import java.util.EnumMap;
 
 /**
- * Solely responsible for swapping nodes, playing transitions,
- * and managing view lifecycles within the single Stage.
+ * Controller responsabile dello scambio dei nodi della UI, della gestione delle transizioni
+ * visive (fade/istantanee) e del ciclo di vita delle schermate (view) all'interno dell'unico Stage.
  */
 public class IscatViewController {
 
@@ -22,20 +22,21 @@ public class IscatViewController {
     private final IscatModel model;
     private final EnumMap<IscatViews, AbstractIscatStackPane> viewRegistry = new EnumMap<>(IscatViews.class);
 
+    /** Insieme delle viste dinamiche che richiedono la rigenerazione del modulo MVC a ogni accesso. */
     private static final java.util.Set<IscatViews> DYNAMIC_VIEWS = java.util.EnumSet.of(IscatViews.GAME);
 
     public IscatViewController(IscatModel model, IscatWindow window) {
         this.model = model;
         this.view = window.getView();
 
-        // Inizializza le view non statiche
+        // Inizializza e registra preventivamente tutte le view statiche
         for (IscatViews scene : IscatViews.values()) {
             if (!DYNAMIC_VIEWS.contains(scene)) {
                 viewRegistry.put(scene, IscatMVCRegistry.getMVC(scene));
             }
         }
 
-        // 2. Listen for subsequent navigation intents
+        // Resta in ascolto dei cambiamenti della proprietà della scena corrente per gestire la navigazione
         model.currentSceneProperty().addListener((obs, oldScene, newScene) -> {
             if (oldScene != newScene) {
                 performTransition(oldScene, newScene, model.getPendingTransition());
@@ -44,7 +45,7 @@ public class IscatViewController {
     }
 
     /**
-     * Safely boots up the very first screen without requiring a property state-change trigger.
+     * Carica e mostra la prima schermata dell'applicazione all'avvio, forzando un cambio istantaneo.
      */
     public void showInitialView(IscatViews initialView) {
         model.navigate(initialView, IscatModel.TransitionType.INSTANT);
@@ -56,6 +57,9 @@ public class IscatViewController {
         }
     }
 
+    /**
+     * Coordina il cambio scena determinando se rigenerare la vista (se dinamica) e quale transizione applicare.
+     */
     private void performTransition(IscatViews oldScene, IscatViews newScene, IscatModel.TransitionType type) {
         if (DYNAMIC_VIEWS.contains(newScene)) {
             viewRegistry.put(newScene, IscatMVCRegistry.getMVC(newScene));
@@ -76,12 +80,14 @@ public class IscatViewController {
         }
     }
 
+    /** Sostituisce immediatamente il contenuto del contenitore principale con la nuova vista. */
     private void executeInstantSwap(AbstractIscatStackPane nextView) {
         view.getChildren().setAll(nextView);
         nextView.setOpacity(1.0);
         nextView.setActive(true);
     }
 
+    /** Gestisce lo scambio visivo tra le due schermate tramite dissolvenza. */
     private void executeFadeSwap(IscatViews oldScene, AbstractIscatStackPane nextView) {
         AbstractIscatStackPane oldView = viewRegistry.get(oldScene);
 
@@ -94,6 +100,7 @@ public class IscatViewController {
         }
     }
 
+    /** Configura ed esegue l'animazione di FadeOut per la vecchia schermata prima di attaccare la nuova. */
     private FadeTransition fade(AbstractIscatStackPane nextView, AbstractIscatStackPane oldView) {
         FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.25), oldView);
         fadeOut.setFromValue(1.0);
@@ -101,10 +108,10 @@ public class IscatViewController {
         fadeOut.setOnFinished(e -> {
             oldView.setActive(false);
 
-            // Set the incoming view completely transparent before attachment
+            // Rende la nuova vista trasparente prima di aggiungerla al grafo dei nodi
             nextView.setOpacity(0.0);
             view.getChildren().setAll(nextView);
-            nextView.setActive(true); // Internally launches structural load and its own fadeIn animation
+            nextView.setActive(true); // Avvia il caricamento strutturale e l'animazione interna di fadeIn
         });
         return fadeOut;
     }

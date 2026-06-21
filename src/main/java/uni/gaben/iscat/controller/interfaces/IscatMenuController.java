@@ -31,7 +31,6 @@ public interface IscatMenuController extends IscatFxmlController {
      * Da chiamare in initialize().
      */
     default void registerEscHandler() {
-        // riferimento stabile alla lambda, necessario per removeEventFilter
         EventHandler<KeyEvent>[] handler = new EventHandler[1];
         handler[0] = e -> {
             if (e.getCode() == KeyCode.ESCAPE) {

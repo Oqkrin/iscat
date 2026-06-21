@@ -27,8 +27,6 @@ import java.util.function.Consumer;
  */
 public class ConfirmationOverlayController implements IscatMenuController {
 
-
-
     /** Tipo di input richiesto dall'overlay */
     public enum InputType {
         NONE,       // Nessun input, solo conferma/annulla
@@ -54,21 +52,31 @@ public class ConfirmationOverlayController implements IscatMenuController {
 
     @FXML
     public void initialize() {
-        // Configura visibilità e gestione tasti
+        // Configura visibilità e gestione tasti di scelta rapida (ENTER / ESC)
         if (rootPane != null) {
             rootPane.managedProperty().bind(rootPane.visibleProperty());
             rootPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
                 if (!rootPane.isVisible()) return;
+
                 if (event.getCode() == KeyCode.ENTER) {
                     handleYes(new ActionEvent());
+                    event.consume();
+                } else if (event.getCode() == KeyCode.ESCAPE) {
+                    handleBack();
                     event.consume();
                 }
             });
         }
 
-        // Binding visibilità per i campi input
+        // Binding visibilità per i campi input e pulsanti
         normalTextField.managedProperty().bind(normalTextField.visibleProperty());
         passwordTextField.managedProperty().bind(passwordTextField.visibleProperty());
+        yesBtn.managedProperty().bind(yesBtn.visibleProperty());
+        noBtn.managedProperty().bind(noBtn.visibleProperty());
+
+        // Consente l'invio diretto premendo INVIO mentre si scrive nei campi di testo
+        normalTextField.setOnAction(e -> handleYes(new ActionEvent()));
+        passwordTextField.setOnAction(e -> handleYes(new ActionEvent()));
 
         // Configura pulsante keybind
         if (keybindBtn != null) {
@@ -78,15 +86,16 @@ public class ConfirmationOverlayController implements IscatMenuController {
             });
         }
 
-        // Binding visibilità per pulsanti azione
-        yesBtn.managedProperty().bind(yesBtn.visibleProperty());
-        noBtn.managedProperty().bind(noBtn.visibleProperty());
+        // Ridimensionamento responsive del dialog basato sul modulo della sezione aurea
+        if (dialog != null && rootPane != null) {
+            var goldenScale = rootPane.widthProperty().multiply(ScalareAureo.IPHI_D * ScalareAureo.IPHI_D);
+            var goldenHeight = rootPane.heightProperty().multiply(ScalareAureo.IPHI_D * ScalareAureo.IPHI_D);
 
-        dialog.minWidthProperty().bind(rootPane.widthProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
-        dialog.minHeightProperty().bind(rootPane.heightProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
-        dialog.maxWidthProperty().bind(rootPane.widthProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
-        dialog.maxHeightProperty().bind(rootPane.heightProperty().multiply(ScalareAureo.IPHI_D*ScalareAureo.IPHI_D));
-
+            dialog.minWidthProperty().bind(goldenScale);
+            dialog.maxWidthProperty().bind(goldenScale);
+            dialog.minHeightProperty().bind(goldenHeight);
+            dialog.maxHeightProperty().bind(goldenHeight);
+        }
     }
 
     @Override
@@ -95,36 +104,28 @@ public class ConfirmationOverlayController implements IscatMenuController {
     @Override
     public void handleBack() {
         if (rootPane != null && !rootPane.isVisible()) return;
-        if (noBtn.isVisible()) handleNo(new ActionEvent());
-        else handleYes(new ActionEvent());
+        if (noBtn.isVisible()) {
+            handleNo(new ActionEvent());
+        } else {
+            handleYes(new ActionEvent());
+        }
     }
 
     @Override
     public void setPointerToView(StackPane pointer) {
     }
 
-    /**
-     * Mostra un overlay di conferma semplice.
-     * @param title Titolo del dialogo
-     * @param description Descrizione
-     * @param onConfirm Azione da eseguire sulla conferma
-     */
+    /** Mostra un overlay di conferma semplice. */
     public void ask(String title, String description, Runnable onConfirm) {
-        askWithButtons(title, description, "SÌ", "NO", onConfirm, null);
+        askWithButtons(title, description, "SI", "NO", onConfirm, null);
     }
 
-    /**
-     * Mostra un overlay con pulsanti personalizzati.
-     * @param yesText Testo del pulsante conferma
-     * @param noText Testo del pulsante annulla
-     */
+    /** Mostra un overlay con pulsanti di conferma personalizzati. */
     public void askWithButtons(String title, String description, String yesText, String noText, Runnable onConfirm) {
         askWithButtons(title, description, yesText, noText, onConfirm, null);
     }
 
-    /**
-     * Mostra un overlay con pulsanti personalizzati e callback annullamento.
-     */
+    /** Mostra un overlay con pulsanti personalizzati e una callback di annullamento dedicata. */
     public void askWithButtons(String title, String description, String yesText, String noText,
                                Runnable onConfirm, Runnable onCancel) {
         this.onCancelCallback = onCancel;
@@ -138,13 +139,12 @@ public class ConfirmationOverlayController implements IscatMenuController {
             this.noBtn.setVisible(true);
         }
 
-        askWithInput(title, description, InputType.NONE,
-                text -> { if (onConfirm != null) onConfirm.run(); });
+        askWithInput(title, description, InputType.NONE, text -> {
+            if (onConfirm != null) onConfirm.run();
+        });
     }
 
-    /**
-     * Mostra overlay per la selezione di un keybind.
-     */
+    /** Mostra l'overlay predisposto per la cattura di un nuovo comando di input (Keybind). */
     public void askForKeybind(String title, String description, Runnable onStartListening, Runnable onCancel) {
         this.onKeybindTrigger = onStartListening;
         this.onCancelCallback = onCancel;
@@ -154,22 +154,19 @@ public class ConfirmationOverlayController implements IscatMenuController {
         askWithInput(title, description, InputType.KEYBIND, text -> {});
     }
 
-    /** Aggiorna il testo del pulsante keybind. */
+    /** Aggiorna dinamicamente il testo descrittivo del pulsante keybind durante l'ascolto. */
     public void setKeybindBtnText(String text) {
         if (keybindBtn != null) keybindBtn.setText(text);
     }
 
-    /**
-     * Mostra overlay con campo di input.
-     * @param inputType Tipo di input richiesto
-     * @param onConfirm Callback con il testo inserito
-     */
-    public void askWithInput(String title, String description, InputType inputType,
-                             Consumer<String> onConfirm) {
-        this.titleLabel.setText(title.toUpperCase());
-        this.descLabel.setText(description);
+    /** Mostra l'overlay configurando i campi di testo o i pulsanti a seconda dell'InputType richiesto. */
+    public void askWithInput(String title, String description, InputType inputType, Consumer<String> onConfirm) {
         this.onConfirmWithInput = onConfirm;
         this.currentInputType = inputType;
+        if (inputType == InputType.NONE) this.onKeybindTrigger = null;
+
+        this.titleLabel.setText(title.toUpperCase());
+        this.descLabel.setText(description);
 
         if (inputType != InputType.NONE && inputType != InputType.KEYBIND) {
             this.yesBtn.setText("SÌ");
@@ -187,7 +184,7 @@ public class ConfirmationOverlayController implements IscatMenuController {
         if (rootPane != null) {
             rootPane.setVisible(true);
 
-            // Richiede il focus al campo appropriato
+            // Sposta il focus sul campo corretto in base all'esigenza attuale
             if (inputType == InputType.NORMAL) normalTextField.requestFocus();
             else if (inputType == InputType.PASSWORD) passwordTextField.requestFocus();
             else if (inputType == InputType.KEYBIND && keybindBtn != null) {
@@ -195,7 +192,7 @@ public class ConfirmationOverlayController implements IscatMenuController {
                 keybindBtn.requestFocus();
             }
 
-            // Animazione di entrata
+            // Animazione fluida di comparsa (FadeIn)
             rootPane.setOpacity(0.0);
             FadeTransition fadeInBg = new FadeTransition(Duration.millis(150), rootPane);
             fadeInBg.setToValue(1.0);
@@ -227,7 +224,7 @@ public class ConfirmationOverlayController implements IscatMenuController {
         });
     }
 
-    /** Chiude l'overlay con animazione, eseguendo l'azione al termine. */
+    /** Chiude l'overlay applicando le transizioni di uscita combinate prima di distruggere o nascondere il nodo. */
     private void closeWithAnimation(Runnable onFinishedAction) {
         if (rootPane == null || !rootPane.isVisible()) {
             if (onFinishedAction != null) onFinishedAction.run();
@@ -247,7 +244,7 @@ public class ConfirmationOverlayController implements IscatMenuController {
         fadeOutBg.play();
     }
 
-    /** Animazione di comparsa. */
+    /** Esegue lo zoom in temporaneo (effetto spawn) per accentuare l'apertura del popup. */
     public void playSpawnTween(Node target) {
         target.setScaleX(0.8);
         target.setScaleY(0.8);
@@ -257,7 +254,7 @@ public class ConfirmationOverlayController implements IscatMenuController {
         scale.play();
     }
 
-    /** Animazione di scomparsa. */
+    /** Dissolve l'elemento rimpicciolendolo in concomitanza del fade out dello sfondo. */
     private void playDespawnTween(Node target, Runnable onFinished) {
         ScaleTransition scale = new ScaleTransition(Duration.millis(150), target);
         scale.setToX(0.8);

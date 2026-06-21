@@ -14,6 +14,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+/**
+ * Manager centrale del database SQLite dell'applicazione.
+ * Gestisce una connessione condivisa con un meccanismo di chiusura automatica dopo 30 secondi
+ * di inattività e l'esecuzione asincrona delle query su un thread pool dedicato.
+ */
 public class IscatDB {
 
     private static IscatDB instance;
@@ -40,6 +45,7 @@ public class IscatDB {
         init();
     }
 
+    /** Restituisce l'istanza unica del database Manager creando il Singleton se necessario. */
     public static synchronized IscatDB getInstance() {
         if (instance == null) {
             instance = new IscatDB();
@@ -47,6 +53,9 @@ public class IscatDB {
         return instance;
     }
 
+    /** * Inizializza i DAO e avvia il thread periodico che monitora l'inattività.
+     * Se non ci sono task attivi per 30 secondi, la connessione viene chiusa automaticamente.
+     */
     public void init() {
         this.userDAO = new SQLiteUserDAO();
         this.scoreDAO = new SQLiteScoreDAO();
@@ -73,6 +82,9 @@ public class IscatDB {
         }, 1, 1, TimeUnit.SECONDS);
     }
 
+    /** * Restituisce la connessione attiva al database, creandone una nuova se chiusa o nulla.
+     * Ogni richiesta resetta il timer di inattività.
+     */
     public synchronized Connection getConnection() throws SQLException {
         if (sharedConnection == null || sharedConnection.isClosed()) {
             try {
@@ -96,6 +108,7 @@ public class IscatDB {
         if (activeTasks < 0) activeTasks = 0;
     }
 
+    /** Esegue un'operazione di scrittura o aggiornamento sul thread dedicato in modo asincrono. */
     public void executeAsync(Runnable task) {
         dbExecutor.execute(() -> {
             preExecuteTask();
@@ -109,6 +122,7 @@ public class IscatDB {
         });
     }
 
+    /** Esegue una query di lettura in modo asincrono, restituendo un {@link CompletableFuture}. */
     public <T> CompletableFuture<T> queryAsync(Supplier<T> task) {
         CompletableFuture<T> future = new CompletableFuture<>();
         dbExecutor.submit(() -> {
@@ -125,6 +139,7 @@ public class IscatDB {
         return future;
     }
 
+    /** Arresta i pool di thread ed esegue la chiusura pulita della connessione con il database. */
     public void shutdown() {
         dbExecutor.shutdown();
         try {
