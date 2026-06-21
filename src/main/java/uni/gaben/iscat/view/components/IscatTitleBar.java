@@ -25,9 +25,6 @@ public class IscatTitleBar extends StackPane {
     public IscatTitleBar() {
         getStyleClass().add("title-bar");
 
-        /* * CRITICAL FIX: Forces JavaFX to intercept mouse events across the entire
-         * rectangular bounds of the StackPane, even on transparent zones.
-         */
         setPickOnBounds(true);
 
         // LEFT FLOATING CAPSULE: Pin + Fullscreen

@@ -25,29 +25,26 @@ import java.util.Map;
 public class UniverseRenderer {
 
     public static final GaussianBlur ENDURANCE_INDICATOR_EFFECT = new GaussianBlur(2);
-    private final Canvas          mainCanvas;
-    private final GameController  gameController;
-    private final GameModel       gameModel;
-    private final StarfieldRenderer starfieldRenderer; // now created internally
 
-    private final double[] fpsHistory = new double[30];
-    private int fpsIdx = 0;
-    private final List<AbstractPhysicalEntityModel> entitySnapshotBuffer = new ArrayList<>();
-
-    // Batched drawing helper
+    private final Canvas mainCanvas;
+    private final GameController gameController;
+    private final GameModel gameModel;
+    private final StarfieldRenderer starfieldRenderer;
     private final OptimizedLayeredRenderer layers = new OptimizedLayeredRenderer();
 
+    private final List<AbstractPhysicalEntityModel> entitySnapshotBuffer = new ArrayList<>();
+    private final List<EnduranceIndicator> enduranceIndicators = new ArrayList<>();
+    private final double[] fpsHistory = new double[30];
+    private int fpsIdx = 0;
+    private boolean bordersVisible = false;
+
     public UniverseRenderer(Canvas mainCanvas, GameController gameController) {
-        this.mainCanvas       = mainCanvas;
-        this.gameController   = gameController;
-        this.gameModel        = gameController.getGameModel();
-        this.starfieldRenderer = new StarfieldRenderer(); // create internally
+        this.mainCanvas = mainCanvas;
+        this.gameController = gameController;
+        this.gameModel = gameController.getGameModel();
+        this.starfieldRenderer = new StarfieldRenderer();
     }
 
-    /**
-     * Updates the viewport dimensions and regenerates the starfield accordingly.
-     * Called when the canvas is resized.
-     */
     public void updateViewport(double width, double height) {
         if (width <= 0 || height <= 0) return;
         UniverseModel universe = gameController.getUniverseController().getUniverseModel();
@@ -63,77 +60,94 @@ public class UniverseRenderer {
         double w = mainCanvas.getWidth();
         double h = mainCanvas.getHeight();
 
-        // Clear + background
-        gc.clearRect(0, 0, w, h);
-        gc.setFill(ThemeManager.getInstance().getBgPrimary());
-        gc.fillRect(0, 0, w, h);
+        // Sfondo ed Effetti Ambientali di Base
+        clearAndDrawBackground(gc, w, h);
 
         UniverseModel universe = gameController.getUniverseController().getUniverseModel();
         if (universe == null) return;
 
         CameraModel camera = gameController.getCameraModel();
 
-        // Starfield (drawn directly – it’s already a single loop)
+        // Disegno dello sfondo stellato e dei confini dell'arena
+        renderSfondoEConfini(gc, universe, camera, w, h);
+
+        // Fase di Batching (Raccolta elementi geometrici e sprite)
+        layers.begin(gc, camera, w, h);
+
+        entitySnapshotBuffer.clear();
+        entitySnapshotBuffer.addAll(universe.getEntities());
+
+        boolean debug = debugPanelVisible && gameController.isDebugModeOn();
+
+        for (AbstractPhysicalEntityModel entity : entitySnapshotBuffer) {
+            if (isEntityVisible(entity, camera, w, h)) {
+                EntityRenderer.renderLayered(entity, layers, debug);
+            }
+        }
+
+        renderHitSparks(universe, layers);
+
+        // Esecuzione del disegno stratificato e ottimizzato
+        layers.render();
+
+        // Overlay Post-Rendering (Interfaccia di gioco e filtri grafici fissi)
+        renderEnduranceAlterations(universe, camera, gameModel.getDt(), gc);
+        renderTimeStop(camera, gc);
+        renderHurt(camera, gc);
+
+        if (gameController.isFpsOn()) {
+            drawFps(gc, w);
+        }
+    }
+
+
+    private void clearAndDrawBackground(GraphicsContext gc, double w, double h) {
+        gc.clearRect(0, 0, w, h);
+        gc.setFill(ThemeManager.getInstance().getBgPrimary());
+        gc.fillRect(0, 0, w, h);
+    }
+
+    private void renderSfondoEConfini(GraphicsContext gc, UniverseModel universe, CameraModel camera, double w, double h) {
         starfieldRenderer.setW(w);
         starfieldRenderer.setH(h);
         starfieldRenderer.setCameraX(camera.getX());
         starfieldRenderer.setCameraY(camera.getY());
         starfieldRenderer.render(universe.getStarfieldModel(), gc);
 
-        // Bordo Circolare dell'Arena
-        drawUniverseBoundaries(gc, universe, camera);
+        if(bordersVisible)
+            drawUniverseBoundaries(gc, universe, camera);
+    }
 
-        // Prepare the batch collector for this frame
-        layers.begin(gc, camera, w, h);
-
-        // Collect all visible entities into the batch (no drawing yet)
-        entitySnapshotBuffer.clear();
-        entitySnapshotBuffer.addAll(universe.getEntities());
-
+    /**
+     * Verifica se un'entità fisica si trova all'interno del cono visivo attuale (Frustum Culling).
+     */
+    private boolean isEntityVisible(AbstractPhysicalEntityModel entity, CameraModel camera, double width, double height) {
         double zoom = camera.getZoom();
-        double halfViewW = (w / 2.0) / zoom;
-        double halfViewH = (h / 2.0) / zoom;
+        double halfViewW = (width / 2.0) / zoom;
+        double halfViewH = (height / 2.0) / zoom;
+
         double minX = camera.getX() - halfViewW;
         double maxX = camera.getX() + halfViewW;
         double minY = camera.getY() - halfViewH;
         double maxY = camera.getY() + halfViewH;
 
-        boolean debug = debugPanelVisible && gameController.isDebugModeOn();
-
-        for (AbstractPhysicalEntityModel entity : entitySnapshotBuffer) {
-            if (!entity.isInsideRect(minX, maxX, minY, maxY)) continue;
-            EntityRenderer.renderLayered(entity, layers, debug);
-        }
-
-        renderHitSparks(universe, layers);
-
-
-        layers.render();
-
-
-        renderEnduranceAlterations(universe, camera, gameModel.getDt(), gc);
-
-        renderTimeStop(camera, gc);
-        renderHurt(camera, gc);
-
-        if (gameController.isFpsOn()) drawFps(gc, w);
-    }
-
-    private void renderTimeStop(CameraModel camera, GraphicsContext gc) {
-        if (gameModel.getTimeScale() < 1.0) {
-            gc.save();
-            // A subtle ternary color overlay
-            double intensity = 1.0 - gameModel.getTimeScale();
-            gc.setGlobalAlpha(intensity * 0.15); // max 15% opacity
-            gc.setFill(ThemeManager.getInstance().getAccentTernary());
-            gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
-            gc.restore();
-        }
+        return entity.isInsideRect(minX, maxX, minY, maxY);
     }
 
     private void renderHitSparks(UniverseModel universe, OptimizedLayeredRenderer layers) {
         for (HitSpark spark : universe.getHitSparks()) {
             HitSparkVFX.renderHitSpark(spark, layers);
+        }
+    }
+
+    private void renderTimeStop(CameraModel camera, GraphicsContext gc) {
+        if (gameModel.getTimeScale() < 1.0) {
+            gc.save();
+            double intensity = 1.0 - gameModel.getTimeScale();
+            gc.setGlobalAlpha(intensity * 0.15);
+            gc.setFill(ThemeManager.getInstance().getAccentTernary());
+            gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+            gc.restore();
         }
     }
 
@@ -147,36 +161,13 @@ public class UniverseRenderer {
         }
     }
 
-    private void drawFps(GraphicsContext gc, double canvasWidth) {
-        double dt  = gameModel.getDt();
-        double fps = dt > 0 ? 1.0 / dt : 0;
-        fpsHistory[fpsIdx] = fps;
-        fpsIdx = (fpsIdx + 1) % fpsHistory.length;
-
-        double avg = 0;
-        for (double f : fpsHistory) avg += f;
-        avg /= fpsHistory.length;
-
-        if (avg >= 60)      gc.setFill(ThemeManager.getInstance().getColorSuccess());
-        else if (avg >= 30) gc.setFill(ThemeManager.getInstance().getColorWarning());
-        else                gc.setFill(ThemeManager.getInstance().getColorError());
-
-        gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
-        gc.fillText(String.format("FPS: %.0f", avg), canvasWidth - 80, 50);
-    }
-
-    private final List<EnduranceIndicator> enduranceIndicators = new ArrayList<>();
-
     private void renderEnduranceAlterations(UniverseModel universe, CameraModel camera, double dt, GraphicsContext gc) {
         Map<Vector2, Double> altered = universe.getAlteredEndurances();
         if (!altered.isEmpty()) {
             for (Map.Entry<Vector2, Double> entry : altered.entrySet()) {
                 EnduranceIndicator ind = EnduranceIndicator.create(
-                        entry.getKey(),
-                        camera,
-                        entry.getValue(),
-                        mainCanvas.getWidth(),
-                        mainCanvas.getHeight()
+                        entry.getKey(), camera, entry.getValue(),
+                        mainCanvas.getWidth(), mainCanvas.getHeight()
                 );
                 enduranceIndicators.add(ind);
             }
@@ -202,32 +193,36 @@ public class UniverseRenderer {
     }
 
     private void drawUniverseBoundaries(GraphicsContext gc, UniverseModel universe, CameraModel camera) {
-        // Otteniamo il raggio in metri dall'UniverseModel e lo convertiamo in pixel
         double radiusPx = UU.mToPx(universe.getUniverseRadius());
-
-        // Il centro del mondo
-        double worldCenterX = 0.0;
-        double worldCenterY = 0.0;
-
-        // Applichiamo la trasformazione della telecamera per trovare il centro a schermo
         double zoom = camera.getZoom();
-        double screenCenterX = mainCanvas.getWidth() / 2.0;
-        double screenCenterY = mainCanvas.getHeight() / 2.0;
 
-        double drawCenterX = screenCenterX + (worldCenterX - camera.getX()) * zoom;
-        double drawCenterY = screenCenterY + (worldCenterY - camera.getY()) * zoom;
+        double drawCenterX = (mainCanvas.getWidth() / 2.0) + (0.0 - camera.getX()) * zoom;
+        double drawCenterY = (mainCanvas.getHeight() / 2.0) + (0.0 - camera.getY()) * zoom;
 
-        // Calcoliamo il raggio scalato e il diametro finale in base allo zoom
         double scaledRadius = radiusPx * zoom;
         double diameter = scaledRadius * 2.0;
 
-        // Disegniamo l'anello di contorno circolare
         gc.save();
         gc.setStroke(Color.WHITE);
-        gc.setLineWidth(2.0 * zoom); // Spessore della linea proporzionale allo zoom della camera
-
-        // strokeOval richiede l'angolo top-left del rettangolo immaginario che inscrive il cerchio
+        gc.setLineWidth(2.0 * zoom);
         gc.strokeOval(drawCenterX - scaledRadius, drawCenterY - scaledRadius, diameter, diameter);
         gc.restore();
+    }
+
+    private void drawFps(GraphicsContext gc, double canvasWidth) {
+        double dt = gameModel.getDt();
+        fpsHistory[fpsIdx] = dt > 0 ? 1.0 / dt : 0;
+        fpsIdx = (fpsIdx + 1) % fpsHistory.length;
+
+        double avg = 0;
+        for (double f : fpsHistory) avg += f;
+        avg /= fpsHistory.length;
+
+        if (avg >= 60)      gc.setFill(ThemeManager.getInstance().getColorSuccess());
+        else if (avg >= 30) gc.setFill(ThemeManager.getInstance().getColorWarning());
+        else                gc.setFill(ThemeManager.getInstance().getColorError());
+
+        gc.setLineWidth(TipografiaAurea.LABEL[TipografiaAurea.SMALL]);
+        gc.fillText(String.format("FPS: %.0f", avg), canvasWidth - 80, 50);
     }
 }

@@ -11,7 +11,6 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import uni.gaben.iscat.utils.sprite.SpriteUtils;
-import uni.gaben.iscat.utils.CssThemeGenerator;
 
 import java.io.File;
 import java.util.HashMap;

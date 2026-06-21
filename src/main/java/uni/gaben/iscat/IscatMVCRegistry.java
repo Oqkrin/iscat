@@ -10,7 +10,6 @@ import uni.gaben.iscat.view.IscatView;
 
 public class IscatMVCRegistry {
     private IscatMVCRegistry() {
-        /* mvc registry */
     }
 
     public static AbstractIscatStackPane getMVC(IscatViews scene) {

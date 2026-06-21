@@ -47,7 +47,6 @@ public class ConfirmationOverlayController implements IscatMenuController {
     @FXML private Button noBtn;
     @FXML private VBox dialog;
 
-    private StackPane contentRoot;
     private Consumer<String> onConfirmWithInput;
     private Runnable onCancelCallback;
     private Runnable onKeybindTrigger;
@@ -102,7 +101,6 @@ public class ConfirmationOverlayController implements IscatMenuController {
 
     @Override
     public void setPointerToView(StackPane pointer) {
-        this.contentRoot = pointer;
     }
 
     /**
@@ -202,7 +200,7 @@ public class ConfirmationOverlayController implements IscatMenuController {
             FadeTransition fadeInBg = new FadeTransition(Duration.millis(150), rootPane);
             fadeInBg.setToValue(1.0);
             fadeInBg.play();
-            playSpawnTween(rootPane.getChildren().get(0));
+            playSpawnTween(rootPane.getChildren().getFirst());
         }
     }
 
@@ -236,7 +234,7 @@ public class ConfirmationOverlayController implements IscatMenuController {
             return;
         }
 
-        Node container = rootPane.getChildren().get(0);
+        Node container = rootPane.getChildren().getFirst();
         FadeTransition fadeOutBg = new FadeTransition(Duration.millis(150), rootPane);
         fadeOutBg.setToValue(0.0);
 
