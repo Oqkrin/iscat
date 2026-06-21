@@ -36,7 +36,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     public RandomizedShootAbility(double combatRange, double cooldownSec,
                                   ProjectileType bulletType,
                                   Target target, boolean aimAtTarget, double nerfPrediction,
-                                  double damage, int attackStateIndex, // <-- AGGIUNTO QUI
+                                  double damage, int attackStateIndex,
                                   Pattern... attacks) {
         super("randomized-shoot", combatRange, cooldownSec, bulletType, target, aimAtTarget, nerfPrediction, attackStateIndex);
         this.damage = damage;
@@ -48,7 +48,7 @@ public class RandomizedShootAbility extends AbstractShootAbility {
     public static RandomizedShootAbility targetingPlayer(double combatRange, double cooldownSec,
                                                          ProjectileType bulletType, boolean aimAtTarget,
                                                          double nerfPrediction,
-                                                         double damage, int attackStateIndex, // <-- AGGIUNTO QUI
+                                                         double damage, int attackStateIndex,
                                                          Pattern... attacks) {
         return new RandomizedShootAbility(combatRange, cooldownSec, bulletType,
                 universe -> Collections.singletonList(universe.getPlayer()), aimAtTarget, nerfPrediction, damage, attackStateIndex, attacks);

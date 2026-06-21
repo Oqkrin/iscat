@@ -14,6 +14,7 @@ import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.model.user.UserSettings;
 import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
@@ -23,6 +24,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller per il menu del Tutorial.
+ * Gestisce la visualizzazione dinamica dei comandi utente e un'animazione coreografica
+ * ad anello in cui le navicelle dei player orbitano attorno al centro dello schermo.
+ * Premendo sulle navicelle in orbita viene riprodotto un effetto sonoro casuale.
+ */
 public class TutorialMenuController implements IscatMenuController {
 
     @FXML private BorderPane rootPane;
@@ -33,64 +40,85 @@ public class TutorialMenuController implements IscatMenuController {
     @FXML private Label dashLabel;
 
     private StackPane contentRoot;
-    private AnimationTimer solarSystemTimer;
-    private Pane spaceOverlay;
-    private final List<PlanetNode> planets = new ArrayList<>();
+    private AnimationTimer orbitTimer;
+    private Pane overlayContainer;
+    private final List<OrbitNode> orbitingNodes = new ArrayList<>();
     private UserSettings userSettings;
 
-    private static final int NUMBER_OF_PLANETS = 6;
+    private static final int NUMBER_OF_PLAYERS = 6;
     private static final double ORBIT_RADIUS = 310.0;
     private static final double BASE_SPEED = 0.012;
 
-    private static class PlanetNode {
+    /**
+     * Struttura dati interna per tracciare la posizione e lo stato
+     * di un elemento grafico in orbita circolare.
+     */
+    private static class OrbitNode {
         Button button;
         double angle;
         double speedModifier;
     }
 
+    /**
+     * Imposta le impostazioni utente correnti per configurare i tasti dei comandi.
+     *
+     * @param userSettings Le impostazioni dell'utente.
+     */
     public void setUserSettings(UserSettings userSettings) {
         this.userSettings = userSettings;
     }
 
+    /**
+     * Inizializza il controller, configura i nodi grafici e registra i listener
+     * per far partire o arrestare l'animazione dell'orbita in base alla visibilità della UI.
+     */
     @FXML
     public void initialize() {
         ComponentsUtils.applyIconButton(backBtn, "fas-arrow-left");
 
         rootPane.visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
             if (isNowVisible) {
-                Platform.runLater(this::setupSolarSystem);
+                Platform.runLater(this::setupOrbitAnimation);
             } else {
-                clearSolarSystem();
+                clearOrbitAnimation();
             }
         });
 
         rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null && rootPane.isVisible()) {
-                Platform.runLater(this::setupSolarSystem);
+                Platform.runLater(this::setupOrbitAnimation);
             }
         });
     }
 
-    private void clearSolarSystem() {
-        if (solarSystemTimer != null) {
-            solarSystemTimer.stop();
-            solarSystemTimer = null;
+    /**
+     * Ferma il timer dell'animazione, svuota i contenitori grafici
+     * e pulisce la lista dei nodi tracciati in orbita.
+     */
+    private void clearOrbitAnimation() {
+        if (orbitTimer != null) {
+            orbitTimer.stop();
+            orbitTimer = null;
         }
-        if (spaceOverlay != null) {
-            if (spaceOverlay.getParent() instanceof StackPane parent) {
-                parent.getChildren().remove(spaceOverlay);
+        if (overlayContainer != null) {
+            if (overlayContainer.getParent() instanceof StackPane parent) {
+                parent.getChildren().remove(overlayContainer);
             }
-            spaceOverlay.getChildren().clear();
-            spaceOverlay = null;
+            overlayContainer.getChildren().clear();
+            overlayContainer = null;
         }
-        planets.clear();
+        orbitingNodes.clear();
     }
 
-    private void setupSolarSystem() {
+    /**
+     * Configura da zero l'animazione dell'orbita circolare dei player.
+     * Recupera le skin disponibili, istanzia i bottoni animati, applica gli eventi
+     * per la riproduzione audio casuale e avvia l'{@link AnimationTimer}.
+     */
+    private void setupOrbitAnimation() {
         this.userSettings = SessionManager.getInstance().getCurrentSettings();
         updateStaticLabels();
-
-        clearSolarSystem();
+        clearOrbitAnimation();
 
         List<EntityRecord> availableSkins = new ArrayList<>();
         Map<String, EntityRecord> globalCache = EntityFactory.getCache();
@@ -109,11 +137,11 @@ public class TutorialMenuController implements IscatMenuController {
         }
         if (topStackPane == null) return;
 
-        spaceOverlay = new Pane();
-        spaceOverlay.setPickOnBounds(false);
+        overlayContainer = new Pane();
+        overlayContainer.setPickOnBounds(false);
 
-        topStackPane.getChildren().add(spaceOverlay);
-        spaceOverlay.toFront();
+        topStackPane.getChildren().add(overlayContainer);
+        overlayContainer.toFront();
 
         VBox centerContainer = null;
         if (rootPane.getCenter() instanceof VBox vbox) {
@@ -122,7 +150,7 @@ public class TutorialMenuController implements IscatMenuController {
 
         final VBox referenceCenter = centerContainer;
 
-        int count = Math.min(NUMBER_OF_PLANETS, availableSkins.size());
+        int count = Math.min(NUMBER_OF_PLAYERS, availableSkins.size());
         double angleStep = (2 * Math.PI) / count;
 
         List<String> controlLabels = getControlLabels();
@@ -135,57 +163,68 @@ public class TutorialMenuController implements IscatMenuController {
             canvas.resize(80.0);
             canvas.setFrameDuration(0.15);
 
-            Button planetBtn = new Button();
-            planetBtn.getStyleClass().add("skin-button");
-            planetBtn.setGraphic(canvas);
-            planetBtn.setFocusTraversable(false);
+            Button playerBtn = new Button();
+            playerBtn.getStyleClass().add("skin-button");
+            playerBtn.setGraphic(canvas);
+            playerBtn.setFocusTraversable(false);
 
             if (i < controlLabels.size()) {
-                planetBtn.setText(controlLabels.get(i));
+                playerBtn.setText(controlLabels.get(i));
             }
 
-            planetBtn.setMinSize(96, 96);
-            planetBtn.setMaxSize(96, 96);
+            playerBtn.setMinSize(96, 96);
+            playerBtn.setMaxSize(96, 96);
 
-            PlanetNode planet = new PlanetNode();
-            planet.button = planetBtn;
-            planet.angle = i * angleStep;
-            planet.speedModifier = 0.85 + (Math.random() * 0.3);
+            playerBtn.setOnAction(e -> {
+                String randomSfx = AudioManager.getInstance().getRandomSfxKey();
+                if (randomSfx != null) {
+                    AudioManager.getInstance().playSFX(randomSfx);
+                }
+            });
 
-            planets.add(planet);
-            spaceOverlay.getChildren().add(planetBtn);
+            OrbitNode node = new OrbitNode();
+            node.button = playerBtn;
+            node.angle = i * angleStep;
+            node.speedModifier = 0.85 + (Math.random() * 0.3);
+
+            orbitingNodes.add(node);
+            overlayContainer.getChildren().add(playerBtn);
         }
 
-        solarSystemTimer = new AnimationTimer() {
+        orbitTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (spaceOverlay == null) return;
+                if (overlayContainer == null) return;
 
-                double centerX = spaceOverlay.getWidth() / 2.0;
-                double centerY = spaceOverlay.getHeight() / 2.0;
+                double centerX = overlayContainer.getWidth() / 2.0;
+                double centerY = overlayContainer.getHeight() / 2.0;
 
                 if (referenceCenter != null && referenceCenter.getWidth() > 0) {
                     centerX = referenceCenter.getLocalToSceneTransform().getTx() + (referenceCenter.getWidth() / 2.0);
                     centerY = referenceCenter.getLocalToSceneTransform().getTy() + (referenceCenter.getHeight() / 2.0) - 40.0;
                 }
 
-                for (PlanetNode planet : planets) {
-                    planet.angle += BASE_SPEED * planet.speedModifier;
-                    if (planet.angle > 2 * Math.PI) {
-                        planet.angle -= 2 * Math.PI;
+                for (OrbitNode node : orbitingNodes) {
+                    node.angle += BASE_SPEED * node.speedModifier;
+                    if (node.angle > 2 * Math.PI) {
+                        node.angle -= 2 * Math.PI;
                     }
 
-                    double posX = centerX + Math.cos(planet.angle) * ORBIT_RADIUS - (planet.button.getWidth() / 2.0);
-                    double posY = centerY + Math.sin(planet.angle) * ORBIT_RADIUS - (planet.button.getHeight() / 2.0);
+                    double posX = centerX + Math.cos(node.angle) * ORBIT_RADIUS - (node.button.getWidth() / 2.0);
+                    double posY = centerY + Math.sin(node.angle) * ORBIT_RADIUS - (node.button.getHeight() / 2.0);
 
-                    planet.button.setLayoutX(posX);
-                    planet.button.setLayoutY(posY);
+                    node.button.setLayoutX(posX);
+                    node.button.setLayoutY(posY);
                 }
             }
         };
-        solarSystemTimer.start();
+        orbitTimer.start();
     }
 
+    /**
+     * Aggiorna i testi delle etichette statiche della schermata mostrando i tasti attuali
+     * di movimento, attacco e dash salvati nelle impostazioni utente.
+     */
     private void updateStaticLabels() {
         if (userSettings == null || moveLabel == null || attackLabel == null || dashLabel == null) return;
 
@@ -195,6 +234,12 @@ public class TutorialMenuController implements IscatMenuController {
         dashLabel.setText(userSettings.getDash1());
     }
 
+    /**
+     * Costruisce e restituisce una lista formattata di stringhe descrittive relative ai comandi di gioco.
+     * Se le impostazioni utente non sono caricate, restituisce dei placeholder standard.
+     *
+     * @return Lista di stringhe contenenti le descrizioni dei controlli associati ai tasti.
+     */
     private List<String> getControlLabels() {
         List<String> labels = new ArrayList<>();
         if (userSettings == null) {
@@ -216,10 +261,15 @@ public class TutorialMenuController implements IscatMenuController {
         return labels;
     }
 
+    /**
+     * Gestisce la pressione del pulsante indietro fermando in sicurezza il loop di animazione.
+     *
+     * @param event L'evento di azione generato dal click.
+     */
     @FXML
     private void handleBackAction(ActionEvent event) {
-        if (solarSystemTimer != null) {
-            solarSystemTimer.stop();
+        if (orbitTimer != null) {
+            orbitTimer.stop();
         }
         handleBack();
     }

@@ -42,10 +42,6 @@
     /* Rimuove l'evidenziazione blu e i bordi nativi al focus */
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-
-    /* NOTA: -fx-font-size e -fx-font-family sono stati rimossi da qui.
-       Vengono gestiti interamente dal codice Java (onShow e AutoFittingInputBinder)
-       per evitare che il motore CSS sovrascriva il rimpicciolimento dinamico. */
 }
 
 .login-input-field:focused {

@@ -8,26 +8,43 @@ import uni.gaben.iscat.view.LoginView;
 import uni.gaben.iscat.view.components.AbstractIscatStackPane;
 import uni.gaben.iscat.view.IscatFXMLView;
 
-public class IscatMVCRegistry {
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
+public final class IscatMVCRegistry {
+
+    private static final Map<IscatViews, Supplier<AbstractIscatStackPane>> REGISTRY = new EnumMap<>(IscatViews.class);
+
+    static {
+        // Registrazione viste Custom
+        REGISTRY.put(IscatViews.LOGIN_MENU, LoginView::new);
+        REGISTRY.put(IscatViews.GAME, () -> new GameView(new GameController(new GameModel())));
+
+        // Registrazione viste FXML standard
+        registerFxml(IscatViews.MAIN_MENU, "MainMenu.fxml");
+        registerFxml(IscatViews.SKIN_MENU, "SkinMenu.fxml");
+        registerFxml(IscatViews.BESTIARY_MENU, "BestiaryMenu.fxml");
+        registerFxml(IscatViews.SCORE_MENU, "ScoreMenu.fxml");
+        registerFxml(IscatViews.SETTINGS_MENU, "SettingsMenu.fxml");
+        registerFxml(IscatViews.CREDITS, "CreditsMenu.fxml");
+        registerFxml(IscatViews.LEADERBOARD_MENU, "LeaderboardMenu.fxml");
+        registerFxml(IscatViews.TUTORIAL_MENU, "TutorialMenu.fxml");
+        registerFxml(IscatViews.ENTITY_EDITOR, "EntityEditorMenu.fxml");
+    }
+
     private IscatMVCRegistry() {
     }
 
+    private static void registerFxml(IscatViews view, String fxmlName) {
+        REGISTRY.put(view, () -> new IscatFXMLView("/uni/gaben/iscat/fxml/" + fxmlName));
+    }
+
     public static AbstractIscatStackPane getMVC(IscatViews scene) {
-        return switch (scene) {
-            case LOGIN_MENU -> new LoginView();
-            case GAME -> {
-                GameController gameController = new GameController(new GameModel());
-                yield new GameView(gameController);
-            }
-            case MAIN_MENU -> new IscatFXMLView("/uni/gaben/iscat/fxml/MainMenu.fxml");
-            case SKIN_MENU -> new IscatFXMLView("/uni/gaben/iscat/fxml/SkinMenu.fxml");
-            case BESTIARY_MENU -> new IscatFXMLView("/uni/gaben/iscat/fxml/BestiaryMenu.fxml");
-            case SCORE_MENU -> new IscatFXMLView("/uni/gaben/iscat/fxml/ScoreMenu.fxml");
-            case SETTINGS_MENU -> new IscatFXMLView("/uni/gaben/iscat/fxml/SettingsMenu.fxml");
-            case CREDITS -> new IscatFXMLView("/uni/gaben/iscat/fxml/CreditsMenu.fxml");
-            case LEADERBOARD_MENU -> new IscatFXMLView("/uni/gaben/iscat/fxml/LeaderboardMenu.fxml");
-            case TUTORIAL_MENU -> new IscatFXMLView("/uni/gaben/iscat/fxml/TutorialMenu.fxml");
-            case ENTITY_EDITOR -> new IscatFXMLView("/uni/gaben/iscat/fxml/EntityEditorMenu.fxml");
-        };
+        Supplier<AbstractIscatStackPane> factory = REGISTRY.get(scene);
+        if (factory == null) {
+            throw new IllegalArgumentException("Nessuna View registrata nel sistema per la scena: " + scene);
+        }
+        return factory.get();
     }
 }

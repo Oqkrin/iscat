@@ -100,7 +100,6 @@ public class AccountSettingsController {
 
                         if (alreadyTaken) {
                             Platform.runLater(() ->
-                                    // MODIFICATO QUI: Appare solo OK
                                     confirmOverlayController.askWithButtons(
                                             "Username non disponibile",
                                             "'" + trimmed + "' è già in uso. Scegli un altro nome.",
@@ -150,7 +149,6 @@ public class AccountSettingsController {
 
                         if (!valid) {
                             Platform.runLater(() ->
-                                    // MODIFICATO QUI: Se la password è errata mostra solo OK
                                     confirmOverlayController.askWithButtons(
                                             "Password errata",
                                             "La password attuale inserita non è corretta.",

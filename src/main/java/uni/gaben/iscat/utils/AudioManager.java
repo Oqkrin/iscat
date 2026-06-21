@@ -13,15 +13,47 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * Gestione centralizzata dell'audio (BGM + SFX) per ISCAT.
- * Singleton thread-safe tramite initialization-on-demand holder.
+ * Gestione centralizzata dell'audio (BGM + SFX) per l'applicazione ISCAT.
+ * Gestisce la riproduzione dei sottofondi musicali (BGM) tramite {@link MediaPlayer}
+ * e degli effetti sonori (SFX) tramite {@link AudioClip}, supportando il throttling
+ * temporale per evitare sovrapposizioni acustiche fastidiose.
+ * <p>
+ * Implementa il pattern Singleton in modalità thread-safe tramite Holder interno.
  */
-public class AudioManager {
+public final class AudioManager {
 
-    // --- Singleton ---
 
     private AudioManager() {}
 
+    /**
+     * Holder interno per l'inizializzazione lazy e thread-safe dell'istanza Singleton.
+     */
+    private static final class Holder {
+        private static final AudioManager INSTANCE = new AudioManager();
+    }
+
+    /**
+     * Restituisce l'istanza unica dell'AudioManager.
+     *
+     * @return L'istanza corrente di {@code AudioManager}.
+     */
+    public static AudioManager getInstance() {
+        return Holder.INSTANCE;
+    }
+
+    private MediaPlayer bgmPlayer;
+    private String currentBgmPath = "";
+    private final Map<String, AudioClip> sfxMap = new HashMap<>();
+    private final Map<String, Long> lastPlayedMap = new HashMap<>();
+
+    private static final long DEFAULT_COOLDOWN_MS = 30;
+
+    /**
+     * Associa in modo statico ogni vista di gioco al rispettivo file audio di sottofondo.
+     *
+     * @param scene La scena di destinazione.
+     * @return Il percorso della risorsa audio associata.
+     */
     public static String getBgmPath(IscatViews scene) {
         return switch (scene) {
             case LOGIN_MENU    -> "/uni/gaben/iscat/audio/BGM/awesomeness.wav";
@@ -38,35 +70,29 @@ public class AudioManager {
         };
     }
 
-    private static final class Holder {
-        private static final AudioManager INSTANCE = new AudioManager();
-    }
-
-    public static AudioManager getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    // --- Stato interno ---
-
-    private MediaPlayer bgmPlayer;
-    private String currentBgmPath = "";
-    private final Map<String, AudioClip> sfxMap = new HashMap<>();
-
-    // --- Volumi e Canali ---
-
     /**
-     * Sincronizza i volumi interni con quelli correnti in AudioSettings.
-     * Da chiamare dopo un caricamento massivo dei settings da file.
+     * Sincronizza i volumi interni con quelli correnti definiti nelle impostazioni utente.
+     * Da invocare a seguito di modifiche o caricamenti massivi del profilo utente.
      */
     public void syncVolumes() {
         updateBgmPlayerVolume();
     }
 
+    /**
+     * Restituisce il volume Master corrente.
+     *
+     * @return Il valore del volume master (range 0.0 - 1.0).
+     */
     public double getMasterVolume() {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         return (settings != null) ? settings.getVolumeMaster() : 1.0;
     }
 
+    /**
+     * Imposta il volume Master e aggiorna asincronamente il database.
+     *
+     * @param volume Il nuovo livello di volume (range 0.0 - 1.0).
+     */
     public void setMasterVolume(double volume) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings != null) {
@@ -78,11 +104,21 @@ public class AudioManager {
         updateBgmPlayerVolume();
     }
 
+    /**
+     * Restituisce il volume specifico per il canale BGM.
+     *
+     * @return Il valore del volume BGM (range 0.0 - 1.0).
+     */
     public double getBgmVolume() {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         return (settings != null) ? settings.getVolumeBgm() : 1.0;
     }
 
+    /**
+     * Imposta il volume per il canale BGM e aggiorna asincronamente il database.
+     *
+     * @param volume Il nuovo livello di volume per la musica (range 0.0 - 1.0).
+     */
     public void setBgmVolume(double volume) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings != null) {
@@ -94,11 +130,21 @@ public class AudioManager {
         updateBgmPlayerVolume();
     }
 
+    /**
+     * Restituisce il volume specifico per il canale degli effetti sonori (SFX).
+     *
+     * @return Il valore del volume SFX (range 0.0 - 1.0).
+     */
     public double getSfxVolume() {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         return (settings != null) ? settings.getVolumeSfx() : 0.3;
     }
 
+    /**
+     * Imposta il volume per il canale SFX e aggiorna asincronamente il database.
+     *
+     * @param volume Il nuovo livello di volume per gli effetti (range 0.0 - 1.0).
+     */
     public void setSfxVolume(double volume) {
         UserSettings settings = SessionManager.getInstance().getCurrentSettings();
         if (settings != null) {
@@ -110,7 +156,7 @@ public class AudioManager {
     }
 
     /**
-     * Helper interno per calcolare e aggiornare il volume reale del BGM (Canale * Master)
+     * Calcola e applica il volume finale sul lettore BGM moltiplicando il canale per il master.
      */
     private void updateBgmPlayerVolume() {
         if (bgmPlayer != null) {
@@ -118,13 +164,12 @@ public class AudioManager {
         }
     }
 
-    // --- BGM ---
-
     /**
-     * Avvia una traccia BGM. Ferma e libera l'eventuale traccia precedente.
+     * Avvia la riproduzione di una traccia BGM. Se una traccia differente è in esecuzione,
+     * viene interrotta e rilasciata automaticamente.
      *
-     * @param path path della risorsa (es. "/uni/gaben/iscat/audio/bgm/main.wav")
-     * @param loop {@code true} per riproduzione in loop
+     * @param path Il percorso della risorsa audio (es. "/audio/bgm/track.wav").
+     * @param loop {@code true} se la traccia deve ripetersi indefinitamente.
      */
     public void playBGM(String path, boolean loop) {
         if (currentBgmPath != null && currentBgmPath.equals(path) && bgmPlayer != null) {
@@ -138,7 +183,6 @@ public class AudioManager {
             );
             bgmPlayer = new MediaPlayer(new Media(url.toExternalForm()));
 
-            // Applica il volume combinato BGM * Master
             updateBgmPlayerVolume();
 
             if (loop) {
@@ -154,6 +198,9 @@ public class AudioManager {
         }
     }
 
+    /**
+     * Interrompe la riproduzione della traccia BGM corrente e ne rilascia le risorse allocate.
+     */
     public void stopBGM() {
         if (bgmPlayer != null) {
             bgmPlayer.stop();
@@ -163,13 +210,11 @@ public class AudioManager {
         }
     }
 
-    // --- SFX ---
-
-    private final Map<String, Long> lastPlayedMap = new HashMap<>();
-    private static final long DEFAULT_COOLDOWN_MS = 30;
-
     /**
-     * Carica tutti i file .wav presenti nella cartella delle risorse indicata.
+     * Scansiona e carica in memoria tutti i file audio con estensione .wav presenti nella cartella indicata.
+     * Supporta la lettura sia da file system nativo che dall'interno di archivi distribuiti (.jar).
+     *
+     * @param directoryPath Il percorso della cartella delle risorse (es. "/audio/sfx").
      */
     public void loadAllSFX(String directoryPath) {
         try {
@@ -194,6 +239,9 @@ public class AudioManager {
         }
     }
 
+    /**
+     * Esegue l'analisi effettiva dei file nella directory recuperata, registrando ogni traccia valida.
+     */
     private void scanAndLoadSFX(Path directory, String resourceBase) {
         try (Stream<Path> walk = Files.walk(directory, 1)) {
             walk.filter(p -> p.getFileName().toString().endsWith(".wav"))
@@ -208,7 +256,10 @@ public class AudioManager {
     }
 
     /**
-     * Carica un singolo file SFX e lo registra con il nome indicato.
+     * Registra un singolo effetto sonoro all'interno del registro di sistema.
+     *
+     * @param name Nome logico identificativo (chiave di tracciamento).
+     * @param path Percorso fisico della risorsa audio.
      */
     public void loadSFX(String name, String path) {
         var url = getClass().getResource(path);
@@ -227,9 +278,10 @@ public class AudioManager {
     }
 
     /**
-     * Riproduce un SFX applicando un filtro anti-baccano (Throttling) e calcolando il volume reale.
+     * Riproduce l'effetto sonoro richiesto previa verifica del cooldown temporale (throttling anti-baccano)
+     * e rimodulando l'intensità sonora in base ai canali SFX e Master correnti.
      *
-     * @param name chiave identificativa dell'SFX (es. "shoot")
+     * @param name Il nome logico dell'effetto sonoro da riprodurre (es. "shoot").
      */
     public void playSFX(String name) {
         AudioClip clip = sfxMap.get(name);
@@ -240,7 +292,6 @@ public class AudioManager {
 
         long now = System.currentTimeMillis();
         long lastPlayed = lastPlayedMap.getOrDefault(name, 0L);
-
         long requiredCooldown = name.equalsIgnoreCase("shoot") ? 90 : DEFAULT_COOLDOWN_MS;
 
         if (now - lastPlayed < requiredCooldown) {
@@ -248,18 +299,30 @@ public class AudioManager {
         }
 
         lastPlayedMap.put(name, now);
-
         clip.play(getSfxVolume() * getMasterVolume());
     }
 
     /**
-     * Carica tutti gli SFX dalla cartella di default.
+     * Seleziona ed estrae una chiave casuale pescata tra gli effetti d'archivio caricati in memoria.
+     * Utile per variazioni di feedback audio o riproduzioni randomiche nei menu.
+     *
+     * @return Una stringa identificativa dell'SFX, oppure {@code null} se il registro è vuoto.
+     */
+    public String getRandomSfxKey() {
+        if (sfxMap.isEmpty()) {
+            return null;
+        }
+        List<String> keys = new ArrayList<>(sfxMap.keySet());
+        int randomIndex = new Random().nextInt(keys.size());
+        return keys.get(randomIndex);
+    }
+
+    /**
+     * Avvia il caricamento iniziale massivo caricando tutti gli SFX presenti nella cartella predefinita.
      */
     public void loadDefaultAudio() {
         loadAllSFX("/uni/gaben/iscat/audio/SFX");
     }
-
-    // --- Utility ---
 
     private static String stripExtension(String fileName) {
         int dot = fileName.lastIndexOf('.');
