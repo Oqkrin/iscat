@@ -59,11 +59,6 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
         this.collisionEffects.put(id, onCollision);
     }
 
-    @Override
-    public boolean hasAnyCollision() {
-        return !collisionEffects.isEmpty();
-    }
-
     /**
      * Esegue tutti gli effetti di collisione registrati.
      * Ottimizzato sostituendo il forEach generico con un ciclo diretto sui valori della mappa.
@@ -77,16 +72,7 @@ public abstract class AbstractPhysicalEntityModel extends Body implements Dynami
         }
     }
 
-    @Override
-    public void triggerCollision(String id, AbstractPhysicalEntityModel other) {
-        Consumer<AbstractPhysicalEntityModel> effect = collisionEffects.get(id);
-        if (effect != null) {
-            effect.accept(other);
-        }
-    }
-
     @Override public void clearOnCollisions() { collisionEffects.clear(); }
-    @Override public void removeOnCollision(String id) { collisionEffects.remove(id); }
 
     // ---- Proprietà Fisiche Delegate ----
     @Override public double getAcceleration() { return entity.maxForce(); }

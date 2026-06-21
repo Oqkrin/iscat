@@ -45,18 +45,8 @@ public class HeartModel extends AbstractLivingEntityModel implements HasSprite {
     }
 
     @Override
-    public double getFrameDuration(int state, int frame) {
-        return getFrameDuration();
-    }
-
-    @Override
     public int getSpriteFrameHeight() {
         return HeartSettings.DIM_SPRITE;
-    }
-
-    @Override
-    public double getVisualScale() {
-        return HeartSettings.SCALE;
     }
 
     @Override
