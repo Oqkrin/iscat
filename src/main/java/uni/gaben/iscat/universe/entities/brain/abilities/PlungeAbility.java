@@ -8,6 +8,8 @@ import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.brain.target.Predictor;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.audio.AudioManager;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -69,6 +71,7 @@ public class PlungeAbility extends Ability {
      */
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
+        AudioManager.getInstance().playSFX("dashfotn");
         AbstractPhysicalEntityModel self = brain.getEntity();
         self.setTemporaryTerminalVelocity(self.getTerminalVelocity() * 3);
         self.setDashLinearDamping(0);

@@ -8,6 +8,8 @@ import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.utils.Cooldown;
+import uni.gaben.iscat.utils.audio.AudioManager;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -103,6 +105,7 @@ public class DodgeDashAbility extends Ability {
      */
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
+        AudioManager.getInstance().playSFX("dashfotn");
         AbstractPhysicalEntityModel self = brain.getEntity();
         self.setTemporaryTerminalVelocity(self.getTerminalVelocity() * 4); // Aumentato da 3 a 4 per uno scatto più rapido
         self.setDashLinearDamping(2.0); // Modificato da 0 a 2.0 per evitare che l'entità scivoli troppo lontano
