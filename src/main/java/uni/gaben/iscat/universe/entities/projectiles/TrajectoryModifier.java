@@ -23,10 +23,6 @@ public class TrajectoryModifier implements Updatable {
     private final Vector2 lateralScratch = UU.vector2zero();
     private final Vector2 trajectoryOut   = UU.vector2zero();
 
-    public TrajectoryModifier(Vector2 direction, Vector2 perpendicular, double amplitude, double frequency) {
-        this(direction, perpendicular, amplitude, frequency, 0.0);
-    }
-
     public TrajectoryModifier(Vector2 direction, Vector2 perpendicular, double amplitude, double frequency, double phaseOffset) {
         this.direction = direction.getNormalized();
         this.perpendicular = perpendicular.getNormalized();
@@ -69,20 +65,5 @@ public class TrajectoryModifier implements Updatable {
         trajectoryOut.y = (direction.y * forwardSpeed) + (perpendicular.y * lateralSpeed);
 
         return trajectoryOut;
-    }
-
-    public double getAmplitude() { return amplitude; }
-    public void setAmplitude(double amplitude) { this.amplitude = amplitude; }
-
-    public double getFrequency() { return frequency; }
-    public void setFrequency(double frequency) { this.frequency = frequency; }
-
-    public Vector2 getDirection() { return direction; }
-
-    /**
-     * Resetta il tempo interno per consentire il riutilizzo sicuro del modificatore.
-     */
-    public void resetTime() {
-        elapsedTime = 0.0;
     }
 }
