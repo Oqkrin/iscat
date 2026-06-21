@@ -11,6 +11,5 @@
   { "threat_level": "EXTREME", "total_enemies": 10 },
   { "threat_level": "EXTREME", "total_enemies": 11 },
   { "threat_level": "EXTREME", "total_enemies": 12 },
-  { "threat_level": "APOCALYPSE", "total_enemies":1  },
-  { "threat_level": "LOW", "total_enemies": 1000 }
+  { "threat_level": "APOCALYPSE", "total_enemies":1  }
 ]
