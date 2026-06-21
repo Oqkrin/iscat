@@ -2,7 +2,6 @@ package uni.gaben.iscat.view.game.debug;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -16,6 +15,8 @@ import uni.gaben.iscat.universe.spawn.UniverseSpawnable;
 import uni.gaben.iscat.universe.entities.parsed.EntityFactory;
 import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.utils.design.CssHelper;
+import uni.gaben.iscat.utils.design.ScalareAureo;
+import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 import java.io.InputStream;
 import java.util.*;
@@ -30,8 +31,9 @@ public class DebugToolBarSpawner extends VBox {
     public static final String BLACKHOLE_PNG = "/uni/gaben/iscat/sprites/other/blackhole.png";
     public static final String ASTEROID_PNG = "/uni/gaben/iscat/sprites/other/asteroid.png";
 
-    private final Map<String, Image> imageCache = new HashMap<>();
     private final GameController controller;
+    // Cache per le immagini singole (hardcoded)
+    private final Map<String, Image> imageCache = new HashMap<>();
 
     public DebugToolBarSpawner(GameController controller, Runnable onBack) {
         final double SU = IscatSettings.STANDARD_UNIT;
@@ -44,7 +46,7 @@ public class DebugToolBarSpawner extends VBox {
         this.controller = controller;
 
         VBox mainCategoriesLayout = new VBox(SU / 2);
-        mainCategoriesLayout.setPadding(new Insets(SU / 4, 0, SU / 4, 0));
+        mainCategoriesLayout.setPadding(new Insets(SU / 4, SU / 2, SU / 4, SU / 2));
 
         ScrollPane scroll = new ScrollPane();
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -52,7 +54,6 @@ public class DebugToolBarSpawner extends VBox {
         scroll.setFitToWidth(true);
         scroll.getStyleClass().add("debug-spawner-scroll");
 
-        // Back button
         Button btnBack = new Button("← INDIETRO");
         btnBack.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(btnBack);
@@ -63,11 +64,6 @@ public class DebugToolBarSpawner extends VBox {
 
         HBox topBar = new HBox(btnBack);
         topBar.setAlignment(Pos.TOP_LEFT);
-
-        Label mainTitle = new Label("SPAWNABLE LIST (CLICK TO GENERATE)");
-        CssHelper.testoPrimario(mainTitle);
-        mainTitle.getStyleClass().add("debug-main-title");
-        mainTitle.setPadding(new Insets(SU / 2, 0, SU / 4, 0));
 
         // Gather entities
         Map<String, EntityRecord> allUniqueEntities = getAllUniqueEntities();
@@ -119,7 +115,7 @@ public class DebugToolBarSpawner extends VBox {
         scroll.prefHeightProperty().bind(mainCategoriesLayout.heightProperty());
 
         VBox.setVgrow(scroll, Priority.ALWAYS);
-        getChildren().addAll(topBar, mainTitle, scroll);
+        getChildren().addAll(topBar, scroll);
     }
 
     private static Map<String, EntityRecord> getAllUniqueEntities() {
@@ -150,44 +146,55 @@ public class DebugToolBarSpawner extends VBox {
         final double SU = IscatSettings.STANDARD_UNIT;
 
         VBox sectionBox = new VBox(SU / 4);
+        sectionBox.setFillWidth(true);
+
         Label sectionTitle = new Label(titolo);
         CssHelper.testoPrimario(sectionTitle);
         sectionTitle.getStyleClass().add("debug-title");
         sectionTitle.setPadding(new Insets(SU / 2, 0, SU / 8, 0));
+        sectionTitle.setMaxWidth(Double.MAX_VALUE);
+        sectionTitle.setAlignment(Pos.CENTER_LEFT);
 
-        // Use TilePane with dynamic sizing
-        TilePane tilePane = new TilePane();
-        tilePane.setHgap(SU / 3);
-        tilePane.setVgap(SU / 3);
-        tilePane.setPrefColumns(4);
-        tilePane.setAlignment(Pos.TOP_LEFT);
+        GridPane grid = new GridPane();
+        grid.setHgap(SU / 3);
+        grid.setVgap(SU / 3);
+        grid.setAlignment(Pos.TOP_LEFT);
+        grid.setMaxWidth(Double.MAX_VALUE);
 
-        // Bind tile size to available width (computed)
-        tilePane.widthProperty().addListener((obs, old, newWidth) -> {
-            if (newWidth.doubleValue() > 0) {
-                int cols = tilePane.getPrefColumns();
-                double gap = tilePane.getHgap();
-                double tileWidth = (newWidth.doubleValue() - (cols - 1) * gap) / cols;
-                tilePane.setPrefTileWidth(tileWidth);
-                tilePane.setPrefTileHeight(tileWidth); // square tiles
-            }
-        });
-
-        for (Map.Entry<String, EntityRecord> entry : elementi) {
-            tilePane.getChildren().add(createSquareSpawnCard(entry.getKey(), entry.getValue(), tilePane));
+        int numCols = 8;
+        for (int i = 0; i < numCols; i++) {
+            ColumnConstraints col = new ColumnConstraints();
+            col.setPercentWidth(100.0 / numCols);
+            col.setHgrow(Priority.ALWAYS);
+            grid.getColumnConstraints().add(col);
         }
 
-        sectionBox.getChildren().addAll(sectionTitle, tilePane);
+        int row = 0, col = 0;
+        for (Map.Entry<String, EntityRecord> entry : elementi) {
+            VBox card = createSquareSpawnCard(entry.getKey(), entry.getValue(), grid);
+            grid.add(card, col, row);
+            GridPane.setHgrow(card, Priority.ALWAYS);
+            GridPane.setVgrow(card, Priority.ALWAYS);
+            col++;
+            if (col >= numCols) {
+                col = 0;
+                row++;
+            }
+        }
+
+        sectionBox.getChildren().addAll(sectionTitle, grid);
         parent.getChildren().add(sectionBox);
     }
 
-    private VBox createSquareSpawnCard(String key, EntityRecord entity, TilePane parentTile) {
+    private VBox createSquareSpawnCard(String key, EntityRecord entity, GridPane parentGrid) {
         final double SU = IscatSettings.STANDARD_UNIT;
-        // Icon size is computed as 70% of the tile width (ensures scaling)
+
         VBox card = new VBox(SU / 4);
         card.setAlignment(Pos.TOP_CENTER);
         card.setPadding(new Insets(SU / 4));
         card.setId(key);
+        card.setMaxWidth(Double.MAX_VALUE);
+        card.setMaxHeight(Double.MAX_VALUE);
 
         Button btnSquare = new Button();
         btnSquare.setFocusTraversable(false);
@@ -195,83 +202,101 @@ public class DebugToolBarSpawner extends VBox {
         btnSquare.getStyleClass().add("debug-spawn-btn-square");
         btnSquare.setPadding(new Insets(SU / 4));
         btnSquare.setOnAction(e -> controller.debugSpawn(key));
+        btnSquare.setMaxWidth(Double.MAX_VALUE);
+        btnSquare.setMaxHeight(Double.MAX_VALUE);
 
-        // Determine sprite path & fallback logic
-        String targetSpritePath = (entity != null) ? entity.spritePath() : null;
-        boolean isTextFallback = false;
         String lowerKey = key.toLowerCase();
 
-        if (lowerKey.equals("worm") || lowerKey.equals("iscat_worm")) {
-            Map<String, EntityRecord> cacheMap = EntityFactory.getCache();
-            if (cacheMap.containsKey("iscat_worm_head")) {
-                entity = cacheMap.get("iscat_worm_head");
-                targetSpritePath = entity.spritePath();
-            }
-        } else if (lowerKey.contains("heart")) {
-            targetSpritePath = HEART_PNG;
+        // --- 1) Gestione hardcoded (heart, blackhole, asteroid) con ImageView ---
+        String hardcodedPath = null;
+        if (lowerKey.contains("heart")) {
+            hardcodedPath = HEART_PNG;
         } else if (lowerKey.contains("blackhole")) {
-            targetSpritePath = BLACKHOLE_PNG;
+            hardcodedPath = BLACKHOLE_PNG;
         } else if (lowerKey.contains("asteroid")) {
-            targetSpritePath = ASTEROID_PNG;
+            hardcodedPath = ASTEROID_PNG;
         }
 
-        ImageView view = null;
-        if (targetSpritePath != null && !targetSpritePath.isBlank()) {
-            try {
-                String path = targetSpritePath.startsWith("/") ? targetSpritePath : "/" + targetSpritePath;
-                Image spriteImg = imageCache.computeIfAbsent(path, p -> {
-                    try (InputStream is = getClass().getResourceAsStream(p)) {
-                        if (is != null) return new Image(is);
-                    } catch (Exception ex) {
-                        System.err.println("[DebugToolBar] Cannot load: " + p);
-                    }
-                    return null;
-                });
-
-                if (spriteImg != null && !spriteImg.isError()) {
-                    view = new ImageView(spriteImg);
-                    boolean isHardcoded = lowerKey.contains("heart") || lowerKey.contains("blackhole") || lowerKey.contains("asteroid");
-                    if (entity != null && entity.frameW() > 0 && entity.frameH() > 0 && !isHardcoded) {
-                        if (lowerKey.contains("master")) {
-                            view.setViewport(new Rectangle2D(0, entity.frameH(), entity.frameW(), entity.frameH()));
-                        } else {
-                            view.setViewport(new Rectangle2D(0, 0, entity.frameW(), entity.frameH()));
-                        }
-                    }
-                    view.setPreserveRatio(true);
-                    view.setSmooth(true);
-                } else {
-                    isTextFallback = true;
+        if (hardcodedPath != null) {
+            // Carica l'immagine singola
+            Image img = imageCache.computeIfAbsent(hardcodedPath, path -> {
+                try (InputStream is = getClass().getResourceAsStream(path)) {
+                    if (is != null) return new Image(is);
+                } catch (Exception e) {
+                    System.err.println("[DebugToolBar] Failed to load hardcoded image: " + path);
                 }
-            } catch (Exception e) {
-                isTextFallback = true;
+                return null;
+            });
+
+            if (img != null && !img.isError()) {
+                ImageView view = new ImageView(img);
+                view.setPreserveRatio(true);
+                view.setSmooth(false);
+                // Bind dimensioni al 60% della larghezza della card
+                view.fitWidthProperty().bind(card.widthProperty().multiply(0.6));
+                view.fitHeightProperty().bind(view.fitWidthProperty());
+                btnSquare.setGraphic(view);
+            } else {
+                // Fallback a testo
+                Label textLabel = new Label("[+]");
+                CssHelper.testoPrimario(textLabel);
+                textLabel.getStyleClass().add("debug-spawn-fallback-text");
+                textLabel.setAlignment(Pos.CENTER);
+                btnSquare.setGraphic(textLabel);
             }
         } else {
-            isTextFallback = true;
-        }
+            // --- 2) Entità normali → AnimatedCanvas ---
+            AnimatedCanvas spriteCanvas = null;
+            String spritePath = null;
+            int frameW = 0, frameH = 0;
 
-        if (isTextFallback || view == null) {
-            Label textLabel = new Label("[+]");
-            CssHelper.testoPrimario(textLabel);
-            textLabel.getStyleClass().add("debug-spawn-fallback-text");
-            textLabel.setAlignment(Pos.CENTER);
-            btnSquare.setGraphic(textLabel);
-        } else {
-            btnSquare.setGraphic(view);
-            // Bind icon size to the tile's computed width (70% of tile)
-            ImageView finalView = view;
-            parentTile.prefTileWidthProperty().addListener((obs, old, newVal) -> {
-                double size = newVal.doubleValue() * 0.7;
-                if (size > 0) {
-                    finalView.setFitWidth(size);
-                    finalView.setFitHeight(size);
+            if (entity != null && entity.spritePath() != null && !entity.spritePath().isBlank()) {
+                spritePath = entity.spritePath();
+                frameW = entity.frameW();
+                frameH = entity.frameH();
+            } else if (lowerKey.equals("worm") || lowerKey.equals("iscat_worm")) {
+                // Worm usa la testa come icona
+                Map<String, EntityRecord> cacheMap = EntityFactory.getCache();
+                if (cacheMap.containsKey("iscat_worm_head")) {
+                    EntityRecord head = cacheMap.get("iscat_worm_head");
+                    if (head != null) {
+                        spritePath = head.spritePath();
+                        frameW = head.frameW();
+                        frameH = head.frameH();
+                    }
                 }
-            });
-            // Initial sizing
-            double initialSize = parentTile.getPrefTileWidth() * 0.7;
-            if (initialSize > 0) {
-                view.setFitWidth(initialSize);
-                view.setFitHeight(initialSize);
+            }
+
+            if (spritePath != null && !spritePath.isBlank()) {
+                try {
+                    spriteCanvas = new AnimatedCanvas();
+                    if (frameW > 0 && frameH > 0) {
+                        spriteCanvas.loadSkin(spritePath, frameW, frameH);
+                    } else {
+                        // Fallback: carica come immagine singola? Meglio usare ImageView?
+                        // Per sicurezza proviamo a caricare con 0,0 (potrebbe fallire)
+                        spriteCanvas.loadSkin(spritePath, 0, 0);
+                    }
+                    spriteCanvas.setFrameDuration(0.1);
+                } catch (Exception e) {
+                    System.err.println("[DebugToolBar] Failed to load sprite: " + spritePath);
+                    spriteCanvas = null;
+                }
+            }
+
+            if (spriteCanvas != null) {
+                btnSquare.setGraphic(spriteCanvas);
+                AnimatedCanvas finalSpriteCanvas = spriteCanvas;
+                card.widthProperty().addListener((observable, oldValue, newValue) ->
+                        finalSpriteCanvas.resize(ScalareAureo.phiMinore(newValue.doubleValue()))
+                        );
+            } else {
+                // Fallback a testo
+                Label textLabel = new Label("[+]");
+                CssHelper.testoPrimario(textLabel);
+                textLabel.getStyleClass().add("debug-spawn-fallback-text");
+                textLabel.setAlignment(Pos.CENTER);
+                btnSquare.setGraphic(textLabel);
             }
         }
 
