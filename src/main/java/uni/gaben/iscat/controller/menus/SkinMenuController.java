@@ -17,6 +17,11 @@ import uni.gaben.iscat.view.skin.SkinGrid;
 
 import java.util.*;
 
+/**
+ * Controller per la gestione del menu di selezione delle skin del giocatore.
+ * Coordina la griglia interattiva delle skin disponibili, il pannello informativo
+ * delle statistiche e il salvataggio asincrono delle preferenze dell'utente.
+ */
 public class SkinMenuController implements IscatMenuController {
 
     @FXML public VBox skinsVbox;
@@ -28,12 +33,16 @@ public class SkinMenuController implements IscatMenuController {
     private final SkinGridModel gridModel = new SkinGridModel();
     private final Random rng = new Random();
 
-    private SkinGrid skinGridComponent;   // the new custom view
+    private SkinGrid skinGridComponent;
     private StackPane contentRoot;
 
     private String selectedSkinPath;
     private String selectedSkinKey = "player1";
 
+    /**
+     * Inizializza i pulsanti con icone grafiche, carica l'elenco delle skin dal modulo factory,
+     * istanzia la griglia personalizzata e registra i listener reattivi sul cambio di selezione.
+     */
     @FXML
     public void initialize() {
         ComponentsUtils.applyIconButton(confirm, "fas-check");
@@ -41,7 +50,6 @@ public class SkinMenuController implements IscatMenuController {
 
         loadSkinsFromJson();
 
-        // Build and insert the custom skin grid
         skinGridComponent = new SkinGrid(
                 gridModel,
                 this::onSkinSelected,
@@ -50,7 +58,6 @@ public class SkinMenuController implements IscatMenuController {
         skinsVbox.getChildren().addFirst(skinGridComponent);
         VBox.setVgrow(skinGridComponent, Priority.ALWAYS);
 
-        // React to selection changes (info panel update)
         gridModel.selectedKeyProperty().addListener((obs, oldKey, newKey) -> {
             if (newKey != null && !newKey.equals(oldKey)) {
                 refreshInfoZone();
@@ -61,6 +68,10 @@ public class SkinMenuController implements IscatMenuController {
         registerEscHandler();
     }
 
+    /**
+     * Filtra ed estrae le entità contrassegnate come giocatori dal sistema cache,
+     * ordinandole in base al posizionamento stabilito nel bestiario del gioco.
+     */
     private void loadSkinsFromJson() {
         List<EntityRecord> skins = new ArrayList<>();
         Map<String, EntityRecord> globalCache = EntityFactory.getCache();
@@ -76,6 +87,11 @@ public class SkinMenuController implements IscatMenuController {
         gridModel.getSkins().setAll(skins);
     }
 
+    /**
+     * Callback intercettata al momento della selezione manuale di un elemento dalla griglia delle skin.
+     *
+     * @param key Identificativo univoco dell'entità selezionata.
+     */
     private void onSkinSelected(String key) {
         EntityRecord skin = EntityFactory.getCache().get(key);
         if (skin != null) {
@@ -83,6 +99,13 @@ public class SkinMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Applica internamente l'entità scelta aggiornando le proprietà del modello e avviando l'animazione di spawn.
+     *
+     * @param key  Chiave identificativa dell'entità.
+     * @param path Percorso della risorsa grafica nel file system.
+     * @param name Nome visualizzato associato al record.
+     */
     private void selectSkin(String key, String path, String name) {
         this.selectedSkinKey = key;
         this.selectedSkinPath = path;
@@ -90,6 +113,9 @@ public class SkinMenuController implements IscatMenuController {
         ComponentsUtils.playSpawnTween(skinGridComponent);
     }
 
+    /**
+     * Effettua una scelta casuale tra le skin disponibili nel catalogo, escludendo quella attualmente impostata.
+     */
     private void selectRandom() {
         List<EntityRecord> skins = gridModel.getSkins();
         if (skins.isEmpty()) return;
@@ -100,6 +126,10 @@ public class SkinMenuController implements IscatMenuController {
         selectSkin(randomSkin.entityKey(), randomSkin.spritePath(), randomSkin.name());
     }
 
+    /**
+     * Recupera la skin memorizzata nell'attuale sessione utente per pre-selezionarla all'apertura,
+     * applicando una skin di fallback standard in caso di assenza di record.
+     */
     private void preselectSkin() {
         String currentKey = SessionManager.getPlayerSkinKey();
         EntityRecord current = EntityFactory.getCache().get(currentKey);
@@ -114,6 +144,9 @@ public class SkinMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Aggiorna i campi informativi e descrittivi dell'InfoCard inserendo le statistiche native dell'entità selezionata.
+     */
     private void refreshInfoZone() {
         if (selectedSkinKey == null || infoCardController == null) return;
         EntityRecord selected = EntityFactory.getCache().get(selectedSkinKey);
@@ -124,6 +157,12 @@ public class SkinMenuController implements IscatMenuController {
         }
     }
 
+    /**
+     * Salva in modo permanente la configurazione della skin selezionata all'interno del contesto di sessione
+     * ed esegue una query asincrona sul database SQLite per memorizzare le impostazioni del profilo utente.
+     *
+     * @param event L'evento di attivazione scaturito dalla pressione del bottone.
+     */
     @FXML
     private void handleConfirm(ActionEvent event) {
         if (selectedSkinPath != null && selectedSkinKey != null) {
