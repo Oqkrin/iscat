@@ -1,0 +1,21 @@
+{
+    "entitykey": "agis",
+    "spritename": "Agis",
+    "ai": {
+        "abilities": [],
+        "rotation": {},
+        "steering": {},
+        "modifiers": []
+    },
+    "name": "agis",
+    "framew": 224,
+    "description": "agis",
+    "frameh": 240,
+    "audio": {
+        "spawn": [],
+        "death": [],
+        "idle": [],
+        "attack": [],
+        "hurt": []
+    }
+}

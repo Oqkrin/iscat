@@ -9,6 +9,7 @@ import javafx.stage.FileChooser;
 import org.json.JSONObject;
 import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.controller.interfaces.IscatMenuController;
+import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.model.EntityEditorModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entities.*;
@@ -27,12 +28,18 @@ import java.util.*;
 
 public class EntityEditorMenuController implements IscatMenuController {
 
-    @FXML private ComboBox<String> comboEntitySelect;
+    @FXML private ComboBox<String> comboCustom;
+    @FXML private ComboBox<String> comboCore;
+    @FXML private ComboBox<String> comboPlayers;
+
     @FXML private VBox paneIdentity, paneVisuals, panePhysics, paneBehavioural, paneAdvancedAI, paneAudio;
     @FXML private StackPane previewContainer;
     @FXML private Label skinNameLabel, lblOriginPath;
     @FXML private Button btnApply, btnSaveOverwrite, btnSaveNew, btnBack;
     @FXML private Button btnChooseSkin, btnChooseSound;
+
+    @FXML private StackPane confirmOverlay;
+    @FXML private ConfirmationOverlayController confirmOverlayController;
 
     private Path entitiesRoot;
     private StackPane viewRoot;
@@ -40,15 +47,15 @@ public class EntityEditorMenuController implements IscatMenuController {
     private EntityEditorModel model;
     private EntityEditorUIBuilder uiBuilder;
 
+    private boolean dirty = false;
+
     public static String targetEntityKeyToLoad = null;
 
     @FXML
     public void initialize() {
-        // Ensure the external entities root is available (auto‑create if missing)
         entitiesRoot = ExternalResourceResolver.getEntitiesRoot();
         if (entitiesRoot == null) {
             entitiesRoot = Path.of("entities");
-            // Let the resolver know about it so other parts of the app can use it
             ExternalResourceResolver.init(entitiesRoot);
             System.out.println("[EntityEditor] Created default external root: " + entitiesRoot.toAbsolutePath());
         }
@@ -57,7 +64,10 @@ public class EntityEditorMenuController implements IscatMenuController {
         previewContainer.getChildren().add(previewCanvas);
 
         model = new EntityEditorModel();
-        uiBuilder = new EntityEditorUIBuilder(this::rebuildAllUI);
+        uiBuilder = new EntityEditorUIBuilder(() -> {
+            onFieldChanged();
+            rebuildAllUI();
+        });
 
         ComponentsUtils.applyIconButton(btnBack, "fas-arrow-left");
         ComponentsUtils.applyIconButton(btnApply, "fas-play");
@@ -66,29 +76,92 @@ public class EntityEditorMenuController implements IscatMenuController {
         ComponentsUtils.applyIconButton(btnChooseSkin, "fas-image");
         ComponentsUtils.applyIconButton(btnChooseSound, "fas-volume-up");
 
-        populateEntityCombo();
+        populateCombos();
 
+        // Load target entity or first available from any combo
         if (targetEntityKeyToLoad != null) {
-            comboEntitySelect.getSelectionModel().select(targetEntityKeyToLoad);
+            selectEntityInCombo(targetEntityKeyToLoad);
             loadEntity(targetEntityKeyToLoad);
             targetEntityKeyToLoad = null;
-        } else if (!comboEntitySelect.getItems().isEmpty()) {
-            comboEntitySelect.getSelectionModel().selectFirst();
-            loadEntity(comboEntitySelect.getItems().get(0));
+        } else {
+            loadFirstAvailable();
         }
 
-        comboEntitySelect.setOnAction(e -> {
-            String sel = comboEntitySelect.getSelectionModel().getSelectedItem();
-            if (sel != null) loadEntity(sel);
-        });
+        // Combo actions
+        comboCustom.setOnAction(e -> handleComboSelection(comboCustom));
+        comboCore.setOnAction(e -> handleComboSelection(comboCore));
+        comboPlayers.setOnAction(e -> handleComboSelection(comboPlayers));
 
         registerEscHandler();
     }
 
-    private void populateEntityCombo() {
-        List<String> keys = new ArrayList<>(EntityFactory.getCache().keySet());
-        keys.sort(String::compareToIgnoreCase);
-        comboEntitySelect.getItems().setAll(keys);
+    private void populateCombos() {
+        List<String> customKeys = new ArrayList<>();
+        List<String> coreKeys = new ArrayList<>();
+        List<String> playerKeys = new ArrayList<>();
+
+        for (Map.Entry<String, EntityRecord> entry : EntityFactory.getCache().entrySet()) {
+            String key = entry.getKey();
+            EntityRecord rec = entry.getValue();
+            boolean isPlayer = rec != null && rec.player() != null;
+            boolean isCustom = isCustom(key);
+
+            if (isPlayer) {
+                playerKeys.add(key);
+            } else if (isCustom) {
+                customKeys.add(key);
+            } else {
+                coreKeys.add(key);
+            }
+        }
+
+        sortAndSet(comboCustom, customKeys);
+        sortAndSet(comboCore, coreKeys);
+        sortAndSet(comboPlayers, playerKeys);
+    }
+
+    private boolean isCustom(String key) {
+        String origin = EntityFactory.getOriginPath(key);
+        if (origin == null) return false;
+        return origin.toLowerCase().contains("custom");
+    }
+
+    private void sortAndSet(ComboBox<String> combo, List<String> list) {
+        list.sort(String::compareToIgnoreCase);
+        combo.getItems().setAll(list);
+        if (!list.isEmpty()) {
+            combo.getSelectionModel().selectFirst();
+        }
+    }
+
+    private void loadFirstAvailable() {
+        if (!comboCustom.getItems().isEmpty()) {
+            loadEntity(comboCustom.getValue());
+        } else if (!comboCore.getItems().isEmpty()) {
+            loadEntity(comboCore.getValue());
+        } else if (!comboPlayers.getItems().isEmpty()) {
+            loadEntity(comboPlayers.getValue());
+        }
+    }
+
+    private void selectEntityInCombo(String key) {
+        if (comboCustom.getItems().contains(key)) comboCustom.getSelectionModel().select(key);
+        else if (comboCore.getItems().contains(key)) comboCore.getSelectionModel().select(key);
+        else if (comboPlayers.getItems().contains(key)) comboPlayers.getSelectionModel().select(key);
+    }
+
+    private void handleComboSelection(ComboBox<String> combo) {
+        String sel = combo.getSelectionModel().getSelectedItem();
+        if (sel == null) return;
+        if (dirty && confirmOverlayController != null) {
+            confirmOverlayController.ask(
+                    "Unsaved Changes",
+                    "You have unsaved modifications. Discard them?",
+                    () -> loadEntity(sel)
+            );
+        } else {
+            loadEntity(sel);
+        }
     }
 
     private void loadEntity(String entityKey) {
@@ -100,6 +173,7 @@ public class EntityEditorMenuController implements IscatMenuController {
             model.setCurrentJson(EntityRecordParser.convertKeysToLowerCase(new JSONObject(raw.toString())));
             model.setOriginPath(EntityFactory.getOriginPath(entityKey));
         }
+        dirty = false;
         refreshUI();
     }
 
@@ -114,6 +188,10 @@ public class EntityEditorMenuController implements IscatMenuController {
     private void rebuildAllUI() {
         uiBuilder.buildUI(model.getCurrentJson(),
                 paneIdentity, paneVisuals, panePhysics, paneBehavioural, paneAdvancedAI, paneAudio);
+    }
+
+    private void onFieldChanged() {
+        dirty = true;
     }
 
     private void updatePreview() {
@@ -140,14 +218,14 @@ public class EntityEditorMenuController implements IscatMenuController {
         skinNameLabel.setText(json.optString("name", "UNKNOWN"));
     }
 
-    // ── Action Handlers ─────────────────────────────────────────────────────
-
+    // ── Save / Apply Handlers (unchanged except repopulate combos after save) ──
     @FXML
     private void handleApply() {
         try {
             EntityRecord record = EntityRecordParser.parse(model.getCurrentJson());
             EntityFactory.addOrUpdateEntity(record);
             System.out.println("Applied to runtime cache: " + record.entityKey());
+            dirty = false;
             updatePreview();
         } catch (Exception e) {
             System.err.println("Failed to parse JSON: " + e.getMessage());
@@ -158,19 +236,21 @@ public class EntityEditorMenuController implements IscatMenuController {
     private void handleSaveOverwrite() {
         String origin = model.getOriginPath();
         if (origin == null || origin.isEmpty()) {
-            handleSaveNew();   // no known origin – treat as new custom
+            handleSaveNew();
             return;
         }
-        handleApply();
-
         Path originPath = Path.of(origin);
         if (Files.isRegularFile(originPath)) {
-            EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), origin);
-            System.out.println("Overwrote file: " + origin);
+            confirmOverwrite(originPath, () -> {
+                handleApply();
+                EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), origin);
+                System.out.println("Overwrote file: " + origin);
+                dirty = false;
+                repopulateCombosIfNeeded();
+            });
             return;
         }
 
-        // Origin is internal (classpath) – create an override in the core folder
         String fileName = originPath.getFileName().toString();
         Path coreDir = entitiesRoot.resolve("json/core");
         try {
@@ -180,16 +260,30 @@ public class EntityEditorMenuController implements IscatMenuController {
             return;
         }
         Path overrideFile = coreDir.resolve(fileName);
-        EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), overrideFile.toAbsolutePath().toString());
-        model.setOriginPath(overrideFile.toAbsolutePath().toString());
-        lblOriginPath.setText("Origin: " + model.getOriginPath());
-        System.out.println("Saved override to: " + overrideFile);
+        if (Files.exists(overrideFile)) {
+            confirmOverwrite(overrideFile, () -> {
+                handleApply();
+                EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), overrideFile.toAbsolutePath().toString());
+                model.setOriginPath(overrideFile.toAbsolutePath().toString());
+                lblOriginPath.setText("Origin: " + model.getOriginPath());
+                dirty = false;
+                repopulateCombosIfNeeded();
+                System.out.println("Saved override to: " + overrideFile);
+            });
+        } else {
+            handleApply();
+            EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), overrideFile.toAbsolutePath().toString());
+            model.setOriginPath(overrideFile.toAbsolutePath().toString());
+            lblOriginPath.setText("Origin: " + model.getOriginPath());
+            dirty = false;
+            repopulateCombosIfNeeded();
+            System.out.println("Saved override to: " + overrideFile);
+        }
     }
 
     @FXML
     private void handleSaveNew() {
         handleApply();
-
         String key = model.getCurrentJson().optString("entitykey", "new_entity");
         String safeName = key.replaceAll("[^a-zA-Z0-9_\\-]", "_") + ".json";
 
@@ -202,16 +296,41 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
 
         Path targetFile = customDir.resolve(safeName);
-        EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), targetFile.toAbsolutePath().toString());
+        if (Files.exists(targetFile)) {
+            confirmOverwrite(targetFile, () -> saveNewToFile(targetFile, key));
+        } else {
+            saveNewToFile(targetFile, key);
+        }
+    }
 
+    private void saveNewToFile(Path targetFile, String key) {
+        EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), targetFile.toAbsolutePath().toString());
         model.setOriginPath(targetFile.toAbsolutePath().toString());
         lblOriginPath.setText("Origin: " + model.getOriginPath());
+        dirty = false;
         System.out.println("Saved new entity to: " + model.getOriginPath());
 
-        if (!comboEntitySelect.getItems().contains(key)) {
-            comboEntitySelect.getItems().add(key);
-            comboEntitySelect.getSelectionModel().select(key);
+        repopulateCombosIfNeeded();
+        // Select the new key in the appropriate combo
+        selectEntityInCombo(key);
+    }
+
+    private void repopulateCombosIfNeeded() {
+        // After saving a custom entity, the custom list may have changed
+        populateCombos();
+    }
+
+    private void confirmOverwrite(Path filePath, Runnable onYes) {
+        if (confirmOverlayController == null) {
+            onYes.run();
+            return;
         }
+        String fileName = filePath.getFileName().toString();
+        confirmOverlayController.ask(
+                "Overwrite?",
+                "File \"" + fileName + "\" already exists.\nOverwrite it?",
+                onYes
+        );
     }
 
     @FXML
@@ -266,12 +385,10 @@ public class EntityEditorMenuController implements IscatMenuController {
             try {
                 Path dest = sfxCustomDir.resolve(selected.getName());
                 Files.copy(selected.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
-
                 String soundName = selected.getName();
                 if (soundName.toLowerCase().endsWith(".wav")) {
                     soundName = soundName.substring(0, soundName.length() - 4);
                 }
-                // Update the default audio field – you can expand this later
                 model.getCurrentJson().put("stepsound", soundName);
                 refreshUI();
             } catch (IOException e) {
@@ -281,43 +398,33 @@ public class EntityEditorMenuController implements IscatMenuController {
     }
 
     @FXML
-    private void handleBack(ActionEvent event) {
-        handleBack();
-    }
+    private void handleBack(ActionEvent event) { handleBack(); }
 
     public void handleBack() {
-        IscatNavigator.getInstance().navigateWithFade(IscatViews.BESTIARY_MENU);
+        if (dirty && confirmOverlayController != null) {
+            confirmOverlayController.ask(
+                    "Unsaved Changes",
+                    "Go back without saving?",
+                    () -> IscatNavigator.getInstance().navigateWithFade(IscatViews.BESTIARY_MENU)
+            );
+        } else {
+            IscatNavigator.getInstance().navigateWithFade(IscatViews.BESTIARY_MENU);
+        }
     }
 
-    // ── ISCAT Menu Controller Interface ─────────────────────────────────────
-    @Override
-    public void setPointerToView(StackPane pointer) {
-        this.viewRoot = pointer;
-    }
+    @Override public void setPointerToView(StackPane pointer) { this.viewRoot = pointer; }
+    @Override public Pane getRootPane() { return (Pane) btnBack.getParent().getParent(); }
 
-    @Override
-    public Pane getRootPane() {
-        // Navigate up to the outermost container used as the root pane
-        return (Pane) btnBack.getParent().getParent();
-    }
-
-    @Override
-    public void registerEscHandler() {
-        // Use the scene of the root pane when available
+    @Override public void registerEscHandler() {
         if (getRootPane().getScene() != null) {
             getRootPane().getScene().setOnKeyPressed(event -> {
-                if (event.getCode() == KeyCode.ESCAPE) {
-                    handleBack();
-                }
+                if (event.getCode() == KeyCode.ESCAPE) handleBack();
             });
         } else {
-            // If the scene is not yet ready, listen for it
             getRootPane().sceneProperty().addListener((obs, oldScene, newScene) -> {
                 if (newScene != null) {
                     newScene.setOnKeyPressed(event -> {
-                        if (event.getCode() == KeyCode.ESCAPE) {
-                            handleBack();
-                        }
+                        if (event.getCode() == KeyCode.ESCAPE) handleBack();
                     });
                 }
             });

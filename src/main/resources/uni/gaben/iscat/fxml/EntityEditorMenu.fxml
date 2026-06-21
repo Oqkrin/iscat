@@ -29,10 +29,19 @@
                     <VBox alignment="TOP_CENTER" spacing="16.0" styleClass="glowing-border, editor-panel" HBox.hgrow="ALWAYS">
 
                         <!-- Header row: title + entity selector -->
-                        <HBox alignment="CENTER_LEFT">
+                        <!-- Header row: title + three entity selectors -->
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
                             <Label fx:id="lblEditorTitle" styleClass="card-header" text="ENTITY EDITOR" HBox.hgrow="NEVER" />
                             <Region HBox.hgrow="ALWAYS" />
-                            <ComboBox fx:id="comboEntitySelect" promptText="Select Entity" />
+
+                            <Label text="Custom:" styleClass="label-small" />
+                            <ComboBox fx:id="comboCustom" promptText="Custom" />
+
+                            <Label text="Core:" styleClass="label-small" />
+                            <ComboBox fx:id="comboCore" promptText="Core" />
+
+                            <Label text="Players:" styleClass="label-small" />
+                            <ComboBox fx:id="comboPlayers" promptText="Players" />
                         </HBox>
 
                         <!-- Scrollable form (unchanged) -->
@@ -121,4 +130,5 @@
             <Region minHeight="56.0" VBox.vgrow="NEVER" />
         </children>
     </VBox>
+    <fx:include fx:id="confirmOverlay" source="components/ConfirmationOverlay.fxml" />
 </StackPane>
