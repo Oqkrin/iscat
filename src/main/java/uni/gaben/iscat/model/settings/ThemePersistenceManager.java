@@ -44,7 +44,7 @@ public class ThemePersistenceManager {
             ThemeManager tm = ThemeManager.getInstance();
             model.accentPrimaryProperty().set(tm.getAccentPrimary());
             model.accentSecondaryProperty().set(tm.getAccentSecondary());
-            model.accentTernaryProperty().set(tm.getAccentTernary());
+            model.accentTernaryProperty().set(tm.getAccentTertiary());
             model.bgPrimaryProperty().set(tm.getBgPrimary());
         }
         model.isUpdatingProgrammatically = false;
