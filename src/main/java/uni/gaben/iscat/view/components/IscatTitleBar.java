@@ -48,12 +48,10 @@ public class IscatTitleBar extends StackPane {
 
         setPickOnBounds(true);
 
-        // LEFT FLOATING CAPSULE: Pin + Fullscreen
         HBox leftCapsule = new HBox(6, pinButton, fullscreenButton);
         leftCapsule.getStyleClass().add("floating-action-group");
         leftCapsule.setAlignment(Pos.CENTER_LEFT);
 
-        // MIDDLE FLOATING CAPSULE: Styled Branding Label
         titleLabel.getStyleClass().add("title-bar-title");
         titleLabel.getStyleClass().add("label-small");
         HBox centerCapsule = new HBox(titleLabel);
@@ -61,27 +59,22 @@ public class IscatTitleBar extends StackPane {
         centerCapsule.setAlignment(Pos.CENTER);
         centerCapsule.visibleProperty().bind(titleLabel.textProperty().isNotNull());
 
-        // RIGHT FLOATING CAPSULE: Minimize + Maximize + Close
         HBox rightCapsule = new HBox(6, minimizeButton, maximizeButton, closeButton);
         rightCapsule.getStyleClass().add("floating-action-group");
         rightCapsule.setAlignment(Pos.CENTER_RIGHT);
 
-        // Prevent layout containers from forcing full-width expansion inside StackPane
         leftCapsule.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         centerCapsule.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         rightCapsule.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-        // GEOMETRIC FIX: Explicitly align capsules to their absolute screen locations
         StackPane.setAlignment(leftCapsule, Pos.CENTER_LEFT);
         StackPane.setAlignment(centerCapsule, Pos.CENTER);
         StackPane.setAlignment(rightCapsule, Pos.CENTER_RIGHT);
 
-        // Elegant breathing margins keeping capsules balanced off window edges
         StackPane.setMargin(leftCapsule, new Insets(0, 0, 0, 20));
         StackPane.setMargin(rightCapsule, new Insets(0, 20, 0, 20));
         StackPane.setMargin(centerCapsule, new Insets(10, 0, 0, 0));
 
-        // Center capsule placed first in the scene graph layout tree
         getChildren().addAll(centerCapsule, leftCapsule, rightCapsule);
         titleLabel.textProperty().bind(SessionManager.getInstance().usernameProperty());
     }
