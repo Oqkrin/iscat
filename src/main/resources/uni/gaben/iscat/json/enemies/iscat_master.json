@@ -1,7 +1,7 @@
 {
   "EntityKey": "iscat_master",
   "Name": "Iscat Master",
-  "Description": "Il creatore di Iscat Mother.\nQuesta creatura misteriosa\nha studiato per anni\ncome diventare DIO.\nDurante le sue ricerche\nha creato una nuova forma di vita:\ngli Iscat.\nCon il loro potere\nIscat Master ha iniziato\na portare distruzione e caos\nin tutto il mondo.",
+  "Description": "Il creatore degli Iscat.\nQuesta creatura misteriosa\nha studiato per anni\ncome diventare DIO.\nDurante le sue ricerche\nha creato una nuova forma di vita:\ngli Iscat.\nCon il loro potere\nIscat Master ha iniziato\na portare distruzione e caos\nin tutto il mondo.",
   "SpriteName": "iscat_master",
   "BestiaryOrder": 13,
   "ThreatLevel": "APOCALYPSE",

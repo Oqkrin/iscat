@@ -52,7 +52,7 @@ public class EntityEditorUIBuilder {
                 FieldBuilder.createStringField("Display Name", json, "name"),
                 FieldBuilder.createStringField("Description", json, "description"),
                 FieldBuilder.createComboField("Threat Level", json, "threatlevel",
-                        new String[]{"NONE", "LOW", "MEDIUM", "HIGH", "BOSS"}),
+                        new String[]{"NONE", "LOW", "MEDIUM", "HIGH", "APOCALYPSE"}),
                 FieldBuilder.createDoubleField("Bestiary Order", json, "bestiaryorder", 0)
         );
 
