@@ -2,16 +2,16 @@ package uni.gaben.iscat.universe.entities.json;
 
 import org.json.JSONObject;
 import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.utils.ExternalResourceResolver;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.*;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EntityJsonLoader {
@@ -30,18 +30,15 @@ public class EntityJsonLoader {
     public static CompletableFuture<List<LoadedJson>> loadAllFromDirectory(String dirPath) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                URL dirUrl = EntityFactory.class.getResource(dirPath);
-
-                if (dirUrl == null) {
-                    System.err.println("[EntityJsonLoader] Directory not found: " + dirPath);
-                    return Collections.emptyList();
-                }
-
-                Path targetPath = resolvePath(dirPath, dirUrl.toURI());
-                return loadJsonFilesFromPath(targetPath);
-
-            } catch (URISyntaxException | IOException ex) {
-                System.err.println("[EntityJsonLoader] Error scanning directory " + dirPath + ": " + ex.getMessage());
+                // Strip leading slash and use as relative path for resolver
+                String relativeDir = dirPath.startsWith("/") ? dirPath.substring(1) : dirPath;
+                List<Path> files = ExternalResourceResolver.listFiles(relativeDir, ".json");
+                return files.stream()
+                        .map(EntityJsonLoader::readJsonFile)
+                        .filter(Objects::nonNull)
+                        .toList();
+            } catch (IOException e) {
+                System.err.println("[EntityJsonLoader] Error scanning directory: " + dirPath + " – " + e.getMessage());
                 return Collections.emptyList();
             }
         });

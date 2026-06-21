@@ -1,5 +1,8 @@
 package uni.gaben.iscat.utils.sprite;
 
+import uni.gaben.iscat.utils.ExternalResourceResolver;
+
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,8 +18,14 @@ public class SpritesLibrary {
     /**
      * Recupera uno SpriteAsset esistente o lo crea se è la prima volta.
      */
-    public SpriteSheetsParser getSprite(String path, int spriteWidth, int spriteHeight) {
-        String cacheKey = path + "_" + spriteWidth + "x" + spriteHeight;
-        return assets.computeIfAbsent(cacheKey, p -> new SpriteSheetsParser(path, spriteWidth, spriteHeight));
+    public SpriteSheetsParser getSprite(String relativePath, int spriteWidth, int spriteHeight) {
+        String cacheKey = relativePath + "_" + spriteWidth + "x" + spriteHeight;
+        return assets.computeIfAbsent(cacheKey, p -> {
+            InputStream is = ExternalResourceResolver.resolve(relativePath);
+            if (is == null) {
+                throw new RuntimeException("Sprite not found (neither external nor internal): " + relativePath);
+            }
+            return new SpriteSheetsParser(is, spriteWidth, spriteHeight);
+        });
     }
 }

@@ -15,12 +15,14 @@ import uni.gaben.iscat.controller.IscatWindowController;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
 import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.utils.ExternalResourceResolver;
 import uni.gaben.iscat.view.IscatWindow;
 import uni.gaben.iscat.view.components.IscatTitleBar;
 import uni.gaben.iscat.utils.AudioManager;
 import uni.gaben.iscat.utils.IscatUtils;
 import uni.gaben.iscat.utils.theme.ThemeManager;
 
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -47,6 +49,7 @@ public class IscatApplication extends Application {
         IscatDB.getInstance().init();
         Platform.runLater(EntityFactory::ensureCacheLoaded);
         IscatNavigator.getInstance().initialize(iscatModel);
+        ExternalResourceResolver.init(Path.of("entities"));
     }
 
     @Override
