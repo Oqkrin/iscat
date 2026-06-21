@@ -33,32 +33,62 @@ import uni.gaben.iscat.utils.theme.ThemeManager;
 
 import java.util.List;
 
+/**
+ * Controller per la gestione della schermata di Autenticazione (Login/Registrazione).
+ * Coordina l'interfaccia di accesso consentendo sia il login di utenti esistenti sia
+ * la creazione automatica di nuovi profili, integrando meccanismi asincroni di verifica,
+ * ridimensionamento adattivo dei caratteri di input e animazioni di successo o errore.
+ */
 public class LoginMenuController implements IscatFxmlController {
 
+    /** Pannello contenitore principale della vista. */
     @FXML private StackPane rootPane;
+    /** Box di disposizione verticale contenente i form di input e la messaggistica. */
     @FXML private VBox      contentBox;
+    /** StackPane superiore adibito all'header grafico del menu. */
     @FXML private StackPane headerStack;
+    /** Etichetta testuale di benvenuto primaria della schermata. */
     @FXML private Label     welcomeTitle;
+    /** Etichetta di notifica visiva per l'utente correntemente loggato durante le transizioni. */
     @FXML private Label     loggedInUserLabel;
 
+    /** Campo di testo per l'inserimento dello username del giocatore. */
     @FXML private TextField usernameField;
+    /** Campo protetto per la digitazione della password. */
     @FXML private PasswordField passwordField;
 
+    /** Icona glifo associata al campo dello username. */
     @FXML private FontIcon  loginIcon;
+    /** Icona glifo associata al campo della password. */
     @FXML private FontIcon  passwdIcon;
+    /** Label descrittiva per la visualizzazione dinamica dello stato o degli avvisi di sistema. */
     @FXML private Label     statusLabel;
 
+    /** Modello di stato logico delegato a contenere le proprietà osservabili del login. */
     private LoginModel model;
+    /** Componente di business logic per la validazione, crittografia e verifica delle credenziali. */
     private LoginAuth  loginAuth;
+    /** Data Access Object per la manipolazione e persistenza delle statistiche (punteggi). */
     private ScoreDAO   scoreDAO;
+    /** Data Access Object per il caricamento e salvataggio delle impostazioni utente. */
     private SettingsDAO settingsDAO;
 
+    /** Flag di controllo per prevenire la sovrapposizione dell'animazione di flash di errore. */
     private boolean  isErrorFlashing = false;
 
+    /**
+     * Inizializzazione standard del ciclo di vita FXML.
+     * I setup strutturali e i binding logici sono delegati al metodo esplicito {@link #setup()}.
+     */
     @FXML
     private void initialize() {
     }
 
+    /**
+     * Configura l'architettura logica del controller inizializzando i DAO e i componenti di autenticazione.
+     * Configura gli helper {@link AutoFittingInputBinder} per l'auto-adattamento dinamico della dimensione
+     * del font rispetto alla lunghezza del testo immesso, applicando vincoli geometrici basati sulla larghezza del root.
+     */
     public void setup() {
         if (this.model == null) {
             this.model = new LoginModel();
@@ -84,6 +114,11 @@ public class LoginMenuController implements IscatFxmlController {
         initModelListeners();
     }
 
+    /**
+     * Stabilisce i binding bidirezionali e monodirezionali tra le componenti grafiche (JavaFX)
+     * e le proprietà reattive definite nel rispettivo {@link LoginModel}, applicando le costanti
+     * della sezione aurea per il dimensionamento del box dei contenuti.
+     */
     private void initBindings() {
         contentBox.maxWidthProperty().bind(rootPane.widthProperty().multiply(ScalareAureo.IPHI_D));
         welcomeTitle.maxWidthProperty().bind(contentBox.maxWidthProperty());
@@ -93,6 +128,11 @@ public class LoginMenuController implements IscatFxmlController {
         statusLabel.textProperty().bind(model.statusProperty());
     }
 
+    /**
+     * Registra i listener sulle proprietà reattive e intercetta le variazioni di focus e tastiera.
+     * Gestisce i cambi di stile in tempo reale e mappa eventi speciali (es. il tasto ESCAPE per muovere
+     * il focus all'indietro dal campo password al campo username).
+     */
     private void initModelListeners() {
         usernameField.textProperty().addListener((obs, old, val) -> {
             updateUsernameStyle();
@@ -128,6 +168,10 @@ public class LoginMenuController implements IscatFxmlController {
         updatePasswordStyle();
     }
 
+    /**
+     * Intercetta l'azione di invio (Action) sul campo username,
+     * spostando il focus sul campo password qualora il testo non sia vuoto.
+     */
     @FXML
     private void onUsernameAction() {
         if (!usernameField.getText().trim().isEmpty()) {
@@ -135,11 +179,20 @@ public class LoginMenuController implements IscatFxmlController {
         }
     }
 
+    /**
+     * Intercetta l'azione di invio (Action) sul campo password,
+     * avviando la procedura asincrona di sottomissione delle credenziali.
+     */
     @FXML
     private void onPasswordAction() {
         submitLoginAsync();
     }
 
+    /**
+     * Verifica in tempo reale e in modo non bloccante se lo username digitato è già presente nel DB.
+     * Al rientro della chiamata asincrona, aggiorna lo stato del modello e adegua il testo del messaggio
+     * della label di stato indicando all'utente se la pressione di INVIO comporterà un accesso o una registrazione.
+     */
     private void checkUserExistenceAsync() {
         String u = usernameField.getText().trim();
         if (u.isEmpty()) {
@@ -157,6 +210,17 @@ public class LoginMenuController implements IscatFxmlController {
         }));
     }
 
+    /**
+     * Coordina la pipeline asincrona di autenticazione e inizializzazione del profilo (Login/Register Pipeline).
+     * <p>
+     * Esegue in successione su thread asincroni le seguenti operazioni:
+     * <ol>
+     * <li>Controllo di esistenza utente: effettua il login se presente, altrimenti ne esegue la registrazione.</li>
+     * <li>Inizializzazione Account: carica (o crea se assenti) le configurazioni in `SettingsDAO` e il record statistiche in `ScoreDAO`.</li>
+     * <li>Risoluzione Risorse: estrae la skin memorizzata caricandone le coordinate grafiche dalla cache delle entità.</li>
+     * <li>Popolamento Sessione: al rientro sul thread grafico UI, setta il {@link SessionManager} e applica i parametri globali audio/video/temi.</li>
+     * </ol>
+     */
     private void submitLoginAsync() {
         String u = usernameField.getText().trim();
         String p = passwordField.getText();
@@ -209,18 +273,32 @@ public class LoginMenuController implements IscatFxmlController {
         });
     }
 
+    /**
+     * Intercetta e normalizza lo stato di errore del login.
+     * Aggiorna la label dei messaggi, notifica il modello per scatenare il feedback visivo e svuota il form password.
+     *
+     * @param message Il messaggio di errore testuale da mostrare a schermo.
+     */
     private void handleError(String message) {
         model.setStatus(message);
         model.triggerError();
         passwordField.setText("");
     }
 
+    /**
+     * Ripristina i campi di immissione del form di login e azzera le variabili interne del rispettivo modello.
+     */
     public void reset() {
         if (usernameField != null) usernameField.setText("");
         if (passwordField != null) passwordField.setText("");
         if (model != null) model.reset();
     }
 
+    /**
+     * Modifica dinamicamente le classi CSS applicate al campo username e all'icona glifo.
+     * Varia le colorazioni a seconda dello stato di compilazione: vuoto (Bianco),
+     * utente esistente (Verde) o nuovo utente in fase di registrazione (Oro).
+     */
     private void updateUsernameStyle() {
         if (isErrorFlashing || model == null) return;
         usernameField.getStyleClass().removeAll("login-text-empty", "login-text-exists", "login-text-missing");
@@ -241,6 +319,9 @@ public class LoginMenuController implements IscatFxmlController {
         }
     }
 
+    /**
+     * Modifica e ripristina lo stile standard per il campo di inserimento password e la relativa icona.
+     */
     private void updatePasswordStyle() {
         if (isErrorFlashing) return;
         passwordField.getStyleClass().removeAll("login-text-empty", "login-text-error");
@@ -250,6 +331,11 @@ public class LoginMenuController implements IscatFxmlController {
         passwdIcon.setIconColor(Color.WHITE);
     }
 
+    /**
+     * Riproduce una traccia temporale (Timeline) di feedback per segnalare l'inserimento di credenziali errate.
+     * Colora temporaneamente i bordi dei componenti e le icone di rosso (Tomato) per 300 millisecondi
+     * prima di forzare il ripristino delle colorazioni standard dei widget.
+     */
     private void playErrorFlash() {
         Timeline errorFlash = new Timeline(
                 new KeyFrame(Duration.ZERO, e -> {
@@ -270,6 +356,11 @@ public class LoginMenuController implements IscatFxmlController {
         errorFlash.playFromStart();
     }
 
+    /**
+     * Avvia e orchestra la coreografia di animazioni parallele (ParallelTransition) in caso di login completato con successo.
+     * Effettua la dissolvenza in uscita (FadeOut) dei form e l'allineamento geometrico traslatorio dei titoli,
+     * mostrando il nome dell'utente autenticato prima di invocare il navigatore per passare al menu principale.
+     */
     private void playLoginSuccessAnimation() {
         FadeTransition fadeOutU = new FadeTransition(Duration.millis(400), usernameField.getParent());
         fadeOutU.setToValue(0);
@@ -299,6 +390,10 @@ public class LoginMenuController implements IscatFxmlController {
         successAnim.play();
     }
 
+    /**
+     * Metodo di callback invocato dal ciclo di attivazione della vista quando lo schermo viene mostrato.
+     * Resetta le opacità dei nodi grafici, azzera i testi e richiede asincronamente il focus sul campo username.
+     */
     public void onShow() {
         reset();
 
@@ -317,32 +412,54 @@ public class LoginMenuController implements IscatFxmlController {
         Platform.runLater(() -> usernameField.requestFocus());
     }
 
+    /**
+     * Metodo di callback invocato dal ciclo del navigatore quando lo schermo viene nascosto.
+     */
     public void onHide() {
     }
 
+    /** {@inheritDoc} */
     @Override public void setPointerToView(StackPane pointer) {}
+
+    /** @param model L'istanza di {@link LoginModel} da iniettare nel controller. */
     public void setLoginModel(LoginModel model) { this.model = model; }
 
+    /**
+     * Record interno di utilità adibito a incapsulare l'esito aggregato della pipeline di login.
+     */
     private record LoginResult(SessionUser user, UserSettings settings, ScoreModel scoreModel, String skinKey, String message, boolean isSuccess) {
+        /** Costruttore per esito positivo. */
         public LoginResult(SessionUser u, UserSettings s, ScoreModel d, String skin, String m) {
             this(u, s, d, skin, m, true);
         }
+        /** Costruttore per esito negativo (fallimento). */
         public LoginResult(String err) {
             this(null, null, null, "player1", err, false);
         }
     }
 
+    /**
+     * Applica a livello globale ed engine del gioco i parametri configurati nel profilo utente appena estratto.
+     * Imposta i volumi di {@link AudioManager}, allinea lo stato dello schermo intero e configura i motori
+     * grafici cromatici di {@link ThemeManager} (compresa la gestione dell'effetto Rainbow Mode e delle palette Hex).
+     *
+     * @param settings     L'oggetto {@link UserSettings} contenente le configurazioni dell'utente.
+     * @param currentScene La scena JavaFX corrente su cui applicare gli stili e fogli di stile.
+     */
     private void applyLoadedSettings(UserSettings settings, Scene currentScene) {
         if (settings == null || currentScene == null) return;
 
+        // Regolazione volumi
         AudioManager audio = AudioManager.getInstance();
         audio.setMasterVolume(settings.getVolumeMaster());
         audio.setBgmVolume(settings.getVolumeBgm());
         audio.setSfxVolume(settings.getVolumeSfx());
 
+        // Regolazione Fullscreen
         boolean goFullscreen = (settings.getFullscreen() == 1);
         IscatNavigator.getInstance().getModel().setFullscreen(goFullscreen);
 
+        // Configurazione engine temi grafici
         ThemeManager themeEngine = ThemeManager.getInstance();
         SessionManager.getInstance().isLightModeSelected = (settings.getLightmode() == 1);
 
