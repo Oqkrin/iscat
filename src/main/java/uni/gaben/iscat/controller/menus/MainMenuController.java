@@ -11,8 +11,8 @@ import uni.gaben.iscat.IscatNavigator;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.controller.interfaces.IscatFxmlController;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.universe.entities.EntityFactory;
-import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.parsed.EntityFactory;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.utils.SessionManager;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 

@@ -10,7 +10,7 @@ import javafx.scene.layout.RowConstraints;
 import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.model.SkinGridModel;
 import uni.gaben.iscat.model.SkinGridModel.SkinPlacement;
-import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.utils.ComponentsUtils;
 
 import java.util.function.Consumer;

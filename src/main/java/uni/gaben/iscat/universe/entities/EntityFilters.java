@@ -1,6 +1,7 @@
 package uni.gaben.iscat.universe.entities;
 
 import org.dyn4j.dynamics.Body;
+import uni.gaben.iscat.universe.entities.parsed.EntityModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 
 import java.util.function.Predicate;

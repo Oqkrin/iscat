@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.utils.design.CssHelper;
 
@@ -15,25 +16,21 @@ import uni.gaben.iscat.utils.design.CssHelper;
  */
 public class DebugToolBarCheats extends VBox {
 
-    /**
-     * Inizializza il pannello dei trucchi strutturando i bottoni per la gestione della salute,
-     * delle modalità speciali (Godmode) e dei livelli del giocatore.
-     *
-     * @param controller Il controller di gioco corrente
-     * @param onBack     Azione per tornare alla schermata precedente della toolbar
-     */
     public DebugToolBarCheats(GameController controller, Runnable onBack) {
-        super(8);
-        setPadding(new Insets(8, 8, 8, 8));
+        final double SU = IscatSettings.STANDARD_UNIT;
+
+        setPadding(new Insets(SU /2));
         setAlignment(Pos.TOP_CENTER);
         setPickOnBounds(false);
         setFocusTraversable(false);
+        setSpacing(SU /2);
 
         Button btnBack = new Button("← INDIETRO");
         btnBack.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(btnBack);
         CssHelper.testoSecondario(btnBack);
         btnBack.getStyleClass().add("debug-btn-back");
+        btnBack.setPadding(new Insets(SU /4, SU /2, SU /4, SU /2));
         btnBack.setOnAction(e -> onBack.run());
 
         HBox topBar = new HBox(btnBack);
@@ -42,58 +39,51 @@ public class DebugToolBarCheats extends VBox {
         Label mainTitle = new Label("CHEAT MODIFIERS");
         CssHelper.testoPrimario(mainTitle);
         mainTitle.getStyleClass().add("debug-main-title");
+        mainTitle.setPadding(new Insets(SU /2, 0, SU /4, 0));
 
+        // Health & Damage
         Label lblHealth = createSectionLabel("PLAYER HEALTH & DAMAGE");
-        FlowPane healthFlow = new FlowPane(8, 8);
+        FlowPane healthFlow = new FlowPane(SU /2, SU /2);
         healthFlow.setAlignment(Pos.CENTER);
 
-        Button btnHeal100 = createCheatButton("HEAL 100", "color-heal");
-        btnHeal100.setOnAction(e -> controller.debugHeal(100));
-        Button btnHeal1000 = createCheatButton("HEAL 1000", "color-heal");
-        btnHeal1000.setOnAction(e -> controller.debugHeal(1000));
-        Button btnHeal10000 = createCheatButton("HEAL 10000", "color-heal");
-        btnHeal10000.setOnAction(e -> controller.debugHeal(10000));
+        healthFlow.getChildren().addAll(
+                createCheatButton("HEAL 100",   "color-heal",    () -> controller.debugHeal(100)),
+                createCheatButton("HEAL 1000",  "color-heal",    () -> controller.debugHeal(1000)),
+                createCheatButton("HEAL 10000", "color-heal",    () -> controller.debugHeal(10000)),
+                createCheatButton("DAMAGE 100",   "color-damage",  () -> controller.debugDamage(100)),
+                createCheatButton("DAMAGE 1000",  "color-damage",  () -> controller.debugDamage(1000)),
+                createCheatButton("DAMAGE 10000", "color-damage",  () -> controller.debugDamage(10000))
+        );
 
-        Button btnDmg100 = createCheatButton("DAMAGE 100", "color-damage");
-        btnDmg100.setOnAction(e -> controller.debugDamage(100));
-        Button btnDmg1000 = createCheatButton("DAMAGE 1000", "color-damage");
-        btnDmg1000.setOnAction(e -> controller.debugDamage(1000));
-        Button btnDmg10000 = createCheatButton("DAMAGE 10000", "color-damage");
-        btnDmg10000.setOnAction(e -> controller.debugDamage(10000));
-
-        healthFlow.getChildren().addAll(btnHeal100, btnHeal1000, btnHeal10000, btnDmg100, btnDmg1000, btnDmg10000);
-
+        // Special modes
         Label lblStates = createSectionLabel("SPECIAL MODES");
-        FlowPane statesFlow = new FlowPane(10, 10);
+        FlowPane statesFlow = new FlowPane(SU /2, SU /2);
         statesFlow.setAlignment(Pos.CENTER);
+        statesFlow.getChildren().add(
+                createCheatButton("GODMODE", "color-god", controller::debugToggleGodMode)
+        );
 
-        Button btnGod = createCheatButton("GODMODE", "color-god");
-        btnGod.setOnAction(e -> controller.debugToggleGodMode());
-
-        statesFlow.getChildren().addAll(btnGod);
-
+        // Level progression
         Label lblLevels = createSectionLabel("LEVEL PROGRESSION");
-        HBox levelsBox = new HBox(12);
+        HBox levelsBox = new HBox(SU * 0.75);
         levelsBox.setAlignment(Pos.CENTER);
-
-        Button btnLvlUp = createCheatButton("LEVEL UP ▲", "color-level-up");
-        btnLvlUp.setOnAction(e -> controller.debugLevelUp());
-
-        Button btnLvlDown = createCheatButton("LEVEL DOWN ▼", "color-level-down");
-        btnLvlDown.setOnAction(e -> controller.debugLevelDown());
-
-        levelsBox.getChildren().addAll(btnLvlUp, btnLvlDown);
+        levelsBox.getChildren().addAll(
+                createCheatButton("LEVEL UP ▲",   "color-level-up", controller::debugLevelUp),
+                createCheatButton("LEVEL DOWN ▼", "color-level-down", controller::debugLevelDown)
+        );
 
         getChildren().addAll(topBar, mainTitle, lblHealth, healthFlow, lblStates, statesFlow, lblLevels, levelsBox);
     }
 
-    private Button createCheatButton(String text, String colorStyleClass) {
+    private Button createCheatButton(String text, String colorStyleClass, Runnable action) {
+        final double SU = IscatSettings.STANDARD_UNIT;
         Button btn = new Button(text);
         btn.setFocusTraversable(false);
-        btn.setPrefHeight(32);
         CssHelper.stilePulsanteMenu(btn);
         CssHelper.testoPrimario(btn);
         btn.getStyleClass().addAll("cheat-button", colorStyleClass);
+        btn.setPadding(new Insets(SU /4, SU /2, SU /4, SU /2));
+        btn.setOnAction(e -> action.run());
         return btn;
     }
 
@@ -101,6 +91,7 @@ public class DebugToolBarCheats extends VBox {
         Label lbl = new Label(text);
         CssHelper.testoSecondario(lbl);
         lbl.getStyleClass().add("debug-section-label");
+        lbl.setPadding(new Insets(IscatSettings.STANDARD_UNIT /4, 0, IscatSettings.STANDARD_UNIT /4, 0));
         return lbl;
     }
 }

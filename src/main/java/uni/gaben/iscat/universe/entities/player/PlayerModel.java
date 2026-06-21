@@ -10,7 +10,7 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.*;
 import uni.gaben.iscat.universe.rendering.RenderingSettings;

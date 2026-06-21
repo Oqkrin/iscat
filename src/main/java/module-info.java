@@ -31,7 +31,7 @@ module uni.gaben.iscat {
     opens uni.gaben.iscat.universe.entities to javafx.fxml, org.json;
     opens uni.gaben.iscat.universe.entities.hardcoded.asteroid to javafx.fxml;
     opens uni.gaben.iscat.universe.entities.interfaces to javafx.fxml, org.json;
-    opens uni.gaben.iscat.universe.entities.json to javafx.fxml, org.json;
+    opens uni.gaben.iscat.universe.entities.parsed to javafx.fxml, org.json;
     opens uni.gaben.iscat.universe.entities.worm to javafx.fxml, org.json;
     opens uni.gaben.iscat.universe.spawn to javafx.fxml, org.json;
     opens uni.gaben.iscat.utils to javafx.fxml;
@@ -71,7 +71,7 @@ module uni.gaben.iscat {
     exports uni.gaben.iscat.universe.entities.hardcoded.heart;
     exports uni.gaben.iscat.universe.entities.hardcoded.projectiles;
     exports uni.gaben.iscat.universe.entities.interfaces;
-    exports uni.gaben.iscat.universe.entities.json;
+    exports uni.gaben.iscat.universe.entities.parsed;
     exports uni.gaben.iscat.universe.entities.player;
     exports uni.gaben.iscat.universe.entities.shooters;
     exports uni.gaben.iscat.universe.entities.worm;

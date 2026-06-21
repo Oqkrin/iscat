@@ -13,7 +13,7 @@ import uni.gaben.iscat.controller.IscatViewController;
 import uni.gaben.iscat.controller.IscatWindowController;
 import uni.gaben.iscat.model.IscatModel;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.universe.entities.EntityFactory;
+import uni.gaben.iscat.universe.entities.parsed.EntityFactory;
 import uni.gaben.iscat.utils.ExternalResourceResolver;
 import uni.gaben.iscat.view.components.IscatTitleBar;
 import uni.gaben.iscat.utils.audio.AudioManager;

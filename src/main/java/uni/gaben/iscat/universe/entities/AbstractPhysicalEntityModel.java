@@ -8,6 +8,7 @@ import uni.gaben.iscat.universe.entities.interfaces.Collidable;
 import uni.gaben.iscat.universe.entities.interfaces.Dynamic;
 import uni.gaben.iscat.universe.entities.interfaces.Removable;
 import uni.gaben.iscat.universe.entities.interfaces.Stateful;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.utils.Updatable;
 
 import java.util.HashMap;

@@ -13,54 +13,55 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
+import uni.gaben.iscat.IscatSettings;
 import uni.gaben.iscat.controller.game.GameController;
 import uni.gaben.iscat.universe.spawn.UniverseSpawnable;
-import uni.gaben.iscat.universe.entities.EntityFactory;
-import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.parsed.EntityFactory;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.utils.design.CssHelper;
 
 import java.io.InputStream;
 import java.util.*;
 
-/**
- * Pannello dedicato alla generazione visiva e al monitoraggio di nemici,
- * oggetti speciali o entità all'interno del mondo attivo.
- */
 public class DebugToolBarSpawner extends VBox {
 
     private static final Set<UniverseSpawnable> HIDDEN_SPAWNABLES = Set.of(
             UniverseSpawnable.PLAYER,
             UniverseSpawnable.PROJECTILE
     );
+    public static final String HEART_PNG = "/uni/gaben/iscat/sprites/boosts/heart.png";
+    public static final String BLACKHOLE_PNG = "/uni/gaben/iscat/sprites/other/blackhole.png";
+    public static final String ASTEROID_PNG = "/uni/gaben/iscat/sprites/other/asteroid.png";
 
     private final Map<String, Image> imageCache = new HashMap<>();
     private final GameController controller;
 
-    /**
-     * Costruisce il pannello di controllo dello spawner suddividendo le entità
-     * in tre categorie distinte e ordinandole.
-     *
-     * @param controller Il controller del gioco corrente
-     * @param onBack     L'azione da eseguire per tornare al menu precedente
-     */
     public DebugToolBarSpawner(GameController controller, Runnable onBack) {
-        super(12);
-        setPadding(new Insets(12, 20, 20, 20));
+        final double SU = IscatSettings.STANDARD_UNIT;
+
+        setSpacing(SU);
+        setPadding(new Insets(SU, SU, SU, SU));
         setAlignment(Pos.TOP_CENTER);
         getStyleClass().add("debug-tool-bar");
 
         this.controller = controller;
 
-        VBox mainCategoriesLayout = new VBox(20);
-        mainCategoriesLayout.setPadding(new Insets(10, 0, 10, 0));
+        VBox mainCategoriesLayout = new VBox(SU);
+        mainCategoriesLayout.setPadding(new Insets(SU /2, 0, SU /2, 0));
 
         ScrollPane scroll = new ScrollPane();
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroll.setFitToWidth(true);
+        scroll.getStyleClass().add("debug-spawner-scroll");
 
+        // Back button
         Button btnBack = new Button("← INDIETRO");
         btnBack.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(btnBack);
         CssHelper.testoSecondario(btnBack);
         btnBack.getStyleClass().add("debug-btn-back");
+        btnBack.setPadding(new Insets(SU /4, SU /2, SU /4, SU /2));
         btnBack.setOnAction(e -> onBack.run());
 
         HBox topBar = new HBox(btnBack);
@@ -69,49 +70,37 @@ public class DebugToolBarSpawner extends VBox {
         Label mainTitle = new Label("SPAWNABLE LIST (CLICK TO GENERATE)");
         CssHelper.testoPrimario(mainTitle);
         mainTitle.getStyleClass().add("debug-main-title");
+        mainTitle.setPadding(new Insets(SU /2, 0, SU /4, 0));
 
-        Map<String, EntityRecord> cacheMap = EntityFactory.getCache();
-        Map<String, EntityRecord> allUniqueEntities = new LinkedHashMap<>();
-
-        for (UniverseSpawnable spawnable : UniverseSpawnable.values()) {
-            if (HIDDEN_SPAWNABLES.contains(spawnable)) continue;
-            EntityRecord record = cacheMap.get(spawnable.name().toLowerCase());
-            if (record == null) {
-                record = cacheMap.get(spawnable.name());
-            }
-            allUniqueEntities.put(spawnable.name(), record);
-        }
-
-        for (EntityRecord record : cacheMap.values()) {
-            if (record == null || record.entityKey() == null) continue;
-            if (!allUniqueEntities.containsKey(record.entityKey())) {
-                allUniqueEntities.put(record.entityKey(), record);
-            }
-        }
-
+        // Gather entities
+        Map<String, EntityRecord> allUniqueEntities = getAllUniqueEntities();
         List<Map.Entry<String, EntityRecord>> specialList = new ArrayList<>();
         List<Map.Entry<String, EntityRecord>> enemiesList = new ArrayList<>();
         List<Map.Entry<String, EntityRecord>> playersList = new ArrayList<>();
+        List<Map.Entry<String, EntityRecord>> customList  = new ArrayList<>();
 
         for (Map.Entry<String, EntityRecord> entry : allUniqueEntities.entrySet()) {
             String lowerKey = entry.getKey().toLowerCase();
             EntityRecord record = entry.getValue();
-
+            boolean isPlayer = record != null && record.player() != null;
+            boolean isCustom = isCustom(entry.getKey());
             boolean isWormComponent = lowerKey.contains("head") || lowerKey.contains("body") || lowerKey.contains("tail");
 
-            if ((lowerKey.contains("worm") && !isWormComponent) || lowerKey.contains("asteroid") ||
+            if (isCustom) {
+                customList.add(entry);
+                continue; // separate category
+            }
+            if (isPlayer) {
+                playersList.add(entry);
+            } else if ((lowerKey.contains("worm") && !isWormComponent) || lowerKey.contains("asteroid") ||
                     lowerKey.contains("blackhole") || lowerKey.contains("heart")) {
                 specialList.add(entry);
-            }
-            else if (record != null && record.player() != null) {
-                playersList.add(entry);
-            }
-            else {
+            } else {
                 enemiesList.add(entry);
             }
         }
 
-        Comparator<Map.Entry<String, EntityRecord>> bestiaryComparator = (e1, e2) -> {
+        Comparator<Map.Entry<String, EntityRecord>> comp = (e1, e2) -> {
             Integer o1 = (e1.getValue() != null) ? e1.getValue().bestiaryOrder() : null;
             Integer o2 = (e2.getValue() != null) ? e2.getValue().bestiaryOrder() : null;
             if (o1 == null && o2 == null) return 0;
@@ -119,19 +108,16 @@ public class DebugToolBarSpawner extends VBox {
             if (o2 == null) return -1;
             return Integer.compare(o1, o2);
         };
-
-        enemiesList.sort(bestiaryComparator);
-        playersList.sort(bestiaryComparator);
+        enemiesList.sort(comp);
+        playersList.sort(comp);
+        customList.sort(Map.Entry.comparingByKey());
 
         creaSezioneCategoria(mainCategoriesLayout, "★ SPECIAL ★", specialList);
         creaSezioneCategoria(mainCategoriesLayout, "⚔ ENEMIES ⚔", enemiesList);
         creaSezioneCategoria(mainCategoriesLayout, "✈ PLAYERS ✈", playersList);
+        creaSezioneCategoria(mainCategoriesLayout, "⚙ CUSTOM ⚙", customList);
 
         scroll.setContent(mainCategoriesLayout);
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.setFitToWidth(true);
-        scroll.getStyleClass().add("debug-spawner-scroll");
         scroll.setFitToHeight(true);
         scroll.prefHeightProperty().bind(mainCategoriesLayout.heightProperty());
 
@@ -139,23 +125,40 @@ public class DebugToolBarSpawner extends VBox {
         getChildren().addAll(topBar, mainTitle, scroll);
     }
 
-    /**
-     * Crea un blocco grafico completo di titolo intestazione e griglia per una categoria.
-     *
-     * @param parent   Il contenitore verticale di destinazione
-     * @param titolo   Il testo visualizzato come intestazione di sezione
-     * @param elementi La lista di entità appartenenti alla categoria
-     */
+    private static Map<String, EntityRecord> getAllUniqueEntities() {
+        Map<String, EntityRecord> cacheMap = EntityFactory.getCache();
+        Map<String, EntityRecord> all = new LinkedHashMap<>();
+        for (UniverseSpawnable sp : UniverseSpawnable.values()) {
+            if (HIDDEN_SPAWNABLES.contains(sp)) continue;
+            EntityRecord r = cacheMap.get(sp.name().toLowerCase());
+            if (r == null) r = cacheMap.get(sp.name());
+            all.put(sp.name(), r);
+        }
+        for (EntityRecord r : cacheMap.values()) {
+            if (r == null || r.entityKey() == null) continue;
+            if (!all.containsKey(r.entityKey())) {
+                all.put(r.entityKey(), r);
+            }
+        }
+        return all;
+    }
+
+    private boolean isCustom(String key) {
+        String origin = EntityFactory.getOriginPath(key);
+        return origin != null && origin.toLowerCase().contains("custom");
+    }
+
     private void creaSezioneCategoria(VBox parent, String titolo, List<Map.Entry<String, EntityRecord>> elementi) {
         if (elementi.isEmpty()) return;
+        final double SU = IscatSettings.STANDARD_UNIT;
 
-        VBox sectionBox = new VBox(6);
+        VBox sectionBox = new VBox(SU/3); // 6
         Label sectionTitle = new Label(titolo);
         CssHelper.testoPrimario(sectionTitle);
         sectionTitle.getStyleClass().add("debug-title");
-        sectionTitle.setPadding(new Insets(10, 0, 2, 0));
+        sectionTitle.setPadding(new Insets(SU /2, 0, SU /8, 0)); // 10,0,2,0
 
-        FlowPane flowPane = new FlowPane(15, 15);
+        FlowPane flowPane = new FlowPane(SU, SU); // 15
         flowPane.setAlignment(Pos.TOP_LEFT);
 
         for (Map.Entry<String, EntityRecord> entry : elementi) {
@@ -166,44 +169,39 @@ public class DebugToolBarSpawner extends VBox {
         parent.getChildren().add(sectionBox);
     }
 
-    /**
-     * Genera la singola tessera quadrata interattiva con l'anteprima dell'entità sponabile.
-     *
-     * @param key    La chiave univoca di registrazione dell'entità
-     * @param record Il record di configurazione statica dei parametri dell'entità
-     * @return Il nodo grafico VBox completo pronto per la visualizzazione nella griglia
-     */
-    private VBox createSquareSpawnCard(String key, EntityRecord record) {
-        VBox card = new VBox(6);
+    private VBox createSquareSpawnCard(String key, EntityRecord entity) {
+        final double SU = IscatSettings.STANDARD_UNIT;
+        final double IMG_SIZE = SU * 2; // 32
+
+        VBox card = new VBox(SU /2); // 8
         card.setAlignment(Pos.TOP_CENTER);
-        card.setPrefWidth(90);
+        card.setPadding(new Insets(SU /2)); // 8
         card.setId(key);
 
         Button btnSquare = new Button();
-        btnSquare.setMinSize(70, 70);
-        btnSquare.setMaxSize(70, 70);
         btnSquare.setFocusTraversable(false);
         CssHelper.stilePulsanteMenu(btnSquare);
         btnSquare.getStyleClass().add("debug-spawn-btn-square");
+        btnSquare.setPadding(new Insets(SU /4)); // 4
         btnSquare.setOnAction(e -> controller.debugSpawn(key));
 
-        String targetSpritePath = (record != null) ? record.spritePath() : null;
+        // Determine sprite path & fallback logic
+        String targetSpritePath = (entity != null) ? entity.spritePath() : null;
         boolean isTextFallback = false;
-
         String lowerKey = key.toLowerCase();
 
         if (lowerKey.equals("worm") || lowerKey.equals("iscat_worm")) {
             Map<String, EntityRecord> cacheMap = EntityFactory.getCache();
             if (cacheMap.containsKey("iscat_worm_head")) {
-                record = cacheMap.get("iscat_worm_head");
-                targetSpritePath = record.spritePath();
+                entity = cacheMap.get("iscat_worm_head");
+                targetSpritePath = entity.spritePath();
             }
         } else if (lowerKey.contains("heart")) {
-            targetSpritePath = "/uni/gaben/iscat/sprites/boosts/heart.png";
+            targetSpritePath = HEART_PNG;
         } else if (lowerKey.contains("blackhole")) {
-            targetSpritePath = "/uni/gaben/iscat/sprites/other/blackhole.png";
+            targetSpritePath = BLACKHOLE_PNG;
         } else if (lowerKey.contains("asteroid")) {
-            targetSpritePath = "/uni/gaben/iscat/sprites/other/asteroid.png";
+            targetSpritePath = ASTEROID_PNG;
         }
 
         if (targetSpritePath != null && !targetSpritePath.isBlank()) {
@@ -213,26 +211,23 @@ public class DebugToolBarSpawner extends VBox {
                     try (InputStream is = getClass().getResourceAsStream(p)) {
                         if (is != null) return new Image(is);
                     } catch (Exception ex) {
-                        System.err.println("[DebugToolBar] Impossibile caricare asset override: " + p);
+                        System.err.println("[DebugToolBar] Cannot load: " + p);
                     }
                     return null;
                 });
 
                 if (spriteImg != null && !spriteImg.isError()) {
                     ImageView view = new ImageView(spriteImg);
-
                     boolean isHardcoded = lowerKey.contains("heart") || lowerKey.contains("blackhole") || lowerKey.contains("asteroid");
-
-                    if (record != null && record.frameW() > 0 && record.frameH() > 0 && !isHardcoded) {
+                    if (entity != null && entity.frameW() > 0 && entity.frameH() > 0 && !isHardcoded) {
                         if (lowerKey.contains("master")) {
-                            view.setViewport(new Rectangle2D(0, record.frameH(), record.frameW(), record.frameH()));
+                            view.setViewport(new Rectangle2D(0, entity.frameH(), entity.frameW(), entity.frameH()));
                         } else {
-                            view.setViewport(new Rectangle2D(0, 0, record.frameW(), record.frameH()));
+                            view.setViewport(new Rectangle2D(0, 0, entity.frameW(), entity.frameH()));
                         }
                     }
-
-                    view.setFitWidth(42);
-                    view.setFitHeight(42);
+                    view.setFitWidth(IMG_SIZE);
+                    view.setFitHeight(IMG_SIZE);
                     view.setPreserveRatio(true);
                     view.setSmooth(true);
                     btnSquare.setGraphic(view);
@@ -254,17 +249,18 @@ public class DebugToolBarSpawner extends VBox {
             btnSquare.setGraphic(textLabel);
         }
 
-        if (record != null && record.name() != null) {
-            btnSquare.setTooltip(new Tooltip(record.name() + "\nHP: " + record.initLife() + "\nXP: " + record.xpReward()));
+        if (entity != null && entity.name() != null) {
+            btnSquare.setTooltip(new Tooltip(entity.name() + "\nHP: " + entity.initLife() + "\nXP: " + entity.xpReward()));
         }
 
         String cleanName = key.replace("_", " ").replace("-", " ").toUpperCase();
         Label nameLabel = new Label(cleanName);
         nameLabel.setAlignment(Pos.CENTER);
-        nameLabel.setPrefWidth(85);
         nameLabel.setWrapText(true);
         CssHelper.testoPrimario(nameLabel);
         nameLabel.getStyleClass().add("debug-spawn-card-label");
+        nameLabel.setMaxWidth(Double.MAX_VALUE);
+        nameLabel.setPadding(new Insets(SU /8, 0, 0, 0)); // 2
 
         card.getChildren().addAll(btnSquare, nameLabel);
         return card;

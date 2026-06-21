@@ -7,7 +7,7 @@ import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
-import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecordBuilder;
 import uni.gaben.iscat.universe.entities.interfaces.HasSprite;
 
 public class HeartModel extends AbstractLivingEntityModel implements HasSprite {

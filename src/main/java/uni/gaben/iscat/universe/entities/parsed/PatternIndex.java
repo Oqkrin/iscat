@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities;
+package uni.gaben.iscat.universe.entities.parsed;
 
 /**
  * All pattern shooter types recognised by the JSON parser.

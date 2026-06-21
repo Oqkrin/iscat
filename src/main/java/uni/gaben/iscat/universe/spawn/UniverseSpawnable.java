@@ -1,6 +1,6 @@
 package uni.gaben.iscat.universe.spawn;
 
-import uni.gaben.iscat.universe.entities.EntityModel;
+import uni.gaben.iscat.universe.entities.parsed.EntityModel;
 import uni.gaben.iscat.universe.entities.hardcoded.heart.HeartModel;
 import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleModel;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;

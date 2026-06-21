@@ -4,6 +4,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.universe.entities.interfaces.Alterable;
 import uni.gaben.iscat.universe.entities.interfaces.hasXpReward;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 
 /**

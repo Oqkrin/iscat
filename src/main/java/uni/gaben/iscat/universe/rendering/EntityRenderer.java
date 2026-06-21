@@ -8,6 +8,7 @@ import uni.gaben.iscat.universe.*;
 import uni.gaben.iscat.universe.entities.*;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidModel;
 import uni.gaben.iscat.universe.entities.hardcoded.blackhole.BlackHoleModel;
+import uni.gaben.iscat.universe.entities.parsed.EntityModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;

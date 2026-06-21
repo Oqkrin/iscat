@@ -3,7 +3,7 @@ package uni.gaben.iscat.universe.entities.brain.abilities;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseModel;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entities.EntityModel;
+import uni.gaben.iscat.universe.entities.parsed.EntityModel;
 import uni.gaben.iscat.universe.entities.brain.Brain;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;

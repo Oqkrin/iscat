@@ -1,7 +1,7 @@
-package uni.gaben.iscat.universe.entities;
+package uni.gaben.iscat.universe.entities.parsed;
 
-import javafx.beans.property.SimpleDoubleProperty;
 import uni.gaben.iscat.universe.UniverseModel;
+import uni.gaben.iscat.universe.entities.EntityState;
 import uni.gaben.iscat.universe.entities.brain.*;
 import uni.gaben.iscat.universe.entities.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringModifier;

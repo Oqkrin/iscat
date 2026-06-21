@@ -9,6 +9,7 @@ import uni.gaben.iscat.universe.entities.brain.abilities.Ability;
 import uni.gaben.iscat.universe.entities.brain.abilities.AbilityCategory;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.ProjectileType;
+import uni.gaben.iscat.universe.entities.parsed.EntityModel;
 import uni.gaben.iscat.utils.Cooldown;
 
 import java.util.Set;

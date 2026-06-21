@@ -2,7 +2,7 @@ package uni.gaben.iscat.controller.components;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
-import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.universe.entities.ThreatLevel;
 
 /**

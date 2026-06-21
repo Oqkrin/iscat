@@ -1,9 +1,11 @@
-package uni.gaben.iscat.universe.entities;
+package uni.gaben.iscat.universe.entities.parsed;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import uni.gaben.iscat.universe.entities.EntityFilters;
+import uni.gaben.iscat.universe.entities.ThreatLevel;
 import uni.gaben.iscat.universe.entities.brain.abilities.*;
 import uni.gaben.iscat.universe.entities.brain.abilities.shoot.RandomizedShootAbility;
 import uni.gaben.iscat.universe.entities.brain.abilities.shoot.ShootAbility;

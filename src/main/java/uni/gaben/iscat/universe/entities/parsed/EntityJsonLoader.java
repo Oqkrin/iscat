@@ -1,17 +1,13 @@
-package uni.gaben.iscat.universe.entities.json;
+package uni.gaben.iscat.universe.entities.parsed;
 
 import org.json.JSONObject;
-import uni.gaben.iscat.universe.entities.EntityFactory;
 import uni.gaben.iscat.utils.ExternalResourceResolver;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EntityJsonLoader {

@@ -1,4 +1,7 @@
-package uni.gaben.iscat.universe.entities;
+package uni.gaben.iscat.universe.entities.parsed;
+
+import uni.gaben.iscat.universe.entities.EntityType;
+import uni.gaben.iscat.universe.entities.ThreatLevel;
 
 import java.util.ArrayList;
 import java.util.List;

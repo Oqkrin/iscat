@@ -8,7 +8,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import uni.gaben.iscat.universe.entities.*;
+import uni.gaben.iscat.universe.entities.parsed.*;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;

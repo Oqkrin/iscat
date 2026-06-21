@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities;
+package uni.gaben.iscat.universe.entities.parsed;
 
 public enum ModifierIndex {
     SEPARATION("separation"),

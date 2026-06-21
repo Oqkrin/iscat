@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities;
+package uni.gaben.iscat.universe.entities.parsed;
 
 /**
  * Indice degli obiettivi e comportamenti di rotazione IA (Rotation Goals).

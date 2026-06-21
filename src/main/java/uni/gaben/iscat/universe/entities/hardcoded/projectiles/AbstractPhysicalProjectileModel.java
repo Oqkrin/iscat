@@ -2,8 +2,8 @@ package uni.gaben.iscat.universe.entities.hardcoded.projectiles;
 
 import org.dyn4j.geometry.MassType;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entities.EntityRecord;
-import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecordBuilder;
 
 /**
  * Modello fisico di base per tutti i proiettili all'interno dell'universo.

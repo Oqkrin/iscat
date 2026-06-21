@@ -1,7 +1,7 @@
 package uni.gaben.iscat.view.skin;
 
 import javafx.scene.control.Button;
-import uni.gaben.iscat.universe.entities.EntityRecord;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
 import uni.gaben.iscat.view.components.AnimatedCanvas;
 
 public class SkinButton extends Button {

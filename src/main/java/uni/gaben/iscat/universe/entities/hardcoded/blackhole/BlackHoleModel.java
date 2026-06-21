@@ -7,7 +7,7 @@ import org.dyn4j.geometry.Vector2;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
 import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
-import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecordBuilder;
 import uni.gaben.iscat.universe.entities.hardcoded.projectiles.AbstractPhysicalProjectileModel;
 import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entities.player.PlayerModel;

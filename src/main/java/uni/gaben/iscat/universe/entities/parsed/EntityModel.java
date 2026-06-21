@@ -1,4 +1,4 @@
-package uni.gaben.iscat.universe.entities;
+package uni.gaben.iscat.universe.entities.parsed;
 
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
@@ -7,9 +7,10 @@ import org.dyn4j.geometry.Polygon;
 import uni.gaben.iscat.universe.effects.Shockwave;
 import uni.gaben.iscat.universe.UU;
 import uni.gaben.iscat.universe.UniverseCollisionLayers;
+import uni.gaben.iscat.universe.entities.AbstractLivingEntityModel;
+import uni.gaben.iscat.universe.entities.EntityState;
 import uni.gaben.iscat.universe.spawn.waves.UniverseWaveController;
 import uni.gaben.iscat.universe.entities.hardcoded.asteroid.AsteroidShapeFactory;
-import uni.gaben.iscat.universe.entities.player.PlayerModel;
 import uni.gaben.iscat.universe.entities.interfaces.HasShockwave;
 import uni.gaben.iscat.universe.entities.interfaces.HasSprite;
 import uni.gaben.iscat.utils.EntityAudioManager;

@@ -2,7 +2,7 @@ package uni.gaben.iscat.universe.effects;
 
 import uni.gaben.iscat.universe.UniverseSettings;
 import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
-import uni.gaben.iscat.universe.entities.EntityRecordBuilder;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecordBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

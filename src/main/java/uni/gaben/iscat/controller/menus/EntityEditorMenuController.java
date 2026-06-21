@@ -12,8 +12,10 @@ import uni.gaben.iscat.controller.interfaces.IscatMenuController;
 import uni.gaben.iscat.controller.components.ConfirmationOverlayController;
 import uni.gaben.iscat.model.EntityEditorModel;
 import uni.gaben.iscat.model.IscatViews;
-import uni.gaben.iscat.universe.entities.*;
-import uni.gaben.iscat.universe.entities.json.EntityJsonLoader;
+import uni.gaben.iscat.universe.entities.parsed.EntityFactory;
+import uni.gaben.iscat.universe.entities.parsed.EntityJsonLoader;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecord;
+import uni.gaben.iscat.universe.entities.parsed.EntityRecordParser;
 import uni.gaben.iscat.utils.ComponentsUtils;
 import uni.gaben.iscat.utils.ExternalResourceResolver;
 import uni.gaben.iscat.utils.sprite.SpriteResolver;
@@ -47,8 +49,6 @@ public class EntityEditorMenuController implements IscatMenuController {
     private EntityEditorModel model;
     private EntityEditorUIBuilder uiBuilder;
 
-    private boolean dirty = false;
-
     public static String targetEntityKeyToLoad = null;
 
     @FXML
@@ -57,7 +57,6 @@ public class EntityEditorMenuController implements IscatMenuController {
         if (entitiesRoot == null) {
             entitiesRoot = Path.of("entities");
             ExternalResourceResolver.init(entitiesRoot);
-            System.out.println("[EntityEditor] Created default external root: " + entitiesRoot.toAbsolutePath());
         }
 
         previewCanvas = new AnimatedCanvas(196.0);
@@ -65,7 +64,7 @@ public class EntityEditorMenuController implements IscatMenuController {
 
         model = new EntityEditorModel();
         uiBuilder = new EntityEditorUIBuilder(() -> {
-            onFieldChanged();
+            model.markDirty();
             rebuildAllUI();
         });
 
@@ -78,7 +77,6 @@ public class EntityEditorMenuController implements IscatMenuController {
 
         populateCombos();
 
-        // Load target entity or first available from any combo
         if (targetEntityKeyToLoad != null) {
             selectEntityInCombo(targetEntityKeyToLoad);
             loadEntity(targetEntityKeyToLoad);
@@ -87,7 +85,6 @@ public class EntityEditorMenuController implements IscatMenuController {
             loadFirstAvailable();
         }
 
-        // Combo actions
         comboCustom.setOnAction(e -> handleComboSelection(comboCustom));
         comboCore.setOnAction(e -> handleComboSelection(comboCore));
         comboPlayers.setOnAction(e -> handleComboSelection(comboPlayers));
@@ -95,6 +92,9 @@ public class EntityEditorMenuController implements IscatMenuController {
         registerEscHandler();
     }
 
+    // ------------------------------------------------------------------------
+    // Combo population & filtering
+    // ------------------------------------------------------------------------
     private void populateCombos() {
         List<String> customKeys = new ArrayList<>();
         List<String> coreKeys = new ArrayList<>();
@@ -106,13 +106,9 @@ public class EntityEditorMenuController implements IscatMenuController {
             boolean isPlayer = rec != null && rec.player() != null;
             boolean isCustom = isCustom(key);
 
-            if (isPlayer) {
-                playerKeys.add(key);
-            } else if (isCustom) {
-                customKeys.add(key);
-            } else {
-                coreKeys.add(key);
-            }
+            if (isPlayer) playerKeys.add(key);
+            else if (isCustom) customKeys.add(key);
+            else coreKeys.add(key);
         }
 
         sortAndSet(comboCustom, customKeys);
@@ -122,26 +118,19 @@ public class EntityEditorMenuController implements IscatMenuController {
 
     private boolean isCustom(String key) {
         String origin = EntityFactory.getOriginPath(key);
-        if (origin == null) return false;
-        return origin.toLowerCase().contains("custom");
+        return origin != null && origin.toLowerCase().contains("custom");
     }
 
     private void sortAndSet(ComboBox<String> combo, List<String> list) {
         list.sort(String::compareToIgnoreCase);
         combo.getItems().setAll(list);
-        if (!list.isEmpty()) {
-            combo.getSelectionModel().selectFirst();
-        }
+        if (!list.isEmpty()) combo.getSelectionModel().selectFirst();
     }
 
     private void loadFirstAvailable() {
-        if (!comboCustom.getItems().isEmpty()) {
-            loadEntity(comboCustom.getValue());
-        } else if (!comboCore.getItems().isEmpty()) {
-            loadEntity(comboCore.getValue());
-        } else if (!comboPlayers.getItems().isEmpty()) {
-            loadEntity(comboPlayers.getValue());
-        }
+        if (!comboCustom.getItems().isEmpty()) loadEntity(comboCustom.getValue());
+        else if (!comboCore.getItems().isEmpty()) loadEntity(comboCore.getValue());
+        else if (!comboPlayers.getItems().isEmpty()) loadEntity(comboPlayers.getValue());
     }
 
     private void selectEntityInCombo(String key) {
@@ -153,7 +142,7 @@ public class EntityEditorMenuController implements IscatMenuController {
     private void handleComboSelection(ComboBox<String> combo) {
         String sel = combo.getSelectionModel().getSelectedItem();
         if (sel == null) return;
-        if (dirty && confirmOverlayController != null) {
+        if (model.isDirty() && confirmOverlayController != null) {
             confirmOverlayController.ask(
                     "Unsaved Changes",
                     "You have unsaved modifications. Discard them?",
@@ -164,6 +153,9 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
     }
 
+    // ------------------------------------------------------------------------
+    // Entity loading & UI refresh
+    // ------------------------------------------------------------------------
     private void loadEntity(String entityKey) {
         JSONObject raw = EntityFactory.getRawJson(entityKey);
         if (raw == null) {
@@ -173,7 +165,7 @@ public class EntityEditorMenuController implements IscatMenuController {
             model.setCurrentJson(EntityRecordParser.convertKeysToLowerCase(new JSONObject(raw.toString())));
             model.setOriginPath(EntityFactory.getOriginPath(entityKey));
         }
-        dirty = false;
+        model.clearDirty();
         refreshUI();
     }
 
@@ -188,10 +180,6 @@ public class EntityEditorMenuController implements IscatMenuController {
     private void rebuildAllUI() {
         uiBuilder.buildUI(model.getCurrentJson(),
                 paneIdentity, paneVisuals, panePhysics, paneBehavioural, paneAdvancedAI, paneAudio);
-    }
-
-    private void onFieldChanged() {
-        dirty = true;
     }
 
     private void updatePreview() {
@@ -218,15 +206,16 @@ public class EntityEditorMenuController implements IscatMenuController {
         skinNameLabel.setText(json.optString("name", "UNKNOWN"));
     }
 
-    // ── Save / Apply Handlers (unchanged except repopulate combos after save) ──
+    // ------------------------------------------------------------------------
+    // Save & Apply logic
+    // ------------------------------------------------------------------------
     @FXML
     private void handleApply() {
         try {
             EntityRecord record = EntityRecordParser.parse(model.getCurrentJson());
             EntityFactory.addOrUpdateEntity(record);
-            System.out.println("Applied to runtime cache: " + record.entityKey());
-            dirty = false;
-            updatePreview();
+            model.clearDirty();
+            refreshUI();
         } catch (Exception e) {
             System.err.println("Failed to parse JSON: " + e.getMessage());
         }
@@ -244,13 +233,13 @@ public class EntityEditorMenuController implements IscatMenuController {
             confirmOverwrite(originPath, () -> {
                 handleApply();
                 EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), origin);
-                System.out.println("Overwrote file: " + origin);
-                dirty = false;
+                model.clearDirty();
                 repopulateCombosIfNeeded();
             });
             return;
         }
 
+        // Origin is internal (classpath) – create an override in core folder
         String fileName = originPath.getFileName().toString();
         Path coreDir = entitiesRoot.resolve("json/core");
         try {
@@ -266,18 +255,16 @@ public class EntityEditorMenuController implements IscatMenuController {
                 EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), overrideFile.toAbsolutePath().toString());
                 model.setOriginPath(overrideFile.toAbsolutePath().toString());
                 lblOriginPath.setText("Origin: " + model.getOriginPath());
-                dirty = false;
+                model.clearDirty();
                 repopulateCombosIfNeeded();
-                System.out.println("Saved override to: " + overrideFile);
             });
         } else {
             handleApply();
             EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), overrideFile.toAbsolutePath().toString());
             model.setOriginPath(overrideFile.toAbsolutePath().toString());
             lblOriginPath.setText("Origin: " + model.getOriginPath());
-            dirty = false;
+            model.clearDirty();
             repopulateCombosIfNeeded();
-            System.out.println("Saved override to: " + overrideFile);
         }
     }
 
@@ -307,18 +294,12 @@ public class EntityEditorMenuController implements IscatMenuController {
         EntityJsonLoader.saveJsonToFile(model.getCurrentJson(), targetFile.toAbsolutePath().toString());
         model.setOriginPath(targetFile.toAbsolutePath().toString());
         lblOriginPath.setText("Origin: " + model.getOriginPath());
-        dirty = false;
-        System.out.println("Saved new entity to: " + model.getOriginPath());
-
-        repopulateCombosIfNeeded();
-        // Select the new key in the appropriate combo
+        model.clearDirty();
+        populateCombos();
         selectEntityInCombo(key);
     }
 
-    private void repopulateCombosIfNeeded() {
-        // After saving a custom entity, the custom list may have changed
-        populateCombos();
-    }
+    private void repopulateCombosIfNeeded() { populateCombos(); }
 
     private void confirmOverwrite(Path filePath, Runnable onYes) {
         if (confirmOverlayController == null) {
@@ -333,13 +314,13 @@ public class EntityEditorMenuController implements IscatMenuController {
         );
     }
 
+    // ------------------------------------------------------------------------
+    // Asset pickers
+    // ------------------------------------------------------------------------
     @FXML
     private void handleChooseSkin() {
         Path customDir = entitiesRoot.resolve("sprites/custom");
-        try { Files.createDirectories(customDir); } catch (IOException e) {
-            System.err.println("Cannot create custom sprite directory: " + e.getMessage());
-            return;
-        }
+        try { Files.createDirectories(customDir); } catch (IOException e) { /*...*/ }
 
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Sprite Sheet");
@@ -370,10 +351,7 @@ public class EntityEditorMenuController implements IscatMenuController {
     @FXML
     private void handleChooseSound() {
         Path sfxCustomDir = entitiesRoot.resolve("audio/SFX/custom");
-        try { Files.createDirectories(sfxCustomDir); } catch (IOException e) {
-            System.err.println("Cannot create custom SFX directory: " + e.getMessage());
-            return;
-        }
+        try { Files.createDirectories(sfxCustomDir); } catch (IOException e) { /*...*/ }
 
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Sound Effect");
@@ -397,14 +375,15 @@ public class EntityEditorMenuController implements IscatMenuController {
         }
     }
 
-    @FXML
-    private void handleBack(ActionEvent event) { handleBack(); }
+    // ------------------------------------------------------------------------
+    // Navigation & life‑cycle
+    // ------------------------------------------------------------------------
+    @FXML private void handleBack(ActionEvent event) { handleBack(); }
 
     public void handleBack() {
-        if (dirty && confirmOverlayController != null) {
+        if (model.isDirty() && confirmOverlayController != null) {
             confirmOverlayController.ask(
-                    "Unsaved Changes",
-                    "Go back without saving?",
+                    "Unsaved Changes", "Go back without saving?",
                     () -> IscatNavigator.getInstance().navigateWithFade(IscatViews.BESTIARY_MENU)
             );
         } else {
