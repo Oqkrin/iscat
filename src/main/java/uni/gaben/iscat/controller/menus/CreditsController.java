@@ -71,6 +71,8 @@ public class CreditsController implements IscatFxmlController {
         clippingPane.heightProperty().addListener((obs, oldVal, newVal) -> tryStartAnimation());
         creditsContainer.heightProperty().addListener((obs, oldVal, newVal) -> tryStartAnimation());
 
+        creditsContainer.minWidthProperty().bind(clippingPane.widthProperty());
+
         // Setup dei controlli da tastiera
         setupKeyListeners();
     }

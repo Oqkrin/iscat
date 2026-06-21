@@ -114,7 +114,7 @@ public class WormAssembler {
         controller.addEntityController(brain);
 
         // Registrazione del segmento nel controller di catena per il vincolo di spaziatura
-        chain.addSegment(model, brain, isHead, isTail);
+        chain.addSegment(model, brain, isHead, isTail, universe);
 
         return model;
     }

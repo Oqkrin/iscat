@@ -7,24 +7,36 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="rootPane" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/credits-menu.css" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.menus.CreditsController">
+<StackPane fx:id="rootPane" minHeight="720.0" minWidth="1280.0" stylesheets="@../styles/screens/credits-menu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uni.gaben.iscat.controller.menus.CreditsController">
     <children>
-        <VBox alignment="CENTER" spacing="20.0">
+        <VBox alignment="CENTER">
             <children>
-                <Region minHeight="80.0" prefHeight="80.0" />
+                <Region minHeight="56.0" prefHeight="56.0" />
 
-                <Pane fx:id="clippingPane" maxWidth="800.0" VBox.vgrow="ALWAYS" style="-fx-background-color: rgba(0,0,0,0.4); -fx-background-radius: 20;">
+                <Pane fx:id="clippingPane" style="-fx-background-radius: 16;" styleClass="glowing-container" VBox.vgrow="ALWAYS">
                     <children>
-                        <VBox fx:id="creditsContainer" alignment="TOP_CENTER" prefWidth="800.0" spacing="20.0" />
+                        <VBox fx:id="creditsContainer" alignment="TOP_CENTER" />
                     </children>
+               <padding>
+                  <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+               </VBox.margin>
                 </Pane>
 
                 <Button fx:id="backButton" onAction="#handleBack" styleClass="back-button" text="MAIN MENU">
                     <VBox.margin>
-                        <Insets bottom="40.0" top="10.0" />
+                        <Insets bottom="56.0" />
                     </VBox.margin>
+               <padding>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+               </padding>
                 </Button>
             </children>
+         <StackPane.margin>
+            <Insets />
+         </StackPane.margin>
         </VBox>
     </children>
 </StackPane>

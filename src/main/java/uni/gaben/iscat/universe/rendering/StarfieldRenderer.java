@@ -13,7 +13,7 @@ import uni.gaben.iscat.utils.theme.ThemeManager;
  * L'assenza di property binding JavaFX previene i memory leak che causavano lo schermo nero al riavvio.
  * </p>
  */
-public class StarfieldRenderer implements Renderable<Starfield> {
+public class StarfieldRenderer {
 
     private double cameraX;
     private double cameraY;
@@ -23,7 +23,6 @@ public class StarfieldRenderer implements Renderable<Starfield> {
     /**
      * Renderizza il campo stellato applicando l'effetto parallasse basato sulla profondità (dimensione) di ogni stella.
      */
-    @Override
     public void render(Starfield model, GraphicsContext gc) {
         gc.save();
         if (model == null || model.getStars().isEmpty()) return;

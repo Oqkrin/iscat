@@ -104,8 +104,8 @@ public class DodgeDashAbility extends Ability {
     @Override
     public void onActivate(Brain<?> brain, UniverseModel world) {
         AbstractPhysicalEntityModel self = brain.getEntity();
-        self.setTemporaryTerminalVelocity(self.getTerminalVelocity() * 3);
-        self.setDashLinearDamping(0);
+        self.setTemporaryTerminalVelocity(self.getTerminalVelocity() * 4); // Aumentato da 3 a 4 per uno scatto più rapido
+        self.setDashLinearDamping(2.0); // Modificato da 0 a 2.0 per evitare che l'entità scivoli troppo lontano
 
         List<AbstractPhysicalEntityModel> threats = threatSupplier.getEntities(world);
         if (threats == null || threats.isEmpty()) return;

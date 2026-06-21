@@ -33,7 +33,7 @@ public class UniverseModel extends World<Body> {
 
     private final List<AbstractPhysicalEntityModel> entities = new ArrayList<>();
     private final List<AbstractPhysicalProjectileModel> projectiles = new ArrayList<>();
-    private final Starfield starfield = new Starfield(0, 0);
+    private final Starfield starfield = new Starfield();
     private final List<HitSpark> hitSparks = new ArrayList<>();
 
     // Indici e cache ottimizzati per evitare allocazioni a runtime

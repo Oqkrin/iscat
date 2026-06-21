@@ -4,52 +4,57 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Glow;
 import javafx.scene.paint.Color;
-import org.dyn4j.geometry.Vector2;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.StrokeLineCap;
 import uni.gaben.iscat.utils.theme.ThemeManager;
+
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 
 /**
  * Gestore grafico per l'effetto visivo del dash (scatto rapido).
- * Le linee di velocità sono generate nella direzione opposta al movimento,
- * con intensità proporzionale alla velocità corrente.
- * L'effetto è ancorato al corpo dell'entità (hugging).
+ * <p>
+ * Disegna due componenti sovrapposti:
+ * <ol>
+ *   <li>Un bagliore ad impulso nell'istante del dash (basato sulla velocità corrente).</li>
+ *   <li>Una scia persistente basata sulla storia posizionale del {@link DashTrail},
+ *       che decade gradualmente nel tempo anche dopo la fine del dash.</li>
+ * </ol>
  */
 public final class DashVFX {
 
-    private static final Glow GLOW = new Glow(0.5);
-    private static final int STREAKS = 12;
+    private static final Glow GLOW = new Glow(0.6);
     private static final double MAX_LENGTH = 80; // pixel
     private static final double MIN_LENGTH = 15;
 
     private DashVFX() {}
 
     /**
-     * Renderizza l'effetto dash.
+     * Renderizza il flash istantaneo del dash (visuale basata sulla velocità corrente).
      *
-     * @param gc Contesto grafico.
-     * @param cx Centro X dell'entità (screen space).
-     * @param cy Centro Y dell'entità.
-     * @param vx Velocità X (metri/secondo) – sarà convertita in pixel per la scala visiva.
-     * @param vy Velocità Y.
-     * @param width Larghezza dell'entità (pixel) – usata per scalare la dimensione delle scie.
-     * @param height Altezza dell'entità (pixel).
+     * @param gc     Contesto grafico.
+     * @param cx     Centro X dell'entità (world-pixel).
+     * @param cy     Centro Y dell'entità.
+     * @param vx     Velocità X in m/s (convertita via scala visiva).
+     * @param vy     Velocità Y.
+     * @param width  Larghezza dell'entità in pixel.
+     * @param height Altezza dell'entità in pixel.
      */
     public static void drawDashRaw(GraphicsContext gc, double cx, double cy, double vx, double vy,
                                    double width, double height) {
         double speed = Math.sqrt(vx * vx + vy * vy);
-        if (speed < 0.5) return; // soglia minima per evitare flicker
+        if (speed < 0.5) return;
 
-        // Direzione di movimento (normalizzata)
         double dirX = vx / speed;
         double dirY = vy / speed;
 
-        // Intensità (0..1) basata sulla velocità rispetto a un valore di riferimento
-        double refSpeed = 80.0; // velocità di riferimento in px/s (da regolare)
-        double intensity = Math.min(speed / refSpeed, 1.5);
-        intensity = Math.min(intensity, 1.0);
+        double refSpeed = 80.0;
+        double intensity = Math.min(speed / refSpeed, 1.0);
 
-        // Lunghezza delle scie: proporzionale a speed, ma con minimo/massimo
         double length = MIN_LENGTH + (MAX_LENGTH - MIN_LENGTH) * intensity;
-
         Color accent = ThemeManager.getInstance().getAccentPrimary();
         double alpha = intensity * 0.9;
 
@@ -58,65 +63,94 @@ public final class DashVFX {
         gc.setGlobalBlendMode(BlendMode.ADD);
         gc.setEffect(GLOW);
 
-        // Numero di scie – più scie ad alta velocità
-        int numLines = (int) (STREAKS * (1.0 + intensity));
+        double endX = -dirX * length * 2.5;
+        double endY = -dirY * length * 2.5;
 
-        // Angolo di diffusione: più ampio per rendere l'effetto più evidente
-        double spread = Math.PI / 4 + (1 - intensity) * Math.PI / 3; // 45° .. 105°
+        Color startColor = Color.color(
+                Math.min(1, accent.getRed() + 0.3 * (1 - accent.getRed())),
+                Math.min(1, accent.getGreen() + 0.3 * (1 - accent.getGreen())),
+                Math.min(1, accent.getBlue() + 0.3 * (1 - accent.getBlue())),
+                alpha
+        );
+        Color endColor = Color.color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.0);
 
-        for (int i = 0; i < numLines; i++) {
-            double t = (double) i / (numLines - 1) - 0.5; // -0.5 .. 0.5
-            double theta = t * spread;
-            double cos = Math.cos(theta);
-            double sin = Math.sin(theta);
+        LinearGradient gradient = new LinearGradient(
+                0, 0, endX, endY,
+                false, CycleMethod.NO_CYCLE,
+                new Stop(0.0, startColor),
+                new Stop(1.0, endColor)
+        );
 
-            // Direzione della scia: opposta al movimento, con lieve deviazione laterale
-            double baseX = -dirX;
-            double baseY = -dirY;
+        double lineWidth = Math.max(width * 0.8 * intensity, 4.0);
+        gc.setStroke(gradient);
+        gc.setLineWidth(lineWidth);
+        gc.setLineCap(StrokeLineCap.ROUND);
 
-            // Applica rotazione per diffusione laterale
-            double rotatedX = baseX * cos - baseY * sin;
-            double rotatedY = baseX * sin + baseY * cos;
+        double startOffsetX = -dirX * (width * 0.4);
+        double startOffsetY = -dirY * (width * 0.4);
+        gc.strokeLine(startOffsetX, startOffsetY, startOffsetX + endX, startOffsetY + endY);
 
-            // Lunghezza scalata con posizione laterale (le scie laterali più corte)
-            double lenScale = 1.0 - Math.abs(t) * 0.6;
-            double lineLen = length * lenScale;
-
-            // Posizione di partenza: sul bordo dell'entità, nella direzione di movimento
-            // Per "hugging", partiamo a metà tra il centro e il bordo, poi allunghiamo all'indietro.
-            // In pratica, partiamo dal centro e la scia va all'indietro, ma con un offset iniziale.
-            double startX = 0;
-            double startY = 0;
-
-            // L'offset iniziale è lungo la direzione opposta al movimento, per far sì che la scia inizi
-            // già un po' dietro il centro, dando l'effetto di "hugging".
-            double startOffset = width * 0.6;
-            double endX = startX + rotatedX * (lineLen + startOffset);
-            double endY = startY + rotatedY * (lineLen + startOffset);
-
-            // Larghezza della linea: maggiore al centro, minore ai bordi
-            double lineWidth = 2.5 + 4.0 * (1 - Math.abs(t) * 0.5) * intensity;
-            lineWidth = Math.max(1.0, lineWidth);
-
-            // Colore: accento con aggiunta di bianco e opacità decrescente verso la fine della scia
-            Color color = Color.color(
-                    accent.getRed() + 0.3 * (1 - accent.getRed()),
-                    accent.getGreen() + 0.3 * (1 - accent.getGreen()),
-                    accent.getBlue() + 0.3 * (1 - accent.getBlue()),
-                    alpha
-            );
-
-            gc.setStroke(color);
-            gc.setLineWidth(lineWidth);
-            gc.strokeLine(startX, startY, endX, endY);
-        }
-
-        // Aggiungi un bagliore centrale per enfatizzare, più pronunciato
         if (intensity > 0.1) {
             double glowSize = 8 + 16 * intensity;
             gc.setFill(Color.WHITE);
             gc.setGlobalAlpha(intensity * 0.5);
-            gc.fillOval(-glowSize/2, -glowSize/2, glowSize, glowSize);
+            gc.fillOval(-glowSize / 2, -glowSize / 2, glowSize, glowSize);
+        }
+
+        gc.restore();
+    }
+
+    /**
+     * Renderizza la scia storica persistente del dash dal {@link DashTrail}.
+     * Ogni segmento collegante due punti successivi viene disegnato con un gradiente
+     * che riflette il decadimento temporale (alpha) di ciascun punto.
+     *
+     * @param gc    Contesto grafico.
+     * @param trail La scia da renderizzare.
+     */
+    public static void drawDashTrail(GraphicsContext gc, DashTrail trail) {
+        if (trail == null || trail.isEmpty()) return;
+
+        Deque<DashTrail.TrailPoint> points = trail.getPoints();
+        if (points.size() < 2) return;
+
+        Color accent = ThemeManager.getInstance().getAccentPrimary();
+        Color brightAccent = Color.color(
+                Math.min(1, accent.getRed() + 0.3 * (1 - accent.getRed())),
+                Math.min(1, accent.getGreen() + 0.3 * (1 - accent.getGreen())),
+                Math.min(1, accent.getBlue() + 0.3 * (1 - accent.getBlue())),
+                1.0
+        );
+
+        List<DashTrail.TrailPoint> list = new ArrayList<>(points);
+
+        gc.save();
+        gc.setGlobalBlendMode(BlendMode.ADD);
+        gc.setEffect(GLOW);
+        gc.setLineCap(StrokeLineCap.ROUND);
+
+        for (int i = 1; i < list.size(); i++) {
+            DashTrail.TrailPoint prev = list.get(i - 1);
+            DashTrail.TrailPoint curr = list.get(i);
+
+            double avgAlpha = (prev.alpha() + curr.alpha()) / 2.0;
+            if (avgAlpha <= 0.01) continue;
+
+            // Gradiente dal punto precedente (più vecchio, più trasparente) al corrente
+            Color fromColor = Color.color(accent.getRed(), accent.getGreen(), accent.getBlue(), prev.alpha() * 0.8);
+            Color toColor   = Color.color(brightAccent.getRed(), brightAccent.getGreen(), brightAccent.getBlue(), curr.alpha() * 0.9);
+
+            LinearGradient segGradient = new LinearGradient(
+                    prev.x(), prev.y(), curr.x(), curr.y(),
+                    false, CycleMethod.NO_CYCLE,
+                    new Stop(0.0, fromColor),
+                    new Stop(1.0, toColor)
+            );
+
+            double lineWidth = Math.max(prev.width() * 0.5 * avgAlpha, 2.0);
+            gc.setStroke(segGradient);
+            gc.setLineWidth(lineWidth);
+            gc.strokeLine(prev.x(), prev.y(), curr.x(), curr.y());
         }
 
         gc.restore();

@@ -42,7 +42,7 @@ public class StarryBackgroundCanvas extends Canvas {
 
     /** Inizializza il canvas dello sfondo stellato e configura i listener di ridimensionamento e l'AnimationTimer. */
     public StarryBackgroundCanvas() {
-        this.space = new Starfield(0, 0);
+        this.space = new Starfield();
 
         widthProperty().addListener((obs, old, newWidth) -> {
             if (newWidth.doubleValue() > 0) {

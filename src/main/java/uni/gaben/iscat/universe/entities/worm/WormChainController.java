@@ -10,6 +10,7 @@ import uni.gaben.iscat.universe.entities.parsed.EntityFactory;
 import uni.gaben.iscat.universe.entities.brain.IEntityController;
 import uni.gaben.iscat.universe.entities.brain.steering.SteeringGoal;
 import uni.gaben.iscat.universe.entities.brain.target.Target;
+import org.dyn4j.dynamics.joint.DistanceJoint;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +33,14 @@ public class WormChainController implements IEntityController {
         public EntityBrain brain;
         public boolean isHead;
         public boolean isTail;
+        public DistanceJoint<org.dyn4j.dynamics.Body> jointToLeader;
 
-        public WormSegmentData(EntityModel model, EntityBrain brain, boolean isHead, boolean isTail) {
+        public WormSegmentData(EntityModel model, EntityBrain brain, boolean isHead, boolean isTail, DistanceJoint<org.dyn4j.dynamics.Body> joint) {
             this.model = model;
             this.brain = brain;
             this.isHead = isHead;
             this.isTail = isTail;
+            this.jointToLeader = joint;
         }
     }
 
@@ -66,11 +69,22 @@ public class WormChainController implements IEntityController {
      * Se il segmento non è designato come testa, il suo cervello autonomo viene disattivato per
      * cedere il controllo cinetico esclusivo alle routine del ciclo della catena.
      */
-    public void addSegment(EntityModel model, EntityBrain brain, boolean isHead, boolean isTail) {
+    public void addSegment(EntityModel model, EntityBrain brain, boolean isHead, boolean isTail, UniverseModel universe) {
         if (!isHead && brain != null) {
             brain.setEnabled(false);
         }
-        segments.add(new WormSegmentData(model, brain, isHead, isTail));
+
+        DistanceJoint<org.dyn4j.dynamics.Body> joint = null;
+        if (!segments.isEmpty() && universe != null) {
+            EntityModel leader = segments.getLast().model;
+            Vector2 anchor1 = leader.getTransform().getTranslation();
+            Vector2 anchor2 = model.getTransform().getTranslation();
+            joint = new DistanceJoint<>(leader, model, anchor1, anchor2);
+            joint.setRestDistance(SEGMENT_SPACING);
+            universe.addJoint(joint);
+        }
+
+        segments.add(new WormSegmentData(model, brain, isHead, isTail, joint));
     }
 
     /**
@@ -105,29 +119,6 @@ public class WormChainController implements IEntityController {
         if (deadIndex != -1) {
             handleChainBreak(universe, deadIndex);
         }
-
-        if (segments.isEmpty()) return;
-
-        // Fase 2: Risolutore di vincolo geometrico per il corpo e la coda (Rope Constraint Solver)
-        for (int i = 1; i < segments.size(); i++) {
-            WormSegmentData current = segments.get(i);
-            EntityModel leader = segments.get(i - 1).model;
-
-            Vector2 currentPos = current.model.getTransform().getTranslation();
-            Vector2 leaderPos = leader.getTransform().getTranslation();
-
-            Vector2 toLeader = leaderPos.copy().subtract(currentPos);
-            double distance = toLeader.getMagnitude();
-
-            if (distance > 0.001) {
-                Vector2 direction = toLeader.getNormalized();
-                // Determina la posizione desiderata arretrandola della costante di spaziatura dal leader
-                Vector2 desiredPos = leaderPos.copy().subtract(direction.multiply(SEGMENT_SPACING));
-
-                current.model.getTransform().setTranslation(desiredPos.x, desiredPos.y);
-                current.model.getLinearVelocity().set(leader.getLinearVelocity());
-            }
-        }
     }
 
     /**
@@ -148,6 +139,13 @@ public class WormChainController implements IEntityController {
 
             if (!segments.isEmpty()) {
                 WormSegmentData newHead = segments.getFirst();
+                
+                // Rimuovi il vincolo verso la vecchia testa
+                if (newHead.jointToLeader != null) {
+                    universe.removeJoint(newHead.jointToLeader);
+                    newHead.jointToLeader = null;
+                }
+
                 String newHeadKey = newHead.model.getEntityRecord().entityKey();
 
                 if (newHeadKey.equals(bodyKey)) {
@@ -164,10 +162,19 @@ public class WormChainController implements IEntityController {
         if (deadIndex > 0 && deadIndex < segments.size() - 1) {
             List<WormSegmentData> backPart = new ArrayList<>(segments.subList(deadIndex, segments.size()));
 
-            backPart.removeFirst(); // Rimuove l'elemento effettivamente distrutto
+            WormSegmentData destroyedSegment = backPart.removeFirst(); // Rimuove l'elemento effettivamente distrutto
+            if (destroyedSegment.jointToLeader != null) {
+                universe.removeJoint(destroyedSegment.jointToLeader);
+            }
+
             segments.subList(deadIndex, segments.size()).clear(); // Isola la porzione frontale accorciandola
 
             if (!backPart.isEmpty()) {
+                WormSegmentData firstBack = backPart.getFirst();
+                if (firstBack.jointToLeader != null) {
+                    universe.removeJoint(firstBack.jointToLeader);
+                    firstBack.jointToLeader = null;
+                }
                 handleBackPart(universe, backPart);
             }
         }
@@ -209,8 +216,8 @@ public class WormChainController implements IEntityController {
             // Aggiornamento dei puntatori di riferimento della struttura dati
             segment.model = newHeadModel;
             segment.brain = newHeadBrain;
-            segment.isHead = true;
             segment.isTail = false;
+            segment.jointToLeader = null;
         }
     }
 
@@ -244,6 +251,9 @@ public class WormChainController implements IEntityController {
             // Pulizia di sicurezza: elimina i segmenti orfani bloccati dietro una coda autonoma
             for (int i = 1; i < backPart.size(); i++) {
                 WormSegmentData segment = backPart.get(i);
+                if (segment.jointToLeader != null) {
+                    universe.removeJoint(segment.jointToLeader);
+                }
                 segment.model.completeKill();
                 universe.removeEntity(segment.model);
             }
@@ -268,13 +278,13 @@ public class WormChainController implements IEntityController {
             return;
         }
 
-        newWormChain.addSegment(firstSegment.model, firstSegment.brain, true, false);
+        newWormChain.addSegment(firstSegment.model, firstSegment.brain, true, false, universe);
 
         // Ricatena ricorsivamente tutti i nodi successivi ereditati
         for (int i = 1; i < newSegments.size(); i++) {
             WormSegmentData segment = newSegments.get(i);
             boolean isTail = segment.model.getEntityRecord().entityKey().equals(tailKey);
-            newWormChain.addSegment(segment.model, segment.brain, false, isTail);
+            newWormChain.addSegment(segment.model, segment.brain, false, isTail, universe);
         }
 
         universeController.addEntityController(newWormChain);

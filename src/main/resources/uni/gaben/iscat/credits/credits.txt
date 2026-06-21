@@ -107,11 +107,15 @@ https://opengameart.org/content/cc0-deep-monster-roar
 SneidXK (CC-BY 3.0) - death sound
 https://opengameart.org/content/monster-scream
 
+#TUTTO IL RESTO
+Circosta Gabriele e Benito Gallello
+
 #SPECIAL THANKS
 Aseprite per averci permesso di disegnare
 SceneBuilder per la creazione dei menu tramite FXML
-Inteju per lo sviluppo
+Intej per lo sviluppo
 DYN4J per la fisica
+Craig Reynolds "Steering Behaviours for Autonomous agents" per il sistema di movimenot delle Ai
 I professori del corso
 E tu che stai giocando!
 

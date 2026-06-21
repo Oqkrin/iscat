@@ -1,8 +1,7 @@
 package uni.gaben.iscat.universe.effects;
 
 import uni.gaben.iscat.universe.UniverseSettings;
-import uni.gaben.iscat.universe.entities.AbstractPhysicalEntityModel;
-import uni.gaben.iscat.universe.entities.parsed.EntityRecordBuilder;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,20 +20,13 @@ import java.util.Random;
  * a corpi stellari di magnitudo maggiore.
  * </p>
  */
-public class Starfield extends AbstractPhysicalEntityModel {
+public class Starfield {
 
     /** Elenco interno delle istanze geometriche delle stelle aggregate nel campo visivo. */
     private final List<Star> stars = new ArrayList<>();
 
     /**
-     * Costruisce un nuovo oggetto Starfield ancorato a coordinate spaziali specifiche.
-     * Inizializza la superclasse fisica passando un record di entità vuoto predefinito.
-     *
-     * @param x Coordinata d'origine X del campo stellato.
-     * @param y Coordinata d'origine Y del campo stellato.
-     */
-    public Starfield(double x, double y) {
-        super(x, y, new EntityRecordBuilder().build());
+    public Starfield() {
     }
 
     /** @return La lista contenente tutte le stelle correntemente allocate nello Starfield. */
