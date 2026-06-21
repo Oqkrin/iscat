@@ -15,32 +15,129 @@ import java.util.List;
 
 public class OptimizedLayeredRenderer {
 
-    private record SpriteBatch(Image image, double x, double y, double w, double h, double angle, Color tint) {}
-    private record LineBatch(double x1, double y1, double x2, double y2, double lineWidth, Color color, double alpha) {}
-    private record OvalBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double lineWidth) {}    private record RectBatch(double x, double y, double w, double h, Color color, double alpha, boolean fill, double angle) {}
-    private record PolygonBatch(double[] xPoints, double[] yPoints, Color color, double alpha, boolean fill, double lineWidth) {}
-    record HpBarBatch(double x, double y, double w, double h, double percent) {
-        // === Visuals & Dimensions ===
+    /**
+     * Dati per il rendering di uno sprite strutturato in un colpo solo (Batch).
+     *
+     * @param image L'immagine della texture da disegnare
+     * @param x     Coordinata X centrale nel mondo di gioco
+     * @param y     Coordinata Y centrale nel mondo di gioco
+     * @param w     Larghezza dello sprite sul Canvas
+     * @param h     Altezza dello sprite sul Canvas
+     * @param angle Angolo di rotazione espresso in gradi
+     * @param tint  Colore di overlay da moltiplicare alla texture (opzionale)
+     */
+    private record SpriteBatch(
+            Image image,
+            double x, double y,
+            double w, double h,
+            double angle,
+            Color tint
+    ) {}
+
+    /**
+     * Dati per il rendering ottimizzato di linee geometriche.
+     */
+    private record LineBatch(
+            double x1, double y1,
+            double x2, double y2,
+            double lineWidth,
+            Color color,
+            double alpha
+    ) {}
+
+    /**
+     * Dati per il rendering ottimizzato di ovali e cerchi.
+     */
+    private record OvalBatch(
+            double x, double y,
+            double w, double h,
+            Color color,
+            double alpha,
+            boolean fill,
+            double lineWidth
+    ) {}
+
+    /**
+     * Dati per il rendering ottimizzato di rettangoli o quadrati (anche ruotati).
+     */
+    private record RectBatch(
+            double x, double y,
+            double w, double h,
+            Color color,
+            double alpha,
+            boolean fill,
+            double angle
+    ) {}
+
+    /**
+     * Dati per il rendering strutturato di vettori poligonali complessi.
+     */
+    private record PolygonBatch(
+            double[] xPoints,
+            double[] yPoints,
+            Color color,
+            double alpha,
+            boolean fill,
+            double lineWidth
+    ) {}
+
+    /**
+     * Rappresentazione grafica della barra della salute sopra le entità.
+     */
+    record HpBarBatch(
+            double x, double y,
+            double w, double h,
+            double percent
+    ) {
         public static final double HP_BAR_OFFSET_Y = 10.0;
         public static final double HP_BAR_HEIGHT = 4.0;
     }
-    record TimeGaugeBarBatch(double x, double y, double w, double h, double percent) {
-        // === Visuals & Dimensions ===
-        public static final double TIME_BAR_OFFSET_Y = 6.0; // below HP bar
+
+    /**
+     * Rappresentazione grafica della barra del tempo per abilità o alterazioni.
+     */
+    record TimeGaugeBarBatch(
+            double x, double y,
+            double w, double h,
+            double percent
+    ) {
+        public static final double TIME_BAR_OFFSET_Y = 6.0;
         public static final double TIME_BAR_HEIGHT = 2.0;
     }
-    private record ThrustBatch(double cx, double cy, double angle, Thrust thrust) {}
-    private record ShockwaveBatch(double cx, double cy, Shockwave shockwave, boolean isBlackHole) {}
+
+    /**
+     * Configurazione della scia dei motori di spinta (Thrust VFX).
+     */
+    private record ThrustBatch(
+            double cx, double cy,
+            double angle,
+            Thrust thrust
+    ) {}
+
+    /**
+     * Configurazione delle onde d'urto o degli effetti di distorsione gravitazionale.
+     */
+    private record ShockwaveBatch(
+            double cx, double cy,
+            Shockwave shockwave,
+            boolean isBlackHole
+    ) {}
+
+    /**
+     * Dati aggregati per la scia e la testa dei proiettili luminosi a schermo.
+     */
     record ProjectileBatch(
-            double cx, double cy, double w, double h, Color color,
-            double trailX1, double trailY1, double trailX2, double trailY2,
+            double cx, double cy,
+            double w, double h,
+            Color color,
+            double trailX1, double trailY1,
+            double trailX2, double trailY2,
             double trailWidth
     ) {}
 
-    private static final Effect PROJECTILE_EFFECT = new GaussianBlur();
+    private static final Effect PROJECTILE_EFFECT = new GaussianBlur(3.0);
 
     private final List<ProjectileBatch> projectiles = new ArrayList<>();
-
     private final List<SpriteBatch> sprites = new ArrayList<>();
     private final List<LineBatch> lines = new ArrayList<>();
     private final List<OvalBatch> ovals = new ArrayList<>();
@@ -52,7 +149,6 @@ public class OptimizedLayeredRenderer {
     private final List<ShockwaveBatch> shockwaves = new ArrayList<>();
 
     private GraphicsContext gc;
-    private CameraModel camera;
     private double screenWidth, screenHeight;
     private double zoom, camX, camY;
 
@@ -60,7 +156,6 @@ public class OptimizedLayeredRenderer {
 
     public void begin(GraphicsContext gc, CameraModel camera, double screenWidth, double screenHeight) {
         this.gc = gc;
-        this.camera = camera;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.zoom = camera.getZoom();
@@ -89,33 +184,47 @@ public class OptimizedLayeredRenderer {
         renderLines();
         renderOvals();
         renderRect();
-        renderHPbars();
-        renderTimeGaugeBars();
-        renderShockwaves();
         renderThrusts();
         renderProjectiles();
+        renderShockwaves();
+
+        renderHPbars();
+        renderTimeGaugeBars();
 
         gc.restore();
         gc.setGlobalAlpha(1.0);
+        gc.setEffect(null);
+        gc.setGlobalBlendMode(BlendMode.SRC_OVER);
+    }
+
+    private void renderSprites() {
+        if (sprites.isEmpty()) return;
+
+        sprites.sort(Comparator.comparingInt(a -> a.image().hashCode()));
+
+        gc.setEffect(spriteBloom);
+        for (SpriteBatch s : sprites) {
+            drawTransformedImage(s.image, s.x, s.y, s.w, s.h, s.angle, s.tint);
+        }
+        gc.setEffect(null);
     }
 
     private void renderProjectiles() {
+        if (projectiles.isEmpty()) return;
+
         gc.setEffect(PROJECTILE_EFFECT);
-        gc.setLineCap(StrokeLineCap.ROUND);                     // soft trail ends
+        gc.setLineCap(StrokeLineCap.ROUND);
         for (ProjectileBatch p : projectiles) {
             DrawVFX.drawProjectile(gc, p);
         }
         gc.setEffect(null);
-        gc.setLineCap(StrokeLineCap.SQUARE);   // restore default
-        gc.setGlobalAlpha(1.0);
+        gc.setLineCap(StrokeLineCap.SQUARE);
     }
 
     private void renderThrusts() {
         for (ThrustBatch t : thrusts) {
             DrawVFX.drawThrustRaw(gc, t.cx, t.cy, t.angle, t.thrust);
         }
-        gc.setEffect(null);                     // <<< CLEAR EFFECT
-        gc.setGlobalBlendMode(BlendMode.SRC_OVER); // <<< RESET BLEND MODE
     }
 
     private void renderShockwaves() {
@@ -139,11 +248,11 @@ public class OptimizedLayeredRenderer {
     }
 
     private void renderRect() {
-        // Rects (some may be rotated)
         for (RectBatch r : rects) {
             if (r.angle != 0) {
                 drawRotatedRect(r.x, r.y, r.w, r.h, r.angle, r.fill, r.color, r.alpha);
             } else {
+                gc.setGlobalAlpha(r.alpha);
                 if (r.fill) {
                     gc.setFill(r.color);
                     gc.fillRect(r.x, r.y, r.w, r.h);
@@ -153,6 +262,7 @@ public class OptimizedLayeredRenderer {
                 }
             }
         }
+        gc.setGlobalAlpha(1.0);
     }
 
     private void drawRotatedRect(double x, double y, double w, double h, double angle, boolean fill, Color color, double alpha) {
@@ -172,6 +282,7 @@ public class OptimizedLayeredRenderer {
 
     private void renderOvals() {
         for (OvalBatch o : ovals) {
+            gc.setGlobalAlpha(o.alpha);
             if (o.fill) {
                 gc.setFill(o.color);
                 gc.fillOval(o.x, o.y, o.w, o.h);
@@ -181,20 +292,22 @@ public class OptimizedLayeredRenderer {
                 gc.strokeOval(o.x, o.y, o.w, o.h);
             }
         }
+        gc.setGlobalAlpha(1.0);
     }
 
     private void renderLines() {
-        // Lines
         for (LineBatch l : lines) {
             gc.setStroke(l.color);
             gc.setLineWidth(l.lineWidth);
             gc.setGlobalAlpha(l.alpha);
             gc.strokeLine(l.x1, l.y1, l.x2, l.y2);
         }
+        gc.setGlobalAlpha(1.0);
     }
 
     private void renderPolygons() {
         for (PolygonBatch p : polygons) {
+            gc.setGlobalAlpha(p.alpha);
             if (p.fill) {
                 gc.setFill(p.color);
                 gc.fillPolygon(p.xPoints, p.yPoints, p.xPoints.length);
@@ -205,16 +318,7 @@ public class OptimizedLayeredRenderer {
                 gc.strokePolygon(p.xPoints, p.yPoints, p.xPoints.length);
             }
         }
-
-    }
-
-    private void renderSprites() {
-        sprites.sort(Comparator.comparingInt(a -> a.image().hashCode()));
-        for (SpriteBatch s : sprites) {
-            gc.setEffect(spriteBloom);
-            drawTransformedImage(s.image, s.x, s.y, s.w, s.h, s.angle, s.tint);
-            gc.setEffect(null);
-        }
+        gc.setGlobalAlpha(1.0);
     }
 
     private void drawTransformedImage(Image img, double x, double y, double w, double h, double angle, Color tint) {
@@ -223,51 +327,43 @@ public class OptimizedLayeredRenderer {
         gc.rotate(angle);
         if (tint != null) {
             gc.drawImage(img, -w/2, -h/2, w, h);
-            gc.setGlobalBlendMode(javafx.scene.effect.BlendMode.MULTIPLY);
+            gc.setGlobalBlendMode(BlendMode.MULTIPLY);
             gc.setFill(tint);
             gc.fillRect(-w/2, -h/2, w, h);
-            gc.setGlobalBlendMode(javafx.scene.effect.BlendMode.SRC_OVER);
         } else {
             gc.drawImage(img, -w/2, -h/2, w, h);
         }
         gc.restore();
     }
 
-
     public void addSprite(Image image, double x, double y, double w, double h, double angle, Color tint) {
         sprites.add(new SpriteBatch(image, x, y, w, h, angle, tint));
     }
 
     public void addFilledPolygon(double[] xPoints, double[] yPoints, Color color) {
-        polygons.add(new PolygonBatch(xPoints.clone(), yPoints.clone(), color, 1.0, true, 0));
+        polygons.add(new PolygonBatch(xPoints, yPoints, color, 1.0, true, 0));
     }
 
     public void addStrokedPolygon(double[] xPoints, double[] yPoints, Color color, double lineWidth) {
-        polygons.add(new PolygonBatch(xPoints.clone(), yPoints.clone(), color, 1.0, false, lineWidth));
+        polygons.add(new PolygonBatch(xPoints, yPoints, color, 1.0, false, lineWidth));
     }
 
     public void addLine(double x1, double y1, double x2, double y2, double lineWidth, Color color, double alpha) {
         lines.add(new LineBatch(x1, y1, x2, y2, lineWidth, color, alpha));
     }
 
-    public void addThickLine(double x1, double y1, double x2, double y2, double width, Color color, double alpha) {
-        addLine(x1, y1, x2, y2, width, color, alpha);
-    }
-
     public void addFilledOval(double x, double y, double w, double h, Color color, double alpha) {
         ovals.add(new OvalBatch(x, y, w, h, color, alpha, true, 1.0));
-    }
-
-    public void addFilledRotatedRect(double x, double y, double w, double h, double angle, Color color, double alpha) {
-        rects.add(new RectBatch(x, y, w, h, color, alpha, true, angle));
     }
 
     public void addStrokedOval(double x, double y, double w, double h, Color color) {
         ovals.add(new OvalBatch(x, y, w, h, color, 1.0, false, 1.0));
     }
+
     public void addStrokedOval(double x, double y, double w, double h, Color color, double lineWidth) {
         ovals.add(new OvalBatch(x, y, w, h, color, 1.0, false, lineWidth));
     }
+
     public void addStrokedRect(double x, double y, double w, double h, Color color, double angle) {
         rects.add(new RectBatch(x, y, w, h, color, 1.0, false, angle));
     }
