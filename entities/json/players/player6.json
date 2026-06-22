@@ -1,0 +1,57 @@
+{
+  "EntityKey": "player6",
+  "Name": "Space Goblin",
+  "Description": "Una nave comandata da un mini goblin. Solo chi legge queste descrizioni può sapere che questa nave è la protagonista di ISCAT 2: THE GOBLIN INVASION",
+  "SpriteName": "player6",
+  "BestiaryOrder": 5,
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 2.0,
+  "InitLife": 100,
+  "LinearDamping": 1.0,
+  "mass": 1.0,
+  "MaxVelocity": 9,
+  "MaxForce": 27,
+  "audio": {
+    "attack": ["fake_iscat_attack"],
+    "idle": [],
+    "hurt": [],
+    "death": ["iscat_core_death"],
+    "spawn": []
+  },
+  "player": {
+    "dashImpulse": 35.0,
+    "dashDurationSec": 0.2,
+    "dashCooldownSec": 0.8,
+    "stunDurationSec": 1.0,
+    "baseCooldownSec": 0.3,
+    "levelAbilities": [
+      {
+        "minLevel": 10,
+        "cooldownSec": 0.255,
+        "pattern": { "type": "spread", "count": 5, "angleStepDeg": 45.0 }
+      },
+      {
+        "minLevel": 7,
+        "cooldownSec": 0.27,
+        "pattern": { "type": "spread", "count": 4, "angleStepDeg": 30.0 }
+      },
+      {
+        "minLevel": 4,
+        "cooldownSec": 0.285,
+        "pattern": { "type": "spread", "count": 3, "angleStepDeg": 15.0 }
+      },
+      {
+        "minLevel": 2,
+        "cooldownSec": 0.285,
+        "pattern": { "type": "spread", "count": 2, "angleStepDeg": 15.0 }
+      },
+      {
+        "minLevel": 1,
+        "cooldownSec": 0.3,
+        "pattern": { "type": "singleShot" }
+      }
+    ]
+  }
+}

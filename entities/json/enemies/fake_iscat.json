@@ -1,0 +1,87 @@
+{
+  "EntityKey": "fake_iscat",
+  "Name": "Fake Iscat",
+  "Description": "Era una tranquilla giornata d'autunno\nquando Fake passeggiava tra i campi ricoperti di brina del suo paese.\nImprovvisamente,\nuna luce intensa lo avvolse completamente,\ntrascinandolo in un luogo sconosciuto.\nAl suo risveglio si ritrovò\nall'interno di una struttura simile a un uovo.\nUna volta uscito,\nil suo corpo era cambiato:\nuna fusione anomala tra un Iscat\ne una forma di vita aliena.\nFake Iscat è considerato\nun'entità potenzialmente pericolosa\ne deve essere mantenuto sotto stretta osservazione.\nDeve essere contenuto\nin una cella rinforzata d'acciaio,\nmonitorata 24 ore su 24,\n7 giorni su 7.\nNel suo arsenale possiede\ntre differenti tipi di attacco,\nrendendolo un avversario imprevedibile.\nMolti Space Explorer lo classificano\ncome un mini-boss,\nanche se ufficialmente tale denominazione\nnon è riconosciuta.",
+  "SpriteName": "fake_iscat",
+  "BestiaryOrder": 5,
+  "ThreatLevel": "NORMAL",
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 250,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 11,
+  "MaxForce": 40,
+  "MaxAngularVelocity": 40,
+  "XPReward": 40,
+  "DetectionRange": 40,
+  "CombatRange": 40,
+  "PreferredRange": 40,
+  "actionCooldownS": 800,
+  "AngularOffsetDeg": 90,
+  "Animations": [
+    { "type": "IDLE",        "row": 0, "frames": 19 },
+    { "type": "DEATH",       "row": 1, "frames": 3 }
+  ],
+  "audio": {
+    "attack": [
+      "fake_iscat_attack"
+    ],
+    "idle": [],
+    "hurt": [],
+    "death": [
+      "fake_iscat_death"
+    ],
+    "spawn": []
+  },
+  "ai": {
+    "steering": {
+      "type": "pursuitWithRange",
+      "maxPredictionTime": 2,
+      "minDistance": 3,
+      "maxDistance": 7
+    },
+    "rotation": { "type": "locked" },
+    "abilities": [
+      {
+        "type": "randomizedShoot",
+        "combatRange": 40,
+        "cooldownSec": 2,
+        "bulletType": "ENEMY_BULLET",
+        "aimAtTarget": true,
+        "nerfPrediction": 1,
+        "patterns": [
+          {
+            "type": "spread",
+            "count": 4,
+            "angleStepDeg": 15
+          },
+          {
+            "type": "multiDirection",
+            "count": 8,
+            "angleStepDeg": 0,
+            "pattern": {
+              "type": "singleShot"
+            }
+          },
+          {
+            "type": "repeater",
+            "repeats": 6,
+            "intervalSec": 0.3,
+            "pattern": {
+              "type": "singleShot"
+            }
+          }
+        ]
+      }
+    ],
+    "modifiers": [
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 0.5, "maxPredictionTime": 2, "avoidRadius": 1 },
+      { "type": "separation", "radius": 1, "weight": 0.7 },
+      { "type": "alignment", "radius": 7.5, "weight": 0.5 },
+      { "type": "cohesion", "radius": 7.5, "weight": 0.5 }
+    ]
+  }
+}

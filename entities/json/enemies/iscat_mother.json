@@ -1,0 +1,81 @@
+{
+  "entitykey": "iscat_mother",
+  "name": "Iscat Mother",
+  "description": "Una gigantesca creatura biologica...",
+  "spritename": "iscat_mother",
+  "bestiaryorder": 9,
+  "threatlevel": "HIGH",
+  "framew": 128,
+  "frameh": 128,
+  "shapetype": "CIRCLE",
+  "scale": 3,
+  "initlife": 10000,
+  "lineardamping": 0,
+  "mass": 1,
+  "maxvelocity": 200,
+  "maxforce": 10,
+  "maxangularvelocity": 500,
+  "xpreward": 15,
+  "detectionrange": 50,
+  "combatrange": 15,
+  "preferredrange": 15,
+  "actioncooldowns": 0,
+  "dannoproiettile": 50,
+  "hasentranceanimation": false,
+  "audio": {
+    "attack": [],
+    "idle": ["iscat_mother_idle"],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  },
+  "ai": {
+    "steering": {
+      "type": "pursuitWithRange",
+      "maxpredictiontime": 1,
+      "mindistance": 5,
+      "maxdistance": 15
+    },
+    "rotation": { "type": "target", "target": "player" },
+    "abilities": [
+      {
+        "type": "randomizedShoot",
+        "combatrange": 40,
+        "cooldownsec": 0.8,
+        "bullettype": "ENEMY_BULLET",
+        "aimattarget": true,
+        "nerfprediction": 1,
+        "patterns": [
+          {
+            "type": "spread",
+            "count": 9,
+            "angleStepDeg": 30
+          },
+          {
+            "type": "singleShot",
+            "count": 8
+          }
+        ]
+      },
+      {
+        "type": "randomizedShoot",
+        "combatrange": 500,
+        "cooldownsec": 4.0,
+        "bullettype": "ENEMY_BULLET",
+        "aimattarget": true,
+        "nerfprediction": 0,
+        "patterns": [
+          { "type": "summon", "count": 5, "summonedEntityKey": "iscat_mob", "summonRadiusPx": 100 },
+          { "type": "summon", "count": 2, "summonedEntityKey": "iscat_sun", "summonRadiusPx": 100 },
+          { "type": "summon", "count": 1, "summonedEntityKey": "fake_iscat", "summonRadiusPx": 100 }
+        ]
+      }
+    ],
+    "modifiers": [
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 1, "maxPredictionTime": 2, "avoidRadius": 2.0 },
+      { "type": "separation", "radius": 3.75, "weight": 2 },
+      { "type": "alignment", "radius": 7.0, "weight": 1 },
+      { "type": "cohesion", "radius": 7.0, "weight": 1 }
+    ]
+  }
+}

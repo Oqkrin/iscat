@@ -1,0 +1,50 @@
+{
+  "EntityKey": "player8",
+  "Name": "Radar",
+  "Description": "Una nave dotata di un radar, vede tutto ciò che si muove quando non è comandata da nessuno. eh già...",
+  "SpriteName": "player8",
+  "BestiaryOrder": 7,
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 2.0,
+  "InitLife": 100,
+  "LinearDamping": 1.0,
+  "mass": 1.0,
+  "MaxVelocity": 9,
+  "MaxForce": 27,
+  "player": {
+    "dashImpulse": 35.0,
+    "dashDurationSec": 0.2,
+    "dashCooldownSec": 0.8,
+    "stunDurationSec": 1.0,
+    "baseCooldownSec": 0.3,
+    "levelAbilities": [
+      {
+        "minLevel": 10,
+        "cooldownSec": 0.24,
+        "pattern": { "type": "figure", "figureType": "STAR", "count": 30 }
+      },
+      {
+        "minLevel": 7,
+        "cooldownSec": 0.255,
+        "pattern": { "type": "spread", "count": 7, "angleStepDeg": 45.0 }
+      },
+      {
+        "minLevel": 4,
+        "cooldownSec": 0.27,
+        "pattern": { "type": "spread", "count": 5, "angleStepDeg": 30.0 }
+      },
+      {
+        "minLevel": 2,
+        "cooldownSec": 0.285,
+        "pattern": { "type": "spread", "count": 3, "angleStepDeg": 15.0 }
+      },
+      {
+        "minLevel": 1,
+        "cooldownSec": 0.3,
+        "pattern": { "type": "singleShot" }
+      }
+    ]
+  }
+}

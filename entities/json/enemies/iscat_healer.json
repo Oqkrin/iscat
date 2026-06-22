@@ -1,0 +1,57 @@
+{
+  "EntityKey": "iscat_healer",
+  "Name": "Iscat Healer",
+  "Description": "Iscat Healer raramente combatte da solo.\nPreferisce restare lontano dal caos,\nriparando e sostenendo gli altri Iscat\ncon misteriose energie biologiche.\nMolti Space Explorer raccontano\ndi aver quasi sconfitto un gruppo di Iscat,\nsolo per vedere le loro ferite sparire\nnel giro di pochi istanti.\nDa solo è fragile.\nProtetto da altri Iscat,\npuò trasformare uno scontro semplice\nin un vero incubo.",
+  "SpriteName": "iscat_healer",
+  "BestiaryOrder": 3,
+  "ThreatLevel": "NORMAL",
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 200,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 11,
+  "MaxForce": 30,
+  "MaxAngularVelocity": 1,
+  "XPReward": 100,
+  "DetectionRange": 50,
+  "CombatRange": 25,
+  "PreferredRange": 30,
+  "actionCooldownS": 0,
+  "AngularOffsetDeg": 90,
+  "Animations": [
+    { "type": "IDLE",        "row": 0, "frames": 1 },
+    { "type": "DEATH",       "row": 1, "frames": 1 }
+  ],
+  "audio": {
+    "attack": [],
+    "idle": [],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  },"ai": {
+  "steering": {
+    "type": "pursuitWithRange",
+    "maxPredictionTime": 10,
+    "minDistance": 10,
+    "maxDistance": 25
+  },
+  "rotation": { "type": "locked" },
+  "abilities": [
+    {
+      "type": "heal",
+      "combatRange": 6,
+      "cooldownSec": 0,
+      "healAmount": 1
+    }
+  ],
+  "modifiers": [
+    { "type": "collisionAvoidance", "radius": 7.5, "weight": 0.1, "maxPredictionTime": 2, "avoidRadius": 0.5 },
+    { "type": "separation", "radius": 3.75, "weight": 2 },
+    { "type": "alignment", "radius": 7.5, "weight": 2 },
+    { "type": "cohesion", "radius": 10.0, "weight": 3 }
+  ]
+}
+}

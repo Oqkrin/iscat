@@ -1,0 +1,62 @@
+{
+  "EntityKey": "iscat_sun",
+  "Name": "Iscat Sun",
+  "Description": "Un sole vivente, \n il potere della fusione atomica imbrigliato, emana tempesti solari capaci di manomettere ogni tecnologia evoluta, la morte di una stella non è la sua fine ",
+  "SpriteName": "iscat_sun",
+  "BestiaryOrder": 2,
+  "ThreatLevel": "LOW",
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 150,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 10,
+  "MaxForce": 20,
+  "MaxAngularVelocity": 5,
+  "XPReward": 20,
+  "DetectionRange": 20,
+  "CombatRange": 10,
+  "PreferredRange": 12,
+  "actionCooldownS": 800,
+  "DannoProiettile": 10,
+  "audio": {
+    "attack": [],
+    "idle": [],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  },
+  "ai": {
+    "steering": {
+      "type": "pursuitWithRange",
+      "maxPredictionTime": 5,
+      "minDistance": 3,
+      "maxDistance": 12
+    },
+    "modifiers": [
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 0.1, "maxPredictionTime": 2, "avoidRadius": 0.5 },
+      { "type": "separation", "radius": 1, "weight": 0.7 },
+      { "type": "alignment", "radius": 7.5, "weight": 0.5 },
+      { "type": "cohesion", "radius": 7.5, "weight": 0.5 }
+    ],
+    "rotation": { "type": "target", "target": "player" },
+    "abilities": [
+      {
+        "type": "shoot",
+        "combatRange": 20,
+        "cooldownSec": 0.8,
+        "bulletType": "STUN_BULLET",
+        "aimAtTarget": true,
+        "nerfPrediction": 0,
+        "pattern": {
+          "type": "repeater",
+          "repeats": 12,
+          "intervalSec": 0.08,
+          "pattern": { "type": "singleShot" }
+        }
+      }
+    ]
+  }
+}

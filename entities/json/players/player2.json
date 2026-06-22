@@ -1,0 +1,31 @@
+{
+  "EntityKey": "player2",
+  "Name": "Simple Battle Ship",
+  "Description": "Una nave essenziale, perfetta per i principianti. Simple Battle Ship è la nave piu veloce del Far West! Ah no aspetta... Del Cosmo! NON E' VERO, NON SCEGLIERE QUESTA NAVE, CHI L'HA COSTRUITA ERA UN SADICO! FERMATI",
+  "SpriteName": "player2",
+  "BestiaryOrder": 1,
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 2.0,
+  "InitLife": 50,
+  "LinearDamping": 1.0,
+  "mass": 1.0,
+  "MaxVelocity": 18,
+  "MaxForce": 27,
+  "player": {
+    "dashImpulse": 35.0,
+    "dashDurationSec": 0.2,
+    "dashCooldownSec": 0.8,
+    "stunDurationSec": 1.0,
+    "baseCooldownSec": 0.1,
+    "DannoProiettile": 25,
+    "levelAbilities": [
+      {
+        "minLevel": 1,
+        "cooldownSec": 0.3,
+        "pattern": { "type": "singleShot" }
+      }
+    ]
+  }
+}

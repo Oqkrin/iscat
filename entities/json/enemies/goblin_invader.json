@@ -1,0 +1,68 @@
+{
+  "EntityKey": "goblin_invader",
+  "Name": "Goblin Invader",
+  "Description": "Un nemico che ha usato una tecnologia spazio temporale per studiare come l'Iscat Master usava la gemma del potere per creare gli Iscats. Dato che viene dal futuro nessuna informazione è disponibile. Tuttavia si può notare un comportamento simile al Iscat Core ma più violento",
+  "SpriteName": "goblin_invader",
+  "BestiaryOrder": 14,
+  "ThreatLevel": "EXTREME",
+  "FrameW": 64,
+  "FrameH": 64,
+  "ShapeType": "SQUARE",
+  "Scale": 3,
+  "InitLife": 1000,
+  "LinearDamping": 2,
+  "mass": 1,
+  "MaxVelocity": 14,
+  "MaxForce": 18,
+  "MaxAngularVelocity": 1.5,
+  "XPReward": 75,
+  "DetectionRange": 40,
+  "CombatRange": 20,
+  "PreferredRange": 8,
+  "actionCooldownS": 400,
+  "audio": {
+    "attack": ["iscat_core_attack"],
+    "idle": ["iscat_core_idle"],
+    "hurt": [],
+    "death": ["iscat_core_death"],
+    "spawn": []
+  },
+  "ai": {
+    "steering": { "type": "pursuit" },
+    "rotation": {
+      "type": "intervalSpin",
+      "spinSteps": 8,
+      "stepPauseSec": 1,
+      "spinSpeedRadPerSec": 4.5
+    },
+    "abilities": [
+      {
+        "type": "shoot",
+        "combatRange": 35,
+        "cooldownSec": 0.4,
+        "bulletType": "ENEMY_BULLET",
+        "aimAtTarget": false,
+        "pattern": {
+          "type": "multiDirection",
+          "count": 4,
+          "angleStepDeg": 0,
+          "pattern": {
+            "type": "parallelLine",
+            "count": 3,
+            "angleStepDeg": 32
+          }
+        }
+      },
+      {
+        "type": "melee",
+        "meleeDamage": 45
+      }
+    ],
+    "modifiers": [
+      { "type": "collisionAvoidance", "radius": 7.5, "weight": 5, "maxPredictionTime": 2, "avoidRadius": 3.0 },
+      { "type": "separation", "radius": 3.75, "weight": 4 },
+      { "type": "alignment", "radius": 7.5, "weight": 1 },
+      { "type": "cohesion", "radius": 7.5, "weight": 1 }
+    ]
+  }
+}

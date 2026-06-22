@@ -1,0 +1,55 @@
+{
+  "EntityKey": "iscat_worm_tail",
+  "Name": "Iscat Worm Tail",
+  "Description": "Iscat Worm Tail NON È UNA TAIL.\nQuando Iscat Worm Body Part vede un ##@€# libero e felice,\nlo cattura e lo trasforma nella tail del sistema.\nUna volta intrappolato, ##@€# spara in tutte le direzioni.\nQuesti non sono normali proiettili.Sono le sue agonie,le sue lacrime,i suoi dolori.\nÈ l'ultimo membro del sistema a ricevere il cibo. E il cibo non basta mai.",
+  "SpriteName": "iscat_worm_tail",
+  "BestiaryOrder": 12,
+  "ThreatLevel": "EXTREME",
+  "FrameW": 64,
+  "FrameH": 64,
+  "ShapeType": "CIRCLE",
+  "Scale": 3,
+  "InitLife": 3000,
+  "LinearDamping": 0,
+  "mass": 1,
+  "MaxVelocity": 30,
+  "MaxForce": 90,
+  "MaxAngularVelocity": 5,
+  "XPReward": 200,
+  "DetectionRange": 30,
+  "CombatRange": 15,
+  "PreferredRange": 15,
+  "actionCooldownS": 500,
+  "audio": {
+    "attack": [],
+    "idle": [],
+    "hurt": [],
+    "death": [],
+    "spawn": []
+  },
+  "ai": {
+    "rotation": { "type": "target", "target": "player" },
+    "abilities": [
+      {
+        "type": "randomizedShoot",
+        "combatRange": 15,
+        "cooldownSec": 0.5,
+        "bulletType": "ENEMY_BULLET",
+        "aimAtTarget": true,
+        "nerfPrediction": 3,
+        "patterns": [
+          {
+            "type": "spiral",
+            "count": 8,
+            "angleStepDeg": 22.5
+          }
+        ]
+      }
+    ],
+    "modifiers": [
+      { "type": "separation", "radius": 3.75, "weight": 1 },
+      { "type": "alignment", "radius": 7.5, "weight": 1 },
+      { "type": "cohesion", "radius": 7.5, "weight": 1 }
+    ]
+  }
+}

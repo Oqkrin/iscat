@@ -1,0 +1,51 @@
+{
+  "EntityKey": "player4",
+  "Name": "Iscat Traitor",
+  "Description": "Un Iscat Mob che ha deciso di ribellarsi contro il Master, riuscirà nel suo intento?",
+  "SpriteName": "player4",
+  "BestiaryOrder": 3,
+  "FrameW": 32,
+  "FrameH": 32,
+  "ShapeType": "CIRCLE",
+  "Scale": 2.0,
+  "InitLife": 100,
+  "LinearDamping": 1.0,
+  "mass": 1.0,
+  "MaxVelocity": 9,
+  "MaxForce": 27,
+  "player": {
+    "dashImpulse": 35.0,
+    "dashDurationSec": 0.2,
+    "dashCooldownSec": 0.8,
+    "stunDurationSec": 1.0,
+    "baseCooldownSec": 0.3,
+    "DannoProiettile": 20,
+    "levelAbilities": [
+      {
+        "minLevel": 20,
+        "cooldownSec": 0.22,
+        "pattern": { "type": "varrow", "count": 11, "spacingPx": 1.0, "stepBackPx": 0.04 }
+      },
+      {
+        "minLevel": 15,
+        "cooldownSec": 0.24,
+        "pattern": { "type": "varrow", "count": 9, "spacingPx": 16.0, "stepBackPx": 0.04 }
+      },
+      {
+        "minLevel": 10,
+        "cooldownSec": 0.25,
+        "pattern": { "type": "varrow", "count": 7, "spacingPx": 16.0, "stepBackPx": 0.04 }
+      },
+      {
+        "minLevel": 5,
+        "cooldownSec": 0.27,
+        "pattern": { "type": "varrow", "count": 5, "spacingPx": 16.0, "stepBackPx": 0.04 }
+      },
+      {
+        "minLevel": 1,
+        "cooldownSec": 0.3,
+        "pattern": { "type": "varrow", "count": 3, "spacingPx": 16.0, "stepBackPx": 0.04 }
+      }
+    ]
+  }
+}
