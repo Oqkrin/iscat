@@ -35,7 +35,7 @@ public interface SteeringGoal {
      */
     static SteeringGoal idle() {
         Vector2 idleVelocity = UU.vector2zero();
-        return (_, _, _) -> idleVelocity;
+        return (apme, universe, dt) -> idleVelocity;
     }
 
     /**

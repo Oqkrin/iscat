@@ -32,7 +32,7 @@ public class BlackHoleBrain extends Brain<BlackHoleModel> {
         // Listener Reattivo: ad ogni variazione del raggio, l'azione di gravità precedente viene sostituita
         // istantaneamente per estendere o ridurre l'area di cattura (Aura Query Range) dei corpi rigidi vicini.
         entity.getRadius().m().addListener(
-                (_, _, newRadius) -> replaceAction("gravity",
+                (obs, old, newRadius) -> replaceAction("gravity",
                         new GravityPullAbility(Target.neighbours(entity, (double) newRadius * 10, new DetectFilter<>(true, true, null)))
                 ));
     }

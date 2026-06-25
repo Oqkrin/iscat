@@ -31,7 +31,7 @@ public interface RotationGoal {
     /**
      * @return Un obiettivo di rotazione costante e statico ancorato all'angolo zero nominale.
      */
-    static RotationGoal still()  { return (_, _, _) -> 0.0; }
+    static RotationGoal still()  { return (apem, universe, dt) -> 0.0; }
 
     /**
      * Orienta dinamicamente l'entità verso il suo vettore di movimento.
