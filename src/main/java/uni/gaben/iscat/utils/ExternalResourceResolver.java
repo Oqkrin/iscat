@@ -3,30 +3,23 @@ package uni.gaben.iscat.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Stream;
 
 /**
  * Risolutore globale di risorse esterne e interne del motore grafico.
- * Fornisce un sistema di fallback e override automatico (Modding-friendly):
- * cerca prima i file nella cartella esterna di root (se configurata) e, in caso di assenza,
- * ripiega sulle risorse predefinite integrate nel Classpath (JAR).
  */
 public final class ExternalResourceResolver {
 
     private static Path entitiesRoot = null;
 
-    private ExternalResourceResolver() {
-        /* Questa classe di utilità non deve essere istanziata */
-    }
+    // Il prefisso obbligatorio per tutte le risorse interne nel JAR
+    private static final String INTERNAL_PREFIX = "/uni/gaben/iscat/";
 
-    /**
-     * Inizializza il percorso della directory delle entità esterne.
-     * Da invocare una sola volta all'avvio del gioco (es. {@code ExternalResourceResolver.init(Path.of("./entities"));}).
-     *
-     * @param externalEntitiesDir Il {@link Path} della cartella esterna contenente gli asset custom.
-     */
+    private ExternalResourceResolver() {}
+
     public static void init(Path externalEntitiesDir) {
         if (Files.isDirectory(externalEntitiesDir)) {
             entitiesRoot = externalEntitiesDir;
@@ -41,19 +34,18 @@ public final class ExternalResourceResolver {
     }
 
     /**
-     * Restituisce un {@link InputStream} operativo per un determinato percorso relativo,
-     * applicando la precedenza al file esterno se presente sul disco.
-     *
-     * @param relativePath Il percorso relativo dell'asset (es. "json/enemies/slime.json").
-     * @return L'{@link InputStream} della risorsa, oppure {@code null} se non viene trovata in nessun percorso.
+     * @param relativePath Il percorso relativo breve (es. "json/enemies/slime.json").
      */
     public static InputStream resolve(String relativePath) {
+        // Pulisce eventuali slash iniziali o il prefisso interno se passato per sbaglio
+        String cleanPath = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
+        if (cleanPath.startsWith("uni/gaben/iscat/")) {
+            cleanPath = cleanPath.substring("uni/gaben/iscat/".length());
+        }
+
+        // 1. Cerca nel disco esterno
         if (entitiesRoot != null) {
-            String extPathStr = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
-            if (extPathStr.startsWith("uni/gaben/iscat/")) {
-                extPathStr = extPathStr.substring("uni/gaben/iscat/".length());
-            }
-            Path externalFile = entitiesRoot.resolve(extPathStr);
+            Path externalFile = entitiesRoot.resolve(cleanPath);
             if (Files.isRegularFile(externalFile)) {
                 try {
                     return Files.newInputStream(externalFile);
@@ -63,8 +55,8 @@ public final class ExternalResourceResolver {
             }
         }
 
-        // Fallback sul Classpath interno
-        String cpPath = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
+        // 2. Fallback nel Classpath interno (aggiungendo il prefisso obbligatorio)
+        String cpPath = INTERNAL_PREFIX + cleanPath;
         InputStream is = ExternalResourceResolver.class.getResourceAsStream(cpPath);
         if (is == null) {
             System.err.println("[Resolver] Risorsa non trovata nel Classpath: " + cpPath);
@@ -73,50 +65,49 @@ public final class ExternalResourceResolver {
     }
 
     /**
-     * Scansiona una directory relativa (profondità 1) combinando i file interni con quelli esterni.
-     * Se un file esterno possiede lo stesso identico nome di un file interno, quest'ultimo viene
-     * sovrascitto (override) nella lista finale restituita, permettendo il modding parziale dei dati.
-     *
-     * @param relativeDir La cartella relativa da scansionare (es. "json/enemies").
-     * @param extension   L'estensione dei file da filtrare (es. ".json").
-     * @return Una {@link List} di oggetti {@link Path} assoluti (esterni o mappati dal file system interno).
-     * @throws IOException In caso di errori gravi di accesso ai file system.
+     * @param relativeDir La cartella relativa breve da scansionare (es. "json/enemies").
      */
     public static List<Path> listFiles(String relativeDir, String extension) throws IOException {
-        // LinkedHashMap mantiene l'ordine di inserimento (NomeFile -> Path Assoluto)
         Map<String, Path> resultMap = new LinkedHashMap<>();
 
-        // 1. Scansione dei file interni di default (vengono inseriti per primi)
-        try {
-            URI uri = Objects.requireNonNull(
-                    ExternalResourceResolver.class.getResource("/" + relativeDir),
-                    "Directory interna non trovata nel Classpath: /" + relativeDir
-            ).toURI();
-
-            if ("jar".equals(uri.getScheme())) {
-                // Gestione robusta del FileSystem JAR tramite try-with-resources per evitare resource leak
-                try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
-                    Path internalDir = fs.getPath("/" + relativeDir);
-                    scanDirectory(internalDir, extension, resultMap, false);
-                }
-            } else {
-                Path internalDir = Paths.get(uri);
-                scanDirectory(internalDir, extension, resultMap, false);
-            }
-        } catch (NullPointerException npe) {
-            // Expected: internal classpath directory doesn't exist (e.g. json/custom/).
-            // Will be populated from external folder only.
-        } catch (Exception e) {
-            System.err.println("[Resolver] Errore durante la lettura della directory interna '" + relativeDir + "': " + e.getMessage());
+        // Pulisce il percorso
+        String cleanDir = relativeDir.startsWith("/") ? relativeDir.substring(1) : relativeDir;
+        if (cleanDir.startsWith("uni/gaben/iscat/")) {
+            cleanDir = cleanDir.substring("uni/gaben/iscat/".length());
         }
 
-        // 2. Scansione dei file esterni (sovrascrivono le chiavi omonime inserite dallo step 1)
-        if (entitiesRoot != null) {
-            String extPathStr = relativeDir.startsWith("/") ? relativeDir.substring(1) : relativeDir;
-            if (extPathStr.startsWith("uni/gaben/iscat/")) {
-                extPathStr = extPathStr.substring("uni/gaben/iscat/".length());
+        // 1. Scansione dei file interni di default
+        String internalDirToScan = INTERNAL_PREFIX + cleanDir;
+
+        try {
+            URL resourceUrl = ExternalResourceResolver.class.getResource(internalDirToScan);
+            if (resourceUrl != null) {
+                URI uri = resourceUrl.toURI();
+
+                if ("jar".equals(uri.getScheme())) {
+                    FileSystem fs;
+                    try {
+                        fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                    } catch (FileSystemAlreadyExistsException e) {
+                        fs = FileSystems.getFileSystem(uri);
+                    }
+
+                    Path internalPath = fs.getPath(internalDirToScan);
+                    scanDirectory(internalPath, extension, resultMap, false);
+                } else {
+                    Path internalPath = Paths.get(uri);
+                    scanDirectory(internalPath, extension, resultMap, false);
+                }
+            } else {
+                System.err.println("[Resolver] Attenzione: Directory interna non trovata: " + internalDirToScan);
             }
-            Path extDir = entitiesRoot.resolve(extPathStr);
+        } catch (Exception e) {
+            System.err.println("[Resolver] Errore durante la scansione della directory interna '" + internalDirToScan + "': " + e.getMessage());
+        }
+
+        // 2. Scansione dei file esterni (sovrascrivono i file interni)
+        if (entitiesRoot != null) {
+            Path extDir = entitiesRoot.resolve(cleanDir);
             if (Files.isDirectory(extDir)) {
                 scanDirectory(extDir, extension, resultMap, true);
             }
@@ -125,9 +116,6 @@ public final class ExternalResourceResolver {
         return new ArrayList<>(resultMap.values());
     }
 
-    /**
-     * Esegue la scansione di supporto estraendo i file regolari filtrati per estensione.
-     */
     private static void scanDirectory(Path dir, String extension, Map<String, Path> registry, boolean overwrite) throws IOException {
         try (Stream<Path> walk = Files.walk(dir, 1)) {
             walk.filter(Files::isRegularFile)
@@ -135,9 +123,9 @@ public final class ExternalResourceResolver {
                     .forEach(p -> {
                         String name = p.getFileName().toString();
                         if (overwrite) {
-                            registry.put(name, p); // Sovrascrive l'eventuale risorsa di default
+                            registry.put(name, p);
                         } else {
-                            registry.putIfAbsent(name, p); // Inserisce solo se non presente
+                            registry.putIfAbsent(name, p);
                         }
                     });
         }
