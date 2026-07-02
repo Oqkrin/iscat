@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -287,6 +288,11 @@ public class EntityEditorMenuController implements IscatMenuController {
             EntityRecord record = EntityRecordParser.parse(model.getCurrentJson());
             EntityFactory.addOrUpdateEntity(record);
             model.clearDirty();
+            System.out.println(record.description());
+            if(Pattern.matches(".*esame.*", record.description())) {
+                System.out.println(Pattern.matches(".*esame.*", record.description()));
+                confirmOverlayController.ask("ESAME", "stai modificando quest'entità all'esame", () -> {});
+            }
             refreshUI();
         } catch (Exception e) {
             System.err.println("Failed to parse JSON: " + e.getMessage());

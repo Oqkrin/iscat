@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://cprip2a7s5a8y"]
+
+[ext_resource type="PackedScene" uid="uid://cfdnxb4a0ey4x" path="res://src/main/godot/player.tscn" id="1_xctmn"]
+[ext_resource type="PackedScene" uid="uid://b5arwbqgn6v0h" path="res://src/main/godot/iscat_mob.tscn" id="2_x42rf"]
+
+[node name="iscat" type="Node" unique_id=338643001]
+
+[node name="Player" parent="." unique_id=992109582 groups=["Player"] instance=ExtResource("1_xctmn")]
+position = Vector2(688, 285)
+
+[node name="Iscat_mob" parent="." unique_id=311692274 instance=ExtResource("2_x42rf")]
+position = Vector2(198, 192)
